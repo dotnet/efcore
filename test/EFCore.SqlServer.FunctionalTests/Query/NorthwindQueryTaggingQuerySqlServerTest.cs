@@ -1,18 +1,20 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.TestUtilities;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 using Xunit.Abstractions;
-using System.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindQueryTaggingQuerySqlServerTest : NorthwindQueryTaggingQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    public class NorthwindQueryTaggingQuerySqlServerTest : NorthwindQueryTaggingQueryTestBase<
+        NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         public NorthwindQueryTaggingQuerySqlServerTest(
-            NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+            NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture,
+            ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();

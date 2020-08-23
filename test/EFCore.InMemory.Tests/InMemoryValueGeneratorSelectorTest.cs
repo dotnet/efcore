@@ -140,7 +140,8 @@ namespace Microsoft.EntityFrameworkCore
                 throw new NotImplementedException();
             }
 
-            public override bool GeneratesTemporaryValues => false;
+            public override bool GeneratesTemporaryValues
+                => false;
         }
     }
 }

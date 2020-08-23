@@ -49,7 +49,8 @@ namespace Microsoft.EntityFrameworkCore
 
         protected abstract string ProviderName { get; }
 
-        protected virtual string DefaultOptions => null;
+        protected virtual string DefaultOptions
+            => null;
 
         protected virtual string ActualMessage(Func<IServiceCollection, DbContextOptionsBuilder> optionsActions)
         {

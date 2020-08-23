@@ -20,7 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        protected override bool CanExecuteQueryString => true;
+        protected override bool CanExecuteQueryString
+            => true;
 
         public override async Task Negate_on_binary_expression(bool async)
         {
@@ -1564,7 +1565,7 @@ WHERE [g].[HasSoulPatch] = CAST(1 AS bit)");
             await base.Singleton_Navigation_With_Member_Access(async);
 
             AssertSql(
-                            @"SELECT [g].[CityOfBirthName] AS [B]
+                @"SELECT [g].[CityOfBirthName] AS [B]
 FROM [Tags] AS [t]
 LEFT JOIN [Gears] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])
 WHERE ([g].[Nickname] = N'Marcus') AND (([g].[CityOfBirthName] <> N'Ephyra') OR [g].[CityOfBirthName] IS NULL)");
@@ -5582,7 +5583,8 @@ FROM [Gears] AS [g]
 WHERE [g].[Nickname] <> N'Dom'");
         }
 
-        public override async Task Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation(bool async)
+        public override async Task
+            Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation(bool async)
         {
             await base.Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation(async);
 
@@ -5590,9 +5592,11 @@ WHERE [g].[Nickname] <> N'Dom'");
                 @"");
         }
 
-        public override async Task Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(bool async)
+        public override async Task
+            Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(bool async)
         {
-            await base.Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(async);
+            await base.Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(
+                async);
 
             AssertSql(
                 @"SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note]
@@ -6541,7 +6545,8 @@ WHERE CHARINDEX(CAST(@__someByte_0 AS varbinary(max)), [s].[Banner]) > 0");
         {
             await base.Byte_array_filter_by_length_literal_does_not_cast_on_varbinary_n(async);
 
-            AssertSql(@"SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
+            AssertSql(
+                @"SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
 FROM [Squads] AS [s]
 WHERE DATALENGTH([s].[Banner5]) = 5");
         }
@@ -6640,7 +6645,8 @@ FROM [Gears] AS [g]");
         {
             await base.Byte_array_filter_by_SequenceEqual(isAsync);
 
-            AssertSql(@"@__byteArrayParam_0='0x0405060708' (Size = 5)
+            AssertSql(
+                @"@__byteArrayParam_0='0x0405060708' (Size = 5)
 
 SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
 FROM [Squads] AS [s]
@@ -6835,7 +6841,8 @@ CROSS JOIN [LocustLeaders] AS [l]
 WHERE CHARINDEX(CAST([l].[ThreatLevelByte] AS varbinary(max)), [s].[Banner]) > 0");
         }
 
-        public override async Task Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion(bool async)
+        public override async Task Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion(
+            bool async)
         {
             await base.Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion(async);
 
@@ -6852,7 +6859,8 @@ CROSS APPLY (
 ) AS [t]");
         }
 
-        public override async Task Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion_negated(bool async)
+        public override async Task Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion_negated(
+            bool async)
         {
             await base.Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion_negated(async);
 
@@ -7030,7 +7038,8 @@ LEFT JOIN [Weapons] AS [w] ON ([g].[FullName] <> [w].[OwnerFullName]) OR [w].[Ow
 ORDER BY [g].[Nickname], [w].[Id]");
         }
 
-        public override async Task SelectMany_predicate_after_navigation_with_non_equality_comparison_DefaultIfEmpty_converted_to_left_join(bool async)
+        public override async Task SelectMany_predicate_after_navigation_with_non_equality_comparison_DefaultIfEmpty_converted_to_left_join(
+            bool async)
         {
             await base.SelectMany_predicate_after_navigation_with_non_equality_comparison_DefaultIfEmpty_converted_to_left_join(async);
 

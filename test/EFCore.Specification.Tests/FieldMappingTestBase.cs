@@ -8,7 +8,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -22,7 +21,8 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class FieldMappingTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : FieldMappingTestBase<TFixture>.FieldMappingFixtureBase, new()
     {
-        protected FieldMappingTestBase(TFixture fixture) => Fixture = fixture;
+        protected FieldMappingTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
@@ -174,7 +174,12 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var principal = context.Set<OneToOneFieldNavPrincipal>().OrderBy(e => e.Id).First();
-                var dependent1 = new NavDependent { Id = 1, Name = "FirstName", OneToOneFieldNavPrincipal = principal };
+                var dependent1 = new NavDependent
+                {
+                    Id = 1,
+                    Name = "FirstName",
+                    OneToOneFieldNavPrincipal = principal
+                };
                 context.Set<NavDependent>().Add(dependent1);
                 context.SaveChanges();
 
@@ -184,7 +189,12 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal("FirstName", dependentName);
 
                 // use the backing field directly
-                var dependent2 = new NavDependent { Id = 2, Name = "SecondName", OneToOneFieldNavPrincipal = principal };
+                var dependent2 = new NavDependent
+                {
+                    Id = 2,
+                    Name = "SecondName",
+                    OneToOneFieldNavPrincipal = principal
+                };
                 principal._unconventionalDependent = dependent2;
                 context.SaveChanges();
 
@@ -1297,11 +1307,14 @@ namespace Microsoft.EntityFrameworkCore
             private ObservableCollection<PostReadOnly> _posts;
 
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
-            public int Id => _id;
+            public int Id
+                => _id;
 
-            public string Title => _title;
+            public string Title
+                => _title;
 
-            public IEnumerable<PostReadOnly> Posts => _posts;
+            public IEnumerable<PostReadOnly> Posts
+                => _posts;
 
             int IBlogAccessor.AccessId
             {
@@ -1330,13 +1343,17 @@ namespace Microsoft.EntityFrameworkCore
             private BlogReadOnly _blog;
 
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
-            public int Id => _id;
+            public int Id
+                => _id;
 
-            public string Title => _title;
+            public string Title
+                => _title;
 
-            public int BlogId => _blogId;
+            public int BlogId
+                => _blogId;
 
-            public BlogReadOnly Blog => _blog;
+            public BlogReadOnly Blog
+                => _blog;
 
             int IPostAccessor.AccessId
             {
@@ -1370,11 +1387,14 @@ namespace Microsoft.EntityFrameworkCore
             private ICollection<PostWithReadOnlyCollection> _posts;
 
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
-            public int Id => _id;
+            public int Id
+                => _id;
 
-            public string Title => _title;
+            public string Title
+                => _title;
 
-            public IReadOnlyCollection<PostWithReadOnlyCollection> Posts => (IReadOnlyCollection<PostWithReadOnlyCollection>)_posts;
+            public IReadOnlyCollection<PostWithReadOnlyCollection> Posts
+                => (IReadOnlyCollection<PostWithReadOnlyCollection>)_posts;
 
             int IBlogAccessor.AccessId
             {
@@ -1403,13 +1423,17 @@ namespace Microsoft.EntityFrameworkCore
             private BlogWithReadOnlyCollection _blog;
 
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
-            public int Id => _id;
+            public int Id
+                => _id;
 
-            public string Title => _title;
+            public string Title
+                => _title;
 
-            public int BlogId => _blogId;
+            public int BlogId
+                => _blogId;
 
-            public BlogWithReadOnlyCollection Blog => _blog;
+            public BlogWithReadOnlyCollection Blog
+                => _blog;
 
             int IPostAccessor.AccessId
             {
@@ -1443,11 +1467,14 @@ namespace Microsoft.EntityFrameworkCore
             private Collection<PostReadOnlyExplicit> _myposts;
 
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
-            public int Id => _myid;
+            public int Id
+                => _myid;
 
-            public string Title => _mytitle;
+            public string Title
+                => _mytitle;
 
-            public IEnumerable<PostReadOnlyExplicit> Posts => _myposts;
+            public IEnumerable<PostReadOnlyExplicit> Posts
+                => _myposts;
 
             int IBlogAccessor.AccessId
             {
@@ -1476,13 +1503,17 @@ namespace Microsoft.EntityFrameworkCore
             private BlogReadOnlyExplicit _myblog;
 
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
-            public int Id => _myid;
+            public int Id
+                => _myid;
 
-            public string Title => _mytitle;
+            public string Title
+                => _mytitle;
 
-            public int BlogId => _myblogId;
+            public int BlogId
+                => _myblogId;
 
-            public BlogReadOnlyExplicit Blog => _myblog;
+            public BlogReadOnlyExplicit Blog
+                => _myblog;
 
             int IPostAccessor.AccessId
             {
@@ -1931,9 +1962,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
+
             public string Name { get; set; }
 
             public NavDependent _unconventionalDependent; // won't be picked up by convention
+
             public NavDependent Dependent
             {
                 get => throw new NotImplementedException("Invalid attempt to access Dependent getter");
@@ -1945,12 +1978,14 @@ namespace Microsoft.EntityFrameworkCore
         {
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
+
             public string Name { get; set; }
 
             public OneToOneFieldNavPrincipal OneToOneFieldNavPrincipal { get; set; }
         }
 
-        protected DbContext CreateContext() => Fixture.CreateContext();
+        protected DbContext CreateContext()
+            => Fixture.CreateContext();
 
         public abstract class FieldMappingFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
@@ -2152,7 +2187,9 @@ namespace Microsoft.EntityFrameworkCore
                         context.Add(CreateBlogAndPosts<BlogReadOnly, PostReadOnly>(new ObservableCollection<PostReadOnly>()));
                         context.AddRange(CreatePostsAndBlog<BlogReadOnly, PostReadOnly>());
 
-                        context.Add(CreateBlogAndPosts<BlogWithReadOnlyCollection, PostWithReadOnlyCollection>(new ObservableCollection<PostWithReadOnlyCollection>()));
+                        context.Add(
+                            CreateBlogAndPosts<BlogWithReadOnlyCollection, PostWithReadOnlyCollection>(
+                                new ObservableCollection<PostWithReadOnlyCollection>()));
                         context.AddRange(CreatePostsAndBlog<BlogWithReadOnlyCollection, PostWithReadOnlyCollection>());
 
                         context.Add(CreateBlogAndPosts<BlogReadOnlyExplicit, PostReadOnlyExplicit>(new Collection<PostReadOnlyExplicit>()));

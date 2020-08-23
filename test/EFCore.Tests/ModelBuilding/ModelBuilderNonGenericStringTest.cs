@@ -115,7 +115,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 return this;
             }
 
-            public override string GetDisplayName(Type entityType) => entityType.FullName;
+            public override string GetDisplayName(Type entityType)
+                => entityType.FullName;
         }
 
         private class NonGenericStringTestEntityTypeBuilder<TEntity> : NonGenericTestEntityTypeBuilder<TEntity>
@@ -237,17 +238,21 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             public NonGenericStringTestReferenceReferenceBuilder HasForeignKey(
-                string dependentEntityTypeName, params string[] foreignKeyPropertyNames)
+                string dependentEntityTypeName,
+                params string[] foreignKeyPropertyNames)
                 => new NonGenericStringTestReferenceReferenceBuilder(
                     ReferenceReferenceBuilder.HasForeignKey(dependentEntityTypeName, foreignKeyPropertyNames));
 
             public NonGenericStringTestReferenceReferenceBuilder HasPrincipalKey(
-                string principalEntityTypeName, params string[] keyPropertyNames)
+                string principalEntityTypeName,
+                params string[] keyPropertyNames)
                 => new NonGenericStringTestReferenceReferenceBuilder
                     (ReferenceReferenceBuilder.HasPrincipalKey(principalEntityTypeName, keyPropertyNames));
 
             private ReferenceReferenceBuilder ReferenceReferenceBuilder { get; }
-            public IMutableForeignKey Metadata => ReferenceReferenceBuilder.Metadata;
+
+            public IMutableForeignKey Metadata
+                => ReferenceReferenceBuilder.Metadata;
         }
 
         private class NonGenericStringTestReferenceCollectionBuilder
@@ -258,7 +263,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             private ReferenceCollectionBuilder ReferenceCollectionBuilder { get; }
-            public IMutableForeignKey Metadata => ReferenceCollectionBuilder.Metadata;
+
+            public IMutableForeignKey Metadata
+                => ReferenceCollectionBuilder.Metadata;
         }
 
         private class NonGenericStringTestOwnedNavigationBuilder<TEntity, TDependentEntity>

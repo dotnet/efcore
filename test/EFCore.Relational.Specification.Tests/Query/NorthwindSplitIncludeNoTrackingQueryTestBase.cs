@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -109,8 +108,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var orders
                 = async
-                    ? await context.Set<Order>().Include(o => o.Customer).AsNoTracking().AsSplitQuery().Where(o => o.CustomerID == "ALFKI").ToListAsync()
-                    : context.Set<Order>().Include(o => o.Customer).AsNoTracking().AsSplitQuery().Where(o => o.CustomerID == "ALFKI").ToList();
+                    ? await context.Set<Order>().Include(o => o.Customer).AsNoTracking().AsSplitQuery().Where(o => o.CustomerID == "ALFKI")
+                        .ToListAsync()
+                    : context.Set<Order>().Include(o => o.Customer).AsNoTracking().AsSplitQuery().Where(o => o.CustomerID == "ALFKI")
+                        .ToList();
 
             Assert.Equal(6, orders.Count);
             Assert.True(orders.All(o => !ReferenceEquals(o.Customer, customer)));

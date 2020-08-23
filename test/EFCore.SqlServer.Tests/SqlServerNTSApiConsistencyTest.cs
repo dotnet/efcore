@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
                 return true;
             }
 
-            public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>()
+            public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>
             {
                 typeof(SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions),
                 typeof(SqlServerNetTopologySuiteServiceCollectionExtensions)

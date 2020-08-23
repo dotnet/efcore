@@ -121,8 +121,7 @@ namespace Microsoft.EntityFrameworkCore
                 var principal = context.Add(
                         new NullablePrincipal
                         {
-                            Id = 1,
-                            Dependents = new List<NonNullableDependent> { new NonNullableDependent { Id = 1 } }
+                            Id = 1, Dependents = new List<NonNullableDependent> { new NonNullableDependent { Id = 1 } }
                         })
                     .Entity;
 
@@ -210,11 +209,15 @@ namespace Microsoft.EntityFrameworkCore
         protected class Email
         {
             private readonly string _value;
-            private Email(string value) => _value = value;
 
-            public static Email Create(string value) => new Email(value);
+            private Email(string value)
+                => _value = value;
 
-            public static implicit operator string(Email email) => email._value;
+            public static Email Create(string value)
+                => new Email(value);
+
+            public static implicit operator string(Email email)
+                => email._value;
         }
 
         [ConditionalFact]
@@ -246,7 +249,9 @@ namespace Microsoft.EntityFrameworkCore
 
         protected struct Fuel
         {
-            public Fuel(double volume) => Volume = volume;
+            public Fuel(double volume)
+                => Volume = volume;
+
             public double Volume { get; }
         }
 
@@ -364,7 +369,8 @@ namespace Microsoft.EntityFrameworkCore
                 return new OrderId(stringValue);
             }
 
-            public static explicit operator string(OrderId orderId) => orderId.StringValue;
+            public static explicit operator string(OrderId orderId)
+                => orderId.StringValue;
         }
 
         [ConditionalTheory]
@@ -486,7 +492,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Where_bool_with_value_conversion_inside_comparison_doesnt_get_converted_twice()
         {
             using var context = CreateContext();
-            var query1 = context.Set<Blog>().Where(b => b.IsVisible == true).ToList();
+            var query1 = context.Set<Blog>().Where(b => b.IsVisible).ToList();
             var query2 = context.Set<Blog>().Where(b => b.IsVisible != true).ToList();
 
             var result1 = Assert.Single(query1);
@@ -619,7 +625,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Contains(
                 @"Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
                 Assert.Throws<InvalidOperationException>(
-                    () => context.Set<CollectionScalar>().Where(e => e.Tags.Any()).ToList())
+                        () => context.Set<CollectionScalar>().Where(e => e.Tags.Any()).ToList())
                     .Message.Replace("\r", "").Replace("\n", ""));
         }
 
@@ -631,7 +637,7 @@ namespace Microsoft.EntityFrameworkCore
                 CoreStrings.TranslationFailed(
                     @"DbSet<CollectionScalar>()    .Where(c => c.Tags.Count == 2)"),
                 Assert.Throws<InvalidOperationException>(
-                    () => context.Set<CollectionScalar>().Where(e => e.Tags.Count == 2).ToList())
+                        () => context.Set<CollectionScalar>().Where(e => e.Tags.Count == 2).ToList())
                     .Message.Replace("\r", "").Replace("\n", ""));
         }
 
@@ -649,7 +655,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Contains(
                 @"Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
                 Assert.Throws<InvalidOperationException>(
-                    () => context.Set<CollectionEnum>().Where(e => e.Roles.Contains(sameRole)).ToList())
+                        () => context.Set<CollectionEnum>().Where(e => e.Roles.Contains(sameRole)).ToList())
                     .Message.Replace("\r", "").Replace("\n", ""));
         }
 
@@ -665,7 +671,7 @@ namespace Microsoft.EntityFrameworkCore
             Seller
         }
 
-        public override void Object_to_string_conversion() {}
+        public override void Object_to_string_conversion() { }
 
         [ConditionalFact]
         public virtual void Optional_owned_with_converter_reading_non_nullable_column()
@@ -687,6 +693,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             public int Value { get; set; }
         }
+
         public abstract class CustomConvertersFixtureBase : BuiltInDataTypesFixtureBase
         {
             protected override string StoreName { get; } = "CustomConverters";
@@ -1127,25 +1134,27 @@ namespace Microsoft.EntityFrameworkCore
                             s => s.Split(',', StringSplitOptions.None).ToList(),
                             new ValueComparer<List<string>>(favorStructuralComparisons: true));
 
-                        b.HasData(new CollectionScalar
-                        {
-                            Id = 1,
-                            Tags = new List<string> { "A", "B", "C" }
-                        });
+                        b.HasData(
+                            new CollectionScalar
+                            {
+                                Id = 1,
+                                Tags = new List<string>
+                                {
+                                    "A",
+                                    "B",
+                                    "C"
+                                }
+                            });
                     });
 
                 modelBuilder.Entity<CollectionEnum>(
                     b =>
                     {
                         b.Property(e => e.Roles).HasConversion(
-                                new RolesToStringConveter(),
-                                new ValueComparer<ICollection<Roles>>(favorStructuralComparisons: true));
+                            new RolesToStringConveter(),
+                            new ValueComparer<ICollection<Roles>>(favorStructuralComparisons: true));
 
-                        b.HasData(new CollectionEnum
-                        {
-                            Id = 1,
-                            Roles = new List<Roles> { Roles.Seller }
-                        });
+                        b.HasData(new CollectionEnum { Id = 1, Roles = new List<Roles> { Roles.Seller } });
                     });
 
                 modelBuilder.Entity<Parent>(
@@ -1214,11 +1223,13 @@ namespace Microsoft.EntityFrameworkCore
             private class RolesToStringConveter : ValueConverter<ICollection<Roles>, string>
             {
                 public RolesToStringConveter()
-                    : base(v => string.Join(";", v.Select(f => f.ToString())),
-                          v => v.Length > 0
+                    : base(
+                        v => string.Join(";", v.Select(f => f.ToString())),
+                        v => v.Length > 0
                             ? v.Split(new[] { ';' }).Select(f => (Roles)Enum.Parse(typeof(Roles), f)).ToList()
-                          : new List<Roles>())
-                { }
+                            : new List<Roles>())
+                {
+                }
             }
         }
     }

@@ -220,7 +220,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 },
                 {
                     RelationalAnnotationNames.Collation,
-                    ("Some Collation", $@"{columnMapping}{_nl}.{nameof(RelationalPropertyBuilderExtensions.UseCollation)}(""Some Collation"")")
+                    ("Some Collation",
+                        $@"{columnMapping}{_nl}.{nameof(RelationalPropertyBuilderExtensions.UseCollation)}(""Some Collation"")")
                 }
             };
 
@@ -307,7 +308,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
 
             public virtual void TestGenerateEntityTypeAnnotations(
-                string builderName, IEntityType entityType, IndentedStringBuilder stringBuilder)
+                string builderName,
+                IEntityType entityType,
+                IndentedStringBuilder stringBuilder)
                 => GenerateEntityTypeAnnotations(builderName, entityType, stringBuilder);
 
             public virtual void TestGeneratePropertyAnnotations(IProperty property, IndentedStringBuilder stringBuilder)
@@ -428,11 +431,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         Table = "T1",
                         ClrType = typeof(PropertyEntry)
                     },
-                    new InsertDataOperation()
+                    new InsertDataOperation
                     {
                         Table = "T1",
-                        Columns = new string[] {"Id", "C2", "C3"},
-                        Values = new object[,] { { 1, null, -1} }
+                        Columns = new[] { "Id", "C2", "C3" },
+                        Values = new object[,] { { 1, null, -1 } }
                     }
                 },
                 Array.Empty<MigrationOperation>());
@@ -482,13 +485,14 @@ namespace MyNamespace
             var modelBuilder = new ModelBuilder();
             modelBuilder.HasAnnotation("Some:EnumValue", RegexOptions.Multiline);
             modelBuilder.HasAnnotation(RelationalAnnotationNames.DbFunctions, new object());
-            modelBuilder.Entity("T1", eb =>
-            {
-                eb.Property<int>("Id");
-                eb.Property<string>("C2").IsRequired();
-                eb.Property<int>("C3");
-                eb.HasKey("Id");
-            });
+            modelBuilder.Entity(
+                "T1", eb =>
+                {
+                    eb.Property<int>("Id");
+                    eb.Property<string>("C2").IsRequired();
+                    eb.Property<int>("C3");
+                    eb.HasKey("Id");
+                });
 
             var migrationMetadataCode = generator.GenerateMetadata(
                 "MyNamespace",

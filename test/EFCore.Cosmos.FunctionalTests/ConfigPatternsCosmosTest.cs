@@ -153,7 +153,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
         public class CosmosFixture : ServiceProviderFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => CosmosTestStoreFactory.Instance;
         }
     }
 }

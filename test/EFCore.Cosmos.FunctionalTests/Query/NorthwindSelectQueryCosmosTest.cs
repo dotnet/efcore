@@ -1101,7 +1101,8 @@ WHERE (c[""Discriminator""] = ""Order"")");
         {
             await base.Reverse_changes_asc_order_to_desc(async);
 
-            AssertSql(@"SELECT c[""EmployeeID""]
+            AssertSql(
+                @"SELECT c[""EmployeeID""]
 FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")
 ORDER BY c[""EmployeeID""] DESC");
@@ -1111,7 +1112,8 @@ ORDER BY c[""EmployeeID""] DESC");
         {
             await base.Reverse_changes_desc_order_to_asc(async);
 
-            AssertSql(@"SELECT c[""EmployeeID""]
+            AssertSql(
+                @"SELECT c[""EmployeeID""]
 FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")
 ORDER BY c[""EmployeeID""]");
@@ -1149,7 +1151,7 @@ ORDER BY c[""CustomerID""]");
         public override Task Reverse_without_explicit_ordering_throws(bool async)
         {
             return AssertTranslationFailedWithDetails(
-               () => base.Reverse_without_explicit_ordering_throws(async), CosmosStrings.MissingOrderingInSqlExpression);
+                () => base.Reverse_without_explicit_ordering_throws(async), CosmosStrings.MissingOrderingInSqlExpression);
         }
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]

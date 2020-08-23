@@ -114,7 +114,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             protected EntityTypeBuilder EntityTypeBuilder { get; }
-            public override IMutableEntityType Metadata => EntityTypeBuilder.Metadata;
+
+            public override IMutableEntityType Metadata
+                => EntityTypeBuilder.Metadata;
 
             protected virtual NonGenericTestEntityTypeBuilder<TEntity> Wrap(EntityTypeBuilder entityTypeBuilder)
                 => new NonGenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder);
@@ -186,9 +188,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     EntityTypeBuilder.OwnsOne(typeof(TRelatedEntity), navigationName));
 
             public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(
-                string entityTypeName, string navigationName)
+                string entityTypeName,
+                string navigationName)
                 => new NonGenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(
                     EntityTypeBuilder.OwnsOne(entityTypeName, typeof(TRelatedEntity), navigationName));
+
             public override TestEntityTypeBuilder<TEntity> OwnsOne<TRelatedEntity>(
                 string navigationName,
                 Action<TestOwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
@@ -197,6 +201,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         typeof(TRelatedEntity),
                         navigationName,
                         r => buildAction(new NonGenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(r))));
+
             public override TestEntityTypeBuilder<TEntity> OwnsOne<TRelatedEntity>(
                 string entityTypeName,
                 string navigationName,
@@ -217,7 +222,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 string entityTypeName,
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression)
                 => new NonGenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(
-                    EntityTypeBuilder.OwnsOne(entityTypeName, typeof(TRelatedEntity), navigationExpression.GetMemberAccess().GetSimpleMemberName()));
+                    EntityTypeBuilder.OwnsOne(
+                        entityTypeName, typeof(TRelatedEntity), navigationExpression.GetMemberAccess().GetSimpleMemberName()));
 
             public override TestEntityTypeBuilder<TEntity> OwnsOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression,
@@ -242,6 +248,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsMany<TRelatedEntity>(string navigationName)
                 => new NonGenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(
                     EntityTypeBuilder.OwnsMany(typeof(TRelatedEntity), navigationName));
+
             public override TestEntityTypeBuilder<TEntity> OwnsMany<TRelatedEntity>(
                 string navigationName,
                 Action<TestOwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
@@ -252,9 +259,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         r => buildAction(new NonGenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(r))));
 
             public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsMany<TRelatedEntity>(
-                string entityTypeName, string navigationName)
+                string entityTypeName,
+                string navigationName)
                 => new NonGenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(
                     EntityTypeBuilder.OwnsMany(entityTypeName, typeof(TRelatedEntity), navigationName));
+
             public override TestEntityTypeBuilder<TEntity> OwnsMany<TRelatedEntity>(
                 string entityTypeName,
                 string navigationName,
@@ -275,7 +284,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 string entityTypeName,
                 Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression)
                 => new NonGenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(
-                    EntityTypeBuilder.OwnsMany(entityTypeName, typeof(TRelatedEntity), navigationExpression.GetMemberAccess().GetSimpleMemberName()));
+                    EntityTypeBuilder.OwnsMany(
+                        entityTypeName, typeof(TRelatedEntity), navigationExpression.GetMemberAccess().GetSimpleMemberName()));
 
             public override TestEntityTypeBuilder<TEntity> OwnsMany<TRelatedEntity>(
                 Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression,
@@ -365,7 +375,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestEntityTypeBuilder<TEntity> HasNoDiscriminator()
                 => Wrap(EntityTypeBuilder.HasNoDiscriminator());
 
-            public EntityTypeBuilder Instance => EntityTypeBuilder;
+            public EntityTypeBuilder Instance
+                => EntityTypeBuilder;
         }
 
         protected class NonGenericTestDiscriminatorBuilder<TDiscriminator> : TestDiscriminatorBuilder<TDiscriminator>
@@ -407,7 +418,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             protected OwnedEntityTypeBuilder OwnedEntityTypeBuilder { get; }
 
-            public OwnedEntityTypeBuilder Instance => OwnedEntityTypeBuilder;
+            public OwnedEntityTypeBuilder Instance
+                => OwnedEntityTypeBuilder;
         }
 
         protected class NonGenericTestPropertyBuilder<TProperty> : TestPropertyBuilder<TProperty>, IInfrastructure<PropertyBuilder>
@@ -419,7 +431,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             private PropertyBuilder PropertyBuilder { get; }
 
-            public override IMutableProperty Metadata => PropertyBuilder.Metadata;
+            public override IMutableProperty Metadata
+                => PropertyBuilder.Metadata;
 
             public override TestPropertyBuilder<TProperty> HasAnnotation(string annotation, object value)
                 => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasAnnotation(annotation, value));
@@ -485,7 +498,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestPropertyBuilder<TProperty> HasConversion(ValueConverter converter)
                 => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion(converter));
 
-            PropertyBuilder IInfrastructure<PropertyBuilder>.Instance => PropertyBuilder;
+            PropertyBuilder IInfrastructure<PropertyBuilder>.Instance
+                => PropertyBuilder;
         }
 
         protected class NonGenericTestNavigationBuilder : TestNavigationBuilder
@@ -522,12 +536,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             private KeyBuilder KeyBuilder { get; }
 
-            public override IMutableKey Metadata => KeyBuilder.Metadata;
+            public override IMutableKey Metadata
+                => KeyBuilder.Metadata;
 
             public override TestKeyBuilder<TEntity> HasAnnotation(string annotation, object value)
                 => new NonGenericTestKeyBuilder<TEntity>(KeyBuilder.HasAnnotation(annotation, value));
 
-            KeyBuilder IInfrastructure<KeyBuilder>.Instance => KeyBuilder;
+            KeyBuilder IInfrastructure<KeyBuilder>.Instance
+                => KeyBuilder;
         }
 
         public class NonGenericTestIndexBuilder<TEntity> : TestIndexBuilder<TEntity>, IInfrastructure<IndexBuilder>
@@ -538,7 +554,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             private IndexBuilder IndexBuilder { get; }
-            public override IMutableIndex Metadata => IndexBuilder.Metadata;
+
+            public override IMutableIndex Metadata
+                => IndexBuilder.Metadata;
 
             public override TestIndexBuilder<TEntity> HasAnnotation(string annotation, object value)
                 => new NonGenericTestIndexBuilder<TEntity>(IndexBuilder.HasAnnotation(annotation, value));
@@ -546,7 +564,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestIndexBuilder<TEntity> IsUnique(bool isUnique = true)
                 => new NonGenericTestIndexBuilder<TEntity>(IndexBuilder.IsUnique(isUnique));
 
-            IndexBuilder IInfrastructure<IndexBuilder>.Instance => IndexBuilder;
+            IndexBuilder IInfrastructure<IndexBuilder>.Instance
+                => IndexBuilder;
         }
 
         protected class
@@ -628,7 +647,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public ReferenceCollectionBuilder ReferenceCollectionBuilder { get; }
 
-            public override IMutableForeignKey Metadata => ReferenceCollectionBuilder.Metadata;
+            public override IMutableForeignKey Metadata
+                => ReferenceCollectionBuilder.Metadata;
 
             public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> HasForeignKey(
                 Expression<Func<TRelatedEntity, object>> foreignKeyExpression)
@@ -674,7 +694,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             protected ReferenceReferenceBuilder ReferenceReferenceBuilder { get; }
 
-            public override IMutableForeignKey Metadata => ReferenceReferenceBuilder.Metadata;
+            public override IMutableForeignKey Metadata
+                => ReferenceReferenceBuilder.Metadata;
 
             protected virtual NonGenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity> Wrap(
                 ReferenceReferenceBuilder referenceReferenceBuilder)
@@ -685,14 +706,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
                 Expression<Func<TDependentEntity, object>> foreignKeyExpression)
-                => Wrap(ReferenceReferenceBuilder.HasForeignKey(
-                    typeof(TDependentEntity),
-                    foreignKeyExpression.GetMemberAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
+                => Wrap(
+                    ReferenceReferenceBuilder.HasForeignKey(
+                        typeof(TDependentEntity),
+                        foreignKeyExpression.GetMemberAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(
                 Expression<Func<TPrincipalEntity, object>> keyExpression)
-                => Wrap(ReferenceReferenceBuilder.HasPrincipalKey(
-                    typeof(TPrincipalEntity), keyExpression.GetMemberAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
+                => Wrap(
+                    ReferenceReferenceBuilder.HasPrincipalKey(
+                        typeof(TPrincipalEntity), keyExpression.GetMemberAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
                 params string[] foreignKeyPropertyNames)
@@ -726,12 +749,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     TestReferenceCollectionBuilder<TLeftEntity, TJoinEntity>> configureRight,
                 Func<TestEntityTypeBuilder<TJoinEntity>,
                     TestReferenceCollectionBuilder<TRightEntity, TJoinEntity>> configureLeft)
-                => new NonGenericTestEntityTypeBuilder<TJoinEntity>(CollectionCollectionBuilder.UsingEntity(
-                    typeof(TJoinEntity),
-                    l => ((NonGenericTestReferenceCollectionBuilder<TLeftEntity, TJoinEntity>)configureRight(
-                        new NonGenericTestEntityTypeBuilder<TJoinEntity>(l))).ReferenceCollectionBuilder,
-                    r => ((NonGenericTestReferenceCollectionBuilder<TRightEntity, TJoinEntity>)configureLeft(
-                        new NonGenericTestEntityTypeBuilder<TJoinEntity>(r))).ReferenceCollectionBuilder));
+                => new NonGenericTestEntityTypeBuilder<TJoinEntity>(
+                    CollectionCollectionBuilder.UsingEntity(
+                        typeof(TJoinEntity),
+                        l => ((NonGenericTestReferenceCollectionBuilder<TLeftEntity, TJoinEntity>)configureRight(
+                            new NonGenericTestEntityTypeBuilder<TJoinEntity>(l))).ReferenceCollectionBuilder,
+                        r => ((NonGenericTestReferenceCollectionBuilder<TRightEntity, TJoinEntity>)configureLeft(
+                            new NonGenericTestEntityTypeBuilder<TJoinEntity>(r))).ReferenceCollectionBuilder));
 
             public override TestEntityTypeBuilder<TJoinEntity> UsingEntity<TJoinEntity>(
                 string joinEntityName,
@@ -739,13 +763,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     TestReferenceCollectionBuilder<TLeftEntity, TJoinEntity>> configureRight,
                 Func<TestEntityTypeBuilder<TJoinEntity>,
                     TestReferenceCollectionBuilder<TRightEntity, TJoinEntity>> configureLeft)
-                => new NonGenericTestEntityTypeBuilder<TJoinEntity>(CollectionCollectionBuilder.UsingEntity(
-                    joinEntityName,
-                    typeof(TJoinEntity),
-                    l => ((NonGenericTestReferenceCollectionBuilder<TLeftEntity, TJoinEntity>)configureRight(
-                        new NonGenericTestEntityTypeBuilder<TJoinEntity>(l))).ReferenceCollectionBuilder,
-                    r => ((NonGenericTestReferenceCollectionBuilder<TRightEntity, TJoinEntity>)configureLeft(
-                        new NonGenericTestEntityTypeBuilder<TJoinEntity>(r))).ReferenceCollectionBuilder));
+                => new NonGenericTestEntityTypeBuilder<TJoinEntity>(
+                    CollectionCollectionBuilder.UsingEntity(
+                        joinEntityName,
+                        typeof(TJoinEntity),
+                        l => ((NonGenericTestReferenceCollectionBuilder<TLeftEntity, TJoinEntity>)configureRight(
+                            new NonGenericTestEntityTypeBuilder<TJoinEntity>(l))).ReferenceCollectionBuilder,
+                        r => ((NonGenericTestReferenceCollectionBuilder<TRightEntity, TJoinEntity>)configureLeft(
+                            new NonGenericTestEntityTypeBuilder<TJoinEntity>(r))).ReferenceCollectionBuilder));
 
             public override TestEntityTypeBuilder<TRightEntity> UsingEntity<TJoinEntity>(
                 Func<TestEntityTypeBuilder<TJoinEntity>,
@@ -754,13 +779,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     TestReferenceCollectionBuilder<TRightEntity, TJoinEntity>> configureLeft,
                 Action<TestEntityTypeBuilder<TJoinEntity>> configureJoin)
                 where TJoinEntity : class
-                => new NonGenericTestEntityTypeBuilder<TRightEntity>(CollectionCollectionBuilder.UsingEntity(
-                    typeof(TJoinEntity),
-                    l => ((NonGenericTestReferenceCollectionBuilder<TLeftEntity, TJoinEntity>)configureRight(
-                        new NonGenericTestEntityTypeBuilder<TJoinEntity>(l))).ReferenceCollectionBuilder,
-                    r => ((NonGenericTestReferenceCollectionBuilder<TRightEntity, TJoinEntity>)configureLeft(
-                        new NonGenericTestEntityTypeBuilder<TJoinEntity>(r))).ReferenceCollectionBuilder,
-                    e => configureJoin(new NonGenericTestEntityTypeBuilder<TJoinEntity>(e))));
+                => new NonGenericTestEntityTypeBuilder<TRightEntity>(
+                    CollectionCollectionBuilder.UsingEntity(
+                        typeof(TJoinEntity),
+                        l => ((NonGenericTestReferenceCollectionBuilder<TLeftEntity, TJoinEntity>)configureRight(
+                            new NonGenericTestEntityTypeBuilder<TJoinEntity>(l))).ReferenceCollectionBuilder,
+                        r => ((NonGenericTestReferenceCollectionBuilder<TRightEntity, TJoinEntity>)configureLeft(
+                            new NonGenericTestEntityTypeBuilder<TJoinEntity>(r))).ReferenceCollectionBuilder,
+                        e => configureJoin(new NonGenericTestEntityTypeBuilder<TJoinEntity>(e))));
 
             public override TestEntityTypeBuilder<TRightEntity> UsingEntity<TJoinEntity>(
                 string joinEntityName,
@@ -770,14 +796,15 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     TestReferenceCollectionBuilder<TRightEntity, TJoinEntity>> configureLeft,
                 Action<TestEntityTypeBuilder<TJoinEntity>> configureJoin)
                 where TJoinEntity : class
-                => new NonGenericTestEntityTypeBuilder<TRightEntity>(CollectionCollectionBuilder.UsingEntity(
-                    joinEntityName,
-                    typeof(TJoinEntity),
-                    l => ((NonGenericTestReferenceCollectionBuilder<TLeftEntity, TJoinEntity>)configureRight(
-                        new NonGenericTestEntityTypeBuilder<TJoinEntity>(l))).ReferenceCollectionBuilder,
-                    r => ((NonGenericTestReferenceCollectionBuilder<TRightEntity, TJoinEntity>)configureLeft(
-                        new NonGenericTestEntityTypeBuilder<TJoinEntity>(r))).ReferenceCollectionBuilder,
-                    e => configureJoin(new NonGenericTestEntityTypeBuilder<TJoinEntity>(e))));
+                => new NonGenericTestEntityTypeBuilder<TRightEntity>(
+                    CollectionCollectionBuilder.UsingEntity(
+                        joinEntityName,
+                        typeof(TJoinEntity),
+                        l => ((NonGenericTestReferenceCollectionBuilder<TLeftEntity, TJoinEntity>)configureRight(
+                            new NonGenericTestEntityTypeBuilder<TJoinEntity>(l))).ReferenceCollectionBuilder,
+                        r => ((NonGenericTestReferenceCollectionBuilder<TRightEntity, TJoinEntity>)configureLeft(
+                            new NonGenericTestEntityTypeBuilder<TJoinEntity>(r))).ReferenceCollectionBuilder,
+                        e => configureJoin(new NonGenericTestEntityTypeBuilder<TJoinEntity>(e))));
         }
 
         protected class NonGenericTestOwnershipBuilder<TEntity, TRelatedEntity>
@@ -792,7 +819,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             protected OwnershipBuilder OwnershipBuilder { get; }
 
-            public override IMutableForeignKey Metadata => OwnershipBuilder.Metadata;
+            public override IMutableForeignKey Metadata
+                => OwnershipBuilder.Metadata;
 
             protected virtual NonGenericTestOwnershipBuilder<TNewEntity, TNewRelatedEntity> Wrap<TNewEntity, TNewRelatedEntity>(
                 OwnershipBuilder ownershipBuilder)
@@ -823,7 +851,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     OwnershipBuilder.HasPrincipalKey(
                         keyExpression.GetMemberAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
 
-            OwnershipBuilder IInfrastructure<OwnershipBuilder>.Instance => OwnershipBuilder;
+            OwnershipBuilder IInfrastructure<OwnershipBuilder>.Instance
+                => OwnershipBuilder;
         }
 
         protected class NonGenericTestOwnedNavigationBuilder<TEntity, TDependentEntity>
@@ -838,8 +867,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             protected OwnedNavigationBuilder OwnedNavigationBuilder { get; }
 
-            public override IMutableForeignKey Metadata => OwnedNavigationBuilder.Metadata;
-            public override IMutableEntityType OwnedEntityType => OwnedNavigationBuilder.OwnedEntityType;
+            public override IMutableForeignKey Metadata
+                => OwnedNavigationBuilder.Metadata;
+
+            public override IMutableEntityType OwnedEntityType
+                => OwnedNavigationBuilder.OwnedEntityType;
 
             protected virtual NonGenericTestOwnedNavigationBuilder<TNewEntity, TNewDependentEntity> Wrap<TNewEntity, TNewDependentEntity>(
                 OwnedNavigationBuilder ownedNavigationBuilder)
@@ -848,7 +880,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => new NonGenericTestOwnedNavigationBuilder<TNewEntity, TNewDependentEntity>(ownedNavigationBuilder);
 
             public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> HasAnnotation(
-                string annotation, object value)
+                string annotation,
+                object value)
                 => Wrap<TEntity, TDependentEntity>(OwnedNavigationBuilder.HasAnnotation(annotation, value));
 
             public override TestKeyBuilder<TDependentEntity> HasKey(Expression<Func<TDependentEntity, object>> keyExpression)
@@ -1013,7 +1046,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 return new DataBuilder<TDependentEntity>();
             }
 
-            OwnedNavigationBuilder IInfrastructure<OwnedNavigationBuilder>.Instance => OwnedNavigationBuilder;
+            OwnedNavigationBuilder IInfrastructure<OwnedNavigationBuilder>.Instance
+                => OwnedNavigationBuilder;
         }
     }
 }

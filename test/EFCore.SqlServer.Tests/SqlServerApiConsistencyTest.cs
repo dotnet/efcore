@@ -23,7 +23,8 @@ namespace Microsoft.EntityFrameworkCore
         protected override void AddServices(ServiceCollection serviceCollection)
             => serviceCollection.AddEntityFrameworkSqlServer();
 
-        protected override Assembly TargetAssembly => typeof(SqlServerConnection).Assembly;
+        protected override Assembly TargetAssembly
+            => typeof(SqlServerConnection).Assembly;
 
         public class SqlServerApiConsistencyFixture : ApiConsistencyFixtureBase
         {
@@ -34,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
                 return true;
             }
 
-            public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>()
+            public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>
             {
                 typeof(SqlServerDbContextOptionsBuilder),
                 typeof(SqlServerDbContextOptionsExtensions),
@@ -47,14 +48,21 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(SqlServerServiceCollectionExtensions)
             };
 
-            public override List<(Type Type, Type ReadonlyExtensions, Type MutableExtensions, Type ConventionExtensions, Type ConventionBuilderExtensions)> MetadataExtensionTypes { get; }
+            public override
+                List<(Type Type, Type ReadonlyExtensions, Type MutableExtensions, Type ConventionExtensions, Type
+                    ConventionBuilderExtensions)> MetadataExtensionTypes { get; }
                 = new List<(Type, Type, Type, Type, Type)>
                 {
-                    { (typeof(IModel), typeof(SqlServerModelExtensions), typeof(SqlServerModelExtensions), typeof(SqlServerModelExtensions), typeof(SqlServerModelBuilderExtensions)) },
-                    { (typeof(IEntityType), typeof(SqlServerEntityTypeExtensions), typeof(SqlServerEntityTypeExtensions), typeof(SqlServerEntityTypeExtensions), typeof(SqlServerEntityTypeBuilderExtensions)) },
-                    { (typeof(IKey),typeof(SqlServerKeyExtensions), typeof(SqlServerKeyExtensions), typeof(SqlServerKeyExtensions), typeof(SqlServerKeyBuilderExtensions)) },
-                    { (typeof(IProperty), typeof(SqlServerPropertyExtensions), typeof(SqlServerPropertyExtensions), typeof(SqlServerPropertyExtensions), typeof(SqlServerPropertyBuilderExtensions)) },
-                    { (typeof(IIndex), typeof(SqlServerIndexExtensions), typeof(SqlServerIndexExtensions), typeof(SqlServerIndexExtensions), typeof(SqlServerIndexBuilderExtensions)) }
+                    (typeof(IModel), typeof(SqlServerModelExtensions), typeof(SqlServerModelExtensions),
+                        typeof(SqlServerModelExtensions), typeof(SqlServerModelBuilderExtensions)),
+                    (typeof(IEntityType), typeof(SqlServerEntityTypeExtensions), typeof(SqlServerEntityTypeExtensions),
+                        typeof(SqlServerEntityTypeExtensions), typeof(SqlServerEntityTypeBuilderExtensions)),
+                    (typeof(IKey), typeof(SqlServerKeyExtensions), typeof(SqlServerKeyExtensions), typeof(SqlServerKeyExtensions),
+                        typeof(SqlServerKeyBuilderExtensions)),
+                    (typeof(IProperty), typeof(SqlServerPropertyExtensions), typeof(SqlServerPropertyExtensions),
+                        typeof(SqlServerPropertyExtensions), typeof(SqlServerPropertyBuilderExtensions)),
+                    (typeof(IIndex), typeof(SqlServerIndexExtensions), typeof(SqlServerIndexExtensions),
+                        typeof(SqlServerIndexExtensions), typeof(SqlServerIndexBuilderExtensions))
                 };
         }
     }

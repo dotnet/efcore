@@ -379,7 +379,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var leftFK = joinEntityTypeBuilder
                 .HasRelationship(
                     manyToManyLeft.Metadata.Name,
-                    new List<string>() { "ManyToManyLeft_Id" },
+                    new List<string> { "ManyToManyLeft_Id" },
                     manyToManyLeftPK.Metadata,
                     ConfigurationSource.Convention)
                 .IsUnique(false, ConfigurationSource.Convention)
@@ -387,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var rightFK = joinEntityTypeBuilder
                 .HasRelationship(
                     manyToManyRight.Metadata.Name,
-                    new List<string>() { "ManyToManyRight_Id" },
+                    new List<string> { "ManyToManyRight_Id" },
                     manyToManyRightPK.Metadata,
                     ConfigurationSource.Convention)
                 .IsUnique(false, ConfigurationSource.Convention)
@@ -403,8 +403,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotNull(joinEntityType);
             Assert.NotNull(modelBuilder.RemoveImplicitJoinEntity(joinEntityType));
 
-            Assert.Empty(model.GetEntityTypes()
-                .Where(e => e.IsImplicitlyCreatedJoinEntityType));
+            Assert.Empty(
+                model.GetEntityTypes()
+                    .Where(e => e.IsImplicitlyCreatedJoinEntityType));
 
             var leftSkipNav = manyToManyLeft.Metadata.FindDeclaredSkipNavigation(nameof(ManyToManyLeft.Rights));
             var rightSkipNav = manyToManyRight.Metadata.FindDeclaredSkipNavigation(nameof(ManyToManyRight.Lefts));
@@ -424,7 +425,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var manyToManyJoin = modelBuilder.Entity(typeof(ManyToManyJoin), ConfigurationSource.Convention);
             var manyToManyLeftPK = manyToManyLeft.PrimaryKey(new[] { nameof(ManyToManyLeft.Id) }, ConfigurationSource.Convention);
             var manyToManyRightPK = manyToManyRight.PrimaryKey(new[] { nameof(ManyToManyRight.Id) }, ConfigurationSource.Convention);
-            manyToManyJoin.PrimaryKey(new[] { nameof(ManyToManyJoin.LeftId), nameof(ManyToManyJoin.RightId) }, ConfigurationSource.Convention);
+            manyToManyJoin.PrimaryKey(
+                new[] { nameof(ManyToManyJoin.LeftId), nameof(ManyToManyJoin.RightId) }, ConfigurationSource.Convention);
 
             var skipNavOnLeft = manyToManyLeft.HasSkipNavigation(
                 new MemberIdentity(typeof(ManyToManyLeft).GetProperty(nameof(ManyToManyLeft.Rights))),
@@ -489,14 +491,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.ClashingMismatchedSharedType("SpecialDetails", nameof(Product)),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.SharedTypeEntity(sharedTypeName, typeof(Details), ConfigurationSource.Explicit)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () => modelBuilder.SharedTypeEntity(sharedTypeName, typeof(Details), ConfigurationSource.Explicit)).Message);
 
             Assert.NotNull(modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit));
 
             Assert.Equal(
                 CoreStrings.ClashingNonSharedType(typeof(Customer).DisplayName(), typeof(Customer).DisplayName()),
-                Assert.Throws<InvalidOperationException>(() =>
-                modelBuilder.SharedTypeEntity(typeof(Customer).DisplayName(), typeof(Customer), ConfigurationSource.Explicit)).Message);
+                Assert.Throws<InvalidOperationException>(
+                        () =>
+                            modelBuilder.SharedTypeEntity(typeof(Customer).DisplayName(), typeof(Customer), ConfigurationSource.Explicit))
+                    .Message);
         }
 
         private static void Cleanup(InternalModelBuilder modelBuilder)

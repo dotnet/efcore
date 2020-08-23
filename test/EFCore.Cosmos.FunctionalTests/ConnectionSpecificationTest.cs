@@ -53,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             using var context = new BloggingContextWithConnectionConflict(testDatabase);
 
-            Assert.Equal(CosmosStrings.ConnectionStringConflictingConfiguration,
+            Assert.Equal(
+                CosmosStrings.ConnectionStringConflictingConfiguration,
                 Assert.Throws<InvalidOperationException>(() => context.GetService<IDatabaseCreator>()).Message);
         }
 

@@ -8,11 +8,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class TPTInheritanceQueryFixture : InheritanceQueryFixtureBase
     {
-        protected override string StoreName => "TPTInheritanceTest";
+        protected override string StoreName
+            => "TPTInheritanceTest";
 
-        public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
+        public TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)ListLoggerFactory;
 
-        protected override bool HasDiscriminator => false;
+        protected override bool HasDiscriminator
+            => false;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

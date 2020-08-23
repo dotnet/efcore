@@ -15,9 +15,11 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         protected override string StoreName { get; } = "GearsOfWarQueryTest";
 
-        public Func<DbContext> GetContextCreator() => () => CreateContext();
+        public Func<DbContext> GetContextCreator()
+            => () => CreateContext();
 
-        public ISetSource GetExpectedData() => new GearsOfWarData();
+        public ISetSource GetExpectedData()
+            => new GearsOfWarData();
 
         public IReadOnlyDictionary<Type, object> GetEntitySorters()
             => new Dictionary<Type, Func<object, object>>
@@ -230,12 +232,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(ee.Banner == null, aa.Banner == null);
                             if (ee.Banner != null)
                             {
-                                Assert.True(Enumerable.SequenceEqual(ee.Banner, aa.Banner));
+                                Assert.True(ee.Banner.SequenceEqual(aa.Banner));
                             }
+
                             Assert.Equal(ee.Banner5 == null, aa.Banner5 == null);
                             if (ee.Banner5 != null)
                             {
-                                Assert.True(Enumerable.SequenceEqual(ee.Banner5, aa.Banner5));
+                                Assert.True(ee.Banner5.SequenceEqual(aa.Banner5));
                             }
                         }
                     }
@@ -343,11 +346,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<LocustHighCommand>().Property(l => l.Id).ValueGeneratedNever();
         }
 
-        protected override void Seed(GearsOfWarContext context) => GearsOfWarContext.Seed(context);
+        protected override void Seed(GearsOfWarContext context)
+            => GearsOfWarContext.Seed(context);
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(w =>
-                w.Log(CoreEventId.RowLimitingOperationWithoutOrderByWarning));
+            => base.AddOptions(builder).ConfigureWarnings(
+                w =>
+                    w.Log(CoreEventId.RowLimitingOperationWithoutOrderByWarning));
 
         public override GearsOfWarContext CreateContext()
         {

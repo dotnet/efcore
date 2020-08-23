@@ -21,12 +21,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 var traversal = new List<string>();
 
-                context.ChangeTracker.TrackGraph(root, node =>
-                {
-                    callback(node);
+                context.ChangeTracker.TrackGraph(
+                    root, node =>
+                    {
+                        callback(node);
 
-                    traversal.Add(NodeString(node));
-                });
+                        traversal.Add(NodeString(node));
+                    });
 
                 return traversal;
             }
@@ -329,6 +330,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Assert.Equal(1, dependentEntry2a.Property(dependentEntry2a.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue);
             Assert.Equal(1, dependentEntry2b.Property(dependentEntry2b.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue);
         }
+
         [ConditionalFact]
         public void Can_attach_parent_with_child_collection()
         {
@@ -793,10 +795,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                             "Category:1 ---Products--> Product:2",
                             "Category:1 ---Products--> Product:3"
                         }
-                        : new List<string>
-                        {
-                            "<None> -----> Category:1"
-                        },
+                        : new List<string> { "<None> -----> Category:1" },
                     TrackGraph());
 
                 if (trackNewDependents || delayCascade)
@@ -1433,6 +1432,5 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     ? (_updateExistingEntities ? EntityState.Modified : EntityState.Unchanged)
                     : EntityState.Added;
         }
-
     }
 }

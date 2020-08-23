@@ -41,11 +41,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 .GetRequiredService<IDatabaseModelFactory>();
         }
 
-        protected override bool AcceptForeignKey(DatabaseForeignKey foreignKey) => false;
+        protected override bool AcceptForeignKey(DatabaseForeignKey foreignKey)
+            => false;
 
-        protected override bool AcceptIndex(DatabaseIndex index) => false;
+        protected override bool AcceptIndex(DatabaseIndex index)
+            => false;
 
-        protected override string BuildCustomSql(DatabaseModel databaseModel) => "PRAGMA foreign_keys=OFF;";
+        protected override string BuildCustomSql(DatabaseModel databaseModel)
+            => "PRAGMA foreign_keys=OFF;";
 
         protected override void OpenConnection(IRelationalConnection connection)
         {

@@ -13,16 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [ConditionalFact]
         public void Comparer_uses_exact_comparison()
         {
-            var geometry1 = new GeometryCollection(new[]
-            {
-                new Point(1, 2),
-                new Point(3, 4)
-            });
-            var geometry2 = new GeometryCollection(new[]
-            {
-                new Point(3, 4),
-                new Point(1, 2)
-            });
+            var geometry1 = new GeometryCollection(new[] { new Point(1, 2), new Point(3, 4) });
+            var geometry2 = new GeometryCollection(new[] { new Point(3, 4), new Point(1, 2) });
 
             var comparer = new FakeRelationalGeometryTypeMapping<GeometryCollection>().Comparer;
             Assert.False(comparer.Equals(geometry1, geometry2));
@@ -44,14 +36,20 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 => new FakeRelationalGeometryTypeMapping<TGeometry>(parameters);
 
             protected override Type WKTReaderType { get; }
-            protected override string AsText(object value) => throw new NotImplementedException();
-            protected override int GetSrid(object value) => throw new NotImplementedException();
 
-            class NullValueConverter : ValueConverter<TGeometry, TGeometry>
+            protected override string AsText(object value)
+                => throw new NotImplementedException();
+
+            protected override int GetSrid(object value)
+                => throw new NotImplementedException();
+
+            private class NullValueConverter : ValueConverter<TGeometry, TGeometry>
             {
-                public NullValueConverter() : base(t => t, t => t) {}
+                public NullValueConverter()
+                    : base(t => t, t => t)
+                {
+                }
             }
         }
-
     }
 }

@@ -1513,12 +1513,12 @@ CREATE TABLE ColumnsWithCollation (
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        var columns = dbModel.Tables.Single().Columns;
+                {
+                    var columns = dbModel.Tables.Single().Columns;
 
-                        Assert.Null(columns.Single(c => c.Name == "DefaultCollation").Collation);
-                        Assert.Equal("German_PhoneBook_CI_AS", columns.Single(c => c.Name == "NonDefaultCollation").Collation);
-                    },
+                    Assert.Null(columns.Single(c => c.Name == "DefaultCollation").Collation);
+                    Assert.Equal("German_PhoneBook_CI_AS", columns.Single(c => c.Name == "NonDefaultCollation").Collation);
+                },
                 "DROP TABLE ColumnsWithCollation;");
         }
 
@@ -2260,7 +2260,11 @@ DROP TABLE PrincipalTable;");
         #endregion
 
         private void Test(
-            string createSql, IEnumerable<string> tables, IEnumerable<string> schemas, Action<DatabaseModel> asserter, string cleanupSql)
+            string createSql,
+            IEnumerable<string> tables,
+            IEnumerable<string> schemas,
+            Action<DatabaseModel> asserter,
+            string cleanupSql)
         {
             Fixture.TestStore.ExecuteNonQuery(createSql);
 
@@ -2292,8 +2296,12 @@ DROP TABLE PrincipalTable;");
         public class SqlServerDatabaseModelFixture : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = nameof(SqlServerDatabaseModelFactoryTest);
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
-            public new SqlServerTestStore TestStore => (SqlServerTestStore)base.TestStore;
+
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
+
+            public new SqlServerTestStore TestStore
+                => (SqlServerTestStore)base.TestStore;
 
             public SqlServerDatabaseModelFixture()
             {

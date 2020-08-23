@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using System.Text.Json;
 using Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
@@ -33,13 +32,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public static CosmosTestStore CreateInitialized(string name, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
             => (CosmosTestStore)Create(name, extensionConfiguration).Initialize(null, (Func<DbContext>)null);
 
-        public static CosmosTestStore GetOrCreate(string name) => new CosmosTestStore(name);
+        public static CosmosTestStore GetOrCreate(string name)
+            => new CosmosTestStore(name);
 
         public static CosmosTestStore GetOrCreate(string name, string dataFilePath)
             => new CosmosTestStore(name, dataFilePath: dataFilePath);
 
         private CosmosTestStore(
-            string name, bool shared = true, string dataFilePath = null,
+            string name,
+            bool shared = true,
+            string dataFilePath = null,
             Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
             : base(CreateName(name), shared)
         {
@@ -64,15 +66,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        private static string CreateName(string name) => TestEnvironment.IsEmulator || name == "Northwind"
-            ? name
-            : name + _runId;
+        private static string CreateName(string name)
+            => TestEnvironment.IsEmulator || name == "Northwind"
+                ? name
+                : name + _runId;
 
         public string ConnectionUri { get; }
         public string AuthToken { get; }
         public string ConnectionString { get; }
 
-        protected override DbContext CreateDefaultContext() => new TestStoreContext(this);
+        protected override DbContext CreateDefaultContext()
+            => new TestStoreContext(this);
 
         public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
             => builder.UseCosmos(
@@ -246,52 +250,133 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         private class FakeUpdateEntry : IUpdateEntry
         {
-            public IEntityType EntityType => new FakeEntityType();
+            public IEntityType EntityType
+                => new FakeEntityType();
+
             public EntityState EntityState { get => EntityState.Added; set => throw new NotImplementedException(); }
-            public IUpdateEntry SharedIdentityEntry => throw new NotImplementedException();
-            public object GetCurrentValue(IPropertyBase propertyBase) => throw new NotImplementedException();
-            public TProperty GetCurrentValue<TProperty>(IPropertyBase propertyBase) => throw new NotImplementedException();
-            public object GetOriginalValue(IPropertyBase propertyBase) => throw new NotImplementedException();
-            public TProperty GetOriginalValue<TProperty>(IProperty property) => throw new NotImplementedException();
-            public bool HasTemporaryValue(IProperty property) => throw new NotImplementedException();
-            public bool IsModified(IProperty property) => throw new NotImplementedException();
-            public bool IsStoreGenerated(IProperty property) => throw new NotImplementedException();
-            public void SetOriginalValue(IProperty property, object value) => throw new NotImplementedException();
-            public void SetPropertyModified(IProperty property) => throw new NotImplementedException();
-            public void SetStoreGeneratedValue(IProperty property, object value) => throw new NotImplementedException();
-            public EntityEntry ToEntityEntry() => throw new NotImplementedException();
-            public object GetRelationshipSnapshotValue(IPropertyBase propertyBase) => throw new NotImplementedException();
-            public object GetPreStoreGeneratedCurrentValue(IPropertyBase propertyBase) => throw new NotImplementedException();
-            public bool IsConceptualNull(IProperty property) => throw new NotImplementedException();
+
+            public IUpdateEntry SharedIdentityEntry
+                => throw new NotImplementedException();
+
+            public object GetCurrentValue(IPropertyBase propertyBase)
+                => throw new NotImplementedException();
+
+            public TProperty GetCurrentValue<TProperty>(IPropertyBase propertyBase)
+                => throw new NotImplementedException();
+
+            public object GetOriginalValue(IPropertyBase propertyBase)
+                => throw new NotImplementedException();
+
+            public TProperty GetOriginalValue<TProperty>(IProperty property)
+                => throw new NotImplementedException();
+
+            public bool HasTemporaryValue(IProperty property)
+                => throw new NotImplementedException();
+
+            public bool IsModified(IProperty property)
+                => throw new NotImplementedException();
+
+            public bool IsStoreGenerated(IProperty property)
+                => throw new NotImplementedException();
+
+            public void SetOriginalValue(IProperty property, object value)
+                => throw new NotImplementedException();
+
+            public void SetPropertyModified(IProperty property)
+                => throw new NotImplementedException();
+
+            public void SetStoreGeneratedValue(IProperty property, object value)
+                => throw new NotImplementedException();
+
+            public EntityEntry ToEntityEntry()
+                => throw new NotImplementedException();
+
+            public object GetRelationshipSnapshotValue(IPropertyBase propertyBase)
+                => throw new NotImplementedException();
+
+            public object GetPreStoreGeneratedCurrentValue(IPropertyBase propertyBase)
+                => throw new NotImplementedException();
+
+            public bool IsConceptualNull(IProperty property)
+                => throw new NotImplementedException();
         }
 
         public class FakeEntityType : IEntityType
         {
-            public object this[string name] => null;
-            public IEntityType BaseType => throw new NotImplementedException();
-            public string DefiningNavigationName => throw new NotImplementedException();
-            public IEntityType DefiningEntityType => throw new NotImplementedException();
-            public IModel Model => throw new NotImplementedException();
-            public string Name => throw new NotImplementedException();
-            public Type ClrType => throw new NotImplementedException();
-            public bool HasSharedClrType => throw new NotImplementedException();
-            public bool IsPropertyBag => throw new NotImplementedException();
-            public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
-            public IForeignKey FindForeignKey(IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType) => throw new NotImplementedException();
-            public IIndex FindIndex(IReadOnlyList<IProperty> properties) => throw new NotImplementedException();
-            public IIndex FindIndex(string name) => throw new NotImplementedException();
-            public IKey FindKey(IReadOnlyList<IProperty> properties) => throw new NotImplementedException();
-            public IKey FindPrimaryKey() => throw new NotImplementedException();
-            public IProperty FindProperty(string name) => null;
-            public IServiceProperty FindServiceProperty(string name) => throw new NotImplementedException();
-            public ISkipNavigation FindSkipNavigation(string name) => throw new NotImplementedException();
-            public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();
-            public IEnumerable<IForeignKey> GetForeignKeys() => throw new NotImplementedException();
-            public IEnumerable<IIndex> GetIndexes() => throw new NotImplementedException();
-            public IEnumerable<IKey> GetKeys() => throw new NotImplementedException();
-            public IEnumerable<IProperty> GetProperties() => throw new NotImplementedException();
-            public IEnumerable<IServiceProperty> GetServiceProperties() => throw new NotImplementedException();
-            public IEnumerable<ISkipNavigation> GetSkipNavigations() => throw new NotImplementedException();
+            public object this[string name]
+                => null;
+
+            public IEntityType BaseType
+                => throw new NotImplementedException();
+
+            public string DefiningNavigationName
+                => throw new NotImplementedException();
+
+            public IEntityType DefiningEntityType
+                => throw new NotImplementedException();
+
+            public IModel Model
+                => throw new NotImplementedException();
+
+            public string Name
+                => throw new NotImplementedException();
+
+            public Type ClrType
+                => throw new NotImplementedException();
+
+            public bool HasSharedClrType
+                => throw new NotImplementedException();
+
+            public bool IsPropertyBag
+                => throw new NotImplementedException();
+
+            public IAnnotation FindAnnotation(string name)
+                => throw new NotImplementedException();
+
+            public IForeignKey FindForeignKey(IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
+                => throw new NotImplementedException();
+
+            public IIndex FindIndex(IReadOnlyList<IProperty> properties)
+                => throw new NotImplementedException();
+
+            public IIndex FindIndex(string name)
+                => throw new NotImplementedException();
+
+            public IKey FindKey(IReadOnlyList<IProperty> properties)
+                => throw new NotImplementedException();
+
+            public IKey FindPrimaryKey()
+                => throw new NotImplementedException();
+
+            public IProperty FindProperty(string name)
+                => null;
+
+            public IServiceProperty FindServiceProperty(string name)
+                => throw new NotImplementedException();
+
+            public ISkipNavigation FindSkipNavigation(string name)
+                => throw new NotImplementedException();
+
+            public IEnumerable<IAnnotation> GetAnnotations()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IForeignKey> GetForeignKeys()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IIndex> GetIndexes()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IKey> GetKeys()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IProperty> GetProperties()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IServiceProperty> GetServiceProperties()
+                => throw new NotImplementedException();
+
+            public IEnumerable<ISkipNavigation> GetSkipNavigations()
+                => throw new NotImplementedException();
         }
     }
 }

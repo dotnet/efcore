@@ -25,9 +25,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         public class FakeForeignKey : IForeignKey
         {
-            public object this[string name] => throw new NotImplementedException();
-            public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
-            public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();
+            public object this[string name]
+                => throw new NotImplementedException();
+
+            public IAnnotation FindAnnotation(string name)
+                => throw new NotImplementedException();
+
+            public IEnumerable<IAnnotation> GetAnnotations()
+                => throw new NotImplementedException();
+
             public IEntityType DeclaringEntityType { get; }
             public IReadOnlyList<IProperty> Properties { get; }
             public IEntityType PrincipalEntityType { get; }
@@ -39,7 +45,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public bool IsRequiredDependent { get; }
             public bool IsOwnership { get; }
             public DeleteBehavior DeleteBehavior { get; }
-
         }
 
         [ConditionalFact]
@@ -246,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void IsRequiredDependent_throws_for_incompatible_uniqueness()
         {
             var foreignKey = CreateOneToManyFK();
-            
+
             Assert.Equal(
                 CoreStrings.NonUniqueRequiredDependentForeignKey(
                     "{'Id'}",
@@ -378,8 +383,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     nameof(OneToManyDependent),
                     foreignKey2.Properties.Format(),
                     foreignKey1.Properties.Format()),
-                Assert.Throws<InvalidOperationException>(()
-                    => foreignKey2.SetDependentToPrincipal(OneToManyDependent.DeceptionProperty)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    ()
+                        => foreignKey2.SetDependentToPrincipal(OneToManyDependent.DeceptionProperty)).Message);
         }
 
         [ConditionalFact]
@@ -809,6 +815,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => fk.FindNavigationsToInHierarchy(unrelatedType)).Message);
         }
 
-        private static IMutableModel CreateModel() => new Model();
+        private static IMutableModel CreateModel()
+            => new Model();
     }
 }

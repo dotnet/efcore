@@ -735,8 +735,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 derivedForeignKeyProperty, specialCustomerKey, specialCustomerType);
             specialCustomerForeignKey.SetDependentToPrincipal(Order.CustomerProperty);
 
-            Assert.Equal(CoreStrings.DuplicatePropertiesOnBase(nameof(SpecialOrder), nameof(Order),
-                nameof(SpecialOrder), nameof(Order.Customer), nameof(Order), nameof(Order.Customer)),
+            Assert.Equal(
+                CoreStrings.DuplicatePropertiesOnBase(
+                    nameof(SpecialOrder), nameof(Order),
+                    nameof(SpecialOrder), nameof(Order.Customer), nameof(Order), nameof(Order.Customer)),
                 Assert.Throws<InvalidOperationException>(() => specialOrderType.BaseType = orderType).Message);
         }
 
@@ -766,7 +768,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             specialCustomerForeignKey.SetDependentToPrincipal(Order.CustomerProperty);
             verySpecialOrderType.BaseType = specialOrderType;
 
-            Assert.Equal(CoreStrings.DuplicatePropertiesOnBase(nameof(SpecialOrder), nameof(Order),
+            Assert.Equal(
+                CoreStrings.DuplicatePropertiesOnBase(
+                    nameof(SpecialOrder), nameof(Order),
                     nameof(VerySpecialOrder), nameof(Order.Customer), nameof(Order), nameof(Order.Customer)),
                 Assert.Throws<InvalidOperationException>(() => specialOrderType.BaseType = orderType).Message);
         }
@@ -798,7 +802,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             specialCustomerForeignKey.SetDependentToPrincipal(Order.CustomerProperty);
 
             Assert.Equal(
-                CoreStrings.DuplicatePropertiesOnBase(nameof(VerySpecialOrder), nameof(SpecialOrder),
+                CoreStrings.DuplicatePropertiesOnBase(
+                    nameof(VerySpecialOrder), nameof(SpecialOrder),
                     nameof(VerySpecialOrder), nameof(Order.Customer), nameof(Order), nameof(Order.Customer)),
                 Assert.Throws<InvalidOperationException>(() => verySpecialOrderType.BaseType = specialOrderType).Message);
         }
@@ -1200,6 +1205,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     () => orderType.AddIndex(indexProperty)).Message);
         }
 
-        private static IMutableModel CreateModel() => new Model();
+        private static IMutableModel CreateModel()
+            => new Model();
     }
 }

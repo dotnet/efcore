@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos
@@ -22,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         protected override void AddServices(ServiceCollection serviceCollection)
             => serviceCollection.AddEntityFrameworkCosmos();
 
-        protected override Assembly TargetAssembly => typeof(CosmosDatabaseWrapper).Assembly;
+        protected override Assembly TargetAssembly
+            => typeof(CosmosDatabaseWrapper).Assembly;
 
         public class CosmosApiConsistencyFixture : ApiConsistencyFixtureBase
         {
@@ -42,11 +43,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 typeof(CosmosDbContextOptionsBuilder)
             };
 
-            public override List<(Type Type, Type ReadonlyExtensions, Type MutableExtensions, Type ConventionExtensions, Type ConventionBuilderExtensions)> MetadataExtensionTypes { get; }
+            public override
+                List<(Type Type, Type ReadonlyExtensions, Type MutableExtensions, Type ConventionExtensions, Type
+                    ConventionBuilderExtensions)> MetadataExtensionTypes { get; }
                 = new List<(Type, Type, Type, Type, Type)>
                 {
-                    { (typeof(IModel), typeof(CosmosModelExtensions), typeof(CosmosModelExtensions), typeof(CosmosModelExtensions), typeof(CosmosModelBuilderExtensions)) },
-                    { (typeof(IProperty), typeof(CosmosPropertyExtensions), typeof(CosmosPropertyExtensions), typeof(CosmosPropertyExtensions), typeof(CosmosPropertyBuilderExtensions)) }
+                    (typeof(IModel), typeof(CosmosModelExtensions), typeof(CosmosModelExtensions), typeof(CosmosModelExtensions),
+                        typeof(CosmosModelBuilderExtensions)),
+                    (typeof(IProperty), typeof(CosmosPropertyExtensions), typeof(CosmosPropertyExtensions),
+                        typeof(CosmosPropertyExtensions), typeof(CosmosPropertyBuilderExtensions))
                 };
         }
     }

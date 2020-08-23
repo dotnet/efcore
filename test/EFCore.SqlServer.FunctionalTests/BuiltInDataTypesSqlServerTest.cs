@@ -747,7 +747,9 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             Assert.Equal(84.4f, entity.FloatAsReal);
             Assert.Equal(85.5, entity.DoubleAsDoublePrecision);
             Assert.Equal(new DateTime(2015, 1, 2), entity.DateTimeAsDate);
-            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12).AddTicks(1234567), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset);
+            Assert.Equal(
+                new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12).AddTicks(1234567), TimeSpan.Zero),
+                entity.DateTimeOffsetAsDatetimeoffset);
             Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12).AddTicks(1234567), entity.DateTimeAsDatetime2);
             Assert.Equal(new DateTime(2018, 1, 2, 13, 11, 00), entity.DateTimeAsSmalldatetime);
             Assert.Equal(new DateTime(2019, 1, 2, 14, 11, 12), entity.DateTimeAsDatetime);
@@ -933,7 +935,9 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             Assert.Equal(84.4f, entity.FloatAsReal);
             Assert.Equal(85.5, entity.DoubleAsDoublePrecision);
             Assert.Equal(new DateTime(2015, 1, 2), entity.DateTimeAsDate);
-            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12).AddTicks(9876543), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset);
+            Assert.Equal(
+                new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12).AddTicks(9876543), TimeSpan.Zero),
+                entity.DateTimeOffsetAsDatetimeoffset);
             Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12).AddTicks(9876543), entity.DateTimeAsDatetime2);
             Assert.Equal(new DateTime(2018, 1, 2, 13, 11, 00), entity.DateTimeAsSmalldatetime);
             Assert.Equal(new DateTime(2019, 1, 2, 14, 11, 12), entity.DateTimeAsDatetime);
@@ -1441,7 +1445,8 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             Assert.Equal(85.5f, entity.FloatAsDoublePrecision3);
             Assert.Equal(83.33f, entity.FloatAsFloat25);
             Assert.Equal(85.55f, entity.FloatAsDoublePrecision25);
-            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12, 765), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset3);
+            Assert.Equal(
+                new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12, 765), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset3);
             Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12, 321), entity.DateTimeAsDatetime23);
             Assert.Equal(101m, entity.DecimalAsDecimal3);
             Assert.Equal(102m, entity.DecimalAsDec3);
@@ -1501,7 +1506,8 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             Assert.Equal(85.5f, entity.FloatAsDoublePrecision3);
             Assert.Equal(83.33f, entity.FloatAsFloat25);
             Assert.Equal(85.55f, entity.FloatAsDoublePrecision25);
-            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12, 765), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset3);
+            Assert.Equal(
+                new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12, 765), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset3);
             Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12, 321), entity.DateTimeAsDatetime23);
             Assert.Equal(101m, entity.DecimalAsDecimal3);
             Assert.Equal(102m, entity.DecimalAsDec3);
@@ -1586,7 +1592,8 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 
             using (var context = CreateContext())
             {
-                AssertMappedPrecisionAndScaledSeparatelyDataTypes(context.Set<MappedPrecisionAndScaledSeparatelyDataTypes>().Single(e => e.Id == 77), 77);
+                AssertMappedPrecisionAndScaledSeparatelyDataTypes(
+                    context.Set<MappedPrecisionAndScaledSeparatelyDataTypes>().Single(e => e.Id == 77), 77);
             }
         }
 
@@ -1697,7 +1704,9 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             Assert.Equal(84.4f, entity.FloatAsReal);
             Assert.Equal(85.5, entity.DoubleAsDoublePrecision);
             Assert.Equal(new DateTime(2015, 1, 2), entity.DateTimeAsDate);
-            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12).AddTicks(7654321), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset);
+            Assert.Equal(
+                new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12).AddTicks(7654321), TimeSpan.Zero),
+                entity.DateTimeOffsetAsDatetimeoffset);
             Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12).AddTicks(7654321), entity.DateTimeAsDatetime2);
             Assert.Equal(new DateTime(2018, 1, 2, 13, 11, 00), entity.DateTimeAsSmalldatetime);
             Assert.Equal(new DateTime(2019, 1, 2, 14, 11, 12), entity.DateTimeAsDatetime);
@@ -1883,7 +1892,9 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             Assert.Equal(84.4f, entity.FloatAsReal);
             Assert.Equal(85.5, entity.DoubleAsDoublePrecision);
             Assert.Equal(new DateTime(2015, 1, 2), entity.DateTimeAsDate);
-            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12).AddTicks(2345678), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset);
+            Assert.Equal(
+                new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12).AddTicks(2345678), TimeSpan.Zero),
+                entity.DateTimeOffsetAsDatetimeoffset);
             Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12).AddTicks(2345678), entity.DateTimeAsDatetime2);
             Assert.Equal(new DateTime(2018, 1, 2, 13, 11, 00), entity.DateTimeAsSmalldatetime);
             Assert.Equal(new DateTime(2019, 1, 2, 14, 11, 12), entity.DateTimeAsDatetime);
@@ -2054,7 +2065,8 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static void AssertNullMappedNullableDataTypesWithIdentity(
-            MappedNullableDataTypesWithIdentity entity, int id)
+            MappedNullableDataTypesWithIdentity entity,
+            int id)
         {
             Assert.Equal(id, entity.Int);
             Assert.Null(entity.LongAsBigint);
@@ -2303,7 +2315,8 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             Assert.Equal(85.5f, entity.FloatAsDoublePrecision3);
             Assert.Equal(83.33f, entity.FloatAsFloat25);
             Assert.Equal(85.55f, entity.FloatAsDoublePrecision25);
-            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12, 567), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset3);
+            Assert.Equal(
+                new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12, 567), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset3);
             Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12, 123), entity.DateTimeAsDatetime23);
             Assert.Equal(101m, entity.DecimalAsDecimal3);
             Assert.Equal(102m, entity.DecimalAsDec3);
@@ -2353,7 +2366,8 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static void AssertMappedPrecisionAndScaledDataTypesWithIdentity(
-            MappedPrecisionAndScaledDataTypesWithIdentity entity, int id)
+            MappedPrecisionAndScaledDataTypesWithIdentity entity,
+            int id)
         {
             Assert.Equal(id, entity.Int);
             Assert.Equal(101.1m, entity.DecimalAsDecimal52);
@@ -3259,15 +3273,20 @@ WHERE [b].[Id] = 13");
 
         public class BuiltInDataTypesSqlServerFixture : BuiltInDataTypesFixtureBase
         {
-            public override bool StrictEquality => true;
+            public override bool StrictEquality
+                => true;
 
-            public override bool SupportsAnsi => true;
+            public override bool SupportsAnsi
+                => true;
 
-            public override bool SupportsUnicodeToAnsiConversion => true;
+            public override bool SupportsUnicodeToAnsiConversion
+                => true;
 
-            public override bool SupportsLargeStringComparisons => true;
+            public override bool SupportsLargeStringComparisons
+                => true;
 
-            public override bool SupportsDecimalComparisons => true;
+            public override bool SupportsDecimalComparisons
+                => true;
 
             protected override ITestStoreFactory TestStoreFactory
                 => SqlServerTestStoreFactory.Instance;
@@ -3275,7 +3294,8 @@ WHERE [b].[Id] = 13");
             protected override bool ShouldLogCategory(string logCategory)
                 => logCategory == DbLoggerCategory.Query.Name;
 
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
+            public TestSqlLoggerFactory TestSqlLoggerFactory
+                => (TestSqlLoggerFactory)ListLoggerFactory;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
@@ -3383,9 +3403,11 @@ WHERE [b].[Id] = 13");
                 return options;
             }
 
-            public override bool SupportsBinaryKeys => true;
+            public override bool SupportsBinaryKeys
+                => true;
 
-            public override DateTime DefaultDateTime => new DateTime();
+            public override DateTime DefaultDateTime
+                => new DateTime();
         }
 
         [Flags]

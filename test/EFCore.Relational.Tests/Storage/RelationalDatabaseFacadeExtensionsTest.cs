@@ -283,7 +283,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             public string Sql { get; private set; }
             public IEnumerable<object> Parameters { get; private set; }
 
-            public IRelationalCommand Build(string sql) => throw new NotImplementedException();
+            public IRelationalCommand Build(string sql)
+                => throw new NotImplementedException();
 
             public RawSqlCommand Build(string sql, IEnumerable<object> parameters)
             {

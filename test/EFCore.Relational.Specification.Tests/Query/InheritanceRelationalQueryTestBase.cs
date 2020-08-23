@@ -53,11 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var joinQuery =
                 from animal in animalQuery
                 join keylessanimal in queryTypeQuery on animal.Name equals keylessanimal.Name
-                select new
-                {
-                    animal,
-                    keylessanimal
-                };
+                select new { animal, keylessanimal };
 
             var result = joinQuery.ToList();
 

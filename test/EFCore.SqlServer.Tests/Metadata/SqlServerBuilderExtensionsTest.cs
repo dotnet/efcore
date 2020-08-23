@@ -738,7 +738,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("[Id] % 2 = 0", index.GetFilter());
         }
 
-
         [ConditionalFact]
         public void Can_set_index_with_fillfactor()
         {
@@ -776,13 +775,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            Assert.Throws<ArgumentOutOfRangeException>(() =>
-            {
-                modelBuilder
-                    .Entity(typeof(Customer))
-                    .HasIndex("Name")
-                    .HasFillFactor(fillFactor);
-            });
+            Assert.Throws<ArgumentOutOfRangeException>(
+                () =>
+                {
+                    modelBuilder
+                        .Entity(typeof(Customer))
+                        .HasIndex("Name")
+                        .HasFillFactor(fillFactor);
+                });
         }
 
         private void AssertIsGeneric(EntityTypeBuilder<Customer> _)

@@ -26,10 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Sets_DefaultTimeout_when_connection()
         {
-            var originalConnection = new SqliteConnection("Data Source=:memory:")
-            {
-                DefaultTimeout = 21
-            };
+            var originalConnection = new SqliteConnection("Data Source=:memory:") { DefaultTimeout = 21 };
             var services = SqliteTestHelpers.Instance.CreateContextServices(
                 new DbContextOptionsBuilder()
                     .UseSqlite(originalConnection, x => x.CommandTimeout(42))

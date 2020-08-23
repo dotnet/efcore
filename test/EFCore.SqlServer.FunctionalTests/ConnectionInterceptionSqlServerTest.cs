@@ -21,8 +21,11 @@ namespace Microsoft.EntityFrameworkCore
 
         public abstract class InterceptionSqlServerFixtureBase : InterceptionFixtureBase
         {
-            protected override string StoreName => "ConnectionInterception";
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override string StoreName
+                => "ConnectionInterception";
+
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
 
             protected override IServiceCollection InjectInterceptors(
                 IServiceCollection serviceCollection,
@@ -36,15 +39,33 @@ namespace Microsoft.EntityFrameworkCore
         public class FakeDbConnection : DbConnection
         {
             public override string ConnectionString { get; set; }
-            public override string Database => "Database";
-            public override string DataSource => "DataSource";
-            public override string ServerVersion => throw new NotImplementedException();
-            public override ConnectionState State => ConnectionState.Closed;
-            public override void ChangeDatabase(string databaseName) => throw new NotImplementedException();
-            public override void Close() => throw new NotImplementedException();
-            public override void Open() => throw new NotImplementedException();
-            protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel) => throw new NotImplementedException();
-            protected override DbCommand CreateDbCommand() => throw new NotImplementedException();
+
+            public override string Database
+                => "Database";
+
+            public override string DataSource
+                => "DataSource";
+
+            public override string ServerVersion
+                => throw new NotImplementedException();
+
+            public override ConnectionState State
+                => ConnectionState.Closed;
+
+            public override void ChangeDatabase(string databaseName)
+                => throw new NotImplementedException();
+
+            public override void Close()
+                => throw new NotImplementedException();
+
+            public override void Open()
+                => throw new NotImplementedException();
+
+            protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
+                => throw new NotImplementedException();
+
+            protected override DbCommand CreateDbCommand()
+                => throw new NotImplementedException();
         }
 
         public class ConnectionInterceptionSqlServerTest
@@ -57,7 +78,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
             {
-                protected override bool ShouldSubscribeToDiagnosticListener => false;
+                protected override bool ShouldSubscribeToDiagnosticListener
+                    => false;
             }
         }
 
@@ -72,7 +94,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
             {
-                protected override bool ShouldSubscribeToDiagnosticListener => true;
+                protected override bool ShouldSubscribeToDiagnosticListener
+                    => true;
             }
         }
     }

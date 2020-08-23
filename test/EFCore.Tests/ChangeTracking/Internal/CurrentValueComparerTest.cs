@@ -29,7 +29,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [InlineData(typeof(EntryCurrentValueComparer), nameof(Godzilla.NullableComparableIntStruct))]
         [InlineData(typeof(EntryCurrentValueComparer), nameof(Godzilla.NullableComparableBytesStruct))]
         [InlineData(typeof(EntryCurrentValueComparer<GenericComparableIntStruct?>), nameof(Godzilla.NullableGenericComparableIntStruct))]
-        [InlineData(typeof(EntryCurrentValueComparer<GenericComparableBytesStruct?>), nameof(Godzilla.NullableGenericComparableBytesStruct))]
+        [InlineData(
+            typeof(EntryCurrentValueComparer<GenericComparableBytesStruct?>), nameof(Godzilla.NullableGenericComparableBytesStruct))]
         [InlineData(typeof(StructuralEntryCurrentValueComparer), nameof(Godzilla.NullableStructuralComparableBytesStruct))]
         [InlineData(typeof(EntryCurrentValueComparer<int?>), nameof(Godzilla.NullableInt))]
         [InlineData(typeof(EntryCurrentValueComparer<ulong?>), nameof(Godzilla.NullableULong))]
@@ -207,14 +208,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public void Can_sort_NullableComparableIntStructs()
             => CanSortNullable(
                 nameof(Godzilla.NullableComparableIntStruct),
-                i => new Godzilla { NullableComparableIntStruct = i.HasValue ? new ComparableIntStruct { Value = i.Value } : (ComparableIntStruct?)null },
+                i => new Godzilla
+                {
+                    NullableComparableIntStruct = i.HasValue ? new ComparableIntStruct { Value = i.Value } : (ComparableIntStruct?)null
+                },
                 g => g.NullableComparableIntStruct?.Value);
 
         [ConditionalFact]
         public void Can_sort_NullableGenericComparableIntStructs()
             => CanSortNullable(
                 nameof(Godzilla.NullableGenericComparableIntStruct),
-                i => new Godzilla { NullableGenericComparableIntStruct = i.HasValue ? new GenericComparableIntStruct { Value = i.Value } : (GenericComparableIntStruct?)null },
+                i => new Godzilla
+                {
+                    NullableGenericComparableIntStruct =
+                        i.HasValue ? new GenericComparableIntStruct { Value = i.Value } : (GenericComparableIntStruct?)null
+                },
                 g => g.NullableGenericComparableIntStruct?.Value);
 
         [ConditionalFact]
@@ -295,21 +303,33 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public void Can_sort_NullableComparableBytesStructs()
             => CanSortNullable(
                 nameof(Godzilla.NullableComparableBytesStruct),
-                i => new Godzilla { NullableComparableBytesStruct = i == null ? (ComparableBytesStruct?)null : new ComparableBytesStruct { Value = i } },
+                i => new Godzilla
+                {
+                    NullableComparableBytesStruct = i == null ? (ComparableBytesStruct?)null : new ComparableBytesStruct { Value = i }
+                },
                 g => g.NullableComparableBytesStruct?.Value);
 
         [ConditionalFact]
         public void Can_sort_NullableGenericComparableBytesStructs()
             => CanSortNullable(
                 nameof(Godzilla.NullableGenericComparableBytesStruct),
-                i => new Godzilla { NullableGenericComparableBytesStruct = i == null ? (GenericComparableBytesStruct?)null : new GenericComparableBytesStruct { Value = i } },
+                i => new Godzilla
+                {
+                    NullableGenericComparableBytesStruct =
+                        i == null ? (GenericComparableBytesStruct?)null : new GenericComparableBytesStruct { Value = i }
+                },
                 g => g.NullableGenericComparableBytesStruct?.Value);
 
         [ConditionalFact]
         public void Can_sort_NullableStructuralComparableBytesStructs()
             => CanSortNullable(
                 nameof(Godzilla.NullableStructuralComparableBytesStruct),
-                i => new Godzilla { NullableStructuralComparableBytesStruct = i == null ? (StructuralComparableBytesStruct?)null : new StructuralComparableBytesStruct { Value = i } },
+                i => new Godzilla
+                {
+                    NullableStructuralComparableBytesStruct = i == null
+                        ? (StructuralComparableBytesStruct?)null
+                        : new StructuralComparableBytesStruct { Value = i }
+                },
                 g => g.NullableStructuralComparableBytesStruct?.Value);
 
         [ConditionalFact]
@@ -623,7 +643,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     || obj?.GetType() == GetType()
                     && Equals((IntClass)obj);
 
-            public override int GetHashCode() => Value;
+            public override int GetHashCode()
+                => Value;
 
             public int Value { get; set; }
         }
@@ -643,7 +664,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     || obj?.GetType() == GetType()
                     && Equals((ComparableIntClass)obj);
 
-            public override int GetHashCode() => Value;
+            public override int GetHashCode()
+                => Value;
 
             public int CompareTo(object other)
                 => Value - ((ComparableIntClass)other).Value;
@@ -664,7 +686,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     || obj?.GetType() == GetType()
                     && Equals((GenericComparableIntClass)obj);
 
-            public override int GetHashCode() => Value;
+            public override int GetHashCode()
+                => Value;
 
             public int CompareTo(GenericComparableIntClass other)
                 => Value - other.Value;

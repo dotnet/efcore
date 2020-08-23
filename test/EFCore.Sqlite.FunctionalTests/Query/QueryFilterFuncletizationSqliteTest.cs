@@ -10,7 +10,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         QueryFilterFuncletizationSqliteTest.QueryFilterFuncletizationSqliteFixture>
     {
         public QueryFilterFuncletizationSqliteTest(
-            QueryFilterFuncletizationSqliteFixture fixture, ITestOutputHelper testOutputHelper)
+            QueryFilterFuncletizationSqliteFixture fixture,
+            ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
@@ -19,7 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public class QueryFilterFuncletizationSqliteFixture : QueryFilterFuncletizationRelationalFixture
         {
-            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqliteTestStoreFactory.Instance;
         }
     }
 }

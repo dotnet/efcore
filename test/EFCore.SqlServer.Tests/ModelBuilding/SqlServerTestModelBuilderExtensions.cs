@@ -9,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
     public static class SqlServerTestModelBuilderExtensions
     {
         public static ModelBuilderTest.TestIndexBuilder<TEntity> IsClustered<TEntity>(
-            this ModelBuilderTest.TestIndexBuilder<TEntity> builder, bool clustered = true)
+            this ModelBuilderTest.TestIndexBuilder<TEntity> builder,
+            bool clustered = true)
         {
             switch (builder)
             {
@@ -26,7 +27,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         public static ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TDependentEntity> IsMemoryOptimized<TEntity,
             TDependentEntity>(
-            this ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TDependentEntity> builder, bool memoryOptimized = true)
+            this ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TDependentEntity> builder,
+            bool memoryOptimized = true)
             where TEntity : class
             where TDependentEntity : class
         {

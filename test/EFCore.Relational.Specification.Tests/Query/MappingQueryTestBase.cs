@@ -12,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class MappingQueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : MappingQueryTestBase<TFixture>.MappingQueryFixtureBase, new()
     {
-        protected MappingQueryTestBase(MappingQueryFixtureBase fixture) => Fixture = fixture;
+        protected MappingQueryTestBase(MappingQueryFixtureBase fixture)
+            => Fixture = fixture;
 
         protected MappingQueryFixtureBase Fixture { get; }
 
@@ -61,7 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(830, orders.Count);
         }
 
-        protected virtual DbContext CreateContext() => Fixture.CreateContext();
+        protected virtual DbContext CreateContext()
+            => Fixture.CreateContext();
 
         protected class MappedCustomer : Customer
         {
@@ -89,7 +91,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             protected abstract string DatabaseSchema { get; }
             protected override string StoreName { get; } = "Northwind";
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
+
+            public TestSqlLoggerFactory TestSqlLoggerFactory
+                => (TestSqlLoggerFactory)ListLoggerFactory;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {

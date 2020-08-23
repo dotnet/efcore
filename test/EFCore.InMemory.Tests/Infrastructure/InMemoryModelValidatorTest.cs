@@ -22,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        protected override TestHelpers TestHelpers => InMemoryTestHelpers.Instance;
+        protected override TestHelpers TestHelpers
+            => InMemoryTestHelpers.Instance;
     }
 }

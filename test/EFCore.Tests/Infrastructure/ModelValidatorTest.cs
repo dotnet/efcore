@@ -88,9 +88,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var convertedProperty = CreateConvertedCollectionProperty();
 
             VerifyWarning(
-                 CoreResources.LogCollectionWithoutComparer(
-                     new TestLogger<TestLoggingDefinitions>()).GenerateMessage("SomeStrings", "WithCollectionConversion"),
-                 convertedProperty.DeclaringEntityType.Model);
+                CoreResources.LogCollectionWithoutComparer(
+                    new TestLogger<TestLoggingDefinitions>()).GenerateMessage("SomeStrings", "WithCollectionConversion"),
+                convertedProperty.DeclaringEntityType.Model);
         }
 
         [ConditionalFact]
@@ -558,7 +558,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .GetForeignKeys().Single(fk => fk.PrincipalEntityType == orderEntity);
             var productOrderForeignKey = orderProductEntity
                 .GetForeignKeys().Single(fk => fk.PrincipalEntityType == productEntity);
-            orderProductEntity.SetPrimaryKey(new[] { orderProductForeignKey.Properties.Single(), productOrderForeignKey.Properties.Single() });
+            orderProductEntity.SetPrimaryKey(
+                new[] { orderProductForeignKey.Properties.Single(), productOrderForeignKey.Properties.Single() });
 
             var productsNavigation = orderEntity.AddSkipNavigation(
                 nameof(Order.Products), null, productEntity, true, false);
@@ -587,7 +588,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .GetForeignKeys().Single(fk => fk.PrincipalEntityType == orderEntity);
             var productOrderForeignKey = orderProductEntity
                 .GetForeignKeys().Single(fk => fk.PrincipalEntityType == productEntity);
-            orderProductEntity.SetPrimaryKey(new[] { orderProductForeignKey.Properties.Single(), productOrderForeignKey.Properties.Single() });
+            orderProductEntity.SetPrimaryKey(
+                new[] { orderProductForeignKey.Properties.Single(), productOrderForeignKey.Properties.Single() });
 
             var productsNavigation = orderEntity.AddSkipNavigation(
                 nameof(Order.Products), null, productEntity, true, false);
@@ -610,7 +612,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .GetForeignKeys().Single(fk => fk.PrincipalEntityType == orderEntity);
             var productOrderForeignKey = orderProductEntity
                 .GetForeignKeys().Single(fk => fk.PrincipalEntityType == productEntity);
-            orderProductEntity.SetPrimaryKey(new[] { orderProductForeignKey.Properties.Single(), productOrderForeignKey.Properties.Single() });
+            orderProductEntity.SetPrimaryKey(
+                new[] { orderProductForeignKey.Properties.Single(), productOrderForeignKey.Properties.Single() });
 
             var productsNavigation = orderEntity.AddSkipNavigation(
                 nameof(Order.Products), null, productEntity, true, false);
@@ -668,7 +671,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(
                 CoreStrings.NoDefiningNavigation(
                     nameof(SampleEntityMinimal.ReferencedEntity),
-                    nameof(SampleEntityMinimal) + "." + nameof(SampleEntityMinimal.ReferencedEntity) + "#"
+                    nameof(SampleEntityMinimal)
+                    + "."
+                    + nameof(SampleEntityMinimal.ReferencedEntity)
+                    + "#"
                     + nameof(ReferencedEntityMinimal),
                     nameof(SampleEntityMinimal)),
                 modelBuilder.Metadata);
@@ -732,7 +738,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 CoreStrings.NonDefiningOwnership(
                     nameof(SampleEntityMinimal),
                     nameof(SampleEntityMinimal.ReferencedEntity),
-                    nameof(SampleEntityMinimal) + "." + nameof(SampleEntityMinimal.ReferencedEntity) + "#"
+                    nameof(SampleEntityMinimal)
+                    + "."
+                    + nameof(SampleEntityMinimal.ReferencedEntity)
+                    + "#"
                     + nameof(ReferencedEntityMinimal)),
                 modelBuilder.Metadata);
         }
@@ -760,9 +769,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             VerifyError(
                 CoreStrings.InconsistentOwnership(
-                    nameof(SampleEntityMinimal) + "." + nameof(SampleEntityMinimal.ReferencedEntity) + "#"
+                    nameof(SampleEntityMinimal)
+                    + "."
+                    + nameof(SampleEntityMinimal.ReferencedEntity)
+                    + "#"
                     + nameof(ReferencedEntityMinimal),
-                    nameof(AnotherSampleEntityMinimal) + "." + nameof(AnotherSampleEntityMinimal.ReferencedEntity) + "#"
+                    nameof(AnotherSampleEntityMinimal)
+                    + "."
+                    + nameof(AnotherSampleEntityMinimal.ReferencedEntity)
+                    + "#"
                     + nameof(ReferencedEntityMinimal)),
                 modelBuilder.Metadata);
         }

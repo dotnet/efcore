@@ -1,11 +1,11 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Xunit;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -23,7 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).OrderBy(e => e.CustomerID).AsSplitQuery().Select(c => c.Orders),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).OrderBy(e => e.CustomerID).AsSplitQuery()
+                    .Select(c => c.Orders),
                 assertOrder: true,
                 elementAsserter: (e, a) => AssertCollection(e, a),
                 entryCount: 63);
@@ -39,14 +40,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(c => c.Orders).ThenInclude(o => o.OrderDetails)
                     .OrderBy(e => e.CustomerID).AsSplitQuery().Select(c => c.Orders),
                 assertOrder: true,
-                elementAsserter: (e, a) => AssertCollection(e, a,
+                elementAsserter: (e, a) => AssertCollection(
+                    e, a,
                     elementAsserter: (eo, ao) => AssertInclude(eo, ao, new ExpectedInclude<Order>(o => o.OrderDetails))),
                 entryCount: 227);
         }
 
-        protected virtual bool CanExecuteQueryString => false;
+        protected virtual bool CanExecuteQueryString
+            => false;
 
         protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
-            => new RelationalQueryAsserter(fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+            => new RelationalQueryAsserter(
+                fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
     }
 }

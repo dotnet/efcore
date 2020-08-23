@@ -18,15 +18,15 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure.Model
                 entity =>
                 {
                     entity.HasIndex(
-                            e => new
-                            {
-                                e.AddressLine1,
-                                e.AddressLine2,
-                                e.City,
-                                e.StateProvince,
-                                e.PostalCode,
-                                e.CountryRegion
-                            },
+                        e => new
+                        {
+                            e.AddressLine1,
+                            e.AddressLine2,
+                            e.City,
+                            e.StateProvince,
+                            e.PostalCode,
+                            e.CountryRegion
+                        },
                         "IX_Address_AddressLine1_AddressLine2_City_StateProvince_PostalCode_CountryRegion");
 
                     entity.HasIndex(e => e.StateProvince, "IX_Address_StateProvince");
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure.Model
             modelBuilder.Entity<ProductCategory>(
                 entity =>
                 {
-                    entity.HasIndex(e => e.Name,"AK_ProductCategory_Name")
+                    entity.HasIndex(e => e.Name, "AK_ProductCategory_Name")
                         .IsUnique();
 
                     entity.HasIndex(e => e.rowguid, "AK_ProductCategory_rowguid")
@@ -218,12 +218,14 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure.Model
 
                     entity.HasIndex(e => e.CustomerID, "IX_SalesOrderHeader_CustomerID");
 
-                    entity.HasIndex(e => e.SalesOrderNumber,
-                        "AK_SalesOrderHeader_SalesOrderNumber")
+                    entity.HasIndex(
+                            e => e.SalesOrderNumber,
+                            "AK_SalesOrderHeader_SalesOrderNumber")
                         .IsUnique();
 
-                    entity.HasIndex(e => e.rowguid,
-                        "AK_SalesOrderHeader_rowguid")
+                    entity.HasIndex(
+                            e => e.rowguid,
+                            "AK_SalesOrderHeader_rowguid")
                         .IsUnique();
 
                     entity.Property(e => e.SalesOrderID).UseHiLo("SalesOrderNumber", "SalesLT");

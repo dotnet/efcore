@@ -89,7 +89,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         protected virtual DbContext CreateDefaultContext()
             => new DbContext(AddProviderOptions(new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options);
 
-        protected virtual TestStoreIndex GetTestStoreIndex(IServiceProvider serviceProvider) => _globalTestStoreIndex;
+        protected virtual TestStoreIndex GetTestStoreIndex(IServiceProvider serviceProvider)
+            => _globalTestStoreIndex;
 
         public virtual void Dispose()
         {

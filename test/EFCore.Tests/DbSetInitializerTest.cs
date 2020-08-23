@@ -61,9 +61,11 @@ namespace Microsoft.EntityFrameworkCore
             private DbSet<object> Two { get; set; }
             public DbSet<string> Three { get; private set; }
 
-            public DbSet<string> Four => null;
+            public DbSet<string> Four
+                => null;
 
-            public DbSet<object> GetTwo() => Two;
+            public DbSet<object> GetTwo()
+                => Two;
         }
     }
 }

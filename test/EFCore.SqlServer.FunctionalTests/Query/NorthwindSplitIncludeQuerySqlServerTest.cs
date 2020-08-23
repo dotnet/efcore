@@ -9,10 +9,13 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindSplitIncludeQuerySqlServerTest : NorthwindSplitIncludeQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    public class NorthwindSplitIncludeQuerySqlServerTest : NorthwindSplitIncludeQueryTestBase<
+        NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         // ReSharper disable once UnusedParameter.Local
-        public NorthwindSplitIncludeQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+        public NorthwindSplitIncludeQuerySqlServerTest(
+            NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture,
+            ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();

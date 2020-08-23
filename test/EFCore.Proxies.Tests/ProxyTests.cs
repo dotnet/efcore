@@ -104,18 +104,18 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Proxies_only_created_if_Use_called()
         {
-            using (var context = new NeweyContext(nameof(Proxies_only_created_if_Use_called), false, false))
+            using (var context = new NeweyContext(nameof(Proxies_only_created_if_Use_called), false))
             {
                 context.Add(new March82GGtp());
                 context.SaveChanges();
             }
 
-            using (var context = new NeweyContext(nameof(Proxies_only_created_if_Use_called), false, false))
+            using (var context = new NeweyContext(nameof(Proxies_only_created_if_Use_called), false))
             {
                 Assert.Same(typeof(March82GGtp), context.Set<March82GGtp>().Single().GetType());
             }
 
-            using (var context = new NeweyContext(nameof(Proxies_only_created_if_Use_called), true, false))
+            using (var context = new NeweyContext(nameof(Proxies_only_created_if_Use_called)))
             {
                 Assert.Same(typeof(March82GGtp), context.Set<March82GGtp>().Single().GetType().BaseType);
             }
@@ -244,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore
                     () =>
                     {
                         var context = new CannotAddProxyTypeToModel();
-                        context.Set<ClassToBeProxied>().Add( new ClassToBeProxied { Id = 0 } );
+                        context.Set<ClassToBeProxied>().Add(new ClassToBeProxied { Id = 0 });
                     }).Message);
         }
 
@@ -303,7 +303,11 @@ namespace Microsoft.EntityFrameworkCore
                 _useChangeDetectionProxies = useChangeDetection;
             }
 
-            public NeweyContext(IServiceProvider internalServiceProvider, string dbName = null, bool useLazyLoading = true, bool useChangeDetection = false)
+            public NeweyContext(
+                IServiceProvider internalServiceProvider,
+                string dbName = null,
+                bool useLazyLoading = true,
+                bool useChangeDetection = false)
                 : this(dbName, useLazyLoading, useChangeDetection)
             {
                 _internalServiceProvider = internalServiceProvider;

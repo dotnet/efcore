@@ -8,10 +8,12 @@ using Xunit.Abstractions;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class InheritanceRelationshipsQuerySqlServerTest
-        : InheritanceRelationshipsQueryRelationalTestBase<InheritanceRelationshipsQuerySqlServerTest.InheritanceRelationshipsQuerySqlServerFixture>
+        : InheritanceRelationshipsQueryRelationalTestBase<
+            InheritanceRelationshipsQuerySqlServerTest.InheritanceRelationshipsQuerySqlServerFixture>
     {
         public InheritanceRelationshipsQuerySqlServerTest(
-            InheritanceRelationshipsQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+            InheritanceRelationshipsQuerySqlServerFixture fixture,
+            ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             fixture.TestSqlLoggerFactory.Clear();
@@ -28,7 +30,6 @@ LEFT JOIN [BaseReferencesOnBase] AS [b0] ON [b].[Id] = [b0].[BaseParentId]
 LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b1] ON [b].[Id] = [b1].[BaseInheritanceRelationshipEntityId]
 LEFT JOIN [BaseEntities_OwnedCollectionOnDerived] AS [b2] ON [b].[Id] = [b2].[DerivedInheritanceRelationshipEntityId]
 ORDER BY [b].[Id], [b0].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [b2].[DerivedInheritanceRelationshipEntityId], [b2].[Id]");
-
         }
 
         public override async Task Include_reference_with_inheritance_reverse(bool async)
@@ -105,7 +106,6 @@ LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b1] ON [b0].[Id] = [b1].[Base
 LEFT JOIN [BaseEntities_OwnedCollectionOnDerived] AS [b2] ON [b0].[Id] = [b2].[DerivedInheritanceRelationshipEntityId]
 WHERE ([b].[Name] <> N'Bar') OR [b].[Name] IS NULL
 ORDER BY [b].[Id], [b0].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [b2].[DerivedInheritanceRelationshipEntityId], [b2].[Id]");
-
         }
 
         public override async Task Include_reference_without_inheritance(bool async)
@@ -119,7 +119,6 @@ LEFT JOIN [ReferencesOnBase] AS [r] ON [b].[Id] = [r].[ParentId]
 LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b0] ON [b].[Id] = [b0].[BaseInheritanceRelationshipEntityId]
 LEFT JOIN [BaseEntities_OwnedCollectionOnDerived] AS [b1] ON [b].[Id] = [b1].[DerivedInheritanceRelationshipEntityId]
 ORDER BY [b].[Id], [r].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b1].[DerivedInheritanceRelationshipEntityId], [b1].[Id]");
-
         }
 
         public override async Task Include_reference_without_inheritance_reverse(bool async)
@@ -133,7 +132,6 @@ LEFT JOIN [BaseEntities] AS [b] ON [r].[ParentId] = [b].[Id]
 LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b0] ON [b].[Id] = [b0].[BaseInheritanceRelationshipEntityId]
 LEFT JOIN [BaseEntities_OwnedCollectionOnDerived] AS [b1] ON [b].[Id] = [b1].[DerivedInheritanceRelationshipEntityId]
 ORDER BY [r].[Id], [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b1].[DerivedInheritanceRelationshipEntityId], [b1].[Id]");
-
         }
 
         public override async Task Include_reference_without_inheritance_with_filter(bool async)
@@ -333,7 +331,6 @@ LEFT JOIN (
 LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b1] ON [t].[Id] = [b1].[BaseInheritanceRelationshipEntityId]
 LEFT JOIN [BaseEntities_OwnedCollectionOnDerived] AS [b2] ON [t].[Id] = [b2].[DerivedInheritanceRelationshipEntityId]
 ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [b2].[DerivedInheritanceRelationshipEntityId], [b2].[Id]");
-
         }
 
         public override async Task Include_reference_with_inheritance_on_derived_with_filter1(bool async)
@@ -489,7 +486,6 @@ LEFT JOIN (
 ) AS [t] ON [b].[Id] = [t].[DerivedInheritanceRelationshipEntityId]
 WHERE [b].[Discriminator] = N'DerivedInheritanceRelationshipEntity'
 ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b1].[DerivedInheritanceRelationshipEntityId], [b1].[Id], [t].[Id]");
-
         }
 
         public override async Task Include_collection_with_inheritance_on_derived_reverse(bool async)
@@ -1254,7 +1250,8 @@ ORDER BY [b].[Id]");
 
         public class InheritanceRelationshipsQuerySqlServerFixture : InheritanceRelationshipsQueryRelationalFixture
         {
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
         }
     }
 }

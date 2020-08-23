@@ -14,10 +14,12 @@ using Xunit.Abstractions;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindDbFunctionsQuerySqlServerTest : NorthwindDbFunctionsQueryRelationalTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    public class NorthwindDbFunctionsQuerySqlServerTest : NorthwindDbFunctionsQueryRelationalTestBase<
+        NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         public NorthwindDbFunctionsQuerySqlServerTest(
-            NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+            NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture,
+            ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
@@ -74,8 +76,11 @@ FROM [Customers] AS [c]
 WHERE [c].[ContactName] COLLATE Latin1_General_CS_AS = N'maria anders'");
         }
 
-        protected override string CaseInsensitiveCollation => "Latin1_General_CI_AI";
-        protected override string CaseSensitiveCollation => "Latin1_General_CS_AS";
+        protected override string CaseInsensitiveCollation
+            => "Latin1_General_CI_AI";
+
+        protected override string CaseSensitiveCollation
+            => "Latin1_General_CS_AS";
 
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
@@ -596,9 +601,11 @@ WHERE DATEDIFF(NANOSECOND, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDAT
         {
             using var context = CreateContext();
             var count = context.Orders
-                .Count(c => EF.Functions.DateDiffWeek(
-                    c.OrderDate,
-                    new DateTime(1998, 5, 6, 0, 0, 0)) == 5);
+                .Count(
+                    c => EF.Functions.DateDiffWeek(
+                            c.OrderDate,
+                            new DateTime(1998, 5, 6, 0, 0, 0))
+                        == 5);
 
             Assert.Equal(16, count);
 
@@ -613,9 +620,11 @@ WHERE DATEDIFF(WEEK, [o].[OrderDate], '1998-05-06T00:00:00.000') = 5");
         {
             using var context = CreateContext();
             var count = context.Orders
-                .Count(c => EF.Functions.DateDiffWeek(
-                    c.OrderDate,
-                    new DateTimeOffset(1998, 5, 6, 0, 0, 0, TimeSpan.Zero)) == 5);
+                .Count(
+                    c => EF.Functions.DateDiffWeek(
+                            c.OrderDate,
+                            new DateTimeOffset(1998, 5, 6, 0, 0, 0, TimeSpan.Zero))
+                        == 5);
 
             Assert.Equal(16, count);
 
@@ -630,9 +639,11 @@ WHERE DATEDIFF(WEEK, CAST([o].[OrderDate] AS datetimeoffset), '1998-05-06T00:00:
         {
             using var context = CreateContext();
             var count = context.Orders
-                .Count(c => EF.Functions.DateDiffWeek(
-                    null,
-                    c.OrderDate) == 5);
+                .Count(
+                    c => EF.Functions.DateDiffWeek(
+                            null,
+                            c.OrderDate)
+                        == 5);
 
             Assert.Equal(0, count);
 
@@ -744,11 +755,17 @@ WHERE '2018-12-29T23:20:40.000' > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), 1
                 async,
                 ss => ss.Set<Order>(),
                 ss => ss.Set<Order>(),
-                c => dateTime > EF.Functions.DateTimeFromParts(DateTime.Now.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond),
-                c => dateTime > new DateTime(DateTime.Now.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond));
+                c => dateTime
+                    > EF.Functions.DateTimeFromParts(
+                        DateTime.Now.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, dateTime.Second,
+                        dateTime.Millisecond),
+                c => dateTime
+                    > new DateTime(
+                        DateTime.Now.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, dateTime.Second,
+                        dateTime.Millisecond));
 
             AssertSql(
-                @$"@__dateTime_0='1919-12-12T10:20:15.0000000' (DbType = DateTime)
+                @"@__dateTime_0='1919-12-12T10:20:15.0000000' (DbType = DateTime)
 @__dateTime_Month_2='12'
 @__dateTime_Day_3='12'
 @__dateTime_Hour_4='10'
@@ -808,7 +825,7 @@ WHERE '2018-12-29' > DATEFROMPARTS(DATEPART(year, GETDATE()), 12, 31)");
                 c => date > new DateTime(DateTime.Now.Year, date.Month, date.Day));
 
             AssertSql(
-                @$"@__date_0='1919-12-12T00:00:00.0000000' (DbType = Date)
+                @"@__date_0='1919-12-12T00:00:00.0000000' (DbType = Date)
 @__date_Month_2='12'
 @__date_Day_3='12'
 
@@ -840,7 +857,9 @@ WHERE [o].[OrderDate] > DATETIME2FROMPARTS(DATEPART(year, GETDATE()), 12, 31, 23
             using (var context = CreateContext())
             {
                 var count = context.Orders
-                    .Count(c => new DateTime(2018, 12, 29, 23, 20, 40) > EF.Functions.DateTime2FromParts(DateTime.Now.Year, 12, 31, 23, 59, 59, 9999999, 7));
+                    .Count(
+                        c => new DateTime(2018, 12, 29, 23, 20, 40)
+                            > EF.Functions.DateTime2FromParts(DateTime.Now.Year, 12, 31, 23, 59, 59, 9999999, 7));
 
                 Assert.Equal(0, count);
 
@@ -859,12 +878,16 @@ WHERE '2018-12-29T23:20:40.0000000' > DATETIME2FROMPARTS(DATEPART(year, GETDATE(
             using (var context = CreateContext())
             {
                 var count = context.Orders
-                    .Count(c => dateTime > EF.Functions.DateTime2FromParts(DateTime.Now.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, dateTime.Second, fractions, 7));
+                    .Count(
+                        c => dateTime
+                            > EF.Functions.DateTime2FromParts(
+                                DateTime.Now.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, dateTime.Second, fractions,
+                                7));
 
                 Assert.Equal(0, count);
 
                 AssertSql(
-                    @$"@__dateTime_0='1919-12-12T10:20:15.0000000'
+                    @"@__dateTime_0='1919-12-12T10:20:15.0000000'
 @__dateTime_Month_2='12'
 @__dateTime_Day_3='12'
 @__dateTime_Hour_4='10'
@@ -901,7 +924,9 @@ WHERE CAST([o].[OrderDate] AS datetimeoffset) > DATETIMEOFFSETFROMPARTS(DATEPART
             using (var context = CreateContext())
             {
                 var count = context.Orders
-                    .Count(c => new DateTimeOffset(2018, 12, 29, 23, 20, 40, new TimeSpan(1, 0, 0)) > EF.Functions.DateTimeOffsetFromParts(DateTime.Now.Year, 12, 31, 23, 59, 59, 50, 1, 0, 7));
+                    .Count(
+                        c => new DateTimeOffset(2018, 12, 29, 23, 20, 40, new TimeSpan(1, 0, 0))
+                            > EF.Functions.DateTimeOffsetFromParts(DateTime.Now.Year, 12, 31, 23, 59, 59, 50, 1, 0, 7));
 
                 Assert.Equal(0, count);
 
@@ -922,12 +947,16 @@ WHERE '2018-12-29T23:20:40.0000000+01:00' > DATETIMEOFFSETFROMPARTS(DATEPART(yea
             using (var context = CreateContext())
             {
                 var count = context.Orders
-                    .Count(c => dateTimeOffset > EF.Functions.DateTimeOffsetFromParts(DateTime.Now.Year, dateTimeOffset.Month, dateTimeOffset.Day, dateTimeOffset.Hour, dateTimeOffset.Minute, dateTimeOffset.Second, fractions, hourOffset, minuteOffset, 7));
+                    .Count(
+                        c => dateTimeOffset
+                            > EF.Functions.DateTimeOffsetFromParts(
+                                DateTime.Now.Year, dateTimeOffset.Month, dateTimeOffset.Day, dateTimeOffset.Hour, dateTimeOffset.Minute,
+                                dateTimeOffset.Second, fractions, hourOffset, minuteOffset, 7));
 
                 Assert.Equal(0, count);
 
                 AssertSql(
-                    @$"@__dateTimeOffset_0='1919-12-12T10:20:15.0000000+01:30'
+                    @"@__dateTimeOffset_0='1919-12-12T10:20:15.0000000+01:30'
 @__dateTimeOffset_Month_2='12'
 @__dateTimeOffset_Day_3='12'
 @__dateTimeOffset_Hour_4='10'
@@ -986,11 +1015,12 @@ WHERE '2018-12-29T23:20:00' > SMALLDATETIMEFROMPARTS(DATEPART(year, GETDATE()), 
                 async,
                 ss => ss.Set<Order>(),
                 ss => ss.Set<Order>(),
-                c => dateTime > EF.Functions.SmallDateTimeFromParts(DateTime.Now.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute),
+                c => dateTime
+                    > EF.Functions.SmallDateTimeFromParts(DateTime.Now.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute),
                 c => dateTime > new DateTime(DateTime.Now.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, 0));
 
             AssertSql(
-                @$"@__dateTime_0='1919-12-12T23:20:00.0000000' (DbType = DateTime)
+                @"@__dateTime_0='1919-12-12T23:20:00.0000000' (DbType = DateTime)
 @__dateTime_Month_2='12'
 @__dateTime_Day_3='12'
 @__dateTime_Hour_4='23'
@@ -1064,7 +1094,7 @@ WHERE 100 < DATALENGTH([o].[OrderDate])");
                 Assert.Equal(0, count);
 
                 AssertSql(
-                    @$"@__lenght_0='100' (Nullable = true)
+                    @"@__lenght_0='100' (Nullable = true)
 
 SELECT COUNT(*)
 FROM [Orders] AS [o]

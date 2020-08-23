@@ -11,7 +11,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
     public static class CosmosTestModelBuilderExtensions
     {
         public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> HasPartitionKey<TEntity, TProperty>(
-            this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder, Expression<Func<TEntity, TProperty>> propertyExpression)
+            this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+            Expression<Func<TEntity, TProperty>> propertyExpression)
             where TEntity : class
         {
             switch (builder)
@@ -29,7 +30,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         }
 
         public static ModelBuilderTest.TestPropertyBuilder<TProperty> ToJsonProperty<TProperty>(
-            this ModelBuilderTest.TestPropertyBuilder<TProperty> builder, string name)
+            this ModelBuilderTest.TestPropertyBuilder<TProperty> builder,
+            string name)
         {
             switch (builder)
             {

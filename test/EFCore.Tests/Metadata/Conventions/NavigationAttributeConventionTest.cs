@@ -11,7 +11,6 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -683,7 +682,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public void ForeignKeyAttribute_sets_foreign_key_properties_after_inverting_when_applied_on_property_on_principal_side(bool useNavigation)
+        public void ForeignKeyAttribute_sets_foreign_key_properties_after_inverting_when_applied_on_property_on_principal_side(
+            bool useNavigation)
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Principal>();
             var principalEntityTypeBuilder =
@@ -778,7 +778,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     () => useNavigation
                         ? RunForeignKeyAttributeConvention(relationshipBuilder, navigation)
                         : RunForeignKeyAttributeConvention(relationshipBuilder)
-                    ).Message);
+                ).Message);
         }
 
         [ConditionalTheory]
@@ -803,7 +803,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     () => useNavigation
                         ? RunForeignKeyAttributeConvention(relationshipBuilder, navigation)
                         : RunForeignKeyAttributeConvention(relationshipBuilder)
-                    ).Message);
+                ).Message);
         }
 
         [ConditionalTheory]
@@ -828,7 +828,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     () => useNavigation
                         ? RunForeignKeyAttributeConvention(relationshipBuilder, navigation)
                         : RunForeignKeyAttributeConvention(relationshipBuilder)
-                    ).Message);
+                ).Message);
         }
 
         [ConditionalTheory]
@@ -853,7 +853,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     () => useNavigation
                         ? RunForeignKeyAttributeConvention(relationshipBuilder, navigation)
                         : RunForeignKeyAttributeConvention(relationshipBuilder)
-                    ).Message);
+                ).Message);
         }
 
         [ConditionalTheory]
@@ -918,7 +918,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private InternalForeignKeyBuilder RunForeignKeyAttributeConvention(
-            InternalForeignKeyBuilder relationshipBuilder, Navigation navigation)
+            InternalForeignKeyBuilder relationshipBuilder,
+            Navigation navigation)
         {
             var dependencies = CreateDependencies();
             var context = new ConventionContext<IConventionNavigationBuilder>(
@@ -942,7 +943,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 .ProcessNavigationAdded(navigation.Builder, context);
         }
 
-        private void RunNavigationBackingFieldAttributeConvention(InternalForeignKeyBuilder relationshipBuilder, InternalNavigationBuilder navigationBuilder)
+        private void RunNavigationBackingFieldAttributeConvention(
+            InternalForeignKeyBuilder relationshipBuilder,
+            InternalNavigationBuilder navigationBuilder)
         {
             var dependencies = CreateDependencies();
             var context = new ConventionContext<IConventionNavigationBuilder>(
@@ -981,10 +984,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     typeof(PrincipalForNavWithBackingField), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
-                    principalEntityTypeBuilder.Metadata,
-                    "PrincipalForNavWithBackingField",
-                    "DependentForNavWithBackingField",
-                    ConfigurationSource.Convention);
+                principalEntityTypeBuilder.Metadata,
+                "PrincipalForNavWithBackingField",
+                "DependentForNavWithBackingField",
+                ConfigurationSource.Convention);
 
             var navigationBuilder = relationshipBuilder.Metadata.DependentToPrincipal.Builder;
             RunNavigationBackingFieldAttributeConvention(relationshipBuilder, navigationBuilder);
@@ -1001,10 +1004,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     typeof(PrincipalForNavWithBackingField), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
-                    principalEntityTypeBuilder.Metadata,
-                    "PrincipalForNavWithBackingField",
-                    "DependentForNavWithBackingField",
-                    ConfigurationSource.Convention);
+                principalEntityTypeBuilder.Metadata,
+                "PrincipalForNavWithBackingField",
+                "DependentForNavWithBackingField",
+                ConfigurationSource.Convention);
 
             var navigationBuilder = relationshipBuilder.Metadata.DependentToPrincipal.Builder;
             navigationBuilder.HasField("_backingFieldFromFluentApi", ConfigurationSource.Explicit);
@@ -1044,7 +1047,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private ModelBuilder CreateModelBuilder()
         {
             var serviceProvider = CreateServiceProvider();
-            return new ModelBuilder(serviceProvider.GetService<IConventionSetBuilder>().CreateConventionSet(),
+            return new ModelBuilder(
+                serviceProvider.GetService<IConventionSetBuilder>().CreateConventionSet(),
                 serviceProvider.GetService<ModelDependencies>());
         }
 

@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public class OneToOneQueryInMemoryFixture : OneToOneQueryFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => InMemoryTestStoreFactory.Instance;
         }
     }
 }

@@ -12,9 +12,11 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class NorthwindQueryCosmosFixture<TModelCustomizer> : NorthwindQueryFixtureBase<TModelCustomizer>
         where TModelCustomizer : IModelCustomizer, new()
     {
-        protected override ITestStoreFactory TestStoreFactory => CosmosNorthwindTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory
+            => CosmosNorthwindTestStoreFactory.Instance;
 
-        protected override bool UsePooling => false;
+        protected override bool UsePooling
+            => false;
 
         public TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();

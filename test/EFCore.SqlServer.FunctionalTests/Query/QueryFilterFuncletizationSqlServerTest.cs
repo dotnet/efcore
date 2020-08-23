@@ -438,7 +438,8 @@ WHERE ([m].[IsEnabled] = @__ef_filter__Property_0) AND ([m].[BossId] = 1)");
 
         public class QueryFilterFuncletizationSqlServerFixture : QueryFilterFuncletizationRelationalFixture
         {
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
         }
     }
 }

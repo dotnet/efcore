@@ -179,6 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 #nullable disable
 
-        private static ModelBuilder CreateModelBuilder() => InMemoryTestHelpers.Instance.CreateConventionBuilder();
+        private static ModelBuilder CreateModelBuilder()
+            => InMemoryTestHelpers.Instance.CreateConventionBuilder();
     }
 }

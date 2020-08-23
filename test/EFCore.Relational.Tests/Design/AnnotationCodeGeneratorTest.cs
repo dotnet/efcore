@@ -24,12 +24,14 @@ namespace Microsoft.EntityFrameworkCore.Design
             Assert.DoesNotContain(RelationalAnnotationNames.IsTableExcludedFromMigrations, annotations.Keys);
         }
 
-        private ModelBuilder CreateModelBuilder() => RelationalTestHelpers.Instance.CreateConventionBuilder();
+        private ModelBuilder CreateModelBuilder()
+            => RelationalTestHelpers.Instance.CreateConventionBuilder();
 
-        private AnnotationCodeGenerator CreateGenerator() => new AnnotationCodeGenerator(
-            new AnnotationCodeGeneratorDependencies(
-                new TestRelationalTypeMappingSource(
-                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())));
+        private AnnotationCodeGenerator CreateGenerator()
+            => new AnnotationCodeGenerator(
+                new AnnotationCodeGeneratorDependencies(
+                    new TestRelationalTypeMappingSource(
+                        TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())));
     }
 }

@@ -1266,7 +1266,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 throw new NotImplementedException();
             }
 
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            IEnumerator IEnumerable.GetEnumerator()
+                => GetEnumerator();
         }
 
         private class ProductPhoto

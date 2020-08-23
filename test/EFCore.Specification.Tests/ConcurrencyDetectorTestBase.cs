@@ -18,7 +18,8 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class ConcurrencyDetectorTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
     {
-        protected ConcurrencyDetectorTestBase(TFixture fixture) => Fixture = fixture;
+        protected ConcurrencyDetectorTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
@@ -177,6 +178,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
+        protected NorthwindContext CreateContext()
+            => Fixture.CreateContext();
     }
 }

@@ -269,8 +269,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             private readonly Action<EntityTypeBuilder<TEntity>> _entityBuilderAction;
 
-            public ChangeContext(bool useLazyLoading = false, bool checkEquality = true, Action<EntityTypeBuilder<TEntity>> entityBuilderAction = null)
-                : base(dbName: "ChangeDetectionContext", useLazyLoading: useLazyLoading, useChangeDetection: true, checkEquality: checkEquality)
+            public ChangeContext(
+                bool useLazyLoading = false,
+                bool checkEquality = true,
+                Action<EntityTypeBuilder<TEntity>> entityBuilderAction = null)
+                : base(
+                    dbName: "ChangeDetectionContext", useLazyLoading: useLazyLoading, useChangeDetection: true,
+                    checkEquality: checkEquality)
             {
                 _entityBuilderAction = entityBuilderAction;
             }

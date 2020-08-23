@@ -25,9 +25,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class FakeKey : IKey
         {
-            public object this[string name] => throw new NotImplementedException();
-            public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
-            public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();
+            public object this[string name]
+                => throw new NotImplementedException();
+
+            public IAnnotation FindAnnotation(string name)
+                => throw new NotImplementedException();
+
+            public IEnumerable<IAnnotation> GetAnnotations()
+                => throw new NotImplementedException();
+
             public IReadOnlyList<IProperty> Properties { get; }
             public IEntityType DeclaringEntityType { get; }
         }
@@ -61,7 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     () => entityType1.AddKey(new[] { property1, property2 })).Message);
         }
 
-        private static IMutableModel CreateModel() => new Model();
+        private static IMutableModel CreateModel()
+            => new Model();
 
         private class Customer
         {

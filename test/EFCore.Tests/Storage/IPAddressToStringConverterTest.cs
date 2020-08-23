@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")]
         [InlineData("27ff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")]
         [InlineData("2001:db8::f:ffff")]
-        [InlineData("2001:db8::1")]        
+        [InlineData("2001:db8::1")]
         [InlineData("2001:db8::")]
         public void Can_convert_ipaddress_ipv6_to_String(string ipv6)
         {

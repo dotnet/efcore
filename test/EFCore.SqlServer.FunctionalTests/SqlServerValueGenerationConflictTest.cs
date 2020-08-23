@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -39,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
                 CoreStrings.WarningAsErrorTemplate(
                     SqlServerEventId.ConflictingValueGenerationStrategiesWarning,
                     SqlServerResources.LogConflictingValueGenerationStrategies(
-                        new TestLogger<SqlServerLoggingDefinitions>())
+                            new TestLogger<SqlServerLoggingDefinitions>())
                         .GenerateMessage(SqlServerValueGenerationStrategy.SequenceHiLo.ToString(), "DefaultValueSql", "Id", nameof(Fred)),
                     "SqlServerEventId.ConflictingValueGenerationStrategiesWarning"),
                 Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
@@ -84,15 +83,17 @@ namespace Microsoft.EntityFrameworkCore
 
             var logEntry = Fixture.ListLoggerFactory.Log.Single(
                 l => l.Level == LogLevel.Warning && l.Id == SqlServerEventId.ConflictingValueGenerationStrategiesWarning);
-            Assert.Equal(SqlServerResources.LogConflictingValueGenerationStrategies(
+            Assert.Equal(
+                SqlServerResources.LogConflictingValueGenerationStrategies(
                         new TestLogger<SqlServerLoggingDefinitions>())
-                        .GenerateMessage(SqlServerValueGenerationStrategy.SequenceHiLo.ToString(), "DefaultValueSql", "Id", nameof(Fred)),
-                        logEntry.Message);
+                    .GenerateMessage(SqlServerValueGenerationStrategy.SequenceHiLo.ToString(), "DefaultValueSql", "Id", nameof(Fred)),
+                logEntry.Message);
         }
 
         public class NoThrowContext : DbContext
         {
-            public NoThrowContext(DbContextOptions options) : base(options)
+            public NoThrowContext(DbContextOptions options)
+                : base(options)
             {
             }
 
@@ -116,7 +117,8 @@ namespace Microsoft.EntityFrameworkCore
 
         protected SqlServerValueGenerationStrategyFixture<TContext> Fixture { get; }
 
-        public TContext CreateContext() => (TContext)Fixture.CreateContext();
+        public TContext CreateContext()
+            => (TContext)Fixture.CreateContext();
 
         protected virtual ModelBuilder CreateModelBuilder()
         {
@@ -140,9 +142,14 @@ namespace Microsoft.EntityFrameworkCore
     {
         protected override string StoreName { get; } = "SqlServerValueGenerationStrategy";
         protected override Type ContextType { get; } = typeof(TContext);
-        protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerTestStoreFactory.Instance;
+
         protected override bool ShouldLogCategory(string logCategory)
             => logCategory == DbLoggerCategory.Model.Validation.Name;
-        protected override bool UsePooling => false;
+
+        protected override bool UsePooling
+            => false;
     }
 }

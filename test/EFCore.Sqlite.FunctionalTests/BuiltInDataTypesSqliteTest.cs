@@ -1562,18 +1562,26 @@ ORDER BY ""b"".""Id"", ""b0"".""Id""");
 
         public class BuiltInDataTypesSqliteFixture : BuiltInDataTypesFixtureBase
         {
-            public override bool StrictEquality => false;
+            public override bool StrictEquality
+                => false;
 
-            public override bool SupportsAnsi => false;
+            public override bool SupportsAnsi
+                => false;
 
-            public override bool SupportsUnicodeToAnsiConversion => true;
+            public override bool SupportsUnicodeToAnsiConversion
+                => true;
 
-            public override bool SupportsLargeStringComparisons => true;
+            public override bool SupportsLargeStringComparisons
+                => true;
 
-            public override bool SupportsDecimalComparisons => false;
+            public override bool SupportsDecimalComparisons
+                => false;
 
-            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqliteTestStoreFactory.Instance;
+
+            public TestSqlLoggerFactory TestSqlLoggerFactory
+                => (TestSqlLoggerFactory)ListLoggerFactory;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
@@ -1670,9 +1678,11 @@ ORDER BY ""b"".""Id"", ""b0"".""Id""");
                     b => b.Property(e => e.Decimal).HasColumnType("decimal(5, 2)"));
             }
 
-            public override bool SupportsBinaryKeys => true;
+            public override bool SupportsBinaryKeys
+                => true;
 
-            public override DateTime DefaultDateTime => new DateTime();
+            public override DateTime DefaultDateTime
+                => new DateTime();
         }
 
         protected class MappedDataTypes

@@ -199,7 +199,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private async Task Test_commit_failure_async(
-            bool realFailure, Func<TestSqlServerRetryingExecutionStrategy, ExecutionStrategyContext, Task> execute)
+            bool realFailure,
+            Func<TestSqlServerRetryingExecutionStrategy, ExecutionStrategyContext, Task> execute)
         {
             CleanContext();
 
@@ -278,7 +279,10 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalTheory]
         [MemberData(nameof(DataGenerator.GetBoolCombinations), 4, MemberType = typeof(DataGenerator))]
         public async Task Retries_SaveChanges_on_execution_failure(
-            bool realFailure, bool externalStrategy, bool openConnection, bool async)
+            bool realFailure,
+            bool externalStrategy,
+            bool openConnection,
+            bool async)
         {
             CleanContext();
 
@@ -648,11 +652,20 @@ namespace Microsoft.EntityFrameworkCore
 
         public class ExecutionStrategyFixture : SharedStoreFixtureBase<DbContext>
         {
-            protected override bool UsePooling => false;
+            protected override bool UsePooling
+                => false;
+
             protected override string StoreName { get; } = nameof(ExecutionStrategyTest);
-            public new RelationalTestStore TestStore => (RelationalTestStore)base.TestStore;
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+
+            public new RelationalTestStore TestStore
+                => (RelationalTestStore)base.TestStore;
+
+            public TestSqlLoggerFactory TestSqlLoggerFactory
+                => (TestSqlLoggerFactory)ListLoggerFactory;
+
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
+
             protected override Type ContextType { get; } = typeof(ExecutionStrategyContext);
 
             protected override IServiceCollection AddServices(IServiceCollection serviceCollection)

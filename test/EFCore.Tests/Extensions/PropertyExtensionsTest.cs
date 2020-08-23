@@ -292,7 +292,8 @@ namespace Microsoft.EntityFrameworkCore
             public Product Product { get; set; }
         }
 
-        private static IMutableModel CreateModel() => new Model();
+        private static IMutableModel CreateModel()
+            => new Model();
 
         private IMutableModel BuildModel()
         {

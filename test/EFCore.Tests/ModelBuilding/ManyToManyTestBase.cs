@@ -71,26 +71,28 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .HasMany(p => p.Dependents)
                     .WithMany(d => d.ManyToManyPrincipals)
                     .UsingEntity<ManyToManyJoinWithFields>(
-                        jwf => jwf.HasOne<DependentWithField>(j => j.DependentWithField)
+                        jwf => jwf.HasOne(j => j.DependentWithField)
                             .WithMany(),
-                        jwf => jwf.HasOne<ManyToManyPrincipalWithField>(j => j.ManyToManyPrincipalWithField)
+                        jwf => jwf.HasOne(j => j.ManyToManyPrincipalWithField)
                             .WithMany())
                     .HasKey(j => new { j.DependentWithFieldId, j.ManyToManyPrincipalWithFieldId });
 
-                modelBuilder.Entity<ManyToManyPrincipalWithField>(e =>
-                {
-                    e.Property(p => p.Id);
-                    e.Property(p => p.Name);
-                    e.HasKey(p => p.Id);
-                });
-                modelBuilder.Entity<DependentWithField>(e =>
-                {
-                    e.Property(d => d.DependentWithFieldId);
-                    e.Property(d => d.AnotherOneToManyPrincipalId);
-                    e.Ignore(d => d.OneToManyPrincipal);
-                    e.Ignore(d => d.OneToOnePrincipal);
-                    e.HasKey(d => d.DependentWithFieldId);
-                });
+                modelBuilder.Entity<ManyToManyPrincipalWithField>(
+                    e =>
+                    {
+                        e.Property(p => p.Id);
+                        e.Property(p => p.Name);
+                        e.HasKey(p => p.Id);
+                    });
+                modelBuilder.Entity<DependentWithField>(
+                    e =>
+                    {
+                        e.Property(d => d.DependentWithFieldId);
+                        e.Property(d => d.AnotherOneToManyPrincipalId);
+                        e.Ignore(d => d.OneToManyPrincipal);
+                        e.Ignore(d => d.OneToOnePrincipal);
+                        e.HasKey(d => d.DependentWithFieldId);
+                    });
 
                 var principalEntityType = model.FindEntityType(typeof(ManyToManyPrincipalWithField));
                 var dependentEntityType = model.FindEntityType(typeof(DependentWithField));
@@ -110,9 +112,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .HasMany(p => p.Dependents)
                     .WithMany(d => d.ManyToManyPrincipals)
                     .UsingEntity<ManyToManyJoinWithFields>(
-                        jwf => jwf.HasOne<DependentWithField>(j => j.DependentWithField)
+                        jwf => jwf.HasOne(j => j.DependentWithField)
                             .WithMany(),
-                        jwf => jwf.HasOne<ManyToManyPrincipalWithField>(j => j.ManyToManyPrincipalWithField)
+                        jwf => jwf.HasOne(j => j.ManyToManyPrincipalWithField)
                             .WithMany());
 
                 model = modelBuilder.FinalizeModel();
@@ -160,9 +162,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var key = joinEntityType.FindPrimaryKey();
                 Assert.Equal(
-                    new[] {
+                    new[]
+                    {
                         nameof(ImplicitManyToManyB.As) + nameof(ImplicitManyToManyA.Id),
-                        nameof(ImplicitManyToManyA.Bs) + nameof(ImplicitManyToManyB.Id) },
+                        nameof(ImplicitManyToManyA.Bs) + nameof(ImplicitManyToManyB.Id)
+                    },
                     key.Properties.Select(p => p.Name));
 
                 Assert.DoesNotContain(joinEntityType.GetProperties(), p => !p.IsIndexerProperty());
@@ -178,8 +182,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var hob = model.FindEntityType(typeof(Hob));
                 var nob = model.FindEntityType(typeof(Nob));
-                Assert.Empty(model.GetEntityTypes()
-                    .Where(et => ((EntityType)et).IsImplicitlyCreatedJoinEntityType));
+                Assert.Empty(
+                    model.GetEntityTypes()
+                        .Where(et => ((EntityType)et).IsImplicitlyCreatedJoinEntityType));
 
                 Assert.Empty(hob.GetSkipNavigations());
                 Assert.Empty(nob.GetSkipNavigations());
@@ -301,8 +306,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         nameof(NavDependent)),
                     Assert.Throws<InvalidOperationException>(
                         () => modelBuilder.Entity<ManyToManyNavPrincipal>()
-                                .HasMany<NavDependent>(/* leaving empty causes the exception */)
-                                .WithMany(d => d.ManyToManyPrincipals)).Message);
+                            .HasMany<NavDependent>( /* leaving empty causes the exception */)
+                            .WithMany(d => d.ManyToManyPrincipals)).Message);
             }
 
             [ConditionalFact]
@@ -347,7 +352,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var model = modelBuilder.FinalizeModel();
 
-                Assert.Equal("_randomField", model.FindEntityType(typeof(ManyToManyNavPrincipal)).FindSkipNavigation("Dependents").GetFieldName());
+                Assert.Equal(
+                    "_randomField", model.FindEntityType(typeof(ManyToManyNavPrincipal)).FindSkipNavigation("Dependents").GetFieldName());
             }
 
             [ConditionalFact]
@@ -361,9 +367,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(
                     CoreStrings.RequiredSkipNavigation(nameof(ManyToManyNavPrincipal), nameof(ManyToManyNavPrincipal.Dependents)),
-                        Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<ManyToManyNavPrincipal>()
-                        .Navigation(p => p.Dependents)
-                        .IsRequired()).Message);
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<ManyToManyNavPrincipal>()
+                            .Navigation(p => p.Dependents)
+                            .IsRequired()).Message);
             }
 
             [ConditionalFact]
@@ -495,8 +502,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<AmbiguousManyToManyImplicitLeft>();
 
                 Assert.Equal(
-                    CoreStrings.NavigationNotAdded(typeof(AmbiguousManyToManyImplicitLeft).DisplayName(fullName: false), "Navigation1",
-                    typeof(List<AmbiguousManyToManyImplicitRight>).DisplayName(fullName: false)),
+                    CoreStrings.NavigationNotAdded(
+                        typeof(AmbiguousManyToManyImplicitLeft).DisplayName(fullName: false), "Navigation1",
+                        typeof(List<AmbiguousManyToManyImplicitRight>).DisplayName(fullName: false)),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
         }

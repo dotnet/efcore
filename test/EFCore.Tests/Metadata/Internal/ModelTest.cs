@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -28,14 +27,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class FakeModel : IModel
         {
-            public object this[string name] => throw new NotImplementedException();
-            public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
-            public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();
-            public IEnumerable<IEntityType> GetEntityTypes() => throw new NotImplementedException();
-            public IEntityType FindEntityType(string name) => throw new NotImplementedException();
+            public object this[string name]
+                => throw new NotImplementedException();
 
-            public IEntityType FindEntityType(string name, string definingNavigationName, IEntityType definingEntityType) =>
-                throw new NotImplementedException();
+            public IAnnotation FindAnnotation(string name)
+                => throw new NotImplementedException();
+
+            public IEnumerable<IAnnotation> GetAnnotations()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IEntityType> GetEntityTypes()
+                => throw new NotImplementedException();
+
+            public IEntityType FindEntityType(string name)
+                => throw new NotImplementedException();
+
+            public IEntityType FindEntityType(string name, string definingNavigationName, IEntityType definingEntityType)
+                => throw new NotImplementedException();
         }
 
         [ConditionalFact]
@@ -167,8 +175,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Order))).Message);
             Assert.Equal(
                 CoreStrings.ClashingNonWeakEntityType(
-                    nameof(Customer) + "." + nameof(Customer.Orders) + "#"
-                    + nameof(Order) + "." + nameof(Order.Customer) + "#" + nameof(Customer)),
+                    nameof(Customer)
+                    + "."
+                    + nameof(Customer.Orders)
+                    + "#"
+                    + nameof(Order)
+                    + "."
+                    + nameof(Order.Customer)
+                    + "#"
+                    + nameof(Customer)),
                 Assert.Throws<InvalidOperationException>(
                     () => model.AddEntityType(typeof(Customer), nameof(Order.Customer), dependentOrderType)).Message);
 
@@ -293,7 +308,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(foreignKey, entityType1.GetReferencingForeignKeys().Single());
         }
 
-        private static IMutableModel CreateModel() => new Model();
+        private static IMutableModel CreateModel()
+            => new Model();
 
         private class Customer
         {

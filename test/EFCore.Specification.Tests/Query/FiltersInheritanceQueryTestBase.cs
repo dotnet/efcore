@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class FiltersInheritanceQueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : InheritanceQueryFixtureBase, new()
     {
-        protected FiltersInheritanceQueryTestBase(TFixture fixture) => Fixture = fixture;
+        protected FiltersInheritanceQueryTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
@@ -142,7 +143,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.NotNull(context.Entry(eagle).GetDatabaseValues());
         }
 
-        protected InheritanceContext CreateContext() => Fixture.CreateContext();
+        protected InheritanceContext CreateContext()
+            => Fixture.CreateContext();
 
         protected virtual void ClearLog()
         {

@@ -22,15 +22,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var converter = _physicalAddressToString.ConvertToProviderExpression.Compile();
 
-            var alphaNumerics = new Regex("[^a-zA-Z0-9]"); 
+            var alphaNumerics = new Regex("[^a-zA-Z0-9]");
 
             Assert.Equal(
-                alphaNumerics.Replace(physicalAddress,""),
+                alphaNumerics.Replace(physicalAddress, ""),
                 converter(PhysicalAddress.Parse(physicalAddress)));
 
             Assert.Null(converter(null));
         }
-         
+
         [ConditionalTheory]
         [MemberData(nameof(Data))]
         public void Can_convert_String_to_physical_address(string physicalAddress)
@@ -54,17 +54,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var converter = new PhysicalAddressToStringConverter().ConvertFromProviderExpression.Compile();
             var physicalAddress = Encoding.UTF8.GetString(bytesPhysicalAddressInvalid);
 
-            var exception = Assert.Throws<FormatException>(() =>
-            {
-                converter(physicalAddress);
-            });
+            var exception = Assert.Throws<FormatException>(
+                () =>
+                {
+                    converter(physicalAddress);
+                });
 
             Assert.Null(converter(null));
             Assert.Equal($"An invalid physical address was specified: '{physicalAddress}'.", exception.Message);
         }
 
-        public static IEnumerable<object[]> Data =>
-            new List<object[]>
+        public static IEnumerable<object[]> Data
+            => new List<object[]>
             {
                 new object[] { "1D-4E-55-D6-92-73-D6" },
                 new object[] { "24-80-B7-38-4A-68-D6" },

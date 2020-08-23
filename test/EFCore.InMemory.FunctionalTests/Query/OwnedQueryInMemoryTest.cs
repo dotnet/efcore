@@ -16,7 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public class OwnedQueryInMemoryFixture : OwnedQueryFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => InMemoryTestStoreFactory.Instance;
         }
     }
 }

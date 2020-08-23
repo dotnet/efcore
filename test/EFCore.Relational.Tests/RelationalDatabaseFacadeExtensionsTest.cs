@@ -167,7 +167,8 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public Task ResetStateAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+            public Task ResetStateAsync(CancellationToken cancellationToken = default)
+                => Task.CompletedTask;
 
             public IDbContextTransaction BeginTransaction()
             {
@@ -234,8 +235,12 @@ namespace Microsoft.EntityFrameworkCore
             public IReadOnlyDictionary<string, TypeInfo> Migrations { get; set; }
             public ModelSnapshot ModelSnapshot { get; }
             public Assembly Assembly { get; }
-            public string FindMigrationId(string nameOrId) => throw new NotImplementedException();
-            public Migration CreateMigration(TypeInfo migrationClass, string activeProvider) => throw new NotImplementedException();
+
+            public string FindMigrationId(string nameOrId)
+                => throw new NotImplementedException();
+
+            public Migration CreateMigration(TypeInfo migrationClass, string activeProvider)
+                => throw new NotImplementedException();
         }
 
         [ConditionalTheory]
@@ -270,15 +275,32 @@ namespace Microsoft.EntityFrameworkCore
             public Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync(CancellationToken cancellationToken = default)
                 => Task.FromResult<IReadOnlyList<HistoryRow>>(AppliedMigrations);
 
-            public bool Exists() => throw new NotImplementedException();
-            public Task<bool> ExistsAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
-            public string GetCreateScript() => throw new NotImplementedException();
-            public string GetCreateIfNotExistsScript() => throw new NotImplementedException();
-            public string GetInsertScript(HistoryRow row) => throw new NotImplementedException();
-            public string GetDeleteScript(string migrationId) => throw new NotImplementedException();
-            public string GetBeginIfNotExistsScript(string migrationId) => throw new NotImplementedException();
-            public string GetBeginIfExistsScript(string migrationId) => throw new NotImplementedException();
-            public string GetEndIfScript() => throw new NotImplementedException();
+            public bool Exists()
+                => throw new NotImplementedException();
+
+            public Task<bool> ExistsAsync(CancellationToken cancellationToken = default)
+                => throw new NotImplementedException();
+
+            public string GetCreateScript()
+                => throw new NotImplementedException();
+
+            public string GetCreateIfNotExistsScript()
+                => throw new NotImplementedException();
+
+            public string GetInsertScript(HistoryRow row)
+                => throw new NotImplementedException();
+
+            public string GetDeleteScript(string migrationId)
+                => throw new NotImplementedException();
+
+            public string GetBeginIfNotExistsScript(string migrationId)
+                => throw new NotImplementedException();
+
+            public string GetBeginIfExistsScript(string migrationId)
+                => throw new NotImplementedException();
+
+            public string GetEndIfScript()
+                => throw new NotImplementedException();
         }
 
         [ConditionalTheory]

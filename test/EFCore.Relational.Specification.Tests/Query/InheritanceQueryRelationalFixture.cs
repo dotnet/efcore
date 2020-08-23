@@ -8,7 +8,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class InheritanceQueryRelationalFixture : InheritanceQueryFixtureBase
     {
-        public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
+        public TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)ListLoggerFactory;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

@@ -20,10 +20,14 @@ namespace Microsoft.EntityFrameworkCore.Update
                         new RelationalSqlGenerationHelperDependencies()),
                     TestServiceFactory.Instance.Create<SqliteTypeMappingSource>()));
 
-        protected override TestHelpers TestHelpers => SqliteTestHelpers.Instance;
+        protected override TestHelpers TestHelpers
+            => SqliteTestHelpers.Instance;
 
-        protected override string RowsAffected => "changes()";
-        protected override string Schema => null;
+        protected override string RowsAffected
+            => "changes()";
+
+        protected override string Schema
+            => null;
 
         protected override string GetIdentityWhereCondition(string columnName)
             => OpenDelimiter + "rowid" + CloseDelimiter + " = last_insert_rowid()";

@@ -47,14 +47,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 ThingId = Guid.NewGuid(),
                 OwnedByThings = new List<OwnedByThing>
                 {
-                    new OwnedByThing
-                    {
-                        OwnedByThingId = Guid.NewGuid()
-                    },
-                    new OwnedByThing
-                    {
-                        OwnedByThingId = Guid.NewGuid()
-                    }
+                    new OwnedByThing { OwnedByThingId = Guid.NewGuid() }, new OwnedByThing { OwnedByThingId = Guid.NewGuid() }
                 }
             };
 
@@ -451,7 +444,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [InlineData(EntityState.Unchanged, false, CollectionType.ObservableHashSet)]
         [InlineData(EntityState.Unchanged, null, CollectionType.ObservableHashSet)]
         public void Add_principal_with_dependent_unidirectional_nav_collection(
-            EntityState entityState, bool? useTrackGraph, CollectionType collectionType)
+            EntityState entityState,
+            bool? useTrackGraph,
+            CollectionType collectionType)
         {
             using var context = new FixupContext();
             var principal = new ParentPN { Id = 77 };
@@ -590,7 +585,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [InlineData(EntityState.Unchanged, false, CollectionType.ObservableHashSet)]
         [InlineData(EntityState.Unchanged, null, CollectionType.ObservableHashSet)]
         public void Add_principal_with_dependent_both_navs_collection(
-            EntityState entityState, bool? useTrackGraph, CollectionType collectionType)
+            EntityState entityState,
+            bool? useTrackGraph,
+            CollectionType collectionType)
         {
             using var context = new FixupContext();
             var principal = new Parent { Id = 77 };
@@ -728,7 +725,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [InlineData(EntityState.Unchanged, false, CollectionType.ObservableHashSet)]
         [InlineData(EntityState.Unchanged, null, CollectionType.ObservableHashSet)]
         public void Add_principal_with_dependent_principal_nav_collection(
-            EntityState entityState, bool? useTrackGraph, CollectionType collectionType)
+            EntityState entityState,
+            bool? useTrackGraph,
+            CollectionType collectionType)
         {
             using var context = new FixupContext();
             var principal = new Parent { Id = 77 };
@@ -4215,7 +4214,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private class User
         {
             public Guid UserId { get; set; }
-            public IReadOnlyList<Role> Roles => _roles.AsReadOnly();
+
+            public IReadOnlyList<Role> Roles
+                => _roles.AsReadOnly();
+
             private readonly List<Role> _roles = new List<Role>();
 
             public void SetRoles(IList<Role> roles)
@@ -4234,7 +4236,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private class Role : IEquatable<Role>
         {
             public string Value { get; set; }
-            public bool Equals(Role other) => Value == other.Value;
+
+            public bool Equals(Role other)
+                => Value == other.Value;
         }
 
         private class EquatableEntitiesContext : DbContext
@@ -4276,7 +4280,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public ICollection<Child> ChildCollection1 { get; set; }
             public ICollection<Child> ChildCollection2 { get; set; }
 
-            public int CompareTo(Parent other) => Id - other.Id;
+            public int CompareTo(Parent other)
+                => Id - other.Id;
 
             public override bool Equals(object obj)
             {
@@ -4311,7 +4316,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public SubChild SubChild { get; set; }
             public ICollection<SubChild> SubChildCollection { get; set; }
 
-            public int CompareTo(Child other) => StringComparer.InvariantCulture.Compare(Name, other.Name);
+            public int CompareTo(Child other)
+                => StringComparer.InvariantCulture.Compare(Name, other.Name);
 
             public override bool Equals(object obj)
             {
@@ -4346,7 +4352,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public Child Parent { get; set; }
 
-            public int CompareTo(SubChild other) => StringComparer.InvariantCulture.Compare(Name, other.Name);
+            public int CompareTo(SubChild other)
+                => StringComparer.InvariantCulture.Compare(Name, other.Name);
 
             public override bool Equals(object obj)
             {
@@ -4382,7 +4389,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public ICollection<ChildPN> ChildCollection1 { get; set; }
             public ICollection<ChildPN> ChildCollection2 { get; set; }
 
-            public int CompareTo(ParentPN other) => Id - other.Id;
+            public int CompareTo(ParentPN other)
+                => Id - other.Id;
         }
 
         private class ChildPN : IComparable<ChildPN>
@@ -4393,14 +4401,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public SubChildPN SubChild { get; set; }
             public ICollection<SubChildPN> SubChildCollection { get; set; }
 
-            public int CompareTo(ChildPN other) => StringComparer.InvariantCulture.Compare(Name, other.Name);
+            public int CompareTo(ChildPN other)
+                => StringComparer.InvariantCulture.Compare(Name, other.Name);
         }
 
         private class SubChildPN : IComparable<SubChildPN>
         {
             public string Name { get; set; }
 
-            public int CompareTo(SubChildPN other) => StringComparer.InvariantCulture.Compare(Name, other.Name);
+            public int CompareTo(SubChildPN other)
+                => StringComparer.InvariantCulture.Compare(Name, other.Name);
         }
 
         private class FixupContext : DbContext
@@ -4628,11 +4638,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             });
                     });
 
-                modelBuilder.Entity<Thing>().OwnsMany(p => p.OwnedByThings, a =>
-                {
-                    a.WithOwner().HasForeignKey(e => e.ThingId);
-                    a.HasKey(e => e.OwnedByThingId);
-                });
+                modelBuilder.Entity<Thing>().OwnsMany(
+                    p => p.OwnedByThings, a =>
+                    {
+                        a.WithOwner().HasForeignKey(e => e.ThingId);
+                        a.HasKey(e => e.OwnedByThingId);
+                    });
             }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -4664,7 +4675,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             where T : class
             => collectionType switch
             {
-                CollectionType.List => (ICollection<T>)new List<T> { dependent },
+                CollectionType.List => new List<T> { dependent },
                 CollectionType.SortedSet => new SortedSet<T> { dependent },
                 CollectionType.Collection => new Collection<T> { dependent },
                 CollectionType.ObservableCollection => new ObservableCollection<T> { dependent },

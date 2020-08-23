@@ -26,9 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     () => base.Include_collection_with_last_no_orderby(async))).Message);
         }
 
-        protected virtual bool CanExecuteQueryString => false;
+        protected virtual bool CanExecuteQueryString
+            => false;
 
         protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
-            => new RelationalQueryAsserter(fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+            => new RelationalQueryAsserter(
+                fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
     }
 }

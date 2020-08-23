@@ -22,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public class SqlServerFixture : GraphUpdatesSqlServerFixtureBase
             {
-                public override bool NoStoreCascades => true;
+                public override bool NoStoreCascades
+                    => true;
 
                 protected override string StoreName { get; } = "GraphClientCascadeUpdatesTest";
 
@@ -32,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     foreach (var foreignKey in modelBuilder.Model
                         .GetEntityTypes()
-                        .SelectMany(e => MutableEntityTypeExtensions.GetDeclaredForeignKeys(e))
+                        .SelectMany(e => e.GetDeclaredForeignKeys())
                         .Where(e => e.DeleteBehavior == DeleteBehavior.Cascade))
                     {
                         foreignKey.DeleteBehavior = DeleteBehavior.ClientCascade;
@@ -53,7 +54,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public class SqlServerFixture : GraphUpdatesSqlServerFixtureBase
             {
-                public override bool ForceClientNoAction => true;
+                public override bool ForceClientNoAction
+                    => true;
 
                 protected override string StoreName { get; } = "GraphClientNoActionUpdatesTest";
 
@@ -125,15 +127,19 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            protected override IQueryable<Root> ModifyQueryRoot(IQueryable<Root> query) => query.AsSplitQuery();
+            protected override IQueryable<Root> ModifyQueryRoot(IQueryable<Root> query)
+                => query.AsSplitQuery();
 
             protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
                 => facade.UseTransaction(transaction.GetDbTransaction());
 
             public abstract class GraphUpdatesSqlServerFixtureBase : GraphUpdatesFixtureBase
             {
-                public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
-                protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+                public TestSqlLoggerFactory TestSqlLoggerFactory
+                    => (TestSqlLoggerFactory)ListLoggerFactory;
+
+                protected override ITestStoreFactory TestStoreFactory
+                    => SqlServerTestStoreFactory.Instance;
             }
         }
     }

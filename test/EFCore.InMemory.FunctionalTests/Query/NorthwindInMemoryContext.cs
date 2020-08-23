@@ -33,13 +33,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             modelBuilder.Entity<ProductQuery>().ToInMemoryQuery(
                 () => Products.Where(p => !p.Discontinued)
-                        .Select(
-                            p => new ProductQuery
-                            {
-                                ProductID = p.ProductID,
-                                ProductName = p.ProductName,
-                                CategoryName = "Food"
-                            }));
+                    .Select(
+                        p => new ProductQuery
+                        {
+                            ProductID = p.ProductID,
+                            ProductName = p.ProductName,
+                            CategoryName = "Food"
+                        }));
 
             modelBuilder.Entity<CustomerQueryWithQueryFilter>().ToInMemoryQuery(
                 () => Customers.Select(

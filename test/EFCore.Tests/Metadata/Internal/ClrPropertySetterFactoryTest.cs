@@ -24,10 +24,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class FakeProperty : IProperty, IClrPropertySetter
         {
-            public void SetClrValue(object instance, object value) => throw new NotImplementedException();
-            public object this[string name] => throw new NotImplementedException();
-            public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
-            public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();
+            public void SetClrValue(object instance, object value)
+                => throw new NotImplementedException();
+
+            public object this[string name]
+                => throw new NotImplementedException();
+
+            public IAnnotation FindAnnotation(string name)
+                => throw new NotImplementedException();
+
+            public IEnumerable<IAnnotation> GetAnnotations()
+                => throw new NotImplementedException();
+
             public string Name { get; }
             public ITypeBase DeclaringType { get; }
             public Type ClrType { get; }
@@ -277,13 +285,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private class ConcreteEntity2 : ConcreteEntity1
         {
             // ReSharper disable once RedundantOverriddenMember
-            public override int VirtualPrivateProperty_Override => base.VirtualPrivateProperty_Override;
+            public override int VirtualPrivateProperty_Override
+                => base.VirtualPrivateProperty_Override;
         }
 
         private class ConcreteEntity1 : BaseEntity
         {
             // ReSharper disable once RedundantOverriddenMember
-            public override int VirtualPrivateProperty_Override => base.VirtualPrivateProperty_Override;
+            public override int VirtualPrivateProperty_Override
+                => base.VirtualPrivateProperty_Override;
         }
 
         private class BaseEntity
@@ -298,8 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             private readonly Dictionary<string, object> _internalValues = new Dictionary<string, object>
             {
-                {"PropertyA", "ValueA" },
-                {"PropertyB", 123 }
+                { "PropertyA", "ValueA" }, { "PropertyB", 123 }
             };
 
             internal int Id { get; set; }

@@ -439,15 +439,15 @@ namespace Microsoft.EntityFrameworkCore
             public int Id { get; set; }
         }
 
-        private class Mac: Cat
+        private class Mac : Cat
         {
         }
 
-        private class Smokey: Cat
+        private class Smokey : Cat
         {
         }
 
-        private class Alice: Cat
+        private class Alice : Cat
         {
         }
     }

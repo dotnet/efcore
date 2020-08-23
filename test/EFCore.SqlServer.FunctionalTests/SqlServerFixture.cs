@@ -14,8 +14,11 @@ namespace Microsoft.EntityFrameworkCore
         public static IServiceProvider DefaultServiceProvider { get; }
             = new ServiceCollection().AddEntityFrameworkSqlServer().BuildServiceProvider();
 
-        public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
-        protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+        public TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerTestStoreFactory.Instance;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(

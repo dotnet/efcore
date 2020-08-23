@@ -18,7 +18,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             _compareNavigations = compareNavigations;
         }
 
-        public int Compare(IForeignKey x, IForeignKey y) => ForeignKeyComparer.Instance.Compare(x, y);
+        public int Compare(IForeignKey x, IForeignKey y)
+            => ForeignKeyComparer.Instance.Compare(x, y);
 
         public bool Equals(IForeignKey x, IForeignKey y)
         {
@@ -38,6 +39,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 && (!_compareAnnotations || x.GetAnnotations().SequenceEqual(y.GetAnnotations(), AnnotationComparer.Instance));
         }
 
-        public int GetHashCode(IForeignKey obj) => ForeignKeyComparer.Instance.GetHashCode(obj);
+        public int GetHashCode(IForeignKey obj)
+            => ForeignKeyComparer.Instance.GetHashCode(obj);
     }
 }

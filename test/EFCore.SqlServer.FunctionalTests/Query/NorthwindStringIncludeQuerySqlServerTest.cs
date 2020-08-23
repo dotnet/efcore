@@ -10,7 +10,8 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindStringIncludeQuerySqlServerTest : NorthwindStringIncludeQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    public class NorthwindStringIncludeQuerySqlServerTest : NorthwindStringIncludeQueryTestBase<
+        NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         // ReSharper disable once UnusedParameter.Local
         public NorthwindStringIncludeQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture)

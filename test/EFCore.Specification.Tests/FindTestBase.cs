@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class FindTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : FindTestBase<TFixture>.FindFixtureBase
     {
-        protected FindTestBase(TFixture fixture) => Fixture = fixture;
+        protected FindTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
@@ -627,7 +628,8 @@ namespace Microsoft.EntityFrameworkCore
             public string Foo { get; set; }
         }
 
-        protected DbContext CreateContext() => Fixture.CreateContext();
+        protected DbContext CreateContext()
+            => Fixture.CreateContext();
 
         public abstract class FindFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {

@@ -1,9 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
@@ -20,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             using var ctx = new CurrentValuesDb();
             var entity = ctx.SimpleEntities.Add(new SimpleEntity { Name = NameValue });
             ctx.SaveChanges();
-        
+
             entity.Entity.Name = NewNameValue;
 
             // Act
@@ -45,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             using var ctx = new CurrentValuesDb();
             var entity = ctx.SimpleEntities.Add(new SimpleEntity { Name = NameValue });
             ctx.SaveChanges();
-        
+
             entity.Entity.Name = NewNameValue;
 
             // Act
@@ -77,7 +75,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public string Name { get; set; }
 
             public IEnumerable<RelatedEntity> RelatedEntities { get; set; }
-            
         }
 
         private class RelatedEntity
@@ -87,8 +84,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public int? SimpleEntityId { get; set; }
 
             public SimpleEntity SimpleEntity { get; set; }
-            
-            public string Name {get; set;}
+
+            public string Name { get; set; }
         }
     }
 }

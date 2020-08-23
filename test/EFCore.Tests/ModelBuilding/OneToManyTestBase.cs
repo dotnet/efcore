@@ -62,14 +62,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
 
-                modelBuilder.Entity<OneToManyPrincipalWithField>(e =>
+                modelBuilder.Entity<OneToManyPrincipalWithField>(
+                    e =>
                     {
                         e.Property(p => p.Id);
                         e.Property(p => p.AlternateKey);
                         e.Property(p => p.Name);
                         e.HasKey(p => p.Id);
                     });
-                modelBuilder.Entity<DependentWithField>(e =>
+                modelBuilder.Entity<DependentWithField>(
+                    e =>
                     {
                         e.Property(d => d.DependentWithFieldId);
                         e.Property(d => d.OneToManyPrincipalId);
@@ -2527,9 +2529,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     CoreStrings.CanOnlyConfigureExistingNavigations("Name", "NavDependent"),
                     Assert.Throws<InvalidOperationException>(
                         () => modelBuilder.Entity<NavDependent>()
-                        .Navigation(e => e.Name)
-                        .UsePropertyAccessMode(PropertyAccessMode.Property)
-                        ).Message);
+                            .Navigation(e => e.Name)
+                            .UsePropertyAccessMode(PropertyAccessMode.Property)
+                    ).Message);
             }
 
             [ConditionalFact]

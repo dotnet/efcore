@@ -128,7 +128,6 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(lifetime, serviceCollection.Single(e => e.ServiceType == typeof(DbContextOptions<WoolacombeContext>)).Lifetime);
         }
 
-
         [ConditionalFact]
         public void Default_lifetime_is_singleton()
         {
@@ -261,7 +260,9 @@ namespace Microsoft.EntityFrameworkCore
         private class TransientService : IDisposable
         {
             public bool IsDisposed { get; private set; }
-            public void Dispose() => IsDisposed = true;
+
+            public void Dispose()
+                => IsDisposed = true;
         }
 
         private class SingletonService
@@ -342,7 +343,9 @@ namespace Microsoft.EntityFrameworkCore
         private class ScopedService : IDisposable
         {
             public bool IsDisposed { get; private set; }
-            public void Dispose() => IsDisposed = true;
+
+            public void Dispose()
+                => IsDisposed = true;
         }
 
         private class CombeMartinContext : DbContext
@@ -548,9 +551,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             private readonly DbContextOptions<WoolacombeContext> _options;
 
-            public WoolacombeContextFactory(DbContextOptions<WoolacombeContext> options) => _options = options;
+            public WoolacombeContextFactory(DbContextOptions<WoolacombeContext> options)
+                => _options = options;
 
-            public WoolacombeContext CreateDbContext() => new WoolacombeContext(_options);
+            public WoolacombeContext CreateDbContext()
+                => new WoolacombeContext(_options);
         }
 
         private static string GetStoreName(DbContext context1)

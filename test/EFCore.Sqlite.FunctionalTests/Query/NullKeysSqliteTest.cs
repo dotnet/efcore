@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public class NullKeysSqliteFixture : NullKeysFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqliteTestStoreFactory.Instance;
         }
     }
 }

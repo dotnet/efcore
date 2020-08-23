@@ -34,15 +34,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Detects_missing_id_property()
         {
             var modelBuilder = CreateConventionlessModelBuilder();
-            modelBuilder.Entity<Order>(b =>
-            {
-                b.Property(o => o.Id);
-                b.HasKey(o => o.Id);
-                b.Ignore(o => o.PartitionId);
-                b.Ignore(o => o.Customer);
-                b.Ignore(o => o.OrderDetails);
-                b.Ignore(o => o.Products);
-            });
+            modelBuilder.Entity<Order>(
+                b =>
+                {
+                    b.Property(o => o.Id);
+                    b.HasKey(o => o.Id);
+                    b.Ignore(o => o.PartitionId);
+                    b.Ignore(o => o.Customer);
+                    b.Ignore(o => o.OrderDetails);
+                    b.Ignore(o => o.Products);
+                });
 
             var model = modelBuilder.Model;
             VerifyError(CosmosStrings.NoIdProperty(typeof(Order).Name), model);
@@ -52,16 +53,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Detects_non_key_id_property()
         {
             var modelBuilder = CreateConventionlessModelBuilder();
-            modelBuilder.Entity<Order>(b =>
-            {
-                b.Property(o => o.Id);
-                b.HasKey(o => o.Id);
-                b.Property<string>("id");
-                b.Ignore(o => o.PartitionId);
-                b.Ignore(o => o.Customer);
-                b.Ignore(o => o.OrderDetails);
-                b.Ignore(o => o.Products);
-            });
+            modelBuilder.Entity<Order>(
+                b =>
+                {
+                    b.Property(o => o.Id);
+                    b.HasKey(o => o.Id);
+                    b.Property<string>("id");
+                    b.Ignore(o => o.PartitionId);
+                    b.Ignore(o => o.Customer);
+                    b.Ignore(o => o.OrderDetails);
+                    b.Ignore(o => o.Products);
+                });
 
             var model = modelBuilder.Model;
             VerifyError(CosmosStrings.NoIdKey(typeof(Order).Name, "id"), model);
@@ -71,17 +73,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Detects_non_string_id_property()
         {
             var modelBuilder = CreateConventionlessModelBuilder();
-            modelBuilder.Entity<Order>(b =>
-            {
-                b.Property(o => o.Id);
-                b.HasKey(o => o.Id);
-                b.Property<int>("id");
-                b.HasKey("id");
-                b.Ignore(o => o.PartitionId);
-                b.Ignore(o => o.Customer);
-                b.Ignore(o => o.OrderDetails);
-                b.Ignore(o => o.Products);
-            });
+            modelBuilder.Entity<Order>(
+                b =>
+                {
+                    b.Property(o => o.Id);
+                    b.HasKey(o => o.Id);
+                    b.Property<int>("id");
+                    b.HasKey("id");
+                    b.Ignore(o => o.PartitionId);
+                    b.Ignore(o => o.Customer);
+                    b.Ignore(o => o.OrderDetails);
+                    b.Ignore(o => o.Products);
+                });
 
             var model = modelBuilder.Model;
             VerifyError(CosmosStrings.IdNonStringStoreType("id", typeof(Order).Name, "int"), model);
@@ -102,13 +105,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Passes_PK_partition_key()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Order>(b =>
-            {
-                b.HasKey(o => o.PartitionId);
-                b.Ignore(o => o.Customer);
-                b.Ignore(o => o.OrderDetails);
-                b.Ignore(o => o.Products);
-            });
+            modelBuilder.Entity<Order>(
+                b =>
+                {
+                    b.HasKey(o => o.PartitionId);
+                    b.Ignore(o => o.Customer);
+                    b.Ignore(o => o.OrderDetails);
+                    b.Ignore(o => o.Products);
+                });
 
             Validate(modelBuilder.Model);
         }
@@ -117,17 +121,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Detects_non_key_partition_key_property()
         {
             var modelBuilder = CreateConventionlessModelBuilder();
-            modelBuilder.Entity<Order>(b =>
-            {
-                b.Property(o => o.Id);
-                b.Property<string>("id");
-                b.HasKey("id");
-                b.Property(o => o.PartitionId);
-                b.HasPartitionKey(o => o.PartitionId);
-                b.Ignore(o => o.Customer);
-                b.Ignore(o => o.OrderDetails);
-                b.Ignore(o => o.Products);
-            });
+            modelBuilder.Entity<Order>(
+                b =>
+                {
+                    b.Property(o => o.Id);
+                    b.Property<string>("id");
+                    b.HasKey("id");
+                    b.Property(o => o.PartitionId);
+                    b.HasPartitionKey(o => o.PartitionId);
+                    b.Ignore(o => o.Customer);
+                    b.Ignore(o => o.OrderDetails);
+                    b.Ignore(o => o.Products);
+                });
 
             VerifyError(CosmosStrings.NoPartitionKeyKey(typeof(Order).Name, nameof(Order.PartitionId), "id"), modelBuilder.Model);
         }
@@ -197,11 +202,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Detects_properties_mapped_to_same_property()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Order>(ob =>
-            {
-                ob.Property(o => o.Id).ToJsonProperty("Details");
-                ob.Property(o => o.PartitionId).ToJsonProperty("Details");
-            });
+            modelBuilder.Entity<Order>(
+                ob =>
+                {
+                    ob.Property(o => o.Id).ToJsonProperty("Details");
+                    ob.Property(o => o.PartitionId).ToJsonProperty("Details");
+                });
 
             var model = modelBuilder.Model;
             VerifyError(
@@ -213,11 +219,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Detects_property_and_embedded_type_mapped_to_same_property()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Order>(ob =>
-            {
-                ob.Property(o => o.PartitionId).ToJsonProperty("Details");
-                ob.OwnsOne(o => o.OrderDetails).ToJsonProperty("Details");
-            });
+            modelBuilder.Entity<Order>(
+                ob =>
+                {
+                    ob.Property(o => o.PartitionId).ToJsonProperty("Details");
+                    ob.OwnsOne(o => o.OrderDetails).ToJsonProperty("Details");
+                });
 
             var model = modelBuilder.Model;
             VerifyError(
@@ -284,6 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(CosmosStrings.NonETagConcurrencyToken(typeof(Customer).Name, "_not_etag"), model);
         }
 
-        protected override TestHelpers TestHelpers => CosmosTestHelpers.Instance;
+        protected override TestHelpers TestHelpers
+            => CosmosTestHelpers.Instance;
     }
 }

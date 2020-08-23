@@ -44,8 +44,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             => base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result2();
 
         [ConditionalTheory(Skip = "issue #17540")]
-        public override Task Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(bool async)
-            => base.Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(async);
+        public override Task
+            Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(bool async)
+            => base.Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(
+                async);
 
         [ConditionalTheory(Skip = "issue #18284")]
         public override Task GroupBy_with_boolean_groupin_key_thru_navigation_access(bool async)

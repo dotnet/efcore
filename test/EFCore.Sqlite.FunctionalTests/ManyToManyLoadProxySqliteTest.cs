@@ -13,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected override bool ExpectLazyLoading => true;
+        protected override bool ExpectLazyLoading
+            => true;
 
         public class ManyToManyLoadProxySqliteFixture : ManyToManyLoadSqliteFixtureBase
         {

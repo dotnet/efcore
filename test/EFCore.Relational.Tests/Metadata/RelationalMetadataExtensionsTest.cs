@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Metadata

@@ -29,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ignoreLineEndingDifferences: true);
         }
 
-        protected override bool EnforcesFkConstraints => false;
+        protected override bool EnforcesFkConstraints
+            => false;
     }
 }

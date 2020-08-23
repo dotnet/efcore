@@ -10,7 +10,8 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class CommandConfigurationTest : IClassFixture<CommandConfigurationTest.CommandConfigurationTestFixture>
     {
-        public CommandConfigurationTest(CommandConfigurationTestFixture fixture) => Fixture = fixture;
+        public CommandConfigurationTest(CommandConfigurationTestFixture fixture)
+            => Fixture = fixture;
 
         protected CommandConfigurationTestFixture Fixture { get; }
 
@@ -21,12 +22,15 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Throws<ArgumentException>(() => context.Database.SetCommandTimeout(-5));
         }
 
-        protected DbContext CreateContext() => Fixture.CreateContext();
+        protected DbContext CreateContext()
+            => Fixture.CreateContext();
 
         public class CommandConfigurationTestFixture : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "Empty";
-            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+
+            protected override ITestStoreFactory TestStoreFactory
+                => SqliteTestStoreFactory.Instance;
         }
     }
 }

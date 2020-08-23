@@ -97,8 +97,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         new TestRelationalTypeMappingSource(
                             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                             TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                    new MigrationsAnnotationProvider(
-                        new MigrationsAnnotationProviderDependencies()),
+                        new MigrationsAnnotationProvider(
+                            new MigrationsAnnotationProviderDependencies()),
                         services.GetRequiredService<IChangeDetector>(),
                         services.GetRequiredService<IUpdateAdapterFactory>(),
                         services.GetRequiredService<CommandBatchPreparerDependencies>()),
@@ -158,26 +158,47 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
         private class MockHistoryRepository : IHistoryRepository
         {
-            public string GetBeginIfExistsScript(string migrationId) => null;
-            public string GetBeginIfNotExistsScript(string migrationId) => null;
-            public string GetCreateScript() => null;
-            public string GetCreateIfNotExistsScript() => null;
-            public string GetEndIfScript() => null;
-            public bool Exists() => false;
-            public Task<bool> ExistsAsync(CancellationToken cancellationToken) => Task.FromResult(false);
-            public IReadOnlyList<HistoryRow> GetAppliedMigrations() => null;
+            public string GetBeginIfExistsScript(string migrationId)
+                => null;
+
+            public string GetBeginIfNotExistsScript(string migrationId)
+                => null;
+
+            public string GetCreateScript()
+                => null;
+
+            public string GetCreateIfNotExistsScript()
+                => null;
+
+            public string GetEndIfScript()
+                => null;
+
+            public bool Exists()
+                => false;
+
+            public Task<bool> ExistsAsync(CancellationToken cancellationToken)
+                => Task.FromResult(false);
+
+            public IReadOnlyList<HistoryRow> GetAppliedMigrations()
+                => null;
 
             public Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync(CancellationToken cancellationToken)
                 => Task.FromResult<IReadOnlyList<HistoryRow>>(null);
 
-            public string GetDeleteScript(string migrationId) => null;
-            public string GetInsertScript(HistoryRow row) => null;
+            public string GetDeleteScript(string migrationId)
+                => null;
+
+            public string GetInsertScript(HistoryRow row)
+                => null;
         }
 
         private class MockProvider : IDatabaseProvider
         {
-            public string Name => "Mock.Provider";
-            public bool IsConfigured(IDbContextOptions options) => true;
+            public string Name
+                => "Mock.Provider";
+
+            public bool IsConfigured(IDbContextOptions options)
+                => true;
         }
     }
 }

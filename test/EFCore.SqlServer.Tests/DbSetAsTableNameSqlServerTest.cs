@@ -8,9 +8,11 @@ namespace Microsoft.EntityFrameworkCore
         protected override string GetTableName<TEntity>(DbContext context)
             => context.Model.FindEntityType(typeof(TEntity)).GetTableName();
 
-        protected override SetsContext CreateContext() => new SqlServerSetsContext();
+        protected override SetsContext CreateContext()
+            => new SqlServerSetsContext();
 
-        protected override SetsContext CreateNamedTablesContext() => new SqlServerNamedTablesContextContext();
+        protected override SetsContext CreateNamedTablesContext()
+            => new SqlServerNamedTablesContextContext();
 
         protected class SqlServerSetsContext : SetsContext
         {

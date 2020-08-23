@@ -2,12 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -171,7 +168,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             Assert.Equal("UseIdentityColumns", result.Method);
 
-            Assert.Collection(result.Arguments,
+            Assert.Collection(
+                result.Arguments,
                 seed => Assert.Equal(5, seed),
                 increment => Assert.Equal(10, increment));
         }
@@ -189,7 +187,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             Assert.Equal("UseIdentityColumn", result.Method);
 
-            Assert.Collection(result.Arguments,
+            Assert.Collection(
+                result.Arguments,
                 seed => Assert.Equal(5, seed),
                 increment => Assert.Equal(10, increment));
         }
@@ -206,7 +205,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             Assert.Equal("UseHiLo", result.Method);
 
-            Assert.Collection(result.Arguments,
+            Assert.Collection(
+                result.Arguments,
                 name => Assert.Equal("HiLoIndexName", name),
                 schema => Assert.Equal("HiLoIndexSchema", schema));
         }
@@ -224,7 +224,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             Assert.Equal("UseHiLo", result.Method);
 
-            Assert.Collection(result.Arguments,
+            Assert.Collection(
+                result.Arguments,
                 name => Assert.Equal("HiLoIndexName", name),
                 schema => Assert.Equal("HiLoIndexSchema", schema));
         }

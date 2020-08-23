@@ -73,7 +73,8 @@ namespace Microsoft.EntityFrameworkCore
                             DependentId = category.Id
                         });
 
-                    Assert.Equal(RelationalStrings.ReadonlyEntitySaved(nameof(ProductTableView)),
+                    Assert.Equal(
+                        RelationalStrings.ReadonlyEntitySaved(nameof(ProductTableView)),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 });
         }

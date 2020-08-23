@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class OverzealousInitializationInMemoryFixture : OverzealousInitializationFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => InMemoryTestStoreFactory.Instance;
         }
     }
 }

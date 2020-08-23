@@ -85,25 +85,35 @@ WHERE ((c[""Discriminator""] = ""BuiltInDataTypes"") AND (c[""Id""] = 13))");
 
         public class BuiltInDataTypesCosmosFixture : BuiltInDataTypesFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => CosmosTestStoreFactory.Instance;
 
-            public override bool StrictEquality => true;
+            public override bool StrictEquality
+                => true;
 
-            public override int IntegerPrecision => 53;
+            public override int IntegerPrecision
+                => 53;
 
-            public override bool SupportsAnsi => false;
+            public override bool SupportsAnsi
+                => false;
 
-            public override bool SupportsUnicodeToAnsiConversion => false;
+            public override bool SupportsUnicodeToAnsiConversion
+                => false;
 
-            public override bool SupportsLargeStringComparisons => true;
+            public override bool SupportsLargeStringComparisons
+                => true;
 
-            public override bool SupportsBinaryKeys => true;
+            public override bool SupportsBinaryKeys
+                => true;
 
-            public override bool SupportsDecimalComparisons => true;
+            public override bool SupportsDecimalComparisons
+                => true;
 
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
+            public TestSqlLoggerFactory TestSqlLoggerFactory
+                => (TestSqlLoggerFactory)ListLoggerFactory;
 
-            public override DateTime DefaultDateTime => new DateTime();
+            public override DateTime DefaultDateTime
+                => new DateTime();
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {

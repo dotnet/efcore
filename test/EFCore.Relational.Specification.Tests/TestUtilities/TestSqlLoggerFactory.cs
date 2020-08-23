@@ -31,9 +31,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Logger = new TestSqlLogger(shouldLogCategory(DbLoggerCategory.Database.Command.Name));
         }
 
-        public IReadOnlyList<string> SqlStatements => ((TestSqlLogger)Logger).SqlStatements;
-        public IReadOnlyList<string> Parameters => ((TestSqlLogger)Logger).Parameters;
-        public string Sql => string.Join(_eol + _eol, SqlStatements);
+        public IReadOnlyList<string> SqlStatements
+            => ((TestSqlLogger)Logger).SqlStatements;
+
+        public IReadOnlyList<string> Parameters
+            => ((TestSqlLogger)Logger).Parameters;
+
+        public string Sql
+            => string.Join(_eol + _eol, SqlStatements);
 
         public void AssertBaseline(string[] expected, bool assertOrder = true)
         {
@@ -110,7 +115,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             private readonly bool _shouldLogCommands;
 
-            public TestSqlLogger(bool shouldLogCommands) => _shouldLogCommands = shouldLogCommands;
+            public TestSqlLogger(bool shouldLogCommands)
+                => _shouldLogCommands = shouldLogCommands;
 
             public List<string> SqlStatements { get; } = new List<string>();
             public List<string> Parameters { get; } = new List<string>();
@@ -124,7 +130,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
 
             protected override void UnsafeLog<TState>(
-                LogLevel logLevel, EventId eventId, string message, TState state, Exception exception)
+                LogLevel logLevel,
+                EventId eventId,
+                string message,
+                TState state,
+                Exception exception)
             {
                 if ((eventId.Id == RelationalEventId.CommandExecuted.Id
                     || eventId.Id == RelationalEventId.CommandError.Id

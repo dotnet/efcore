@@ -10,7 +10,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class NorthwindQuerySqlServerFixture<TModelCustomizer> : NorthwindQueryRelationalFixture<TModelCustomizer>
         where TModelCustomizer : IModelCustomizer, new()
     {
-        protected override ITestStoreFactory TestStoreFactory => SqlServerNorthwindTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerNorthwindTestStoreFactory.Instance;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

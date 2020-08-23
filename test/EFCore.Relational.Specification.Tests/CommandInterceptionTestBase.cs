@@ -198,7 +198,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 base.ReaderExecutingAsync(command, eventData, result, cancellationToken);
 
-                return new ValueTask<InterceptionResult<DbDataReader>>(InterceptionResult<DbDataReader>.SuppressWithResult(new FakeDbDataReader()));
+                return new ValueTask<InterceptionResult<DbDataReader>>(
+                    InterceptionResult<DbDataReader>.SuppressWithResult(new FakeDbDataReader()));
             }
         }
 
@@ -875,16 +876,32 @@ namespace Microsoft.EntityFrameworkCore
                 _secondReader = secondReader;
             }
 
-            public override int FieldCount => _firstReader.FieldCount;
-            public override int RecordsAffected => _firstReader.RecordsAffected + _secondReader.RecordsAffected;
-            public override bool HasRows => _firstReader.HasRows || _secondReader.HasRows;
-            public override bool IsClosed => _firstReader.IsClosed;
-            public override int Depth => _firstReader.Depth;
+            public override int FieldCount
+                => _firstReader.FieldCount;
 
-            public override string GetDataTypeName(int ordinal) => _firstReader.GetDataTypeName(ordinal);
-            public override Type GetFieldType(int ordinal) => _firstReader.GetFieldType(ordinal);
-            public override string GetName(int ordinal) => _firstReader.GetName(ordinal);
-            public override bool NextResult() => _firstReader.NextResult() || _secondReader.NextResult();
+            public override int RecordsAffected
+                => _firstReader.RecordsAffected + _secondReader.RecordsAffected;
+
+            public override bool HasRows
+                => _firstReader.HasRows || _secondReader.HasRows;
+
+            public override bool IsClosed
+                => _firstReader.IsClosed;
+
+            public override int Depth
+                => _firstReader.Depth;
+
+            public override string GetDataTypeName(int ordinal)
+                => _firstReader.GetDataTypeName(ordinal);
+
+            public override Type GetFieldType(int ordinal)
+                => _firstReader.GetFieldType(ordinal);
+
+            public override string GetName(int ordinal)
+                => _firstReader.GetName(ordinal);
+
+            public override bool NextResult()
+                => _firstReader.NextResult() || _secondReader.NextResult();
 
             public override async Task<bool> NextResultAsync(CancellationToken cancellationToken)
                 => await _firstReader.NextResultAsync(cancellationToken) || await _secondReader.NextResultAsync(cancellationToken);
@@ -1437,12 +1454,20 @@ namespace Microsoft.EntityFrameworkCore
         {
             private readonly DbCommand _command;
 
-            public WrappingDbCommand(DbCommand command) => _command = command;
+            public WrappingDbCommand(DbCommand command)
+                => _command = command;
 
-            public override void Cancel() => _command.Cancel();
-            public override int ExecuteNonQuery() => _command.ExecuteNonQuery();
-            public override object ExecuteScalar() => _command.ExecuteScalar();
-            public override void Prepare() => _command.Prepare();
+            public override void Cancel()
+                => _command.Cancel();
+
+            public override int ExecuteNonQuery()
+                => _command.ExecuteNonQuery();
+
+            public override object ExecuteScalar()
+                => _command.ExecuteScalar();
+
+            public override void Prepare()
+                => _command.Prepare();
 
             public override string CommandText
             {
@@ -1474,7 +1499,8 @@ namespace Microsoft.EntityFrameworkCore
                 set => _command.Connection = value;
             }
 
-            protected override DbParameterCollection DbParameterCollection => _command.Parameters;
+            protected override DbParameterCollection DbParameterCollection
+                => _command.Parameters;
 
             protected override DbTransaction DbTransaction
             {
@@ -1488,8 +1514,11 @@ namespace Microsoft.EntityFrameworkCore
                 set => _command.DesignTimeVisible = value;
             }
 
-            protected override DbParameter CreateDbParameter() => _command.CreateParameter();
-            protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior) => _command.ExecuteReader();
+            protected override DbParameter CreateDbParameter()
+                => _command.CreateParameter();
+
+            protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
+                => _command.ExecuteReader();
         }
 
         private class FakeDbDataReader : DbDataReader
@@ -1517,34 +1546,71 @@ namespace Microsoft.EntityFrameworkCore
             public override string GetString(int ordinal)
                 => _strings[_index - 1];
 
-            public override bool GetBoolean(int ordinal) => throw new NotImplementedException();
-            public override byte GetByte(int ordinal) => throw new NotImplementedException();
+            public override bool GetBoolean(int ordinal)
+                => throw new NotImplementedException();
+
+            public override byte GetByte(int ordinal)
+                => throw new NotImplementedException();
 
             public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
                 => throw new NotImplementedException();
 
-            public override char GetChar(int ordinal) => throw new NotImplementedException();
+            public override char GetChar(int ordinal)
+                => throw new NotImplementedException();
 
             public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
                 => throw new NotImplementedException();
 
-            public override string GetDataTypeName(int ordinal) => throw new NotImplementedException();
-            public override DateTime GetDateTime(int ordinal) => throw new NotImplementedException();
-            public override decimal GetDecimal(int ordinal) => throw new NotImplementedException();
-            public override double GetDouble(int ordinal) => throw new NotImplementedException();
-            public override Type GetFieldType(int ordinal) => throw new NotImplementedException();
-            public override float GetFloat(int ordinal) => throw new NotImplementedException();
-            public override Guid GetGuid(int ordinal) => throw new NotImplementedException();
-            public override short GetInt16(int ordinal) => throw new NotImplementedException();
-            public override long GetInt64(int ordinal) => throw new NotImplementedException();
-            public override string GetName(int ordinal) => throw new NotImplementedException();
-            public override int GetOrdinal(string name) => throw new NotImplementedException();
-            public override object GetValue(int ordinal) => throw new NotImplementedException();
-            public override int GetValues(object[] values) => throw new NotImplementedException();
-            public override object this[int ordinal] => throw new NotImplementedException();
-            public override object this[string name] => throw new NotImplementedException();
-            public override bool NextResult() => throw new NotImplementedException();
-            public override IEnumerator GetEnumerator() => throw new NotImplementedException();
+            public override string GetDataTypeName(int ordinal)
+                => throw new NotImplementedException();
+
+            public override DateTime GetDateTime(int ordinal)
+                => throw new NotImplementedException();
+
+            public override decimal GetDecimal(int ordinal)
+                => throw new NotImplementedException();
+
+            public override double GetDouble(int ordinal)
+                => throw new NotImplementedException();
+
+            public override Type GetFieldType(int ordinal)
+                => throw new NotImplementedException();
+
+            public override float GetFloat(int ordinal)
+                => throw new NotImplementedException();
+
+            public override Guid GetGuid(int ordinal)
+                => throw new NotImplementedException();
+
+            public override short GetInt16(int ordinal)
+                => throw new NotImplementedException();
+
+            public override long GetInt64(int ordinal)
+                => throw new NotImplementedException();
+
+            public override string GetName(int ordinal)
+                => throw new NotImplementedException();
+
+            public override int GetOrdinal(string name)
+                => throw new NotImplementedException();
+
+            public override object GetValue(int ordinal)
+                => throw new NotImplementedException();
+
+            public override int GetValues(object[] values)
+                => throw new NotImplementedException();
+
+            public override object this[int ordinal]
+                => throw new NotImplementedException();
+
+            public override object this[string name]
+                => throw new NotImplementedException();
+
+            public override bool NextResult()
+                => throw new NotImplementedException();
+
+            public override IEnumerator GetEnumerator()
+                => throw new NotImplementedException();
         }
 
         private static void AssertNormalOutcome(DbContext context, CommandInterceptorBase interceptor, bool async)

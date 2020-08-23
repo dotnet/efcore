@@ -15,9 +15,11 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : SharedStoreFixtureBase<NorthwindContext>, IQueryFixtureBase
         where TModelCustomizer : IModelCustomizer, new()
     {
-        public Func<DbContext> GetContextCreator() => () => CreateContext();
+        public Func<DbContext> GetContextCreator()
+            => () => CreateContext();
 
-        public ISetSource GetExpectedData() => new NorthwindData();
+        public ISetSource GetExpectedData()
+            => new NorthwindData();
 
         public IReadOnlyDictionary<Type, object> GetEntitySorters()
             => new Dictionary<Type, Func<object, object>>
@@ -32,18 +34,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                 { typeof(OrderDetail), e => (((OrderDetail)e)?.OrderID.ToString(), ((OrderDetail)e)?.ProductID.ToString()) }
             }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-        public IReadOnlyDictionary<Type, object> GetEntityAsserters() => null;
+        public IReadOnlyDictionary<Type, object> GetEntityAsserters()
+            => null;
 
         protected override string StoreName { get; } = "Northwind";
 
-        protected override bool UsePooling => typeof(TModelCustomizer) == typeof(NoopModelCustomizer);
+        protected override bool UsePooling
+            => typeof(TModelCustomizer) == typeof(NoopModelCustomizer);
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             => new TModelCustomizer().Customize(modelBuilder, context);
 
-        protected override void Seed(NorthwindContext context) => NorthwindData.Seed(context);
+        protected override void Seed(NorthwindContext context)
+            => NorthwindData.Seed(context);
 
-        protected override Task SeedAsync(NorthwindContext context) => NorthwindData.SeedAsync(context);
+        protected override Task SeedAsync(NorthwindContext context)
+            => NorthwindData.SeedAsync(context);
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(

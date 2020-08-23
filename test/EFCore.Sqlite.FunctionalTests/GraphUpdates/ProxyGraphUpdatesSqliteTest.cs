@@ -24,8 +24,11 @@ namespace Microsoft.EntityFrameworkCore
 
             public abstract class ProxyGraphUpdatesSqliteFixtureBase : ProxyGraphUpdatesFixtureBase
             {
-                public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
-                protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+                public TestSqlLoggerFactory TestSqlLoggerFactory
+                    => (TestSqlLoggerFactory)ListLoggerFactory;
+
+                protected override ITestStoreFactory TestStoreFactory
+                    => SqliteTestStoreFactory.Instance;
             }
         }
 
@@ -36,8 +39,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            protected override bool DoesLazyLoading => true;
-            protected override bool DoesChangeTracking => false;
+            protected override bool DoesLazyLoading
+                => true;
+
+            protected override bool DoesChangeTracking
+                => false;
 
             public class ProxyGraphUpdatesWithLazyLoadingSqliteFixture : ProxyGraphUpdatesSqliteFixtureBase
             {
@@ -58,8 +64,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            protected override bool DoesLazyLoading => false;
-            protected override bool DoesChangeTracking => true;
+            protected override bool DoesLazyLoading
+                => false;
+
+            protected override bool DoesChangeTracking
+                => true;
 
             public class ProxyGraphUpdatesWithChangeTrackingSqliteFixture : ProxyGraphUpdatesSqliteFixtureBase
             {
@@ -73,15 +82,19 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public class ChangeTrackingAndLazyLoading : ProxyGraphUpdatesSqliteTestBase<ChangeTrackingAndLazyLoading.ProxyGraphUpdatesWithChangeTrackingAndLazyLoadingSqliteFixture>
+        public class ChangeTrackingAndLazyLoading : ProxyGraphUpdatesSqliteTestBase<
+            ChangeTrackingAndLazyLoading.ProxyGraphUpdatesWithChangeTrackingAndLazyLoadingSqliteFixture>
         {
             public ChangeTrackingAndLazyLoading(ProxyGraphUpdatesWithChangeTrackingAndLazyLoadingSqliteFixture fixture)
                 : base(fixture)
             {
             }
 
-            protected override bool DoesLazyLoading => true;
-            protected override bool DoesChangeTracking => true;
+            protected override bool DoesLazyLoading
+                => true;
+
+            protected override bool DoesChangeTracking
+                => true;
 
             public class ProxyGraphUpdatesWithChangeTrackingAndLazyLoadingSqliteFixture : ProxyGraphUpdatesSqliteFixtureBase
             {

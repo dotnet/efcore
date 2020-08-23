@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
-using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -17,13 +16,16 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected override bool SupportsOptimisticConcurrency => false;
+        protected override bool SupportsOptimisticConcurrency
+            => false;
 
         public abstract class InterceptionInMemoryFixtureBase : InterceptionFixtureBase
         {
-            protected override string StoreName => "SaveChangesInterception";
+            protected override string StoreName
+                => "SaveChangesInterception";
 
-            protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => InMemoryTestStoreFactory.Instance;
 
             protected override IServiceCollection InjectInterceptors(
                 IServiceCollection serviceCollection,
@@ -44,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public class InterceptionInMemoryFixture : InterceptionInMemoryFixtureBase
             {
-                protected override bool ShouldSubscribeToDiagnosticListener => false;
+                protected override bool ShouldSubscribeToDiagnosticListener
+                    => false;
             }
         }
 
@@ -59,7 +62,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public class InterceptionInMemoryFixture : InterceptionInMemoryFixtureBase
             {
-                protected override bool ShouldSubscribeToDiagnosticListener => true;
+                protected override bool ShouldSubscribeToDiagnosticListener
+                    => true;
             }
         }
     }

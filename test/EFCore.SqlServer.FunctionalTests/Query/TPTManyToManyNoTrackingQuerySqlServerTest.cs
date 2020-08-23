@@ -6,7 +6,8 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class TPTManyToManyNoTrackingQuerySqlServerTest : TPTManyToManyNoTrackingQueryRelationalTestBase<TPTManyToManyQuerySqlServerFixture>
+    public class TPTManyToManyNoTrackingQuerySqlServerTest : TPTManyToManyNoTrackingQueryRelationalTestBase<
+        TPTManyToManyQuerySqlServerFixture>
     {
         public TPTManyToManyNoTrackingQuerySqlServerTest(TPTManyToManyQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -15,7 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        protected override bool CanExecuteQueryString => true;
+        protected override bool CanExecuteQueryString
+            => true;
 
         public override async Task Skip_navigation_all(bool async)
         {

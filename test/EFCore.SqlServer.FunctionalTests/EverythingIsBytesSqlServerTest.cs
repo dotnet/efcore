@@ -195,23 +195,31 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
 
         public class EverythingIsBytesSqlServerFixture : BuiltInDataTypesFixtureBase
         {
-            public override bool StrictEquality => true;
+            public override bool StrictEquality
+                => true;
 
-            public override bool SupportsAnsi => true;
+            public override bool SupportsAnsi
+                => true;
 
-            public override bool SupportsUnicodeToAnsiConversion => false;
+            public override bool SupportsUnicodeToAnsiConversion
+                => false;
 
-            public override bool SupportsLargeStringComparisons => true;
+            public override bool SupportsLargeStringComparisons
+                => true;
 
             protected override string StoreName { get; } = "EverythingIsBytes";
 
-            protected override ITestStoreFactory TestStoreFactory => SqlServerBytesTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerBytesTestStoreFactory.Instance;
 
-            public override bool SupportsBinaryKeys => true;
+            public override bool SupportsBinaryKeys
+                => true;
 
-            public override bool SupportsDecimalComparisons => true;
+            public override bool SupportsDecimalComparisons
+                => true;
 
-            public override DateTime DefaultDateTime => new DateTime();
+            public override DateTime DefaultDateTime
+                => new DateTime();
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base

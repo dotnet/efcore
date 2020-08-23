@@ -570,10 +570,12 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private bool _changeTracker_OnTracked;
+
         private void ChangeTracker_OnTracked(object sender, EntityTrackedEventArgs e)
             => _changeTracker_OnTracked = true;
 
         private bool _changeTracker_OnStateChanged;
+
         private void ChangeTracker_OnStateChanged(object sender, EntityStateChangedEventArgs e)
             => _changeTracker_OnStateChanged = true;
 
@@ -683,7 +685,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(weakRef.IsAlive);
         }
 
-        private static T Scoper<T>(Func<T> getter) => getter();
+        private static T Scoper<T>(Func<T> getter)
+            => getter();
 
         [ConditionalFact]
         public void State_manager_is_reset_with_factory()
@@ -818,7 +821,6 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(context, lease1.Context);
             Assert.NotSame(lease1.Context, lease2.Context);
         }
-
 
         [ConditionalTheory]
         [InlineData(true)]

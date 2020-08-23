@@ -302,7 +302,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private class BaxterWithMappingContext : BaxterContext
         {
-            protected override bool UseTypeMapping => true;
+            protected override bool UseTypeMapping
+                => true;
         }
 
         private class ConcreteTypeMapping : CoreTypeMapping
@@ -323,7 +324,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private class BaxterContext : DbContext
         {
-            protected virtual bool UseTypeMapping => false;
+            protected virtual bool UseTypeMapping
+                => false;
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
@@ -2124,7 +2126,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public Tuple<InternalEntityEntry, INavigationBase, IEnumerable<object>, IEnumerable<object>> CollectionChange { get; set; }
 
             public override void NavigationReferenceChanged(
-                InternalEntityEntry entry, INavigationBase navigationBase, object oldValue, object newValue)
+                InternalEntityEntry entry,
+                INavigationBase navigationBase,
+                object oldValue,
+                object newValue)
             {
                 ReferenceChange = Tuple.Create(entry, navigationBase, oldValue, newValue);
 
@@ -2132,7 +2137,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             public override void NavigationCollectionChanged(
-                InternalEntityEntry entry, INavigationBase navigation, IEnumerable<object> added, IEnumerable<object> removed)
+                InternalEntityEntry entry,
+                INavigationBase navigation,
+                IEnumerable<object> added,
+                IEnumerable<object> removed)
             {
                 // ReSharper disable PossibleMultipleEnumeration
                 CollectionChange = Tuple.Create(entry, navigation, added, removed);

@@ -41,7 +41,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class StoreGeneratedSqliteFixture : StoreGeneratedFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqliteTestStoreFactory.Instance;
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => builder

@@ -51,7 +51,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(expected, CountSqlLinesContaining("SELECT NEXT VALUE FOR", Fixture.TestSqlLoggerFactory.Sql));
         }
 
-        private ChipsContext CreateContext() => (ChipsContext)Fixture.CreateContext();
+        private ChipsContext CreateContext()
+            => (ChipsContext)Fixture.CreateContext();
 
         protected void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());
@@ -98,8 +99,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected override string StoreName { get; } = "CommandConfiguration";
             protected override Type ContextType { get; } = typeof(ChipsContext);
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
+
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
+
+            public TestSqlLoggerFactory TestSqlLoggerFactory
+                => (TestSqlLoggerFactory)ListLoggerFactory;
         }
     }
 }

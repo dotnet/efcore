@@ -21,7 +21,8 @@ namespace Microsoft.EntityFrameworkCore
         protected override void AddServices(ServiceCollection serviceCollection)
             => serviceCollection.AddEntityFrameworkInMemoryDatabase();
 
-        protected override Assembly TargetAssembly => typeof(InMemoryDatabase).Assembly;
+        protected override Assembly TargetAssembly
+            => typeof(InMemoryDatabase).Assembly;
 
         public class InMemoryApiConsistencyFixture : ApiConsistencyFixtureBase
         {
@@ -32,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
                 return true;
             }
 
-            public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>()
+            public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>
             {
                 typeof(InMemoryServiceCollectionExtensions),
                 typeof(InMemoryDbContextOptionsExtensions),

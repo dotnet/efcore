@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
@@ -173,7 +172,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         private class WithProperties
         {
-            public WithProperties(int id) => Id = id;
+            public WithProperties(int id)
+                => Id = id;
+
             public int Id { get; set; }
         }
 
@@ -183,43 +184,56 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
             }
 
-            public ParameterlessAndWithProperties(int id) => Id = id;
+            public ParameterlessAndWithProperties(int id)
+                => Id = id;
 
             public int Id { get; set; }
         }
 
         private class WithLazyLoader
         {
-            public WithLazyLoader(ILazyLoader lazyLoader) => LazyLoader = lazyLoader;
+            public WithLazyLoader(ILazyLoader lazyLoader)
+                => LazyLoader = lazyLoader;
+
             public int Id { get; set; }
             public ILazyLoader LazyLoader { get; }
         }
 
         private class WithLazyLoaderDelegate
         {
-            public WithLazyLoaderDelegate(Action<object, string> lazyLoader) => LazyLoader = lazyLoader;
+            public WithLazyLoaderDelegate(Action<object, string> lazyLoader)
+                => LazyLoader = lazyLoader;
+
             public int Id { get; set; }
             public Action<object, string> LazyLoader { get; }
         }
 
         private class WithEntityType
         {
-            public WithEntityType(IEntityType entityType) => EntityType = entityType;
+            public WithEntityType(IEntityType entityType)
+                => EntityType = entityType;
+
             public int Id { get; set; }
             public IEntityType EntityType { get; }
         }
 
         private class WithContext
         {
-            public WithContext(DbContext context) => Context = context;
+            public WithContext(DbContext context)
+                => Context = context;
+
             public int Id { get; set; }
             public DbContext Context { get; }
         }
 
         private class WithServiceAndWithProperties
         {
-            public WithServiceAndWithProperties(ILazyLoader lazyLoader) => LazyLoader = lazyLoader;
-            public WithServiceAndWithProperties(ILazyLoader lazyLoader, int id) : this(lazyLoader) => Id = id;
+            public WithServiceAndWithProperties(ILazyLoader lazyLoader)
+                => LazyLoader = lazyLoader;
+
+            public WithServiceAndWithProperties(ILazyLoader lazyLoader, int id)
+                : this(lazyLoader)
+                => Id = id;
 
             public ILazyLoader LazyLoader { get; }
             public int Id { get; set; }

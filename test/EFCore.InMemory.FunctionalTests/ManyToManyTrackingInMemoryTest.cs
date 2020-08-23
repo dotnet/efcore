@@ -26,11 +26,13 @@ namespace Microsoft.EntityFrameworkCore
             Fixture.Reseed();
         }
 
-        protected override bool SupportsDatabaseDefaults => false;
+        protected override bool SupportsDatabaseDefaults
+            => false;
 
         public class ManyToManyTrackingInMemoryFixture : ManyToManyTrackingFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => InMemoryTestStoreFactory.Instance;
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base.AddOptions(builder)

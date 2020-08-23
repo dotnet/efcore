@@ -17,7 +17,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             _compareAnnotations = compareAnnotations;
         }
 
-        public int Compare(IIndex x, IIndex y) => PropertyListComparer.Instance.Compare(x.Properties, y.Properties);
+        public int Compare(IIndex x, IIndex y)
+            => PropertyListComparer.Instance.Compare(x.Properties, y.Properties);
 
         public bool Equals(IIndex x, IIndex y)
         {
@@ -33,6 +34,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 && (!_compareAnnotations || x.GetAnnotations().SequenceEqual(y.GetAnnotations(), AnnotationComparer.Instance));
         }
 
-        public int GetHashCode(IIndex obj) => PropertyListComparer.Instance.GetHashCode(obj.Properties);
+        public int GetHashCode(IIndex obj)
+            => PropertyListComparer.Instance.GetHashCode(obj.Properties);
     }
 }

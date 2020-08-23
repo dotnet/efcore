@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class MusicStoreSqlServerFixture : MusicStoreFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
         }
     }
 }

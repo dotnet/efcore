@@ -51,6 +51,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 sets[i] = values;
             }
+
             return GetCombinations(sets);
         }
 

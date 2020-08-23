@@ -97,7 +97,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class StoreGeneratedSqlServerFixture : StoreGeneratedFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => builder

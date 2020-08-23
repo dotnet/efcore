@@ -104,7 +104,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 }
             }
 
-            public IEnumerable<IDbContextOptionsExtension> Extensions => null;
+            public IEnumerable<IDbContextOptionsExtension> Extensions
+                => null;
 
             public TExtension FindExtension<TExtension>()
                 where TExtension : class, IDbContextOptionsExtension

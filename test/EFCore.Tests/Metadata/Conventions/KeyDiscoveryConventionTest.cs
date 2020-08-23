@@ -154,7 +154,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             CreateKeyDiscoveryConvention().ProcessPropertyAdded(propertyBuilder, context);
         }
 
-        private KeyDiscoveryConvention CreateKeyDiscoveryConvention() => new KeyDiscoveryConvention(CreateDependencies());
+        private KeyDiscoveryConvention CreateKeyDiscoveryConvention()
+            => new KeyDiscoveryConvention(CreateDependencies());
 
         private ProviderConventionSetBuilderDependencies CreateDependencies()
             => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>()

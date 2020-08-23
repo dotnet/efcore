@@ -46,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private static Task TrackEntitiesTest(
             Func<DbContext, Category, EntityEntry<Category>> categoryAdder,
-            Func<DbContext, Product, EntityEntry<Product>> productAdder, EntityState expectedState)
+            Func<DbContext, Product, EntityEntry<Product>> productAdder,
+            EntityState expectedState)
             => TrackEntitiesTest(
                 (c, e) => new ValueTask<EntityEntry<Category>>(categoryAdder(c, e)),
                 (c, e) => new ValueTask<EntityEntry<Product>>(productAdder(c, e)),
@@ -54,7 +55,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task TrackEntitiesTest(
             Func<DbContext, Category, ValueTask<EntityEntry<Category>>> categoryAdder,
-            Func<DbContext, Product, ValueTask<EntityEntry<Product>>> productAdder, EntityState expectedState)
+            Func<DbContext, Product, ValueTask<EntityEntry<Product>>> productAdder,
+            EntityState expectedState)
         {
             using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
             var relatedDependent = new Product
@@ -225,7 +227,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private static Task TrackEntitiesDefaultValueTest(
             Func<DbContext, Category, EntityEntry<Category>> categoryAdder,
-            Func<DbContext, Product, EntityEntry<Product>> productAdder, EntityState expectedState)
+            Func<DbContext, Product, EntityEntry<Product>> productAdder,
+            EntityState expectedState)
             => TrackEntitiesDefaultValueTest(
                 (c, e) => new ValueTask<EntityEntry<Category>>(categoryAdder(c, e)),
                 (c, e) => new ValueTask<EntityEntry<Product>>(productAdder(c, e)),
@@ -234,7 +237,8 @@ namespace Microsoft.EntityFrameworkCore
         // Issue #3890
         private static async Task TrackEntitiesDefaultValueTest(
             Func<DbContext, Category, ValueTask<EntityEntry<Category>>> categoryAdder,
-            Func<DbContext, Product, ValueTask<EntityEntry<Product>>> productAdder, EntityState expectedState)
+            Func<DbContext, Product, ValueTask<EntityEntry<Product>>> productAdder,
+            EntityState expectedState)
         {
             using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
             var category1 = new Category { Id = 0, Name = "Beverages" };
@@ -295,7 +299,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private static Task TrackMultipleEntitiesDefaultValuesTest(
             Action<DbContext, object[]> categoryAdder,
-            Action<DbContext, object[]> productAdder, EntityState expectedState)
+            Action<DbContext, object[]> productAdder,
+            EntityState expectedState)
             => TrackMultipleEntitiesDefaultValuesTest(
                 (c, e) =>
                 {
@@ -312,7 +317,8 @@ namespace Microsoft.EntityFrameworkCore
         // Issue #3890
         private static async Task TrackMultipleEntitiesDefaultValuesTest(
             Func<DbContext, object[], Task> categoryAdder,
-            Func<DbContext, object[], Task> productAdder, EntityState expectedState)
+            Func<DbContext, object[], Task> productAdder,
+            EntityState expectedState)
         {
             using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
             var category1 = new Category { Id = 0, Name = "Beverages" };
@@ -409,7 +415,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private static Task TrackEntitiesTestNonGeneric(
             Func<DbContext, object, EntityEntry> categoryAdder,
-            Func<DbContext, object, EntityEntry> productAdder, EntityState expectedState)
+            Func<DbContext, object, EntityEntry> productAdder,
+            EntityState expectedState)
             => TrackEntitiesTestNonGeneric(
                 (c, e) => new ValueTask<EntityEntry>(categoryAdder(c, e)),
                 (c, e) => new ValueTask<EntityEntry>(productAdder(c, e)),
@@ -417,7 +424,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task TrackEntitiesTestNonGeneric(
             Func<DbContext, object, ValueTask<EntityEntry>> categoryAdder,
-            Func<DbContext, object, ValueTask<EntityEntry>> productAdder, EntityState expectedState)
+            Func<DbContext, object, ValueTask<EntityEntry>> productAdder,
+            EntityState expectedState)
         {
             using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
             var relatedDependent = new Product
@@ -588,7 +596,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private static Task TrackEntitiesDefaultValuesTestNonGeneric(
             Func<DbContext, object, EntityEntry> categoryAdder,
-            Func<DbContext, object, EntityEntry> productAdder, EntityState expectedState)
+            Func<DbContext, object, EntityEntry> productAdder,
+            EntityState expectedState)
             => TrackEntitiesDefaultValuesTestNonGeneric(
                 (c, e) => new ValueTask<EntityEntry>(categoryAdder(c, e)),
                 (c, e) => new ValueTask<EntityEntry>(productAdder(c, e)),
@@ -597,7 +606,8 @@ namespace Microsoft.EntityFrameworkCore
         // Issue #3890
         private static async Task TrackEntitiesDefaultValuesTestNonGeneric(
             Func<DbContext, object, ValueTask<EntityEntry>> categoryAdder,
-            Func<DbContext, object, ValueTask<EntityEntry>> productAdder, EntityState expectedState)
+            Func<DbContext, object, ValueTask<EntityEntry>> productAdder,
+            EntityState expectedState)
         {
             using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
             var category1 = new Category { Id = 0, Name = "Beverages" };
@@ -660,7 +670,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private static Task TrackMultipleEntitiesDefaultValueTestEnumerable(
             Action<DbContext, IEnumerable<object>> categoryAdder,
-            Action<DbContext, IEnumerable<object>> productAdder, EntityState expectedState)
+            Action<DbContext, IEnumerable<object>> productAdder,
+            EntityState expectedState)
             => TrackMultipleEntitiesDefaultValueTestEnumerable(
                 (c, e) =>
                 {
@@ -677,7 +688,8 @@ namespace Microsoft.EntityFrameworkCore
         // Issue #3890
         private static async Task TrackMultipleEntitiesDefaultValueTestEnumerable(
             Func<DbContext, IEnumerable<object>, Task> categoryAdder,
-            Func<DbContext, IEnumerable<object>, Task> productAdder, EntityState expectedState)
+            Func<DbContext, IEnumerable<object>, Task> productAdder,
+            EntityState expectedState)
         {
             using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
             var category1 = new Category { Id = 0, Name = "Beverages" };

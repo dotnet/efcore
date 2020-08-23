@@ -19,19 +19,26 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     {
         protected abstract IDatabaseModelFactory CreateDatabaseModelFactory(ILoggerFactory loggerFactory);
 
-        protected virtual bool AcceptTable(DatabaseTable table) => true;
+        protected virtual bool AcceptTable(DatabaseTable table)
+            => true;
 
-        protected virtual bool AcceptForeignKey(DatabaseForeignKey foreignKey) => true;
+        protected virtual bool AcceptForeignKey(DatabaseForeignKey foreignKey)
+            => true;
 
-        protected virtual bool AcceptIndex(DatabaseIndex index) => true;
+        protected virtual bool AcceptIndex(DatabaseIndex index)
+            => true;
 
-        protected virtual bool AcceptSequence(DatabaseSequence sequence) => true;
+        protected virtual bool AcceptSequence(DatabaseSequence sequence)
+            => true;
 
-        protected virtual string BuildCustomSql(DatabaseModel databaseModel) => null;
+        protected virtual string BuildCustomSql(DatabaseModel databaseModel)
+            => null;
 
-        protected virtual string BuildCustomEndingSql(DatabaseModel databaseModel) => null;
+        protected virtual string BuildCustomEndingSql(DatabaseModel databaseModel)
+            => null;
 
-        protected virtual void OpenConnection(IRelationalConnection connection) => connection.Open();
+        protected virtual void OpenConnection(IRelationalConnection connection)
+            => connection.Open();
 
         public virtual void Clean(DatabaseFacade facade)
         {

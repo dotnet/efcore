@@ -11,7 +11,8 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerQueryTriggersTest : IClassFixture<SqlServerQueryTriggersTest.SqlServerTriggersFixture>
     {
-        public SqlServerQueryTriggersTest(SqlServerTriggersFixture fixture) => Fixture = fixture;
+        public SqlServerQueryTriggersTest(SqlServerTriggersFixture fixture)
+            => Fixture = fixture;
 
         private SqlServerTriggersFixture Fixture { get; }
 
@@ -78,7 +79,8 @@ namespace Microsoft.EntityFrameworkCore
             context.SaveChanges();
         }
 
-        protected QueryTriggersContext CreateContext() => (QueryTriggersContext)Fixture.CreateContext();
+        protected QueryTriggersContext CreateContext()
+            => (QueryTriggersContext)Fixture.CreateContext();
 
         protected class QueryTriggersContext : PoolableDbContext
         {
@@ -114,7 +116,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected override string StoreName { get; } = "SqlServerQueryTriggers";
             protected override Type ContextType { get; } = typeof(QueryTriggersContext);
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
 
             protected override void Seed(DbContext context)
             {

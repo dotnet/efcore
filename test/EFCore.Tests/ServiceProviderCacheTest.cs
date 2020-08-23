@@ -247,11 +247,14 @@ namespace Microsoft.EntityFrameworkCore
                 {
                 }
 
-                public override bool IsDatabaseProvider => false;
+                public override bool IsDatabaseProvider
+                    => false;
 
-                public override long GetServiceProviderHashCode() => 0;
+                public override long GetServiceProviderHashCode()
+                    => 0;
 
-                public override string LogFragment => "";
+                public override string LogFragment
+                    => "";
 
                 public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
                 {
@@ -282,11 +285,14 @@ namespace Microsoft.EntityFrameworkCore
                 {
                 }
 
-                public override bool IsDatabaseProvider => false;
+                public override bool IsDatabaseProvider
+                    => false;
 
-                public override long GetServiceProviderHashCode() => 0;
+                public override long GetServiceProviderHashCode()
+                    => 0;
 
-                public override string LogFragment => "";
+                public override string LogFragment
+                    => "";
 
                 public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
                 {

@@ -58,7 +58,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                 if (!product.Discontinued)
                 {
                     productQueries.Add(
-                        new ProductQuery { CategoryName = "Food", ProductID = product.ProductID, ProductName = product.ProductName });
+                        new ProductQuery
+                        {
+                            CategoryName = "Food",
+                            ProductID = product.ProductID,
+                            ProductName = product.ProductName
+                        });
                 }
             }
 

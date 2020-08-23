@@ -740,11 +740,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.Property<string>("ValueGeneratedOnAddProperty")
                                 .ValueGeneratedOnAdd();
                             x.HasData(
-                                new
-                                {
-                                    Id = 1,
-                                    ValueGeneratedOnAddProperty = "Value"
-                                });
+                                new { Id = 1, ValueGeneratedOnAddProperty = "Value" });
                         });
                 },
                 source => { },
@@ -936,117 +932,114 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 },
                 source =>
                 {
-                    source.Entity("Animal", b =>
-                    {
-                        b.Property<int>("Id")
-                            .ValueGeneratedOnAdd()
-                            .HasColumnType("int")
-                            .UseIdentityColumn();
+                    source.Entity(
+                        "Animal", b =>
+                        {
+                            b.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int")
+                                .UseIdentityColumn();
 
-                        b.Property<int?>("MouseId")
-                            .HasColumnType("int");
+                            b.Property<int?>("MouseId")
+                                .HasColumnType("int");
 
-                        b.HasKey("Id");
+                            b.HasKey("Id");
 
-                        b.HasIndex("MouseId");
+                            b.HasIndex("MouseId");
 
-                        b.ToTable("Animal");
-                    });
+                            b.ToTable("Animal");
+                        });
 
-                    source.Entity("Cat", b =>
-                    {
-                        b.HasBaseType("Animal");
+                    source.Entity(
+                        "Cat", b =>
+                        {
+                            b.HasBaseType("Animal");
 
-                        b.Property<int?>("PreyId")
-                            .HasColumnType("int")
-                            .HasColumnName("PreyId");
+                            b.Property<int?>("PreyId")
+                                .HasColumnType("int")
+                                .HasColumnName("PreyId");
 
-                        b.HasIndex("PreyId");
+                            b.HasIndex("PreyId");
 
-                        b.ToTable("Cats");
+                            b.ToTable("Cats");
 
-                        b.HasData(
-                            new
-                            {
-                                Id = 11,
-                                MouseId = 31
-                            });
-                    });
+                            b.HasData(
+                                new { Id = 11, MouseId = 31 });
+                        });
 
-                    source.Entity("Dog", b =>
-                    {
-                        b.HasBaseType("Animal");
+                    source.Entity(
+                        "Dog", b =>
+                        {
+                            b.HasBaseType("Animal");
 
-                        b.Property<int?>("PreyId")
-                            .HasColumnType("int")
-                            .HasColumnName("PreyId");
+                            b.Property<int?>("PreyId")
+                                .HasColumnType("int")
+                                .HasColumnName("PreyId");
 
-                        b.HasIndex("PreyId");
+                            b.HasIndex("PreyId");
 
-                        b.ToTable("Dogs");
+                            b.ToTable("Dogs");
 
-                        b.HasData(
-                            new
-                            {
-                                Id = 21,
-                                PreyId = 31
-                            });
-                    });
+                            b.HasData(
+                                new { Id = 21, PreyId = 31 });
+                        });
 
-                    source.Entity("Mouse", b =>
-                    {
-                        b.HasBaseType("Animal");
+                    source.Entity(
+                        "Mouse", b =>
+                        {
+                            b.HasBaseType("Animal");
 
-                        b.ToTable("Mice");
+                            b.ToTable("Mice");
 
-                        b.HasData(
-                            new
-                            {
-                                Id = 31
-                            });
-                    });
+                            b.HasData(
+                                new { Id = 31 });
+                        });
 
-                    source.Entity("Animal", b =>
-                    {
-                        b.HasOne("Mouse", null)
-                            .WithMany()
-                            .HasForeignKey("MouseId");
-                    });
+                    source.Entity(
+                        "Animal", b =>
+                        {
+                            b.HasOne("Mouse", null)
+                                .WithMany()
+                                .HasForeignKey("MouseId");
+                        });
 
-                    source.Entity("Cat", b =>
-                    {
-                        b.HasOne("Animal", null)
-                            .WithOne()
-                            .HasForeignKey("Cat", "Id")
-                            .OnDelete(DeleteBehavior.ClientCascade)
-                            .IsRequired();
+                    source.Entity(
+                        "Cat", b =>
+                        {
+                            b.HasOne("Animal", null)
+                                .WithOne()
+                                .HasForeignKey("Cat", "Id")
+                                .OnDelete(DeleteBehavior.ClientCascade)
+                                .IsRequired();
 
-                        b.HasOne("Animal", null)
-                            .WithMany()
-                            .HasForeignKey("PreyId");
-                    });
+                            b.HasOne("Animal", null)
+                                .WithMany()
+                                .HasForeignKey("PreyId");
+                        });
 
-                    source.Entity("Dog", b =>
-                    {
-                        b.HasOne("Animal", null)
-                            .WithOne()
-                            .HasForeignKey("Dog", "Id")
-                            .OnDelete(DeleteBehavior.ClientCascade)
-                            .IsRequired();
+                    source.Entity(
+                        "Dog", b =>
+                        {
+                            b.HasOne("Animal", null)
+                                .WithOne()
+                                .HasForeignKey("Dog", "Id")
+                                .OnDelete(DeleteBehavior.ClientCascade)
+                                .IsRequired();
 
-                        b.HasOne("Animal", null)
-                            .WithMany()
-                            .HasForeignKey("PreyId");
-                    });
+                            b.HasOne("Animal", null)
+                                .WithMany()
+                                .HasForeignKey("PreyId");
+                        });
 
-                    source.Entity("Mouse", b =>
-                    {
-                        b.HasOne("Animal", null)
-                            .WithOne()
-                            .HasForeignKey("Mouse", "Id")
-                            .OnDelete(DeleteBehavior.ClientCascade)
-                            .IsRequired();
-                    });
+                    source.Entity(
+                        "Mouse", b =>
+                        {
+                            b.HasOne("Animal", null)
+                                .WithOne()
+                                .HasForeignKey("Mouse", "Id")
+                                .OnDelete(DeleteBehavior.ClientCascade)
+                                .IsRequired();
+                        });
                 },
                 modelBuilder =>
                 {
@@ -1095,7 +1088,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 skipSourceConventions: true);
         }
 
-        protected override TestHelpers TestHelpers => SqlServerTestHelpers.Instance;
+        protected override TestHelpers TestHelpers
+            => SqlServerTestHelpers.Instance;
 
         protected override MigrationsModelDiffer CreateModelDiffer(DbContextOptions options)
             => (MigrationsModelDiffer)TestHelpers.CreateContext(options).GetService<IMigrationsModelDiffer>();
@@ -1241,10 +1235,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal("IX_Address_Zip", operation1.Name);
 
                     var annotation = operation2.GetAnnotation(SqlServerAnnotationNames.FillFactor);
-                    Assert.NotNull(annotation); 
+                    Assert.NotNull(annotation);
 
-                    var annotationValue = Assert.IsType<int>(annotation.Value); 
-                    
+                    var annotationValue = Assert.IsType<int>(annotation.Value);
+
                     Assert.Equal(90, annotationValue);
                 });
         }

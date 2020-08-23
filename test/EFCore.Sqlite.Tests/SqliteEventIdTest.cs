@@ -40,18 +40,38 @@ namespace Microsoft.EntityFrameworkCore
 
         private class FakeSequence : ISequence
         {
-            public object this[string name] => throw new NotImplementedException();
+            public object this[string name]
+                => throw new NotImplementedException();
 
-            public string Name => "SequenceName";
-            public string Schema => throw new NotImplementedException();
-            public long StartValue => throw new NotImplementedException();
-            public int IncrementBy => throw new NotImplementedException();
-            public long? MinValue => throw new NotImplementedException();
-            public long? MaxValue => throw new NotImplementedException();
-            public Type ClrType => throw new NotImplementedException();
-            public Type Type => throw new NotImplementedException();
-            public IModel Model => throw new NotImplementedException();
-            public bool IsCyclic => throw new NotImplementedException();
+            public string Name
+                => "SequenceName";
+
+            public string Schema
+                => throw new NotImplementedException();
+
+            public long StartValue
+                => throw new NotImplementedException();
+
+            public int IncrementBy
+                => throw new NotImplementedException();
+
+            public long? MinValue
+                => throw new NotImplementedException();
+
+            public long? MaxValue
+                => throw new NotImplementedException();
+
+            public Type ClrType
+                => throw new NotImplementedException();
+
+            public Type Type
+                => throw new NotImplementedException();
+
+            public IModel Model
+                => throw new NotImplementedException();
+
+            public bool IsCyclic
+                => throw new NotImplementedException();
 
             public IAnnotation FindAnnotation(string name)
             {

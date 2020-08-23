@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -90,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 optionsBuilder.UseInMemoryDatabase(typeof(InfoLogContext).FullName)
-                            .ConfigureWarnings(w => w.Default(WarningBehavior.Throw));
+                    .ConfigureWarnings(w => w.Default(WarningBehavior.Throw));
 
                 if (_useLoggerFactory)
                 {
@@ -147,7 +146,11 @@ namespace Microsoft.EntityFrameworkCore
                 private List<(LogLevel, EventId, string)> LogMessages { get; }
 
                 public void Log<TState>(
-                    LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+                    LogLevel logLevel,
+                    EventId eventId,
+                    TState state,
+                    Exception exception,
+                    Func<TState, Exception, string> formatter)
                 {
                     var message = new StringBuilder();
                     if (formatter != null)
@@ -168,11 +171,14 @@ namespace Microsoft.EntityFrameworkCore
                     LogMessages?.Add((logLevel, eventId, message.ToString()));
                 }
 
-                public bool IsEnabled(LogLevel logLevel) => true;
+                public bool IsEnabled(LogLevel logLevel)
+                    => true;
 
-                public IDisposable BeginScope(object state) => throw new NotImplementedException();
+                public IDisposable BeginScope(object state)
+                    => throw new NotImplementedException();
 
-                public IDisposable BeginScope<TState>(TState state) => null;
+                public IDisposable BeginScope<TState>(TState state)
+                    => null;
             }
         }
 
@@ -389,24 +395,37 @@ namespace Microsoft.EntityFrameworkCore
 
         private class FakeNavigationFixer : INavigationFixer
         {
-            public void StateChanging(InternalEntityEntry entry, EntityState newState) => throw new NotImplementedException();
+            public void StateChanging(InternalEntityEntry entry, EntityState newState)
+                => throw new NotImplementedException();
 
-            public void StateChanged(InternalEntityEntry entry, EntityState oldState, bool fromQuery) =>
-                throw new NotImplementedException();
+            public void StateChanged(InternalEntityEntry entry, EntityState oldState, bool fromQuery)
+                => throw new NotImplementedException();
 
-            public void NavigationReferenceChanged(InternalEntityEntry entry, INavigationBase navigationBase, object oldValue, object newValue) =>
-                throw new NotImplementedException();
+            public void NavigationReferenceChanged(
+                InternalEntityEntry entry,
+                INavigationBase navigationBase,
+                object oldValue,
+                object newValue)
+                => throw new NotImplementedException();
 
             public void NavigationCollectionChanged(
-                InternalEntityEntry entry, INavigationBase navigationBase, IEnumerable<object> added, IEnumerable<object> removed) =>
-                throw new NotImplementedException();
+                InternalEntityEntry entry,
+                INavigationBase navigationBase,
+                IEnumerable<object> added,
+                IEnumerable<object> removed)
+                => throw new NotImplementedException();
 
             public void KeyPropertyChanged(
-                InternalEntityEntry entry, IProperty property, IEnumerable<IKey> containingPrincipalKeys,
-                IEnumerable<IForeignKey> containingForeignKeys, object oldValue, object newValue) => throw new NotImplementedException();
+                InternalEntityEntry entry,
+                IProperty property,
+                IEnumerable<IKey> containingPrincipalKeys,
+                IEnumerable<IForeignKey> containingForeignKeys,
+                object oldValue,
+                object newValue)
+                => throw new NotImplementedException();
 
-            public void TrackedFromQuery(InternalEntityEntry entry) =>
-                throw new NotImplementedException();
+            public void TrackedFromQuery(InternalEntityEntry entry)
+                => throw new NotImplementedException();
         }
 
         [ConditionalFact]
@@ -1190,9 +1209,10 @@ namespace Microsoft.EntityFrameworkCore
         public void Can_add_derived_context_with_options_and_external_services()
         {
             var appServiceProvider = new ServiceCollection()
-                .AddDbContext<ConstructorTestContextWithOC3A>(b => b
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                    .ConfigureWarnings(w => w.Default(WarningBehavior.Throw)))
+                .AddDbContext<ConstructorTestContextWithOC3A>(
+                    b => b
+                        .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                        .ConfigureWarnings(w => w.Default(WarningBehavior.Throw)))
                 .BuildServiceProvider();
 
             ILoggerFactory loggerFactory;
@@ -1421,8 +1441,8 @@ namespace Microsoft.EntityFrameworkCore
             var appServiceProvider = new ServiceCollection()
                 .AddDbContext<ConstructorTestContext1A>(
                     b => b.EnableServiceProviderCaching(false)
-                            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                            .ConfigureWarnings(w => w.Default(WarningBehavior.Throw)))
+                        .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                        .ConfigureWarnings(w => w.Default(WarningBehavior.Throw)))
                 .BuildServiceProvider();
 
             var singleton = new object[3];
@@ -1457,9 +1477,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             var appServiceProvider = new ServiceCollection()
                 .AddDbContext<ConstructorTestContext1A>(
-                    b =>b.EnableServiceProviderCaching(false)
-                            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                            .ConfigureWarnings(w => w.Default(WarningBehavior.Throw)))
+                    b => b.EnableServiceProviderCaching(false)
+                        .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                        .ConfigureWarnings(w => w.Default(WarningBehavior.Throw)))
                 .BuildServiceProvider();
 
             ILoggerFactory loggerFactory;
@@ -1622,8 +1642,8 @@ namespace Microsoft.EntityFrameworkCore
             var appServiceProvider = new ServiceCollection()
                 .AddDbContext<DbContext>(
                     b => b.EnableServiceProviderCaching(false)
-                            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                            .ConfigureWarnings(w => w.Default(WarningBehavior.Throw)))
+                        .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                        .ConfigureWarnings(w => w.Default(WarningBehavior.Throw)))
                 .BuildServiceProvider();
 
             var singleton = new object[4];
@@ -1702,10 +1722,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             var appServiceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .AddDbContext<DbContext>((p, b) => b
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                    .ConfigureWarnings(w => w.Default(WarningBehavior.Throw))
-                    .UseInternalServiceProvider(p))
+                .AddDbContext<DbContext>(
+                    (p, b) => b
+                        .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                        .ConfigureWarnings(w => w.Default(WarningBehavior.Throw))
+                        .UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
             var singleton = new object[3];
@@ -2051,14 +2072,14 @@ namespace Microsoft.EntityFrameworkCore
                     .AddSingleton<DbContext>()
                     .AddDbContext<DbContext>(
                         b => b.EnableServiceProviderCaching(false)
-                                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                                .ConfigureWarnings(w => w.Default(WarningBehavior.Throw)))
+                            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                            .ConfigureWarnings(w => w.Default(WarningBehavior.Throw)))
                     .BuildServiceProvider()
                 : new ServiceCollection()
                     .AddDbContext<DbContext>(
                         b => b.EnableServiceProviderCaching(false)
-                                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                                .ConfigureWarnings(w => w.Default(WarningBehavior.Throw)))
+                            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                            .ConfigureWarnings(w => w.Default(WarningBehavior.Throw)))
                     .AddSingleton<DbContext>()
                     .BuildServiceProvider();
 
@@ -2114,18 +2135,20 @@ namespace Microsoft.EntityFrameworkCore
             {
                 serviceCollection
                     .AddSingleton<DbContext>()
-                    .AddDbContext<DbContext>((p, b) => b
-                        .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                        .ConfigureWarnings(w => w.Default(WarningBehavior.Throw))
-                        .UseInternalServiceProvider(p));
+                    .AddDbContext<DbContext>(
+                        (p, b) => b
+                            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                            .ConfigureWarnings(w => w.Default(WarningBehavior.Throw))
+                            .UseInternalServiceProvider(p));
             }
             else
             {
                 serviceCollection
-                    .AddDbContext<DbContext>((p, b) => b
-                        .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                        .ConfigureWarnings(w => w.Default(WarningBehavior.Throw))
-                        .UseInternalServiceProvider(p))
+                    .AddDbContext<DbContext>(
+                        (p, b) => b
+                            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                            .ConfigureWarnings(w => w.Default(WarningBehavior.Throw))
+                            .UseInternalServiceProvider(p))
                     .AddSingleton<DbContext>();
             }
 
@@ -2180,14 +2203,14 @@ namespace Microsoft.EntityFrameworkCore
                     .AddTransient<DbContext>()
                     .AddDbContext<DbContext>(
                         b => b.EnableServiceProviderCaching(false)
-                                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                                .ConfigureWarnings(w => w.Default(WarningBehavior.Throw)))
+                            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                            .ConfigureWarnings(w => w.Default(WarningBehavior.Throw)))
                     .BuildServiceProvider()
                 : new ServiceCollection()
                     .AddDbContext<DbContext>(
                         b => b.EnableServiceProviderCaching(false)
-                                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                                .ConfigureWarnings(w => w.Default(WarningBehavior.Throw)))
+                            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                            .ConfigureWarnings(w => w.Default(WarningBehavior.Throw)))
                     .AddTransient<DbContext>()
                     .BuildServiceProvider();
 
@@ -2247,18 +2270,20 @@ namespace Microsoft.EntityFrameworkCore
             {
                 serviceCollection
                     .AddTransient<DbContext>()
-                    .AddDbContext<DbContext>((p, b) => b
-                        .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                        .ConfigureWarnings(w => w.Default(WarningBehavior.Throw))
-                        .UseInternalServiceProvider(p));
+                    .AddDbContext<DbContext>(
+                        (p, b) => b
+                            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                            .ConfigureWarnings(w => w.Default(WarningBehavior.Throw))
+                            .UseInternalServiceProvider(p));
             }
             else
             {
                 serviceCollection
-                    .AddDbContext<DbContext>((p, b) => b
-                        .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                        .ConfigureWarnings(w => w.Default(WarningBehavior.Throw))
-                        .UseInternalServiceProvider(p))
+                    .AddDbContext<DbContext>(
+                        (p, b) => b
+                            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                            .ConfigureWarnings(w => w.Default(WarningBehavior.Throw))
+                            .UseInternalServiceProvider(p))
                     .AddTransient<DbContext>();
             }
 
@@ -2312,10 +2337,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             var appServiceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .AddDbContext<DbContext>((p, b) => b
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                    .ConfigureWarnings(w => w.Default(WarningBehavior.Throw))
-                    .UseInternalServiceProvider(p))
+                .AddDbContext<DbContext>(
+                    (p, b) => b
+                        .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                        .ConfigureWarnings(w => w.Default(WarningBehavior.Throw))
+                        .UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
             Assert.NotNull(appServiceProvider.GetService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>());
@@ -2378,10 +2404,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             var appServiceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .AddDbContext<DbContext>((p, b) => b
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                    .ConfigureWarnings(w => w.Default(WarningBehavior.Throw))
-                    .UseInternalServiceProvider(p))
+                .AddDbContext<DbContext>(
+                    (p, b) => b
+                        .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                        .ConfigureWarnings(w => w.Default(WarningBehavior.Throw))
+                        .UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
             var memoryCache = appServiceProvider.GetService<IMemoryCache>();
@@ -2656,7 +2683,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private class CustomParameterBindingFactory : IParameterBindingFactory
         {
-            public bool CanBind(Type parameterType, string parameterName) => false;
+            public bool CanBind(Type parameterType, string parameterName)
+                => false;
 
             public ParameterBinding Bind(IMutableEntityType entityType, Type parameterType, string parameterName)
                 => throw new NotImplementedException();
@@ -2667,7 +2695,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private class CustomParameterBindingFactory2 : IParameterBindingFactory
         {
-            public bool CanBind(Type parameterType, string parameterName) => false;
+            public bool CanBind(Type parameterType, string parameterName)
+                => false;
 
             public ParameterBinding Bind(IMutableEntityType entityType, Type parameterType, string parameterName)
                 => throw new NotImplementedException();
@@ -3344,7 +3373,8 @@ namespace Microsoft.EntityFrameworkCore
                 _loggerFactory = loggerFactory;
             }
 
-            public void Dispose() => _loggerFactory.Dispose();
+            public void Dispose()
+                => _loggerFactory.Dispose();
 
             public ILogger CreateLogger(string categoryName)
             {

@@ -12,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class PropertyEntryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : F1FixtureBase, new()
     {
-        protected PropertyEntryTestBase(TFixture fixture) => Fixture = fixture;
+        protected PropertyEntryTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
@@ -37,6 +38,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        protected F1Context CreateF1Context() => Fixture.CreateContext();
+        protected F1Context CreateF1Context()
+            => Fixture.CreateContext();
     }
 }

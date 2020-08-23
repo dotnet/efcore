@@ -31,7 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
+        protected NorthwindContext CreateContext()
+            => Fixture.CreateContext();
 
         protected virtual void ClearLog()
         {
@@ -735,8 +736,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 3);
         }
 
-        protected static string LocalMethod1() => "M";
-        protected static string LocalMethod2() => "m";
+        protected static string LocalMethod1()
+            => "M";
+
+        protected static string LocalMethod2()
+            => "m";
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]

@@ -10,7 +10,8 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindAggregateOperatorsQueryCosmosTest : NorthwindAggregateOperatorsQueryTestBase<NorthwindQueryCosmosFixture<NoopModelCustomizer>>
+    public class NorthwindAggregateOperatorsQueryCosmosTest : NorthwindAggregateOperatorsQueryTestBase<
+        NorthwindQueryCosmosFixture<NoopModelCustomizer>>
     {
         public NorthwindAggregateOperatorsQueryCosmosTest(
             NorthwindQueryCosmosFixture<NoopModelCustomizer> fixture,

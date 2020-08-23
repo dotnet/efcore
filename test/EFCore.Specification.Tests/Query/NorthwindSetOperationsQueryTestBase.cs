@@ -20,7 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
+        protected NorthwindContext CreateContext()
+            => Fixture.CreateContext();
 
         protected virtual void ClearLog()
         {
@@ -336,7 +337,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     && string.Equals(Id, ((CustomerDeets)obj).Id);
             }
 
-            public override int GetHashCode() => Id != null ? Id.GetHashCode() : 0;
+            public override int GetHashCode()
+                => Id != null ? Id.GetHashCode() : 0;
         }
 
         [ConditionalTheory]
@@ -476,7 +478,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(c => ClientSideMethod(c))
                     .Union(ss.Set<Customer>()));
 
-        private static Customer ClientSideMethod(Customer c) => c;
+        private static Customer ClientSideMethod(Customer c)
+            => c;
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]

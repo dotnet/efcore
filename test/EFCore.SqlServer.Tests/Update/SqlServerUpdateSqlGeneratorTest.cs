@@ -23,7 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                         TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())));
 
-        protected override TestHelpers TestHelpers => SqlServerTestHelpers.Instance;
+        protected override TestHelpers TestHelpers
+            => SqlServerTestHelpers.Instance;
 
         [ConditionalFact]
         public void AppendBatchHeader_should_append_SET_NOCOUNT_ON()
@@ -201,13 +202,17 @@ DEFAULT VALUES;
             Assert.Equal(ResultSetMapping.NoResultSet, grouping);
         }
 
-        protected override string RowsAffected => "@@ROWCOUNT";
+        protected override string RowsAffected
+            => "@@ROWCOUNT";
 
-        protected override string Identity => throw new NotImplementedException();
+        protected override string Identity
+            => throw new NotImplementedException();
 
-        protected override string OpenDelimiter => "[";
+        protected override string OpenDelimiter
+            => "[";
 
-        protected override string CloseDelimiter => "]";
+        protected override string CloseDelimiter
+            => "]";
 
         private void AssertBaseline(string expected, string actual)
         {

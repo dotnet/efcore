@@ -15,9 +15,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     {
         public ILoggingOptions Options { get; } = new LoggingOptions();
 
-        public bool ShouldLogSensitiveData() => false;
+        public bool ShouldLogSensitiveData()
+            => false;
 
-        public ILogger Logger => this;
+        public ILogger Logger
+            => this;
 
         public DiagnosticSource DiagnosticSource { get; } = new DiagnosticListener("Fake");
 
@@ -32,11 +34,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
         }
 
-        public bool IsEnabled(LogLevel logLevel) => true;
+        public bool IsEnabled(LogLevel logLevel)
+            => true;
 
-        public bool IsEnabled(EventId eventId, LogLevel logLevel) => true;
+        public bool IsEnabled(EventId eventId, LogLevel logLevel)
+            => true;
 
-        public IDisposable BeginScope<TState>(TState state) => null;
+        public IDisposable BeginScope<TState>(TState state)
+            => null;
 
         public virtual LoggingDefinitions Definitions { get; } = new TestRelationalLoggingDefinitions();
 

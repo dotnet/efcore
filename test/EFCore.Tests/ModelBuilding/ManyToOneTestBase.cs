@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -58,22 +57,24 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
 
-                modelBuilder.Entity<OneToManyPrincipalWithField>(e =>
-                {
-                    e.Property(p => p.Id);
-                    e.Property(p => p.AlternateKey);
-                    e.Property(p => p.Name);
-                    e.HasKey(p => p.Id);
-                });
-                modelBuilder.Entity<DependentWithField>(e =>
-                {
-                    e.Property(d => d.DependentWithFieldId);
-                    e.Property(d => d.OneToManyPrincipalId);
-                    e.Property(d => d.AnotherOneToManyPrincipalId);
-                    e.Ignore(d => d.ManyToManyPrincipals);
-                    e.Ignore(d => d.OneToOnePrincipal);
-                    e.HasKey(d => d.DependentWithFieldId);
-                });
+                modelBuilder.Entity<OneToManyPrincipalWithField>(
+                    e =>
+                    {
+                        e.Property(p => p.Id);
+                        e.Property(p => p.AlternateKey);
+                        e.Property(p => p.Name);
+                        e.HasKey(p => p.Id);
+                    });
+                modelBuilder.Entity<DependentWithField>(
+                    e =>
+                    {
+                        e.Property(d => d.DependentWithFieldId);
+                        e.Property(d => d.OneToManyPrincipalId);
+                        e.Property(d => d.AnotherOneToManyPrincipalId);
+                        e.Ignore(d => d.ManyToManyPrincipals);
+                        e.Ignore(d => d.OneToOnePrincipal);
+                        e.HasKey(d => d.DependentWithFieldId);
+                    });
 
                 modelBuilder.Entity<OneToManyPrincipalWithField>()
                     .HasMany(p => p.Dependents)

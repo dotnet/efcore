@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class NorthwindAsNoTrackingQueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
     {
-        protected NorthwindAsNoTrackingQueryTestBase(TFixture fixture) => Fixture = fixture;
+        protected NorthwindAsNoTrackingQueryTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
@@ -189,6 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(819, results.Count);
         }
 
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
+        protected NorthwindContext CreateContext()
+            => Fixture.CreateContext();
     }
 }

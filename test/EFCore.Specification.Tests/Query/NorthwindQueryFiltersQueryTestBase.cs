@@ -174,9 +174,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(80, results.Count);
         }
 
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
+        protected NorthwindContext CreateContext()
+            => Fixture.CreateContext();
 
-        public void Dispose() => _context.Dispose();
+        public void Dispose()
+            => _context.Dispose();
 
         private string RemoveNewLines(string message)
             => message.Replace("\n", "").Replace("\r", "");

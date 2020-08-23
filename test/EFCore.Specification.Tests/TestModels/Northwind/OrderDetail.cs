@@ -46,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                 && Equals((OrderDetail)obj);
         }
 
-        public override int GetHashCode() => HashCode.Combine(OrderID, ProductID);
+        public override int GetHashCode()
+            => HashCode.Combine(OrderID, ProductID);
 
         public int CompareTo(OrderDetail other)
         {

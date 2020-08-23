@@ -6,9 +6,12 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindIncludeNoTrackingQueryInMemoryTest : NorthwindIncludeNoTrackingQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
+    public class NorthwindIncludeNoTrackingQueryInMemoryTest : NorthwindIncludeNoTrackingQueryTestBase<
+        NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
     {
-        public NorthwindIncludeNoTrackingQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+        public NorthwindIncludeNoTrackingQueryInMemoryTest(
+            NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture,
+            ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;

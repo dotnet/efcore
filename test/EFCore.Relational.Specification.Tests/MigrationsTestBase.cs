@@ -221,7 +221,8 @@ namespace Microsoft.EntityFrameworkCore
                         e.Property<int>("Id");
                         e.Property<int>("X");
                         e.Property<int>("Y");
-                        e.Property<string>("Sum").HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}",
+                        e.Property<string>("Sum").HasComputedColumnSql(
+                            $"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}",
                             stored);
                     }),
                 model =>
@@ -762,8 +763,10 @@ namespace Microsoft.EntityFrameworkCore
                         e.Property<int>("Y");
                         e.Property<int>("Sum");
                     }),
-                builder => builder.Entity("People").Property<int>("Sum").HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}"),
-                builder => builder.Entity("People").Property<int>("Sum").HasComputedColumnSql($"{DelimitIdentifier("X")} - {DelimitIdentifier("Y")}"),
+                builder => builder.Entity("People").Property<int>("Sum")
+                    .HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}"),
+                builder => builder.Entity("People").Property<int>("Sum")
+                    .HasComputedColumnSql($"{DelimitIdentifier("X")} - {DelimitIdentifier("Y")}"),
                 model =>
                 {
                     var table = Assert.Single(model.Tables);
@@ -781,23 +784,23 @@ namespace Microsoft.EntityFrameworkCore
             => Test(
                 builder => builder.Entity(
                     "People", e =>
-                        {
-                            e.Property<int>("Id");
-                            e.Property<int>("X");
-                            e.Property<int>("Y");
-                            e.Property<int>("Sum");
-                        }),
+                    {
+                        e.Property<int>("Id");
+                        e.Property<int>("X");
+                        e.Property<int>("Y");
+                        e.Property<int>("Sum");
+                    }),
                 builder => builder.Entity("People").Property<int>("Sum")
                     .HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}", stored: false),
                 builder => builder.Entity("People").Property<int>("Sum")
                     .HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}", stored: true),
                 model =>
-                    {
-                        var table = Assert.Single(model.Tables);
-                        var sumColumn = Assert.Single(table.Columns, c => c.Name == "Sum");
-                        if (AssertComputedColumns)
-                            Assert.True(sumColumn.IsStored);
-                    });
+                {
+                    var table = Assert.Single(model.Tables);
+                    var sumColumn = Assert.Single(table.Columns, c => c.Name == "Sum");
+                    if (AssertComputedColumns)
+                        Assert.True(sumColumn.IsStored);
+                });
 
         [ConditionalFact]
         public virtual Task Alter_column_add_comment()
@@ -845,11 +848,11 @@ namespace Microsoft.EntityFrameworkCore
                 builder => builder.Entity("People").Property<string>("Name")
                     .UseCollation(NonDefaultCollation),
                 model =>
-                    {
-                        var nameColumn = Assert.Single(Assert.Single(model.Tables).Columns);
-                        if (AssertCollations)
-                            Assert.Equal(NonDefaultCollation, nameColumn.Collation);
-                    });
+                {
+                    var nameColumn = Assert.Single(Assert.Single(model.Tables).Columns);
+                    if (AssertCollations)
+                        Assert.Equal(NonDefaultCollation, nameColumn.Collation);
+                });
 
         [Fact]
         public virtual Task Alter_column_reset_collation()
@@ -859,10 +862,10 @@ namespace Microsoft.EntityFrameworkCore
                     .UseCollation(NonDefaultCollation),
                 builder => { },
                 model =>
-                    {
-                        var nameColumn = Assert.Single(Assert.Single(model.Tables).Columns);
-                        Assert.Null(nameColumn.Collation);
-                    });
+                {
+                    var nameColumn = Assert.Single(Assert.Single(model.Tables).Columns);
+                    Assert.Null(nameColumn.Collation);
+                });
 
         [ConditionalFact]
         public virtual Task Drop_column()
@@ -1551,18 +1554,31 @@ namespace Microsoft.EntityFrameworkCore
             public int Age { get; set; }
         }
 
-        protected virtual bool AssertSchemaNames => true;
-        protected virtual bool AssertComments => true;
-        protected virtual bool AssertComputedColumns => true;
-        protected virtual bool AssertCollations => true;
-        protected virtual bool AssertIndexFilters => true;
-        protected virtual bool AssertConstraintNames => true;
+        protected virtual bool AssertSchemaNames
+            => true;
+
+        protected virtual bool AssertComments
+            => true;
+
+        protected virtual bool AssertComputedColumns
+            => true;
+
+        protected virtual bool AssertCollations
+            => true;
+
+        protected virtual bool AssertIndexFilters
+            => true;
+
+        protected virtual bool AssertConstraintNames
+            => true;
 
         protected abstract string NonDefaultCollation { get; }
 
-        protected virtual ReferentialAction Normalize(ReferentialAction value) => value;
+        protected virtual ReferentialAction Normalize(ReferentialAction value)
+            => value;
 
-        protected virtual DbContext CreateContext() => Fixture.CreateContext();
+        protected virtual DbContext CreateContext()
+            => Fixture.CreateContext();
 
         protected virtual string DelimitIdentifier(string unquotedIdentifier)
             => _sqlGenerationHelper?.DelimitIdentifier(unquotedIdentifier)
@@ -1691,7 +1707,9 @@ namespace Microsoft.EntityFrameworkCore
         public abstract class MigrationsFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             public abstract TestHelpers TestHelpers { get; }
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
+
+            public TestSqlLoggerFactory TestSqlLoggerFactory
+                => (TestSqlLoggerFactory)ListLoggerFactory;
         }
 
         protected virtual ModelBuilder CreateConventionlessModelBuilder(bool sensitiveDataLoggingEnabled = false)

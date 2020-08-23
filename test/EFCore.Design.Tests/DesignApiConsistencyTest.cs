@@ -21,7 +21,8 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected override Assembly TargetAssembly => typeof(OperationExecutor).Assembly;
+        protected override Assembly TargetAssembly
+            => typeof(OperationExecutor).Assembly;
 
         public class DesignApiConsistencyFixture : ApiConsistencyFixtureBase
         {
@@ -32,10 +33,7 @@ namespace Microsoft.EntityFrameworkCore
                 return true;
             }
 
-            public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>()
-            {
-                typeof(DesignTimeServiceCollectionExtensions)
-            };
+            public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type> { typeof(DesignTimeServiceCollectionExtensions) };
         }
     }
 }

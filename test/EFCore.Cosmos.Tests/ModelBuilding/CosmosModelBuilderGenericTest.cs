@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -44,9 +43,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var entity = model.FindEntityType(typeof(Customer));
 
-                Assert.Equal(new[] { nameof(Customer.Id), nameof(Customer.AlternateKey) },
+                Assert.Equal(
+                    new[] { nameof(Customer.Id), nameof(Customer.AlternateKey) },
                     entity.FindPrimaryKey().Properties.Select(p => p.Name));
-                Assert.Equal(new[] { StoreKeyConvention.DefaultIdPropertyName, nameof(Customer.AlternateKey) },
+                Assert.Equal(
+                    new[] { StoreKeyConvention.DefaultIdPropertyName, nameof(Customer.AlternateKey) },
                     entity.GetKeys().First(k => k != entity.FindPrimaryKey()).Properties.Select(p => p.Name));
 
                 var idProperty = entity.FindProperty(StoreKeyConvention.DefaultIdPropertyName);
@@ -70,9 +71,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var entity = model.FindEntityType(typeof(Customer));
 
-                Assert.Equal(new[] { StoreKeyConvention.DefaultIdPropertyName },
+                Assert.Equal(
+                    new[] { StoreKeyConvention.DefaultIdPropertyName },
                     entity.FindPrimaryKey().Properties.Select(p => p.Name));
-                Assert.Equal(new[] { StoreKeyConvention.DefaultIdPropertyName, nameof(Customer.AlternateKey) },
+                Assert.Equal(
+                    new[] { StoreKeyConvention.DefaultIdPropertyName, nameof(Customer.AlternateKey) },
                     entity.GetKeys().First(k => k != entity.FindPrimaryKey()).Properties.Select(p => p.Name));
             }
 
@@ -141,7 +144,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var entity = model.FindEntityType(typeof(Customer));
 
-                Assert.Equal(new[] { StoreKeyConvention.DefaultIdPropertyName },
+                Assert.Equal(
+                    new[] { StoreKeyConvention.DefaultIdPropertyName },
                     entity.FindPrimaryKey().Properties.Select(p => p.Name));
                 Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
 
@@ -166,7 +170,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var entity = model.FindEntityType(typeof(Customer));
 
-                Assert.Equal(new[] { nameof(Customer.AlternateKey), StoreKeyConvention.DefaultIdPropertyName },
+                Assert.Equal(
+                    new[] { nameof(Customer.AlternateKey), StoreKeyConvention.DefaultIdPropertyName },
                     entity.FindPrimaryKey().Properties.Select(p => p.Name));
                 Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
             }

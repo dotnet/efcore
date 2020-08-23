@@ -162,7 +162,8 @@ namespace Microsoft.EntityFrameworkCore
             public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
                 => Task.FromResult<IDbContextTransaction>(_transaction);
 
-            public void CommitTransaction() => CommitCalls++;
+            public void CommitTransaction()
+                => CommitCalls++;
 
             public Task CommitTransactionAsync(CancellationToken cancellationToken = default)
             {
@@ -170,7 +171,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Task.CompletedTask;
             }
 
-            public void RollbackTransaction() => RollbackCalls++;
+            public void RollbackTransaction()
+                => RollbackCalls++;
 
             public Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
             {
@@ -178,7 +180,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Task.CompletedTask;
             }
 
-            public void CreateSavepoint(string name) => CreateSavepointCalls++;
+            public void CreateSavepoint(string name)
+                => CreateSavepointCalls++;
 
             public Task CreateSavepointAsync(string name, CancellationToken cancellationToken = default)
             {
@@ -186,7 +189,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Task.CompletedTask;
             }
 
-            public void RollbackToSavepoint(string name) => RollbackSavepointCalls++;
+            public void RollbackToSavepoint(string name)
+                => RollbackSavepointCalls++;
 
             public Task RollbackToSavepointAsync(string name, CancellationToken cancellationToken = default)
             {
@@ -194,7 +198,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Task.CompletedTask;
             }
 
-            public void ReleaseSavepoint(string name) => ReleaseSavepointCalls++;
+            public void ReleaseSavepoint(string name)
+                => ReleaseSavepointCalls++;
 
             public Task ReleaseSavepointAsync(string name, CancellationToken cancellationToken = default)
             {
@@ -211,23 +216,42 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
-            public IDbContextTransaction CurrentTransaction => _transaction;
-            public Transaction EnlistedTransaction { get; }
-            public void EnlistTransaction(Transaction transaction) => throw new NotImplementedException();
+            public IDbContextTransaction CurrentTransaction
+                => _transaction;
 
-            public void ResetState() => throw new NotImplementedException();
-            public Task ResetStateAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+            public Transaction EnlistedTransaction { get; }
+
+            public void EnlistTransaction(Transaction transaction)
+                => throw new NotImplementedException();
+
+            public void ResetState()
+                => throw new NotImplementedException();
+
+            public Task ResetStateAsync(CancellationToken cancellationToken = default)
+                => throw new NotImplementedException();
         }
 
         private class FakeDbContextTransaction : IDbContextTransaction
         {
-            public void Dispose() => throw new NotImplementedException();
-            public ValueTask DisposeAsync() => throw new NotImplementedException();
+            public void Dispose()
+                => throw new NotImplementedException();
+
+            public ValueTask DisposeAsync()
+                => throw new NotImplementedException();
+
             public Guid TransactionId { get; }
-            public void Commit() => throw new NotImplementedException();
-            public Task CommitAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
-            public void Rollback() => throw new NotImplementedException();
-            public Task RollbackAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+
+            public void Commit()
+                => throw new NotImplementedException();
+
+            public Task CommitAsync(CancellationToken cancellationToken = default)
+                => throw new NotImplementedException();
+
+            public void Rollback()
+                => throw new NotImplementedException();
+
+            public Task RollbackAsync(CancellationToken cancellationToken = default)
+                => throw new NotImplementedException();
         }
 
         [ConditionalFact]

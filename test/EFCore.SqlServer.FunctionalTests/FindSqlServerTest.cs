@@ -319,15 +319,19 @@ FROM [ShadowKey] AS [s]
 WHERE [s].[Id] = @__p_0");
         }
 
-        private string Sql => Fixture.TestSqlLoggerFactory.Sql;
+        private string Sql
+            => Fixture.TestSqlLoggerFactory.Sql;
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
         public class FindSqlServerFixture : FindFixtureBase
         {
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            public TestSqlLoggerFactory TestSqlLoggerFactory
+                => (TestSqlLoggerFactory)ListLoggerFactory;
+
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
         }
     }
 }

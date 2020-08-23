@@ -17,7 +17,8 @@ namespace Microsoft.EntityFrameworkCore
     public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : ProxyGraphUpdatesTestBase<TFixture>.ProxyGraphUpdatesFixtureBase, new()
     {
-        protected ProxyGraphUpdatesTestBase(TFixture fixture) => Fixture = fixture;
+        protected ProxyGraphUpdatesTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
@@ -28,7 +29,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             public readonly Guid RootAK = Guid.NewGuid();
 
-            protected override bool UsePooling => false;
+            protected override bool UsePooling
+                => false;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
@@ -385,7 +387,8 @@ namespace Microsoft.EntityFrameworkCore
                                         context.Set<Optional2>().CreateProxy(), context.Set<Optional2>().CreateProxy()
                                     };
 
-                                    e.CompositeChildren = new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance);
+                                    e.CompositeChildren =
+                                        new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance);
                                 }),
                             context.Set<Optional1>().CreateProxy(
                                 e =>
@@ -395,7 +398,8 @@ namespace Microsoft.EntityFrameworkCore
                                         context.Set<Optional2>().CreateProxy(), context.Set<Optional2>().CreateProxy()
                                     };
 
-                                    e.CompositeChildren = new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance);
+                                    e.CompositeChildren =
+                                        new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance);
                                 })
                         };
 
@@ -442,10 +446,12 @@ namespace Microsoft.EntityFrameworkCore
                                         context.Set<RequiredAk2>().CreateProxy(e => e.AlternateId = Guid.NewGuid())
                                     };
 
-                                    e.CompositeChildren = new ObservableHashSet<RequiredComposite2>(LegacyReferenceEqualityComparer.Instance)
-                                    {
-                                        context.Set<RequiredComposite2>().CreateProxy(), context.Set<RequiredComposite2>().CreateProxy()
-                                    };
+                                    e.CompositeChildren =
+                                        new ObservableHashSet<RequiredComposite2>(LegacyReferenceEqualityComparer.Instance)
+                                        {
+                                            context.Set<RequiredComposite2>().CreateProxy(),
+                                            context.Set<RequiredComposite2>().CreateProxy()
+                                        };
                                 }),
                             context.Set<RequiredAk1>().CreateProxy(
                                 e =>
@@ -458,10 +464,12 @@ namespace Microsoft.EntityFrameworkCore
                                         context.Set<RequiredAk2>().CreateProxy(e => e.AlternateId = Guid.NewGuid())
                                     };
 
-                                    e.CompositeChildren = new ObservableHashSet<RequiredComposite2>(LegacyReferenceEqualityComparer.Instance)
-                                    {
-                                        context.Set<RequiredComposite2>().CreateProxy(), context.Set<RequiredComposite2>().CreateProxy()
-                                    };
+                                    e.CompositeChildren =
+                                        new ObservableHashSet<RequiredComposite2>(LegacyReferenceEqualityComparer.Instance)
+                                        {
+                                            context.Set<RequiredComposite2>().CreateProxy(),
+                                            context.Set<RequiredComposite2>().CreateProxy()
+                                        };
                                 })
                         };
 
@@ -565,22 +573,24 @@ namespace Microsoft.EntityFrameworkCore
                                 {
                                     e.Id = 1;
 
-                                    e.CompositeChildren = new ObservableHashSet<OptionalOverlapping2>(LegacyReferenceEqualityComparer.Instance)
-                                    {
-                                        context.CreateProxy<OptionalOverlapping2>(e => e.Id = 1),
-                                        context.CreateProxy<OptionalOverlapping2>(e => e.Id = 2)
-                                    };
+                                    e.CompositeChildren =
+                                        new ObservableHashSet<OptionalOverlapping2>(LegacyReferenceEqualityComparer.Instance)
+                                        {
+                                            context.CreateProxy<OptionalOverlapping2>(e => e.Id = 1),
+                                            context.CreateProxy<OptionalOverlapping2>(e => e.Id = 2)
+                                        };
                                 }),
                             context.Set<RequiredComposite1>().CreateProxy(
                                 e =>
                                 {
                                     e.Id = 2;
 
-                                    e.CompositeChildren = new ObservableHashSet<OptionalOverlapping2>(LegacyReferenceEqualityComparer.Instance)
-                                    {
-                                        context.CreateProxy<OptionalOverlapping2>(e => e.Id = 3),
-                                        context.CreateProxy<OptionalOverlapping2>(e => e.Id = 4)
-                                    };
+                                    e.CompositeChildren =
+                                        new ObservableHashSet<OptionalOverlapping2>(LegacyReferenceEqualityComparer.Instance)
+                                        {
+                                            context.CreateProxy<OptionalOverlapping2>(e => e.Id = 3),
+                                            context.CreateProxy<OptionalOverlapping2>(e => e.Id = 4)
+                                        };
                                 })
                         };
                     });
@@ -607,9 +617,11 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private static void Add<T>(IEnumerable<T> collection, T item) => ((ICollection<T>)collection).Add(item);
+        private static void Add<T>(IEnumerable<T> collection, T item)
+            => ((ICollection<T>)collection).Add(item);
 
-        private static void Remove<T>(IEnumerable<T> collection, T item) => ((ICollection<T>)collection).Remove(item);
+        private static void Remove<T>(IEnumerable<T> collection, T item)
+            => ((ICollection<T>)collection).Remove(item);
 
         [Flags]
         public enum ChangeMechanism
@@ -619,7 +631,8 @@ namespace Microsoft.EntityFrameworkCore
             Fk = 4
         }
 
-        protected Expression<Func<Root, bool>> IsTheRoot => r => r.AlternateId == Fixture.RootAK;
+        protected Expression<Func<Root, bool>> IsTheRoot
+            => r => r.AlternateId == Fixture.RootAK;
 
         protected Root LoadRoot(DbContext context)
             => context.Set<Root>().Single(IsTheRoot);
@@ -683,7 +696,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class Required1
@@ -707,7 +721,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class Required1Derived : Required1
@@ -716,9 +731,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override bool Equals(object obj) => base.Equals(obj as Required1Derived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as Required1Derived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class Required1MoreDerived : Required1Derived
@@ -727,9 +744,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override bool Equals(object obj) => base.Equals(obj as Required1MoreDerived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as Required1MoreDerived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class Required2
@@ -750,7 +769,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class Required2Derived : Required2
@@ -759,9 +779,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override bool Equals(object obj) => base.Equals(obj as Required2Derived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as Required2Derived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class Required2MoreDerived : Required2Derived
@@ -770,9 +792,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override bool Equals(object obj) => base.Equals(obj as Required2MoreDerived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as Required2MoreDerived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class Optional1
@@ -799,7 +823,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class Optional1Derived : Optional1
@@ -808,9 +833,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override bool Equals(object obj) => base.Equals(obj as Optional1Derived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as Optional1Derived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class Optional1MoreDerived : Optional1Derived
@@ -819,9 +846,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override bool Equals(object obj) => base.Equals(obj as Optional1MoreDerived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as Optional1MoreDerived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class Optional2
@@ -842,7 +871,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class Optional2Derived : Optional2
@@ -851,9 +881,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override bool Equals(object obj) => base.Equals(obj as Optional2Derived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as Optional2Derived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class Optional2MoreDerived : Optional2Derived
@@ -862,9 +894,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override bool Equals(object obj) => base.Equals(obj as Optional2MoreDerived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as Optional2MoreDerived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class RequiredSingle1
@@ -885,7 +919,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class RequiredSingle2
@@ -904,7 +939,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class RequiredNonPkSingle1
@@ -927,7 +963,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class RequiredNonPkSingle1Derived : RequiredNonPkSingle1
@@ -940,9 +977,11 @@ namespace Microsoft.EntityFrameworkCore
 
             public virtual Root DerivedRoot { get; set; }
 
-            public override bool Equals(object obj) => base.Equals(obj as RequiredNonPkSingle1Derived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as RequiredNonPkSingle1Derived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class RequiredNonPkSingle1MoreDerived : RequiredNonPkSingle1Derived
@@ -955,9 +994,11 @@ namespace Microsoft.EntityFrameworkCore
 
             public virtual Root MoreDerivedRoot { get; set; }
 
-            public override bool Equals(object obj) => base.Equals(obj as RequiredNonPkSingle1MoreDerived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as RequiredNonPkSingle1MoreDerived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class RequiredNonPkSingle2
@@ -978,7 +1019,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class RequiredNonPkSingle2Derived : RequiredNonPkSingle2
@@ -987,9 +1029,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override bool Equals(object obj) => base.Equals(obj as RequiredNonPkSingle2Derived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as RequiredNonPkSingle2Derived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class RequiredNonPkSingle2MoreDerived : RequiredNonPkSingle2Derived
@@ -998,9 +1042,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override bool Equals(object obj) => base.Equals(obj as RequiredNonPkSingle2MoreDerived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as RequiredNonPkSingle2MoreDerived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class OptionalSingle1
@@ -1023,7 +1069,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class OptionalSingle1Derived : OptionalSingle1
@@ -1036,9 +1083,11 @@ namespace Microsoft.EntityFrameworkCore
 
             public virtual Root DerivedRoot { get; set; }
 
-            public override bool Equals(object obj) => base.Equals(obj as OptionalSingle1Derived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as OptionalSingle1Derived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class OptionalSingle1MoreDerived : OptionalSingle1Derived
@@ -1051,9 +1100,11 @@ namespace Microsoft.EntityFrameworkCore
 
             public virtual Root MoreDerivedRoot { get; set; }
 
-            public override bool Equals(object obj) => base.Equals(obj as OptionalSingle1MoreDerived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as OptionalSingle1MoreDerived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class OptionalSingle2
@@ -1074,7 +1125,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class OptionalSingle2Derived : OptionalSingle2
@@ -1083,9 +1135,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override bool Equals(object obj) => base.Equals(obj as OptionalSingle2Derived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as OptionalSingle2Derived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class OptionalSingle2MoreDerived : OptionalSingle2Derived
@@ -1094,9 +1148,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override bool Equals(object obj) => base.Equals(obj as OptionalSingle2MoreDerived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as OptionalSingle2MoreDerived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class RequiredAk1
@@ -1125,7 +1181,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class RequiredAk1Derived : RequiredAk1
@@ -1134,9 +1191,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override bool Equals(object obj) => base.Equals(obj as RequiredAk1Derived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as RequiredAk1Derived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class RequiredAk1MoreDerived : RequiredAk1Derived
@@ -1145,9 +1204,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override bool Equals(object obj) => base.Equals(obj as RequiredAk1MoreDerived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as RequiredAk1MoreDerived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class RequiredAk2
@@ -1170,7 +1231,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class RequiredComposite1
@@ -1194,7 +1256,8 @@ namespace Microsoft.EntityFrameworkCore
             public virtual ICollection<OptionalOverlapping2> CompositeChildren { get; set; }
                 = new ObservableHashSet<OptionalOverlapping2>(LegacyReferenceEqualityComparer.Instance);
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class OptionalOverlapping2
@@ -1219,7 +1282,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class RequiredComposite2
@@ -1242,7 +1306,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class RequiredAk2Derived : RequiredAk2
@@ -1251,9 +1316,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override bool Equals(object obj) => base.Equals(obj as RequiredAk2Derived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as RequiredAk2Derived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class RequiredAk2MoreDerived : RequiredAk2Derived
@@ -1262,9 +1329,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override bool Equals(object obj) => base.Equals(obj as RequiredAk2MoreDerived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as RequiredAk2MoreDerived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class OptionalAk1
@@ -1293,7 +1362,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class OptionalAk1Derived : OptionalAk1
@@ -1302,9 +1372,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override bool Equals(object obj) => base.Equals(obj as OptionalAk1Derived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as OptionalAk1Derived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class OptionalAk1MoreDerived : OptionalAk1Derived
@@ -1313,9 +1385,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override bool Equals(object obj) => base.Equals(obj as OptionalAk1MoreDerived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as OptionalAk1MoreDerived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class OptionalAk2
@@ -1338,7 +1412,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class OptionalComposite2
@@ -1365,7 +1440,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class OptionalAk2Derived : OptionalAk2
@@ -1374,9 +1450,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override bool Equals(object obj) => base.Equals(obj as OptionalAk2Derived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as OptionalAk2Derived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class OptionalAk2MoreDerived : OptionalAk2Derived
@@ -1385,9 +1463,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override bool Equals(object obj) => base.Equals(obj as OptionalAk2MoreDerived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as OptionalAk2MoreDerived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class RequiredSingleAk1
@@ -1414,7 +1494,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class RequiredSingleAk2
@@ -1437,7 +1518,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class RequiredSingleComposite2
@@ -1460,7 +1542,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class RequiredNonPkSingleAk1
@@ -1485,7 +1568,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class RequiredNonPkSingleAk1Derived : RequiredNonPkSingleAk1
@@ -1498,9 +1582,11 @@ namespace Microsoft.EntityFrameworkCore
 
             public virtual Root DerivedRoot { get; set; }
 
-            public override bool Equals(object obj) => base.Equals(obj as RequiredNonPkSingleAk1Derived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as RequiredNonPkSingleAk1Derived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class RequiredNonPkSingleAk1MoreDerived : RequiredNonPkSingleAk1Derived
@@ -1513,9 +1599,11 @@ namespace Microsoft.EntityFrameworkCore
 
             public virtual Root MoreDerivedRoot { get; set; }
 
-            public override bool Equals(object obj) => base.Equals(obj as RequiredNonPkSingleAk1MoreDerived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as RequiredNonPkSingleAk1MoreDerived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class RequiredNonPkSingleAk2
@@ -1538,7 +1626,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class RequiredNonPkSingleAk2Derived : RequiredNonPkSingleAk2
@@ -1547,9 +1636,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override bool Equals(object obj) => base.Equals(obj as RequiredNonPkSingleAk2Derived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as RequiredNonPkSingleAk2Derived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class RequiredNonPkSingleAk2MoreDerived : RequiredNonPkSingleAk2Derived
@@ -1558,9 +1649,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override bool Equals(object obj) => base.Equals(obj as RequiredNonPkSingleAk2MoreDerived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as RequiredNonPkSingleAk2MoreDerived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class OptionalSingleAk1
@@ -1587,7 +1680,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class OptionalSingleAk1Derived : OptionalSingleAk1
@@ -1600,9 +1694,11 @@ namespace Microsoft.EntityFrameworkCore
 
             public virtual Root DerivedRoot { get; set; }
 
-            public override bool Equals(object obj) => base.Equals(obj as OptionalSingleAk1Derived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as OptionalSingleAk1Derived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class OptionalSingleAk1MoreDerived : OptionalSingleAk1Derived
@@ -1615,9 +1711,11 @@ namespace Microsoft.EntityFrameworkCore
 
             public virtual Root MoreDerivedRoot { get; set; }
 
-            public override bool Equals(object obj) => base.Equals(obj as OptionalSingleAk1MoreDerived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as OptionalSingleAk1MoreDerived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class OptionalSingleAk2
@@ -1640,7 +1738,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class OptionalSingleComposite2
@@ -1663,7 +1762,8 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public override int GetHashCode() => Id;
+            public override int GetHashCode()
+                => Id;
         }
 
         public class OptionalSingleAk2Derived : OptionalSingleAk2
@@ -1672,9 +1772,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override bool Equals(object obj) => base.Equals(obj as OptionalSingleAk2Derived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as OptionalSingleAk2Derived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class OptionalSingleAk2MoreDerived : OptionalSingleAk2Derived
@@ -1683,9 +1785,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override bool Equals(object obj) => base.Equals(obj as OptionalSingleAk2MoreDerived);
+            public override bool Equals(object obj)
+                => base.Equals(obj as OptionalSingleAk2MoreDerived);
 
-            public override int GetHashCode() => base.GetHashCode();
+            public override int GetHashCode()
+                => base.GetHashCode();
         }
 
         public class BadCustomer
@@ -1715,7 +1819,8 @@ namespace Microsoft.EntityFrameworkCore
             public virtual BadCustomer BadCustomer { get; set; }
         }
 
-        protected DbContext CreateContext() => Fixture.CreateContext();
+        protected DbContext CreateContext()
+            => Fixture.CreateContext();
 
         protected virtual void ExecuteWithStrategyInTransaction(
             Action<DbContext> testOperation,

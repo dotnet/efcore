@@ -165,7 +165,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private ModelBuilder CreateModelBuilder()
         {
             var serviceProvider = CreateServiceProvider();
-            return new ModelBuilder(serviceProvider.GetService<IConventionSetBuilder>().CreateConventionSet(),
+            return new ModelBuilder(
+                serviceProvider.GetService<IConventionSetBuilder>().CreateConventionSet(),
                 serviceProvider.GetService<ModelDependencies>());
         }
 

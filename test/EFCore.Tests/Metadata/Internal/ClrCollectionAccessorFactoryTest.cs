@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var navigation = new FakeNavigation();
 
-            var fk = new ForeignKeyTest.FakeForeignKey() { PrincipalToDependent = navigation };
+            var fk = new ForeignKeyTest.FakeForeignKey { PrincipalToDependent = navigation };
             navigation.ForeignKey = fk;
             navigation.PropertyInfo = MyEntity.AsICollectionProperty;
 
@@ -43,9 +43,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class FakeNavigation : INavigation, IClrCollectionAccessor
         {
-            public object this[string name] => throw new NotImplementedException();
-            public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
-            public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();
+            public object this[string name]
+                => throw new NotImplementedException();
+
+            public IAnnotation FindAnnotation(string name)
+                => throw new NotImplementedException();
+
+            public IEnumerable<IAnnotation> GetAnnotations()
+                => throw new NotImplementedException();
+
             public string Name { get; }
             public ITypeBase DeclaringType { get; }
             public Type ClrType { get; }
@@ -53,11 +59,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public FieldInfo FieldInfo { get; }
             public IEntityType DeclaringEntityType { get; }
             public IForeignKey ForeignKey { get; set; }
-            public bool Add(object entity, object value, bool forMaterialization) => throw new NotImplementedException();
-            public bool Contains(object entity, object value) => throw new NotImplementedException();
-            public bool Remove(object entity, object value) => throw new NotImplementedException();
-            public object Create() => throw new NotImplementedException();
-            public object GetOrCreate(object entity, bool forMaterialization) => throw new NotImplementedException();
+
+            public bool Add(object entity, object value, bool forMaterialization)
+                => throw new NotImplementedException();
+
+            public bool Contains(object entity, object value)
+                => throw new NotImplementedException();
+
+            public bool Remove(object entity, object value)
+                => throw new NotImplementedException();
+
+            public object Create()
+                => throw new NotImplementedException();
+
+            public object GetOrCreate(object entity, bool forMaterialization)
+                => throw new NotImplementedException();
+
             public Type CollectionType { get; }
         }
 
@@ -218,7 +235,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private void AccessorTest(
-            string navigationName, Func<MyEntity, IEnumerable<MyOtherEntity>> reader, bool initializeCollections = true)
+            string navigationName,
+            Func<MyEntity, IEnumerable<MyOtherEntity>> reader,
+            bool initializeCollections = true)
         {
             var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation(navigationName));
 
@@ -431,7 +450,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class MyEntity
         {
-            public static readonly PropertyInfo AsICollectionProperty = typeof(MyEntity).GetProperty(nameof(AsICollection), BindingFlags.NonPublic | BindingFlags.Instance);
+            public static readonly PropertyInfo AsICollectionProperty = typeof(MyEntity).GetProperty(
+                nameof(AsICollection), BindingFlags.NonPublic | BindingFlags.Instance);
 
             private ICollection<MyOtherEntity> _asICollection;
             private ICollection<MyEntityWithCustomComparer> _asICollectionOfEntitiesWithCustomComparer;
@@ -513,9 +533,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 set => _myCollection = value;
             }
 
-            internal ICollection<MyOtherEntity> WithNoSetter => _withNoSetter;
+            internal ICollection<MyOtherEntity> WithNoSetter
+                => _withNoSetter;
 
-            internal ICollection<MyOtherEntity> NoBackingFound => _withNoBackingFieldFound;
+            internal ICollection<MyOtherEntity> NoBackingFound
+                => _withNoBackingFieldFound;
 
             internal ICollection<MyOtherEntity> WithNoGetter
             {
@@ -560,18 +582,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             internal IEnumerable<MyOtherEntity> AutoProp { get; set; }
 
-            internal IEnumerable<MyOtherEntity> ReadOnlyProp => _readOnlyProp;
+            internal IEnumerable<MyOtherEntity> ReadOnlyProp
+                => _readOnlyProp;
 
             internal IEnumerable<MyOtherEntity> ReadOnlyAutoProp { get; }
 
-            internal IEnumerable<MyOtherEntity> ReadOnlyFieldProp => _readOnlyFieldProp;
+            internal IEnumerable<MyOtherEntity> ReadOnlyFieldProp
+                => _readOnlyFieldProp;
 
             internal IEnumerable<MyOtherEntity> WriteOnlyProp
             {
                 set => _writeOnlyProp = value;
             }
 
-            internal IEnumerable<MyOtherEntity> ReadWriteOnlyProp => _writeOnlyProp;
+            internal IEnumerable<MyOtherEntity> ReadWriteOnlyProp
+                => _writeOnlyProp;
 
             internal IEnumerable<MyOtherEntity> FullPropNoField
             {
@@ -579,14 +604,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 set => _fullPropNoFieldNotFound = value;
             }
 
-            internal IEnumerable<MyOtherEntity> ReadOnlyPropNoField => _readOnlyPropNoFieldNotFound;
+            internal IEnumerable<MyOtherEntity> ReadOnlyPropNoField
+                => _readOnlyPropNoFieldNotFound;
 
             internal IEnumerable<MyOtherEntity> WriteOnlyPropNoField
             {
                 set => _writeOnlyPropNoFieldNotFound = value;
             }
 
-            internal IEnumerable<MyOtherEntity> ReadWriteOnlyPropNoField => _writeOnlyPropNoFieldNotFound;
+            internal IEnumerable<MyOtherEntity> ReadWriteOnlyPropNoField
+                => _writeOnlyPropNoFieldNotFound;
         }
 
         private class MyOtherEntity
@@ -643,7 +670,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new NotImplementedException();
             }
 
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            IEnumerator IEnumerable.GetEnumerator()
+                => GetEnumerator();
         }
     }
 }

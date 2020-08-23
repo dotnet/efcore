@@ -11,14 +11,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         : QueryFilterFuncletizationTestBase<QueryFilterFuncletizationInMemoryTest.QueryFilterFuncletizationInMemoryFixture>
     {
         public QueryFilterFuncletizationInMemoryTest(
-            QueryFilterFuncletizationInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
+            QueryFilterFuncletizationInMemoryFixture fixture,
+            ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
         }
 
         public class QueryFilterFuncletizationInMemoryFixture : QueryFilterFuncletizationFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => InMemoryTestStoreFactory.Instance;
         }
 
         [ConditionalFact(Skip = "issue #17386")]

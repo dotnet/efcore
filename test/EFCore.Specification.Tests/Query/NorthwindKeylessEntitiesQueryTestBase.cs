@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -19,7 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
+        protected NorthwindContext CreateContext()
+            => Fixture.CreateContext();
 
         protected virtual void ClearLog()
         {
@@ -131,7 +131,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => from ov in ss.Set<OrderQuery>().Include(ov => ov.Customer.Orders)
                       where ov.CustomerID == "ALFKI"
                       select ov,
-                elementAsserter: (e, a) => AssertInclude(e, a,
+                elementAsserter: (e, a) => AssertInclude(
+                    e, a,
                     new ExpectedInclude<OrderQuery>(ov => ov.Customer),
                     new ExpectedInclude<Customer>(c => c.Orders, "Customer")),
                 entryCount: 1);
@@ -167,7 +168,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<CustomerQuery>()
                     .GroupBy(cv => cv.City)
-                    .Select(g => new { g.Key, Count = g.Count(), Sum = g.Sum(e => e.Address.Length) }),
+                    .Select(
+                        g => new
+                        {
+                            g.Key,
+                            Count = g.Count(),
+                            Sum = g.Sum(e => e.Address.Length)
+                        }),
                 elementSorter: e => (e.Key, e.Count, e.Sum));
         }
 

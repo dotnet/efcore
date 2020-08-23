@@ -1371,21 +1371,25 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(license2, driver2.License);
         }
 
-        protected bool UseDetectChanges => Fixture.UseDetectChanges;
+        protected bool UseDetectChanges
+            => Fixture.UseDetectChanges;
 
         protected void CreateAndSeedDatabase(Action<MonsterContext> seed)
             => TestStore.Initialize(Fixture.ServiceProvider, CreateContext, c => seed((MonsterContext)c));
 
-        protected MonsterContext CreateContext() => Fixture.CreateContext(Options);
+        protected MonsterContext CreateContext()
+            => Fixture.CreateContext(Options);
 
-        public virtual void Dispose() => TestStore.Dispose();
+        public virtual void Dispose()
+            => TestStore.Dispose();
 
         public abstract class MonsterFixupFixtureBase : ServiceProviderFixtureBase
         {
             public abstract string StoreName { get; }
             public abstract bool UseDetectChanges { get; }
 
-            public TestStore CreateTestStore() => TestStoreFactory.Create(StoreName);
+            public TestStore CreateTestStore()
+                => TestStoreFactory.Create(StoreName);
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base.AddOptions(builder);
@@ -1406,8 +1410,11 @@ namespace Microsoft.EntityFrameworkCore
 
         public abstract class MonsterFixupSnapshotFixtureBase : MonsterFixupFixtureBase
         {
-            public override string StoreName => "MonsterSnapshot";
-            public override bool UseDetectChanges => true;
+            public override string StoreName
+                => "MonsterSnapshot";
+
+            public override bool UseDetectChanges
+                => true;
 
             public override MonsterContext CreateContext(DbContextOptions options)
                 => new SnapshotMonsterContext(options);
@@ -1427,8 +1434,11 @@ namespace Microsoft.EntityFrameworkCore
 
         public abstract class MonsterFixupChangedOnlyFixtureBase : MonsterFixupFixtureBase
         {
-            public override string StoreName => "MonsterChangedOnly";
-            public override bool UseDetectChanges => false;
+            public override string StoreName
+                => "MonsterChangedOnly";
+
+            public override bool UseDetectChanges
+                => false;
 
             public override MonsterContext CreateContext(DbContextOptions options)
                 => new ChangedOnlyMonsterContext(options);
@@ -1448,8 +1458,11 @@ namespace Microsoft.EntityFrameworkCore
 
         public abstract class MonsterFixupChangedChangingFixtureBase : MonsterFixupFixtureBase
         {
-            public override string StoreName => "MonsterFullNotify";
-            public override bool UseDetectChanges => false;
+            public override string StoreName
+                => "MonsterFullNotify";
+
+            public override bool UseDetectChanges
+                => false;
 
             public override MonsterContext CreateContext(DbContextOptions options)
                 => new ChangedChangingMonsterContext(options);

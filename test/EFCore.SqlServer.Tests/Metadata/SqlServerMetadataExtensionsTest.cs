@@ -512,7 +512,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("R", property.FindHiLoSequence().Schema);
         }
 
-        private static ModelBuilder GetModelBuilder() => SqlServerTestHelpers.Instance.CreateConventionBuilder();
+        private static ModelBuilder GetModelBuilder()
+            => SqlServerTestHelpers.Instance.CreateConventionBuilder();
 
         // ReSharper disable once ClassNeverInstantiated.Local
         private class Customer

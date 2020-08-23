@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
@@ -86,7 +85,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(((IConventionEntityType)entityType).GetETagPropertyNameConfigurationSource());
         }
 
-        private static ModelBuilder CreateModelBuilder() => new ModelBuilder();
+        private static ModelBuilder CreateModelBuilder()
+            => new ModelBuilder();
 
         private class Customer
         {

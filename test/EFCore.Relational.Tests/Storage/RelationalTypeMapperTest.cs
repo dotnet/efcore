@@ -301,6 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             IProperty property)
             => typeMappingSource.FindMapping(property);
 
-        protected override ModelBuilder CreateModelBuilder() => RelationalTestHelpers.Instance.CreateConventionBuilder();
+        protected override ModelBuilder CreateModelBuilder()
+            => RelationalTestHelpers.Instance.CreateConventionBuilder();
     }
 }

@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -35,7 +34,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Branch>().AsSplitQuery());
         }
-
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -136,16 +134,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected FormattableString NormalizeDelimitersInInterpolatedString(FormattableString sql)
             => Fixture.TestStore.NormalizeDelimitersInInterpolatedString(sql);
 
-        protected virtual bool CanExecuteQueryString => false;
+        protected virtual bool CanExecuteQueryString
+            => false;
 
         protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
-            => new RelationalQueryAsserter(fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+            => new RelationalQueryAsserter(
+                fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
 
         public abstract class RelationalOwnedQueryFixture : OwnedQueryFixtureBase
         {
-            public new RelationalTestStore TestStore => (RelationalTestStore)base.TestStore;
+            public new RelationalTestStore TestStore
+                => (RelationalTestStore)base.TestStore;
 
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
+            public TestSqlLoggerFactory TestSqlLoggerFactory
+                => (TestSqlLoggerFactory)ListLoggerFactory;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
@@ -1764,35 +1765,37 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Add_table_sharing_to_TPT()
         {
             Execute(
-                common => {
+                common =>
+                {
                     common.Entity(
-                     "Order",
-                     x =>
-                     {
-                         x.ToTable("Order");
-                         x.Property<int>("Id");
-                     });
+                        "Order",
+                        x =>
+                        {
+                            x.ToTable("Order");
+                            x.Property<int>("Id");
+                        });
                     common.Entity(
-                     "DetailedOrder",
-                     x =>
-                     {
-                         x.ToTable("DetailedOrder");
-                         x.HasBaseType("Order");
-                         x.Property<string>("Description").HasColumnName("Description");
-                     });
+                        "DetailedOrder",
+                        x =>
+                        {
+                            x.ToTable("DetailedOrder");
+                            x.HasBaseType("Order");
+                            x.Property<string>("Description").HasColumnName("Description");
+                        });
                 },
                 _ => { },
-                target => {
+                target =>
+                {
                     target.Entity(
-                     "OrderDetails",
-                     x =>
-                     {
-                         x.ToTable("DetailedOrder");
-                         x.Property<int>("Id");
-                         x.Property<string>("Description").HasColumnName("Description");
-                         x.Property<DateTime>("OrderDate");
-                         x.HasOne("DetailedOrder", null).WithOne().HasForeignKey("OrderDetails", "Id");
-                     });
+                        "OrderDetails",
+                        x =>
+                        {
+                            x.ToTable("DetailedOrder");
+                            x.Property<int>("Id");
+                            x.Property<string>("Description").HasColumnName("Description");
+                            x.Property<DateTime>("OrderDate");
+                            x.HasOne("DetailedOrder", null).WithOne().HasForeignKey("OrderDetails", "Id");
+                        });
                 },
                 operations =>
                 {
@@ -1809,50 +1812,58 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Rename_column_in_TPT_with_table_sharing_and_seed_data()
         {
             Execute(
-                common => {
+                common =>
+                {
                     common.Entity(
-                     "Order",
-                     x =>
-                     {
-                         x.ToTable("Order");
-                         x.Property<int>("Id");
-                     });
+                        "Order",
+                        x =>
+                        {
+                            x.ToTable("Order");
+                            x.Property<int>("Id");
+                        });
                     common.Entity(
-                     "DetailedOrder",
-                     x =>
-                     {
-                         x.ToTable("DetailedOrder");
-                         x.HasBaseType("Order");
-                         x.Property<string>("Description").HasColumnName("Description");
-                         x.HasData(new { Id = 42, Description = "Order 1" });
-                     });
+                        "DetailedOrder",
+                        x =>
+                        {
+                            x.ToTable("DetailedOrder");
+                            x.HasBaseType("Order");
+                            x.Property<string>("Description").HasColumnName("Description");
+                            x.HasData(new { Id = 42, Description = "Order 1" });
+                        });
                     common.Entity(
-                     "OrderDetails",
-                     x =>
-                     {
-                         x.ToTable("DetailedOrder");
-                         x.Property<int>("Id");
-                         x.Property<string>("Description").HasColumnName("Description");
-                         x.Property<DateTime>("OrderDate");
-                         x.HasOne("DetailedOrder", null).WithOne().HasForeignKey("OrderDetails", "Id");
-                         x.HasData(new { Id = 42, Description = "Order 1", OrderDate = DateTime.MinValue });
-                     });
+                        "OrderDetails",
+                        x =>
+                        {
+                            x.ToTable("DetailedOrder");
+                            x.Property<int>("Id");
+                            x.Property<string>("Description").HasColumnName("Description");
+                            x.Property<DateTime>("OrderDate");
+                            x.HasOne("DetailedOrder", null).WithOne().HasForeignKey("OrderDetails", "Id");
+                            x.HasData(
+                                new
+                                {
+                                    Id = 42,
+                                    Description = "Order 1",
+                                    OrderDate = DateTime.MinValue
+                                });
+                        });
                 },
                 _ => { },
-                target => {
+                target =>
+                {
                     target.Entity(
-                         "DetailedOrder",
-                         x =>
-                         {
-                             x.Property<string>("Description").HasColumnName("OrderDescription");
-                         });
+                        "DetailedOrder",
+                        x =>
+                        {
+                            x.Property<string>("Description").HasColumnName("OrderDescription");
+                        });
                     target.Entity(
-                         "OrderDetails",
-                         x =>
-                         {
-                             x.Property<string>("Description").HasColumnName("OrderDescription");
-                         });
-                    },
+                        "OrderDetails",
+                        x =>
+                        {
+                            x.Property<string>("Description").HasColumnName("OrderDescription");
+                        });
+                },
                 operations =>
                 {
                     Assert.Equal(1, operations.Count);
@@ -1921,7 +1932,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 throw new NotImplementedException();
             }
 
-            public override bool GeneratesTemporaryValues => false;
+            public override bool GeneratesTemporaryValues
+                => false;
         }
 
         [ConditionalFact]
@@ -3620,7 +3632,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Id");
                         x.Property<int>("Value");
                         x.Property<int>("MuleValue");
-                        x.HasIndex(new[] { "MuleValue" },"IX_Muel_Value");
+                        x.HasIndex(new[] { "MuleValue" }, "IX_Muel_Value");
                     }),
                 operations =>
                 {
@@ -5269,11 +5281,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 new { Id = 31 });
                         });
                 },
-                source => {
+                source =>
+                {
                     source.Entity(
                         "Animal", x =>
                         {
-                            x.Property<string>("Discriminator").Metadata.SetAfterSaveBehavior(Metadata.PropertySaveBehavior.Save);
+                            x.Property<string>("Discriminator").Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Save);
                         });
                     source.Entity(
                         "Cat", x =>
@@ -5376,7 +5389,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         var operation = Assert.IsType<CreateTableOperation>(o);
                         Assert.Equal("Cats", operation.Name);
-                        Assert.Collection(operation.Columns,
+                        Assert.Collection(
+                            operation.Columns,
                             c =>
                             {
                                 Assert.Equal("Id", c.Name);
@@ -5421,8 +5435,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("Cats", pk.Table);
                         Assert.Equal(new[] { "Id" }, pk.Columns);
 
-                        Assert.Collection(operation.ForeignKeys,
-                            fk => {
+                        Assert.Collection(
+                            operation.ForeignKeys,
+                            fk =>
+                            {
                                 Assert.Equal("FK_Cats_Animal_Id", fk.Name);
                                 Assert.Equal("Cats", fk.Table);
                                 Assert.Equal("Animal", fk.PrincipalTable);
@@ -5448,7 +5464,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         var operation = Assert.IsType<CreateTableOperation>(o);
                         Assert.Equal("Mice", operation.Name);
-                        Assert.Collection(operation.Columns,
+                        Assert.Collection(
+                            operation.Columns,
                             c =>
                             {
                                 Assert.Equal("Id", c.Name);
@@ -5873,12 +5890,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 {
                     modelBuilder.Entity(
                         "Animal", x =>
-                    {
-                        x.Property<int>("Id");
-                        x.Property<int?>("MouseId");
+                        {
+                            x.Property<int>("Id");
+                            x.Property<int?>("MouseId");
 
-                        x.HasOne("Mouse").WithMany().HasForeignKey("MouseId");
-                    });
+                            x.HasOne("Mouse").WithMany().HasForeignKey("MouseId");
+                        });
                     modelBuilder.Entity(
                         "Cat", x =>
                         {
@@ -5908,7 +5925,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 new { Id = 31 });
                         });
                 },
-                source => {
+                source =>
+                {
                     source.Entity(
                         "Cat", x =>
                         {
@@ -6008,7 +6026,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         var operation = Assert.IsType<CreateTableOperation>(o);
                         Assert.Equal("Cats", operation.Name);
-                        Assert.Collection(operation.Columns,
+                        Assert.Collection(
+                            operation.Columns,
                             c =>
                             {
                                 Assert.Equal("Id", c.Name);
@@ -6053,8 +6072,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("Cats", pk.Table);
                         Assert.Equal(new[] { "Id" }, pk.Columns);
 
-                        Assert.Collection(operation.ForeignKeys,
-                            fk => {
+                        Assert.Collection(
+                            operation.ForeignKeys,
+                            fk =>
+                            {
                                 Assert.Equal("FK_Cats_Animal_Id", fk.Name);
                                 Assert.Equal("Cats", fk.Table);
                                 Assert.Equal("Animal", fk.PrincipalTable);
@@ -6080,7 +6101,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         var operation = Assert.IsType<CreateTableOperation>(o);
                         Assert.Equal("Mice", operation.Name);
-                        Assert.Collection(operation.Columns,
+                        Assert.Collection(
+                            operation.Columns,
                             c =>
                             {
                                 Assert.Equal("Id", c.Name);
@@ -6172,7 +6194,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     },
                     o =>
                     {
-                        var operation = Assert.IsType<InsertDataOperation> (o);
+                        var operation = Assert.IsType<InsertDataOperation>(o);
                         Assert.Equal("Dogs", operation.Table);
 
                         Assert.Equal(new[] { "Id", "PreyId" }, operation.Columns);
@@ -6496,7 +6518,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         var operation = Assert.IsType<InsertDataOperation>(o);
                         Assert.Equal("Animal", operation.Table);
-                        Assert.Equal(new[] { "Id" , "Discriminator", "MouseId", "PreyId" }, operation.Columns);
+                        Assert.Equal(new[] { "Id", "Discriminator", "MouseId", "PreyId" }, operation.Columns);
                         Assert.Null(operation.ColumnTypes);
                         AssertMultidimensionalArray(
                             operation.Values,
@@ -10108,13 +10130,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Execute(
                 _ => { },
                 modelBuilder =>
-                    modelBuilder.HasDbFunction(typeof(MigrationsModelDifferTest).GetMethod(
-                        nameof(GetCountByYear),
-                        BindingFlags.NonPublic | BindingFlags.Static)),
+                    modelBuilder.HasDbFunction(
+                        typeof(MigrationsModelDifferTest).GetMethod(
+                            nameof(GetCountByYear),
+                            BindingFlags.NonPublic | BindingFlags.Static)),
                 result => Assert.Equal(0, result.Count),
                 skipSourceConventions: true);
         }
 
-        protected override TestHelpers TestHelpers => RelationalTestHelpers.Instance;
+        protected override TestHelpers TestHelpers
+            => RelationalTestHelpers.Instance;
     }
 }

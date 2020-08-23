@@ -23,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
         public DbSet<ImplicitManyToManyA> ImplicitManyToManyAs { get; set; }
         public DbSet<ImplicitManyToManyB> ImplicitManyToManyBs { get; set; }
 
-        public static void Seed(ManyToManyContext context) => ManyToManyData.Seed(context);
-
+        public static void Seed(ManyToManyContext context)
+            => ManyToManyData.Seed(context);
     }
 
     public static class ManyToManyContextExtensions

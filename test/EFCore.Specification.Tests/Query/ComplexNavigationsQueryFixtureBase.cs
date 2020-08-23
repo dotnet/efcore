@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -16,9 +15,11 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         protected override string StoreName { get; } = "ComplexNavigations";
 
-        public Func<DbContext> GetContextCreator() => () => CreateContext();
+        public Func<DbContext> GetContextCreator()
+            => () => CreateContext();
 
-        public virtual ISetSource GetExpectedData() => new ComplexNavigationsDefaultData();
+        public virtual ISetSource GetExpectedData()
+            => new ComplexNavigationsDefaultData();
 
         public IReadOnlyDictionary<Type, object> GetEntitySorters()
             => new Dictionary<Type, Func<object, object>>
@@ -305,7 +306,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<ComplexNavigationGlobalization>().HasOne(g => g.Language);
         }
 
-        protected override void Seed(ComplexNavigationsContext context) => ComplexNavigationsData.Seed(context);
+        protected override void Seed(ComplexNavigationsContext context)
+            => ComplexNavigationsData.Seed(context);
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(

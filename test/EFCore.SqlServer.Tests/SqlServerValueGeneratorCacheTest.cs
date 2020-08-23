@@ -432,18 +432,22 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("R", cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.Schema);
         }
 
-        protected virtual ModelBuilder CreateConventionModelBuilder() => SqlServerTestHelpers.Instance.CreateConventionBuilder();
+        protected virtual ModelBuilder CreateConventionModelBuilder()
+            => SqlServerTestHelpers.Instance.CreateConventionBuilder();
 
         private class Robot
         {
             public int Id { get; set; }
         }
 
-        private static IProperty GetProperty1(IModel model) => model.FindEntityType(typeof(Led)).FindProperty("Zeppelin");
+        private static IProperty GetProperty1(IModel model)
+            => model.FindEntityType(typeof(Led)).FindProperty("Zeppelin");
 
-        private static IProperty GetProperty2(IModel model) => model.FindEntityType(typeof(Led)).FindProperty("Stairway");
+        private static IProperty GetProperty2(IModel model)
+            => model.FindEntityType(typeof(Led)).FindProperty("Stairway");
 
-        private static IProperty GetProperty3(IModel model) => model.FindEntityType(typeof(Led)).FindProperty("WholeLotta");
+        private static IProperty GetProperty3(IModel model)
+            => model.FindEntityType(typeof(Led)).FindProperty("WholeLotta");
 
         private static IModel CreateModel()
         {

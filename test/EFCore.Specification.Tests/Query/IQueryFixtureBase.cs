@@ -12,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         Func<DbContext> GetContextCreator();
 
-        Func<DbContext, ISetSource> GetSetSourceCreator() => context => new DefaultSetSource(context);
+        Func<DbContext, ISetSource> GetSetSourceCreator()
+            => context => new DefaultSetSource(context);
 
         ISetSource GetExpectedData();
 

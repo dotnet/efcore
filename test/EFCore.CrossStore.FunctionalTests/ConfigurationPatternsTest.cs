@@ -215,7 +215,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
 #pragma warning disable xUnit1013 // Public method should be marked as test
-        public void Dispose() => ExistingTestStore.Dispose();
+        public void Dispose()
+            => ExistingTestStore.Dispose();
 #pragma warning restore xUnit1013 // Public method should be marked as test
 
         [SqlServerConfiguredCondition]
@@ -279,7 +280,8 @@ namespace Microsoft.EntityFrameworkCore
             }
 
 #pragma warning disable xUnit1013 // Public method should be marked as test
-            public void Dispose() => ExistingTestStore.Dispose();
+            public void Dispose()
+                => ExistingTestStore.Dispose();
 #pragma warning restore xUnit1013 // Public method should be marked as test
 
             private class BlogContext : DbContext

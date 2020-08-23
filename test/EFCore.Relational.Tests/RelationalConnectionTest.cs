@@ -511,7 +511,6 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(dbConnection, connection.DbConnection);
             Assert.Equal(0, connection.DbConnections.Count);
             Assert.Equal("Database=MerryLives", connection.ConnectionString);
-
         }
 
         [ConditionalFact]

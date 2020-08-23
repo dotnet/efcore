@@ -7,7 +7,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class TPTFiltersInheritanceQuerySqlServerTest : TPTFiltersInheritanceQueryTestBase<TPTFiltersInheritanceQuerySqlServerFixture>
     {
-        public TPTFiltersInheritanceQuerySqlServerTest(TPTFiltersInheritanceQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+        public TPTFiltersInheritanceQuerySqlServerTest(
+            TPTFiltersInheritanceQuerySqlServerFixture fixture,
+            ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
