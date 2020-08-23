@@ -42,7 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyAdded(
-            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<IConventionForeignKeyBuilder> context)
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IConventionContext<IConventionForeignKeyBuilder> context)
         {
             var foreignKey = relationshipBuilder.Metadata;
             if (!foreignKey.IsBaseLinking())
@@ -218,7 +219,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyOwnershipChanged(
-            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<bool?> context)
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IConventionContext<bool?> context)
         {
             foreach (var property in relationshipBuilder.Metadata.DeclaringEntityType.GetProperties())
             {

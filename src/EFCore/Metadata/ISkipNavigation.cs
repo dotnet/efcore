@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the join type used by the foreign key.
         /// </summary>
-        IEntityType JoinEntityType => IsOnDependent ? ForeignKey?.PrincipalEntityType : ForeignKey?.DeclaringEntityType;
+        IEntityType JoinEntityType
+            => IsOnDependent ? ForeignKey?.PrincipalEntityType : ForeignKey?.DeclaringEntityType;
 
         /// <summary>
         ///     Gets the inverse skip navigation.

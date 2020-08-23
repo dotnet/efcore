@@ -30,7 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 get => _children;
             }
 
-
             private void Add(ConventionNode node)
             {
                 if (_children == null)
@@ -67,7 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             public override IConventionEntityType OnEntityTypeRemoved(
-                IConventionModelBuilder modelBuilder, IConventionEntityType entityType)
+                IConventionModelBuilder modelBuilder,
+                IConventionEntityType entityType)
             {
                 Add(new OnEntityTypeRemovedNode(modelBuilder, entityType));
                 return entityType;
@@ -115,7 +115,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             public override IConventionForeignKey OnForeignKeyRemoved(
-                IConventionEntityTypeBuilder entityTypeBuilder, IConventionForeignKey foreignKey)
+                IConventionEntityTypeBuilder entityTypeBuilder,
+                IConventionForeignKey foreignKey)
             {
                 Add(new OnForeignKeyRemovedNode(entityTypeBuilder, foreignKey));
                 return foreignKey;
@@ -138,7 +139,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             public override IConventionKey OnKeyRemoved(
-                IConventionEntityTypeBuilder entityTypeBuilder, IConventionKey key)
+                IConventionEntityTypeBuilder entityTypeBuilder,
+                IConventionKey key)
             {
                 Add(new OnKeyRemovedNode(entityTypeBuilder, key));
                 return key;
@@ -170,7 +172,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             public override IConventionIndex OnIndexRemoved(
-                IConventionEntityTypeBuilder entityTypeBuilder, IConventionIndex index)
+                IConventionEntityTypeBuilder entityTypeBuilder,
+                IConventionIndex index)
             {
                 Add(new OnIndexRemovedNode(entityTypeBuilder, index));
                 return index;
@@ -319,7 +322,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             public override FieldInfo OnPropertyFieldChanged(
-                IConventionPropertyBuilder propertyBuilder, FieldInfo newFieldInfo, FieldInfo oldFieldInfo)
+                IConventionPropertyBuilder propertyBuilder,
+                FieldInfo newFieldInfo,
+                FieldInfo oldFieldInfo)
             {
                 Add(new OnPropertyFieldChangedNode(propertyBuilder, newFieldInfo, oldFieldInfo));
                 return newFieldInfo;
@@ -824,7 +829,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private sealed class OnEntityTypePrimaryKeyChangedNode : ConventionNode
         {
             public OnEntityTypePrimaryKeyChangedNode(
-                IConventionEntityTypeBuilder entityTypeBuilder, IConventionKey newPrimaryKey, IConventionKey previousPrimaryKey)
+                IConventionEntityTypeBuilder entityTypeBuilder,
+                IConventionKey newPrimaryKey,
+                IConventionKey previousPrimaryKey)
             {
                 EntityTypeBuilder = entityTypeBuilder;
                 NewPrimaryKey = newPrimaryKey;
@@ -884,7 +891,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private sealed class OnIndexAnnotationChangedNode : ConventionNode
         {
             public OnIndexAnnotationChangedNode(
-                IConventionIndexBuilder indexBuilder, string name, IConventionAnnotation annotation, IConventionAnnotation oldAnnotation)
+                IConventionIndexBuilder indexBuilder,
+                string name,
+                IConventionAnnotation annotation,
+                IConventionAnnotation oldAnnotation)
             {
                 IndexBuilder = indexBuilder;
                 Name = name;

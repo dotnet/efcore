@@ -52,8 +52,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         are applied.
         ///     </para>
         /// </summary>
-        /// <returns> <see langword="true"/> if the database is created, false if it already existed. </returns>
-        public virtual bool EnsureCreated() => Dependencies.DatabaseCreator.EnsureCreated();
+        /// <returns> <see langword="true" /> if the database is created, false if it already existed. </returns>
+        public virtual bool EnsureCreated()
+            => Dependencies.DatabaseCreator.EnsureCreated();
 
         /// <summary>
         ///     <para>
@@ -70,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
-        ///     A task that represents the asynchronous save operation. The task result contains <see langword="true"/> if the database is created,
+        ///     A task that represents the asynchronous save operation. The task result contains <see langword="true" /> if the database is created,
         ///     false if it already existed.
         /// </returns>
         public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
@@ -86,8 +87,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         the model for this context.
         ///     </para>
         /// </summary>
-        /// <returns> <see langword="true"/> if the database is deleted, false if it did not exist. </returns>
-        public virtual bool EnsureDeleted() => Dependencies.DatabaseCreator.EnsureDeleted();
+        /// <returns> <see langword="true" /> if the database is deleted, false if it did not exist. </returns>
+        public virtual bool EnsureDeleted()
+            => Dependencies.DatabaseCreator.EnsureDeleted();
 
         /// <summary>
         ///     <para>
@@ -101,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
-        ///     A task that represents the asynchronous save operation. The task result contains <see langword="true"/> if the database is deleted,
+        ///     A task that represents the asynchronous save operation. The task result contains <see langword="true" /> if the database is deleted,
         ///     false if it did not exist.
         /// </returns>
         public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default)
@@ -272,7 +274,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         not directly exposed in the public API surface.
         ///     </para>
         /// </summary>
-        IServiceProvider IInfrastructure<IServiceProvider>.Instance => ((IInfrastructure<IServiceProvider>)_context).Instance;
+        IServiceProvider IInfrastructure<IServiceProvider>.Instance
+            => ((IInfrastructure<IServiceProvider>)_context).Instance;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -301,22 +304,25 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString() => base.ToString();
+        public override string ToString()
+            => base.ToString();
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
+        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => base.Equals(obj);
+        public override bool Equals(object obj)
+            => base.Equals(obj);
 
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
         /// <returns> A hash code for the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode()
+            => base.GetHashCode();
 
         #endregion
     }

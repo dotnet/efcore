@@ -80,6 +80,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> A query expression after normalization has been done. </returns>
         public virtual Expression NormalizeQueryableMethod([NotNull] Expression expression)
             => new QueryableMethodNormalizingExpressionVisitor(QueryCompilationContext)
-            .Visit(Check.NotNull(expression, nameof(expression)));
+                .Visit(Check.NotNull(expression, nameof(expression)));
     }
 }

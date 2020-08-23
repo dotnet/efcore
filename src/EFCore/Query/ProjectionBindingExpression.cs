@@ -13,8 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         An expression that gets values from <see cref="ShapedQueryExpression.QueryExpression"/> to be used in
-    ///         <see cref="ShapedQueryExpression.ShaperExpression"/> while creating results.
+    ///         An expression that gets values from <see cref="ShapedQueryExpression.QueryExpression" /> to be used in
+    ///         <see cref="ShapedQueryExpression.ShaperExpression" /> while creating results.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -83,22 +83,28 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The query expression to bind with.
         /// </summary>
         public virtual Expression QueryExpression { get; }
+
         /// <summary>
         ///     The projection member to bind if binding is via projection member.
         /// </summary>
         public virtual ProjectionMember ProjectionMember { get; }
+
         /// <summary>
         ///     The projection member to bind if binding is via projection index.
         /// </summary>
         public virtual int? Index { get; }
+
         /// <summary>
         ///     The projection member to bind if binding is via index map for a value buffer.
         /// </summary>
         public virtual IDictionary<IProperty, int> IndexMap { get; }
+
         /// <inheritdoc />
         public override Type Type { get; }
+
         /// <inheritdoc />
-        public sealed override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType
+            => ExpressionType.Extension;
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -151,6 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && IndexMap == projectionBindingExpression.IndexMap;
 
         /// <inheritdoc />
-        public override int GetHashCode() => HashCode.Combine(QueryExpression, ProjectionMember, Index, IndexMap);
+        public override int GetHashCode()
+            => HashCode.Combine(QueryExpression, ProjectionMember, Index, IndexMap);
     }
 }

@@ -109,7 +109,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                         : messageBuilder
                             .AppendLine()
                             .Append(message)
-                            .Replace(Environment.NewLine, Environment.NewLine + padding, preambleLength, messageBuilder.Length - preambleLength)
+                            .Replace(
+                                Environment.NewLine, Environment.NewLine + padding, preambleLength, messageBuilder.Length - preambleLength)
                             .ToString();
                 }
             }

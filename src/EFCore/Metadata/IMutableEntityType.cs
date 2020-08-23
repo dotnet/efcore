@@ -26,7 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IMutableModel Model { get; }
 
         /// <summary>
-        ///     Gets or sets the base type of this entity type. Returns <see langword="null" /> if this is not a derived type in an inheritance hierarchy.
+        ///     Gets or sets the base type of this entity type. Returns <see langword="null" /> if this is not a derived type in an inheritance
+        ///     hierarchy.
         /// </summary>
         new IMutableEntityType BaseType { get; [param: CanBeNull] set; }
 
@@ -226,7 +227,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The name of the index. </param>
         /// <returns> The newly created index. </returns>
         IMutableIndex AddIndex(
-            [NotNull] IReadOnlyList<IMutableProperty> properties, [NotNull] string name);
+            [NotNull] IReadOnlyList<IMutableProperty> properties,
+            [NotNull] string name);
 
         /// <summary>
         ///     <para>

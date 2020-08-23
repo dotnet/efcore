@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
     ///     A convention that configures a navigation property as having a backing field
-    ///     based on the <see cref="BackingFieldAttribute"/> attribute.
+    ///     based on the <see cref="BackingFieldAttribute" /> attribute.
     /// </summary>
     public class NavigationBackingFieldAttributeConvention : NavigationAttributeConventionBase<BackingFieldAttribute>
     {

@@ -98,7 +98,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
+        public virtual ConfigurationSource GetConfigurationSource()
+            => _configurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -151,7 +152,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static FieldInfo GetFieldInfo(
-            [NotNull] string fieldName, [NotNull] TypeBase type, [CanBeNull] string propertyName, bool shouldThrow)
+            [NotNull] string fieldName,
+            [NotNull] TypeBase type,
+            [CanBeNull] string propertyName,
+            bool shouldThrow)
         {
             Check.DebugAssert(propertyName != null || !shouldThrow, "propertyName is null");
 
@@ -193,6 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(
                         CoreStrings.BackingFieldOnIndexer(fieldInfo.GetSimpleMemberName(), DeclaringType.DisplayName(), Name));
                 }
+
                 UpdateFieldInfoConfigurationSource(configurationSource);
             }
             else
@@ -220,7 +225,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual PropertyAccessMode? SetPropertyAccessMode(
-            PropertyAccessMode? propertyAccessMode, ConfigurationSource configurationSource)
+            PropertyAccessMode? propertyAccessMode,
+            ConfigurationSource configurationSource)
         {
             this.SetOrRemoveAnnotation(CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, configurationSource);
 
@@ -283,12 +289,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual PropertyIndexes PropertyIndexes
         {
-            get => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _indexes, this,
-                property =>
-                {
-                    var _ = (property.DeclaringType as EntityType)?.Counts;
-                });
+            get
+                => NonCapturingLazyInitializer.EnsureInitialized(
+                    ref _indexes, this,
+                    property =>
+                    {
+                        var _ = (property.DeclaringType as EntityType)?.Counts;
+                    });
 
             [param: CanBeNull]
             set
@@ -321,7 +328,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConfigurationSource? GetFieldInfoConfigurationSource() => _fieldInfoConfigurationSource;
+        public virtual ConfigurationSource? GetFieldInfoConfigurationSource()
+            => _fieldInfoConfigurationSource;
 
         private void UpdateFieldInfoConfigurationSource(ConfigurationSource configurationSource)
             => _fieldInfoConfigurationSource = configurationSource.Max(_fieldInfoConfigurationSource);
@@ -340,8 +348,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IClrPropertyGetter Getter =>
-            NonCapturingLazyInitializer.EnsureInitialized(
+        public virtual IClrPropertyGetter Getter
+            => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _getter, this, p => new ClrPropertyGetterFactory().Create(p));
 
         /// <summary>
@@ -350,8 +358,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IClrPropertySetter Setter =>
-            NonCapturingLazyInitializer.EnsureInitialized(
+        public virtual IClrPropertySetter Setter
+            => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _setter, this, p => new ClrPropertySetterFactory().Create(p));
 
         /// <summary>
@@ -360,8 +368,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IClrPropertySetter MaterializationSetter =>
-            NonCapturingLazyInitializer.EnsureInitialized(
+        public virtual IClrPropertySetter MaterializationSetter
+            => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _materializationSetter, this, p => new ClrPropertyMaterializationSetterFactory().Create(p));
 
         /// <summary>
@@ -379,8 +387,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IComparer<IUpdateEntry> CurrentValueComparer =>
-            NonCapturingLazyInitializer.EnsureInitialized(
+        public virtual IComparer<IUpdateEntry> CurrentValueComparer
+            => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _currentValueComparer, this, p => new CurrentValueComparerFactory().Create(p));
 
         private static readonly MethodInfo _containsKeyMethod =
@@ -412,7 +420,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     var defaultValueConstant = property.ClrType.GetDefaultValueConstant();
 
                     expression = Expression.Condition(
-                        Expression.Call(instanceExpression, _containsKeyMethod, new List<Expression> { Expression.Constant(property.Name) }),
+                        Expression.Call(
+                            instanceExpression, _containsKeyMethod, new List<Expression> { Expression.Constant(property.Name) }),
                         expression,
                         defaultValueConstant);
                 }

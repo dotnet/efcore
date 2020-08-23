@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         /// <summary>
         ///     <para>
-        ///         Creates a human-readable representation of the given <see cref="IUpdateEntry"/>.
+        ///         Creates a human-readable representation of the given <see cref="IUpdateEntry" />.
         ///     </para>
         ///     <para>
         ///         Warning: Do not rely on the format of the returned string.

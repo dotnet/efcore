@@ -33,7 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override IClrPropertySetter CreateGeneric<TEntity, TValue, TNonNullableEnumValue>(
-            MemberInfo memberInfo, IPropertyBase propertyBase)
+            MemberInfo memberInfo,
+            IPropertyBase propertyBase)
         {
             var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
             var valueParameter = Expression.Parameter(typeof(TValue), "value");
@@ -82,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return propertyBase?.IsIndexerProperty() == true
                     ? Expression.Assign(
                         Expression.MakeIndex(
-                            entityParameter, (PropertyInfo)memberInfo, new List<Expression>() { Expression.Constant(propertyBase.Name) }),
+                            entityParameter, (PropertyInfo)memberInfo, new List<Expression> { Expression.Constant(propertyBase.Name) }),
                         convertedParameter)
                     : Expression.MakeMemberAccess(parameter, memberInfo).Assign(convertedParameter);
             }

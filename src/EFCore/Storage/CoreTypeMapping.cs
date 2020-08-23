@@ -64,7 +64,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// <param name="keyComparer"> Supports custom comparisons between keys--e.g. PK to FK comparison. </param>
             /// <param name="structuralComparer"> Supports structural snapshotting needed for mutable reference types. </param>
             /// <param name="valueGeneratorFactory"> An optional factory for creating a specific <see cref="ValueGenerator" />. </param>
-            [Obsolete("Use overload without 'structuralComparer'. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
+            [Obsolete(
+                "Use overload without 'structuralComparer'. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
             public CoreTypeMappingParameters(
                 [NotNull] Type clrType,
                 [CanBeNull] ValueConverter converter,
@@ -106,7 +107,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             ///     The mapping structural comparer.
             /// </summary>
             [Obsolete("Use KeyComparer. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
-            public ValueComparer StructuralComparer => KeyComparer;
+            public ValueComparer StructuralComparer
+                => KeyComparer;
 
             /// <summary>
             ///     An optional factory for creating a specific <see cref="ValueGenerator" /> to use with
@@ -173,7 +175,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Converts types to and from the store whenever this mapping is used.
         ///     May be null if no conversion is needed.
         /// </summary>
-        public virtual ValueConverter Converter => Parameters.Converter;
+        public virtual ValueConverter Converter
+            => Parameters.Converter;
 
         /// <summary>
         ///     An optional factory for creating a specific <see cref="ValueGenerator" /> to use with

@@ -103,7 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return;
             }
 
-            Check.DebugAssert(inverseSkipNavigation.Inverse == skipNavigation,
+            Check.DebugAssert(
+                inverseSkipNavigation.Inverse == skipNavigation,
                 "Inverse's inverse should be the original skip navigation");
 
             var declaringEntityType = skipNavigation.DeclaringEntityType;

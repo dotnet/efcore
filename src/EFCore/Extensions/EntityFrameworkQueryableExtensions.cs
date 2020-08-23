@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="source"> The query source. </param>
         /// <returns> The query string for debugging. </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static string ToQueryString([NotNull] this IQueryable source)
         {
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains <see langword="true" /> if the source sequence contains any elements; otherwise, <see langword="false" />.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static Task<bool> AnyAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     predicate; otherwise, <see langword="false" />.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="predicate"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="predicate" /> is <see langword="null" />.
         /// </exception>
         public static Task<bool> AnyAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     predicate; otherwise, <see langword="false" />.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="predicate"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="predicate" /> is <see langword="null" />.
         /// </exception>
         public static Task<bool> AllAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the number of elements in the input sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static Task<int> CountAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     function.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="predicate"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="predicate" /> is <see langword="null" />.
         /// </exception>
         public static Task<int> CountAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the number of elements in the input sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static Task<long> LongCountAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -281,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     function.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="predicate"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="predicate" /> is <see langword="null" />.
         /// </exception>
         public static Task<long> LongCountAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -319,10 +319,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the first element in <paramref name="source" />.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name = "source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="InvalidOperationException">
-        ///     <paramref name = "source"/> contains no elements.
+        ///     <paramref name="source" /> contains no elements.
         /// </exception>
         public static Task<TSource> FirstAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -356,17 +356,17 @@ namespace Microsoft.EntityFrameworkCore
         ///     <paramref name="predicate" />.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="predicate"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="predicate" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="InvalidOperationException">
         ///     <para>
-        ///         No element satisfies the condition in <paramref name = "predicate" />
+        ///         No element satisfies the condition in <paramref name="predicate" />
         ///     </para>
         ///     <para>
         ///         -or -
         ///     </para>
         ///     <para>
-        ///         <paramref name="source"/> contains no elements.
+        ///         <paramref name="source" /> contains no elements.
         ///     </para>
         /// </exception>
         public static Task<TSource> FirstAsync<TSource>(
@@ -402,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <paramref name="source" /> is empty; otherwise, the first element in <paramref name="source" />.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static Task<TSource> FirstOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -438,7 +438,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     element in <paramref name="source" /> that passes the test specified by <paramref name="predicate" />.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name = "source"/> or <paramref name="predicate"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="predicate" /> is <see langword="null" />.
         /// </exception>
         public static Task<TSource> FirstOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -476,10 +476,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the last element in <paramref name="source" />.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source"/> contains no elements.
+        ///     <paramref name="source" /> contains no elements.
         /// </exception>
         public static Task<TSource> LastAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -513,17 +513,17 @@ namespace Microsoft.EntityFrameworkCore
         ///     <paramref name="predicate" />.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name = "source"/> or <paramref name="predicate"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="predicate" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="InvalidOperationException">
         ///     <para>
-        ///         No element satisfies the condition in <paramref name="predicate"/>.
+        ///         No element satisfies the condition in <paramref name="predicate" />.
         ///     </para>
         ///     <para>
         ///         -or-
         ///     </para>
         ///     <para>
-        ///         <paramref name="source"/> contains no elements.
+        ///         <paramref name="source" /> contains no elements.
         ///     </para>
         /// </exception>
         public static Task<TSource> LastAsync<TSource>(
@@ -559,7 +559,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <paramref name="source" /> is empty; otherwise, the last element in <paramref name="source" />.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static Task<TSource> LastOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -595,7 +595,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     element in <paramref name="source" /> that passes the test specified by <paramref name="predicate" />.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="predicate"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="predicate" /> is <see langword="null" />.
         /// </exception>
         public static Task<TSource> LastOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -634,17 +634,17 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the single element of the input sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="InvalidOperationException">
         ///     <para>
-        ///         <paramref name="source"/> contains more than one elements.
+        ///         <paramref name="source" /> contains more than one elements.
         ///     </para>
         ///     <para>
         ///         -or-
         ///     </para>
         ///     <para>
-        ///         <paramref name="source"/> contains no elements.
+        ///         <paramref name="source" /> contains no elements.
         ///     </para>
         /// </exception>
         public static Task<TSource> SingleAsync<TSource>(
@@ -680,23 +680,23 @@ namespace Microsoft.EntityFrameworkCore
         ///     <paramref name="predicate" />.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="predicate"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="predicate" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="InvalidOperationException">
         ///     <para>
-        ///         No element satisfies the condition in <paramref name = "predicate" />.
+        ///         No element satisfies the condition in <paramref name="predicate" />.
         ///     </para>
         ///     <para>
         ///         -or-
         ///     </para>
         ///     <para>
-        ///         More than one element satisfies the condition in <paramref name = "predicate" />.
+        ///         More than one element satisfies the condition in <paramref name="predicate" />.
         ///     </para>
         ///     <para>
         ///         -or-
         ///     </para>
         ///     <para>
-        ///         <paramref name="source"/> contains no elements.
+        ///         <paramref name="source" /> contains no elements.
         ///     </para>
         /// </exception>
         public static Task<TSource> SingleAsync<TSource>(
@@ -734,10 +734,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     if the sequence contains no elements.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source"/> contains more than one element.
+        ///     <paramref name="source" /> contains more than one element.
         /// </exception>
         public static Task<TSource> SingleOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -773,10 +773,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <paramref name="predicate" />, or <see langword="default" /> ( <typeparamref name="TSource" /> ) if no such element is found.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="predicate"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="predicate" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="InvalidOperationException">
-        ///    More than one element satisfies the condition in <paramref name="predicate"/>.
+        ///     More than one element satisfies the condition in <paramref name="predicate" />.
         /// </exception>
         public static Task<TSource> SingleOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -815,7 +815,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the minimum value in the sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static Task<TSource> MinAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -851,7 +851,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the minimum value in the sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="selector"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         public static Task<TResult> MinAsync<TSource, TResult>(
             [NotNull] this IQueryable<TSource> source,
@@ -889,7 +889,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the maximum value in the sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static Task<TSource> MaxAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -925,7 +925,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the maximum value in the sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="selector"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         public static Task<TResult> MaxAsync<TSource, TResult>(
             [NotNull] this IQueryable<TSource> source,
@@ -960,7 +960,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static Task<decimal> SumAsync(
             [NotNull] this IQueryable<decimal> source,
@@ -989,7 +989,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static Task<decimal?> SumAsync(
             [NotNull] this IQueryable<decimal?> source,
@@ -1021,7 +1021,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the projected values..
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="selector"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         public static Task<decimal> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -1055,7 +1055,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the projected values..
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="selector"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         public static Task<decimal?> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -1087,7 +1087,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static Task<int> SumAsync(
             [NotNull] this IQueryable<int> source,
@@ -1116,7 +1116,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static Task<int?> SumAsync(
             [NotNull] this IQueryable<int?> source,
@@ -1147,7 +1147,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the projected values..
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="selector"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         public static Task<int> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -1180,7 +1180,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the projected values..
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="selector"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         public static Task<int?> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -1212,7 +1212,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static Task<long> SumAsync(
             [NotNull] this IQueryable<long> source,
@@ -1241,7 +1241,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static Task<long?> SumAsync(
             [NotNull] this IQueryable<long?> source,
@@ -1272,7 +1272,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the projected values..
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="selector"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         public static Task<long> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -1306,7 +1306,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the projected values..
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="selector"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         public static Task<long?> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -1338,7 +1338,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static Task<double> SumAsync(
             [NotNull] this IQueryable<double> source,
@@ -1367,7 +1367,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static Task<double?> SumAsync(
             [NotNull] this IQueryable<double?> source,
@@ -1398,7 +1398,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the projected values..
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="selector"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         public static Task<double> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -1432,7 +1432,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the projected values..
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="selector"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         public static Task<double?> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -1464,7 +1464,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static Task<float> SumAsync(
             [NotNull] this IQueryable<float> source,
@@ -1493,7 +1493,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static Task<float?> SumAsync(
             [NotNull] this IQueryable<float?> source,
@@ -1524,7 +1524,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the projected values..
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="selector"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         public static Task<float> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -1558,7 +1558,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the projected values..
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="selector"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         public static Task<float?> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -1594,10 +1594,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the sequence of values.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source"/> contains no elements.
+        ///     <paramref name="source" /> contains no elements.
         /// </exception>
         public static Task<decimal> AverageAsync(
             [NotNull] this IQueryable<decimal> source,
@@ -1627,7 +1627,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the sequence of values.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static Task<decimal?> AverageAsync(
             [NotNull] this IQueryable<decimal?> source,
@@ -1660,10 +1660,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the projected values.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="selector"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source"/> contains no elements.
+        ///     <paramref name="source" /> contains no elements.
         /// </exception>
         public static Task<decimal> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -1698,7 +1698,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the projected values.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="selector"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         public static Task<decimal?> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -1730,10 +1730,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the sequence of values.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source"/> contains no elements.
+        ///     <paramref name="source" /> contains no elements.
         /// </exception>
         public static Task<double> AverageAsync(
             [NotNull] this IQueryable<int> source,
@@ -1762,7 +1762,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the sequence of values.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static Task<double?> AverageAsync(
             [NotNull] this IQueryable<int?> source,
@@ -1794,10 +1794,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the projected values.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="selector"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source"/> contains no elements.
+        ///     <paramref name="source" /> contains no elements.
         /// </exception>
         public static Task<double> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -1832,7 +1832,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the projected values.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="selector"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         public static Task<double?> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -1864,10 +1864,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the sequence of values.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source"/> contains no elements.
+        ///     <paramref name="source" /> contains no elements.
         /// </exception>
         public static Task<double> AverageAsync(
             [NotNull] this IQueryable<long> source,
@@ -1896,7 +1896,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the sequence of values.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static Task<double?> AverageAsync(
             [NotNull] this IQueryable<long?> source,
@@ -1928,10 +1928,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the projected values.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="selector"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source"/> contains no elements.
+        ///     <paramref name="source" /> contains no elements.
         /// </exception>
         public static Task<double> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -1966,7 +1966,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the projected values.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="selector"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         public static Task<double?> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -1998,10 +1998,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the sequence of values.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source"/> contains no elements.
+        ///     <paramref name="source" /> contains no elements.
         /// </exception>
         public static Task<double> AverageAsync(
             [NotNull] this IQueryable<double> source,
@@ -2031,7 +2031,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the sequence of values.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static Task<double?> AverageAsync(
             [NotNull] this IQueryable<double?> source,
@@ -2064,10 +2064,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the projected values.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="selector"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source"/> contains no elements.
+        ///     <paramref name="source" /> contains no elements.
         /// </exception>
         public static Task<double> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -2102,7 +2102,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the projected values.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="selector"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         public static Task<double?> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -2134,10 +2134,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the sequence of values.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source"/> contains no elements.
+        ///     <paramref name="source" /> contains no elements.
         /// </exception>
         public static Task<float> AverageAsync(
             [NotNull] this IQueryable<float> source,
@@ -2166,7 +2166,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the sequence of values.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static Task<float?> AverageAsync(
             [NotNull] this IQueryable<float?> source,
@@ -2199,10 +2199,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the projected values.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="selector"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source"/> contains no elements.
+        ///     <paramref name="source" /> contains no elements.
         /// </exception>
         public static Task<float> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -2237,7 +2237,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the projected values.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="selector"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         public static Task<float?> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -2274,10 +2274,11 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
-        ///     The task result contains <see langword="true" /> if the input sequence contains the specified value; otherwise, <see langword="false" />.
+        ///     The task result contains <see langword="true" /> if the input sequence contains the specified value; otherwise,
+        ///     <see langword="false" />.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static Task<bool> ContainsAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -2319,7 +2320,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains a <see cref="List{T}" /> that contains elements from the input sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static async Task<List<TSource>> ToListAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -2355,7 +2356,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains an array that contains elements from the input sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static async Task<TSource[]> ToArrayAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -2422,7 +2423,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A new query with the related data included.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="navigationPropertyPath"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="navigationPropertyPath" /> is <see langword="null" />.
         /// </exception>
         public static IIncludableQueryable<TEntity, TProperty> Include<TEntity, TProperty>(
             [NotNull] this IQueryable<TEntity> source,
@@ -2582,16 +2583,23 @@ namespace Microsoft.EntityFrameworkCore
                 _queryable = queryable;
             }
 
-            public Expression Expression => _queryable.Expression;
-            public Type ElementType => _queryable.ElementType;
-            public IQueryProvider Provider => _queryable.Provider;
+            public Expression Expression
+                => _queryable.Expression;
+
+            public Type ElementType
+                => _queryable.ElementType;
+
+            public IQueryProvider Provider
+                => _queryable.Provider;
 
             public IAsyncEnumerator<TEntity> GetAsyncEnumerator(CancellationToken cancellationToken = default)
                 => ((IAsyncEnumerable<TEntity>)_queryable).GetAsyncEnumerator(cancellationToken);
 
-            public IEnumerator<TEntity> GetEnumerator() => _queryable.GetEnumerator();
+            public IEnumerator<TEntity> GetEnumerator()
+                => _queryable.GetEnumerator();
 
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            IEnumerator IEnumerable.GetEnumerator()
+                => GetEnumerator();
         }
 
         internal static readonly MethodInfo StringIncludeMethodInfo
@@ -2629,10 +2637,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="navigationPropertyPath"> A string of '.' separated navigation property names to be included.  </param>
         /// <returns> A new query with the related data included. </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="navigationPropertyPath"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="navigationPropertyPath" /> is <see langword="null" />.
         /// </exception>
-        ///  <exception cref="ArgumentException">
-        ///     <paramref name="navigationPropertyPath"/> is empty or whitespace.
+        /// <exception cref="ArgumentException">
+        ///     <paramref name="navigationPropertyPath" /> is empty or whitespace.
         /// </exception>
         public static IQueryable<TEntity> Include<TEntity>(
             [NotNull] this IQueryable<TEntity> source,
@@ -2704,7 +2712,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A new query that will not apply any model-level entity query filters.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static IQueryable<TEntity> IgnoreQueryFilters<TEntity>(
             [NotNull] this IQueryable<TEntity> source)
@@ -2756,7 +2764,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A new query where the result set will not be tracked by the context.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static IQueryable<TEntity> AsNoTracking<TEntity>(
             [NotNull] this IQueryable<TEntity> source)
@@ -2804,7 +2812,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A new query where the result set will not be tracked by the context.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static IQueryable<TEntity> AsNoTrackingWithIdentityResolution<TEntity>(
             [NotNull] this IQueryable<TEntity> source)
@@ -2844,7 +2852,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A new query where the result set will be tracked by the context.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static IQueryable<TEntity> AsTracking<TEntity>(
             [NotNull] this IQueryable<TEntity> source)
@@ -2888,7 +2896,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A new query where the result set will be tracked by the context.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static IQueryable<TEntity> AsTracking<TEntity>(
             [NotNull] this IQueryable<TEntity> source,
@@ -2917,13 +2925,14 @@ namespace Microsoft.EntityFrameworkCore
         ///     A new query annotated with the given tag.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="tag"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="tag" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="ArgumentException">
-        ///     <paramref name="tag"/> is empty or whitespace.
+        ///     <paramref name="tag" /> is empty or whitespace.
         /// </exception>
         public static IQueryable<T> TagWith<T>(
-            [NotNull] this IQueryable<T> source, [NotNull] [NotParameterized] string tag)
+            [NotNull] this IQueryable<T> source,
+            [NotNull] [NotParameterized] string tag)
         {
             Check.NotNull(source, nameof(source));
             Check.NotEmpty(tag, nameof(tag));
@@ -2950,7 +2959,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="source"> The source query. </param>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static void Load<TSource>([NotNull] this IQueryable<TSource> source)
         {
@@ -2973,10 +2982,11 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         public static async Task LoadAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source, CancellationToken cancellationToken = default)
+            [NotNull] this IQueryable<TSource> source,
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -3019,7 +3029,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains a <see cref="Dictionary{TKey, TSource}" /> that contains selected keys and values.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="keySelector"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="keySelector" /> is <see langword="null" />.
         /// </exception>
         public static Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(
             [NotNull] this IQueryable<TSource> source,
@@ -3057,7 +3067,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains a <see cref="Dictionary{TKey, TSource}" /> that contains selected keys and values.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="keySelector"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="keySelector" /> is <see langword="null" />.
         /// </exception>
         public static Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(
             [NotNull] this IQueryable<TSource> source,
@@ -3098,7 +3108,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <typeparamref name="TElement" /> selected from the input sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="keySelector"/> or <paramref name="elementSelector"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="keySelector" /> or <paramref name="elementSelector" /> is <see langword="null" />.
         /// </exception>
         public static Task<Dictionary<TKey, TElement>> ToDictionaryAsync<TSource, TKey, TElement>(
             [NotNull] this IQueryable<TSource> source,
@@ -3142,7 +3152,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <typeparamref name="TElement" /> selected from the input sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="keySelector"/> or <paramref name="elementSelector"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="keySelector" /> or <paramref name="elementSelector" /> is <see langword="null" />.
         /// </exception>
         public static async Task<Dictionary<TKey, TElement>> ToDictionaryAsync<TSource, TKey, TElement>(
             [NotNull] this IQueryable<TSource> source,
@@ -3187,7 +3197,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="action"/> is <see langword="null" />.
+        ///     <paramref name="source" /> or <paramref name="action" /> is <see langword="null" />.
         /// </exception>
         public static async Task ForEachAsync<T>(
             [NotNull] this IQueryable<T> source,
@@ -3221,10 +3231,10 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> The query results. </returns>
         /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source"/> is <see langword="null" />.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is not a <see cref="IAsyncEnumerable{T}" />.
+        ///     <paramref name="source" /> is not a <see cref="IAsyncEnumerable{T}" />.
         /// </exception>
         public static IAsyncEnumerable<TSource> AsAsyncEnumerable<TSource>(
             [NotNull] this IQueryable<TSource> source)

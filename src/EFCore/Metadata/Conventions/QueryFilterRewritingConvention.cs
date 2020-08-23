@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     Convention that converts accesses of <see cref="DbSet{TEntity}"/> inside query filters into <see cref="QueryRootExpression"/>.
+    ///     Convention that converts accesses of <see cref="DbSet{TEntity}" /> inside query filters into <see cref="QueryRootExpression" />.
     ///     This makes them consistent with how DbSet accesses in the actual queries are represented, which allows for easier processing in the
     ///     query pipeline.
     /// </summary>
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
         /// <summary>
-        ///     Visitor used to rewrite <see cref="DbSet{TEntity}"/> accesses encountered in query filters to <see cref="QueryRootExpression"/>.
+        ///     Visitor used to rewrite <see cref="DbSet{TEntity}" /> accesses encountered in query filters to <see cref="QueryRootExpression" />.
         /// </summary>
         protected virtual DbSetAccessRewritingExpressionVisitor DbSetAccessRewriter { get; [param: NotNull] set; }
 
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <summary>
-        ///     A visitor that rewrites DbSet accesses encountered in an expression to <see cref="QueryRootExpression"/>.
+        ///     A visitor that rewrites DbSet accesses encountered in an expression to <see cref="QueryRootExpression" />.
         /// </summary>
         protected class DbSetAccessRewritingExpressionVisitor : ExpressionVisitor
         {
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
 
             /// <summary>
-            ///     Rewrites DbSet accesses encountered in the expression to <see cref="QueryRootExpression"/>.
+            ///     Rewrites DbSet accesses encountered in the expression to <see cref="QueryRootExpression" />.
             /// </summary>
             /// <param name="model"> The model to look for entity types. </param>
             /// <param name="expression"> The query expression to rewrite. </param>
@@ -118,7 +118,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return base.VisitMethodCall(methodCallExpression);
             }
 
-            private IEntityType FindEntityType(Type dbSetType) => _model.FindRuntimeEntityType(dbSetType.GetGenericArguments()[0]);
+            private IEntityType FindEntityType(Type dbSetType)
+                => _model.FindRuntimeEntityType(dbSetType.GetGenericArguments()[0]);
         }
     }
 }

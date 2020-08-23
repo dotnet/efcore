@@ -18,7 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Always returns false, since the <see cref="NonRetryingExecutionStrategy" /> does not perform retries.
         /// </summary>
-        public bool RetriesOnFailure => false;
+        public bool RetriesOnFailure
+            => false;
 
         /// <summary>
         ///     Constructs a new <see cref="NonRetryingExecutionStrategy" /> with the given service dependencies.
@@ -42,7 +43,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public TResult Execute<TState, TResult>(
-            TState state, Func<DbContext, TState, TResult> operation, Func<DbContext, TState, ExecutionResult<TResult>> verifySucceeded)
+            TState state,
+            Func<DbContext, TState, TResult> operation,
+            Func<DbContext, TState, ExecutionResult<TResult>> verifySucceeded)
             => operation(Dependencies.CurrentContext.Context, state);
 
         /// <summary>
@@ -68,8 +71,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public Task<TResult> ExecuteAsync<TState, TResult>(
-            TState state, Func<DbContext, TState, CancellationToken, Task<TResult>> operation, Func<DbContext, TState,
-                CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded, CancellationToken cancellationToken = default)
+            TState state,
+            Func<DbContext, TState, CancellationToken, Task<TResult>> operation,
+            Func<DbContext, TState,
+                CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded,
+            CancellationToken cancellationToken = default)
             => operation(Dependencies.CurrentContext.Context, state, cancellationToken);
     }
 }

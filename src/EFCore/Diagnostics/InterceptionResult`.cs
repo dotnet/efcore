@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         is the same as <see cref="Nullable{T}.Value" /> and <see cref="Nullable{T}.HasValue" />
         ///     </para>
         /// </summary>
-        /// <exception cref="InvalidOperationException"> when <see cref="Result" /> is <see langword="false"/>.</exception>
+        /// <exception cref="InvalidOperationException"> when <see cref="Result" /> is <see langword="false" />.</exception>
         public TResult Result
         {
             get

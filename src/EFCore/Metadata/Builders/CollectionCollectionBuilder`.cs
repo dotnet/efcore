@@ -51,7 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             Check.DebugAssert(LeftNavigation.JoinEntityType != null, "LeftNavigation.JoinEntityType is null");
             Check.DebugAssert(RightNavigation.JoinEntityType != null, "RightNavigation.JoinEntityType is null");
-            Check.DebugAssert(LeftNavigation.JoinEntityType == RightNavigation.JoinEntityType,
+            Check.DebugAssert(
+                LeftNavigation.JoinEntityType == RightNavigation.JoinEntityType,
                 "LeftNavigation.JoinEntityType != RightNavigation.JoinEntityType");
 
             var joinEntityTypeBuilder = new EntityTypeBuilder(LeftNavigation.JoinEntityType);
@@ -156,7 +157,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                         throw new InvalidOperationException(CoreStrings.TypeNotMarkedAsShared(typeof(TJoinEntity).DisplayName()));
                     }
 
-                    joinEntityType = ModelBuilder.SharedTypeEntity(joinEntityName, typeof(TJoinEntity), ConfigurationSource.Explicit).Metadata;
+                    joinEntityType = ModelBuilder.SharedTypeEntity(joinEntityName, typeof(TJoinEntity), ConfigurationSource.Explicit)
+                        .Metadata;
                 }
             }
 

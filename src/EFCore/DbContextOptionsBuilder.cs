@@ -57,7 +57,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets the options being configured.
         /// </summary>
-        public virtual DbContextOptions Options => _options;
+        public virtual DbContextOptions Options
+            => _options;
 
         /// <summary>
         ///     <para>
@@ -70,7 +71,8 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" />.
         ///     </para>
         /// </summary>
-        public virtual bool IsConfigured => _options.Extensions.Any(e => e.Info.IsDatabaseProvider);
+        public virtual bool IsConfigured
+            => _options.Extensions.Any(e => e.Info.IsDatabaseProvider);
 
         /// <summary>
         ///     <para>
@@ -113,7 +115,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         This overload allows the minimum level of logging and the log formatting to be controlled.
-        ///         Use the <see cref="LogTo(Action{string},IEnumerable{EventId},LogLevel,DbContextLoggerOptions?)" />
+        ///         Use the
+        ///         <see
+        ///             cref="LogTo(Action{string},System.Collections.Generic.IEnumerable{Microsoft.Extensions.Logging.EventId},LogLevel,DbContextLoggerOptions?)" />
         ///         overload to log only specific events.
         ///         Use the <see cref="LogTo(Action{string},IEnumerable{string},LogLevel,DbContextLoggerOptions?)" />
         ///         overload to log only events in specific categories.
@@ -637,22 +641,25 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString() => base.ToString();
+        public override string ToString()
+            => base.ToString();
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
+        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => base.Equals(obj);
+        public override bool Equals(object obj)
+            => base.Equals(obj);
 
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
         /// <returns> A hash code for the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode()
+            => base.GetHashCode();
 
         #endregion
     }

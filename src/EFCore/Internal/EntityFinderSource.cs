@@ -39,7 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEntityFinder Create(
-            IStateManager stateManager, IDbSetSource setSource, IDbSetCache setCache, IEntityType type)
+            IStateManager stateManager,
+            IDbSetSource setSource,
+            IDbSetCache setCache,
+            IEntityType type)
             => _cache.GetOrAdd(
                 type.ClrType,
                 t => (Func<IStateManager, IDbSetSource, IDbSetCache, IEntityType, IEntityFinder>)

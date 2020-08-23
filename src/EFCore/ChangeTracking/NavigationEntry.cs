@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         /// </summary>
         /// <value>
-        ///     <see langword="true"/> if all the related entities are loaded or the IsLoaded has been explicitly set to true.
+        ///     <see langword="true" /> if all the related entities are loaded or the IsLoaded has been explicitly set to true.
         /// </value>
         public virtual bool IsLoaded
         {

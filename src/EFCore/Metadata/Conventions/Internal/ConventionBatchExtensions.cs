@@ -23,7 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         [DebuggerStepThrough]
         public static InternalForeignKeyBuilder Run(
-            [NotNull] this IConventionBatch batch, [NotNull] InternalForeignKeyBuilder relationshipBuilder)
+            [NotNull] this IConventionBatch batch,
+            [NotNull] InternalForeignKeyBuilder relationshipBuilder)
             => (InternalForeignKeyBuilder)batch.Run(relationshipBuilder.Metadata)?.Builder;
     }
 }

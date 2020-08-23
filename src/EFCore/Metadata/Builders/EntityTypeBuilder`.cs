@@ -159,8 +159,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     .Metadata);
 
         /// <summary>
-        ///         Returns an object that can be used to configure an existing navigation property of the entity type.
-        ///         It is an error for the navigation property not to exist.
+        ///     Returns an object that can be used to configure an existing navigation property of the entity type.
+        ///     It is an error for the navigation property not to exist.
         /// </summary>
         /// <typeparam name="TNavigation"> The target entity type. </typeparam>
         /// <param name="navigationExpression">
@@ -176,8 +176,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
 
         /// <summary>
-        ///         Returns an object that can be used to configure an existing navigation property of the entity type.
-        ///         It is an error for the navigation property not to exist.
+        ///     Returns an object that can be used to configure an existing navigation property of the entity type.
+        ///     It is an error for the navigation property not to exist.
         /// </summary>
         /// <typeparam name="TNavigation"> The target entity type. </typeparam>
         /// <param name="navigationExpression">
@@ -476,8 +476,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction(OwnsOneBuilder<TRelatedEntity>(
-                new TypeIdentity(typeof(TRelatedEntity), (Model)Metadata.Model), new MemberIdentity(navigationName)));
+            buildAction(
+                OwnsOneBuilder<TRelatedEntity>(
+                    new TypeIdentity(typeof(TRelatedEntity), (Model)Metadata.Model), new MemberIdentity(navigationName)));
             return this;
         }
 
@@ -604,8 +605,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction(OwnsOneBuilder<TRelatedEntity>(
-                new TypeIdentity(ownedTypeName, typeof(TRelatedEntity)), new MemberIdentity(navigationName)));
+            buildAction(
+                OwnsOneBuilder<TRelatedEntity>(
+                    new TypeIdentity(ownedTypeName, typeof(TRelatedEntity)), new MemberIdentity(navigationName)));
             return this;
         }
 
@@ -641,8 +643,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(navigationExpression, nameof(navigationExpression));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction(OwnsOneBuilder<TRelatedEntity>(
-                new TypeIdentity(typeof(TRelatedEntity), (Model)Metadata.Model), new MemberIdentity(navigationExpression.GetMemberAccess())));
+            buildAction(
+                OwnsOneBuilder<TRelatedEntity>(
+                    new TypeIdentity(typeof(TRelatedEntity), (Model)Metadata.Model),
+                    new MemberIdentity(navigationExpression.GetMemberAccess())));
             return this;
         }
 
@@ -681,13 +685,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(navigationExpression, nameof(navigationExpression));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction(OwnsOneBuilder<TRelatedEntity>(
-                new TypeIdentity(ownedTypeName, typeof(TRelatedEntity)), new MemberIdentity(navigationExpression.GetMemberAccess())));
+            buildAction(
+                OwnsOneBuilder<TRelatedEntity>(
+                    new TypeIdentity(ownedTypeName, typeof(TRelatedEntity)), new MemberIdentity(navigationExpression.GetMemberAccess())));
             return this;
         }
 
         private OwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOneBuilder<TRelatedEntity>(
-            TypeIdentity ownedType, MemberIdentity navigation)
+            TypeIdentity ownedType,
+            MemberIdentity navigation)
             where TRelatedEntity : class
         {
             InternalForeignKeyBuilder relationship;
@@ -854,8 +860,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction(OwnsManyBuilder<TRelatedEntity>(
-                new TypeIdentity(typeof(TRelatedEntity), (Model)Metadata.Model), new MemberIdentity(navigationName)));
+            buildAction(
+                OwnsManyBuilder<TRelatedEntity>(
+                    new TypeIdentity(typeof(TRelatedEntity), (Model)Metadata.Model), new MemberIdentity(navigationName)));
             return this;
         }
 
@@ -982,8 +989,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction(OwnsManyBuilder<TRelatedEntity>(
-                new TypeIdentity(ownedTypeName, typeof(TRelatedEntity)), new MemberIdentity(navigationName)));
+            buildAction(
+                OwnsManyBuilder<TRelatedEntity>(
+                    new TypeIdentity(ownedTypeName, typeof(TRelatedEntity)), new MemberIdentity(navigationName)));
             return this;
         }
 
@@ -1019,8 +1027,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(navigationExpression, nameof(navigationExpression));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction(OwnsManyBuilder<TRelatedEntity>(
-                new TypeIdentity(typeof(TRelatedEntity), (Model)Metadata.Model), new MemberIdentity(navigationExpression.GetMemberAccess())));
+            buildAction(
+                OwnsManyBuilder<TRelatedEntity>(
+                    new TypeIdentity(typeof(TRelatedEntity), (Model)Metadata.Model),
+                    new MemberIdentity(navigationExpression.GetMemberAccess())));
             return this;
         }
 
@@ -1059,13 +1069,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(navigationExpression, nameof(navigationExpression));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction(OwnsManyBuilder<TRelatedEntity>(
-                new TypeIdentity(ownedTypeName, typeof(TRelatedEntity)), new MemberIdentity(navigationExpression.GetMemberAccess())));
+            buildAction(
+                OwnsManyBuilder<TRelatedEntity>(
+                    new TypeIdentity(ownedTypeName, typeof(TRelatedEntity)), new MemberIdentity(navigationExpression.GetMemberAccess())));
             return this;
         }
 
         private OwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsManyBuilder<TRelatedEntity>(
-            TypeIdentity ownedType, MemberIdentity navigation)
+            TypeIdentity ownedType,
+            MemberIdentity navigation)
             where TRelatedEntity : class
         {
             InternalForeignKeyBuilder relationship;
@@ -1372,6 +1384,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public new virtual EntityTypeBuilder<TEntity> HasNoDiscriminator()
             => (EntityTypeBuilder<TEntity>)base.HasNoDiscriminator();
 
-        private InternalEntityTypeBuilder Builder => (InternalEntityTypeBuilder)this.GetInfrastructure();
+        private InternalEntityTypeBuilder Builder
+            => (InternalEntityTypeBuilder)this.GetInfrastructure();
     }
 }

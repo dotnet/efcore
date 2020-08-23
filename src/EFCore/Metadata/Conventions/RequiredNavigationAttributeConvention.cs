@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public override void ProcessNavigationAdded(
             IConventionNavigationBuilder navigationBuilder,
             RequiredAttribute attribute,

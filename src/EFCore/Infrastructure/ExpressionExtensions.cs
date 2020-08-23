@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="methodCallExpression"> The method-call expression for <see cref="EF.Property{TProperty}" /> </param>
         /// <param name="entityExpression"> The extracted entity access expression. </param>
         /// <param name="propertyName"> The accessed property name. </param>
-        /// <returns> <see langword="true"/> if the method-call was for <see cref="EF.Property{TProperty}" />; <see langword="false"/> otherwise. </returns>
+        /// <returns> <see langword="true" /> if the method-call was for <see cref="EF.Property{TProperty}" />; <see langword="false" /> otherwise. </returns>
         public static bool TryGetEFPropertyArguments(
             [NotNull] this MethodCallExpression methodCallExpression,
             out Expression entityExpression,
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="model"> The model to use. </param>
         /// <param name="entityExpression"> The extracted entity access expression. </param>
         /// <param name="propertyName"> The accessed property name. </param>
-        /// <returns> <see langword="true"/> if the method-call was for indexer; <see langword="false"/> otherwise. </returns>
+        /// <returns> <see langword="true" /> if the method-call was for indexer; <see langword="false" /> otherwise. </returns>
         public static bool TryGetIndexerArguments(
             [NotNull] this MethodCallExpression methodCallExpression,
             [NotNull] IModel model,
@@ -303,7 +303,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     <para>
-        ///         MethodInfo which is used to generate an <see cref="Expression" /> tree representing reading a value from a <see cref="ValueBuffer" />
+        ///         MethodInfo which is used to generate an <see cref="Expression" /> tree representing reading a value from a
+        ///         <see cref="ValueBuffer" />
         ///     </para>
         ///     <para>
         ///         This method is typically used by database providers (and other extensions). It is generally
@@ -317,7 +318,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static TValue ValueBufferTryReadValue<TValue>(
 #pragma warning disable IDE0060 // Remove unused parameter
-            in ValueBuffer valueBuffer, int index, IPropertyBase property)
+            in ValueBuffer valueBuffer,
+            int index,
+            IPropertyBase property)
 #pragma warning restore IDE0060 // Remove unused parameter
             => (TValue)valueBuffer[index];
 
@@ -343,8 +346,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 : Expression.NewArrayInit(
                     typeof(object),
                     properties
-                        .Select(p => Expression.Convert(target.CreateEFPropertyExpression(p, makeNullable), typeof(object)))
-                        .Cast<Expression>());
+                        .Select(p => Expression.Convert(target.CreateEFPropertyExpression(p, makeNullable), typeof(object))));
 
         /// <summary>
         ///     <para>

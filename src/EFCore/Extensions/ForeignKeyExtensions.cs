@@ -149,8 +149,7 @@ namespace Microsoft.EntityFrameworkCore
                     .Append(foreignKey.DeleteBehavior);
             }
 
-            if (!singleLine &&
-                (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {
                 builder.Append(foreignKey.AnnotationsToDebugString(indent + 2));
             }

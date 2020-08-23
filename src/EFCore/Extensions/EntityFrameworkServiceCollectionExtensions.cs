@@ -338,7 +338,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static void AddPoolingOptions<TContext>(
             IServiceCollection serviceCollection,
-            Action<IServiceProvider, DbContextOptionsBuilder> optionsAction, int poolSize)
+            Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
+            int poolSize)
             where TContext : DbContext
         {
             if (poolSize <= 0)
@@ -559,7 +560,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         ///     <para>
         ///         Registers an <see cref="IDbContextFactory{TContext}" /> in the <see cref="IServiceCollection" /> to create instances
-        ///         of given <see cref="DbContext"/> type.
+        ///         of given <see cref="DbContext" /> type.
         ///     </para>
         ///     <para>
         ///         Registering a factory instead of registering the context type directly allows for easy creation of new
@@ -613,7 +614,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         ///     <para>
         ///         Registers an <see cref="IDbContextFactory{TContext}" /> in the <see cref="IServiceCollection" /> to create instances
-        ///         of given <see cref="DbContext"/> type.
+        ///         of given <see cref="DbContext" /> type.
         ///     </para>
         ///     <para>
         ///         Registering a factory instead of registering the context type directly allows for easy creation of new
@@ -628,7 +629,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         overridden to configure a connection string and other options.
         ///     </para>
         ///     <para>
-        ///         This overload allows a specific implementation of <see cref="IDbContextFactory{TContext}"/> to be registered
+        ///         This overload allows a specific implementation of <see cref="IDbContextFactory{TContext}" /> to be registered
         ///         instead of using the default factory shipped with EF Core.
         ///     </para>
         ///     <para>
@@ -637,7 +638,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///     </para>
         /// </summary>
         /// <typeparam name="TContext"> The type of <see cref="DbContext" /> to be created by the factory. </typeparam>
-        /// <typeparam name="TFactory"> The type of <see cref="IDbContextFactory{TContext}"/> to register. </typeparam>
+        /// <typeparam name="TFactory"> The type of <see cref="IDbContextFactory{TContext}" /> to register. </typeparam>
         /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
         /// <param name="optionsAction">
         ///     <para>
@@ -678,7 +679,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         ///     <para>
         ///         Registers an <see cref="IDbContextFactory{TContext}" /> in the <see cref="IServiceCollection" /> to create instances
-        ///         of given <see cref="DbContext"/> type.
+        ///         of given <see cref="DbContext" /> type.
         ///     </para>
         ///     <para>
         ///         Registering a factory instead of registering the context type directly allows for easy creation of new
@@ -740,7 +741,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         ///     <para>
         ///         Registers an <see cref="IDbContextFactory{TContext}" /> in the <see cref="IServiceCollection" /> to create instances
-        ///         of given <see cref="DbContext"/> type.
+        ///         of given <see cref="DbContext" /> type.
         ///     </para>
         ///     <para>
         ///         Registering a factory instead of registering the context type directly allows for easy creation of new
@@ -755,7 +756,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         overridden to configure a connection string and other options.
         ///     </para>
         ///     <para>
-        ///         This overload allows a specific implementation of <see cref="IDbContextFactory{TContext}"/> to be registered
+        ///         This overload allows a specific implementation of <see cref="IDbContextFactory{TContext}" /> to be registered
         ///         instead of using the default factory shipped with EF Core.
         ///     </para>
         ///     <para>
@@ -772,7 +773,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///     </para>
         /// </summary>
         /// <typeparam name="TContext"> The type of <see cref="DbContext" /> to be created by the factory. </typeparam>
-        /// <typeparam name="TFactory"> The type of <see cref="IDbContextFactory{TContext}"/> to register. </typeparam>
+        /// <typeparam name="TFactory"> The type of <see cref="IDbContextFactory{TContext}" /> to register. </typeparam>
         /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
         /// <param name="optionsAction">
         ///     <para>
@@ -822,7 +823,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         ///     <para>
         ///         Registers an <see cref="IDbContextFactory{TContext}" /> in the <see cref="IServiceCollection" /> to create instances
-        ///         of given <see cref="DbContext"/> type where instances are pooled for reuse.
+        ///         of given <see cref="DbContext" /> type where instances are pooled for reuse.
         ///     </para>
         ///     <para>
         ///         Registering a factory instead of registering the context type directly allows for easy creation of new
@@ -870,7 +871,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         ///     <para>
         ///         Registers an <see cref="IDbContextFactory{TContext}" /> in the <see cref="IServiceCollection" /> to create instances
-        ///         of given <see cref="DbContext"/> type where instances are pooled for reuse.
+        ///         of given <see cref="DbContext" /> type where instances are pooled for reuse.
         ///     </para>
         ///     <para>
         ///         Registering a factory instead of registering the context type directly allows for easy creation of new

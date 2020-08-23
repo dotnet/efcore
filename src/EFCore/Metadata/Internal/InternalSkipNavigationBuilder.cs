@@ -53,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public new virtual InternalSkipNavigationBuilder UsePropertyAccessMode(
-            PropertyAccessMode? propertyAccessMode, ConfigurationSource configurationSource)
+            PropertyAccessMode? propertyAccessMode,
+            ConfigurationSource configurationSource)
             => (InternalSkipNavigationBuilder)base.UsePropertyAccessMode(propertyAccessMode, configurationSource);
 
         /// <summary>
@@ -62,7 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalSkipNavigationBuilder HasForeignKey([CanBeNull] ForeignKey foreignKey, ConfigurationSource configurationSource)
+        public virtual InternalSkipNavigationBuilder HasForeignKey(
+            [CanBeNull] ForeignKey foreignKey,
+            ConfigurationSource configurationSource)
         {
             if (!CanSetForeignKey(foreignKey, configurationSource))
             {
@@ -75,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (Metadata.Inverse?.JoinEntityType != null
                     && Metadata.Inverse.JoinEntityType
-                        != (Metadata.IsOnDependent ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType))
+                    != (Metadata.IsOnDependent ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType))
                 {
                     Metadata.Inverse.Builder.HasForeignKey(null, configurationSource);
                 }
@@ -114,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             if (Metadata.DeclaringEntityType
-                    != (Metadata.IsOnDependent ? foreignKey.DeclaringEntityType : foreignKey.PrincipalEntityType))
+                != (Metadata.IsOnDependent ? foreignKey.DeclaringEntityType : foreignKey.PrincipalEntityType))
             {
                 return false;
             }
@@ -125,8 +128,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return Metadata.Inverse.JoinEntityType
-                        == (Metadata.IsOnDependent ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType)
-                    || Metadata.Inverse.Builder.CanSetForeignKey(null, configurationSource);
+                == (Metadata.IsOnDependent ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType)
+                || Metadata.Inverse.Builder.CanSetForeignKey(null, configurationSource);
         }
 
         /// <summary>
@@ -136,7 +139,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalSkipNavigationBuilder HasInverse(
-            [CanBeNull] SkipNavigation inverse, ConfigurationSource configurationSource)
+            [CanBeNull] SkipNavigation inverse,
+            ConfigurationSource configurationSource)
         {
             if (!CanSetInverse(inverse, configurationSource))
             {
@@ -174,7 +178,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CanSetInverse(
-            [CanBeNull] SkipNavigation inverse, ConfigurationSource? configurationSource)
+            [CanBeNull] SkipNavigation inverse,
+            ConfigurationSource? configurationSource)
         {
             if (!configurationSource.Overrides(Metadata.GetInverseConfigurationSource())
                 || (inverse != null
@@ -189,10 +194,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return Metadata.TargetEntityType == inverse.DeclaringEntityType
-                    && Metadata.DeclaringEntityType == inverse.TargetEntityType
-                    && (Metadata.JoinEntityType == null
-                        || inverse.JoinEntityType == null
-                        || Metadata.JoinEntityType == inverse.JoinEntityType);
+                && Metadata.DeclaringEntityType == inverse.TargetEntityType
+                && (Metadata.JoinEntityType == null
+                    || inverse.JoinEntityType == null
+                    || Metadata.JoinEntityType == inverse.JoinEntityType);
         }
 
         /// <summary>
@@ -386,7 +391,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <inheritdoc />
         [DebuggerStepThrough]
         IConventionPropertyBaseBuilder IConventionPropertyBaseBuilder.UsePropertyAccessMode(
-            PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation)
+            PropertyAccessMode? propertyAccessMode,
+            bool fromDataAnnotation)
             => UsePropertyAccessMode(
                 propertyAccessMode,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -394,7 +400,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <inheritdoc />
         [DebuggerStepThrough]
         IConventionSkipNavigationBuilder IConventionSkipNavigationBuilder.UsePropertyAccessMode(
-            PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation)
+            PropertyAccessMode? propertyAccessMode,
+            bool fromDataAnnotation)
             => UsePropertyAccessMode(
                 propertyAccessMode,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -402,7 +409,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <inheritdoc />
         [DebuggerStepThrough]
         bool IConventionPropertyBaseBuilder.CanSetPropertyAccessMode(
-            PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation)
+            PropertyAccessMode? propertyAccessMode,
+            bool fromDataAnnotation)
             => CanSetPropertyAccessMode(
                 propertyAccessMode,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -410,7 +418,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <inheritdoc />
         [DebuggerStepThrough]
         IConventionSkipNavigationBuilder IConventionSkipNavigationBuilder.HasForeignKey(
-            IConventionForeignKey foreignKey, bool fromDataAnnotation)
+            IConventionForeignKey foreignKey,
+            bool fromDataAnnotation)
             => HasForeignKey(
                 (ForeignKey)foreignKey,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -418,7 +427,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <inheritdoc />
         [DebuggerStepThrough]
         bool IConventionSkipNavigationBuilder.CanSetForeignKey(
-            IConventionForeignKey foreignKey, bool fromDataAnnotation)
+            IConventionForeignKey foreignKey,
+            bool fromDataAnnotation)
             => CanSetForeignKey(
                 (ForeignKey)foreignKey,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -426,7 +436,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <inheritdoc />
         [DebuggerStepThrough]
         IConventionSkipNavigationBuilder IConventionSkipNavigationBuilder.HasInverse(
-            IConventionSkipNavigation inverse, bool fromDataAnnotation)
+            IConventionSkipNavigation inverse,
+            bool fromDataAnnotation)
             => HasInverse(
                 (SkipNavigation)inverse,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -434,7 +445,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <inheritdoc />
         [DebuggerStepThrough]
         bool IConventionSkipNavigationBuilder.CanSetInverse(
-            IConventionSkipNavigation inverse, bool fromDataAnnotation)
+            IConventionSkipNavigation inverse,
+            bool fromDataAnnotation)
             => CanSetInverse(
                 (SkipNavigation)inverse,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);

@@ -54,7 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public new virtual InternalNavigationBuilder UsePropertyAccessMode(
-            PropertyAccessMode? propertyAccessMode, ConfigurationSource configurationSource)
+            PropertyAccessMode? propertyAccessMode,
+            ConfigurationSource configurationSource)
             => (InternalNavigationBuilder)base.UsePropertyAccessMode(propertyAccessMode, configurationSource);
 
         /// <summary>
@@ -138,22 +139,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         : foreignKey.Builder.IsRequiredDependent(required, configurationSource)
                             .Metadata.PrincipalToDependent.Builder;
                 }
-                else
-                {
-                    if (Metadata.IsOnDependent)
-                    {
-                        return foreignKey.Builder.IsRequired(required, configurationSource)
-                            .Metadata.DependentToPrincipal.Builder;
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.NonUniqueRequiredDependentNavigation(
-                                foreignKey.PrincipalEntityType.DisplayName(), Metadata.Name));
-                    }
-                }
-            }
 
+                if (Metadata.IsOnDependent)
+                {
+                    return foreignKey.Builder.IsRequired(required, configurationSource)
+                        .Metadata.DependentToPrincipal.Builder;
+                }
+
+                throw new InvalidOperationException(
+                    CoreStrings.NonUniqueRequiredDependentNavigation(
+                        foreignKey.PrincipalEntityType.DisplayName(), Metadata.Name));
+            }
 
             return null;
         }
@@ -179,14 +175,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <inheritdoc />
         [DebuggerStepThrough]
         IConventionPropertyBaseBuilder IConventionPropertyBaseBuilder.UsePropertyAccessMode(
-            PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation)
+            PropertyAccessMode? propertyAccessMode,
+            bool fromDataAnnotation)
             => UsePropertyAccessMode(
                 propertyAccessMode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
         IConventionNavigationBuilder IConventionNavigationBuilder.UsePropertyAccessMode(
-            PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation)
+            PropertyAccessMode? propertyAccessMode,
+            bool fromDataAnnotation)
             => UsePropertyAccessMode(
                 propertyAccessMode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 

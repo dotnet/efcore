@@ -79,7 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionForeignKeyBuilder HasForeignKey(
-            [CanBeNull] IReadOnlyList<string> propertyNames, bool fromDataAnnotation = false);
+            [CanBeNull] IReadOnlyList<string> propertyNames,
+            bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Configures the properties to use as the foreign key for this relationship.
@@ -91,7 +92,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionForeignKeyBuilder HasForeignKey(
-            [CanBeNull] IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation = false);
+            [CanBeNull] IReadOnlyList<IConventionProperty> properties,
+            bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given properties can be set as the foreign key for this relationship
@@ -121,7 +123,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionForeignKeyBuilder HasPrincipalKey(
-            [CanBeNull] IReadOnlyList<string> propertyNames, bool fromDataAnnotation = false);
+            [CanBeNull] IReadOnlyList<string> propertyNames,
+            bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Configures the properties that this relationship targets.
@@ -133,7 +136,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionForeignKeyBuilder HasPrincipalKey(
-            [CanBeNull] IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation = false);
+            [CanBeNull] IReadOnlyList<IConventionProperty> properties,
+            bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given properties can be set as the target for this relationship

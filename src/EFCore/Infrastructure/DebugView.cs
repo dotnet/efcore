@@ -35,11 +35,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The long-form, detailed debug string.
         /// </summary>
-        public virtual string LongView => _toLongDebugString();
+        public virtual string LongView
+            => _toLongDebugString();
 
         /// <summary>
         ///     The short-form, less-detailed debug string.
         /// </summary>
-        public virtual string ShortView => _toShortDebugString();
+        public virtual string ShortView
+            => _toShortDebugString();
     }
 }

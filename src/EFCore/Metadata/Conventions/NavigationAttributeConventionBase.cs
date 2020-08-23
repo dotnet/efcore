@@ -85,7 +85,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="type"> The ignored entity type. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessEntityTypeIgnored(
-            IConventionModelBuilder modelBuilder, string name, Type type, IConventionContext<string> context)
+            IConventionModelBuilder modelBuilder,
+            string name,
+            Type type,
+            IConventionContext<string> context)
         {
             if (type == null)
             {
@@ -207,7 +210,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         /// <inheritdoc />
         public virtual void ProcessEntityTypeMemberIgnored(
-            IConventionEntityTypeBuilder entityTypeBuilder, string name, IConventionContext<string> context)
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            string name,
+            IConventionContext<string> context)
         {
             var navigationPropertyInfo =
                 entityTypeBuilder.Metadata.GetRuntimeProperties()?.Find(name);
@@ -250,7 +255,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <typeparam name="TCustomAttribute"> The attribute type to look for. </typeparam>
         /// <returns> The attributes applied to the given navigation. </returns>
         protected static IEnumerable<TCustomAttribute> GetAttributes<TCustomAttribute>(
-            [NotNull] IConventionEntityType entityType, [NotNull] IConventionNavigation navigation)
+            [NotNull] IConventionEntityType entityType,
+            [NotNull] IConventionNavigation navigation)
             where TCustomAttribute : Attribute
             => GetAttributes<TCustomAttribute>(entityType, navigation.GetIdentifyingMemberInfo());
 
@@ -262,12 +268,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <typeparam name="TCustomAttribute"> The attribute type to look for. </typeparam>
         /// <returns> The attributes applied to the given skip navigation. </returns>
         protected static IEnumerable<TCustomAttribute> GetAttributes<TCustomAttribute>(
-            [NotNull] IConventionEntityType entityType, [NotNull] IConventionSkipNavigation skipNavigation)
+            [NotNull] IConventionEntityType entityType,
+            [NotNull] IConventionSkipNavigation skipNavigation)
             where TCustomAttribute : Attribute
             => GetAttributes<TCustomAttribute>(entityType, skipNavigation.GetIdentifyingMemberInfo());
 
         private static IEnumerable<TCustomAttribute> GetAttributes<TCustomAttribute>(
-            [NotNull] IConventionEntityType entityType, [NotNull] MemberInfo memberInfo)
+            [NotNull] IConventionEntityType entityType,
+            [NotNull] MemberInfo memberInfo)
             where TCustomAttribute : Attribute
         {
             if (!entityType.HasClrType()

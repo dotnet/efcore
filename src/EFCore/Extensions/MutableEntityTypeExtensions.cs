@@ -180,7 +180,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to use as an alternate key. </param>
         /// <returns> The newly created key. </returns>
         public static IMutableKey AddKey(
-            [NotNull] this IMutableEntityType entityType, [NotNull] IMutableProperty property)
+            [NotNull] this IMutableEntityType entityType,
+            [NotNull] IMutableProperty property)
             => Check.NotNull(entityType, nameof(entityType)).AddKey(new[] { property });
 
         /// <summary>
@@ -190,7 +191,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="properties"> The properties that make up the key. </param>
         /// <returns> The key that was removed. </returns>
         public static IMutableKey RemoveKey(
-            [NotNull] this IMutableEntityType entityType, [NotNull] IReadOnlyList<IMutableProperty> properties)
+            [NotNull] this IMutableEntityType entityType,
+            [NotNull] IReadOnlyList<IMutableProperty> properties)
             => ((EntityType)entityType).RemoveKey(properties);
 
         /// <summary>
@@ -231,7 +233,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to find the foreign keys on. </param>
         /// <returns> The foreign keys. </returns>
         public static IEnumerable<IMutableForeignKey> FindForeignKeys(
-            [NotNull] this IMutableEntityType entityType, [NotNull] IProperty property)
+            [NotNull] this IMutableEntityType entityType,
+            [NotNull] IProperty property)
             => entityType.FindForeignKeys(new[] { property });
 
         /// <summary>
@@ -242,7 +245,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="properties"> The properties to find the foreign keys on. </param>
         /// <returns> The foreign keys. </returns>
         public static IEnumerable<IMutableForeignKey> FindForeignKeys(
-            [NotNull] this IMutableEntityType entityType, [NotNull] IReadOnlyList<IProperty> properties)
+            [NotNull] this IMutableEntityType entityType,
+            [NotNull] IReadOnlyList<IProperty> properties)
             => ((EntityType)entityType).FindForeignKeys(properties);
 
         /// <summary>
@@ -355,7 +359,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="memberInfo"> The navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
         public static IMutableNavigation FindNavigation(
-            [NotNull] this IMutableEntityType entityType, [NotNull] MemberInfo memberInfo)
+            [NotNull] this IMutableEntityType entityType,
+            [NotNull] MemberInfo memberInfo)
             => Check.NotNull(entityType, nameof(entityType))
                 .FindNavigation(Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName());
 
@@ -447,7 +452,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="memberInfo"> The corresponding member on the entity class. </param>
         /// <returns> The newly created property. </returns>
         public static IMutableProperty AddProperty(
-            [NotNull] this IMutableEntityType entityType, [NotNull] MemberInfo memberInfo)
+            [NotNull] this IMutableEntityType entityType,
+            [NotNull] MemberInfo memberInfo)
             => Check.NotNull(entityType, nameof(entityType))
                 .AddProperty(memberInfo.GetSimpleMemberName(), memberInfo.GetMemberType(), memberInfo);
 
@@ -458,7 +464,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the property to add. </param>
         /// <returns> The newly created property. </returns>
         public static IMutableProperty AddProperty(
-            [NotNull] this IMutableEntityType entityType, [NotNull] string name)
+            [NotNull] this IMutableEntityType entityType,
+            [NotNull] string name)
             => ((EntityType)entityType).AddProperty(name, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -469,7 +476,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="propertyType"> The type of value the property will hold. </param>
         /// <returns> The newly created property. </returns>
         public static IMutableProperty AddProperty(
-            [NotNull] this IMutableEntityType entityType, [NotNull] string name, [NotNull] Type propertyType)
+            [NotNull] this IMutableEntityType entityType,
+            [NotNull] string name,
+            [NotNull] Type propertyType)
             => ((EntityType)entityType).AddProperty(name, propertyType, ConfigurationSource.Explicit, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -480,7 +489,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="propertyType"> The type of value the property will hold. </param>
         /// <returns> The newly created property. </returns>
         public static IMutableProperty AddIndexerProperty(
-            [NotNull] this IMutableEntityType entityType, [NotNull] string name, [NotNull] Type propertyType)
+            [NotNull] this IMutableEntityType entityType,
+            [NotNull] string name,
+            [NotNull] Type propertyType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -514,7 +525,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to be indexed. </param>
         /// <returns> The newly created index. </returns>
         public static IMutableIndex AddIndex(
-            [NotNull] this IMutableEntityType entityType, [NotNull] IMutableProperty property)
+            [NotNull] this IMutableEntityType entityType,
+            [NotNull] IMutableProperty property)
             => Check.NotNull(entityType, nameof(entityType)).AddIndex(new[] { property });
 
         /// <summary>

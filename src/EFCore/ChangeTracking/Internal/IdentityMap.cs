@@ -175,7 +175,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalEntityEntry TryGetEntryUsingPreStoreGeneratedValues(
-            IForeignKey foreignKey, InternalEntityEntry dependentEntry)
+            IForeignKey foreignKey,
+            InternalEntityEntry dependentEntry)
             => foreignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromPreStoreGeneratedCurrentValues(dependentEntry, out var key)
                 && _identityMap.TryGetValue(key, out var entry)
                     ? entry

@@ -60,6 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <summary>
         ///     Creates an instance of the <see cref="ValueConverter" />.
         /// </summary>
-        public ValueConverter Create() => _factory(this);
+        public ValueConverter Create()
+            => _factory(this);
     }
 }

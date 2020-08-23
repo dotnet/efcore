@@ -53,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IEnumerable<INavigation> FindNavigationsFrom(
-            [NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
+            [NotNull] this IForeignKey foreignKey,
+            [NotNull] IEntityType entityType)
         {
             if (foreignKey.DeclaringEntityType != entityType
                 && foreignKey.PrincipalEntityType != entityType)
@@ -77,7 +78,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IEnumerable<INavigation> FindNavigationsFromInHierarchy(
-            [NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
+            [NotNull] this IForeignKey foreignKey,
+            [NotNull] IEntityType entityType)
         {
             if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
@@ -91,8 +93,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return foreignKey.DeclaringEntityType.IsAssignableFrom(foreignKey.PrincipalEntityType)
                 || foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType)
-                ? foreignKey.GetNavigations()
-                : foreignKey.FindNavigations(foreignKey.DeclaringEntityType.IsAssignableFrom(entityType));
+                    ? foreignKey.GetNavigations()
+                    : foreignKey.FindNavigations(foreignKey.DeclaringEntityType.IsAssignableFrom(entityType));
         }
 
         /// <summary>
@@ -125,7 +127,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IEnumerable<INavigation> FindNavigationsToInHierarchy(
-            [NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
+            [NotNull] this IForeignKey foreignKey,
+            [NotNull] IEntityType entityType)
         {
             if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
@@ -138,12 +141,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return foreignKey.DeclaringEntityType.IsAssignableFrom(foreignKey.PrincipalEntityType)
                 || foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType)
-                ? foreignKey.GetNavigations()
-                : foreignKey.FindNavigations(foreignKey.PrincipalEntityType.IsAssignableFrom(entityType));
+                    ? foreignKey.GetNavigations()
+                    : foreignKey.FindNavigations(foreignKey.PrincipalEntityType.IsAssignableFrom(entityType));
         }
 
         private static IEnumerable<INavigation> FindNavigations(
-            this IForeignKey foreignKey, bool toPrincipal)
+            this IForeignKey foreignKey,
+            bool toPrincipal)
         {
             if (toPrincipal)
             {
@@ -168,7 +172,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IEntityType ResolveOtherEntityTypeInHierarchy(
-            [NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
+            [NotNull] this IForeignKey foreignKey,
+            [NotNull] IEntityType entityType)
         {
             if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))

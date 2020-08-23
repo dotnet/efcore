@@ -218,7 +218,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual Expression CreateReadShadowValueExpression(
-            [CanBeNull] ParameterExpression parameter, [NotNull] IPropertyBase property)
+            [CanBeNull] ParameterExpression parameter,
+            [NotNull] IPropertyBase property)
             => Expression.Call(
                 parameter,
                 InternalEntityEntry.ReadShadowValueMethod.MakeGenericMethod(property.ClrType),
@@ -231,7 +232,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual Expression CreateReadValueExpression(
-            [CanBeNull] ParameterExpression parameter, [NotNull] IPropertyBase property)
+            [CanBeNull] ParameterExpression parameter,
+            [NotNull] IPropertyBase property)
             => Expression.Call(
                 parameter,
                 InternalEntityEntry.GetCurrentValueMethod.MakeGenericMethod(property.ClrType),
@@ -259,7 +261,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual bool UseEntityVariable => true;
+        protected virtual bool UseEntityVariable
+            => true;
 
         private static readonly MethodInfo _snapshotCollectionMethod
             = typeof(SnapshotFactoryFactory).GetTypeInfo().GetDeclaredMethod(nameof(SnapshotCollection));

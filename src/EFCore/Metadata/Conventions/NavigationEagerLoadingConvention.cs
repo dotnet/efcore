@@ -32,7 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyOwnershipChanged(
-            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<bool?> context)
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IConventionContext<bool?> context)
         {
             relationshipBuilder.Metadata.PrincipalToDependent?.Builder.AutoInclude(relationshipBuilder.Metadata.IsOwnership);
         }

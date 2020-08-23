@@ -364,7 +364,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IEnumerable<INavigation> FindDerivedNavigations(
-            [NotNull] this IEntityType entityType, [NotNull] string navigationName)
+            [NotNull] this IEntityType entityType,
+            [NotNull] string navigationName)
             => entityType.GetDerivedTypes().SelectMany(
                 et => et.GetDeclaredNavigations().Where(navigation => navigationName == navigation.Name));
 
@@ -403,7 +404,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IEnumerable<IPropertyBase> GetNotificationProperties(
-            [NotNull] this IEntityType entityType, [CanBeNull] string propertyName)
+            [NotNull] this IEntityType entityType,
+            [CanBeNull] string propertyName)
         {
             if (string.IsNullOrEmpty(propertyName))
             {

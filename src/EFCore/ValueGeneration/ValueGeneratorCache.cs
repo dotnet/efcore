@@ -59,7 +59,8 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             public override bool Equals(object obj)
                 => obj is CacheKey cacheKey && Equals(cacheKey);
 
-            public override int GetHashCode() => HashCode.Combine(Property, EntityType);
+            public override int GetHashCode()
+                => HashCode.Combine(Property, EntityType);
         }
 
         /// <summary>
@@ -74,7 +75,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <param name="factory"> Factory to create a new value generator if one is not present in the cache. </param>
         /// <returns> The existing or newly created value generator. </returns>
         public virtual ValueGenerator GetOrAdd(
-            IProperty property, IEntityType entityType, Func<IProperty, IEntityType, ValueGenerator> factory)
+            IProperty property,
+            IEntityType entityType,
+            Func<IProperty, IEntityType, ValueGenerator> factory)
         {
             Check.NotNull(property, nameof(property));
             Check.NotNull(factory, nameof(factory));

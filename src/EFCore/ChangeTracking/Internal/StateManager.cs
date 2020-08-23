@@ -174,7 +174,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IModel Model => _model;
+        public virtual IModel Model
+            => _model;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -704,7 +705,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void RecordReferencedUntrackedEntity(
-            object referencedEntity, INavigationBase navigation, InternalEntityEntry referencedFromEntry)
+            object referencedEntity,
+            INavigationBase navigation,
+            InternalEntityEntry referencedFromEntry)
         {
             if (_referencedUntrackedEntities == null)
             {
@@ -764,7 +767,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalEntityEntry FindPrincipalUsingPreStoreGeneratedValues(
-            InternalEntityEntry dependentEntry, IForeignKey foreignKey)
+            InternalEntityEntry dependentEntry,
+            IForeignKey foreignKey)
             => FilterIncompatiblePrincipal(
                 foreignKey,
                 FindIdentityMap(foreignKey.PrincipalKey)
@@ -777,7 +781,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalEntityEntry FindPrincipalUsingRelationshipSnapshot(
-            InternalEntityEntry dependentEntry, IForeignKey foreignKey)
+            InternalEntityEntry dependentEntry,
+            IForeignKey foreignKey)
             => FilterIncompatiblePrincipal(
                 foreignKey,
                 FindIdentityMap(foreignKey.PrincipalKey)
@@ -839,7 +844,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<IUpdateEntry> GetDependents(
-            IUpdateEntry principalEntry, IForeignKey foreignKey)
+            IUpdateEntry principalEntry,
+            IForeignKey foreignKey)
         {
             var dependentIdentityMap = FindIdentityMap(foreignKey.DeclaringEntityType.FindPrimaryKey());
             return dependentIdentityMap != null && foreignKey.PrincipalEntityType.IsAssignableFrom(principalEntry.EntityType)
@@ -854,7 +860,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<IUpdateEntry> GetDependentsUsingRelationshipSnapshot(
-            IUpdateEntry principalEntry, IForeignKey foreignKey)
+            IUpdateEntry principalEntry,
+            IForeignKey foreignKey)
         {
             var dependentIdentityMap = FindIdentityMap(foreignKey.DeclaringEntityType.FindPrimaryKey());
             return dependentIdentityMap != null
@@ -869,7 +876,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<IUpdateEntry> GetDependentsFromNavigation(
-            IUpdateEntry principalEntry, IForeignKey foreignKey)
+            IUpdateEntry principalEntry,
+            IForeignKey foreignKey)
         {
             var navigation = foreignKey.PrincipalToDependent;
             if (navigation == null
@@ -1164,13 +1172,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Task<int> SaveChangesAsync(
-            bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+            bool acceptAllChangesOnSuccess,
+            CancellationToken cancellationToken = default)
             => Context.Database.AutoTransactionsEnabled
-                ? Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(acceptAllChangesOnSuccess, SaveChangesAsync, null, cancellationToken)
+                ? Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
+                    acceptAllChangesOnSuccess, SaveChangesAsync, null, cancellationToken)
                 : SaveChangesAsync(Context, acceptAllChangesOnSuccess, cancellationToken);
 
         private async Task<int> SaveChangesAsync(
-            DbContext _, bool acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+            DbContext _,
+            bool acceptAllChangesOnSuccess,
+            CancellationToken cancellationToken)
         {
             if (ChangedCount == 0)
             {

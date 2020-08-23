@@ -78,7 +78,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///         This method is generally used to get last memberInfo to generate an alias for projection.
         ///     </para>
         /// </summary>
-        public MemberInfo Last => _memberChain.LastOrDefault();
+        public MemberInfo Last
+            => _memberChain.LastOrDefault();
 
         /// <inheritdoc />
         public override int GetHashCode()

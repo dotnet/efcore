@@ -17,6 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="modelBuilder"> The builder for the model. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         void ProcessModelInitialized(
-            [NotNull] IConventionModelBuilder modelBuilder, [NotNull] IConventionContext<IConventionModelBuilder> context);
+            [NotNull] IConventionModelBuilder modelBuilder,
+            [NotNull] IConventionContext<IConventionModelBuilder> context);
     }
 }

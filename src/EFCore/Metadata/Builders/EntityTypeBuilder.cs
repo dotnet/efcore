@@ -44,12 +44,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Gets the internal builder being used to configure the entity type.
         /// </summary>
-        IConventionEntityTypeBuilder IInfrastructure<IConventionEntityTypeBuilder>.Instance => Builder;
+        IConventionEntityTypeBuilder IInfrastructure<IConventionEntityTypeBuilder>.Instance
+            => Builder;
 
         /// <summary>
         ///     The entity type being configured.
         /// </summary>
-        public virtual IMutableEntityType Metadata => Builder.Metadata;
+        public virtual IMutableEntityType Metadata
+            => Builder.Metadata;
 
         /// <summary>
         ///     Adds or updates an annotation on the entity type. If an annotation with the key specified in
@@ -840,14 +842,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             if (navigationId.MemberInfo != null)
             {
                 foreignKey = Builder.HasRelationship(
-                        relatedEntityType, navigationId.MemberInfo, ConfigurationSource.Explicit,
-                        targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null).Metadata;
+                    relatedEntityType, navigationId.MemberInfo, ConfigurationSource.Explicit,
+                    targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null).Metadata;
             }
             else
             {
                 foreignKey = Builder.HasRelationship(
-                        relatedEntityType, navigationId.Name, ConfigurationSource.Explicit,
-                        targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null).Metadata;
+                    relatedEntityType, navigationId.Name, ConfigurationSource.Explicit,
+                    targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null).Metadata;
             }
 
             return foreignKey;
@@ -879,7 +881,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(relatedTypeName, nameof(relatedTypeName));
             Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
-            return HasMany(navigationName,
+            return HasMany(
+                navigationName,
                 FindRelatedEntityType(relatedTypeName, navigationName));
         }
 
@@ -956,7 +959,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(relatedType, nameof(relatedType));
             Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
-            return HasMany(navigationName,
+            return HasMany(
+                navigationName,
                 FindRelatedEntityType(relatedType, navigationName));
         }
 
@@ -1129,16 +1133,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString() => base.ToString();
+        public override string ToString()
+            => base.ToString();
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
+        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
-        public override bool Equals(object obj) => base.Equals(obj);
+        public override bool Equals(object obj)
+            => base.Equals(obj);
 
         /// <summary>
         ///     Serves as the default hash function.
@@ -1146,7 +1152,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> A hash code for the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode()
+            => base.GetHashCode();
 
         #endregion
     }

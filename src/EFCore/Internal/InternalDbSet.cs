@@ -445,7 +445,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator() => EntityQueryable.GetEnumerator();
+        IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator()
+            => EntityQueryable.GetEnumerator();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -453,7 +454,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IEnumerator IEnumerable.GetEnumerator() => EntityQueryable.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()
+            => EntityQueryable.GetEnumerator();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -470,7 +472,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        Type IQueryable.ElementType => EntityQueryable.ElementType;
+        Type IQueryable.ElementType
+            => EntityQueryable.ElementType;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -478,7 +481,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        Expression IQueryable.Expression => EntityQueryable.Expression;
+        Expression IQueryable.Expression
+            => EntityQueryable.Expression;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -486,7 +490,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IQueryProvider IQueryable.Provider => EntityQueryable.Provider;
+        IQueryProvider IQueryable.Provider
+            => EntityQueryable.Provider;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -503,7 +508,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void IResettableService.ResetState() => _localView = null;
+        void IResettableService.ResetState()
+            => _localView = null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

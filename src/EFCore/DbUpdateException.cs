@@ -92,6 +92,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets the entries that were involved in the error. Typically this is a single entry, but in some cases it
         ///     may be zero or multiple entries.
         /// </summary>
-        public virtual IReadOnlyList<EntityEntry> Entries => _entries ??= new List<EntityEntry>();
+        public virtual IReadOnlyList<EntityEntry> Entries
+            => _entries ??= new List<EntityEntry>();
     }
 }

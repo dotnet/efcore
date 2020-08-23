@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         An expression that represents creation of a grouping element in <see cref="ShapedQueryExpression.ShaperExpression"/>.
+    ///         An expression that represents creation of a grouping element in <see cref="ShapedQueryExpression.ShaperExpression" />.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -40,15 +40,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The expression representing the key selector for this grouping element.
         /// </summary>
         public virtual Expression KeySelector { get; }
+
         /// <summary>
         ///     The expression representing the element selector for this grouping element.
         /// </summary>
         public virtual Expression ElementSelector { get; }
 
         /// <inheritdoc />
-        public override Type Type => typeof(IGrouping<,>).MakeGenericType(KeySelector.Type, ElementSelector.Type);
+        public override Type Type
+            => typeof(IGrouping<,>).MakeGenericType(KeySelector.Type, ElementSelector.Type);
+
         /// <inheritdoc />
-        public sealed override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType
+            => ExpressionType.Extension;
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -65,8 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="keySelector"> The <see cref="KeySelector"/> property of the result. </param>
-        /// <param name="elementSelector"> The <see cref="ElementSelector"/> property of the result. </param>
+        /// <param name="keySelector"> The <see cref="KeySelector" /> property of the result. </param>
+        /// <param name="elementSelector"> The <see cref="ElementSelector" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual GroupByShaperExpression Update([NotNull] Expression keySelector, [NotNull] Expression elementSelector)
         {
