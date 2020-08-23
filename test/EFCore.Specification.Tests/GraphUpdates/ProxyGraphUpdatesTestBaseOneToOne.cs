@@ -278,7 +278,6 @@ namespace Microsoft.EntityFrameworkCore
                     new1 = context.CreateProxy<RequiredSingle1>(e => e.Single = new2);
                 });
 
-
             ExecuteWithStrategyInTransaction(
                 context =>
                 {

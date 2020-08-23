@@ -3,10 +3,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
+using Newtonsoft.Json;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
@@ -14,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class SerializationTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : F1FixtureBase, new()
     {
-        protected SerializationTestBase(TFixture fixture) => Fixture = fixture;
+        protected SerializationTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
@@ -98,7 +98,9 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static void VerifyEngineSupplier(
-            F1Context context, EngineSupplier engineSupplier, IDictionary<int, EngineSupplier> engineSupplierMap)
+            F1Context context,
+            EngineSupplier engineSupplier,
+            IDictionary<int, EngineSupplier> engineSupplierMap)
         {
             var trackedEngineSupplier = context.EngineSuppliers.Find(engineSupplier.Id);
             Assert.Equal(trackedEngineSupplier.Name, engineSupplier.Name);
@@ -134,23 +136,23 @@ namespace Microsoft.EntityFrameworkCore
 
         private static T RoundtripThroughNewtonsoftJson<T>(T collection, bool ignoreLoops, bool writeIndented)
         {
-            var options = new Newtonsoft.Json.JsonSerializerSettings
+            var options = new JsonSerializerSettings
             {
                 PreserveReferencesHandling = ignoreLoops
-                    ? Newtonsoft.Json.PreserveReferencesHandling.None
-                    : Newtonsoft.Json.PreserveReferencesHandling.All,
+                    ? PreserveReferencesHandling.None
+                    : PreserveReferencesHandling.All,
                 ReferenceLoopHandling = ignoreLoops
-                    ? Newtonsoft.Json.ReferenceLoopHandling.Ignore
-                    : Newtonsoft.Json.ReferenceLoopHandling.Error,
+                    ? ReferenceLoopHandling.Ignore
+                    : ReferenceLoopHandling.Error,
                 EqualityComparer = LegacyReferenceEqualityComparer.Instance,
                 Formatting = writeIndented
-                    ? Newtonsoft.Json.Formatting.Indented
-                    : Newtonsoft.Json.Formatting.None
+                    ? Formatting.Indented
+                    : Formatting.None
             };
 
-            var serializeObject = Newtonsoft.Json.JsonConvert.SerializeObject(collection, options);
+            var serializeObject = JsonConvert.SerializeObject(collection, options);
 
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(serializeObject);
+            return JsonConvert.DeserializeObject<T>(serializeObject);
         }
     }
 }

@@ -14,7 +14,8 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindMiscellaneousQueryCosmosTest : NorthwindMiscellaneousQueryTestBase<NorthwindQueryCosmosFixture<NoopModelCustomizer>>
+    public class NorthwindMiscellaneousQueryCosmosTest : NorthwindMiscellaneousQueryTestBase<
+        NorthwindQueryCosmosFixture<NoopModelCustomizer>>
     {
         public NorthwindMiscellaneousQueryCosmosTest(
             NorthwindQueryCosmosFixture<NoopModelCustomizer> fixture,
@@ -1032,7 +1033,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                                 .Any(
                                     c2 => ss.Set<Customer>()
                                         .Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID)),
-                                default));
+                        default));
 
             AssertSql(
                 @"SELECT c
@@ -3963,7 +3964,8 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
-        public override Task All_client(bool async) => base.All_client(async);
+        public override Task All_client(bool async)
+            => base.All_client(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Client_OrderBy_GroupBy_Group_ordering_works(bool async)
@@ -3974,7 +3976,8 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             => base.Subquery_member_pushdown_does_not_change_original_subquery_model2(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
-        public override Task Where_query_composition3(bool async) => base.Where_query_composition3(async);
+        public override Task Where_query_composition3(bool async)
+            => base.Where_query_composition3(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task OrderBy_object_type_server_evals(bool async)
@@ -4090,7 +4093,8 @@ ORDER BY c[""OrderID""]");
         {
             await base.Checked_context_with_case_to_same_nullable_type_does_not_fail(isAsync);
 
-            AssertSql(@"SELECT MAX(c[""Quantity""]) AS c
+            AssertSql(
+                @"SELECT MAX(c[""Quantity""]) AS c
 FROM root c
 WHERE (c[""Discriminator""] = ""OrderDetail"")");
         }
@@ -4150,7 +4154,8 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"
         }
 
         [ConditionalTheory(Skip = "Non embedded collection subquery Issue#17246")]
-        public override Task Pending_selector_in_cardinality_reducing_method_is_applied_before_expanding_collection_navigation_member(bool async)
+        public override Task Pending_selector_in_cardinality_reducing_method_is_applied_before_expanding_collection_navigation_member(
+            bool async)
         {
             return base.Pending_selector_in_cardinality_reducing_method_is_applied_before_expanding_collection_navigation_member(async);
         }

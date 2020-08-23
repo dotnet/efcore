@@ -25,22 +25,24 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceModel
 
             WireUp(Animals, Countries);
 
-            AnimalQueries = Animals.Select(a => a is Eagle
-                ? (AnimalQuery)new EagleQuery {
-                    Name = a.Name,
-                    CountryId = a.CountryId,
-                    EagleId = ((Bird)a).EagleId,
-                    IsFlightless = ((Bird)a).IsFlightless,
-                    Group = ((Eagle)a).Group,
-                }
-                : new KiwiQuery
-                {
-                    Name = a.Name,
-                    CountryId = a.CountryId,
-                    EagleId = ((Bird)a).EagleId,
-                    IsFlightless = ((Bird)a).IsFlightless,
-                    FoundOn = ((Kiwi)a).FoundOn,
-                }).ToList().AsReadOnly();
+            AnimalQueries = Animals.Select(
+                a => a is Eagle
+                    ? (AnimalQuery)new EagleQuery
+                    {
+                        Name = a.Name,
+                        CountryId = a.CountryId,
+                        EagleId = ((Bird)a).EagleId,
+                        IsFlightless = ((Bird)a).IsFlightless,
+                        Group = ((Eagle)a).Group,
+                    }
+                    : new KiwiQuery
+                    {
+                        Name = a.Name,
+                        CountryId = a.CountryId,
+                        EagleId = ((Bird)a).EagleId,
+                        IsFlightless = ((Bird)a).IsFlightless,
+                        FoundOn = ((Kiwi)a).FoundOn,
+                    }).ToList().AsReadOnly();
         }
 
         public virtual IQueryable<TEntity> Set<TEntity>()
@@ -137,30 +139,67 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceModel
         public static IReadOnlyList<Animal> CreateAnimals()
             => new List<Animal>
             {
-                new Kiwi { Species = "Apteryx haastii", Name = "Great spotted kiwi", IsFlightless = true, FoundOn = Island.South },
-                new Eagle { Species = "Aquila chrysaetos canadensis", Name = "American golden eagle", Group = EagleGroup.Booted },
+                new Kiwi
+                {
+                    Species = "Apteryx haastii",
+                    Name = "Great spotted kiwi",
+                    IsFlightless = true,
+                    FoundOn = Island.South
+                },
+                new Eagle
+                {
+                    Species = "Aquila chrysaetos canadensis",
+                    Name = "American golden eagle",
+                    Group = EagleGroup.Booted
+                },
             };
 
         public static IReadOnlyList<Country> CreateCountries()
             => new List<Country>
             {
-                new Country { Id = 1, Name = "New Zealand" },
-                new Country { Id = 2, Name = "USA" },
+                new Country { Id = 1, Name = "New Zealand" }, new Country { Id = 2, Name = "USA" },
             };
 
         public static IReadOnlyList<Drink> CreateDrinks()
             => new List<Drink>
             {
-                new Tea { Id = 1, HasMilk = true, CaffeineGrams = 1 },
-                new Lilt { Id = 2, SugarGrams = 4, Carbonation = 7 },
-                new Coke { Id = 3, SugarGrams = 6, CaffeineGrams = 4, Carbonation = 5 },
+                new Tea
+                {
+                    Id = 1,
+                    HasMilk = true,
+                    CaffeineGrams = 1
+                },
+                new Lilt
+                {
+                    Id = 2,
+                    SugarGrams = 4,
+                    Carbonation = 7
+                },
+                new Coke
+                {
+                    Id = 3,
+                    SugarGrams = 6,
+                    CaffeineGrams = 4,
+                    Carbonation = 5
+                },
             };
 
         public static IReadOnlyList<Plant> CreatePlants()
             => new List<Plant>
             {
-                new Rose { Genus = PlantGenus.Rose, Species = "Rosa canina", Name = "Dog-rose", HasThorns = true },
-                new Daisy { Genus = PlantGenus.Daisy, Species = "Bellis perennis", Name = "Common daisy" },
+                new Rose
+                {
+                    Genus = PlantGenus.Rose,
+                    Species = "Rosa canina",
+                    Name = "Dog-rose",
+                    HasThorns = true
+                },
+                new Daisy
+                {
+                    Genus = PlantGenus.Daisy,
+                    Species = "Bellis perennis",
+                    Name = "Common daisy"
+                },
             };
 
         public static void WireUp(

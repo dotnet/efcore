@@ -279,7 +279,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private ProviderConventionSetBuilderDependencies CreateDependencies()
             => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
 
-        private static IMutableModel CreateModel() => new Model();
+        private static IMutableModel CreateModel()
+            => new Model();
 
 #pragma warning disable RCS1222 // Merge preprocessor directives.
 #pragma warning disable 649, 169
@@ -490,7 +491,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             private string m_nation;
             private string m_Nation;
 
-            public object this[string name] => null;
+            public object this[string name]
+                => null;
         }
 
 #pragma warning disable RCS1222 // Merge preprocessor directives.

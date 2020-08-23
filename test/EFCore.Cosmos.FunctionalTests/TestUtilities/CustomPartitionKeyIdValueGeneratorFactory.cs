@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
-    class CustomPartitionKeyIdValueGeneratorFactory : ValueGeneratorFactory
+    internal class CustomPartitionKeyIdValueGeneratorFactory : ValueGeneratorFactory
     {
         public override ValueGenerator Create(IProperty property)
         {

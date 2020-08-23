@@ -150,9 +150,14 @@ SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @
         protected override DbParameter CreateDbParameter(string name, object value)
             => new SqlParameter { ParameterName = name, Value = value };
 
-        protected override string TenMostExpensiveProductsSproc => "[dbo].[Ten Most Expensive Products]";
-        protected override string CustomerOrderHistorySproc => "[dbo].[CustOrderHist] @CustomerID";
-        protected override string CustomerOrderHistoryWithGeneratedParameterSproc => "[dbo].[CustOrderHist] @CustomerID = {0}";
+        protected override string TenMostExpensiveProductsSproc
+            => "[dbo].[Ten Most Expensive Products]";
+
+        protected override string CustomerOrderHistorySproc
+            => "[dbo].[CustOrderHist] @CustomerID";
+
+        protected override string CustomerOrderHistoryWithGeneratedParameterSproc
+            => "[dbo].[CustOrderHist] @CustomerID = {0}";
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

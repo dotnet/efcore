@@ -110,76 +110,76 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         [ConditionalFact]
-        public void Literal_works_when_empty_ByteArray() =>
-            Literal_works(
+        public void Literal_works_when_empty_ByteArray()
+            => Literal_works(
                 Array.Empty<byte>(),
                 "new byte[0]");
 
         [ConditionalFact]
-        public void Literal_works_when_single_ByteArray() =>
-            Literal_works(
+        public void Literal_works_when_single_ByteArray()
+            => Literal_works(
                 new byte[] { 1 },
                 "new byte[] { 1 }");
 
         [ConditionalFact]
-        public void Literal_works_when_many_ByteArray() =>
-            Literal_works(
+        public void Literal_works_when_many_ByteArray()
+            => Literal_works(
                 new byte[] { 1, 2 },
                 "new byte[] { 1, 2 }");
 
         [ConditionalFact]
-        public void Literal_works_when_multiline_string() =>
-            Literal_works(
+        public void Literal_works_when_multiline_string()
+            => Literal_works(
                 "multi-line\r\nstring\nwith\r\"",
                 "\"multi-line\\r\\nstring\\nwith\\r\\\"\"");
 
         [ConditionalFact]
         [UseCulture("de-DE")]
-        public void Literal_works_when_DateTime() =>
-            Literal_works(
+        public void Literal_works_when_DateTime()
+            => Literal_works(
                 new DateTime(2015, 3, 15, 20, 45, 17, 300, DateTimeKind.Local),
                 "new DateTime(2015, 3, 15, 20, 45, 17, 300, DateTimeKind.Local)");
 
         [ConditionalFact]
         [UseCulture("de-DE")]
-        public void Literal_works_when_DateTimeOffset() =>
-            Literal_works(
+        public void Literal_works_when_DateTimeOffset()
+            => Literal_works(
                 new DateTimeOffset(new DateTime(2015, 3, 15, 19, 43, 47, 500), new TimeSpan(-7, 0, 0)),
                 "new DateTimeOffset(new DateTime(2015, 3, 15, 19, 43, 47, 500, DateTimeKind.Unspecified), new TimeSpan(0, -7, 0, 0, 0))");
 
         [ConditionalFact]
-        public void Literal_works_when_decimal() =>
-            Literal_works(
+        public void Literal_works_when_decimal()
+            => Literal_works(
                 4.2m,
                 "4.2m");
 
         [ConditionalFact]
-        public void Literal_works_when_decimal_max_value() =>
-            Literal_works(
+        public void Literal_works_when_decimal_max_value()
+            => Literal_works(
                 79228162514264337593543950335m, // Decimal MaxValue
                 "79228162514264337593543950335m");
 
         [ConditionalFact]
-        public void Literal_works_when_decimal_min_value() =>
-            Literal_works(
+        public void Literal_works_when_decimal_min_value()
+            => Literal_works(
                 -79228162514264337593543950335m, // Decimal MinValue
                 "-79228162514264337593543950335m");
 
         [ConditionalFact]
-        public void Literal_works_when_Guid() =>
-            Literal_works(
+        public void Literal_works_when_Guid()
+            => Literal_works(
                 new Guid("fad4f3c3-9501-4b3a-af99-afeb496f7664"),
                 "new Guid(\"fad4f3c3-9501-4b3a-af99-afeb496f7664\")");
 
         [ConditionalFact]
-        public void Literal_works_when_TimeSpan() =>
-            Literal_works(
+        public void Literal_works_when_TimeSpan()
+            => Literal_works(
                 new TimeSpan(17, 21, 42, 37, 250),
                 "new TimeSpan(17, 21, 42, 37, 250)");
 
         [ConditionalFact]
-        public void Literal_works_when_NullableInt() =>
-            Literal_works(
+        public void Literal_works_when_NullableInt()
+            => Literal_works(
                 (int?)42,
                 "42");
 
@@ -217,8 +217,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         [ConditionalFact]
-        public void Literal_works_when_BigInteger() =>
-            Literal_works(
+        public void Literal_works_when_BigInteger()
+            => Literal_works(
                 new BigInteger(42),
                 "BigInteger.Parse(\"42\", NumberFormatInfo.InvariantInfo)");
 

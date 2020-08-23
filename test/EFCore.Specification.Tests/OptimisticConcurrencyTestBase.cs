@@ -673,7 +673,8 @@ namespace Microsoft.EntityFrameworkCore
             // default do nothing. Allow provider-specific entry reset
         }
 
-        protected F1Context CreateF1Context() => Fixture.CreateContext();
+        protected F1Context CreateF1Context()
+            => Fixture.CreateContext();
 
         private Task ConcurrencyTestAsync(int expectedPodiums, Action<F1Context, DbUpdateConcurrencyException> resolver)
             => ConcurrencyTestAsync(
@@ -691,8 +692,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     the database at the end of the process can be validated.
         /// </summary>
         private Task ConcurrencyTestAsync(
-            Action<F1Context> change, Action<F1Context, DbUpdateConcurrencyException> resolver,
-            Action<F1Context> validator) => ConcurrencyTestAsync(change, change, resolver, validator);
+            Action<F1Context> change,
+            Action<F1Context, DbUpdateConcurrencyException> resolver,
+            Action<F1Context> validator)
+            => ConcurrencyTestAsync(change, change, resolver, validator);
 
         /// <summary>
         ///     Runs the two actions with two different contexts and calling
@@ -703,8 +706,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     the database at the end of the process can be validated.
         /// </summary>
         protected virtual async Task ConcurrencyTestAsync(
-            Action<F1Context> storeChange, Action<F1Context> clientChange,
-            Action<F1Context, DbUpdateConcurrencyException> resolver, Action<F1Context> validator)
+            Action<F1Context> storeChange,
+            Action<F1Context> clientChange,
+            Action<F1Context, DbUpdateConcurrencyException> resolver,
+            Action<F1Context> validator)
         {
             using var c = CreateF1Context();
             await c.Database.CreateExecutionStrategy().ExecuteAsync(

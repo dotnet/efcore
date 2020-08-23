@@ -202,7 +202,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 ByteArray = new[] { (byte)i, (byte)i, (byte)i, (byte)i };
             }
 
-            public static implicit operator ListElement(int i) => new ListElement(i);
+            public static implicit operator ListElement(int i)
+                => new ListElement(i);
 
             public int Int { get; }
             public int? NullableInt { get; }
@@ -228,8 +229,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private class ListElementComparer : IEqualityComparer<ListElement>
         {
-            public bool Equals(ListElement x, ListElement y) => x.Int == y.Int;
-            public int GetHashCode(ListElement obj) => obj.Int;
+            public bool Equals(ListElement x, ListElement y)
+                => x.Int == y.Int;
+
+            public int GetHashCode(ListElement obj)
+                => obj.Int;
         }
     }
 }

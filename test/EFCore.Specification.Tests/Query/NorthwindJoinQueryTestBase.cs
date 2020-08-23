@@ -19,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
+        protected NorthwindContext CreateContext()
+            => Fixture.CreateContext();
 
         protected virtual void ClearLog()
         {
@@ -104,7 +105,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 4);
         }
 
-        private static uint GetEmployeeID(Employee employee) => employee.EmployeeID;
+        private static uint GetEmployeeID(Employee employee)
+            => employee.EmployeeID;
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -751,7 +753,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-                    .SelectMany(c => c.Orders.Select(o => new { OrderProperty = ClientMethod(o), o.OrderDetails, CustomerProperty = c.ContactName })),
+                    .SelectMany(
+                        c => c.Orders.Select(
+                            o => new
+                            {
+                                OrderProperty = ClientMethod(o),
+                                o.OrderDetails,
+                                CustomerProperty = c.ContactName
+                            })),
                 elementSorter: e => e.OrderProperty,
                 elementAsserter: (e, a) =>
                 {
@@ -769,13 +778,21 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-                    .SelectMany(c => c.Orders.Select(o => new { OrderProperty = ClientMethod(o), o.OrderDetails, CustomerProperty = c.ContactName }))
+                    .SelectMany(
+                        c => c.Orders.Select(
+                            o => new
+                            {
+                                OrderProperty = ClientMethod(o),
+                                o.OrderDetails,
+                                CustomerProperty = c.ContactName
+                            }))
                     .Select(e => new { e.OrderProperty, e.CustomerProperty }),
                 elementSorter: e => e.OrderProperty,
                 entryCount: 63);
         }
 
-        private static int ClientMethod(Order order) => order.OrderID;
+        private static int ClientMethod(Order order)
+            => order.OrderID;
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -786,12 +803,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Customer>()
                     .Where(c => c.CustomerID.StartsWith("A"))
                     .OrderBy(c => c.CustomerID)
-                    .Select(c => new CustomerViewModel(
-                        c.CustomerID, c.City,
-                        c.Orders.SelectMany(o => o.OrderDetails
-                            .Where(od => od.OrderID < 11000)
-                            .Select(od => new OrderDetailViewModel(od.OrderID, od.ProductID)))
-                            .ToArray())),
+                    .Select(
+                        c => new CustomerViewModel(
+                            c.CustomerID, c.City,
+                            c.Orders.SelectMany(
+                                    o => o.OrderDetails
+                                        .Where(od => od.OrderID < 11000)
+                                        .Select(od => new OrderDetailViewModel(od.OrderID, od.ProductID)))
+                                .ToArray())),
                 assertOrder: true);
         }
 
@@ -817,7 +836,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 return ReferenceEquals(this, obj)
                     || obj.GetType() == GetType()
-                        && Equals((CustomerViewModel)obj);
+                    && Equals((CustomerViewModel)obj);
             }
 
             private bool Equals(CustomerViewModel customerViewModel)
@@ -825,7 +844,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     && _city == customerViewModel._city
                     && _views.SequenceEqual(customerViewModel._views);
 
-            public override int GetHashCode() => HashCode.Combine(_customerID, _city);
+            public override int GetHashCode()
+                => HashCode.Combine(_customerID, _city);
         }
 
         private class OrderDetailViewModel
@@ -848,14 +868,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 return ReferenceEquals(this, obj)
                     || obj.GetType() == GetType()
-                        && Equals((OrderDetailViewModel)obj);
+                    && Equals((OrderDetailViewModel)obj);
             }
 
             private bool Equals(OrderDetailViewModel orderDetailViewModel)
                 => _orderID == orderDetailViewModel._orderID
                     && _productID == orderDetailViewModel._productID;
 
-            public override int GetHashCode() => HashCode.Combine(_orderID, _productID);
+            public override int GetHashCode()
+                => HashCode.Combine(_orderID, _productID);
         }
     }
 }

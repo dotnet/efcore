@@ -16,10 +16,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        protected virtual bool CanExecuteQueryString => true;
+        protected virtual bool CanExecuteQueryString
+            => true;
 
         protected override QueryAsserter CreateQueryAsserter(FunkyDataQuerySqlServerFixture fixture)
-            => new RelationalQueryAsserter(fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+            => new RelationalQueryAsserter(
+                fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
 
         public override async Task String_contains_on_argument_with_wildcard_constant(bool async)
         {
@@ -462,9 +464,11 @@ ORDER BY [f].[Id]");
 
         public class FunkyDataQuerySqlServerFixture : FunkyDataQueryFixtureBase
         {
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
+            public TestSqlLoggerFactory TestSqlLoggerFactory
+                => (TestSqlLoggerFactory)ListLoggerFactory;
 
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
         }
     }
 }

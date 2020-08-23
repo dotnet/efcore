@@ -12,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore
     {
         protected override string StoreName { get; } = "F1Test";
 
-        protected override bool UsePooling => true;
+        protected override bool UsePooling
+            => true;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder)
@@ -36,7 +37,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public abstract TestHelpers TestHelpers { get; }
 
-        public ModelBuilder CreateModelBuilder() => TestHelpers.CreateConventionBuilder();
+        public ModelBuilder CreateModelBuilder()
+            => TestHelpers.CreateConventionBuilder();
 
         protected virtual void BuildModelExternal(ModelBuilder modelBuilder)
         {
@@ -90,6 +92,7 @@ namespace Microsoft.EntityFrameworkCore
                 .HasKey(ts => new { ts.SponsorId, ts.TeamId });
         }
 
-        protected override void Seed(F1Context context) => F1Context.Seed(context);
+        protected override void Seed(F1Context context)
+            => F1Context.Seed(context);
     }
 }

@@ -9,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class ComplexNavigationsWeakQueryRelationalFixtureBase : ComplexNavigationsWeakQueryFixtureBase
     {
-        public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
+        public TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)ListLoggerFactory;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

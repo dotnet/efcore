@@ -11,7 +11,6 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -59,9 +58,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class FakeEntityType : IEntityType
         {
-            public object this[string name] => throw new NotImplementedException();
-            public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
-            public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();
+            public object this[string name]
+                => throw new NotImplementedException();
+
+            public IAnnotation FindAnnotation(string name)
+                => throw new NotImplementedException();
+
+            public IEnumerable<IAnnotation> GetAnnotations()
+                => throw new NotImplementedException();
+
             public IModel Model { get; }
             public string Name { get; }
             public bool HasSharedClrType { get; }
@@ -71,24 +76,51 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public string DefiningNavigationName { get; }
             public IEntityType DefiningEntityType { get; }
             public LambdaExpression QueryFilter { get; }
-            public IKey FindPrimaryKey() => throw new NotImplementedException();
-            public IKey FindKey(IReadOnlyList<IProperty> properties) => throw new NotImplementedException();
-            public IEnumerable<IKey> GetKeys() => throw new NotImplementedException();
 
-            public IForeignKey FindForeignKey(IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType) =>
-                throw new NotImplementedException();
+            public IKey FindPrimaryKey()
+                => throw new NotImplementedException();
 
-            public IEnumerable<IForeignKey> GetForeignKeys() => throw new NotImplementedException();
-            public IIndex FindIndex(IReadOnlyList<IProperty> properties) => throw new NotImplementedException();
-            public IIndex FindIndex(string name) => throw new NotImplementedException();
-            public IEnumerable<IIndex> GetIndexes() => throw new NotImplementedException();
-            public IProperty FindProperty(string name) => throw new NotImplementedException();
-            public IEnumerable<IProperty> GetProperties() => throw new NotImplementedException();
-            public IServiceProperty FindServiceProperty(string name) => throw new NotImplementedException();
-            public IEnumerable<IServiceProperty> GetServiceProperties() => throw new NotImplementedException();
-            public IEnumerable<IDictionary<string, object>> GetSeedData() => throw new NotImplementedException();
-            public ISkipNavigation FindSkipNavigation([NotNull] string name) => throw new NotImplementedException();
-            public IEnumerable<ISkipNavigation> GetSkipNavigations() => throw new NotImplementedException();
+            public IKey FindKey(IReadOnlyList<IProperty> properties)
+                => throw new NotImplementedException();
+
+            public IEnumerable<IKey> GetKeys()
+                => throw new NotImplementedException();
+
+            public IForeignKey FindForeignKey(IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
+                => throw new NotImplementedException();
+
+            public IEnumerable<IForeignKey> GetForeignKeys()
+                => throw new NotImplementedException();
+
+            public IIndex FindIndex(IReadOnlyList<IProperty> properties)
+                => throw new NotImplementedException();
+
+            public IIndex FindIndex(string name)
+                => throw new NotImplementedException();
+
+            public IEnumerable<IIndex> GetIndexes()
+                => throw new NotImplementedException();
+
+            public IProperty FindProperty(string name)
+                => throw new NotImplementedException();
+
+            public IEnumerable<IProperty> GetProperties()
+                => throw new NotImplementedException();
+
+            public IServiceProperty FindServiceProperty(string name)
+                => throw new NotImplementedException();
+
+            public IEnumerable<IServiceProperty> GetServiceProperties()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IDictionary<string, object>> GetSeedData()
+                => throw new NotImplementedException();
+
+            public ISkipNavigation FindSkipNavigation([NotNull] string name)
+                => throw new NotImplementedException();
+
+            public IEnumerable<ISkipNavigation> GetSkipNavigations()
+                => throw new NotImplementedException();
         }
 
         [ConditionalFact]
@@ -429,10 +461,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             orderType.AddForeignKey(customerFk, customerKey, customerType);
 
             Assert.Equal(
-                CoreStrings.KeyInUse("{'" + Customer.IdProperty.Name + "'}",
-                nameof(Customer),
-                "{'" + Order.CustomerIdProperty.Name + "'}",
-                nameof(Order)),
+                CoreStrings.KeyInUse(
+                    "{'" + Customer.IdProperty.Name + "'}",
+                    nameof(Customer),
+                    "{'" + Order.CustomerIdProperty.Name + "'}",
+                    nameof(Order)),
                 Assert.Throws<InvalidOperationException>(() => customerType.RemoveKey(customerKey.Properties)).Message);
         }
 
@@ -825,8 +858,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 nameof(Order.Products), null, secondEntity, true, false);
             navigation.SetForeignKey(foreignKey);
 
-            Assert.Equal(CoreStrings.ForeignKeyInUseSkipNavigation(
-                "{'" + nameof(OrderProduct.OrderId) + "'}", nameof(OrderProduct), nameof(Order.Products), nameof(Order)),
+            Assert.Equal(
+                CoreStrings.ForeignKeyInUseSkipNavigation(
+                    "{'" + nameof(OrderProduct.OrderId) + "'}", nameof(OrderProduct), nameof(Order.Products), nameof(Order)),
                 Assert.Throws<InvalidOperationException>(() => joinEntity.RemoveForeignKey(foreignKey)).Message);
         }
 
@@ -1221,11 +1255,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(new[] { relatedNavigation }, customerForeignKey.GetReferencingSkipNavigations());
             Assert.Equal(new[] { productsNavigation }, orderProductForeignKey.GetReferencingSkipNavigations());
 
-            Assert.Equal(CoreStrings.SkipNavigationWrongType(nameof(Order.Products), nameof(Customer), nameof(Order)),
+            Assert.Equal(
+                CoreStrings.SkipNavigationWrongType(nameof(Order.Products), nameof(Customer), nameof(Order)),
                 Assert.Throws<InvalidOperationException>(() => customerEntity.RemoveSkipNavigation(productsNavigation)).Message);
 
-            Assert.Equal(CoreStrings.EntityTypeInUseByReferencingSkipNavigation(
-                        nameof(Product), nameof(Order.Products), nameof(Order)),
+            Assert.Equal(
+                CoreStrings.EntityTypeInUseByReferencingSkipNavigation(
+                    nameof(Product), nameof(Order.Products), nameof(Order)),
                 Assert.Throws<InvalidOperationException>(() => model.RemoveEntityType(productEntity)).Message);
 
             orderEntity.RemoveSkipNavigation(productsNavigation);
@@ -1252,9 +1288,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.ConflictingPropertyOrNavigation(nameof(Order.Products), typeof(Order).Name, typeof(Order).Name),
-                Assert.Throws<InvalidOperationException>(() =>
-                orderEntity.AddSkipNavigation(
-                    nameof(Order.Products), null, productEntity, true, false)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        orderEntity.AddSkipNavigation(
+                            nameof(Order.Products), null, productEntity, true, false)).Message);
         }
 
         [ConditionalFact]
@@ -1277,9 +1314,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.ConflictingPropertyOrNavigation(nameof(Order.Products), typeof(Order).Name, typeof(Order).Name),
-                Assert.Throws<InvalidOperationException>(() =>
-                orderEntity.AddSkipNavigation(
-                    nameof(Order.Products), null, productEntity, true, false)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        orderEntity.AddSkipNavigation(
+                            nameof(Order.Products), null, productEntity, true, false)).Message);
         }
 
         [ConditionalFact]
@@ -1299,9 +1337,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.ConflictingPropertyOrNavigation(nameof(Order.Products), typeof(Order).Name, typeof(Order).Name),
-                Assert.Throws<InvalidOperationException>(() =>
-                orderEntity.AddSkipNavigation(
-                    nameof(Order.Products), null, productEntity, true, false)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        orderEntity.AddSkipNavigation(
+                            nameof(Order.Products), null, productEntity, true, false)).Message);
         }
 
         [ConditionalFact]
@@ -1321,9 +1360,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.ConflictingPropertyOrNavigation(nameof(Order.Products), typeof(Order).Name, typeof(Order).Name),
-                Assert.Throws<InvalidOperationException>(() =>
-                orderEntity.AddSkipNavigation(
-                    nameof(Order.Products), null, productEntity, true, false)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        orderEntity.AddSkipNavigation(
+                            nameof(Order.Products), null, productEntity, true, false)).Message);
         }
 
         [ConditionalFact]
@@ -1441,9 +1481,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.PropertyWrongName(nameof(Order.Products), typeof(Order).Name, nameof(Order.RelatedOrder)),
-                Assert.Throws<InvalidOperationException>(() =>
-                orderEntity.AddSkipNavigation(
-                    nameof(Order.Products), Order.RelatedOrderProperty, productEntity, true, false)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        orderEntity.AddSkipNavigation(
+                            nameof(Order.Products), Order.RelatedOrderProperty, productEntity, true, false)).Message);
         }
 
         [ConditionalFact]
@@ -2968,9 +3009,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private readonly IMutableModel _model = BuildModel();
 
-        private IMutableEntityType DependentType => _model.FindEntityType(typeof(DependentEntity));
+        private IMutableEntityType DependentType
+            => _model.FindEntityType(typeof(DependentEntity));
 
-        private IMutableEntityType PrincipalType => _model.FindEntityType(typeof(PrincipalEntity));
+        private IMutableEntityType PrincipalType
+            => _model.FindEntityType(typeof(PrincipalEntity));
 
         private class PrincipalEntity
         {
@@ -3054,7 +3097,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public Guid Unique { get; set; }
             public string Name { get; set; }
             public string Mane { get; set; }
-            public object this[string name] => null;
+
+            public object this[string name]
+                => null;
 
             public ICollection<Order> Orders { get; set; }
             public ICollection<Order> MoreOrders { get; set; }

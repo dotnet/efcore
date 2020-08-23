@@ -138,11 +138,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel
                     Id = 1,
                     Name = "Base1",
                     OwnedReferenceOnBase = new OwnedEntity { Name = "OROB1" },
-                    OwnedCollectionOnBase = new List<OwnedEntity>
-                    {
-                        new OwnedEntity { Id = 1, Name = "OCOB11" },
-                        new OwnedEntity { Id = 2, Name = "OCOB12" }
-                    },
+                    OwnedCollectionOnBase =
+                        new List<OwnedEntity> { new OwnedEntity { Id = 1, Name = "OCOB11" }, new OwnedEntity { Id = 2, Name = "OCOB12" } },
                     BaseCollectionOnBase = new List<BaseCollectionOnBase>(),
                     CollectionOnBase = new List<CollectionOnBase>(),
                 },
@@ -151,10 +148,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel
                     Id = 2,
                     Name = "Base2",
                     OwnedReferenceOnBase = new OwnedEntity { Name = "OROB2" },
-                    OwnedCollectionOnBase = new List<OwnedEntity>
-                    {
-                        new OwnedEntity { Id = 3, Name = "OCOB21" }
-                    },
+                    OwnedCollectionOnBase = new List<OwnedEntity> { new OwnedEntity { Id = 3, Name = "OCOB21" } },
                     BaseCollectionOnBase = new List<BaseCollectionOnBase>(),
                     CollectionOnBase = new List<CollectionOnBase>(),
                 },
@@ -171,17 +165,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel
                     Id = 4,
                     Name = "Derived1(4)",
                     OwnedReferenceOnBase = new OwnedEntity { Name = "OROB4" },
-                    OwnedCollectionOnBase = new List<OwnedEntity>
-                    {
-                        new OwnedEntity { Id = 4, Name = "OCOB41" },
-                        new OwnedEntity { Id = 5, Name = "OCOB42" }
-                    },
+                    OwnedCollectionOnBase =
+                        new List<OwnedEntity> { new OwnedEntity { Id = 4, Name = "OCOB41" }, new OwnedEntity { Id = 5, Name = "OCOB42" } },
                     OwnedReferenceOnDerived = new OwnedEntity { Name = "OROD4" },
-                    OwnedCollectionOnDerived = new List<OwnedEntity>
-                    {
-                        new OwnedEntity { Id = 1, Name = "OCOD41" },
-                        new OwnedEntity { Id = 2, Name = "OCOD42" }
-                    },
+                    OwnedCollectionOnDerived =
+                        new List<OwnedEntity> { new OwnedEntity { Id = 1, Name = "OCOD41" }, new OwnedEntity { Id = 2, Name = "OCOD42" } },
                     BaseCollectionOnBase = new List<BaseCollectionOnBase>(),
                     BaseCollectionOnDerived = new List<BaseCollectionOnDerived>(),
                     CollectionOnBase = new List<CollectionOnBase>(),
@@ -193,15 +181,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel
                     Id = 5,
                     Name = "Derived2(5)",
                     OwnedReferenceOnBase = new OwnedEntity { Name = "OROB5" },
-                    OwnedCollectionOnBase = new List<OwnedEntity>
-                    {
-                        new OwnedEntity { Id = 6, Name = "OCOB51" }
-                    },
+                    OwnedCollectionOnBase = new List<OwnedEntity> { new OwnedEntity { Id = 6, Name = "OCOB51" } },
                     OwnedReferenceOnDerived = new OwnedEntity { Name = "OROD5" },
-                    OwnedCollectionOnDerived = new List<OwnedEntity>
-                    {
-                        new OwnedEntity { Id = 3, Name = "OCOD51" }
-                    },
+                    OwnedCollectionOnDerived = new List<OwnedEntity> { new OwnedEntity { Id = 3, Name = "OCOD51" } },
                     BaseCollectionOnBase = new List<BaseCollectionOnBase>(),
                     BaseCollectionOnDerived = new List<BaseCollectionOnDerived>(),
                     CollectionOnBase = new List<CollectionOnBase>(),
@@ -225,14 +207,54 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel
         public static IReadOnlyList<BaseReferenceOnBase> CreateBaseReferencesOnBase()
             => new List<BaseReferenceOnBase>
             {
-                new BaseReferenceOnBase { Id = 1, Name = "BROB1", NestedCollection = new List<NestedCollectionBase>() },
-                new BaseReferenceOnBase { Id = 2, Name = "BROB2", NestedCollection = new List<NestedCollectionBase>() },
-                new BaseReferenceOnBase { Id = 3, Name = "BROB3 (dangling)", NestedCollection = new List<NestedCollectionBase>() },
-                new DerivedReferenceOnBase { Id = 4, Name = "DROB1", NestedCollection = new List<NestedCollectionBase>() },
-                new DerivedReferenceOnBase { Id = 5, Name = "DROB2", NestedCollection = new List<NestedCollectionBase>() },
-                new DerivedReferenceOnBase { Id = 6, Name = "DROB3", NestedCollection = new List<NestedCollectionBase>() },
-                new DerivedReferenceOnBase { Id = 7, Name = "DROB4 (half-dangling)", NestedCollection = new List<NestedCollectionBase>() },
-                new DerivedReferenceOnBase { Id = 8, Name = "DROB5 (dangling)", NestedCollection = new List<NestedCollectionBase>() },
+                new BaseReferenceOnBase
+                {
+                    Id = 1,
+                    Name = "BROB1",
+                    NestedCollection = new List<NestedCollectionBase>()
+                },
+                new BaseReferenceOnBase
+                {
+                    Id = 2,
+                    Name = "BROB2",
+                    NestedCollection = new List<NestedCollectionBase>()
+                },
+                new BaseReferenceOnBase
+                {
+                    Id = 3,
+                    Name = "BROB3 (dangling)",
+                    NestedCollection = new List<NestedCollectionBase>()
+                },
+                new DerivedReferenceOnBase
+                {
+                    Id = 4,
+                    Name = "DROB1",
+                    NestedCollection = new List<NestedCollectionBase>()
+                },
+                new DerivedReferenceOnBase
+                {
+                    Id = 5,
+                    Name = "DROB2",
+                    NestedCollection = new List<NestedCollectionBase>()
+                },
+                new DerivedReferenceOnBase
+                {
+                    Id = 6,
+                    Name = "DROB3",
+                    NestedCollection = new List<NestedCollectionBase>()
+                },
+                new DerivedReferenceOnBase
+                {
+                    Id = 7,
+                    Name = "DROB4 (half-dangling)",
+                    NestedCollection = new List<NestedCollectionBase>()
+                },
+                new DerivedReferenceOnBase
+                {
+                    Id = 8,
+                    Name = "DROB5 (dangling)",
+                    NestedCollection = new List<NestedCollectionBase>()
+                },
             };
 
         public static IReadOnlyList<BaseReferenceOnDerived> CreateBaseReferencesOnDerived()
@@ -280,19 +302,92 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel
         public static IReadOnlyList<BaseCollectionOnBase> CreateBaseCollectionsOnBase()
             => new List<BaseCollectionOnBase>
             {
-                new BaseCollectionOnBase { Id = 1, Name = "BCOB11", NestedCollection = new List<NestedCollectionBase>() },
-                new BaseCollectionOnBase { Id = 2, Name = "BCOB12", NestedCollection = new List<NestedCollectionBase>() },
-                new BaseCollectionOnBase { Id = 3, Name = "BCOB21", NestedCollection = new List<NestedCollectionBase>() },
-                new BaseCollectionOnBase { Id = 4, Name = "BCOB31 (dangling)", NestedCollection = new List<NestedCollectionBase>() },
-                new BaseCollectionOnBase { Id = 5, Name = "BCOB32 (dangling)", NestedCollection = new List<NestedCollectionBase>() },
-                new DerivedCollectionOnBase { Id = 6, Name = "DCOB11", DerivedProperty = 1, NestedCollection = new List<NestedCollectionBase>() },
-                new DerivedCollectionOnBase { Id = 7, Name = "DCOB12", DerivedProperty = 2, NestedCollection = new List<NestedCollectionBase>() },
-                new DerivedCollectionOnBase { Id = 8, Name = "DCOB21", DerivedProperty = 3, NestedCollection = new List<NestedCollectionBase>() },
-                new DerivedCollectionOnBase { Id = 9, Name = "DCOB31", DerivedProperty = 4, NestedCollection = new List<NestedCollectionBase>() },
-                new DerivedCollectionOnBase { Id = 10, Name = "DCOB32", DerivedProperty = 5, NestedCollection = new List<NestedCollectionBase>() },
-                new DerivedCollectionOnBase { Id = 11, Name = "DCOB41", DerivedProperty = 6, NestedCollection = new List<NestedCollectionBase>() },
-                new DerivedCollectionOnBase { Id = 12, Name = "DCOB51 (dangling)", DerivedProperty = 7, NestedCollection = new List<NestedCollectionBase>() },
-                new DerivedCollectionOnBase { Id = 13, Name = "DCOB52 (dangling)", DerivedProperty = 8, NestedCollection = new List<NestedCollectionBase>() },
+                new BaseCollectionOnBase
+                {
+                    Id = 1,
+                    Name = "BCOB11",
+                    NestedCollection = new List<NestedCollectionBase>()
+                },
+                new BaseCollectionOnBase
+                {
+                    Id = 2,
+                    Name = "BCOB12",
+                    NestedCollection = new List<NestedCollectionBase>()
+                },
+                new BaseCollectionOnBase
+                {
+                    Id = 3,
+                    Name = "BCOB21",
+                    NestedCollection = new List<NestedCollectionBase>()
+                },
+                new BaseCollectionOnBase
+                {
+                    Id = 4,
+                    Name = "BCOB31 (dangling)",
+                    NestedCollection = new List<NestedCollectionBase>()
+                },
+                new BaseCollectionOnBase
+                {
+                    Id = 5,
+                    Name = "BCOB32 (dangling)",
+                    NestedCollection = new List<NestedCollectionBase>()
+                },
+                new DerivedCollectionOnBase
+                {
+                    Id = 6,
+                    Name = "DCOB11",
+                    DerivedProperty = 1,
+                    NestedCollection = new List<NestedCollectionBase>()
+                },
+                new DerivedCollectionOnBase
+                {
+                    Id = 7,
+                    Name = "DCOB12",
+                    DerivedProperty = 2,
+                    NestedCollection = new List<NestedCollectionBase>()
+                },
+                new DerivedCollectionOnBase
+                {
+                    Id = 8,
+                    Name = "DCOB21",
+                    DerivedProperty = 3,
+                    NestedCollection = new List<NestedCollectionBase>()
+                },
+                new DerivedCollectionOnBase
+                {
+                    Id = 9,
+                    Name = "DCOB31",
+                    DerivedProperty = 4,
+                    NestedCollection = new List<NestedCollectionBase>()
+                },
+                new DerivedCollectionOnBase
+                {
+                    Id = 10,
+                    Name = "DCOB32",
+                    DerivedProperty = 5,
+                    NestedCollection = new List<NestedCollectionBase>()
+                },
+                new DerivedCollectionOnBase
+                {
+                    Id = 11,
+                    Name = "DCOB41",
+                    DerivedProperty = 6,
+                    NestedCollection = new List<NestedCollectionBase>()
+                },
+                new DerivedCollectionOnBase
+                {
+                    Id = 12,
+                    Name = "DCOB51 (dangling)",
+                    DerivedProperty = 7,
+                    NestedCollection = new List<NestedCollectionBase>()
+                },
+                new DerivedCollectionOnBase
+                {
+                    Id = 13,
+                    Name = "DCOB52 (dangling)",
+                    DerivedProperty = 8,
+                    NestedCollection = new List<NestedCollectionBase>()
+                },
             };
 
         public static IReadOnlyList<BaseCollectionOnDerived> CreateBaseCollectionsOnDerived()
@@ -351,15 +446,24 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel
         public static IReadOnlyList<PrincipalEntity> CreatePrincipalEntities()
             => new List<PrincipalEntity>
             {
-                new PrincipalEntity { Id = 1, Name = "PE1" },
-                new PrincipalEntity { Id = 2, Name = "PE2" },
+                new PrincipalEntity { Id = 1, Name = "PE1" }, new PrincipalEntity { Id = 2, Name = "PE2" },
             };
 
         public static IReadOnlyList<ReferencedEntity> CreateReferencedEntities()
             => new List<ReferencedEntity>
             {
-                new ReferencedEntity { Id = 1, Name = "RE1", Principals = new List<PrincipalEntity>() },
-                new ReferencedEntity { Id = 2, Name = "RE2", Principals = new List<PrincipalEntity>() },
+                new ReferencedEntity
+                {
+                    Id = 1,
+                    Name = "RE1",
+                    Principals = new List<PrincipalEntity>()
+                },
+                new ReferencedEntity
+                {
+                    Id = 2,
+                    Name = "RE2",
+                    Principals = new List<PrincipalEntity>()
+                },
             };
 
         public static void WireUp(
@@ -552,25 +656,27 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel
             baseReferencesOnDerived[0].BaseParent = (DerivedInheritanceRelationshipEntity)baseEntities[3];
             baseReferencesOnDerived[0].BaseParentId = baseEntities[3].Id;
 
-            ((DerivedInheritanceRelationshipEntity)baseEntities[3]).DerivedReferenceOnDerived = (DerivedReferenceOnDerived)baseReferencesOnDerived[3];
+            ((DerivedInheritanceRelationshipEntity)baseEntities[3]).DerivedReferenceOnDerived =
+                (DerivedReferenceOnDerived)baseReferencesOnDerived[3];
 
             ((DerivedInheritanceRelationshipEntity)baseEntities[3]).ReferenceOnDerived = referencesOnDerived[0];
             referencesOnDerived[0].Parent = (DerivedInheritanceRelationshipEntity)baseEntities[3];
             referencesOnDerived[0].ParentId = baseEntities[3].Id;
 
-            ((DerivedInheritanceRelationshipEntity)baseEntities[3]).BaseCollectionOnDerived = new List<BaseCollectionOnDerived> { baseCollectionsOnDerived[0] };
+            ((DerivedInheritanceRelationshipEntity)baseEntities[3]).BaseCollectionOnDerived =
+                new List<BaseCollectionOnDerived> { baseCollectionsOnDerived[0] };
             baseCollectionsOnDerived[0].BaseParent = (DerivedInheritanceRelationshipEntity)baseEntities[3];
             baseCollectionsOnDerived[0].ParentId = baseEntities[3].Id;
 
-            ((DerivedInheritanceRelationshipEntity)baseEntities[3]).CollectionOnDerived = new List<CollectionOnDerived> { collectionsOnDerived[0] };
+            ((DerivedInheritanceRelationshipEntity)baseEntities[3]).CollectionOnDerived =
+                new List<CollectionOnDerived> { collectionsOnDerived[0] };
             collectionsOnDerived[0].Parent = (DerivedInheritanceRelationshipEntity)baseEntities[3];
             collectionsOnDerived[0].ParentId = baseEntities[3].Id;
 
             ((DerivedInheritanceRelationshipEntity)baseEntities[3]).DerivedCollectionOnDerived = new List<DerivedCollectionOnDerived>
-                {
-                    (DerivedCollectionOnDerived)baseCollectionsOnDerived[3],
-                    (DerivedCollectionOnDerived)baseCollectionsOnDerived[4]
-                };
+            {
+                (DerivedCollectionOnDerived)baseCollectionsOnDerived[3], (DerivedCollectionOnDerived)baseCollectionsOnDerived[4]
+            };
         }
     }
 }

@@ -82,8 +82,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
-        protected override string TenMostExpensiveProductsSproc => "[dbo].[Ten Most Expensive Products]";
+        protected override string TenMostExpensiveProductsSproc
+            => "[dbo].[Ten Most Expensive Products]";
 
-        protected override string CustomerOrderHistorySproc => "[dbo].[CustOrderHist] @CustomerID = {0}";
+        protected override string CustomerOrderHistorySproc
+            => "[dbo].[CustOrderHist] @CustomerID = {0}";
     }
 }

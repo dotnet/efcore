@@ -13,13 +13,21 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<InheritanceContext>, IQueryFixtureBase
     {
         protected override string StoreName { get; } = "InheritanceTest";
-        protected virtual bool EnableFilters => false;
-        protected virtual bool IsDiscriminatorMappingComplete => true;
-        protected virtual bool HasDiscriminator => true;
 
-        public Func<DbContext> GetContextCreator() => () => CreateContext();
+        protected virtual bool EnableFilters
+            => false;
 
-        public ISetSource GetExpectedData() => new InheritanceData();
+        protected virtual bool IsDiscriminatorMappingComplete
+            => true;
+
+        protected virtual bool HasDiscriminator
+            => true;
+
+        public Func<DbContext> GetContextCreator()
+            => () => CreateContext();
+
+        public ISetSource GetExpectedData()
+            => new InheritanceData();
 
         public IReadOnlyDictionary<Type, object> GetEntitySorters()
             => new Dictionary<Type, Func<object, object>>
@@ -294,7 +302,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(ee.SugarGrams, aa.SugarGrams);
                             Assert.Equal(ee.CaffeineGrams, aa.CaffeineGrams);
                             Assert.Equal(ee.Carbonation, aa.Carbonation);
-
                         }
                     }
                 },
@@ -311,7 +318,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(ee.Id, aa.Id);
                             Assert.Equal(ee.SugarGrams, aa.SugarGrams);
                             Assert.Equal(ee.Carbonation, aa.Carbonation);
-
                         }
                     }
                 },
@@ -369,7 +375,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<KiwiQuery>();
         }
 
-        protected override void Seed(InheritanceContext context) => InheritanceContext.Seed(context);
+        protected override void Seed(InheritanceContext context)
+            => InheritanceContext.Seed(context);
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder);

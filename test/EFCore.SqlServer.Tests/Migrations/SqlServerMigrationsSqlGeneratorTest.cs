@@ -18,7 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class SqlServerMigrationsSqlGeneratorTest : MigrationsSqlGeneratorTestBase
     {
-        protected static string SQL_EOL => string.Join(", ", EOL.Select(c => "CHAR(" + (short)c + ")"));
+        protected static string SQL_EOL
+            => string.Join(", ", EOL.Select(c => "CHAR(" + (short)c + ")"));
 
         [ConditionalFact]
         public virtual void AddColumnOperation_identity_legacy()
@@ -1071,12 +1072,13 @@ IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id') AND [o
         }
 
         public SqlServerMigrationsSqlGeneratorTest()
-            : base(SqlServerTestHelpers.Instance,
-                  new ServiceCollection().AddEntityFrameworkSqlServerNetTopologySuite(),
-                  SqlServerTestHelpers.Instance.AddProviderOptions(
-                  ((IRelationalDbContextOptionsBuilderInfrastructure)
-                    new SqlServerDbContextOptionsBuilder(new DbContextOptionsBuilder()).UseNetTopologySuite())
-                  .OptionsBuilder).Options)
+            : base(
+                SqlServerTestHelpers.Instance,
+                new ServiceCollection().AddEntityFrameworkSqlServerNetTopologySuite(),
+                SqlServerTestHelpers.Instance.AddProviderOptions(
+                    ((IRelationalDbContextOptionsBuilderInfrastructure)
+                        new SqlServerDbContextOptionsBuilder(new DbContextOptionsBuilder()).UseNetTopologySuite())
+                    .OptionsBuilder).Options)
         {
         }
     }

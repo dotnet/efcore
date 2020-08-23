@@ -35,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore
             => base.AddServices(serviceCollection)
                 .AddSingleton<ILoggerFactory>(TestStoreFactory.CreateListLoggerFactory(ShouldLogCategory));
 
-        protected virtual bool ShouldLogCategory(string logCategory) => false;
+        protected virtual bool ShouldLogCategory(string logCategory)
+            => false;
     }
 }

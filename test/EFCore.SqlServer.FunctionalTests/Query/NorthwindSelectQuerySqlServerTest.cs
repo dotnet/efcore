@@ -1,25 +1,27 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindSelectQuerySqlServerTest : NorthwindSelectQueryRelationalTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    public class NorthwindSelectQuerySqlServerTest : NorthwindSelectQueryRelationalTestBase<
+        NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
-        public NorthwindSelectQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+        public NorthwindSelectQuerySqlServerTest(
+            NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture,
+            ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             ClearLog();
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        protected override bool CanExecuteQueryString => true;
+        protected override bool CanExecuteQueryString
+            => true;
 
         public override async Task Projection_when_arithmetic_expression_precedence(bool async)
         {
@@ -1361,7 +1363,8 @@ LEFT JOIN (
         {
             await base.Reverse_changes_asc_order_to_desc(async);
 
-            AssertSql(@"SELECT [e].[EmployeeID]
+            AssertSql(
+                @"SELECT [e].[EmployeeID]
 FROM [Employees] AS [e]
 ORDER BY [e].[EmployeeID] DESC");
         }
@@ -1370,7 +1373,8 @@ ORDER BY [e].[EmployeeID] DESC");
         {
             await base.Reverse_changes_desc_order_to_asc(async);
 
-            AssertSql(@"SELECT [e].[EmployeeID]
+            AssertSql(
+                @"SELECT [e].[EmployeeID]
 FROM [Employees] AS [e]
 ORDER BY [e].[EmployeeID]");
         }
@@ -1442,7 +1446,7 @@ ORDER BY [t].[CustomerID], [t0].[OrderID]");
         public override Task Reverse_without_explicit_ordering_throws(bool async)
         {
             return AssertTranslationFailedWithDetails(
-               () => base.Reverse_without_explicit_ordering_throws(async), RelationalStrings.MissingOrderingInSqlExpression);
+                () => base.Reverse_without_explicit_ordering_throws(async), RelationalStrings.MissingOrderingInSqlExpression);
         }
 
         public override async Task Custom_projection_reference_navigation_PK_to_FK_optimization(bool async)

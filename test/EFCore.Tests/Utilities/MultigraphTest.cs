@@ -21,14 +21,16 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         {
             public int Id { get; set; }
 
-            public override string ToString() => Id.ToString();
+            public override string ToString()
+                => Id.ToString();
         }
 
         private class Edge
         {
             public int Id { get; set; }
 
-            public override string ToString() => Id.ToString();
+            public override string ToString()
+                => Id.ToString();
         }
 
         private class A
@@ -86,7 +88,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 }
             }
 
-            protected override string ToString(IEntityType vertex) => vertex.DisplayName();
+            protected override string ToString(IEntityType vertex)
+                => vertex.DisplayName();
         }
 
         #endregion
@@ -775,6 +778,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
         }
 
-        private static IMutableModel CreateModel() => new Model();
+        private static IMutableModel CreateModel()
+            => new Model();
     }
 }

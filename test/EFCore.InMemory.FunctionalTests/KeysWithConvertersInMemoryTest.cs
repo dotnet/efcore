@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class KeysWithConvertersInMemoryTest : KeysWithConvertersTestBase<KeysWithConvertersInMemoryTest.KeysWithConvertersInMemoryFixture>
+    public class KeysWithConvertersInMemoryTest : KeysWithConvertersTestBase<
+        KeysWithConvertersInMemoryTest.KeysWithConvertersInMemoryFixture>
     {
         public KeysWithConvertersInMemoryTest(KeysWithConvertersInMemoryFixture fixture)
             : base(fixture)

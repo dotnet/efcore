@@ -1008,7 +1008,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     throw new NotImplementedException();
                 }
 
-                public override bool GeneratesTemporaryValues => false;
+                public override bool GeneratesTemporaryValues
+                    => false;
             }
 
             [ConditionalFact]
@@ -1226,12 +1227,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Entity<EntityBase>().Ignore(e => ((IEntityBase)e).Target);
 
-                Assert.DoesNotContain(nameof(IEntityBase.Target),
+                Assert.DoesNotContain(
+                    nameof(IEntityBase.Target),
                     modelBuilder.Model.FindEntityType(typeof(EntityBase)).GetProperties().Select(p => p.Name));
 
                 modelBuilder.Entity<EntityBase>().Property(e => ((IEntityBase)e).Target);
 
-                Assert.Contains(nameof(IEntityBase.Target),
+                Assert.Contains(
+                    nameof(IEntityBase.Target),
                     modelBuilder.Model.FindEntityType(typeof(EntityBase)).GetProperties().Select(p => p.Name));
             }
 
@@ -1382,7 +1385,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<KeylessEntityWithFields>()
                     .HasNoKey()
                     .Ignore(e => e.FirstName)
-                   .Property(e => e.LastName);
+                    .Property(e => e.LastName);
 
                 var entity = modelBuilder.Model.FindEntityType(typeof(KeylessEntityWithFields));
                 var property = Assert.Single(entity.GetProperties());
@@ -1445,8 +1448,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.FinalizeModel();
 
-                Assert.Empty(modelBuilder.Model.FindEntityType(typeof(Gamma)).GetProperties()
-                    .Where(p => p.Name == "PrivateProperty"));
+                Assert.Empty(
+                    modelBuilder.Model.FindEntityType(typeof(Gamma)).GetProperties()
+                        .Where(p => p.Name == "PrivateProperty"));
             }
 
             [ConditionalFact]

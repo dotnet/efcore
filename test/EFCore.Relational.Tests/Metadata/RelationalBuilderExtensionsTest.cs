@@ -1221,7 +1221,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
         }
 
-        protected virtual ModelBuilder CreateConventionModelBuilder() => RelationalTestHelpers.Instance.CreateConventionBuilder();
+        protected virtual ModelBuilder CreateConventionModelBuilder()
+            => RelationalTestHelpers.Instance.CreateConventionBuilder();
 
         private static void ValidateSchemaNamedSpecificSequence(ISequence sequence)
         {

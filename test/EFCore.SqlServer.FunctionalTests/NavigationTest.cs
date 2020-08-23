@@ -61,7 +61,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private readonly NavigationTestFixture _fixture;
 
-        public NavigationTest(NavigationTestFixture fixture) => _fixture = fixture;
+        public NavigationTest(NavigationTestFixture fixture)
+            => _fixture = fixture;
     }
 
     public class GoTPerson
@@ -85,7 +86,8 @@ namespace Microsoft.EntityFrameworkCore
         public DbSet<GoTPerson> People { get; set; }
         public Func<ModelBuilder, int> ConfigAction { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder) => ConfigAction.Invoke(modelBuilder);
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => ConfigAction.Invoke(modelBuilder);
     }
 
     public class NavigationTestFixture
@@ -111,6 +113,7 @@ namespace Microsoft.EntityFrameworkCore
                 .Options;
         }
 
-        public virtual GoTContext CreateContext() => new GoTContext(_options);
+        public virtual GoTContext CreateContext()
+            => new GoTContext(_options);
     }
 }

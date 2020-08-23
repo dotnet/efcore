@@ -9,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
     public static class RelationalTestModelBuilderExtensions
     {
         public static ModelBuilderTest.TestPropertyBuilder<TProperty> HasColumnName<TProperty>(
-            this ModelBuilderTest.TestPropertyBuilder<TProperty> builder, string name)
+            this ModelBuilderTest.TestPropertyBuilder<TProperty> builder,
+            string name)
         {
             switch (builder)
             {
@@ -25,7 +26,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         }
 
         public static ModelBuilderTest.TestPropertyBuilder<TProperty> HasColumnType<TProperty>(
-            this ModelBuilderTest.TestPropertyBuilder<TProperty> builder, string typeName)
+            this ModelBuilderTest.TestPropertyBuilder<TProperty> builder,
+            string typeName)
         {
             switch (builder)
             {
@@ -41,7 +43,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         }
 
         public static ModelBuilderTest.TestPropertyBuilder<TProperty> HasDefaultValueSql<TProperty>(
-            this ModelBuilderTest.TestPropertyBuilder<TProperty> builder, string sql)
+            this ModelBuilderTest.TestPropertyBuilder<TProperty> builder,
+            string sql)
         {
             switch (builder)
             {
@@ -57,7 +60,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         }
 
         public static ModelBuilderTest.TestPropertyBuilder<TProperty> HasComputedColumnSql<TProperty>(
-            this ModelBuilderTest.TestPropertyBuilder<TProperty> builder, string sql)
+            this ModelBuilderTest.TestPropertyBuilder<TProperty> builder,
+            string sql)
         {
             switch (builder)
             {
@@ -73,7 +77,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         }
 
         public static ModelBuilderTest.TestPropertyBuilder<TProperty> HasDefaultValue<TProperty>(
-            this ModelBuilderTest.TestPropertyBuilder<TProperty> builder, object value)
+            this ModelBuilderTest.TestPropertyBuilder<TProperty> builder,
+            object value)
         {
             switch (builder)
             {
@@ -89,7 +94,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         }
 
         public static ModelBuilderTest.TestPropertyBuilder<TProperty> IsFixedLength<TProperty>(
-            this ModelBuilderTest.TestPropertyBuilder<TProperty> builder, bool fixedLength = true)
+            this ModelBuilderTest.TestPropertyBuilder<TProperty> builder,
+            bool fixedLength = true)
         {
             switch (builder)
             {
@@ -105,7 +111,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         }
 
         public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> ToTable<TEntity>(
-            this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder, string name)
+            this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+            string name)
             where TEntity : class
         {
             switch (builder)
@@ -122,7 +129,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         }
 
         public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> ToTable<TEntity>(
-            this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder, string name, string schema)
+            this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+            string name,
+            string schema)
             where TEntity : class
         {
             switch (builder)
@@ -139,7 +148,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         }
 
         public static ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TRelatedEntity> ToTable<TEntity, TRelatedEntity>(
-            this ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TRelatedEntity> builder, string name)
+            this ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TRelatedEntity> builder,
+            string name)
             where TEntity : class
             where TRelatedEntity : class
         {
@@ -157,7 +167,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         }
 
         public static ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TRelatedEntity> ToTable<TEntity, TRelatedEntity>(
-            this ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TRelatedEntity> builder, string name, string schema)
+            this ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TRelatedEntity> builder,
+            string name,
+            string schema)
             where TEntity : class
             where TRelatedEntity : class
         {
@@ -232,7 +244,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         }
 
         public static ModelBuilderTest.TestIndexBuilder<TEntity> HasFilter<TEntity>(
-            this ModelBuilderTest.TestIndexBuilder<TEntity> builder, string filterExpression)
+            this ModelBuilderTest.TestIndexBuilder<TEntity> builder,
+            string filterExpression)
         {
             switch (builder)
             {
@@ -248,7 +261,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         }
 
         public static ModelBuilderTest.TestIndexBuilder<TEntity> HasName<TEntity>(
-            this ModelBuilderTest.TestIndexBuilder<TEntity> builder, string name)
+            this ModelBuilderTest.TestIndexBuilder<TEntity> builder,
+            string name)
         {
             switch (builder)
             {
@@ -264,7 +278,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         }
 
         public static ModelBuilderTest.TestKeyBuilder<TEntity> HasName<TEntity>(
-            this ModelBuilderTest.TestKeyBuilder<TEntity> builder, string name)
+            this ModelBuilderTest.TestKeyBuilder<TEntity> builder,
+            string name)
         {
             switch (builder)
             {

@@ -508,10 +508,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.Equal(
                 CoreResources.LogIncompatibleMatchingForeignKeyProperties(
                     new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
-                        nameof(DependentEntity) + "." + nameof(DependentEntity.SomeNav),
-                        nameof(PrincipalEntity),
-                        "{'PrincipalEntityPeeKay' : string}",
-                        "{'PeeKay' : int}"),
+                    nameof(DependentEntity) + "." + nameof(DependentEntity.SomeNav),
+                    nameof(PrincipalEntity),
+                    "{'PrincipalEntityPeeKay' : string}",
+                    "{'PeeKay' : int}"),
                 logEntry.Message);
 
             ValidateModel();
@@ -1167,19 +1167,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public ListLoggerFactory ListLoggerFactory { get; }
             = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Name);
 
-        private Property PrimaryKey => PrincipalType.FindPrimaryKey().Properties.Single();
+        private Property PrimaryKey
+            => PrincipalType.FindPrimaryKey().Properties.Single();
 
-        private EntityType PrincipalType => _model.Entity(typeof(PrincipalEntity), ConfigurationSource.Convention).Metadata;
+        private EntityType PrincipalType
+            => _model.Entity(typeof(PrincipalEntity), ConfigurationSource.Convention).Metadata;
 
-        private EntityType DependentType => _model.Entity(typeof(DependentEntity), ConfigurationSource.Convention).Metadata;
+        private EntityType DependentType
+            => _model.Entity(typeof(DependentEntity), ConfigurationSource.Convention).Metadata;
 
-        private IReadOnlyList<Property> CompositePrimaryKey => PrincipalTypeWithCompositeKey.FindPrimaryKey().Properties;
+        private IReadOnlyList<Property> CompositePrimaryKey
+            => PrincipalTypeWithCompositeKey.FindPrimaryKey().Properties;
 
-        private EntityType PrincipalTypeWithCompositeKey => _model.Entity(
-            typeof(PrincipalEntityWithCompositeKey), ConfigurationSource.Convention).Metadata;
+        private EntityType PrincipalTypeWithCompositeKey
+            => _model.Entity(
+                typeof(PrincipalEntityWithCompositeKey), ConfigurationSource.Convention).Metadata;
 
-        private EntityType DependentTypeWithCompositeKey => _model.Entity(
-            typeof(DependentEntityWithCompositeKey), ConfigurationSource.Convention).Metadata;
+        private EntityType DependentTypeWithCompositeKey
+            => _model.Entity(
+                typeof(DependentEntityWithCompositeKey), ConfigurationSource.Convention).Metadata;
 
         private class PrincipalEntity
         {

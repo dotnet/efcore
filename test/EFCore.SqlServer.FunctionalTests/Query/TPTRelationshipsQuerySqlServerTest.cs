@@ -11,7 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         : TPTRelationshipsQueryTestBase<TPTRelationshipsQuerySqlServerTest.TPTRelationshipsQuerySqlServerFixture>
     {
         public TPTRelationshipsQuerySqlServerTest(
-            TPTRelationshipsQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+            TPTRelationshipsQuerySqlServerFixture fixture,
+            ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             fixture.TestSqlLoggerFactory.Clear();
@@ -1838,7 +1839,8 @@ ORDER BY [b].[Id]");
 
         public class TPTRelationshipsQuerySqlServerFixture : TPTRelationshipsQueryRelationalFixture
         {
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
         }
     }
 }

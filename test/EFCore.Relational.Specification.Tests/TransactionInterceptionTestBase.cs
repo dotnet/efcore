@@ -423,6 +423,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     contextTransaction.CreateSavepoint("dummy");
                 }
+
                 interceptor.Reset();
 
                 using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
@@ -460,6 +461,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     contextTransaction.CreateSavepoint("dummy");
                 }
+
                 interceptor.Reset();
 
                 using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
@@ -615,11 +617,20 @@ namespace Microsoft.EntityFrameworkCore
                 _transaction = transaction;
             }
 
-            public override void Commit() => _transaction.Commit();
-            public override void Rollback() => _transaction.Rollback();
-            protected override DbConnection DbConnection => _transaction.Connection;
-            public override IsolationLevel IsolationLevel => _transaction.IsolationLevel;
-            protected override void Dispose(bool disposing) => _transaction.Dispose();
+            public override void Commit()
+                => _transaction.Commit();
+
+            public override void Rollback()
+                => _transaction.Rollback();
+
+            protected override DbConnection DbConnection
+                => _transaction.Connection;
+
+            public override IsolationLevel IsolationLevel
+                => _transaction.IsolationLevel;
+
+            protected override void Dispose(bool disposing)
+                => _transaction.Dispose();
         }
 
         private class FakeDbTransaction : DbTransaction

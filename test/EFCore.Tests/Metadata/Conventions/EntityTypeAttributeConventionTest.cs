@@ -69,7 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             modelBuilder.Entity<Customer>();
 
             Assert.Equal(2, modelBuilder.Model.GetEntityTypes().Count());
-            Assert.True(modelBuilder.Model.FindEntityType(typeof(Customer)).FindNavigation(nameof(Customer.Address)).ForeignKey.IsOwnership);
+            Assert.True(
+                modelBuilder.Model.FindEntityType(typeof(Customer)).FindNavigation(nameof(Customer.Address)).ForeignKey.IsOwnership);
         }
 
         [ConditionalFact]

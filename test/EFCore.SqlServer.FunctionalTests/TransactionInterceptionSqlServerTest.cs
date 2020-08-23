@@ -19,8 +19,11 @@ namespace Microsoft.EntityFrameworkCore
 
         public abstract class InterceptionSqlServerFixtureBase : InterceptionFixtureBase
         {
-            protected override string StoreName => "TransactionInterception";
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override string StoreName
+                => "TransactionInterception";
+
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
 
             protected override IServiceCollection InjectInterceptors(
                 IServiceCollection serviceCollection,
@@ -37,11 +40,13 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             // ReleaseSavepoint is unsupported by SQL Server and is ignored
-            public override Task Intercept_ReleaseSavepoint(bool async) => Task.CompletedTask;
+            public override Task Intercept_ReleaseSavepoint(bool async)
+                => Task.CompletedTask;
 
             public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
             {
-                protected override bool ShouldSubscribeToDiagnosticListener => false;
+                protected override bool ShouldSubscribeToDiagnosticListener
+                    => false;
             }
         }
 
@@ -55,11 +60,13 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             // ReleaseSavepoint is unsupported by SQL Server and is ignored
-            public override Task Intercept_ReleaseSavepoint(bool async) => Task.CompletedTask;
+            public override Task Intercept_ReleaseSavepoint(bool async)
+                => Task.CompletedTask;
 
             public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
             {
-                protected override bool ShouldSubscribeToDiagnosticListener => true;
+                protected override bool ShouldSubscribeToDiagnosticListener
+                    => true;
             }
         }
     }

@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        protected override bool CanExecuteQueryString => true;
+        protected override bool CanExecuteQueryString
+            => true;
 
         public override async Task Query_with_owned_entity_equality_operator(bool async)
         {
@@ -998,7 +999,8 @@ ORDER BY [o].[Id], [t].[Id], [t].[Id0], [t1].[Id], [t1].[Id0], [t3].[Id], [t3].[
 
         public class OwnedQuerySqlServerFixture : RelationalOwnedQueryFixture
         {
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
         }
     }
 }

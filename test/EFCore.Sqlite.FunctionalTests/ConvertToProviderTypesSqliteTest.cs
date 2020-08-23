@@ -19,22 +19,32 @@ namespace Microsoft.EntityFrameworkCore
 
         public class ConvertToProviderTypesSqliteFixture : ConvertToProviderTypesFixtureBase
         {
-            public override bool StrictEquality => false;
+            public override bool StrictEquality
+                => false;
 
-            public override bool SupportsAnsi => false;
+            public override bool SupportsAnsi
+                => false;
 
-            public override bool SupportsUnicodeToAnsiConversion => true;
+            public override bool SupportsUnicodeToAnsiConversion
+                => true;
 
-            public override bool SupportsLargeStringComparisons => true;
+            public override bool SupportsLargeStringComparisons
+                => true;
 
-            public override bool SupportsDecimalComparisons => false;
+            public override bool SupportsDecimalComparisons
+                => false;
 
-            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqliteTestStoreFactory.Instance;
 
-            public override bool SupportsBinaryKeys => true;
+            public TestSqlLoggerFactory TestSqlLoggerFactory
+                => (TestSqlLoggerFactory)ListLoggerFactory;
 
-            public override DateTime DefaultDateTime => new DateTime();
+            public override bool SupportsBinaryKeys
+                => true;
+
+            public override DateTime DefaultDateTime
+                => new DateTime();
         }
     }
 }

@@ -77,7 +77,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 return this;
             }
 
-            public override string GetDisplayName(Type entityType) => entityType.FullName;
+            public override string GetDisplayName(Type entityType)
+                => entityType.FullName;
         }
 
         private class GenericStringTestEntityTypeBuilder<TEntity> : GenericTestEntityTypeBuilder<TEntity>

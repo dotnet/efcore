@@ -83,16 +83,19 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             await base.CommitAsync(cancellationToken);
         }
 
-        public override bool SupportsSavepoints => true;
+        public override bool SupportsSavepoints
+            => true;
 
         /// <inheritdoc />
-        protected override string GetCreateSavepointSql(string name) => "SAVE TRANSACTION " + name;
+        protected override string GetCreateSavepointSql(string name)
+            => "SAVE TRANSACTION " + name;
 
         /// <inheritdoc />
-        protected override string GetRollbackToSavepointSql(string name) => "ROLLBACK TRANSACTION " + name;
+        protected override string GetRollbackToSavepointSql(string name)
+            => "ROLLBACK TRANSACTION " + name;
 
         /// <inheritdoc />
-        public override void ReleaseSavepoint(string name) {}
+        public override void ReleaseSavepoint(string name) { }
 
         /// <inheritdoc />
         public override Task ReleaseSavepointAsync(string name, CancellationToken cancellationToken = default)

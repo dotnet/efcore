@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Assert.Equal(
                 "\"Foobar\""
-+ @".Substring(
+                + @".Substring(
     startIndex: 0, 
     length: 4)",
                 _expressionPrinter.Print(

@@ -26,7 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<Level1>().Include(l1 => l1.OneToMany_Optional1.Where(l2 => l2.Id > 5)).AsSplitQuery(),
-                elementAsserter: (e, a) => AssertInclude(e, a,
+                elementAsserter: (e, a) => AssertInclude(
+                    e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
                         includeFilter: x => x.Where(l2 => l2.Id > 5))));
@@ -39,7 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<Level1>().Include(l1 => l1.OneToMany_Optional1.OrderBy(x => x.Name)).AsSplitQuery(),
-                elementAsserter: (e, a) => AssertInclude(e, a,
+                elementAsserter: (e, a) => AssertInclude(
+                    e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
                         includeFilter: x => x.OrderBy(x => x.Name))));
@@ -55,7 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l1 => l1.OneToMany_Optional1)
                     .ThenInclude(l2 => l2.OneToMany_Optional2.OrderBy(x => x.Name))
                     .AsSplitQuery(),
-                elementAsserter: (e, a) => AssertInclude(e, a,
+                elementAsserter: (e, a) => AssertInclude(
+                    e, a,
                     new ExpectedInclude<Level1>(e => e.OneToMany_Optional1),
                     new ExpectedFilteredInclude<Level2, Level3>(
                         e => e.OneToMany_Optional2,
@@ -73,7 +76,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l1 => l1.OneToMany_Optional1.OrderBy(x => x.Name))
                     .ThenInclude(l2 => l2.OneToMany_Optional2.OrderByDescending(x => x.Name))
                     .AsSplitQuery(),
-                elementAsserter: (e, a) => AssertInclude(e, a,
+                elementAsserter: (e, a) => AssertInclude(
+                    e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
                         includeFilter: x => x.OrderBy(x => x.Name)),
@@ -90,7 +94,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<Level1>().Include(l1 => l1.OneToMany_Optional1.OrderBy(x => x.Name).Take(3)).AsSplitQuery(),
-                elementAsserter: (e, a) => AssertInclude(e, a,
+                elementAsserter: (e, a) => AssertInclude(
+                    e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
                         includeFilter: x => x.OrderBy(x => x.Name).Take(3))));
@@ -103,7 +108,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<Level1>().Include(l1 => l1.OneToMany_Optional1.OrderBy(x => x.Name).Skip(1)).AsSplitQuery(),
-                elementAsserter: (e, a) => AssertInclude(e, a,
+                elementAsserter: (e, a) => AssertInclude(
+                    e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
                         includeFilter: x => x.OrderBy(x => x.Name).Skip(1))));
@@ -116,7 +122,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<Level1>().Include(l1 => l1.OneToMany_Optional1.OrderBy(x => x.Name).Skip(1).Take(3)).AsSplitQuery(),
-                elementAsserter: (e, a) => AssertInclude(e, a,
+                elementAsserter: (e, a) => AssertInclude(
+                    e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
                         includeFilter: x => x.OrderBy(x => x.Name).Skip(1).Take(3))));
@@ -148,7 +155,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l1 => l1.OneToOne_Optional_FK1)
                     .ThenInclude(l2 => l2.OneToMany_Optional2.Where(x => x.Name != "Foo").OrderBy(x => x.Name).Skip(1).Take(3))
                     .AsSplitQuery(),
-                elementAsserter: (e, a) => AssertInclude(e, a,
+                elementAsserter: (e, a) => AssertInclude(
+                    e, a,
                     new ExpectedInclude<Level1>(e => e.OneToOne_Optional_FK1),
                     new ExpectedFilteredInclude<Level2, Level3>(
                         e => e.OneToMany_Optional2,
@@ -163,9 +171,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<Level1>()
-                    .Include(l1 => l1.OneToOne_Optional_FK1.OneToMany_Optional2.Where(x => x.Name != "Foo").OrderBy(x => x.Name).Skip(1).Take(3))
+                    .Include(
+                        l1 => l1.OneToOne_Optional_FK1.OneToMany_Optional2.Where(x => x.Name != "Foo").OrderBy(x => x.Name).Skip(1).Take(3))
                     .AsSplitQuery(),
-                elementAsserter: (e, a) => AssertInclude(e, a,
+                elementAsserter: (e, a) => AssertInclude(
+                    e, a,
                     new ExpectedInclude<Level1>(e => e.OneToOne_Optional_FK1),
                     new ExpectedFilteredInclude<Level2, Level3>(
                         e => e.OneToMany_Optional2,
@@ -183,7 +193,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l1 => l1.OneToMany_Optional1.Where(x => x.Name != "Foo").OrderBy(x => x.Name).Take(3))
                     .Include(l1 => l1.OneToMany_Required1.Where(x => x.Name != "Bar").OrderByDescending(x => x.Name).Skip(1))
                     .AsSplitQuery(),
-                elementAsserter: (e, a) => AssertInclude(e, a,
+                elementAsserter: (e, a) => AssertInclude(
+                    e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
                         includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Name).Take(3)),
@@ -202,7 +213,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l1 => l1.OneToMany_Optional1.Where(x => x.Name != "Foo").OrderBy(x => x.Name).Take(3))
                     .ThenInclude(l2 => l2.OneToMany_Required2.Where(x => x.Name != "Bar").OrderByDescending(x => x.Name).Skip(1))
                     .AsSplitQuery(),
-                elementAsserter: (e, a) => AssertInclude(e, a,
+                elementAsserter: (e, a) => AssertInclude(
+                    e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
                         includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Name).Take(3)),
@@ -248,7 +260,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l1 => l1.OneToMany_Optional1.Where(x => x.Name != "Foo").OrderByDescending(x => x.Id).Take(2))
                     .Include(l1 => l1.OneToMany_Optional1.Where(x => x.Name != "Foo").OrderByDescending(x => x.Id).Take(2))
                     .AsSplitQuery(),
-                elementAsserter: (e, a) => AssertInclude(e, a,
+                elementAsserter: (e, a) => AssertInclude(
+                    e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
                         includeFilter: x => x.Where(x => x.Name != "Foo").OrderByDescending(x => x.Id).Take(2))));
@@ -261,10 +274,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<Level1>()
-                    .Include(l1 => l1.OneToMany_Optional1.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(2)).ThenInclude(l2 => l2.OneToMany_Optional2)
-                    .Include(l1 => l1.OneToMany_Optional1.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(2)).ThenInclude(l2 => l2.OneToOne_Required_FK2)
+                    .Include(l1 => l1.OneToMany_Optional1.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(2))
+                    .ThenInclude(l2 => l2.OneToMany_Optional2)
+                    .Include(l1 => l1.OneToMany_Optional1.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(2))
+                    .ThenInclude(l2 => l2.OneToOne_Required_FK2)
                     .AsSplitQuery(),
-                elementAsserter: (e, a) => AssertInclude(e, a,
+                elementAsserter: (e, a) => AssertInclude(
+                    e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
                         includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(2)),
@@ -274,17 +290,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Filtered_include_multiple_multi_level_includes_with_first_level_using_filter_include_on_one_of_the_chains_only_split(bool async)
+        public virtual Task
+            Filtered_include_multiple_multi_level_includes_with_first_level_using_filter_include_on_one_of_the_chains_only_split(bool async)
         {
             return AssertQuery(
                 async,
                 ss => ss.Set<Level1>()
                     .Include(l1 => l1.OneToMany_Optional1.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(2))
-                        .ThenInclude(l2 => l2.OneToMany_Optional2)
+                    .ThenInclude(l2 => l2.OneToMany_Optional2)
                     .Include(l1 => l1.OneToMany_Optional1)
-                        .ThenInclude(l2 => l2.OneToOne_Required_FK2)
+                    .ThenInclude(l2 => l2.OneToOne_Required_FK2)
                     .AsSplitQuery(),
-                elementAsserter: (e, a) => AssertInclude(e, a,
+                elementAsserter: (e, a) => AssertInclude(
+                    e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
                         includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(2)),
@@ -302,7 +320,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l1 => l1.OneToMany_Optional1)
                     .Include(l1 => l1.OneToMany_Optional1.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(3))
                     .AsSplitQuery(),
-                elementAsserter: (e, a) => AssertInclude(e, a,
+                elementAsserter: (e, a) => AssertInclude(
+                    e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
                         includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(3))));
@@ -318,7 +337,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l1 => l1.OneToMany_Optional1.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(3))
                     .Include(l1 => l1.OneToMany_Optional1)
                     .AsSplitQuery(),
-                elementAsserter: (e, a) => AssertInclude(e, a,
+                elementAsserter: (e, a) => AssertInclude(
+                    e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
                         includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(3))));
@@ -332,9 +352,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Level1>()
                     .Include(l1 => l1.OneToMany_Optional1.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(1))
-                    .Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToOne_Optional_PK2.OneToMany_Optional3.Where(x => x.Id > 1))
+                    .Include(l1 => l1.OneToMany_Optional1)
+                    .ThenInclude(l2 => l2.OneToOne_Optional_PK2.OneToMany_Optional3.Where(x => x.Id > 1))
                     .AsSplitQuery(),
-                elementAsserter: (e, a) => AssertInclude(e, a,
+                elementAsserter: (e, a) => AssertInclude(
+                    e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
                         includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(1)),
@@ -353,13 +375,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Level1>()
                     .Include(l1 => l1.OneToMany_Optional1)
-                        .ThenInclude(l2 => l2.OneToMany_Optional2.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(1))
-                            .ThenInclude(l3 => l3.OneToMany_Optional3)
+                    .ThenInclude(l2 => l2.OneToMany_Optional2.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(1))
+                    .ThenInclude(l3 => l3.OneToMany_Optional3)
                     .Include(l1 => l1.OneToMany_Optional1)
-                        .ThenInclude(l2 => l2.OneToMany_Optional2.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(1))
-                            .ThenInclude(l3 => l3.OneToMany_Required3)
+                    .ThenInclude(l2 => l2.OneToMany_Optional2.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(1))
+                    .ThenInclude(l3 => l3.OneToMany_Required3)
                     .AsSplitQuery(),
-                elementAsserter: (e, a) => AssertInclude(e, a,
+                elementAsserter: (e, a) => AssertInclude(
+                    e, a,
                     new ExpectedInclude<Level1>(e => e.OneToMany_Optional1),
                     new ExpectedFilteredInclude<Level2, Level3>(
                         e => e.OneToMany_Optional2,
@@ -377,13 +400,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Level1>()
                     .Include(l1 => l1.OneToMany_Optional1)
-                        .ThenInclude(l2 => l2.OneToMany_Optional2.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(1)).
-                            ThenInclude(l3 => l3.OneToMany_Optional3)
+                    .ThenInclude(l2 => l2.OneToMany_Optional2.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(1))
+                    .ThenInclude(l3 => l3.OneToMany_Optional3)
                     .Include(l1 => l1.OneToMany_Optional1)
-                        .ThenInclude(l2 => l2.OneToMany_Optional2)
-                            .ThenInclude(l3 => l3.OneToMany_Required3)
+                    .ThenInclude(l2 => l2.OneToMany_Optional2)
+                    .ThenInclude(l3 => l3.OneToMany_Required3)
                     .AsSplitQuery(),
-                elementAsserter: (e, a) => AssertInclude(e, a,
+                elementAsserter: (e, a) => AssertInclude(
+                    e, a,
                     new ExpectedInclude<Level1>(e => e.OneToMany_Optional1),
                     new ExpectedFilteredInclude<Level2, Level3>(
                         e => e.OneToMany_Optional2,
@@ -438,12 +462,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             // TODO: needs #18191 for result verification
             using var ctx = CreateContext();
-            var query = ctx.LevelOne.AsSplitQuery().Select(l1 => new
-            {
-                l1.Id,
-                FullInclude = ctx.LevelTwo.Include(l2 => l2.OneToMany_Optional2).ToList(),
-                FilteredInclude = ctx.LevelTwo.Include(l2 => l2.OneToMany_Optional2.Where(x => x.Id != l1.Id)).ToList()
-            });
+            var query = ctx.LevelOne.AsSplitQuery().Select(
+                l1 => new
+                {
+                    l1.Id,
+                    FullInclude = ctx.LevelTwo.Include(l2 => l2.OneToMany_Optional2).ToList(),
+                    FilteredInclude = ctx.LevelTwo.Include(l2 => l2.OneToMany_Optional2.Where(x => x.Id != l1.Id)).ToList()
+                });
             var result = query.ToList();
         }
 
@@ -494,12 +519,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     () => AssertFirstOrDefault(
                         async,
                         ss => ss.Set<Level1>()
-                                .AsSplitQuery()
-                                .Select(e => new
-                                {
-                                    e.Id,
-                                    Level2s = e.OneToMany_Optional1.ToList()
-                                }),
+                            .AsSplitQuery()
+                            .Select(e => new { e.Id, Level2s = e.OneToMany_Optional1.ToList() }),
                         predicate: l => l.Id == 1,
                         asserter: (e, a) =>
                         {
@@ -515,11 +536,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertFirstOrDefault(
                 async,
                 ss => ss.Set<Level1>()
-                        .Select(e => new
-                        {
-                            e.Id,
-                            Level2s = e.OneToMany_Optional1.ToList()
-                        }),
+                    .Select(e => new { e.Id, Level2s = e.OneToMany_Optional1.ToList() }),
                 predicate: l => l.Id == 1,
                 asserter: (e, a) =>
                 {
@@ -528,9 +545,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        protected virtual bool CanExecuteQueryString => false;
+        protected virtual bool CanExecuteQueryString
+            => false;
 
         protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
-            => new RelationalQueryAsserter(fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+            => new RelationalQueryAsserter(
+                fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
     }
 }

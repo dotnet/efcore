@@ -19,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore
         protected override void AddServices(ServiceCollection serviceCollection)
             => serviceCollection.AddEntityFrameworkProxies();
 
-        protected override Assembly TargetAssembly => typeof(ProxiesExtensions).Assembly;
+        protected override Assembly TargetAssembly
+            => typeof(ProxiesExtensions).Assembly;
 
         public class ProxiesApiConsistencyFixture : ApiConsistencyFixtureBase
         {
@@ -30,10 +31,7 @@ namespace Microsoft.EntityFrameworkCore
                 return true;
             }
 
-            public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>()
-            {
-                typeof(ProxiesServiceCollectionExtensions)
-            };
+            public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type> { typeof(ProxiesServiceCollectionExtensions) };
         }
     }
 }

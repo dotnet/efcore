@@ -24,7 +24,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             (type: typeof(string), expression: Expression.Constant(null, typeof(string)))
         };
 
-        public override bool IsValid(Expression expression) => IsQueryableResult(expression);
+        public override bool IsValid(Expression expression)
+            => IsQueryableResult(expression);
 
         public override Expression Apply(Expression expression, Random random)
         {

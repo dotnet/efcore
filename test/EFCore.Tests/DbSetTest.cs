@@ -194,7 +194,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private static Task TrackEntitiesTest(
             Func<DbSet<Category>, Category, EntityEntry<Category>> categoryAdder,
-            Func<DbSet<Product>, Product, EntityEntry<Product>> productAdder, EntityState expectedState)
+            Func<DbSet<Product>, Product, EntityEntry<Product>> productAdder,
+            EntityState expectedState)
             => TrackEntitiesTest(
                 (c, e) => new ValueTask<EntityEntry<Category>>(categoryAdder(c, e)),
                 (c, e) => new ValueTask<EntityEntry<Product>>(productAdder(c, e)),
@@ -202,7 +203,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task TrackEntitiesTest(
             Func<DbSet<Category>, Category, ValueTask<EntityEntry<Category>>> categoryAdder,
-            Func<DbSet<Product>, Product, ValueTask<EntityEntry<Product>>> productAdder, EntityState expectedState)
+            Func<DbSet<Product>, Product, ValueTask<EntityEntry<Product>>> productAdder,
+            EntityState expectedState)
         {
             using var context = new EarlyLearningCenter();
             var category1 = new Category { Id = 1, Name = "Beverages" };
@@ -293,7 +295,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private static Task TrackMultipleEntitiesTest(
             Action<EarlyLearningCenter, Category[]> categoryAdder,
-            Action<EarlyLearningCenter, Product[]> productAdder, EntityState expectedState)
+            Action<EarlyLearningCenter, Product[]> productAdder,
+            EntityState expectedState)
             => TrackMultipleEntitiesTest(
                 (c, e) =>
                 {
@@ -309,7 +312,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task TrackMultipleEntitiesTest(
             Func<EarlyLearningCenter, Category[], Task> categoryAdder,
-            Func<EarlyLearningCenter, Product[], Task> productAdder, EntityState expectedState)
+            Func<EarlyLearningCenter, Product[], Task> productAdder,
+            EntityState expectedState)
         {
             using var context = new EarlyLearningCenter();
             var category1 = new Category { Id = 1, Name = "Beverages" };
@@ -434,7 +438,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private static Task TrackMultipleEntitiesTestEnumerable(
             Action<EarlyLearningCenter, IEnumerable<Category>> categoryAdder,
-            Action<EarlyLearningCenter, IEnumerable<Product>> productAdder, EntityState expectedState)
+            Action<EarlyLearningCenter, IEnumerable<Product>> productAdder,
+            EntityState expectedState)
             => TrackMultipleEntitiesTestEnumerable(
                 (c, e) =>
                 {
@@ -450,7 +455,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task TrackMultipleEntitiesTestEnumerable(
             Func<EarlyLearningCenter, IEnumerable<Category>, Task> categoryAdder,
-            Func<EarlyLearningCenter, IEnumerable<Product>, Task> productAdder, EntityState expectedState)
+            Func<EarlyLearningCenter, IEnumerable<Product>, Task> productAdder,
+            EntityState expectedState)
         {
             using var context = new EarlyLearningCenter();
             var category1 = new Category { Id = 1, Name = "Beverages" };

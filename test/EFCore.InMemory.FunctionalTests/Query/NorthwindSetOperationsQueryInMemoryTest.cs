@@ -6,7 +6,8 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindSetOperationsQueryInMemoryTest : NorthwindSetOperationsQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
+    public class NorthwindSetOperationsQueryInMemoryTest : NorthwindSetOperationsQueryTestBase<
+        NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
     {
         public NorthwindSetOperationsQueryInMemoryTest(
             NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture,

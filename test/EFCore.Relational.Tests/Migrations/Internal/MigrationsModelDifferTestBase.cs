@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -152,7 +151,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var relationalConventionSetDependencies = TestHelpers.CreateContextServices()
                 .GetRequiredService<RelationalConventionSetBuilderDependencies>();
             conventions.ModelFinalizingConventions.Add(new TypeMappingConvention(conventionSetDependencies));
-            conventions.ModelFinalizedConventions.Add(new RelationalModelConvention(conventionSetDependencies, relationalConventionSetDependencies));
+            conventions.ModelFinalizedConventions.Add(
+                new RelationalModelConvention(conventionSetDependencies, relationalConventionSetDependencies));
             return conventions;
         }
 

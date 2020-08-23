@@ -21,8 +21,11 @@ namespace Microsoft.EntityFrameworkCore
 
         public abstract class InterceptionSqliteFixtureBase : InterceptionFixtureBase
         {
-            protected override string StoreName => "ConnectionInterception";
-            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+            protected override string StoreName
+                => "ConnectionInterception";
+
+            protected override ITestStoreFactory TestStoreFactory
+                => SqliteTestStoreFactory.Instance;
 
             protected override IServiceCollection InjectInterceptors(
                 IServiceCollection serviceCollection,
@@ -40,7 +43,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public class InterceptionSqliteFixture : InterceptionSqliteFixtureBase
             {
-                protected override bool ShouldSubscribeToDiagnosticListener => false;
+                protected override bool ShouldSubscribeToDiagnosticListener
+                    => false;
             }
         }
 
@@ -54,7 +58,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public class InterceptionSqliteFixture : InterceptionSqliteFixtureBase
             {
-                protected override bool ShouldSubscribeToDiagnosticListener => true;
+                protected override bool ShouldSubscribeToDiagnosticListener
+                    => true;
             }
         }
     }

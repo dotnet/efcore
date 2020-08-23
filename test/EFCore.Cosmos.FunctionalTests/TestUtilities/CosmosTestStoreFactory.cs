@@ -21,9 +21,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                 .AddSingleton<TestStoreIndex>();
 
-        public TestStore Create(string storeName) => CosmosTestStore.Create(storeName);
+        public TestStore Create(string storeName)
+            => CosmosTestStore.Create(storeName);
 
-        public virtual TestStore GetOrCreate(string storeName) => CosmosTestStore.GetOrCreate(storeName);
+        public virtual TestStore GetOrCreate(string storeName)
+            => CosmosTestStore.GetOrCreate(storeName);
 
         public virtual ListLoggerFactory CreateListLoggerFactory(Func<string, bool> shouldLogCategory)
             => new TestSqlLoggerFactory(shouldLogCategory);

@@ -7,6 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class NullSemanticsQuerySqlServerFixture : NullSemanticsQueryFixtureBase
     {
-        protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerTestStoreFactory.Instance;
     }
 }

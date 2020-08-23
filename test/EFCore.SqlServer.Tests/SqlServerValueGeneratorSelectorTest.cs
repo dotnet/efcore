@@ -200,13 +200,17 @@ namespace Microsoft.EntityFrameworkCore
         {
             public int Id { get; set; }
 
-            public int CompareTo(Something other) => throw new NotImplementedException();
+            public int CompareTo(Something other)
+                => throw new NotImplementedException();
         }
 
         private class CustomValueGenerator : ValueGenerator<int>
         {
-            public override int Next(EntityEntry entry) => throw new NotImplementedException();
-            public override bool GeneratesTemporaryValues => false;
+            public override int Next(EntityEntry entry)
+                => throw new NotImplementedException();
+
+            public override bool GeneratesTemporaryValues
+                => false;
         }
     }
 }

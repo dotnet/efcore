@@ -11,11 +11,21 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     public abstract class RelationalTestStore : TestStore
     {
         public virtual string ConnectionString { get; protected set; }
-        public ConnectionState ConnectionState => Connection.State;
-        public void CloseConnection() => Connection.Close();
-        public virtual void OpenConnection() => Connection.Open();
-        public virtual Task OpenConnectionAsync() => Connection.OpenAsync();
-        public DbTransaction BeginTransaction() => Connection.BeginTransaction();
+
+        public ConnectionState ConnectionState
+            => Connection.State;
+
+        public void CloseConnection()
+            => Connection.Close();
+
+        public virtual void OpenConnection()
+            => Connection.Open();
+
+        public virtual Task OpenConnectionAsync()
+            => Connection.OpenAsync();
+
+        public DbTransaction BeginTransaction()
+            => Connection.BeginTransaction();
 
         protected virtual DbConnection Connection { get; set; }
 
@@ -25,7 +35,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         public override TestStore Initialize(
-            IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed = null, Action<DbContext> clean = null)
+            IServiceProvider serviceProvider,
+            Func<DbContext> createContext,
+            Action<DbContext> seed = null,
+            Action<DbContext> clean = null)
         {
             base.Initialize(serviceProvider, createContext, seed, clean);
 
@@ -49,8 +62,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public virtual FormattableString NormalizeDelimitersInInterpolatedString(FormattableString sql)
             => new TestFormattableString(NormalizeDelimitersInRawString(sql.Format), sql.GetArguments());
 
-        protected virtual string OpenDelimiter => "\"";
+        protected virtual string OpenDelimiter
+            => "\"";
 
-        protected virtual string CloseDelimiter => "\"";
+        protected virtual string CloseDelimiter
+            => "\"";
     }
 }

@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Empty(query);
         }
 
-        public override void Object_to_string_conversion() {}
+        public override void Object_to_string_conversion() { }
 
         public abstract class ConvertToProviderTypesFixtureBase : BuiltInDataTypesFixtureBase
         {

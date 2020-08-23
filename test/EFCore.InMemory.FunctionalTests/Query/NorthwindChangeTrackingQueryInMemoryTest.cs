@@ -7,9 +7,12 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindChangeTrackingQueryInMemoryTest : NorthwindChangeTrackingQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
+    public class NorthwindChangeTrackingQueryInMemoryTest : NorthwindChangeTrackingQueryTestBase<
+        NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
     {
-        public NorthwindChangeTrackingQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+        public NorthwindChangeTrackingQueryInMemoryTest(
+            NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture,
+            ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;

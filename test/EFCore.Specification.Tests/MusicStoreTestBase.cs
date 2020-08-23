@@ -487,13 +487,14 @@ namespace Microsoft.EntityFrameworkCore
             var shoppingCartId = "CartId_A";
             var id = 1;
             var query = context.CartItems
-                .Select(ci => new CartItem
-                {
-                    CartId = ci.CartId,
-                    CartItemId = ci.CartItemId,
-                    Count = ci.Count,
-                    Album = new Album { Title = ci.Album.Title }
-                });
+                .Select(
+                    ci => new CartItem
+                    {
+                        CartId = ci.CartId,
+                        CartItemId = ci.CartItemId,
+                        Count = ci.Count,
+                        Album = new Album { Title = ci.Album.Title }
+                    });
 
             var cartItem = async
                 ? await query.FirstOrDefaultAsync(ci => ci.CartId == shoppingCartId && ci.CartItemId == id)
@@ -762,15 +763,18 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TFixture Fixture { get; }
 
-        protected MusicStoreContext CreateContext() => Fixture.CreateContext();
+        protected MusicStoreContext CreateContext()
+            => Fixture.CreateContext();
 
         public abstract class MusicStoreFixtureBase : SharedStoreFixtureBase<MusicStoreContext>
         {
-            public virtual IDisposable BeginTransaction(DbContext context) => context.Database.BeginTransaction();
+            public virtual IDisposable BeginTransaction(DbContext context)
+                => context.Database.BeginTransaction();
 
             protected override string StoreName { get; } = "MusicStore";
 
-            protected override bool UsePooling => false;
+            protected override bool UsePooling
+                => false;
         }
     }
 }

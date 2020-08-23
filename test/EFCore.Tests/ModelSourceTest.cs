@@ -27,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         private readonly IConventionSetBuilder _nullConventionSetBuilder =
             new NullConventionSetBuilder();
+
         private readonly ModelDependencies _testModelDependencies =
             new ModelDependencies(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>());
 
@@ -184,7 +185,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private class NullConventionSetBuilder : IConventionSetBuilder
         {
-            public ConventionSet CreateConventionSet() => new ConventionSet();
+            public ConventionSet CreateConventionSet()
+                => new ConventionSet();
         }
     }
 }

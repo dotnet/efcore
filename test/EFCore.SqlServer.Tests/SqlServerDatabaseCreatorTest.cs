@@ -207,7 +207,8 @@ namespace Microsoft.EntityFrameworkCore
             private readonly List<IRelationalParameter> _parameters = new List<IRelationalParameter>();
             public IndentedStringBuilder Instance { get; } = new IndentedStringBuilder();
 
-            public IReadOnlyList<IRelationalParameter> Parameters => _parameters;
+            public IReadOnlyList<IRelationalParameter> Parameters
+                => _parameters;
 
             public IRelationalCommandBuilder AddParameter(IRelationalParameter parameter)
             {
@@ -216,9 +217,11 @@ namespace Microsoft.EntityFrameworkCore
                 return this;
             }
 
-            public IRelationalTypeMappingSource TypeMappingSource => null;
+            public IRelationalTypeMappingSource TypeMappingSource
+                => null;
 
-            public IRelationalCommand Build() => new FakeRelationalCommand();
+            public IRelationalCommand Build()
+                => new FakeRelationalCommand();
 
             public IRelationalCommandBuilder Append(string value)
             {
@@ -248,7 +251,8 @@ namespace Microsoft.EntityFrameworkCore
                 return this;
             }
 
-            public int CommandTextLength => Instance.Length;
+            public int CommandTextLength
+                => Instance.Length;
         }
 
         private class FakeRelationalCommand : IRelationalCommand
@@ -257,7 +261,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public IReadOnlyList<IRelationalParameter> Parameters { get; }
 
-            public IReadOnlyDictionary<string, object> ParameterValues => throw new NotImplementedException();
+            public IReadOnlyDictionary<string, object> ParameterValues
+                => throw new NotImplementedException();
 
             public int ExecuteNonQuery(RelationalCommandParameterObject parameterObject)
             {

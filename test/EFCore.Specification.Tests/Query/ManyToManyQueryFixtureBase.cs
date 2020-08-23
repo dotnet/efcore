@@ -14,9 +14,11 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         protected override string StoreName { get; } = "ManyToManyQueryTest";
 
-        public Func<DbContext> GetContextCreator() => () => CreateContext();
+        public Func<DbContext> GetContextCreator()
+            => () => CreateContext();
 
-        public ISetSource GetExpectedData() => new ManyToManyData();
+        public ISetSource GetExpectedData()
+            => new ManyToManyData();
 
         public IReadOnlyDictionary<Type, object> GetEntitySorters()
             => new Dictionary<Type, Func<object, object>>
@@ -24,7 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 { typeof(EntityOne), e => ((EntityOne)e)?.Id },
                 { typeof(EntityTwo), e => ((EntityTwo)e)?.Id },
                 { typeof(EntityThree), e => ((EntityThree)e)?.Id },
-                { typeof(EntityCompositeKey), e => (((EntityCompositeKey)e)?.Key1,((EntityCompositeKey)e)?.Key2 ,((EntityCompositeKey)e)?.Key3 ) },
+                {
+                    typeof(EntityCompositeKey),
+                    e => (((EntityCompositeKey)e)?.Key1, ((EntityCompositeKey)e)?.Key2, ((EntityCompositeKey)e)?.Key3)
+                },
                 { typeof(EntityRoot), e => ((EntityRoot)e)?.Id },
                 { typeof(EntityBranch), e => ((EntityBranch)e)?.Id },
                 { typeof(EntityLeaf), e => ((EntityLeaf)e)?.Id },
@@ -150,7 +155,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<EntityOne>().Property(e => e.Id).ValueGeneratedNever();
             modelBuilder.Entity<EntityTwo>().Property(e => e.Id).ValueGeneratedNever();
             modelBuilder.Entity<EntityThree>().Property(e => e.Id).ValueGeneratedNever();
-            modelBuilder.Entity<EntityCompositeKey>().HasKey(e => new { e.Key1, e.Key2, e.Key3 });
+            modelBuilder.Entity<EntityCompositeKey>().HasKey(
+                e => new
+                {
+                    e.Key1,
+                    e.Key2,
+                    e.Key3
+                });
             modelBuilder.Entity<EntityRoot>().Property(e => e.Id).ValueGeneratedNever();
             modelBuilder.Entity<EntityBranch>().HasBaseType<EntityRoot>();
             modelBuilder.Entity<EntityLeaf>().HasBaseType<EntityBranch>();
@@ -260,7 +271,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .HasMany(e => e.CompositeKeySkipFull)
                 .WithMany(e => e.ThreeSkipFull)
                 .UsingEntity<JoinThreeToCompositeKeyFull>(
-                    l => l.HasOne(x => x.Composite).WithMany(x => x.JoinThreeFull).HasForeignKey(e => new { e.CompositeId1, e.CompositeId2, e.CompositeId3 }).IsRequired(),
+                    l => l.HasOne(x => x.Composite).WithMany(x => x.JoinThreeFull).HasForeignKey(
+                        e => new
+                        {
+                            e.CompositeId1,
+                            e.CompositeId2,
+                            e.CompositeId3
+                        }).IsRequired(),
                     r => r.HasOne(x => x.Three).WithMany(x => x.JoinCompositeKeyFull).IsRequired());
 
             // Nav:2 Payload:No Join:Shared Extra:Inheritance
@@ -288,11 +305,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .WithMany(e => e.CompositeKeySkipFull)
                 .UsingEntity<JoinCompositeKeyToLeaf>(
                     r => r.HasOne(x => x.Leaf).WithMany(x => x.JoinCompositeKeyFull),
-                    l => l.HasOne(x => x.Composite).WithMany(x => x.JoinLeafFull).HasForeignKey(e => new { e.CompositeId1, e.CompositeId2, e.CompositeId3 }))
-                .HasKey(e => new { e.CompositeId1, e.CompositeId2, e.CompositeId3, e.LeafId });
+                    l => l.HasOne(x => x.Composite).WithMany(x => x.JoinLeafFull).HasForeignKey(
+                        e => new
+                        {
+                            e.CompositeId1,
+                            e.CompositeId2,
+                            e.CompositeId3
+                        }))
+                .HasKey(
+                    e => new
+                    {
+                        e.CompositeId1,
+                        e.CompositeId2,
+                        e.CompositeId3,
+                        e.LeafId
+                    });
         }
 
-        protected override void Seed(ManyToManyContext context) => ManyToManyContext.Seed(context);
+        protected override void Seed(ManyToManyContext context)
+            => ManyToManyContext.Seed(context);
     }
 }
-

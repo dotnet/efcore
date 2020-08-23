@@ -102,15 +102,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetPropertyAccessModeConfigurationSource());
 
             Assert.True(builder.CanSetPropertyAccessMode(PropertyAccessMode.PreferProperty, ConfigurationSource.Convention));
-            Assert.False(builder.CanSetPropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction, ConfigurationSource.Convention));
+            Assert.False(
+                builder.CanSetPropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction, ConfigurationSource.Convention));
             Assert.NotNull(builder.UsePropertyAccessMode(PropertyAccessMode.PreferProperty, ConfigurationSource.Convention));
             Assert.Null(builder.UsePropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction, ConfigurationSource.Convention));
 
             Assert.Equal(PropertyAccessMode.PreferProperty, metadata.GetPropertyAccessMode());
             Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetPropertyAccessModeConfigurationSource());
 
-            Assert.True(builder.CanSetPropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction, ConfigurationSource.DataAnnotation));
-            Assert.NotNull(builder.UsePropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction, ConfigurationSource.DataAnnotation));
+            Assert.True(
+                builder.CanSetPropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction, ConfigurationSource.DataAnnotation));
+            Assert.NotNull(
+                builder.UsePropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction, ConfigurationSource.DataAnnotation));
 
             Assert.Equal(PropertyAccessMode.PreferFieldDuringConstruction, metadata.GetPropertyAccessMode());
             Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetPropertyAccessModeConfigurationSource());
@@ -172,7 +175,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Can_configure_IsRequired_on_to_principal_nonUnique()
         {
             var builder = CreateInternalNavigationBuilder()
-                .Metadata.ForeignKey.Builder.HasNavigation(nameof(OrderDetails.Order), pointsToPrincipal: true, ConfigurationSource.Explicit)
+                .Metadata.ForeignKey.Builder.HasNavigation(
+                    nameof(OrderDetails.Order), pointsToPrincipal: true, ConfigurationSource.Explicit)
                 .Metadata.DependentToPrincipal.Builder;
             builder.IsRequired(true, ConfigurationSource.Explicit);
 
@@ -184,7 +188,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var foreignKey = CreateInternalNavigationBuilder()
                 .Metadata.ForeignKey;
-            foreignKey = foreignKey.Builder.HasNavigations(nameof(OrderDetails.Order), nameof(Order.SingleDetails), ConfigurationSource.Explicit)
+            foreignKey = foreignKey.Builder.HasNavigations(
+                    nameof(OrderDetails.Order), nameof(Order.SingleDetails), ConfigurationSource.Explicit)
                 .Metadata;
 
             foreignKey.PrincipalToDependent.Builder.IsRequired(true, ConfigurationSource.Explicit);
@@ -197,7 +202,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var foreignKey = CreateInternalNavigationBuilder()
                 .Metadata.ForeignKey;
-            foreignKey = foreignKey.Builder.HasNavigations(nameof(OrderDetails.Order), nameof(Order.SingleDetails), ConfigurationSource.Explicit)
+            foreignKey = foreignKey.Builder.HasNavigations(
+                    nameof(OrderDetails.Order), nameof(Order.SingleDetails), ConfigurationSource.Explicit)
                 .Metadata;
 
             foreignKey.PrincipalToDependent.Builder.IsRequired(true, ConfigurationSource.Explicit);
@@ -212,7 +218,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
             var detailsEntityBuilder = modelBuilder.Entity(typeof(OrderDetails), ConfigurationSource.Convention);
             orderEntityBuilder
-                .HasRelationship(detailsEntityBuilder.Metadata, nameof(Order.Details), ConfigurationSource.DataAnnotation, targetIsPrincipal: false)
+                .HasRelationship(
+                    detailsEntityBuilder.Metadata, nameof(Order.Details), ConfigurationSource.DataAnnotation, targetIsPrincipal: false)
                 .IsUnique(false, ConfigurationSource.Convention);
             var navigation = (Navigation)orderEntityBuilder.Navigation(nameof(Order.Details));
 
@@ -223,6 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             public static readonly FieldInfo DetailsField = typeof(Order)
                 .GetField(nameof(_details), BindingFlags.Instance | BindingFlags.NonPublic);
+
             public static readonly FieldInfo OtherDetailsField = typeof(Order)
                 .GetField(nameof(_otherDetails), BindingFlags.Instance | BindingFlags.NonPublic);
 

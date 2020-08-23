@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -22,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : LoadTestBase<TFixture>.LoadFixtureBase
     {
-        protected LoadTestBase(TFixture fixture) => Fixture = fixture;
+        protected LoadTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
@@ -131,10 +132,7 @@ namespace Microsoft.EntityFrameworkCore
                 Children = new List<Child> { new Child { Id = 11 }, new Child { Id = 12 } },
                 ChildrenAk = new List<ChildAk> { new ChildAk { Id = 31 }, new ChildAk { Id = 32 } },
                 ChildrenShadowFk = new List<ChildShadowFk> { new ChildShadowFk { Id = 51 }, new ChildShadowFk { Id = 52 } },
-                ChildrenCompositeKey = new List<ChildCompositeKey>
-                {
-                    new ChildCompositeKey { Id = 51 }, new ChildCompositeKey { Id = 52 }
-                }
+                ChildrenCompositeKey = new List<ChildCompositeKey> { new ChildCompositeKey { Id = 51 }, new ChildCompositeKey { Id = 52 } }
             };
 
             context.Attach(parent);
@@ -2526,7 +2524,9 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
         public virtual async Task Load_one_to_one_reference_to_principal_already_loaded(
-            EntityState state, bool async, CascadeTiming deleteOrphansTiming)
+            EntityState state,
+            bool async,
+            CascadeTiming deleteOrphansTiming)
         {
             using var context = CreateContext();
             context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
@@ -2576,7 +2576,9 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
         public virtual async Task Load_one_to_one_reference_to_dependent_already_loaded(
-            EntityState state, bool async, CascadeTiming deleteOrphansTiming)
+            EntityState state,
+            bool async,
+            CascadeTiming deleteOrphansTiming)
         {
             using var context = CreateContext();
             context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
@@ -2717,7 +2719,9 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
         public virtual async Task Load_collection_using_Query_already_loaded(
-            EntityState state, bool async, CascadeTiming deleteOrphansTiming)
+            EntityState state,
+            bool async,
+            CascadeTiming deleteOrphansTiming)
         {
             using var context = CreateContext();
             context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
@@ -2832,7 +2836,9 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
         public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded(
-            EntityState state, bool async, CascadeTiming deleteOrphansTiming)
+            EntityState state,
+            bool async,
+            CascadeTiming deleteOrphansTiming)
         {
             using var context = CreateContext();
             context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
@@ -3689,7 +3695,9 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
         public virtual async Task Load_one_to_one_reference_to_dependent_already_loaded_untyped(
-            EntityState state, bool async, CascadeTiming deleteOrphansTiming)
+            EntityState state,
+            bool async,
+            CascadeTiming deleteOrphansTiming)
         {
             using var context = CreateContext();
             context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
@@ -3748,7 +3756,9 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
         public virtual async Task Load_collection_using_Query_already_loaded_untyped(
-            EntityState state, bool async, CascadeTiming deleteOrphansTiming)
+            EntityState state,
+            bool async,
+            CascadeTiming deleteOrphansTiming)
         {
             using var context = CreateContext();
             context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
@@ -3866,7 +3876,9 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
         public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded_untyped(
-            EntityState state, bool async, CascadeTiming deleteOrphansTiming)
+            EntityState state,
+            bool async,
+            CascadeTiming deleteOrphansTiming)
         {
             using var context = CreateContext();
             context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;

@@ -19,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class WithConstructorsSqlServerFixture : WithConstructorsFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {

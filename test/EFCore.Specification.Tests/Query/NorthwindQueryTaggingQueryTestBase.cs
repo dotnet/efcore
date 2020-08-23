@@ -13,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class NorthwindQueryTaggingQueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
     {
-        protected NorthwindQueryTaggingQueryTestBase(TFixture fixture) => Fixture = fixture;
+        protected NorthwindQueryTaggingQueryTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
@@ -153,6 +154,7 @@ Laurel")
             Assert.NotNull(customer);
         }
 
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
+        protected NorthwindContext CreateContext()
+            => Fixture.CreateContext();
     }
 }

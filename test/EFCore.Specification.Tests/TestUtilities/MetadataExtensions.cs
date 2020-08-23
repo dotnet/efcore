@@ -12,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     public static class MetadataExtensions
     {
         public static IQueryable<TEntity> AsTracking<TEntity>(
-            this IQueryable<TEntity> source, bool tracking)
+            this IQueryable<TEntity> source,
+            bool tracking)
             where TEntity : class
             => tracking ? source.AsTracking() : source.AsNoTracking();
 

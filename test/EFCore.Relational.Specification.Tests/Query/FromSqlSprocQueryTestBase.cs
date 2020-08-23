@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class FromSqlSprocQueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
     {
-        protected FromSqlSprocQueryTestBase(TFixture fixture) => Fixture = fixture;
+        protected FromSqlSprocQueryTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
@@ -453,7 +454,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual object[] GetCustomerOrderHistorySprocParameters()
             => new[] { "ALFKI" };
 
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
+        protected NorthwindContext CreateContext()
+            => Fixture.CreateContext();
 
         protected abstract string TenMostExpensiveProductsSproc { get; }
 

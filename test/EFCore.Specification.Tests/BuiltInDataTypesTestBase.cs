@@ -19,11 +19,13 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : BuiltInDataTypesTestBase<TFixture>.BuiltInDataTypesFixtureBase, new()
     {
-        protected BuiltInDataTypesTestBase(TFixture fixture) => Fixture = fixture;
+        protected BuiltInDataTypesTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
-        protected DbContext CreateContext() => Fixture.CreateContext();
+        protected DbContext CreateContext()
+            => Fixture.CreateContext();
 
         [ConditionalTheory]
         [InlineData(false)]
@@ -2026,43 +2028,45 @@ namespace Microsoft.EntityFrameworkCore
             var expected = context.Set<BuiltInDataTypes>()
                 .Where(e => e.Id == 13)
                 .AsEnumerable()
-                .Select(b => new
-                {
-                    Sbyte = b.TestSignedByte.ToString(),
-                    Byte = b.TestByte.ToString(),
-                    Short = b.TestInt16.ToString(),
-                    Ushort = b.TestUnsignedInt16.ToString(),
-                    Int = b.TestInt32.ToString(),
-                    Uint = b.TestUnsignedInt32.ToString(),
-                    Long = b.TestInt64.ToString(),
-                    Ulong = b.TestUnsignedInt64.ToString(),
-                    Decimal = b.TestDecimal.ToString(),
-                    Char = b.TestCharacter.ToString()
-                })
+                .Select(
+                    b => new
+                    {
+                        Sbyte = b.TestSignedByte.ToString(),
+                        Byte = b.TestByte.ToString(),
+                        Short = b.TestInt16.ToString(),
+                        Ushort = b.TestUnsignedInt16.ToString(),
+                        Int = b.TestInt32.ToString(),
+                        Uint = b.TestUnsignedInt32.ToString(),
+                        Long = b.TestInt64.ToString(),
+                        Ulong = b.TestUnsignedInt64.ToString(),
+                        Decimal = b.TestDecimal.ToString(),
+                        Char = b.TestCharacter.ToString()
+                    })
                 .First();
 
             Fixture.ListLoggerFactory.Clear();
 
             var query = context.Set<BuiltInDataTypes>()
                 .Where(e => e.Id == 13)
-                .Select(b => new
-                {
-                    Sbyte = b.TestSignedByte.ToString(),
-                    Byte = b.TestByte.ToString(),
-                    Short = b.TestInt16.ToString(),
-                    Ushort = b.TestUnsignedInt16.ToString(),
-                    Int = b.TestInt32.ToString(),
-                    Uint = b.TestUnsignedInt32.ToString(),
-                    Long = b.TestInt64.ToString(),
-                    Ulong = b.TestUnsignedInt64.ToString(),
-                    Float = b.TestSingle.ToString(),
-                    Double = b.TestDouble.ToString(),
-                    Decimal = b.TestDecimal.ToString(),
-                    Char = b.TestCharacter.ToString(),
-                    DateTime = b.TestDateTime.ToString(),
-                    DateTimeOffset = b.TestDateTimeOffset.ToString(),
-                    TimeSpan = b.TestTimeSpan.ToString()
-                })
+                .Select(
+                    b => new
+                    {
+                        Sbyte = b.TestSignedByte.ToString(),
+                        Byte = b.TestByte.ToString(),
+                        Short = b.TestInt16.ToString(),
+                        Ushort = b.TestUnsignedInt16.ToString(),
+                        Int = b.TestInt32.ToString(),
+                        Uint = b.TestUnsignedInt32.ToString(),
+                        Long = b.TestInt64.ToString(),
+                        Ulong = b.TestUnsignedInt64.ToString(),
+                        Float = b.TestSingle.ToString(),
+                        Double = b.TestDouble.ToString(),
+                        Decimal = b.TestDecimal.ToString(),
+                        Char = b.TestCharacter.ToString(),
+                        DateTime = b.TestDateTime.ToString(),
+                        DateTimeOffset = b.TestDateTimeOffset.ToString(),
+                        TimeSpan = b.TestTimeSpan.ToString()
+                    })
                 .ToList();
 
             var actual = Assert.Single(query);
@@ -2098,7 +2102,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected override string StoreName { get; } = "BuiltInDataTypes";
 
-            public virtual int LongStringLength => 9000;
+            public virtual int LongStringLength
+                => 9000;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
@@ -2353,15 +2358,8 @@ namespace Microsoft.EntityFrameworkCore
 
                 modelBuilder.Entity<DateTimeEnclosure>()
                     .HasData(
-                        new DateTimeEnclosure
-                        {
-                            Id = 1,
-                            DateTimeOffset = new DateTimeOffset(2020, 3, 12, 1, 1, 1, new TimeSpan(3, 0, 0))
-                        },
-                        new DateTimeEnclosure
-                        {
-                            Id = 2
-                        });
+                        new DateTimeEnclosure { Id = 1, DateTimeOffset = new DateTimeOffset(2020, 3, 12, 1, 1, 1, new TimeSpan(3, 0, 0)) },
+                        new DateTimeEnclosure { Id = 2 });
             }
 
             protected static void MakeRequired<TEntity>(ModelBuilder modelBuilder)
@@ -2375,7 +2373,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public abstract bool StrictEquality { get; }
 
-            public virtual int IntegerPrecision => 19;
+            public virtual int IntegerPrecision
+                => 19;
 
             public abstract bool SupportsAnsi { get; }
 

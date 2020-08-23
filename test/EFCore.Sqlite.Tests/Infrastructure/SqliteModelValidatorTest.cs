@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
@@ -98,9 +97,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private static void GenerateMapping(IMutableProperty property)
             => property.SetTypeMapping(
-                  TestServiceFactory.Instance.Create<SqliteTypeMappingSource>()
+                TestServiceFactory.Instance.Create<SqliteTypeMappingSource>()
                     .FindMapping(property));
 
-        protected override TestHelpers TestHelpers => SqliteTestHelpers.Instance;
+        protected override TestHelpers TestHelpers
+            => SqliteTestHelpers.Instance;
     }
 }

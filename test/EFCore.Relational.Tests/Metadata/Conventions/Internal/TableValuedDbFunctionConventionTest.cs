@@ -19,9 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void Configures_return_entity_as_not_mapped()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.HasDbFunction(typeof(TableValuedDbFunctionConventionTest).GetMethod(
-                        nameof(GetKeylessEntities),
-                        BindingFlags.NonPublic | BindingFlags.Static));
+            modelBuilder.HasDbFunction(
+                typeof(TableValuedDbFunctionConventionTest).GetMethod(
+                    nameof(GetKeylessEntities),
+                    BindingFlags.NonPublic | BindingFlags.Static));
 
             modelBuilder.Entity<KeylessEntity>().HasNoKey();
 
@@ -38,9 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<TestEntity>().ToTable("TestTable").HasKey(e => e.Name);
-            modelBuilder.HasDbFunction(typeof(TableValuedDbFunctionConventionTest).GetMethod(
-                        nameof(GetEntities),
-                        BindingFlags.NonPublic | BindingFlags.Static));
+            modelBuilder.HasDbFunction(
+                typeof(TableValuedDbFunctionConventionTest).GetMethod(
+                    nameof(GetEntities),
+                    BindingFlags.NonPublic | BindingFlags.Static));
 
             var model = modelBuilder.FinalizeModel();
 
@@ -55,9 +57,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Owned<KeylessEntity>();
-            modelBuilder.HasDbFunction(typeof(TableValuedDbFunctionConventionTest).GetMethod(
-                        nameof(GetKeylessEntities),
-                        BindingFlags.NonPublic | BindingFlags.Static));
+            modelBuilder.HasDbFunction(
+                typeof(TableValuedDbFunctionConventionTest).GetMethod(
+                    nameof(GetKeylessEntities),
+                    BindingFlags.NonPublic | BindingFlags.Static));
 
             Assert.Equal(
                 RelationalStrings.DbFunctionInvalidIQueryableOwnedReturnType(
@@ -71,9 +74,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<TestEntity>().OwnsOne(e => e.KeylessEntity);
-            modelBuilder.HasDbFunction(typeof(TableValuedDbFunctionConventionTest).GetMethod(
-                        nameof(GetKeylessEntities),
-                        BindingFlags.NonPublic | BindingFlags.Static));
+            modelBuilder.HasDbFunction(
+                typeof(TableValuedDbFunctionConventionTest).GetMethod(
+                    nameof(GetKeylessEntities),
+                    BindingFlags.NonPublic | BindingFlags.Static));
 
             Assert.Equal(
                 RelationalStrings.DbFunctionInvalidIQueryableOwnedReturnType(
@@ -86,9 +90,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void Throws_when_adding_a_function_returning_a_scalar()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.HasDbFunction(typeof(TableValuedDbFunctionConventionTest).GetMethod(
-                        nameof(GetScalars),
-                        BindingFlags.NonPublic | BindingFlags.Static));
+            modelBuilder.HasDbFunction(
+                typeof(TableValuedDbFunctionConventionTest).GetMethod(
+                    nameof(GetScalars),
+                    BindingFlags.NonPublic | BindingFlags.Static));
 
             Assert.Equal(
                 RelationalStrings.DbFunctionInvalidIQueryableReturnType(
@@ -97,7 +102,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
         }
 
-        private static ModelBuilder CreateModelBuilder() => RelationalTestHelpers.Instance.CreateConventionBuilder();
+        private static ModelBuilder CreateModelBuilder()
+            => RelationalTestHelpers.Instance.CreateConventionBuilder();
 
         private static IQueryable<TestEntity> GetEntities(int id)
             => throw new NotImplementedException();

@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class NotificationEntitiesTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NotificationEntitiesTestBase<TFixture>.NotificationEntitiesFixtureBase, new()
     {
-        protected NotificationEntitiesTestBase(TFixture fixture) => Fixture = fixture;
+        protected NotificationEntitiesTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected virtual TFixture Fixture { get; }
 
@@ -106,7 +107,8 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected DbContext CreateContext() => Fixture.CreateContext();
+        protected DbContext CreateContext()
+            => Fixture.CreateContext();
 
         public abstract class NotificationEntitiesFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {

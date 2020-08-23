@@ -93,13 +93,14 @@ namespace TestNamespace
             Test(
                 modelBuilder =>
                 {
-                    modelBuilder.Entity("Vista",
-                    b =>
-                    {
-                        b.ToTable("Vistas"); // Default name is "Vista" in the absence of pluralizer
-                        b.Property<int>("Id");
-                        b.HasKey("Id");
-                    });
+                    modelBuilder.Entity(
+                        "Vista",
+                        b =>
+                        {
+                            b.ToTable("Vistas"); // Default name is "Vista" in the absence of pluralizer
+                            b.Property<int>("Id");
+                            b.HasKey("Id");
+                        });
                 },
                 new ModelCodeGenerationOptions { UseDataAnnotations = true },
                 code =>
@@ -140,13 +141,14 @@ namespace TestNamespace
                 modelBuilder =>
                 {
                     modelBuilder.HasDefaultSchema("dbo");
-                    modelBuilder.Entity("Vista",
-                    b =>
-                    {
-                        b.ToTable("Vista", "dbo"); // Default name is "Vista" in the absence of pluralizer
-                        b.Property<int>("Id");
-                        b.HasKey("Id");
-                    });
+                    modelBuilder.Entity(
+                        "Vista",
+                        b =>
+                        {
+                            b.ToTable("Vista", "dbo"); // Default name is "Vista" in the absence of pluralizer
+                            b.Property<int>("Id");
+                            b.HasKey("Id");
+                        });
                 },
                 new ModelCodeGenerationOptions { UseDataAnnotations = true },
                 code =>
@@ -186,13 +188,14 @@ namespace TestNamespace
                 modelBuilder =>
                 {
                     modelBuilder.HasDefaultSchema("dbo");
-                    modelBuilder.Entity("Vista",
-                    b =>
-                    {
-                        b.ToTable("Vista", "custom");
-                        b.Property<int>("Id");
-                        b.HasKey("Id");
-                    });
+                    modelBuilder.Entity(
+                        "Vista",
+                        b =>
+                        {
+                            b.ToTable("Vista", "custom");
+                            b.Property<int>("Id");
+                            b.HasKey("Id");
+                        });
                 },
                 new ModelCodeGenerationOptions { UseDataAnnotations = true },
                 code =>
@@ -315,7 +318,8 @@ namespace TestNamespace
                 {
                     var entityType = model.FindEntityType("TestNamespace.EntityWithIndexes");
                     var indexes = entityType.GetIndexes();
-                    Assert.Collection(indexes,
+                    Assert.Collection(
+                        indexes,
                         t => Assert.Null(t.Name),
                         t => Assert.Equal("IndexOnAAndB", t.Name),
                         t => Assert.Equal("IndexOnBAndC", t.Name));
@@ -1398,7 +1402,5 @@ namespace TestNamespace
                     Assert.Equal("OriginalPosts", originalInverseNavigation.Name);
                 });
         }
-
-
     }
 }

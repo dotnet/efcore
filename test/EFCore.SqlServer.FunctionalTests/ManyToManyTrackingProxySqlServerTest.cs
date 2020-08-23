@@ -13,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected override bool RequiresDetectChanges => false;
+        protected override bool RequiresDetectChanges
+            => false;
 
         public class ManyToManyTrackingProxySqlServerFixture : ManyToManyTrackingSqlServerFixtureBase
         {

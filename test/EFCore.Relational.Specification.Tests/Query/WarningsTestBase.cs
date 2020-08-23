@@ -23,7 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             fixture.ListLoggerFactory.Clear();
         }
 
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
+        protected NorthwindContext CreateContext()
+            => Fixture.CreateContext();
 
         [ConditionalFact]
         public virtual void Does_not_throw_for_top_level_single()

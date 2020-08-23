@@ -72,7 +72,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             internal int Id { get; set; }
 
-            public object this[string name] => _internalValues[name];
+            public object this[string name]
+                => _internalValues[name];
         }
 
         private class NonIndexedClass

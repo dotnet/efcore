@@ -18,19 +18,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var modelBuilder = GetModelBuilder();
             modelBuilder.GetInfrastructure().HasMaxIdentifierLength(10);
-            modelBuilder.HasSequence("UniquifyMeToo", (string)null);
+            modelBuilder.HasSequence("UniquifyMeToo");
             modelBuilder.HasSequence("UniquifyMeToo", "TestSchema");
-            modelBuilder.HasSequence("UniquifyM!Too", (string)null);
+            modelBuilder.HasSequence("UniquifyM!Too");
             modelBuilder.HasSequence("UniquifyM!Too", "TestSchema");
             // the below ensure we deal with clashes with existing
             // sequence names that look like candidate uniquified names
-            modelBuilder.HasSequence("UniquifyM~", (string)null);
+            modelBuilder.HasSequence("UniquifyM~");
             modelBuilder.HasSequence("UniquifyM~", "TestSchema");
 
             var model = modelBuilder.Model;
             model.FinalizeModel();
 
-            Assert.Collection(model.GetSequences(),
+            Assert.Collection(
+                model.GetSequences(),
                 s0 =>
                 {
                     Assert.Equal("Uniquify~1", s0.Name);

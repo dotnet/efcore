@@ -380,7 +380,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
         }
 
         public static void WireUpPart1(
-            IReadOnlyList<Level1> l1s, IReadOnlyList<Level2> l2s, IReadOnlyList<Level3> l3s, IReadOnlyList<Level4> l4s,
+            IReadOnlyList<Level1> l1s,
+            IReadOnlyList<Level2> l2s,
+            IReadOnlyList<Level3> l3s,
+            IReadOnlyList<Level4> l4s,
             bool tableSplitting)
         {
             l1s[0].OneToOne_Required_PK1 = l2s[0];
@@ -620,7 +623,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
         }
 
         public static void WireUpInversePart1(
-            IReadOnlyList<Level1> l1s, IReadOnlyList<Level2> l2s, IReadOnlyList<Level3> l3s, IReadOnlyList<Level4> l4s,
+            IReadOnlyList<Level1> l1s,
+            IReadOnlyList<Level2> l2s,
+            IReadOnlyList<Level3> l3s,
+            IReadOnlyList<Level4> l4s,
             bool tableSplitting)
         {
             l2s[0].OneToOne_Required_PK_Inverse2 = l1s[0];
@@ -903,7 +909,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
         }
 
         public static void WireUpPart2(
-            IReadOnlyList<Level1> l1s, IReadOnlyList<Level2> l2s, IReadOnlyList<Level3> l3s, IReadOnlyList<Level4> l4s,
+            IReadOnlyList<Level1> l1s,
+            IReadOnlyList<Level2> l2s,
+            IReadOnlyList<Level3> l3s,
+            IReadOnlyList<Level4> l4s,
             bool tableSplitting)
         {
             l1s[0].OneToOne_Optional_PK1 = l2s[0];
@@ -1012,7 +1021,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
         }
 
         public static void WireUpInversePart2(
-            IReadOnlyList<Level1> l1s, IReadOnlyList<Level2> l2s, IReadOnlyList<Level3> l3s, IReadOnlyList<Level4> l4s,
+            IReadOnlyList<Level1> l1s,
+            IReadOnlyList<Level2> l2s,
+            IReadOnlyList<Level3> l3s,
+            IReadOnlyList<Level4> l4s,
             bool tableSplitting)
         {
             l2s[0].OneToOne_Optional_PK_Inverse2 = l1s[0];

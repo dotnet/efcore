@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using Index = Microsoft.EntityFrameworkCore.Metadata.Internal.Index;
 
 // ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
@@ -45,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.Equal("IndexOnAAndB", index.Name);
             Assert.True(index.IsUnique);
             Assert.Equal(ConfigurationSource.DataAnnotation, index.GetIsUniqueConfigurationSource());
-            Assert.Collection(index.Properties,
+            Assert.Collection(
+                index.Properties,
                 prop0 => Assert.Equal("A", prop0.Name),
                 prop1 => Assert.Equal("B", prop1.Name));
         }
@@ -61,12 +63,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             modelBuilder.Model.FinalizeModel();
 
-            var index = (Metadata.Internal.Index)entityBuilder.Metadata.GetIndexes().Single();
+            var index = (Index)entityBuilder.Metadata.GetIndexes().Single();
             Assert.Equal(ConfigurationSource.Explicit, index.GetConfigurationSource());
             Assert.Equal("IndexOnAAndB", index.Name);
             Assert.False(index.IsUnique);
             Assert.Equal(ConfigurationSource.Explicit, index.GetIsUniqueConfigurationSource());
-            Assert.Collection(index.Properties,
+            Assert.Collection(
+                index.Properties,
                 prop0 => Assert.Equal("A", prop0.Name),
                 prop1 => Assert.Equal("B", prop1.Name));
         }
@@ -106,21 +109,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var indexes = entityBuilder.Metadata.GetIndexes();
             Assert.Equal(2, indexes.Count());
 
-            var index0 = (Metadata.Internal.Index)indexes.First();
+            var index0 = (Index)indexes.First();
             Assert.Equal(ConfigurationSource.DataAnnotation, index0.GetConfigurationSource());
             Assert.Equal("IndexOnAAndB", index0.Name);
             Assert.True(index0.IsUnique);
             Assert.Equal(ConfigurationSource.DataAnnotation, index0.GetIsUniqueConfigurationSource());
-            Assert.Collection(index0.Properties,
+            Assert.Collection(
+                index0.Properties,
                 prop0 => Assert.Equal("A", prop0.Name),
                 prop1 => Assert.Equal("B", prop1.Name));
 
-            var index1 = (Metadata.Internal.Index)indexes.Skip(1).First();
+            var index1 = (Index)indexes.Skip(1).First();
             Assert.Equal(ConfigurationSource.DataAnnotation, index1.GetConfigurationSource());
             Assert.Equal("IndexOnBAndC", index1.Name);
             Assert.False(index1.IsUnique);
             Assert.Equal(ConfigurationSource.DataAnnotation, index1.GetIsUniqueConfigurationSource());
-            Assert.Collection(index1.Properties,
+            Assert.Collection(
+                index1.Properties,
                 prop0 => Assert.Equal("B", prop0.Name),
                 prop1 => Assert.Equal("C", prop1.Name));
         }
@@ -133,16 +138,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             modelBuilder.Model.FinalizeModel();
 
             // assert that the base type is not part of the model
-            Assert.Empty(modelBuilder.Model.GetEntityTypes()
-                .Where(e => e.ClrType == typeof(BaseUnmappedEntityWithIndex)));
+            Assert.Empty(
+                modelBuilder.Model.GetEntityTypes()
+                    .Where(e => e.ClrType == typeof(BaseUnmappedEntityWithIndex)));
 
             // assert that we see the index anyway
-            var index = (Metadata.Internal.Index)entityBuilder.Metadata.GetIndexes().Single();
+            var index = (Index)entityBuilder.Metadata.GetIndexes().Single();
             Assert.Equal(ConfigurationSource.DataAnnotation, index.GetConfigurationSource());
             Assert.Equal("IndexOnAAndB", index.Name);
             Assert.True(index.IsUnique);
             Assert.Equal(ConfigurationSource.DataAnnotation, index.GetIsUniqueConfigurationSource());
-            Assert.Collection(index.Properties,
+            Assert.Collection(
+                index.Properties,
                 prop0 => Assert.Equal("A", prop0.Name),
                 prop1 => Assert.Equal("B", prop1.Name));
         }
@@ -168,7 +175,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
             var entityBuilder = modelBuilder.Entity<EntityIndexWithIgnoredProperty>();
 
-
             Assert.Equal(
                 CoreStrings.NamedIndexDefinedOnIgnoredProperty(
                     "IndexOnAAndIgnoredProperty",
@@ -187,9 +193,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             Assert.Equal(
                 CoreStrings.UnnamedIndexDefinedOnNonExistentProperty(
-                        nameof(EntityUnnamedIndexWithNonExistentProperty),
-                        "{'A', 'DoesNotExist'}",
-                        "DoesNotExist"),
+                    nameof(EntityUnnamedIndexWithNonExistentProperty),
+                    "{'A', 'DoesNotExist'}",
+                    "DoesNotExist"),
                 Assert.Throws<InvalidOperationException>(
                     () => modelBuilder.Model.FinalizeModel()).Message);
         }
@@ -202,10 +208,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             Assert.Equal(
                 CoreStrings.NamedIndexDefinedOnNonExistentProperty(
-                        "IndexOnAAndNonExistentProperty",
-                        nameof(EntityIndexWithNonExistentProperty),
-                        "{'A', 'DoesNotExist'}",
-                        "DoesNotExist"),
+                    "IndexOnAAndNonExistentProperty",
+                    nameof(EntityIndexWithNonExistentProperty),
+                    "{'A', 'DoesNotExist'}",
+                    "DoesNotExist"),
                 Assert.Throws<InvalidOperationException>(
                     () => modelBuilder.Model.FinalizeModel()).Message);
         }
@@ -232,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.NotNull(childEntityBuilder.Metadata.BaseType);
 
             // The Index is replicated on the Parent type, but not on the Child.
-            var index = (Metadata.Internal.Index)
+            var index = (Index)
                 Assert.Single(parentEntityBuilder.Metadata.GetDeclaredIndexes());
             Assert.Equal(ConfigurationSource.DataAnnotation, index.GetConfigurationSource());
             Assert.Equal("IndexOnGrandparentGetsReplicatedToParent", index.Name);
@@ -243,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             // The Child still has its own index even though
             // the property is defined on the Grandparent type.
-            var childIndex = (Metadata.Internal.Index)
+            var childIndex = (Index)
                 Assert.Single(childEntityBuilder.Metadata.GetDeclaredIndexes());
             Assert.Equal(ConfigurationSource.DataAnnotation, childIndex.GetConfigurationSource());
             Assert.Equal("IndexOnChildUnaffectedWhenParentBaseTypeRemoved", childIndex.Name);
@@ -267,12 +273,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             entityBuilder.Property<int>("Y");
             modelBuilder.Model.FinalizeModel();
 
-            var index = (Metadata.Internal.Index)
+            var index = (Index)
                 Assert.Single(entityBuilder.Metadata.GetDeclaredIndexes());
 
             Assert.Equal(ConfigurationSource.DataAnnotation, index.GetConfigurationSource());
             Assert.Equal("IndexOnShadowProperty", index.Name);
-            Assert.Collection(index.Properties,
+            Assert.Collection(
+                index.Properties,
                 prop0 => Assert.Equal("X", prop0.Name),
                 prop1 => Assert.Equal("Y", prop1.Name));
         }
@@ -284,12 +291,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var entityBuilder = modelBuilder.Entity(typeof(EntityWithIndexOnPrivateProperty));
             modelBuilder.Model.FinalizeModel();
 
-            var index = (Metadata.Internal.Index)
+            var index = (Index)
                 Assert.Single(entityBuilder.Metadata.GetDeclaredIndexes());
 
             Assert.Equal(ConfigurationSource.DataAnnotation, index.GetConfigurationSource());
             Assert.Equal("IndexOnPrivateProperty", index.Name);
-            Assert.Collection(index.Properties,
+            Assert.Collection(
+                index.Properties,
                 prop0 => Assert.Equal("X", prop0.Name),
                 prop1 => Assert.Equal("Y", prop1.Name));
         }
@@ -311,7 +319,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             CreateIndexAttributeConvention().ProcessModelFinalizing(modelBuilder, context);
         }
 
-        private IndexAttributeConvention CreateIndexAttributeConvention() => new IndexAttributeConvention(CreateDependencies());
+        private IndexAttributeConvention CreateIndexAttributeConvention()
+            => new IndexAttributeConvention(CreateDependencies());
 
         private ProviderConventionSetBuilderDependencies CreateDependencies()
             => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
@@ -386,6 +395,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             public int Id { get; set; }
             public int A { get; set; }
+
             [NotMapped]
             public int B { get; set; }
         }
@@ -395,6 +405,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             public int Id { get; set; }
             public int A { get; set; }
+
             [NotMapped]
             public int B { get; set; }
         }

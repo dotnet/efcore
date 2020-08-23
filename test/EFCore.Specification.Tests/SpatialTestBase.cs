@@ -142,6 +142,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected abstract void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction);
 
-        protected SpatialContext CreateContext() => Fixture.CreateContext();
+        protected SpatialContext CreateContext()
+            => Fixture.CreateContext();
     }
 }

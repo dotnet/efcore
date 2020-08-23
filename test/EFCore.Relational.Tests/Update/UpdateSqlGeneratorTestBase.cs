@@ -25,9 +25,24 @@ namespace Microsoft.EntityFrameworkCore.Update
             CreateSqlGenerator().AppendDeleteOperation(stringBuilder, command, 0);
 
             Assert.Equal(
-                "DELETE FROM " + SchemaPrefix + OpenDelimiter + "Ducks" + CloseDelimiter + "" + Environment.NewLine +
-                "WHERE " + OpenDelimiter + "Id" + CloseDelimiter + " = @p0;" + Environment.NewLine +
-                "SELECT " + RowsAffected + ";" + Environment.NewLine + Environment.NewLine,
+                "DELETE FROM "
+                + SchemaPrefix
+                + OpenDelimiter
+                + "Ducks"
+                + CloseDelimiter
+                + ""
+                + Environment.NewLine
+                + "WHERE "
+                + OpenDelimiter
+                + "Id"
+                + CloseDelimiter
+                + " = @p0;"
+                + Environment.NewLine
+                + "SELECT "
+                + RowsAffected
+                + ";"
+                + Environment.NewLine
+                + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
@@ -40,10 +55,28 @@ namespace Microsoft.EntityFrameworkCore.Update
             CreateSqlGenerator().AppendDeleteOperation(stringBuilder, command, 0);
 
             Assert.Equal(
-                "DELETE FROM " + SchemaPrefix + OpenDelimiter + "Ducks" + CloseDelimiter + "" + Environment.NewLine +
-                "WHERE " + OpenDelimiter + "Id" + CloseDelimiter + " = @p0 AND " + OpenDelimiter + "ConcurrencyToken" + CloseDelimiter
-                + " IS NULL;" + Environment.NewLine +
-                "SELECT " + RowsAffected + ";" + Environment.NewLine + Environment.NewLine,
+                "DELETE FROM "
+                + SchemaPrefix
+                + OpenDelimiter
+                + "Ducks"
+                + CloseDelimiter
+                + ""
+                + Environment.NewLine
+                + "WHERE "
+                + OpenDelimiter
+                + "Id"
+                + CloseDelimiter
+                + " = @p0 AND "
+                + OpenDelimiter
+                + "ConcurrencyToken"
+                + CloseDelimiter
+                + " IS NULL;"
+                + Environment.NewLine
+                + "SELECT "
+                + RowsAffected
+                + ";"
+                + Environment.NewLine
+                + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
@@ -62,14 +95,50 @@ namespace Microsoft.EntityFrameworkCore.Update
             StringBuilder stringBuilder)
         {
             Assert.Equal(
-                "INSERT INTO " + SchemaPrefix + OpenDelimiter + "Ducks" + CloseDelimiter + " (" + OpenDelimiter + "Name" + CloseDelimiter
-                + ", " + OpenDelimiter + "Quacks" + CloseDelimiter + ", " + OpenDelimiter + "ConcurrencyToken" + CloseDelimiter + ")"
-                + Environment.NewLine +
-                "VALUES (@p0, @p1, @p2);" + Environment.NewLine +
-                "SELECT " + OpenDelimiter + "Id" + CloseDelimiter + ", " + OpenDelimiter + "Computed" + CloseDelimiter + ""
-                + Environment.NewLine +
-                "FROM " + SchemaPrefix + OpenDelimiter + "Ducks" + CloseDelimiter + "" + Environment.NewLine +
-                "WHERE " + RowsAffected + " = 1 AND " + GetIdentityWhereCondition("Id") + ";" + Environment.NewLine
+                "INSERT INTO "
+                + SchemaPrefix
+                + OpenDelimiter
+                + "Ducks"
+                + CloseDelimiter
+                + " ("
+                + OpenDelimiter
+                + "Name"
+                + CloseDelimiter
+                + ", "
+                + OpenDelimiter
+                + "Quacks"
+                + CloseDelimiter
+                + ", "
+                + OpenDelimiter
+                + "ConcurrencyToken"
+                + CloseDelimiter
+                + ")"
+                + Environment.NewLine
+                + "VALUES (@p0, @p1, @p2);"
+                + Environment.NewLine
+                + "SELECT "
+                + OpenDelimiter
+                + "Id"
+                + CloseDelimiter
+                + ", "
+                + OpenDelimiter
+                + "Computed"
+                + CloseDelimiter
+                + ""
+                + Environment.NewLine
+                + "FROM "
+                + SchemaPrefix
+                + OpenDelimiter
+                + "Ducks"
+                + CloseDelimiter
+                + ""
+                + Environment.NewLine
+                + "WHERE "
+                + RowsAffected
+                + " = 1 AND "
+                + GetIdentityWhereCondition("Id")
+                + ";"
+                + Environment.NewLine
                 + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -84,10 +153,31 @@ namespace Microsoft.EntityFrameworkCore.Update
             CreateSqlGenerator().AppendInsertOperation(stringBuilder, command, 0);
 
             Assert.Equal(
-                "INSERT INTO " + SchemaPrefix + OpenDelimiter + "Ducks" + CloseDelimiter + " (" +
-                OpenDelimiter + "Id" + CloseDelimiter + ", " + OpenDelimiter + "Name" + CloseDelimiter + ", " + OpenDelimiter + "Quacks"
-                + CloseDelimiter + ", " + OpenDelimiter + "ConcurrencyToken" + CloseDelimiter + ")" + Environment.NewLine +
-                "VALUES (@p0, @p1, @p2, @p3);" + Environment.NewLine,
+                "INSERT INTO "
+                + SchemaPrefix
+                + OpenDelimiter
+                + "Ducks"
+                + CloseDelimiter
+                + " ("
+                + OpenDelimiter
+                + "Id"
+                + CloseDelimiter
+                + ", "
+                + OpenDelimiter
+                + "Name"
+                + CloseDelimiter
+                + ", "
+                + OpenDelimiter
+                + "Quacks"
+                + CloseDelimiter
+                + ", "
+                + OpenDelimiter
+                + "ConcurrencyToken"
+                + CloseDelimiter
+                + ")"
+                + Environment.NewLine
+                + "VALUES (@p0, @p1, @p2, @p3);"
+                + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
@@ -106,14 +196,52 @@ namespace Microsoft.EntityFrameworkCore.Update
             StringBuilder stringBuilder)
         {
             Assert.Equal(
-                "INSERT INTO " + SchemaPrefix + OpenDelimiter + "Ducks" + CloseDelimiter + " (" + OpenDelimiter + "Id" +
-                CloseDelimiter + ", " + OpenDelimiter + "Name" + CloseDelimiter + ", " + OpenDelimiter + "Quacks" + CloseDelimiter + ", "
-                + OpenDelimiter +
-                "ConcurrencyToken" + CloseDelimiter + ")" + Environment.NewLine +
-                "VALUES (@p0, @p1, @p2, @p3);" + Environment.NewLine +
-                "SELECT " + OpenDelimiter + "Computed" + CloseDelimiter + "" + Environment.NewLine +
-                "FROM " + SchemaPrefix + OpenDelimiter + "Ducks" + CloseDelimiter + "" + Environment.NewLine +
-                "WHERE " + RowsAffected + " = 1 AND " + OpenDelimiter + "Id" + CloseDelimiter + " = @p0;" + Environment.NewLine
+                "INSERT INTO "
+                + SchemaPrefix
+                + OpenDelimiter
+                + "Ducks"
+                + CloseDelimiter
+                + " ("
+                + OpenDelimiter
+                + "Id"
+                + CloseDelimiter
+                + ", "
+                + OpenDelimiter
+                + "Name"
+                + CloseDelimiter
+                + ", "
+                + OpenDelimiter
+                + "Quacks"
+                + CloseDelimiter
+                + ", "
+                + OpenDelimiter
+                + "ConcurrencyToken"
+                + CloseDelimiter
+                + ")"
+                + Environment.NewLine
+                + "VALUES (@p0, @p1, @p2, @p3);"
+                + Environment.NewLine
+                + "SELECT "
+                + OpenDelimiter
+                + "Computed"
+                + CloseDelimiter
+                + ""
+                + Environment.NewLine
+                + "FROM "
+                + SchemaPrefix
+                + OpenDelimiter
+                + "Ducks"
+                + CloseDelimiter
+                + ""
+                + Environment.NewLine
+                + "WHERE "
+                + RowsAffected
+                + " = 1 AND "
+                + OpenDelimiter
+                + "Id"
+                + CloseDelimiter
+                + " = @p0;"
+                + Environment.NewLine
                 + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -132,13 +260,46 @@ namespace Microsoft.EntityFrameworkCore.Update
         protected virtual void AppendInsertOperation_appends_insert_and_select_for_only_identity_verification(StringBuilder stringBuilder)
         {
             Assert.Equal(
-                "INSERT INTO " + SchemaPrefix + OpenDelimiter + "Ducks" + CloseDelimiter + " (" + OpenDelimiter + "Name" +
-                CloseDelimiter + ", " + OpenDelimiter + "Quacks" + CloseDelimiter + ", " + OpenDelimiter + "ConcurrencyToken"
-                + CloseDelimiter + ")" + Environment.NewLine +
-                "VALUES (@p0, @p1, @p2);" + Environment.NewLine +
-                "SELECT " + OpenDelimiter + "Id" + CloseDelimiter + "" + Environment.NewLine +
-                "FROM " + SchemaPrefix + OpenDelimiter + "Ducks" + CloseDelimiter + "" + Environment.NewLine +
-                "WHERE " + RowsAffected + " = 1 AND " + GetIdentityWhereCondition("Id") + ";" + Environment.NewLine
+                "INSERT INTO "
+                + SchemaPrefix
+                + OpenDelimiter
+                + "Ducks"
+                + CloseDelimiter
+                + " ("
+                + OpenDelimiter
+                + "Name"
+                + CloseDelimiter
+                + ", "
+                + OpenDelimiter
+                + "Quacks"
+                + CloseDelimiter
+                + ", "
+                + OpenDelimiter
+                + "ConcurrencyToken"
+                + CloseDelimiter
+                + ")"
+                + Environment.NewLine
+                + "VALUES (@p0, @p1, @p2);"
+                + Environment.NewLine
+                + "SELECT "
+                + OpenDelimiter
+                + "Id"
+                + CloseDelimiter
+                + ""
+                + Environment.NewLine
+                + "FROM "
+                + SchemaPrefix
+                + OpenDelimiter
+                + "Ducks"
+                + CloseDelimiter
+                + ""
+                + Environment.NewLine
+                + "WHERE "
+                + RowsAffected
+                + " = 1 AND "
+                + GetIdentityWhereCondition("Id")
+                + ";"
+                + Environment.NewLine
                 + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -158,12 +319,38 @@ namespace Microsoft.EntityFrameworkCore.Update
             StringBuilder stringBuilder)
         {
             Assert.Equal(
-                "INSERT INTO " + SchemaPrefix + OpenDelimiter + "Ducks" + CloseDelimiter + "" + Environment.NewLine +
-                "DEFAULT VALUES;" + Environment.NewLine +
-                "SELECT " + OpenDelimiter + "Id" + CloseDelimiter + ", " + OpenDelimiter + "Computed" + CloseDelimiter + ""
-                + Environment.NewLine +
-                "FROM " + SchemaPrefix + OpenDelimiter + "Ducks" + CloseDelimiter + "" + Environment.NewLine +
-                "WHERE " + RowsAffected + " = 1 AND " + GetIdentityWhereCondition("Id") + ";" + Environment.NewLine
+                "INSERT INTO "
+                + SchemaPrefix
+                + OpenDelimiter
+                + "Ducks"
+                + CloseDelimiter
+                + ""
+                + Environment.NewLine
+                + "DEFAULT VALUES;"
+                + Environment.NewLine
+                + "SELECT "
+                + OpenDelimiter
+                + "Id"
+                + CloseDelimiter
+                + ", "
+                + OpenDelimiter
+                + "Computed"
+                + CloseDelimiter
+                + ""
+                + Environment.NewLine
+                + "FROM "
+                + SchemaPrefix
+                + OpenDelimiter
+                + "Ducks"
+                + CloseDelimiter
+                + ""
+                + Environment.NewLine
+                + "WHERE "
+                + RowsAffected
+                + " = 1 AND "
+                + GetIdentityWhereCondition("Id")
+                + ";"
+                + Environment.NewLine
                 + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -183,11 +370,34 @@ namespace Microsoft.EntityFrameworkCore.Update
             StringBuilder stringBuilder)
         {
             Assert.Equal(
-                "INSERT INTO " + SchemaPrefix + OpenDelimiter + "Ducks" + CloseDelimiter + "" + Environment.NewLine +
-                "DEFAULT VALUES;" + Environment.NewLine +
-                "SELECT " + OpenDelimiter + "Id" + CloseDelimiter + "" + Environment.NewLine +
-                "FROM " + SchemaPrefix + OpenDelimiter + "Ducks" + CloseDelimiter + "" + Environment.NewLine +
-                "WHERE " + RowsAffected + " = 1 AND " + GetIdentityWhereCondition("Id") + ";" + Environment.NewLine
+                "INSERT INTO "
+                + SchemaPrefix
+                + OpenDelimiter
+                + "Ducks"
+                + CloseDelimiter
+                + ""
+                + Environment.NewLine
+                + "DEFAULT VALUES;"
+                + Environment.NewLine
+                + "SELECT "
+                + OpenDelimiter
+                + "Id"
+                + CloseDelimiter
+                + ""
+                + Environment.NewLine
+                + "FROM "
+                + SchemaPrefix
+                + OpenDelimiter
+                + "Ducks"
+                + CloseDelimiter
+                + ""
+                + Environment.NewLine
+                + "WHERE "
+                + RowsAffected
+                + " = 1 AND "
+                + GetIdentityWhereCondition("Id")
+                + ";"
+                + Environment.NewLine
                 + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -207,14 +417,56 @@ namespace Microsoft.EntityFrameworkCore.Update
             StringBuilder stringBuilder)
         {
             Assert.Equal(
-                "UPDATE " + SchemaPrefix + OpenDelimiter + "Ducks" + CloseDelimiter + " SET " + OpenDelimiter + "Name" + CloseDelimiter +
-                " = @p0, " + OpenDelimiter + "Quacks" + CloseDelimiter + " = @p1, " + OpenDelimiter + "ConcurrencyToken" + CloseDelimiter
-                + " = @p2" + Environment.NewLine +
-                "WHERE " + OpenDelimiter + "Id" + CloseDelimiter + " = @p3 AND " + OpenDelimiter + "ConcurrencyToken" + CloseDelimiter
-                + " IS NULL;" + Environment.NewLine +
-                "SELECT " + OpenDelimiter + "Computed" + CloseDelimiter + "" + Environment.NewLine +
-                "FROM " + SchemaPrefix + OpenDelimiter + "Ducks" + CloseDelimiter + "" + Environment.NewLine +
-                "WHERE " + RowsAffected + " = 1 AND " + OpenDelimiter + "Id" + CloseDelimiter + " = @p3;" + Environment.NewLine
+                "UPDATE "
+                + SchemaPrefix
+                + OpenDelimiter
+                + "Ducks"
+                + CloseDelimiter
+                + " SET "
+                + OpenDelimiter
+                + "Name"
+                + CloseDelimiter
+                + " = @p0, "
+                + OpenDelimiter
+                + "Quacks"
+                + CloseDelimiter
+                + " = @p1, "
+                + OpenDelimiter
+                + "ConcurrencyToken"
+                + CloseDelimiter
+                + " = @p2"
+                + Environment.NewLine
+                + "WHERE "
+                + OpenDelimiter
+                + "Id"
+                + CloseDelimiter
+                + " = @p3 AND "
+                + OpenDelimiter
+                + "ConcurrencyToken"
+                + CloseDelimiter
+                + " IS NULL;"
+                + Environment.NewLine
+                + "SELECT "
+                + OpenDelimiter
+                + "Computed"
+                + CloseDelimiter
+                + ""
+                + Environment.NewLine
+                + "FROM "
+                + SchemaPrefix
+                + OpenDelimiter
+                + "Ducks"
+                + CloseDelimiter
+                + ""
+                + Environment.NewLine
+                + "WHERE "
+                + RowsAffected
+                + " = 1 AND "
+                + OpenDelimiter
+                + "Id"
+                + CloseDelimiter
+                + " = @p3;"
+                + Environment.NewLine
                 + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -228,11 +480,36 @@ namespace Microsoft.EntityFrameworkCore.Update
             CreateSqlGenerator().AppendUpdateOperation(stringBuilder, command, 0);
 
             Assert.Equal(
-                "UPDATE " + SchemaPrefix + OpenDelimiter + "Ducks" + CloseDelimiter + " SET " +
-                OpenDelimiter + "Name" + CloseDelimiter + " = @p0, " + OpenDelimiter + "Quacks" + CloseDelimiter + " = @p1, " +
-                OpenDelimiter + "ConcurrencyToken" + CloseDelimiter + " = @p2" + Environment.NewLine +
-                "WHERE " + OpenDelimiter + "Id" + CloseDelimiter + " = @p3;" + Environment.NewLine +
-                "SELECT " + RowsAffected + ";" + Environment.NewLine + Environment.NewLine,
+                "UPDATE "
+                + SchemaPrefix
+                + OpenDelimiter
+                + "Ducks"
+                + CloseDelimiter
+                + " SET "
+                + OpenDelimiter
+                + "Name"
+                + CloseDelimiter
+                + " = @p0, "
+                + OpenDelimiter
+                + "Quacks"
+                + CloseDelimiter
+                + " = @p1, "
+                + OpenDelimiter
+                + "ConcurrencyToken"
+                + CloseDelimiter
+                + " = @p2"
+                + Environment.NewLine
+                + "WHERE "
+                + OpenDelimiter
+                + "Id"
+                + CloseDelimiter
+                + " = @p3;"
+                + Environment.NewLine
+                + "SELECT "
+                + RowsAffected
+                + ";"
+                + Environment.NewLine
+                + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
@@ -245,12 +522,40 @@ namespace Microsoft.EntityFrameworkCore.Update
             CreateSqlGenerator().AppendUpdateOperation(stringBuilder, command, 0);
 
             Assert.Equal(
-                "UPDATE " + SchemaPrefix + OpenDelimiter + "Ducks" + CloseDelimiter + " SET " +
-                OpenDelimiter + "Name" + CloseDelimiter + " = @p0, " + OpenDelimiter + "Quacks" + CloseDelimiter + " = @p1, " +
-                OpenDelimiter + "ConcurrencyToken" + CloseDelimiter + " = @p2" + Environment.NewLine +
-                "WHERE " + OpenDelimiter + "Id" + CloseDelimiter + " = @p3 AND " + OpenDelimiter + "ConcurrencyToken" + CloseDelimiter
-                + " IS NULL;" + Environment.NewLine +
-                "SELECT " + RowsAffected + ";" + Environment.NewLine + Environment.NewLine,
+                "UPDATE "
+                + SchemaPrefix
+                + OpenDelimiter
+                + "Ducks"
+                + CloseDelimiter
+                + " SET "
+                + OpenDelimiter
+                + "Name"
+                + CloseDelimiter
+                + " = @p0, "
+                + OpenDelimiter
+                + "Quacks"
+                + CloseDelimiter
+                + " = @p1, "
+                + OpenDelimiter
+                + "ConcurrencyToken"
+                + CloseDelimiter
+                + " = @p2"
+                + Environment.NewLine
+                + "WHERE "
+                + OpenDelimiter
+                + "Id"
+                + CloseDelimiter
+                + " = @p3 AND "
+                + OpenDelimiter
+                + "ConcurrencyToken"
+                + CloseDelimiter
+                + " IS NULL;"
+                + Environment.NewLine
+                + "SELECT "
+                + RowsAffected
+                + ";"
+                + Environment.NewLine
+                + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
@@ -268,13 +573,52 @@ namespace Microsoft.EntityFrameworkCore.Update
         protected virtual void AppendUpdateOperation_appends_select_for_computed_property_verification(StringBuilder stringBuilder)
         {
             Assert.Equal(
-                "UPDATE " + SchemaPrefix + OpenDelimiter + "Ducks" + CloseDelimiter + " SET " +
-                OpenDelimiter + "Name" + CloseDelimiter + " = @p0, " + OpenDelimiter + "Quacks" + CloseDelimiter + " = @p1, " +
-                OpenDelimiter + "ConcurrencyToken" + CloseDelimiter + " = @p2" + Environment.NewLine +
-                "WHERE " + OpenDelimiter + "Id" + CloseDelimiter + " = @p3;" + Environment.NewLine +
-                "SELECT " + OpenDelimiter + "Computed" + CloseDelimiter + "" + Environment.NewLine +
-                "FROM " + SchemaPrefix + OpenDelimiter + "Ducks" + CloseDelimiter + "" + Environment.NewLine +
-                "WHERE " + RowsAffected + " = 1 AND " + OpenDelimiter + "Id" + CloseDelimiter + " = @p3;" + Environment.NewLine
+                "UPDATE "
+                + SchemaPrefix
+                + OpenDelimiter
+                + "Ducks"
+                + CloseDelimiter
+                + " SET "
+                + OpenDelimiter
+                + "Name"
+                + CloseDelimiter
+                + " = @p0, "
+                + OpenDelimiter
+                + "Quacks"
+                + CloseDelimiter
+                + " = @p1, "
+                + OpenDelimiter
+                + "ConcurrencyToken"
+                + CloseDelimiter
+                + " = @p2"
+                + Environment.NewLine
+                + "WHERE "
+                + OpenDelimiter
+                + "Id"
+                + CloseDelimiter
+                + " = @p3;"
+                + Environment.NewLine
+                + "SELECT "
+                + OpenDelimiter
+                + "Computed"
+                + CloseDelimiter
+                + ""
+                + Environment.NewLine
+                + "FROM "
+                + SchemaPrefix
+                + OpenDelimiter
+                + "Ducks"
+                + CloseDelimiter
+                + ""
+                + Environment.NewLine
+                + "WHERE "
+                + RowsAffected
+                + " = 1 AND "
+                + OpenDelimiter
+                + "Id"
+                + CloseDelimiter
+                + " = @p3;"
+                + Environment.NewLine
                 + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -303,16 +647,20 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         protected abstract string RowsAffected { get; }
 
-        protected virtual string Identity => throw new NotImplementedException();
+        protected virtual string Identity
+            => throw new NotImplementedException();
 
-        protected virtual string OpenDelimiter => "\"";
+        protected virtual string OpenDelimiter
+            => "\"";
 
-        protected virtual string CloseDelimiter => "\"";
+        protected virtual string CloseDelimiter
+            => "\"";
 
-        protected virtual string Schema => "dbo";
+        protected virtual string Schema
+            => "dbo";
 
-        protected virtual string SchemaPrefix =>
-            string.IsNullOrEmpty(Schema) ? string.Empty : OpenDelimiter + Schema + CloseDelimiter + ".";
+        protected virtual string SchemaPrefix
+            => string.IsNullOrEmpty(Schema) ? string.Empty : OpenDelimiter + Schema + CloseDelimiter + ".";
 
         protected virtual string GetIdentityWhereCondition(string columnName)
             => OpenDelimiter + columnName + CloseDelimiter + " = " + Identity;

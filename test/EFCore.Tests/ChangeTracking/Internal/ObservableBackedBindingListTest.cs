@@ -545,7 +545,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 ByteArray = new[] { (byte)i, (byte)i, (byte)i, (byte)i };
             }
 
-            public static implicit operator ListElement(int i) => new ListElement(i);
+            public static implicit operator ListElement(int i)
+                => new ListElement(i);
 
             public int Int { get; }
             public int? NullableInt { get; }

@@ -7,6 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class ComplexNavigationsWeakQueryInMemoryFixture : ComplexNavigationsWeakQueryFixtureBase
     {
-        protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory
+            => InMemoryTestStoreFactory.Instance;
     }
 }

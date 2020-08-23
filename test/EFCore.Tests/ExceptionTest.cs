@@ -7,7 +7,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -156,23 +155,51 @@ namespace Microsoft.EntityFrameworkCore
 
         private class FakeUpdateEntry : IUpdateEntry
         {
-            public void SetOriginalValue(IProperty property, object value) => throw new NotImplementedException();
-            public void SetPropertyModified(IProperty property) => throw new NotImplementedException();
+            public void SetOriginalValue(IProperty property, object value)
+                => throw new NotImplementedException();
+
+            public void SetPropertyModified(IProperty property)
+                => throw new NotImplementedException();
+
             public IEntityType EntityType { get; }
             public EntityState EntityState { get; set; }
             public IUpdateEntry SharedIdentityEntry { get; }
-            public bool IsModified(IProperty property) => throw new NotImplementedException();
-            public bool HasTemporaryValue(IProperty property) => throw new NotImplementedException();
-            public bool IsStoreGenerated(IProperty property) => throw new NotImplementedException();
-            public object GetCurrentValue(IPropertyBase propertyBase) => throw new NotImplementedException();
-            public object GetOriginalValue(IPropertyBase propertyBase) => throw new NotImplementedException();
-            public TProperty GetCurrentValue<TProperty>(IPropertyBase propertyBase) => throw new NotImplementedException();
-            public TProperty GetOriginalValue<TProperty>(IProperty property) => throw new NotImplementedException();
-            public void SetStoreGeneratedValue(IProperty property, object value) => throw new NotImplementedException();
-            public EntityEntry ToEntityEntry() => new EntityEntry(new FakeInternalEntityEntry());
-            public object GetRelationshipSnapshotValue(IPropertyBase propertyBase) => throw new NotImplementedException();
-            public object GetPreStoreGeneratedCurrentValue(IPropertyBase propertyBase) => throw new NotImplementedException();
-            public bool IsConceptualNull(IProperty property) => throw new NotImplementedException();
+
+            public bool IsModified(IProperty property)
+                => throw new NotImplementedException();
+
+            public bool HasTemporaryValue(IProperty property)
+                => throw new NotImplementedException();
+
+            public bool IsStoreGenerated(IProperty property)
+                => throw new NotImplementedException();
+
+            public object GetCurrentValue(IPropertyBase propertyBase)
+                => throw new NotImplementedException();
+
+            public object GetOriginalValue(IPropertyBase propertyBase)
+                => throw new NotImplementedException();
+
+            public TProperty GetCurrentValue<TProperty>(IPropertyBase propertyBase)
+                => throw new NotImplementedException();
+
+            public TProperty GetOriginalValue<TProperty>(IProperty property)
+                => throw new NotImplementedException();
+
+            public void SetStoreGeneratedValue(IProperty property, object value)
+                => throw new NotImplementedException();
+
+            public EntityEntry ToEntityEntry()
+                => new EntityEntry(new FakeInternalEntityEntry());
+
+            public object GetRelationshipSnapshotValue(IPropertyBase propertyBase)
+                => throw new NotImplementedException();
+
+            public object GetPreStoreGeneratedCurrentValue(IPropertyBase propertyBase)
+                => throw new NotImplementedException();
+
+            public bool IsConceptualNull(IProperty property)
+                => throw new NotImplementedException();
         }
 
         private class FakeInternalEntityEntry : InternalEntityEntry

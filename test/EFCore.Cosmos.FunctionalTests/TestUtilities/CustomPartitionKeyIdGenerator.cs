@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System.Collections;
 using System.Linq;
 using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
@@ -10,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class CustomPartitionKeyIdGenerator<T> : ValueGenerator<T>
     {
-        public override bool GeneratesTemporaryValues => false;
+        public override bool GeneratesTemporaryValues
+            => false;
 
         public override T Next(EntityEntry entry)
         {

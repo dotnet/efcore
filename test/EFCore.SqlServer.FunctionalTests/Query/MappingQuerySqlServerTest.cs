@@ -54,7 +54,8 @@ FROM [dbo].[Orders] AS [o]");
 
         public class MappingQuerySqlServerFixture : MappingQueryFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqlServerNorthwindTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerNorthwindTestStoreFactory.Instance;
 
             protected override string DatabaseSchema { get; } = "dbo";
 

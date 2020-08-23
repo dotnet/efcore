@@ -137,6 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(e.ln, a.ln);
                 });
         }
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_contains_on_argument_with_wildcard_column_negated(bool async)
@@ -230,7 +231,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery(
                 async,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.StartsWith(prm6)).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.MaybeScalar(x => x.StartsWith(prm6)) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.MaybeScalar(x => x.StartsWith(prm6)) == true)
+                    .Select(c => c.FirstName));
 
             var prm7 = "";
             await AssertQuery(
@@ -344,7 +346,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery(
                 async,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.EndsWith("%B%a%r")).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.MaybeScalar(x => x.EndsWith("%B%a%r")) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.MaybeScalar(x => x.EndsWith("%B%a%r")) == true)
+                    .Select(c => c.FirstName));
 
             await AssertQuery(
                 async,
@@ -516,17 +519,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<FunkyCustomer>().OrderBy(e => e.Id).Select(e => new
-                {
-                    first = (char?)e.FirstName.FirstOrDefault(),
-                    last = (char?)e.FirstName.LastOrDefault()
-                }),
-                ss => ss.Set<FunkyCustomer>().OrderBy(e => e.Id).Select(e => new
-                {
-                    first = e.FirstName.MaybeScalar(x => x.FirstOrDefault()),
-                    last = e.FirstName.MaybeScalar(x => x.LastOrDefault())
-
-                }),
+                ss => ss.Set<FunkyCustomer>().OrderBy(e => e.Id).Select(
+                    e => new { first = (char?)e.FirstName.FirstOrDefault(), last = (char?)e.FirstName.LastOrDefault() }),
+                ss => ss.Set<FunkyCustomer>().OrderBy(e => e.Id).Select(
+                    e => new
+                    {
+                        first = e.FirstName.MaybeScalar(x => x.FirstOrDefault()), last = e.FirstName.MaybeScalar(x => x.LastOrDefault())
+                    }),
                 assertOrder: true,
                 elementAsserter: (e, a) =>
                 {
@@ -535,7 +534,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        protected FunkyDataContext CreateContext() => Fixture.CreateContext();
+        protected FunkyDataContext CreateContext()
+            => Fixture.CreateContext();
 
         protected virtual void ClearLog()
         {
@@ -543,9 +543,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public abstract class FunkyDataQueryFixtureBase : SharedStoreFixtureBase<FunkyDataContext>, IQueryFixtureBase
         {
-            public Func<DbContext> GetContextCreator() => () => CreateContext();
+            public Func<DbContext> GetContextCreator()
+                => () => CreateContext();
 
-            public ISetSource GetExpectedData() => new FunkyDataData();
+            public ISetSource GetExpectedData()
+                => new FunkyDataData();
 
             public IReadOnlyDictionary<Type, object> GetEntitySorters()
                 => new Dictionary<Type, Func<object, object>> { { typeof(FunkyCustomer), e => ((FunkyCustomer)e)?.Id } }
@@ -581,7 +583,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return context;
             }
 
-            protected override void Seed(FunkyDataContext context) => FunkyDataContext.Seed(context);
+            protected override void Seed(FunkyDataContext context)
+                => FunkyDataContext.Seed(context);
         }
     }
 }

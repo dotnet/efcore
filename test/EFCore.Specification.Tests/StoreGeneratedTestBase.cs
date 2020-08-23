@@ -18,7 +18,8 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : StoreGeneratedTestBase<TFixture>.StoreGeneratedFixtureBase, new()
     {
-        protected StoreGeneratedTestBase(TFixture fixture) => Fixture = fixture;
+        protected StoreGeneratedTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
@@ -634,7 +635,7 @@ namespace Microsoft.EntityFrameworkCore
         protected class OptionalProduct
         {
             public int Id { get; set; }
-            public int?  CategoryId { get; set; }
+            public int? CategoryId { get; set; }
             public OptionalCategory Category { get; set; }
         }
 
@@ -1618,7 +1619,8 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected DbContext CreateContext() => Fixture.CreateContext();
+        protected DbContext CreateContext()
+            => Fixture.CreateContext();
 
         public abstract class StoreGeneratedFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {

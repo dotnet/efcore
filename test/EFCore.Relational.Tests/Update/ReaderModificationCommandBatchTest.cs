@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
@@ -507,7 +506,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         private static IModel BuildModel(bool generateKeyValues, bool computeNonKeyValue)
         {
-            var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();            
+            var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
             var entityType = modelBuilder.Entity<T1>();
 
             entityType.Property(t => t.Id).HasColumnName("Col1");
@@ -581,15 +580,18 @@ namespace Microsoft.EntityFrameworkCore.Update
                     logger);
             }
 
-            public string CommandText => GetCommandText();
+            public string CommandText
+                => GetCommandText();
 
             public bool ShouldAddCommand { get; set; }
 
-            protected override bool CanAddCommand(ModificationCommand modificationCommand) => ShouldAddCommand;
+            protected override bool CanAddCommand(ModificationCommand modificationCommand)
+                => ShouldAddCommand;
 
             public bool ShouldValidateSql { get; set; }
 
-            protected override bool IsCommandTextValid() => ShouldValidateSql;
+            protected override bool IsCommandTextValid()
+                => ShouldValidateSql;
 
             protected override void UpdateCachedCommandText(int commandIndex)
             {
@@ -597,7 +599,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                 CachedCommandText.Append(".");
             }
 
-            public void UpdateCachedCommandTextBase(int commandIndex) => base.UpdateCachedCommandText(commandIndex);
+            public void UpdateCachedCommandTextBase(int commandIndex)
+                => base.UpdateCachedCommandText(commandIndex);
 
             public RawSqlCommand CreateStoreCommandBase()
                 => CreateStoreCommand();

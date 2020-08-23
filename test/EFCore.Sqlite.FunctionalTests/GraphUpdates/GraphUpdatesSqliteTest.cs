@@ -97,7 +97,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 protected override string StoreName { get; } = "GraphUpdatesSnapshotTest";
 
-                protected override bool AutoDetectChanges => true;
+                protected override bool AutoDetectChanges
+                    => true;
 
                 protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
                 {
@@ -116,16 +117,22 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            protected override IQueryable<Root> ModifyQueryRoot(IQueryable<Root> query) => query.AsSplitQuery();
+            protected override IQueryable<Root> ModifyQueryRoot(IQueryable<Root> query)
+                => query.AsSplitQuery();
 
             protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
                 => facade.UseTransaction(transaction.GetDbTransaction());
 
             public abstract class GraphUpdatesSqliteFixtureBase : GraphUpdatesFixtureBase
             {
-                public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
-                protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
-                protected virtual bool AutoDetectChanges => false;
+                public TestSqlLoggerFactory TestSqlLoggerFactory
+                    => (TestSqlLoggerFactory)ListLoggerFactory;
+
+                protected override ITestStoreFactory TestStoreFactory
+                    => SqliteTestStoreFactory.Instance;
+
+                protected virtual bool AutoDetectChanges
+                    => false;
 
                 public override PoolableDbContext CreateContext()
                 {

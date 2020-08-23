@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 {
                     _isAzureSqlDb = false;
                 }
-                
+
                 return _isAzureSqlDb.Value;
             }
         }
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        public static bool IsHiddenColumnsSupported 
+        public static bool IsHiddenColumnsSupported
         {
             get
             {
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 {
                     _supportsHiddenColumns = false;
                 }
-                
+
                 return _supportsHiddenColumns.Value;
             }
         }

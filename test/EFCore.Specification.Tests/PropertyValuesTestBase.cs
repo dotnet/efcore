@@ -2161,9 +2161,11 @@ namespace Microsoft.EntityFrameworkCore
                 set => _noGetter = value;
             }
 
-            public string GetNoGetterValue() => _noGetter;
+            public string GetNoGetterValue()
+                => _noGetter;
 
-            public string NoSetter => "NoSetter";
+            public string NoSetter
+                => "NoSetter";
         }
 
         protected class BuildingDto
@@ -2183,9 +2185,11 @@ namespace Microsoft.EntityFrameworkCore
                 set => _noGetter = value;
             }
 
-            public string GetNoGetterValue() => _noGetter;
+            public string GetNoGetterValue()
+                => _noGetter;
 
-            public string NoSetter => "NoSetter";
+            public string NoSetter
+                => "NoSetter";
 
             public int Shadow1 { get; set; }
         }

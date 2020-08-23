@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             => Fixture.TestSqlLoggerFactory.Clear();
 
         protected CosmosPartitionKeyFixture Fixture { get; }
-        
+
         public PartitionKeyTest(CosmosPartitionKeyFixture fixture)
         {
             Fixture = fixture;
@@ -32,14 +35,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         public virtual async Task Can_add_update_delete_end_to_end_with_partition_key()
         {
             const string readSql =
-@"SELECT c
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")
 ORDER BY c[""PartitionKey""]
 OFFSET 0 LIMIT 1";
 
             await PartitionKeyTestAsync(
-                 ctx => ctx.Customers.OrderBy(c => c.PartitionKey).FirstAsync(),
+                ctx => ctx.Customers.OrderBy(c => c.PartitionKey).FirstAsync(),
                 readSql,
                 ctx => ctx.Customers.OrderBy(c => c.PartitionKey).LastAsync(),
                 ctx => ctx.Customers.OrderBy(c => c.PartitionKey).ToListAsync(),
@@ -50,7 +53,7 @@ OFFSET 0 LIMIT 1";
         public virtual async Task Can_add_update_delete_end_to_end_with_with_partition_key_extension()
         {
             const string readSql =
-@"SELECT c
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")
 OFFSET 0 LIMIT 1";
@@ -67,7 +70,7 @@ OFFSET 0 LIMIT 1";
         public async Task Can_query_with_implicit_partition_key_filter()
         {
             const string readSql =
-@"SELECT c
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""Id""] = 42) OR (c[""Name""] = ""John Snow"")))
 OFFSET 0 LIMIT 1";
@@ -102,7 +105,7 @@ OFFSET 0 LIMIT 1";
             {
                 Id = 42,
                 Name = "Theon Twin",
-                PartitionKey =  2
+                PartitionKey = 2
             };
 
             await using (var innerContext = CreateContext())
@@ -113,7 +116,7 @@ OFFSET 0 LIMIT 1";
                 await innerContext.AddAsync(customer2);
                 await innerContext.SaveChangesAsync();
             }
-            
+
             // Read & update
             await using (var innerContext = CreateContext())
             {
@@ -124,7 +127,7 @@ OFFSET 0 LIMIT 1";
                 Assert.Equal(42, customerFromStore.Id);
                 Assert.Equal("Theon", customerFromStore.Name);
                 Assert.Equal(1, customerFromStore.PartitionKey);
-              
+
                 customerFromStore.Name = "Theon Greyjoy";
 
                 await innerContext.SaveChangesAsync();
@@ -143,7 +146,7 @@ OFFSET 0 LIMIT 1";
             {
                 var customerFromStore = await readSingleTask(innerContext);
                 customerFromStore.PartitionKey = 2;
-                
+
                 Assert.Equal(
                     CoreStrings.KeyReadOnly(nameof(Customer.PartitionKey), nameof(Customer)),
                     Assert.Throws<InvalidOperationException>(() => innerContext.SaveChanges()).Message);
@@ -171,15 +174,19 @@ OFFSET 0 LIMIT 1";
             }
         }
 
-        protected PartitionKeyContext CreateContext() => Fixture.CreateContext();
+        protected PartitionKeyContext CreateContext()
+            => Fixture.CreateContext();
 
         public class CosmosPartitionKeyFixture : SharedStoreFixtureBase<PartitionKeyContext>
         {
-            protected override string StoreName => DatabaseName;
+            protected override string StoreName
+                => DatabaseName;
 
-            protected override bool UsePooling => false;
-            
-            protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
+            protected override bool UsePooling
+                => false;
+
+            protected override ITestStoreFactory TestStoreFactory
+                => CosmosTestStoreFactory.Instance;
 
             public TestSqlLoggerFactory TestSqlLoggerFactory
                 => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();

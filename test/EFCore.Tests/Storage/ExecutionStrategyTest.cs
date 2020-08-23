@@ -19,9 +19,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
     {
         private readonly DbContext Context;
 
-        public ExecutionStrategyTest() => Context = CreateContext();
+        public ExecutionStrategyTest()
+            => Context = CreateContext();
 
-        public void Dispose() => Context.Dispose();
+        public void Dispose()
+            => Context.Dispose();
 
         private TestExecutionStrategy CreateFailOnRetryStrategy()
             => new TestExecutionStrategy(

@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerTestStoreFactory.Instance;
 
         public override void Can_use_with_redundant_relationships()
         {

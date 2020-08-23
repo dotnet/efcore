@@ -163,7 +163,9 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(
-                DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
+                DbContextEventData eventData,
+                InterceptionResult<int> result,
+                CancellationToken cancellationToken = default)
             {
                 await base.SavingChangesAsync(eventData, result, cancellationToken);
 
@@ -247,7 +249,9 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public override async ValueTask<int> SavedChangesAsync(
-                SaveChangesCompletedEventData eventData, int result, CancellationToken cancellationToken = default)
+                SaveChangesCompletedEventData eventData,
+                int result,
+                CancellationToken cancellationToken = default)
             {
                 await base.SavedChangesAsync(eventData, result, cancellationToken);
 
@@ -454,7 +458,9 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public virtual ValueTask<InterceptionResult<int>> SavingChangesAsync(
-                DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
+                DbContextEventData eventData,
+                InterceptionResult<int> result,
+                CancellationToken cancellationToken = default)
             {
                 Assert.NotNull(eventData.Context);
 
@@ -466,7 +472,9 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public virtual ValueTask<int> SavedChangesAsync(
-                SaveChangesCompletedEventData eventData, int result, CancellationToken cancellationToken = default)
+                SaveChangesCompletedEventData eventData,
+                int result,
+                CancellationToken cancellationToken = default)
             {
                 Assert.NotNull(eventData.Context);
 
@@ -478,7 +486,8 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public virtual Task SaveChangesFailedAsync(
-                DbContextErrorEventData eventData, CancellationToken cancellationToken = default)
+                DbContextErrorEventData eventData,
+                CancellationToken cancellationToken = default)
             {
                 Assert.NotNull(eventData.Context);
                 Assert.NotNull(eventData.Exception);
@@ -501,6 +510,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(context, interceptor.Context);
         }
 
-        protected virtual bool SupportsOptimisticConcurrency => true;
+        protected virtual bool SupportsOptimisticConcurrency
+            => true;
     }
 }

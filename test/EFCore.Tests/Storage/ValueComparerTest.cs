@@ -121,12 +121,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
             public int A { get; set; }
             public string B { get; set; }
 
-            private bool Equals(JustAStructWithEquality other) => A == other.A;
+            private bool Equals(JustAStructWithEquality other)
+                => A == other.A;
 
             public override bool Equals(object obj)
                 => obj is JustAStructWithEquality o && Equals(o);
 
-            public override int GetHashCode() => A;
+            public override int GetHashCode()
+                => A;
         }
 
         [ConditionalFact]
@@ -185,7 +187,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             public int A { get; set; }
 
-            private bool Equals(JustAClassWithEquality other) => A == other.A;
+            private bool Equals(JustAClassWithEquality other)
+                => A == other.A;
 
             public override bool Equals(object obj)
                 => !(obj is null)
@@ -193,7 +196,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         || obj is JustAClassWithEquality o
                         && Equals(o));
 
-            public override int GetHashCode() => A;
+            public override int GetHashCode()
+                => A;
         }
 
         [ConditionalFact]

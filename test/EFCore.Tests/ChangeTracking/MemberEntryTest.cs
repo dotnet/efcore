@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public void IsModified_tracks_state_of_owned_entity()
         {
             using var context = new FreezerContext();
-            var chunky = new Chunky { Chunk = new Chunk { Size = 1, Shape = "Sphere" }};
+            var chunky = new Chunky { Chunk = new Chunk { Size = 1, Shape = "Sphere" } };
             context.Add(chunky);
 
             var reference = context.Entry(chunky).Member(nameof(Chunky.Chunk));
@@ -222,7 +222,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         [Owned]
-        public class Chunk {
+        public class Chunk
+        {
             public int Size { get; set; }
             public string Shape { get; set; }
         }

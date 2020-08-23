@@ -240,8 +240,9 @@ namespace Microsoft.EntityFrameworkCore
 
                 public DbSet<Customer> Customers { get; set; }
 
-                protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
-                    optionsBuilder.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
+                protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                    => optionsBuilder.UseSqlServer(
+                        SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
 
                 protected override void OnModelCreating(ModelBuilder modelBuilder)
                     => ConfigureModel(modelBuilder);
@@ -455,9 +456,10 @@ namespace Microsoft.EntityFrameworkCore
                 protected override void OnModelCreating(ModelBuilder modelBuilder)
                     => ConfigureModel(modelBuilder);
 
-                protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => optionsBuilder
-                    .UseInternalServiceProvider(_serviceProvider)
-                    .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
+                protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                    => optionsBuilder
+                        .UseInternalServiceProvider(_serviceProvider)
+                        .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
             }
         }
 

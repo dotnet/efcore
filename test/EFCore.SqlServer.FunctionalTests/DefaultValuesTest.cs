@@ -100,6 +100,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected SqlServerTestStore TestStore { get; }
 
-        public virtual void Dispose() => TestStore.Dispose();
+        public virtual void Dispose()
+            => TestStore.Dispose();
     }
 }

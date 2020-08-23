@@ -490,7 +490,8 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
 
         public class OwnedQueryCosmosFixture : OwnedQueryFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => CosmosTestStoreFactory.Instance;
 
             public TestSqlLoggerFactory TestSqlLoggerFactory
                 => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
@@ -502,7 +503,12 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
                     {
                         eb.IndexerProperty<string>("Name");
                         eb.HasData(
-                            new { Id = 1, id = Guid.NewGuid().ToString(), Name = "Mona Cy" });
+                            new
+                            {
+                                Id = 1,
+                                id = Guid.NewGuid().ToString(),
+                                Name = "Mona Cy"
+                            });
 
                         eb.OwnsOne(
                             p => p.PersonAddress, ab =>
@@ -510,10 +516,34 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
                                 ab.IndexerProperty<string>("AddressLine");
                                 ab.IndexerProperty(typeof(int), "ZipCode");
                                 ab.HasData(
-                                    new { OwnedPersonId = 1, PlaceType = "Land", AddressLine = "804 S. Lakeshore Road", ZipCode = 38654 },
-                                    new { OwnedPersonId = 2, PlaceType = "Land", AddressLine = "7 Church Dr.", ZipCode = 28655 },
-                                    new { OwnedPersonId = 3, PlaceType = "Land", AddressLine = "72 Hickory Rd.", ZipCode = 07728 },
-                                    new { OwnedPersonId = 4, PlaceType = "Land", AddressLine = "28 Strawberry St.", ZipCode = 19053 });
+                                    new
+                                    {
+                                        OwnedPersonId = 1,
+                                        PlaceType = "Land",
+                                        AddressLine = "804 S. Lakeshore Road",
+                                        ZipCode = 38654
+                                    },
+                                    new
+                                    {
+                                        OwnedPersonId = 2,
+                                        PlaceType = "Land",
+                                        AddressLine = "7 Church Dr.",
+                                        ZipCode = 28655
+                                    },
+                                    new
+                                    {
+                                        OwnedPersonId = 3,
+                                        PlaceType = "Land",
+                                        AddressLine = "72 Hickory Rd.",
+                                        ZipCode = 07728
+                                    },
+                                    new
+                                    {
+                                        OwnedPersonId = 4,
+                                        PlaceType = "Land",
+                                        AddressLine = "28 Strawberry St.",
+                                        ZipCode = 19053
+                                    });
 
                                 ab.OwnsOne(
                                     a => a.Country, cb =>
@@ -555,11 +585,36 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
                                 ob.HasKey(o => o.Id);
                                 ob.IndexerProperty<DateTime>("OrderDate");
                                 ob.HasData(
-                                    new { Id = -10, ClientId = 1, OrderDate = Convert.ToDateTime("2018-07-11 10:01:41") },
-                                    new { Id = -11, ClientId = 1, OrderDate = Convert.ToDateTime("2015-03-03 04:37:59") },
-                                    new { Id = -20, ClientId = 2, OrderDate = Convert.ToDateTime("2015-05-25 20:35:48") },
-                                    new { Id = -30, ClientId = 3, OrderDate = Convert.ToDateTime("2014-11-10 04:32:42") },
-                                    new { Id = -40, ClientId = 4, OrderDate = Convert.ToDateTime("2016-04-25 19:23:56") }
+                                    new
+                                    {
+                                        Id = -10,
+                                        ClientId = 1,
+                                        OrderDate = Convert.ToDateTime("2018-07-11 10:01:41")
+                                    },
+                                    new
+                                    {
+                                        Id = -11,
+                                        ClientId = 1,
+                                        OrderDate = Convert.ToDateTime("2015-03-03 04:37:59")
+                                    },
+                                    new
+                                    {
+                                        Id = -20,
+                                        ClientId = 2,
+                                        OrderDate = Convert.ToDateTime("2015-05-25 20:35:48")
+                                    },
+                                    new
+                                    {
+                                        Id = -30,
+                                        ClientId = 3,
+                                        OrderDate = Convert.ToDateTime("2014-11-10 04:32:42")
+                                    },
+                                    new
+                                    {
+                                        Id = -40,
+                                        ClientId = 4,
+                                        OrderDate = Convert.ToDateTime("2016-04-25 19:23:56")
+                                    }
                                 );
                             });
                     });
@@ -568,15 +623,30 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
                     eb =>
                     {
                         eb.HasData(
-                            new { Id = 2, id = Guid.NewGuid().ToString(), Name = "Antigonus Mitul" });
+                            new
+                            {
+                                Id = 2,
+                                id = Guid.NewGuid().ToString(),
+                                Name = "Antigonus Mitul"
+                            });
 
                         eb.OwnsOne(
                             p => p.BranchAddress, ab =>
                             {
                                 ab.IndexerProperty<string>("BranchName");
                                 ab.HasData(
-                                    new { BranchId = 2, PlaceType = "Land", BranchName = "BranchA" },
-                                    new { BranchId = 3, PlaceType = "Land", BranchName = "BranchB" });
+                                    new
+                                    {
+                                        BranchId = 2,
+                                        PlaceType = "Land",
+                                        BranchName = "BranchA"
+                                    },
+                                    new
+                                    {
+                                        BranchId = 3,
+                                        PlaceType = "Land",
+                                        BranchName = "BranchB"
+                                    });
 
                                 ab.OwnsOne(
                                     a => a.Country, cb =>
@@ -602,14 +672,24 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
                     eb =>
                     {
                         eb.HasData(
-                            new { Id = 3, id = Guid.NewGuid().ToString(), Name = "Madalena Morana" });
+                            new
+                            {
+                                Id = 3,
+                                id = Guid.NewGuid().ToString(),
+                                Name = "Madalena Morana"
+                            });
 
                         eb.OwnsOne(
                             p => p.LeafAAddress, ab =>
                             {
                                 ab.IndexerProperty<int>("LeafType");
                                 ab.HasData(
-                                    new { LeafAId = 3, PlaceType = "Land", LeafType = 1 });
+                                    new
+                                    {
+                                        LeafAId = 3,
+                                        PlaceType = "Land",
+                                        LeafType = 1
+                                    });
 
                                 ab.OwnsOne(
                                     a => a.Country, cb =>
@@ -629,14 +709,24 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
                     eb =>
                     {
                         eb.HasData(
-                            new { Id = 4, id = Guid.NewGuid().ToString(), Name = "Vanda Waldemar" });
+                            new
+                            {
+                                Id = 4,
+                                id = Guid.NewGuid().ToString(),
+                                Name = "Vanda Waldemar"
+                            });
 
                         eb.OwnsOne(
                             p => p.LeafBAddress, ab =>
                             {
                                 ab.IndexerProperty<string>("LeafBType");
                                 ab.HasData(
-                                    new { LeafBId = 4, PlaceType = "Land", LeafBType = "Green" });
+                                    new
+                                    {
+                                        LeafBId = 4,
+                                        PlaceType = "Land",
+                                        LeafBType = "Green"
+                                    });
 
                                 ab.OwnsOne(
                                     a => a.Country, cb =>
@@ -713,7 +803,12 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
                     {
                         b.OwnsOne(
                             e => e.Throned, b => b.HasData(
-                                new { BartonId = 1, Property = "Property", Value = 42 }));
+                                new
+                                {
+                                    BartonId = 1,
+                                    Property = "Property",
+                                    Value = 42
+                                }));
                         b.HasData(
                             new Barton { Id = 1, Simple = "Simple" },
                             new Barton { Id = 2, Simple = "Not" });

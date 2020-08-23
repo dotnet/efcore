@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class QueryNoClientEvalTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
     {
-        protected QueryNoClientEvalTestBase(TFixture fixture) => Fixture = fixture;
+        protected QueryNoClientEvalTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
@@ -49,7 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 CoreStrings.QueryUnableToTranslateMember(nameof(Customer.IsLondon), nameof(Customer)));
         }
 
-        private static object ClientMethod(object o) => o.GetHashCode();
+        private static object ClientMethod(object o)
+            => o.GetHashCode();
 
         [ConditionalFact]
         public virtual void Throws_when_where_subquery_correlated()
@@ -118,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 () => (from c1 in context.Customers
                        from i in new[] { 1, 2, 3 }
                        select c1)
-                       .ToList());
+                    .ToList());
         }
 
         [ConditionalFact]
@@ -206,6 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 CoreStrings.TranslationFailedWithDetails("", details).Substring(21),
                 Assert.Throws<InvalidOperationException>(testCode).Message);
 
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
+        protected NorthwindContext CreateContext()
+            => Fixture.CreateContext();
     }
 }

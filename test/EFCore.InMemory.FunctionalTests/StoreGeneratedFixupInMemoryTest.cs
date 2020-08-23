@@ -45,11 +45,13 @@ namespace Microsoft.EntityFrameworkCore
             Fixture.Reseed();
         }
 
-        protected override bool EnforcesFKs => false;
+        protected override bool EnforcesFKs
+            => false;
 
         public class StoreGeneratedFixupInMemoryFixture : StoreGeneratedFixupFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => InMemoryTestStoreFactory.Instance;
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base.AddOptions(builder).ConfigureWarnings(w => w.Log(InMemoryEventId.TransactionIgnoredWarning));

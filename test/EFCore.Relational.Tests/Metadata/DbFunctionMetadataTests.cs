@@ -70,37 +70,48 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
 
             [DbFunction]
-            public static int StaticPublicBase() => throw new Exception();
+            public static int StaticPublicBase()
+                => throw new Exception();
 
             [DbFunction]
-            protected static int StaticProtectedBase() => throw new Exception();
+            protected static int StaticProtectedBase()
+                => throw new Exception();
 
             [DbFunction]
-            private static int StaticPrivateBase() => throw new Exception();
+            private static int StaticPrivateBase()
+                => throw new Exception();
 
             [DbFunction]
-            internal static int StaticInternalBase() => throw new Exception();
+            internal static int StaticInternalBase()
+                => throw new Exception();
 
             [DbFunction]
-            protected internal static int StaticProtectedInternalBase() => throw new Exception();
+            protected internal static int StaticProtectedInternalBase()
+                => throw new Exception();
 
             [DbFunction]
-            public int InstancePublicBase() => throw new Exception();
+            public int InstancePublicBase()
+                => throw new Exception();
 
             [DbFunction]
-            protected int InstanceProtectedBase() => throw new Exception();
+            protected int InstanceProtectedBase()
+                => throw new Exception();
 
             [DbFunction]
-            private int InstancePrivateBase() => throw new Exception();
+            private int InstancePrivateBase()
+                => throw new Exception();
 
             [DbFunction]
-            internal int InstanceInternalBase() => throw new Exception();
+            internal int InstanceInternalBase()
+                => throw new Exception();
 
             [DbFunction]
-            protected internal int InstanceProtectedInternalBase() => throw new Exception();
+            protected internal int InstanceProtectedInternalBase()
+                => throw new Exception();
 
             [DbFunction]
-            public virtual int VirtualBase() => throw new Exception();
+            public virtual int VirtualBase()
+                => throw new Exception();
         }
 
         public class MyDerivedContext : MyBaseContext
@@ -137,52 +148,69 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
 
             [DbFunction]
-            public static int StaticPublicDerived() => throw new Exception();
+            public static int StaticPublicDerived()
+                => throw new Exception();
 
             [DbFunction]
-            protected static int StaticProtectedDerived() => throw new Exception();
+            protected static int StaticProtectedDerived()
+                => throw new Exception();
 
             [DbFunction]
-            private static int StaticPrivateDerived() => throw new Exception();
+            private static int StaticPrivateDerived()
+                => throw new Exception();
 
             [DbFunction]
-            internal static int StaticInternalDerived() => throw new Exception();
+            internal static int StaticInternalDerived()
+                => throw new Exception();
 
             [DbFunction]
-            protected internal static int StaticProtectedInternalDerived() => throw new Exception();
+            protected internal static int StaticProtectedInternalDerived()
+                => throw new Exception();
 
             [DbFunction]
-            public int InstancePublicDerived() => throw new Exception();
+            public int InstancePublicDerived()
+                => throw new Exception();
 
             [DbFunction]
-            protected int InstanceProtectedDerived() => throw new Exception();
+            protected int InstanceProtectedDerived()
+                => throw new Exception();
 
             [DbFunction]
-            private int InstancePrivateDerived() => throw new Exception();
+            private int InstancePrivateDerived()
+                => throw new Exception();
 
             [DbFunction]
-            internal int InstanceInternalDerived() => throw new Exception();
+            internal int InstanceInternalDerived()
+                => throw new Exception();
 
             [DbFunction]
-            protected internal int InstanceProtectedInternalDerived() => throw new Exception();
+            protected internal int InstanceProtectedInternalDerived()
+                => throw new Exception();
 
             [DbFunction]
-            public override int VirtualBase() => throw new Exception();
+            public override int VirtualBase()
+                => throw new Exception();
 
             [DbFunction]
-            public IQueryable<Foo> QueryableNoParams() => throw new Exception();
+            public IQueryable<Foo> QueryableNoParams()
+                => throw new Exception();
 
             [DbFunction]
-            public IQueryable<Foo> QueryableSingleParam(int i) => throw new Exception();
+            public IQueryable<Foo> QueryableSingleParam(int i)
+                => throw new Exception();
 
-            public IQueryable<Foo> QueryableSingleParam(Expression<Func<int>> i) => throw new Exception();
+            public IQueryable<Foo> QueryableSingleParam(Expression<Func<int>> i)
+                => throw new Exception();
 
             [DbFunction]
-            public IQueryable<Foo> QueryableMultiParam(int i, double j) => throw new Exception();
+            public IQueryable<Foo> QueryableMultiParam(int i, double j)
+                => throw new Exception();
 
-            public IQueryable<Foo> QueryableMultiParam(Expression<Func<int>> i, double j) => throw new Exception();
+            public IQueryable<Foo> QueryableMultiParam(Expression<Func<int>> i, double j)
+                => throw new Exception();
 
-            public IQueryable<Foo> QueryableMultiParam(Expression<Func<int>> i, Expression<Func<double>> j) => throw new Exception();
+            public IQueryable<Foo> QueryableMultiParam(Expression<Func<int>> i, Expression<Func<double>> j)
+                => throw new Exception();
         }
 
         private static readonly MethodInfo MethodAmi = typeof(TestMethods).GetRuntimeMethod(
@@ -200,7 +228,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         private class TestMethods
         {
-            public static int Foo => 1;
+            public static int Foo
+                => 1;
 
             public static int MethodA(string a, int b)
             {
@@ -765,8 +794,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var methodInfo = typeof(TestMethods).GetMethod(nameof(TestMethods.MethodJ));
             var dbFunctionBuilder = modelBuilder.HasDbFunction(methodInfo);
 
-            Assert.False(dbFunctionBuilder.GetInfrastructure()
-                .CanSetTranslation(args => new SqlFragmentExpression("Empty"), fromDataAnnotation: true));
+            Assert.False(
+                dbFunctionBuilder.GetInfrastructure()
+                    .CanSetTranslation(args => new SqlFragmentExpression("Empty"), fromDataAnnotation: true));
             Assert.Null(dbFunctionBuilder.Metadata.Translation);
 
             dbFunctionBuilder.GetInfrastructure().HasTranslation(args => new SqlFragmentExpression("Empty"));
@@ -776,22 +806,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasTranslation(args => new SqlFragmentExpression("Empty"), fromDataAnnotation: true);
             Assert.Null(dbFunctionBuilder.Metadata.Translation);
 
-            Assert.Equal(RelationalStrings.DbFunctionTableValuedCustomTranslation(methodInfo.DisplayName()),
+            Assert.Equal(
+                RelationalStrings.DbFunctionTableValuedCustomTranslation(methodInfo.DisplayName()),
                 Assert.Throws<InvalidOperationException>(
                     () => dbFunctionBuilder.HasTranslation(args => new SqlFragmentExpression("Empty"))).Message);
 
             var dbFunction = dbFunctionBuilder.Metadata;
 
-            Assert.Equal(RelationalStrings.DbFunctionTableValuedCustomTranslation(methodInfo.DisplayName()),
+            Assert.Equal(
+                RelationalStrings.DbFunctionTableValuedCustomTranslation(methodInfo.DisplayName()),
                 Assert.Throws<InvalidOperationException>(
                     () => ((IConventionDbFunction)dbFunction).SetTranslation(args => new SqlFragmentExpression("Empty"))).Message);
 
-            Assert.Equal(RelationalStrings.DbFunctionTableValuedCustomTranslation(methodInfo.DisplayName()),
+            Assert.Equal(
+                RelationalStrings.DbFunctionTableValuedCustomTranslation(methodInfo.DisplayName()),
                 Assert.Throws<InvalidOperationException>(
                     () => ((IConventionDbFunction)dbFunction)
                         .SetTranslation(args => new SqlFragmentExpression("Empty"), fromDataAnnotation: true)).Message);
 
-            Assert.Equal(RelationalStrings.DbFunctionTableValuedCustomTranslation(methodInfo.DisplayName()),
+            Assert.Equal(
+                RelationalStrings.DbFunctionTableValuedCustomTranslation(methodInfo.DisplayName()),
                 Assert.Throws<InvalidOperationException>(
                     () => dbFunction.Translation = args => new SqlFragmentExpression("Empty")).Message);
         }

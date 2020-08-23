@@ -12,11 +12,13 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class NullKeysTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NullKeysTestBase<TFixture>.NullKeysFixtureBase, new()
     {
-        protected NullKeysTestBase(TFixture fixture) => Fixture = fixture;
+        protected NullKeysTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected virtual TFixture Fixture { get; }
 
-        protected DbContext CreateContext() => Fixture.CreateContext();
+        protected DbContext CreateContext()
+            => Fixture.CreateContext();
 
         [ConditionalFact] // Issue #1093
         public virtual void Include_with_null_FKs_and_nullable_PK()

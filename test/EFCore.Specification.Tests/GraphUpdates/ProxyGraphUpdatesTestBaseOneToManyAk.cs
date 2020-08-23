@@ -31,7 +31,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Save_optional_many_to_one_dependents_with_alternate_key(
-            ChangeMechanism changeMechanism, bool useExistingEntities)
+            ChangeMechanism changeMechanism,
+            bool useExistingEntities)
         {
             OptionalAk1 new1 = null;
             OptionalAk1Derived new1d = null;
@@ -187,7 +188,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Save_required_many_to_one_dependents_with_alternate_key(
-            ChangeMechanism changeMechanism, bool useExistingEntities)
+            ChangeMechanism changeMechanism,
+            bool useExistingEntities)
         {
             Root newRoot;
             RequiredAk1 new1 = null;
@@ -204,43 +206,50 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     newRoot = context.CreateProxy<Root>(e => e.AlternateId = Guid.NewGuid());
-                    new1 = context.CreateProxy<RequiredAk1>(e =>
-                    {
-                        e.AlternateId = Guid.NewGuid();
-                        e.Parent = newRoot;
-                    });
-                    new1d = context.CreateProxy<RequiredAk1Derived>(e =>
-                    {
-                        e.AlternateId = Guid.NewGuid();
-                        e.Parent = newRoot;
-                    });
-                    new1dd = context.CreateProxy<RequiredAk1MoreDerived>(e =>
-                    {
-                        e.AlternateId = Guid.NewGuid();
-                        e.Parent = newRoot;
-                    });
-                    new2a = context.CreateProxy<RequiredAk2>(e =>
-                    {
-                        e.AlternateId = Guid.NewGuid();
-                        e.Parent = new1;
-                    });
-                    new2b = context.CreateProxy<RequiredAk2>(e =>
-                    {
-                        e.AlternateId = Guid.NewGuid();
-                        e.Parent = new1;
-                    });
+                    new1 = context.CreateProxy<RequiredAk1>(
+                        e =>
+                        {
+                            e.AlternateId = Guid.NewGuid();
+                            e.Parent = newRoot;
+                        });
+                    new1d = context.CreateProxy<RequiredAk1Derived>(
+                        e =>
+                        {
+                            e.AlternateId = Guid.NewGuid();
+                            e.Parent = newRoot;
+                        });
+                    new1dd = context.CreateProxy<RequiredAk1MoreDerived>(
+                        e =>
+                        {
+                            e.AlternateId = Guid.NewGuid();
+                            e.Parent = newRoot;
+                        });
+                    new2a = context.CreateProxy<RequiredAk2>(
+                        e =>
+                        {
+                            e.AlternateId = Guid.NewGuid();
+                            e.Parent = new1;
+                        });
+                    new2b = context.CreateProxy<RequiredAk2>(
+                        e =>
+                        {
+                            e.AlternateId = Guid.NewGuid();
+                            e.Parent = new1;
+                        });
                     new2ca = context.CreateProxy<RequiredComposite2>(e => e.Parent = new1);
                     new2cb = context.CreateProxy<RequiredComposite2>(e => e.Parent = new1);
-                    new2d = context.CreateProxy<RequiredAk2Derived>(e =>
-                    {
-                        e.AlternateId = Guid.NewGuid();
-                        e.Parent = new1;
-                    });
-                    new2dd = context.CreateProxy<RequiredAk2MoreDerived>(e =>
-                    {
-                        e.AlternateId = Guid.NewGuid();
-                        e.Parent = new1;
-                    });
+                    new2d = context.CreateProxy<RequiredAk2Derived>(
+                        e =>
+                        {
+                            e.AlternateId = Guid.NewGuid();
+                            e.Parent = new1;
+                        });
+                    new2dd = context.CreateProxy<RequiredAk2MoreDerived>(
+                        e =>
+                        {
+                            e.AlternateId = Guid.NewGuid();
+                            e.Parent = new1;
+                        });
 
                     if (useExistingEntities)
                     {
@@ -529,7 +538,6 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Single(loadedRoot.RequiredChildrenAk.First().CompositeChildren);
                 });
         }
-
 
         [ConditionalTheory]
         [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]

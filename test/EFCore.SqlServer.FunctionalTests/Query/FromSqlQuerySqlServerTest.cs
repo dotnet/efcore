@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Data.Common;
 using System.Linq;
 using Microsoft.Data.SqlClient;
@@ -47,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var queryString = base.FromSqlRaw_queryable_composed();
 
-            var expected = @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+            var expected =
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
     SELECT * FROM ""Customers""
 ) AS [c]
@@ -346,7 +346,8 @@ FROM (
 ) AS [c]
 WHERE [c].[ContactTitle] = @__contactTitle_1");
 
-            Assert.Equal(@"DECLARE p0 nvarchar(4000) = N'London';
+            Assert.Equal(
+                @"DECLARE p0 nvarchar(4000) = N'London';
 DECLARE @__contactTitle_1 nvarchar(4000) = N'Sales Representative';
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]

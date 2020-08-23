@@ -28,16 +28,17 @@ namespace Microsoft.EntityFrameworkCore
         protected override void AddServices(ServiceCollection serviceCollection)
             => new EntityFrameworkRelationalServicesBuilder(serviceCollection).TryAddCoreServices();
 
-        protected override Assembly TargetAssembly => typeof(RelationalDatabase).Assembly;
+        protected override Assembly TargetAssembly
+            => typeof(RelationalDatabase).Assembly;
 
         [ConditionalFact]
         public void Readonly_relational_metadata_methods_have_expected_name()
         {
             var errors =
                 Fixture.RelationalMetadataMethods
-                .SelectMany(m => m.Select(ValidateMethodName))
-                .Where(e => e != null)
-                .ToList();
+                    .SelectMany(m => m.Select(ValidateMethodName))
+                    .Where(e => e != null)
+                    .ToList();
 
             Assert.False(
                 errors.Count > 0,
@@ -55,8 +56,15 @@ namespace Microsoft.EntityFrameworkCore
             private static Dictionary<Type, (Type Mutable, Type Convention, Type ConventionBuilder)> _metadataTypes
                 => new Dictionary<Type, (Type, Type, Type)>
                 {
-                    { typeof(IDbFunction), (typeof(IMutableDbFunction), typeof(IConventionDbFunction), typeof(IConventionDbFunctionBuilder)) },
-                    { typeof(IDbFunctionParameter), (typeof(IMutableDbFunctionParameter), typeof(IConventionDbFunctionParameter), typeof(IConventionDbFunctionParameterBuilder)) },
+                    {
+                        typeof(IDbFunction),
+                        (typeof(IMutableDbFunction), typeof(IConventionDbFunction), typeof(IConventionDbFunctionBuilder))
+                    },
+                    {
+                        typeof(IDbFunctionParameter),
+                        (typeof(IMutableDbFunctionParameter), typeof(IConventionDbFunctionParameter),
+                            typeof(IConventionDbFunctionParameterBuilder))
+                    },
                     { typeof(ISequence), (typeof(IMutableSequence), typeof(IConventionSequence), typeof(IConventionSequenceBuilder)) },
                     { typeof(ICheckConstraint), (typeof(IMutableCheckConstraint), typeof(IConventionCheckConstraint), null) }
                 };
@@ -81,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(IUniqueConstraint)
             };
 
-            public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>()
+            public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>
             {
                 typeof(RelationalForeignKeyBuilderExtensions),
                 typeof(RelationalPropertyBuilderExtensions),
@@ -101,15 +109,23 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(OperationBuilder<>)
             };
 
-            public override List<(Type Type, Type ReadonlyExtensions, Type MutableExtensions, Type ConventionExtensions, Type ConventionBuilderExtensions)> MetadataExtensionTypes { get; }
-            = new List<(Type, Type, Type, Type, Type)>
+            public override
+                List<(Type Type, Type ReadonlyExtensions, Type MutableExtensions, Type ConventionExtensions, Type
+                    ConventionBuilderExtensions)> MetadataExtensionTypes { get; }
+                = new List<(Type, Type, Type, Type, Type)>
                 {
-                    { (typeof(IModel), typeof(RelationalModelExtensions), typeof(RelationalModelExtensions), typeof(RelationalModelExtensions), typeof(RelationalModelBuilderExtensions)) },
-                    { (typeof(IEntityType), typeof(RelationalEntityTypeExtensions), typeof(RelationalEntityTypeExtensions), typeof(RelationalEntityTypeExtensions), typeof(RelationalEntityTypeBuilderExtensions)) },
-                    { (typeof(IKey),typeof(RelationalKeyExtensions), typeof(RelationalKeyExtensions), typeof(RelationalKeyExtensions), typeof(RelationalKeyBuilderExtensions)) },
-                    { (typeof(IForeignKey), typeof(RelationalForeignKeyExtensions), typeof(RelationalForeignKeyExtensions), typeof(RelationalForeignKeyExtensions), typeof(RelationalForeignKeyBuilderExtensions)) },
-                    { (typeof(IProperty), typeof(RelationalPropertyExtensions), typeof(RelationalPropertyExtensions), typeof(RelationalPropertyExtensions), typeof(RelationalPropertyBuilderExtensions)) },
-                    { (typeof(IIndex), typeof(RelationalIndexExtensions), typeof(RelationalIndexExtensions), typeof(RelationalIndexExtensions), typeof(RelationalIndexBuilderExtensions)) }
+                    (typeof(IModel), typeof(RelationalModelExtensions), typeof(RelationalModelExtensions),
+                        typeof(RelationalModelExtensions), typeof(RelationalModelBuilderExtensions)),
+                    (typeof(IEntityType), typeof(RelationalEntityTypeExtensions), typeof(RelationalEntityTypeExtensions),
+                        typeof(RelationalEntityTypeExtensions), typeof(RelationalEntityTypeBuilderExtensions)),
+                    (typeof(IKey), typeof(RelationalKeyExtensions), typeof(RelationalKeyExtensions), typeof(RelationalKeyExtensions),
+                        typeof(RelationalKeyBuilderExtensions)),
+                    (typeof(IForeignKey), typeof(RelationalForeignKeyExtensions), typeof(RelationalForeignKeyExtensions),
+                        typeof(RelationalForeignKeyExtensions), typeof(RelationalForeignKeyBuilderExtensions)),
+                    (typeof(IProperty), typeof(RelationalPropertyExtensions), typeof(RelationalPropertyExtensions),
+                        typeof(RelationalPropertyExtensions), typeof(RelationalPropertyBuilderExtensions)),
+                    (typeof(IIndex), typeof(RelationalIndexExtensions), typeof(RelationalIndexExtensions),
+                        typeof(RelationalIndexExtensions), typeof(RelationalIndexBuilderExtensions))
                 };
 
             public override HashSet<MethodInfo> NonVirtualMethods { get; }
@@ -127,7 +143,8 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(IDbFunction).GetMethod("get_ReturnEntityType"),
                 typeof(IMutableSequence).GetMethod("set_ClrType"),
                 typeof(RelationalPropertyExtensions).GetMethod(nameof(RelationalPropertyExtensions.FindOverrides)),
-                typeof(RelationalEntityTypeBuilderExtensions).GetMethod(nameof(RelationalEntityTypeBuilderExtensions.ExcludeTableFromMigrations))
+                typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
+                    nameof(RelationalEntityTypeBuilderExtensions.ExcludeTableFromMigrations))
             };
 
             public override HashSet<MethodInfo> AsyncMethodExceptions { get; } = new HashSet<MethodInfo>

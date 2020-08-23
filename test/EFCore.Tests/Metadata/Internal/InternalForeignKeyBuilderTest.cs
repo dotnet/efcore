@@ -967,7 +967,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal("Orders", foreignKeyBuilder.Metadata.PrincipalToDependent.Name);
         }
 
-        private InternalModelBuilder CreateInternalModelBuilder() => new InternalModelBuilder(new Model());
+        private InternalModelBuilder CreateInternalModelBuilder()
+            => new InternalModelBuilder(new Model());
 
         private class Order
         {
@@ -992,7 +993,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 yield return this;
             }
 
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            IEnumerator IEnumerable.GetEnumerator()
+                => GetEnumerator();
 
             public string Specialty { get; set; }
         }

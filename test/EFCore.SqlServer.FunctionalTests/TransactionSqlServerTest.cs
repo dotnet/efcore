@@ -14,9 +14,11 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected override bool SnapshotSupported => true;
+        protected override bool SnapshotSupported
+            => true;
 
-        protected override bool AmbientTransactionsSupported => true;
+        protected override bool AmbientTransactionsSupported
+            => true;
 
         protected override DbContext CreateContextWithConnectionString()
         {
@@ -32,7 +34,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class TransactionSqlServerFixture : TransactionFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
 
             protected override void Seed(PoolableDbContext context)
             {

@@ -8,8 +8,11 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class F1SqlServerFixture : F1RelationalFixture
     {
-        protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
-        public override TestHelpers TestHelpers => SqlServerTestHelpers.Instance;
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerTestStoreFactory.Instance;
+
+        public override TestHelpers TestHelpers
+            => SqlServerTestHelpers.Instance;
 
         protected override void BuildModelExternal(ModelBuilder modelBuilder)
         {

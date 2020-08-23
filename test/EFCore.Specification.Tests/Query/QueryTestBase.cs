@@ -28,9 +28,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual QueryAsserter CreateQueryAsserter(TFixture fixture)
             => new QueryAsserter(fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, IgnoreEntryCount);
 
-        protected virtual bool IgnoreEntryCount => false;
+        protected virtual bool IgnoreEntryCount
+            => false;
 
-        protected virtual Expression RewriteServerQueryExpression(Expression serverQueryExpression) => serverQueryExpression;
+        protected virtual Expression RewriteServerQueryExpression(Expression serverQueryExpression)
+            => serverQueryExpression;
 
         protected virtual Expression RewriteExpectedQueryExpression(Expression expectedQueryExpression)
             => new ExpectedQueryRewritingVisitor().Visit(expectedQueryExpression);

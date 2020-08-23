@@ -21,7 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
         public class OverzealousInitializationCosmosFixture : OverzealousInitializationFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => CosmosTestStoreFactory.Instance;
         }
     }
 }

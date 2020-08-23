@@ -13,10 +13,12 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected new TwoDatabasesFixture Fixture => (TwoDatabasesFixture)base.Fixture;
+        protected new TwoDatabasesFixture Fixture
+            => (TwoDatabasesFixture)base.Fixture;
 
         protected override DbContextOptionsBuilder CreateTestOptions(
-            DbContextOptionsBuilder optionsBuilder, bool withConnectionString = false)
+            DbContextOptionsBuilder optionsBuilder,
+            bool withConnectionString = false)
             => withConnectionString
                 ? optionsBuilder.UseSqlite(DummyConnectionString)
                 : optionsBuilder.UseSqlite();
@@ -28,7 +30,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class TwoDatabasesFixture : ServiceProviderFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqliteTestStoreFactory.Instance;
         }
     }
 }

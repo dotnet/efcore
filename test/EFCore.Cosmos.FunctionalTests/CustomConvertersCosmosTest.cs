@@ -157,23 +157,35 @@ WHERE (c[""Discriminator""] IN (""Blog"", ""RssBlog"") AND NOT((c[""IndexerVisib
 
         public class CustomConvertersCosmosFixture : CustomConvertersFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
-            public override bool StrictEquality => true;
+            protected override ITestStoreFactory TestStoreFactory
+                => CosmosTestStoreFactory.Instance;
 
-            public override int IntegerPrecision => 53;
+            public override bool StrictEquality
+                => true;
 
-            public override bool SupportsAnsi => false;
+            public override int IntegerPrecision
+                => 53;
 
-            public override bool SupportsUnicodeToAnsiConversion => false;
+            public override bool SupportsAnsi
+                => false;
 
-            public override bool SupportsLargeStringComparisons => true;
+            public override bool SupportsUnicodeToAnsiConversion
+                => false;
 
-            public override bool SupportsBinaryKeys => true;
+            public override bool SupportsLargeStringComparisons
+                => true;
 
-            public override bool SupportsDecimalComparisons => true;
+            public override bool SupportsBinaryKeys
+                => true;
 
-            public override DateTime DefaultDateTime => new DateTime();
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
+            public override bool SupportsDecimalComparisons
+                => true;
+
+            public override DateTime DefaultDateTime
+                => new DateTime();
+
+            public TestSqlLoggerFactory TestSqlLoggerFactory
+                => (TestSqlLoggerFactory)ListLoggerFactory;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {

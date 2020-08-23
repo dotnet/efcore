@@ -678,7 +678,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var query = context.Set<CustomerView19708>().ToList();
 
-                Assert.Collection(query,
+                Assert.Collection(
+                    query,
                     t => AssertCustomerView(t, 1, "First", 1, "FirstChild"),
                     t => AssertCustomerView(t, 2, "Second", 2, "SecondChild1"),
                     t => AssertCustomerView(t, 2, "Second", 3, "SecondChild2"),
@@ -686,7 +687,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             static void AssertCustomerView(
-                CustomerView19708 actual, int id, string name, int? customerMembershipId, string customerMembershipName)
+                CustomerView19708 actual,
+                int id,
+                string name,
+                int? customerMembershipId,
+                string customerMembershipName)
             {
                 Assert.Equal(id, actual.Id);
                 Assert.Equal(name, actual.Name);
@@ -775,17 +780,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Using_explicit_interface_implementation_as_navigation_works()
         {
-            using (CreateScratch<MyContext21768>((t) => { }, "21768"))
+            using (CreateScratch<MyContext21768>(t => { }, "21768"))
             {
                 using var context = new MyContext21768();
                 Expression<Func<IBook21768, BookViewModel21768>> projection = b => new BookViewModel21768
                 {
                     FirstPage = b.FrontCover.Illustrations.FirstOrDefault(i => i.State >= IllustrationState21768.Approved) != null
-                         ? new PageViewModel21768
-                         {
-                             Uri = b.FrontCover.Illustrations.FirstOrDefault(i => i.State >= IllustrationState21768.Approved).Uri
-                         }
-                         : null,
+                        ? new PageViewModel21768
+                        {
+                            Uri = b.FrontCover.Illustrations.FirstOrDefault(i => i.State >= IllustrationState21768.Approved).Uri
+                        }
+                        : null,
                 };
 
                 var result = context.Books.Where(b => b.Id == 1).Select(projection).SingleOrDefault();
@@ -837,15 +842,21 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             public BookCover21768 BackCover { get; set; }
             public int BackCoverId { get; set; }
-            IBookCover21768 IBook21768.FrontCover => FrontCover;
-            IBookCover21768 IBook21768.BackCover => BackCover;
+
+            IBookCover21768 IBook21768.FrontCover
+                => FrontCover;
+
+            IBookCover21768 IBook21768.BackCover
+                => BackCover;
         }
 
         private class BookCover21768 : IBookCover21768
         {
             public int Id { get; set; }
             public ICollection<CoverIllustration21768> Illustrations { get; set; }
-            IEnumerable<ICoverIllustration21768> IBookCover21768.Illustrations => Illustrations;
+
+            IEnumerable<ICoverIllustration21768> IBookCover21768.Illustrations
+                => Illustrations;
         }
 
         private class CoverIllustration21768 : ICoverIllustration21768
@@ -856,7 +867,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             public string Uri { get; set; }
             public IllustrationState21768 State { get; set; }
 
-            IBookCover21768 ICoverIllustration21768.Cover => Cover;
+            IBookCover21768 ICoverIllustration21768.Cover
+                => Cover;
         }
 
         private enum IllustrationState21768
@@ -915,7 +927,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             private readonly List<OtherEntity21803> _otherEntities = new List<OtherEntity21803>();
 
             public int Id { get; private set; }
-            public IEnumerable<OtherEntity21803> OtherEntities => _otherEntities;
+
+            public IEnumerable<OtherEntity21803> OtherEntities
+                => _otherEntities;
         }
 
         public class OtherEntity21803

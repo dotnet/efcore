@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore
             SetSql(
                 migrator.GenerateScript(
                     options: MigrationsSqlGenerationOptions.Idempotent
-                        | MigrationsSqlGenerationOptions.NoTransactions));
+                    | MigrationsSqlGenerationOptions.NoTransactions));
         }
 
         [ConditionalFact]
@@ -322,13 +322,18 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(0, operations.Count);
         }
 
-        private void SetSql(string value) => Sql = value.Replace(ProductInfo.GetVersion(), "7.0.0-test");
+        private void SetSql(string value)
+            => Sql = value.Replace(ProductInfo.GetVersion(), "7.0.0-test");
     }
 
-    public abstract class MigrationsInfrastructureFixtureBase : SharedStoreFixtureBase<MigrationsInfrastructureFixtureBase.MigrationsContext>
+    public abstract class
+        MigrationsInfrastructureFixtureBase : SharedStoreFixtureBase<MigrationsInfrastructureFixtureBase.MigrationsContext>
     {
         public static string ActiveProvider { get; set; }
-        public new RelationalTestStore TestStore => (RelationalTestStore)base.TestStore;
+
+        public new RelationalTestStore TestStore
+            => (RelationalTestStore)base.TestStore;
+
         protected override string StoreName { get; } = "MigrationsTest";
 
         public EmptyMigrationsContext CreateEmptyContext()
@@ -341,7 +346,8 @@ namespace Microsoft.EntityFrameworkCore
                             .BuildServiceProvider())
                     .Options);
 
-        public new virtual MigrationsContext CreateContext() => base.CreateContext();
+        public new virtual MigrationsContext CreateContext()
+            => base.CreateContext();
 
         public class EmptyMigrationsContext : DbContext
         {

@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -21,14 +24,22 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         public virtual Task Adding_the_same_entity_twice_results_in_DbUpdateException()
         {
             return ConcurrencyTestAsync<DbUpdateException>(
-                ctx => ctx.Customers.Add(new Customer { Id = "1", Name = "CreatedTwice", }));
+                ctx => ctx.Customers.Add(
+                    new Customer
+                    {
+                        Id = "1", Name = "CreatedTwice",
+                    }));
         }
 
         [ConditionalFact]
         public virtual Task Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException()
         {
             return ConcurrencyTestAsync<DbUpdateConcurrencyException>(
-                ctx => ctx.Customers.Add(new Customer { Id = "2", Name = "Added", }),
+                ctx => ctx.Customers.Add(
+                    new Customer
+                    {
+                        Id = "2", Name = "Added",
+                    }),
                 ctx => ctx.Customers.Single(c => c.Id == "2").Name = "Updated",
                 ctx => ctx.Customers.Remove(ctx.Customers.Single(c => c.Id == "2")));
         }
@@ -37,7 +48,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         public virtual Task Updating_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException()
         {
             return ConcurrencyTestAsync<DbUpdateConcurrencyException>(
-                ctx => ctx.Customers.Add(new Customer { Id = "3", Name = "Added", }),
+                ctx => ctx.Customers.Add(
+                    new Customer
+                    {
+                        Id = "3", Name = "Added",
+                    }),
                 ctx => ctx.Customers.Single(c => c.Id == "3").Name = "Updated",
                 ctx => ctx.Customers.Single(c => c.Id == "3").Name = "Updated");
         }
@@ -90,13 +105,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             Assert.IsAssignableFrom<Customer>(entry.Entity);
         }
 
-        protected ConcurrencyContext CreateContext() => Fixture.CreateContext();
+        protected ConcurrencyContext CreateContext()
+            => Fixture.CreateContext();
 
         public class CosmosFixture : SharedStoreFixtureBase<ConcurrencyContext>
         {
-            protected override string StoreName => DatabaseName;
+            protected override string StoreName
+                => DatabaseName;
 
-            protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => CosmosTestStoreFactory.Instance;
         }
 
         public class ConcurrencyContext : PoolableDbContext

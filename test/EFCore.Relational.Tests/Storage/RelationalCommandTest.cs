@@ -1207,7 +1207,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             public bool IsSensitiveDataLoggingEnabled { get; }
             public bool IsSensitiveDataLoggingWarned { get; set; }
-            public WarningsConfiguration WarningsConfiguration => null;
+
+            public WarningsConfiguration WarningsConfiguration
+                => null;
         }
 
         private IRelationalCommand CreateRelationalCommand(

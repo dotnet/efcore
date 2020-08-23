@@ -107,7 +107,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public abstract class ProxyGraphUpdatesInMemoryFixtureBase : ProxyGraphUpdatesFixtureBase
             {
-                protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+                protected override ITestStoreFactory TestStoreFactory
+                    => InMemoryTestStoreFactory.Instance;
 
                 public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                     => base.AddOptions(builder.ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning)));
@@ -121,8 +122,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            protected override bool DoesLazyLoading => true;
-            protected override bool DoesChangeTracking => false;
+            protected override bool DoesLazyLoading
+                => true;
+
+            protected override bool DoesChangeTracking
+                => false;
 
             public class ProxyGraphUpdatesWithLazyLoadingInMemoryFixture : ProxyGraphUpdatesInMemoryFixtureBase
             {
@@ -143,8 +147,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            protected override bool DoesLazyLoading => false;
-            protected override bool DoesChangeTracking => true;
+            protected override bool DoesLazyLoading
+                => false;
+
+            protected override bool DoesChangeTracking
+                => true;
 
             public class ProxyGraphUpdatesWithChangeTrackingInMemoryFixture : ProxyGraphUpdatesInMemoryFixtureBase
             {
@@ -158,15 +165,19 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public class LazyLoadingAndChangeTracking : ProxyGraphUpdatesInMemoryTestBase<LazyLoadingAndChangeTracking.ProxyGraphUpdatesWithChangeTrackingInMemoryFixture>
+        public class LazyLoadingAndChangeTracking : ProxyGraphUpdatesInMemoryTestBase<
+            LazyLoadingAndChangeTracking.ProxyGraphUpdatesWithChangeTrackingInMemoryFixture>
         {
             public LazyLoadingAndChangeTracking(ProxyGraphUpdatesWithChangeTrackingInMemoryFixture fixture)
                 : base(fixture)
             {
             }
 
-            protected override bool DoesLazyLoading => true;
-            protected override bool DoesChangeTracking => true;
+            protected override bool DoesLazyLoading
+                => true;
+
+            protected override bool DoesChangeTracking
+                => true;
 
             public class ProxyGraphUpdatesWithChangeTrackingInMemoryFixture : ProxyGraphUpdatesInMemoryFixtureBase
             {

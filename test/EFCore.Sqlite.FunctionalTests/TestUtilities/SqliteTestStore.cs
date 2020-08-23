@@ -63,7 +63,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             => (SqliteTestStore)Initialize(serviceProvider, createContext, seed);
 
         public SqliteTestStore InitializeSqlite(
-            IServiceProvider serviceProvider, Func<SqliteTestStore, DbContext> createContext, Action<DbContext> seed)
+            IServiceProvider serviceProvider,
+            Func<SqliteTestStore, DbContext> createContext,
+            Action<DbContext> seed)
             => (SqliteTestStore)Initialize(serviceProvider, () => createContext(this), seed);
 
         protected override void Initialize(Func<DbContext> createContext, Action<DbContext> seed, Action<DbContext> clean)

@@ -61,7 +61,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => CreateForeignKey(dependentKey.DeclaringEntityType, dependentKey.Properties, principalKey);
 
         protected IMutableForeignKey CreateForeignKey(
-            IMutableEntityType dependEntityType, IReadOnlyList<IMutableProperty> dependentProperties, IMutableKey principalKey)
+            IMutableEntityType dependEntityType,
+            IReadOnlyList<IMutableProperty> dependentProperties,
+            IMutableKey principalKey)
         {
             var foreignKey = dependEntityType.AddForeignKey(dependentProperties, principalKey, principalKey.DeclaringEntityType);
             foreignKey.IsUnique = true;
@@ -285,7 +287,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Empty(logEntries);
         }
 
-        protected virtual IModel Validate(IMutableModel model) => model.FinalizeModel();
+        protected virtual IModel Validate(IMutableModel model)
+            => model.FinalizeModel();
 
         protected DiagnosticsLogger<DbLoggerCategory.Model.Validation> CreateValidationLogger(bool sensitiveDataLoggingEnabled = false)
         {
@@ -332,12 +335,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => TestHelpers.CreateContextServices(
                 new ServiceCollection()
                     .AddScoped<IDiagnosticsLogger<DbLoggerCategory.Model>>(_ => CreateModelLogger(sensitiveDataLoggingEnabled))
-                    .AddScoped<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>(_ => CreateValidationLogger(sensitiveDataLoggingEnabled)));
+                    .AddScoped<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>(
+                        _ => CreateValidationLogger(sensitiveDataLoggingEnabled)));
 
         protected ProviderConventionSetBuilderDependencies CreateDependencies(bool sensitiveDataLoggingEnabled = false)
             => CreateServiceProvider(sensitiveDataLoggingEnabled).GetRequiredService<ProviderConventionSetBuilderDependencies>();
 
-        protected virtual TestHelpers TestHelpers => InMemoryTestHelpers.Instance;
+        protected virtual TestHelpers TestHelpers
+            => InMemoryTestHelpers.Instance;
 
         protected virtual InternalModelBuilder CreateConventionlessInternalModelBuilder()
             => (InternalModelBuilder)CreateConventionlessModelBuilder().GetInfrastructure();

@@ -125,24 +125,30 @@ namespace Microsoft.EntityFrameworkCore
                     leftEntities[0].LeafSkipFull.Add(context.Set<EntityLeaf>().CreateInstance(e => e.Id = 7722));
                     leftEntities[0].LeafSkipFull.Add(context.Set<EntityLeaf>().CreateInstance(e => e.Id = 7723));
 
-                    rightEntities[0].CompositeKeySkipFull.Add(context.EntityCompositeKeys.CreateInstance(e =>
-                    {
-                        e.Key1 = 7711;
-                        e.Key2 = "7711";
-                        e.Key3 = new DateTime(7711, 1, 1);
-                    }));
-                    rightEntities[0].CompositeKeySkipFull.Add(context.EntityCompositeKeys.CreateInstance(e =>
-                    {
-                        e.Key1 = 7712;
-                        e.Key2 = "7712";
-                        e.Key3 = new DateTime(7712, 1, 1);
-                    }));
-                    rightEntities[0].CompositeKeySkipFull.Add(context.EntityCompositeKeys.CreateInstance(e =>
-                    {
-                        e.Key1 = 7713;
-                        e.Key2 = "7713";
-                        e.Key3 = new DateTime(7713, 1, 1);
-                    }));
+                    rightEntities[0].CompositeKeySkipFull.Add(
+                        context.EntityCompositeKeys.CreateInstance(
+                            e =>
+                            {
+                                e.Key1 = 7711;
+                                e.Key2 = "7711";
+                                e.Key3 = new DateTime(7711, 1, 1);
+                            }));
+                    rightEntities[0].CompositeKeySkipFull.Add(
+                        context.EntityCompositeKeys.CreateInstance(
+                            e =>
+                            {
+                                e.Key1 = 7712;
+                                e.Key2 = "7712";
+                                e.Key3 = new DateTime(7712, 1, 1);
+                            }));
+                    rightEntities[0].CompositeKeySkipFull.Add(
+                        context.EntityCompositeKeys.CreateInstance(
+                            e =>
+                            {
+                                e.Key1 = 7713;
+                                e.Key2 = "7713";
+                                e.Key3 = new DateTime(7713, 1, 1);
+                            }));
 
                     leftEntities[0].LeafSkipFull.Remove(leftEntities[0].LeafSkipFull.Single(e => e.Id == 21));
                     rightEntities[1].CompositeKeySkipFull.Remove(rightEntities[1].CompositeKeySkipFull.Single(e => e.Key2 == "3_1"));
@@ -151,12 +157,14 @@ namespace Microsoft.EntityFrameworkCore
                     leftEntities[2].LeafSkipFull.Add(context.Set<EntityLeaf>().CreateInstance(e => e.Id = 7724));
 
                     rightEntities[2].CompositeKeySkipFull.Remove(rightEntities[2].CompositeKeySkipFull.Single(e => e.Key2 == "8_3"));
-                    rightEntities[2].CompositeKeySkipFull.Add(context.EntityCompositeKeys.CreateInstance(e =>
-                    {
-                        e.Key1 = 7714;
-                        e.Key2 = "7714";
-                        e.Key3 = new DateTime(7714, 1, 1);
-                    }));
+                    rightEntities[2].CompositeKeySkipFull.Add(
+                        context.EntityCompositeKeys.CreateInstance(
+                            e =>
+                            {
+                                e.Key1 = 7714;
+                                e.Key2 = "7714";
+                                e.Key3 = new DateTime(7714, 1, 1);
+                            }));
 
                     if (RequiresDetectChanges)
                     {
@@ -481,6 +489,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Single(rightEntities[2].CompositeKeySkipShared);
             }
         }
+
         [ConditionalFact]
         public virtual void Can_update_many_to_many_composite_shared_with_navs()
         {
@@ -494,24 +503,30 @@ namespace Microsoft.EntityFrameworkCore
                     leftEntities[0].RootSkipShared.Add(context.Set<EntityRoot>().CreateInstance(e => e.Id = 7722));
                     leftEntities[0].RootSkipShared.Add(context.Set<EntityRoot>().CreateInstance(e => e.Id = 7723));
 
-                    rightEntities[0].CompositeKeySkipShared.Add(context.EntityCompositeKeys.CreateInstance(e =>
-                    {
-                        e.Key1 = 7711;
-                        e.Key2 = "7711";
-                        e.Key3 = new DateTime(7711, 1, 1);
-                    }));
-                    rightEntities[0].CompositeKeySkipShared.Add(context.EntityCompositeKeys.CreateInstance(e =>
-                    {
-                        e.Key1 = 7712;
-                        e.Key2 = "7712";
-                        e.Key3 = new DateTime(7712, 1, 1);
-                    }));
-                    rightEntities[0].CompositeKeySkipShared.Add(context.EntityCompositeKeys.CreateInstance(e =>
-                    {
-                        e.Key1 = 7713;
-                        e.Key2 = "7713";
-                        e.Key3 = new DateTime(7713, 1, 1);
-                    }));
+                    rightEntities[0].CompositeKeySkipShared.Add(
+                        context.EntityCompositeKeys.CreateInstance(
+                            e =>
+                            {
+                                e.Key1 = 7711;
+                                e.Key2 = "7711";
+                                e.Key3 = new DateTime(7711, 1, 1);
+                            }));
+                    rightEntities[0].CompositeKeySkipShared.Add(
+                        context.EntityCompositeKeys.CreateInstance(
+                            e =>
+                            {
+                                e.Key1 = 7712;
+                                e.Key2 = "7712";
+                                e.Key3 = new DateTime(7712, 1, 1);
+                            }));
+                    rightEntities[0].CompositeKeySkipShared.Add(
+                        context.EntityCompositeKeys.CreateInstance(
+                            e =>
+                            {
+                                e.Key1 = 7713;
+                                e.Key2 = "7713";
+                                e.Key3 = new DateTime(7713, 1, 1);
+                            }));
 
                     leftEntities[0].RootSkipShared.Remove(leftEntities[0].RootSkipShared.Single(e => e.Id == 9));
                     rightEntities[1].CompositeKeySkipShared.Remove(rightEntities[1].CompositeKeySkipShared.Single(e => e.Key2 == "8_3"));
@@ -520,12 +535,14 @@ namespace Microsoft.EntityFrameworkCore
                     leftEntities[2].RootSkipShared.Add(context.Set<EntityRoot>().CreateInstance(e => e.Id = 7724));
 
                     rightEntities[2].CompositeKeySkipShared.Remove(rightEntities[2].CompositeKeySkipShared.Single(e => e.Key2 == "8_2"));
-                    rightEntities[2].CompositeKeySkipShared.Add(context.EntityCompositeKeys.CreateInstance(e =>
-                    {
-                        e.Key1 = 7714;
-                        e.Key2 = "7714";
-                        e.Key3 = new DateTime(7714, 1, 1);
-                    }));
+                    rightEntities[2].CompositeKeySkipShared.Add(
+                        context.EntityCompositeKeys.CreateInstance(
+                            e =>
+                            {
+                                e.Key1 = 7714;
+                                e.Key2 = "7714";
+                                e.Key3 = new DateTime(7714, 1, 1);
+                            }));
 
                     if (RequiresDetectChanges)
                     {
@@ -811,24 +828,30 @@ namespace Microsoft.EntityFrameworkCore
                     leftEntities[0].ThreeSkipFull.Add(context.Set<EntityThree>().CreateInstance(e => e.Id = 7722));
                     leftEntities[0].ThreeSkipFull.Add(context.Set<EntityThree>().CreateInstance(e => e.Id = 7723));
 
-                    rightEntities[0].CompositeKeySkipFull.Add(context.EntityCompositeKeys.CreateInstance(e =>
-                    {
-                        e.Key1 = 7711;
-                        e.Key2 = "7711";
-                        e.Key3 = new DateTime(7711, 1, 1);
-                    }));
-                    rightEntities[0].CompositeKeySkipFull.Add(context.EntityCompositeKeys.CreateInstance(e =>
-                    {
-                        e.Key1 = 7712;
-                        e.Key2 = "7712";
-                        e.Key3 = new DateTime(7712, 1, 1);
-                    }));
-                    rightEntities[0].CompositeKeySkipFull.Add(context.EntityCompositeKeys.CreateInstance(e =>
-                    {
-                        e.Key1 = 7713;
-                        e.Key2 = "7713";
-                        e.Key3 = new DateTime(7713, 1, 1);
-                    }));
+                    rightEntities[0].CompositeKeySkipFull.Add(
+                        context.EntityCompositeKeys.CreateInstance(
+                            e =>
+                            {
+                                e.Key1 = 7711;
+                                e.Key2 = "7711";
+                                e.Key3 = new DateTime(7711, 1, 1);
+                            }));
+                    rightEntities[0].CompositeKeySkipFull.Add(
+                        context.EntityCompositeKeys.CreateInstance(
+                            e =>
+                            {
+                                e.Key1 = 7712;
+                                e.Key2 = "7712";
+                                e.Key3 = new DateTime(7712, 1, 1);
+                            }));
+                    rightEntities[0].CompositeKeySkipFull.Add(
+                        context.EntityCompositeKeys.CreateInstance(
+                            e =>
+                            {
+                                e.Key1 = 7713;
+                                e.Key2 = "7713";
+                                e.Key3 = new DateTime(7713, 1, 1);
+                            }));
 
                     leftEntities[0].ThreeSkipFull.Remove(leftEntities[0].ThreeSkipFull.Single(e => e.Id == 2));
                     rightEntities[1].CompositeKeySkipFull.Remove(rightEntities[1].CompositeKeySkipFull.Single(e => e.Key2 == "9_2"));
@@ -837,12 +860,14 @@ namespace Microsoft.EntityFrameworkCore
                     leftEntities[3].ThreeSkipFull.Add(context.Set<EntityThree>().CreateInstance(e => e.Id = 7724));
 
                     rightEntities[2].CompositeKeySkipFull.Remove(rightEntities[2].CompositeKeySkipFull.Single(e => e.Key2 == "6_1"));
-                    rightEntities[2].CompositeKeySkipFull.Add(context.EntityCompositeKeys.CreateInstance(e =>
-                    {
-                        e.Key1 = 7714;
-                        e.Key2 = "7714";
-                        e.Key3 = new DateTime(7714, 1, 1);
-                    }));
+                    rightEntities[2].CompositeKeySkipFull.Add(
+                        context.EntityCompositeKeys.CreateInstance(
+                            e =>
+                            {
+                                e.Key1 = 7714;
+                                e.Key2 = "7714";
+                                e.Key3 = new DateTime(7714, 1, 1);
+                            }));
 
                     if (RequiresDetectChanges)
                     {
@@ -2530,15 +2555,15 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var leftEntities = new[]
                     {
-                        context.EntityOnes.CreateInstance(e => e.Id = 7711 ),
-                        context.EntityOnes.CreateInstance(e => e.Id = 7712 ),
-                        context.EntityOnes.CreateInstance(e => e.Id = 7713 )
+                        context.EntityOnes.CreateInstance(e => e.Id = 7711),
+                        context.EntityOnes.CreateInstance(e => e.Id = 7712),
+                        context.EntityOnes.CreateInstance(e => e.Id = 7713)
                     };
                     var rightEntities = new[]
                     {
-                        context.EntityTwos.CreateInstance(e => e.Id = 7721 ),
-                        context.EntityTwos.CreateInstance(e => e.Id = 7722 ),
-                        context.EntityTwos.CreateInstance(e => e.Id = 7723 )
+                        context.EntityTwos.CreateInstance(e => e.Id = 7721),
+                        context.EntityTwos.CreateInstance(e => e.Id = 7722),
+                        context.EntityTwos.CreateInstance(e => e.Id = 7723)
                     };
 
                     leftEntities[0].TwoSkip.Add(rightEntities[0]); // 11 - 21
@@ -2819,8 +2844,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(3, context.ChangeTracker.Entries<ImplicitManyToManyB>().Count());
                     Assert.Equal(5, context.ChangeTracker.Entries<Dictionary<string, object>>().Count());
 
-                    var leftEntities = context.ChangeTracker.Entries<ImplicitManyToManyA>().Select(e => e.Entity).OrderBy(e => e.Id).ToList();
-                    var rightEntities = context.ChangeTracker.Entries<ImplicitManyToManyB>().Select(e => e.Entity).OrderBy(e => e.Id).ToList();
+                    var leftEntities = context.ChangeTracker.Entries<ImplicitManyToManyA>().Select(e => e.Entity).OrderBy(e => e.Id)
+                        .ToList();
+                    var rightEntities = context.ChangeTracker.Entries<ImplicitManyToManyB>().Select(e => e.Entity).OrderBy(e => e.Id)
+                        .ToList();
 
                     Assert.Equal(3, leftEntities[0].Bs.Count);
                     Assert.Single(leftEntities[1].Bs);
@@ -2884,8 +2911,10 @@ namespace Microsoft.EntityFrameworkCore
                     var results = context.Set<ImplicitManyToManyA>().Where(e => e.Id > 7700).Include(e => e.Bs).ToList();
                     Assert.Equal(3, results.Count);
 
-                    var leftEntities = context.ChangeTracker.Entries<ImplicitManyToManyA>().Select(e => e.Entity).OrderBy(e => e.Id).ToList();
-                    var rightEntities = context.ChangeTracker.Entries<ImplicitManyToManyB>().Select(e => e.Entity).OrderBy(e => e.Id).ToList();
+                    var leftEntities = context.ChangeTracker.Entries<ImplicitManyToManyA>().Select(e => e.Entity).OrderBy(e => e.Id)
+                        .ToList();
+                    var rightEntities = context.ChangeTracker.Entries<ImplicitManyToManyB>().Select(e => e.Entity).OrderBy(e => e.Id)
+                        .ToList();
 
                     ValidateFixup(context, leftEntities, rightEntities);
                 });
@@ -2922,6 +2951,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 (i switch
                 {
+                    // ReSharper disable once RedundantCast
                     1 => (IQueryable<object>)context.Set<EntityOne>(),
                     2 => context.Set<EntityTwo>(),
                     3 => context.Set<JoinOneToTwo>(),
@@ -2980,7 +3010,7 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var entity = context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared")
-                            .Single(e => (int)e["OneId"] == 1 && (int)e["ThreeId"] == 1);
+                        .Single(e => (int)e["OneId"] == 1 && (int)e["ThreeId"] == 1);
 
                     Assert.Equal("NewlyAdded", (string)entity["Payload"]);
 
@@ -2993,7 +3023,7 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var entity = context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared")
-                            .Single(e => (int)e["OneId"] == 1 && (int)e["ThreeId"] == 1);
+                        .Single(e => (int)e["OneId"] == 1 && (int)e["ThreeId"] == 1);
 
                     Assert.Equal("AlreadyUpdated", (string)entity["Payload"]);
 
@@ -3001,12 +3031,14 @@ namespace Microsoft.EntityFrameworkCore
 
                     context.SaveChanges();
 
-                    Assert.False(context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared")
+                    Assert.False(
+                        context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared")
                             .Any(e => (int)e["OneId"] == 1 && (int)e["ThreeId"] == 1));
                 });
         }
 
-        protected ManyToManyTrackingTestBase(TFixture fixture) => Fixture = fixture;
+        protected ManyToManyTrackingTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
@@ -3023,11 +3055,14 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected ManyToManyContext CreateContext() => Fixture.CreateContext();
+        protected ManyToManyContext CreateContext()
+            => Fixture.CreateContext();
 
-        protected virtual bool SupportsDatabaseDefaults => true;
+        protected virtual bool SupportsDatabaseDefaults
+            => true;
 
-        protected virtual bool RequiresDetectChanges => true;
+        protected virtual bool RequiresDetectChanges
+            => true;
 
         public abstract class ManyToManyTrackingFixtureBase : ManyToManyQueryFixtureBase
         {

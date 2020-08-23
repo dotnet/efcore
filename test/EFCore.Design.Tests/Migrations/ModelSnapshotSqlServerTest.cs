@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             public TestEnum TestEnum { get; set; }
         }
 
-        public enum TestEnum : int
+        public enum TestEnum
         {
             Value0 = 0,
             Value1,
@@ -275,9 +275,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         private class CustomValueGenerator : ValueGenerator<int>
         {
-            public override int Next(EntityEntry entry) => throw new NotImplementedException();
+            public override int Next(EntityEntry entry)
+                => throw new NotImplementedException();
 
-            public override bool GeneratesTemporaryValues => false;
+            public override bool GeneratesTemporaryValues
+                => false;
         }
 
         #region Model
@@ -430,8 +432,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     Assert.Equal(5, o.GetAnnotations().Count());
 
-                    Assert.Equal("DerivedEntity",
-                        o.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity").GetTableName());
+                    Assert.Equal(
+                        "DerivedEntity",
+                        o.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity")
+                            .GetTableName());
                 });
         }
 
@@ -485,8 +489,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     Assert.Equal(5, o.GetAnnotations().Count());
 
-                    Assert.Equal("DerivedEntity",
-                        o.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity").GetTableName());
+                    Assert.Equal(
+                        "DerivedEntity",
+                        o.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity")
+                            .GetTableName());
                 });
         }
 
@@ -495,7 +501,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             Test(
                 builder => builder.Entity<EntityWithOneProperty>().Ignore(e => e.EntityWithTwoProperties).ToView("EntityWithOneProperty"),
-
                 AddBoilerPlate(
                     GetHeading()
                     + @"
@@ -525,14 +530,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             Test(
                 builder =>
-                    {
-                        builder.HasDbFunction(typeof(ModelSnapshotSqlServerTest).GetMethod(
-                          nameof(GetCountByYear),
-                          BindingFlags.NonPublic | BindingFlags.Static));
+                {
+                    builder.HasDbFunction(
+                        typeof(ModelSnapshotSqlServerTest).GetMethod(
+                            nameof(GetCountByYear),
+                            BindingFlags.NonPublic | BindingFlags.Static));
 
-                        builder.Entity<TestKeylessType>().HasNoKey();
-                    },
-
+                    builder.Entity<TestKeylessType>().HasNoKey();
+                },
                 AddBoilerPlate(
                     GetHeading()
                     + @"
@@ -549,10 +554,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             Test(
                 builder =>
-                    builder.Entity<TestKeylessType>(kb => {
-                        kb.Property(k => k.Something);
-                        kb.HasNoKey().ToFunction("GetCount");
-                    }),
+                    builder.Entity<TestKeylessType>(
+                        kb =>
+                        {
+                            kb.Property(k => k.Something);
+                            kb.HasNoKey().ToFunction("GetCount");
+                        }),
                 AddBoilerPlate(
                     GetHeading()
                     + @"
@@ -1210,7 +1217,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     var joinEntity = model.FindEntityType("ManyToManyLeftManyToManyRight");
                     Assert.NotNull(joinEntity);
-                    Assert.Collection(joinEntity.GetDeclaredProperties(),
+                    Assert.Collection(
+                        joinEntity.GetDeclaredProperties(),
                         p =>
                         {
                             Assert.Equal("LeftsId", p.Name);
@@ -1221,7 +1229,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             Assert.Equal("RightsId", p.Name);
                             Assert.True(p.IsShadowProperty());
                         });
-                    Assert.Collection(joinEntity.FindDeclaredPrimaryKey().Properties,
+                    Assert.Collection(
+                        joinEntity.FindDeclaredPrimaryKey().Properties,
                         p =>
                         {
                             Assert.Equal("LeftsId", p.Name);
@@ -1230,16 +1239,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         {
                             Assert.Equal("RightsId", p.Name);
                         });
-                    Assert.Collection(joinEntity.GetDeclaredForeignKeys(),
+                    Assert.Collection(
+                        joinEntity.GetDeclaredForeignKeys(),
                         fk =>
                         {
-                            Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyLeft", fk.PrincipalEntityType.Name);
-                            Assert.Collection(fk.PrincipalKey.Properties,
+                            Assert.Equal(
+                                "Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyLeft",
+                                fk.PrincipalEntityType.Name);
+                            Assert.Collection(
+                                fk.PrincipalKey.Properties,
                                 p =>
                                 {
                                     Assert.Equal("Id", p.Name);
                                 });
-                            Assert.Collection(fk.Properties,
+                            Assert.Collection(
+                                fk.Properties,
                                 p =>
                                 {
                                     Assert.Equal("LeftsId", p.Name);
@@ -1247,13 +1261,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         },
                         fk =>
                         {
-                            Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyRight", fk.PrincipalEntityType.Name);
-                            Assert.Collection(fk.PrincipalKey.Properties,
+                            Assert.Equal(
+                                "Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyRight",
+                                fk.PrincipalEntityType.Name);
+                            Assert.Collection(
+                                fk.PrincipalKey.Properties,
                                 p =>
                                 {
                                     Assert.Equal("Id", p.Name);
                                 });
-                            Assert.Collection(fk.Properties,
+                            Assert.Collection(
+                                fk.Properties,
                                 p =>
                                 {
                                     Assert.Equal("RightsId", p.Name);
@@ -1341,7 +1359,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     var joinEntity = model.FindEntityType("ManyToManyLeftManyToManyRight");
                     Assert.NotNull(joinEntity);
                     Assert.Equal("MyJoinTable", joinEntity.GetTableName());
-                    Assert.Collection(joinEntity.GetDeclaredProperties(),
+                    Assert.Collection(
+                        joinEntity.GetDeclaredProperties(),
                         p =>
                         {
                             Assert.Equal("LeftsId", p.Name);
@@ -1352,7 +1371,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             Assert.Equal("RightsId", p.Name);
                             Assert.True(p.IsShadowProperty());
                         });
-                    Assert.Collection(joinEntity.FindDeclaredPrimaryKey().Properties,
+                    Assert.Collection(
+                        joinEntity.FindDeclaredPrimaryKey().Properties,
                         p =>
                         {
                             Assert.Equal("LeftsId", p.Name);
@@ -1361,16 +1381,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         {
                             Assert.Equal("RightsId", p.Name);
                         });
-                    Assert.Collection(joinEntity.GetDeclaredForeignKeys(),
+                    Assert.Collection(
+                        joinEntity.GetDeclaredForeignKeys(),
                         fk =>
                         {
-                            Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyLeft", fk.PrincipalEntityType.Name);
-                            Assert.Collection(fk.PrincipalKey.Properties,
+                            Assert.Equal(
+                                "Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyLeft",
+                                fk.PrincipalEntityType.Name);
+                            Assert.Collection(
+                                fk.PrincipalKey.Properties,
                                 p =>
                                 {
                                     Assert.Equal("Id", p.Name);
                                 });
-                            Assert.Collection(fk.Properties,
+                            Assert.Collection(
+                                fk.Properties,
                                 p =>
                                 {
                                     Assert.Equal("LeftsId", p.Name);
@@ -1378,13 +1403,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         },
                         fk =>
                         {
-                            Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyRight", fk.PrincipalEntityType.Name);
-                            Assert.Collection(fk.PrincipalKey.Properties,
+                            Assert.Equal(
+                                "Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyRight",
+                                fk.PrincipalEntityType.Name);
+                            Assert.Collection(
+                                fk.PrincipalKey.Properties,
                                 p =>
                                 {
                                     Assert.Equal("Id", p.Name);
                                 });
-                            Assert.Collection(fk.Properties,
+                            Assert.Collection(
+                                fk.Properties,
                                 p =>
                                 {
                                     Assert.Equal("RightsId", p.Name);
@@ -1948,7 +1977,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     var orderBillingDetails = order.FindNavigation(nameof(Order.OrderBillingDetails)).TargetEntityType;
                     Assert.Equal(1, orderBillingDetails.PropertyCount());
 
-                    var orderBillingDetailsAddress = orderBillingDetails.FindNavigation(nameof(OrderDetails.StreetAddress)).TargetEntityType;
+                    var orderBillingDetailsAddress =
+                        orderBillingDetails.FindNavigation(nameof(OrderDetails.StreetAddress)).TargetEntityType;
                     Assert.Equal(2, orderBillingDetailsAddress.PropertyCount());
 
                     var orderShippingDetails = order.FindNavigation(nameof(Order.OrderShippingDetails)).TargetEntityType;
@@ -1970,7 +2000,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         .OwnsMany(
                             o => o.OwnedEntities,
                             ownee => ownee.HasCheckConstraint("CK_TestOwnee_TestEnum_Enum_Constraint", "[TestEnum] IN (0, 1, 2)"));
-
                 },
                 @"// <auto-generated />
 using Microsoft.EntityFrameworkCore;
@@ -2034,13 +2063,13 @@ namespace RootNamespace
     }
 }
 ",
-            model =>
-            {
-                Assert.Equal(2, model.GetEntityTypes().Count());
-                var testOwnee = model.FindEntityType(
-                    "Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+TestOwnee");
-                Assert.NotNull(testOwnee.FindCheckConstraint("CK_TestOwnee_TestEnum_Enum_Constraint"));
-            });
+                model =>
+                {
+                    Assert.Equal(2, model.GetEntityTypes().Count());
+                    var testOwnee = model.FindEntityType(
+                        "Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+TestOwnee");
+                    Assert.NotNull(testOwnee.FindCheckConstraint("CK_TestOwnee_TestEnum_Enum_Constraint"));
+                });
         }
 
         private class Order
@@ -2453,7 +2482,7 @@ namespace RootNamespace
 
                     b.ToTable(""EntityWithTwoProperties"");
                 });",
-                usingSystem: true),
+                    usingSystem: true),
                 o => Assert.Equal(DBNull.Value, o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:DefaultValue"]));
         }
 
@@ -3040,7 +3069,7 @@ namespace RootNamespace
                 {
                     builder.Entity<EntityWithTwoProperties>()
                         .HasIndex(t => t.AlternateId)
-                            .HasDatabaseName("IndexName");
+                        .HasDatabaseName("IndexName");
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
@@ -3214,15 +3243,15 @@ namespace RootNamespace
                     Assert.Collection(
                         model.GetEntityTypes().First().GetIndexes().First().Properties,
                         p0 =>
-                            {
-                                Assert.Equal("FirstName", p0.Name);
-                                Assert.Equal("nvarchar(450)", p0.GetColumnType());
-                            },
+                        {
+                            Assert.Equal("FirstName", p0.Name);
+                            Assert.Equal("nvarchar(450)", p0.GetColumnType());
+                        },
                         p1 =>
-                            {
-                                Assert.Equal("LastName", p1.Name);
-                                Assert.Equal("nvarchar(450)", p1.GetColumnType());
-                            }
+                        {
+                            Assert.Equal("LastName", p1.Name);
+                            Assert.Equal("nvarchar(450)", p1.GetColumnType());
+                        }
                     ));
         }
 
@@ -3254,25 +3283,24 @@ namespace RootNamespace
                     b.ToTable(""EntityWithNamedIndexAttribute"");
                 });"),
                 model =>
-                    {
-                        var index = model.GetEntityTypes().First().GetIndexes().First();
-                        Assert.Equal("NamedIndex", index.Name);
-                        Assert.Collection(
-                            index.Properties,
-                            p0 =>
-                            {
-                                Assert.Equal("FirstName", p0.Name);
-                                Assert.Equal("nvarchar(450)", p0.GetColumnType());
-                            },
-                            p1 =>
-                            {
-                                Assert.Equal("LastName", p1.Name);
-                                Assert.Equal("nvarchar(450)", p1.GetColumnType());
-                            }
-                        );
-                    });
+                {
+                    var index = model.GetEntityTypes().First().GetIndexes().First();
+                    Assert.Equal("NamedIndex", index.Name);
+                    Assert.Collection(
+                        index.Properties,
+                        p0 =>
+                        {
+                            Assert.Equal("FirstName", p0.Name);
+                            Assert.Equal("nvarchar(450)", p0.GetColumnType());
+                        },
+                        p1 =>
+                        {
+                            Assert.Equal("LastName", p1.Name);
+                            Assert.Equal("nvarchar(450)", p1.GetColumnType());
+                        }
+                    );
+                });
         }
-
 
         [ConditionalFact]
         public virtual void IndexAttribute_IsUnique_is_stored_in_snapshot()
@@ -4672,22 +4700,24 @@ namespace RootNamespace
 
         #endregion
 
-        protected virtual string GetHeading(bool empty = false) => @"
+        protected virtual string GetHeading(bool empty = false)
+            => @"
             modelBuilder
                 .UseIdentityColumns()
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128);"
-            + (empty
-                ? null
-                : @"
+                + (empty
+                    ? null
+                    : @"
 ");
 
-        protected virtual ICollection<BuildReference> GetReferences() => new List<BuildReference>
-        {
-            BuildReference.ByName("Microsoft.EntityFrameworkCore"),
-            BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
-            BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer"),
-            BuildReference.ByName("NetTopologySuite")
-        };
+        protected virtual ICollection<BuildReference> GetReferences()
+            => new List<BuildReference>
+            {
+                BuildReference.ByName("Microsoft.EntityFrameworkCore"),
+                BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
+                BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer"),
+                BuildReference.ByName("NetTopologySuite")
+            };
 
         protected virtual string AddBoilerPlate(string code, bool usingSystem = false)
             => $@"// <auto-generated />
@@ -4775,8 +4805,9 @@ namespace RootNamespace
 
         protected ModelBuilder CreateConventionalModelBuilder()
         {
-            var serviceProvider = SqlServerTestHelpers.Instance.CreateContextServices(new ServiceCollection()
-                .AddEntityFrameworkSqlServerNetTopologySuite());
+            var serviceProvider = SqlServerTestHelpers.Instance.CreateContextServices(
+                new ServiceCollection()
+                    .AddEntityFrameworkSqlServerNetTopologySuite());
 
             return new ModelBuilder(
                 serviceProvider.GetService<IConventionSetBuilder>().CreateConventionSet(),

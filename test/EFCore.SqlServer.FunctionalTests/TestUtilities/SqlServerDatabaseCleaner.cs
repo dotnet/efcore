@@ -25,7 +25,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     new SqlServerLoggingDefinitions(),
                     new NullDbContextLogger()));
 
-        protected override bool AcceptTable(DatabaseTable table) => !(table is DatabaseView);
+        protected override bool AcceptTable(DatabaseTable table)
+            => !(table is DatabaseView);
 
         protected override bool AcceptIndex(DatabaseIndex index)
             => false;

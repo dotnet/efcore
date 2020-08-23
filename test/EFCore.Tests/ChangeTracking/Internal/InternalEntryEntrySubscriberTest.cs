@@ -204,7 +204,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         private static ICollection<ChangedOnlyNotificationEntity> CreateCollection(
-            bool ourCollection, params ChangedOnlyNotificationEntity[] items)
+            bool ourCollection,
+            params ChangedOnlyNotificationEntity[] items)
             => ourCollection
                 ? (ICollection<ChangedOnlyNotificationEntity>)new ObservableHashSet<ChangedOnlyNotificationEntity>(items)
                 : new ObservableCollection<ChangedOnlyNotificationEntity>(items);
@@ -514,12 +515,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 = new List<Tuple<InternalEntityEntry, INavigationBase, IEnumerable<object>, IEnumerable<object>>>();
 
             public void NavigationReferenceChanged(
-                InternalEntityEntry entry, INavigationBase navigationBase, object oldValue, object newValue)
+                InternalEntityEntry entry,
+                INavigationBase navigationBase,
+                object oldValue,
+                object newValue)
             {
             }
 
             public void NavigationCollectionChanged(
-                InternalEntityEntry entry, INavigationBase navigationBase, IEnumerable<object> added, IEnumerable<object> removed)
+                InternalEntityEntry entry,
+                INavigationBase navigationBase,
+                IEnumerable<object> added,
+                IEnumerable<object> removed)
                 => CollectionChanged.Add(Tuple.Create(entry, navigationBase, added, removed));
 
             public void TrackedFromQuery(InternalEntityEntry entry)
@@ -535,9 +542,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             public void KeyPropertyChanged(
-                InternalEntityEntry entry, IProperty property, IEnumerable<IKey> containingPrincipalKeys,
+                InternalEntityEntry entry,
+                IProperty property,
+                IEnumerable<IKey> containingPrincipalKeys,
                 IEnumerable<IForeignKey> containingForeignKeys,
-                object oldValue, object newValue)
+                object oldValue,
+                object newValue)
             {
             }
         }

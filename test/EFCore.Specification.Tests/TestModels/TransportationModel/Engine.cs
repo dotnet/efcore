@@ -17,6 +17,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                 && VehicleName == other.VehicleName
                 && Description == other.Description;
 
-        public override int GetHashCode() => HashCode.Combine(VehicleName, Description);
+        public override int GetHashCode()
+            => HashCode.Combine(VehicleName, Description);
     }
 }

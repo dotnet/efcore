@@ -22,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore
                 .Property(e => e.Computed).HasComputedColumnSql("1");
         }
 
-        protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory
+            => SqliteTestStoreFactory.Instance;
     }
 }

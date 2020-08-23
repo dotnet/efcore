@@ -100,15 +100,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetPropertyAccessModeConfigurationSource());
 
             Assert.True(builder.CanSetPropertyAccessMode(PropertyAccessMode.PreferProperty, ConfigurationSource.Convention));
-            Assert.False(builder.CanSetPropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction, ConfigurationSource.Convention));
+            Assert.False(
+                builder.CanSetPropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction, ConfigurationSource.Convention));
             Assert.NotNull(builder.UsePropertyAccessMode(PropertyAccessMode.PreferProperty, ConfigurationSource.Convention));
             Assert.Null(builder.UsePropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction, ConfigurationSource.Convention));
 
             Assert.Equal(PropertyAccessMode.PreferProperty, metadata.GetPropertyAccessMode());
             Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetPropertyAccessModeConfigurationSource());
 
-            Assert.True(builder.CanSetPropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction, ConfigurationSource.DataAnnotation));
-            Assert.NotNull(builder.UsePropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction, ConfigurationSource.DataAnnotation));
+            Assert.True(
+                builder.CanSetPropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction, ConfigurationSource.DataAnnotation));
+            Assert.NotNull(
+                builder.UsePropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction, ConfigurationSource.DataAnnotation));
 
             Assert.Equal(PropertyAccessMode.PreferFieldDuringConstruction, metadata.GetPropertyAccessMode());
             Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetPropertyAccessModeConfigurationSource());
@@ -172,8 +175,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             // the skip navigation is pointing to the automatically-generated
             // join entity type and so is its inverse
             var inverse = (SkipNavigation)metadata.TargetEntityType.Builder.HasSkipNavigation(
-                Product.OrdersProperty,
-                metadata.DeclaringEntityType)
+                    Product.OrdersProperty,
+                    metadata.DeclaringEntityType)
                 .Metadata;
 
             Assert.NotNull(metadata.Inverse);
@@ -260,8 +263,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         protected class Order
         {
             public static readonly PropertyInfo ProductsProperty = typeof(Order).GetProperty(nameof(Products));
+
             public static readonly FieldInfo ProductsField = typeof(Order)
                 .GetField(nameof(_products), BindingFlags.Instance | BindingFlags.NonPublic);
+
             public static readonly FieldInfo OtherProductsField = typeof(Order)
                 .GetField(nameof(_otherProducts), BindingFlags.Instance | BindingFlags.NonPublic);
 

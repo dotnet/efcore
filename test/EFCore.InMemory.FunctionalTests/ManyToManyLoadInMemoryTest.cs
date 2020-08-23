@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class ManyToManyLoadInMemoryFixture : ManyToManyLoadFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => InMemoryTestStoreFactory.Instance;
         }
     }
 }

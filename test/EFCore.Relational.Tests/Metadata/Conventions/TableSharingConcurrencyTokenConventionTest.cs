@@ -4,7 +4,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -101,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var modelBuilder = GetModelBuilder();
             modelBuilder.Entity<Person>().HasKey(a => a.Id);
             modelBuilder.Entity<Person>().ToTable(nameof(Animal)).Property<byte[]>("Version")
-                .HasColumnName("Version").ValueGeneratedOnUpdate().IsConcurrencyToken(true);
+                .HasColumnName("Version").ValueGeneratedOnUpdate().IsConcurrencyToken();
             modelBuilder.Entity<Animal>().HasKey(a => a.Id);
             modelBuilder.Entity<Animal>().HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
             modelBuilder.Entity<Animal>().HasOne(a => a.Dwelling).WithOne().HasForeignKey<AnimalHouse>(p => p.Id);

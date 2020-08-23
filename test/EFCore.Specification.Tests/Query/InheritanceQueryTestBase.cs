@@ -43,7 +43,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Can_query_all_types_when_shared_column(bool async)
@@ -510,11 +509,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var parameter = Expression.Parameter(query.ElementType, "p");
             var property = Expression.Property(parameter, "Name");
-            var getProperty = Expression.Lambda(property, new[] { parameter });
+            var getProperty = Expression.Lambda(property, parameter);
 
-            var expression = Expression.Call(typeof(Queryable), nameof(Queryable.OrderBy),
-                new[] { query.ElementType, typeof(string) },
-                new[] { query.Expression, Expression.Quote(getProperty) });
+            var expression = Expression.Call(
+                typeof(Queryable), nameof(Queryable.OrderBy),
+                new[] { query.ElementType, typeof(string) }, query.Expression, Expression.Quote(getProperty));
 
             query = query.Provider.CreateQuery<Kiwi>(expression);
 
@@ -557,13 +556,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.Name);
         }
 
-        protected InheritanceContext CreateContext() => Fixture.CreateContext();
+        protected InheritanceContext CreateContext()
+            => Fixture.CreateContext();
 
         protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         {
         }
 
-        protected virtual bool EnforcesFkConstraints => true;
+        protected virtual bool EnforcesFkConstraints
+            => true;
 
         protected virtual void ClearLog()
         {

@@ -178,7 +178,8 @@ WHERE [s].[ParentId] = @__p_0",
         }
 
         public override void Lazy_load_many_to_one_reference_to_principal_already_loaded(
-            EntityState state, CascadeTiming cascadeDeleteTiming)
+            EntityState state,
+            CascadeTiming cascadeDeleteTiming)
         {
             base.Lazy_load_many_to_one_reference_to_principal_already_loaded(state, cascadeDeleteTiming);
 
@@ -193,7 +194,8 @@ WHERE [s].[ParentId] = @__p_0",
         }
 
         public override void Lazy_load_one_to_one_reference_to_dependent_already_loaded(
-            EntityState state, CascadeTiming cascadeDeleteTiming)
+            EntityState state,
+            CascadeTiming cascadeDeleteTiming)
         {
             base.Lazy_load_one_to_one_reference_to_dependent_already_loaded(state, cascadeDeleteTiming);
 
@@ -461,16 +463,21 @@ WHERE [p].[Id] = @__entity_equality_called_0_Id",
                 ignoreLineEndingDifferences: true);
         }
 
-        protected override void ClearLog() => Fixture.TestSqlLoggerFactory.Clear();
+        protected override void ClearLog()
+            => Fixture.TestSqlLoggerFactory.Clear();
 
-        protected override void RecordLog() => Sql = Fixture.TestSqlLoggerFactory.Sql;
+        protected override void RecordLog()
+            => Sql = Fixture.TestSqlLoggerFactory.Sql;
 
         private string Sql { get; set; }
 
         public class LoadSqlServerFixture : LoadFixtureBase
         {
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            public TestSqlLoggerFactory TestSqlLoggerFactory
+                => (TestSqlLoggerFactory)ListLoggerFactory;
+
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
         }
     }
 }

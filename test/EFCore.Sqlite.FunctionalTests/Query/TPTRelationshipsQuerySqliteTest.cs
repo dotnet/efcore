@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public class TPTRelationshipsQuerySqliteFixture : TPTRelationshipsQueryRelationalFixture
         {
-            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqliteTestStoreFactory.Instance;
         }
     }
 }

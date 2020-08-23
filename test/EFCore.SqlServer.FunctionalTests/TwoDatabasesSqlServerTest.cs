@@ -13,10 +13,12 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected new SqlServerFixture Fixture => (SqlServerFixture)base.Fixture;
+        protected new SqlServerFixture Fixture
+            => (SqlServerFixture)base.Fixture;
 
         protected override DbContextOptionsBuilder CreateTestOptions(
-            DbContextOptionsBuilder optionsBuilder, bool withConnectionString = false)
+            DbContextOptionsBuilder optionsBuilder,
+            bool withConnectionString = false)
             => withConnectionString
                 ? optionsBuilder.UseSqlServer(DummyConnectionString)
                 : optionsBuilder.UseSqlServer();

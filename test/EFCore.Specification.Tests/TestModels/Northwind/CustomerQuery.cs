@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
         public string City { get; set; }
 
         [NotMapped]
-        public bool IsLondon => City == "London";
+        public bool IsLondon
+            => City == "London";
 
         protected bool Equals(CustomerQuery other)
             => string.Equals(CompanyName, other.CompanyName);

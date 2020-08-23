@@ -10,9 +10,12 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindAggregateOperatorsQuerySqliteTest : NorthwindAggregateOperatorsQueryRelationalTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
+    public class NorthwindAggregateOperatorsQuerySqliteTest : NorthwindAggregateOperatorsQueryRelationalTestBase<
+        NorthwindQuerySqliteFixture<NoopModelCustomizer>>
     {
-        public NorthwindAggregateOperatorsQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+        public NorthwindAggregateOperatorsQuerySqliteTest(
+            NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture,
+            ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             ClearLog();

@@ -19,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        protected override bool CanExecuteQueryString => true;
+        protected override bool CanExecuteQueryString
+            => true;
 
         public override async Task SimpleSelect(bool async)
         {
@@ -236,8 +237,10 @@ FROM [PointEntity] AS [p]");
         {
             await AssertQuery(
                 async,
-                ss => ss.Set<PointEntity>().Select(e => new { e.Id, Distance = (double?)e.Point.Distance(new Point(1, 1) { SRID = 4326 }) }),
-                ss => ss.Set<PointEntity>().Select(e => new { e.Id, Distance = e.Point == null ? (double?)null : e.Point.Distance(new Point(1, 1) { SRID = 4326 }) }),
+                ss => ss.Set<PointEntity>()
+                    .Select(e => new { e.Id, Distance = (double?)e.Point.Distance(new Point(1, 1) { SRID = 4326 }) }),
+                ss => ss.Set<PointEntity>().Select(
+                    e => new { e.Id, Distance = e.Point == null ? (double?)null : e.Point.Distance(new Point(1, 1) { SRID = 4326 }) }),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
                 {
@@ -778,7 +781,8 @@ WHERE [l].[LineString] IS NULL",
                 //
                 @"SELECT [l].[Id]
 FROM [LineStringEntity] AS [l]
-WHERE [l].[LineString] IS NULL");        }
+WHERE [l].[LineString] IS NULL");
+        }
 
         public override async Task Intersects_not_equal_to_null(bool async)
         {

@@ -449,7 +449,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        protected TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)Fixture.ListLoggerFactory;
+        protected TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)Fixture.ListLoggerFactory;
 
         protected void AssertSql(params string[] expected)
             => TestSqlLoggerFactory.AssertBaseline(expected);
@@ -464,7 +465,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 TestStore = CosmosTestStore.Create(DatabaseName);
             }
 
-            protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => CosmosTestStoreFactory.Instance;
+
             public virtual CosmosTestStore TestStore { get; }
             private Action<ModelBuilder> OnModelCreatingAction { get; set; }
             private object AdditionalModelCacheKey { get; set; }
@@ -475,7 +478,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
 
             public DbContextOptions CreateOptions(
-                Action<ModelBuilder> onModelCreating = null, object additionalModelCacheKey = null, bool seed = true)
+                Action<ModelBuilder> onModelCreating = null,
+                object additionalModelCacheKey = null,
+                bool seed = true)
             {
                 OnModelCreatingAction = onModelCreating;
                 AdditionalModelCacheKey = additionalModelCacheKey;
@@ -497,9 +502,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 => base.AddServices(serviceCollection)
                     .AddSingleton<IModelCacheKeyFactory>(new TestModelCacheKeyFactory(() => AdditionalModelCacheKey));
 
-            public Task InitializeAsync() => Task.CompletedTask;
+            public Task InitializeAsync()
+                => Task.CompletedTask;
 
-            public Task DisposeAsync() => TestStore.DisposeAsync();
+            public Task DisposeAsync()
+                => TestStore.DisposeAsync();
 
             private class TestModelCacheKeyFactory : IModelCacheKeyFactory
             {
@@ -510,7 +517,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     _getAdditionalKey = getAdditionalKey;
                 }
 
-                public object Create(DbContext context) => Tuple.Create(context.GetType(), _getAdditionalKey());
+                public object Create(DbContext context)
+                    => Tuple.Create(context.GetType(), _getAdditionalKey());
             }
         }
 

@@ -7,12 +7,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Xunit;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable StringStartsWithIsCultureSpecific
@@ -24,7 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class NorthwindStringIncludeQueryTestBase<TFixture> : NorthwindIncludeQueryTestBase<TFixture>
         where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
     {
-        private static readonly IncludeRewritingExpressionVisitor _includeRewritingExpressionVisitor = new IncludeRewritingExpressionVisitor();
+        private static readonly IncludeRewritingExpressionVisitor _includeRewritingExpressionVisitor =
+            new IncludeRewritingExpressionVisitor();
+
         protected NorthwindStringIncludeQueryTestBase(TFixture fixture)
             : base(fixture)
         {
@@ -66,10 +67,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         // Property expression cannot be converted to string include
-        public override Task Include_property_expression_invalid(bool async) => Task.CompletedTask;
+        public override Task Include_property_expression_invalid(bool async)
+            => Task.CompletedTask;
 
         // Property expression cannot be converted to string include
-        public override Task Then_include_property_expression_invalid(bool async) => Task.CompletedTask;
+        public override Task Then_include_property_expression_invalid(bool async)
+            => Task.CompletedTask;
 
         public override async Task Include_closes_reader(bool async)
         {
@@ -145,7 +148,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         // Filtered include does not work for string based API.
-        public override Task Filtered_include_with_multiple_ordering(bool async) => Task.CompletedTask;
+        public override Task Filtered_include_with_multiple_ordering(bool async)
+            => Task.CompletedTask;
 
         protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)
         {
@@ -157,13 +161,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         private class IncludeRewritingExpressionVisitor : ExpressionVisitor
         {
             private static readonly MethodInfo _includeMethodInfo
-            = typeof(EntityFrameworkQueryableExtensions)
-                .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.Include))
-                .Single(
-                    mi =>
-                        mi.GetGenericArguments().Count() == 2
-                        && mi.GetParameters().Any(
-                            pi => pi.Name == "navigationPropertyPath" && pi.ParameterType != typeof(string)));
+                = typeof(EntityFrameworkQueryableExtensions)
+                    .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.Include))
+                    .Single(
+                        mi =>
+                            mi.GetGenericArguments().Count() == 2
+                            && mi.GetParameters().Any(
+                                pi => pi.Name == "navigationPropertyPath" && pi.ParameterType != typeof(string)));
 
             private static readonly MethodInfo _stringIncludeMethodInfo
                 = typeof(EntityFrameworkQueryableExtensions)
@@ -240,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         return $"{GetPath(memberExpression.Expression)}.{memberExpression.Member.Name}";
 
                     case UnaryExpression unaryExpression
-                    when unaryExpression.NodeType == ExpressionType.Convert
+                        when unaryExpression.NodeType == ExpressionType.Convert
                         || unaryExpression.NodeType == ExpressionType.Convert
                         || unaryExpression.NodeType == ExpressionType.TypeAs:
                         return GetPath(unaryExpression.Operand);

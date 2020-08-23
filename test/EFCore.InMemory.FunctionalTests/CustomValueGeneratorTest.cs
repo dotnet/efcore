@@ -235,7 +235,8 @@ namespace Microsoft.EntityFrameworkCore
             public override Guid Next(EntityEntry entry)
                 => SpecialGuids[Interlocked.Increment(ref _counter)];
 
-            public override bool GeneratesTemporaryValues => false;
+            public override bool GeneratesTemporaryValues
+                => false;
         }
 
         private class SomeEntityStringValueGenerator : ValueGenerator<string>
@@ -245,7 +246,8 @@ namespace Microsoft.EntityFrameworkCore
             public override string Next(EntityEntry entry)
                 => ((SomeEntity)entry.Entity).Name + " - " + Interlocked.Increment(ref _counter);
 
-            public override bool GeneratesTemporaryValues => false;
+            public override bool GeneratesTemporaryValues
+                => false;
         }
 
         private class CustomValueGeneratorFactory : ValueGeneratorFactory
