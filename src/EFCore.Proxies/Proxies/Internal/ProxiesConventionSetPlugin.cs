@@ -65,7 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                 new ProxyChangeTrackingConvention(extension),
                 typeof(DbSetFindingConvention));
 
-            conventionSet.ModelFinalizingConventions.Add(new ProxyBindingRewriter(
+            conventionSet.ModelFinalizingConventions.Add(
+                new ProxyBindingRewriter(
                     _proxyFactory,
                     extension,
                     _lazyLoaderParameterBindingFactoryDependencies,

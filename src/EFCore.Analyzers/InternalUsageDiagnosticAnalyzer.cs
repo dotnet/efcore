@@ -7,7 +7,6 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
-
 using CSharpSyntax = Microsoft.CodeAnalysis.CSharp.Syntax;
 using VBSyntax = Microsoft.CodeAnalysis.VisualBasic.Syntax;
 
@@ -37,14 +36,16 @@ namespace Microsoft.EntityFrameworkCore
                 defaultSeverity: DiagnosticSeverity.Warning,
                 isEnabledByDefault: true);
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(_descriptor);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
+            => ImmutableArray.Create(_descriptor);
 
         public override void Initialize(AnalysisContext context)
         {
             context.EnableConcurrentExecution();
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
 
-            context.RegisterOperationAction(AnalyzeNode,
+            context.RegisterOperationAction(
+                AnalyzeNode,
                 OperationKind.FieldReference,
                 OperationKind.PropertyReference,
                 OperationKind.MethodReference,
@@ -54,7 +55,8 @@ namespace Microsoft.EntityFrameworkCore
                 OperationKind.VariableDeclaration,
                 OperationKind.TypeOf);
 
-            context.RegisterSymbolAction(AnalyzeSymbol,
+            context.RegisterSymbolAction(
+                AnalyzeSymbol,
                 SymbolKind.NamedType,
                 SymbolKind.Method,
                 SymbolKind.Property,
@@ -93,11 +95,11 @@ namespace Microsoft.EntityFrameworkCore
                 default:
                     throw new ArgumentException($"Unexpected {nameof(OperationKind)}: {context.Operation.Kind}");
             }
-
         }
 
         private static void AnalyzeMember(OperationAnalysisContext context, ISymbol symbol)
         {
+            // ReSharper disable once RedundantCast
             if ((object)symbol.ContainingAssembly == context.Compilation.Assembly)
             {
                 // Skip all methods inside the same assembly - internal access is fine
@@ -197,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore
                     var location = declaringSyntax.GetSyntax() switch
                     {
                         CSharpSyntax.ClassDeclarationSyntax s when s.BaseList?.Types.Count > 0
-                            => s.BaseList.Types[0].GetLocation(),
+                        => s.BaseList.Types[0].GetLocation(),
                         { } otherSyntax => otherSyntax.GetLocation()
                     };
 
@@ -228,6 +230,7 @@ namespace Microsoft.EntityFrameworkCore
                 // Property getters/setters are handled via IPropertySymbol
                 return;
             }
+
             if (IsInternal(context, symbol.ReturnType))
             {
                 foreach (var declaringSyntax in symbol.DeclaringSyntaxReferences)
@@ -272,7 +275,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static void ReportDiagnostic(OperationAnalysisContext context, object messageArg)
-            => context.ReportDiagnostic(Diagnostic.Create(_descriptor, NarrowDownSyntax(context.Operation.Syntax).GetLocation(), messageArg));
+            => context.ReportDiagnostic(
+                Diagnostic.Create(_descriptor, NarrowDownSyntax(context.Operation.Syntax).GetLocation(), messageArg));
 
         private static void ReportDiagnostic(SymbolAnalysisContext context, SyntaxNode syntax, object messageArg)
             => context.ReportDiagnostic(Diagnostic.Create(_descriptor, NarrowDownSyntax(syntax).GetLocation(), messageArg));
@@ -285,20 +289,20 @@ namespace Microsoft.EntityFrameworkCore
             => syntax switch
             {
                 CSharpSyntax.InvocationExpressionSyntax s
-                    when s.Expression is CSharpSyntax.MemberAccessExpressionSyntax memberAccessSyntax
-                    => memberAccessSyntax.Name,
+                when s.Expression is CSharpSyntax.MemberAccessExpressionSyntax memberAccessSyntax
+                => memberAccessSyntax.Name,
                 CSharpSyntax.MemberAccessExpressionSyntax s => s.Name,
                 CSharpSyntax.ObjectCreationExpressionSyntax s => s.Type,
                 CSharpSyntax.PropertyDeclarationSyntax s => s.Type,
                 CSharpSyntax.VariableDeclaratorSyntax declarator
-                    => declarator.Parent is CSharpSyntax.VariableDeclarationSyntax declaration
-                        ? declaration.Type
-                        : (SyntaxNode)declarator,
+                => declarator.Parent is CSharpSyntax.VariableDeclarationSyntax declaration
+                    ? declaration.Type
+                    : (SyntaxNode)declarator,
                 CSharpSyntax.TypeOfExpressionSyntax s => s.Type,
 
                 VBSyntax.InvocationExpressionSyntax s
-                    when s.Expression is VBSyntax.MemberAccessExpressionSyntax memberAccessSyntax
-                    => memberAccessSyntax.Name,
+                when s.Expression is VBSyntax.MemberAccessExpressionSyntax memberAccessSyntax
+                => memberAccessSyntax.Name,
                 VBSyntax.MemberAccessExpressionSyntax s => s.Name,
                 VBSyntax.ObjectCreationExpressionSyntax s => s.Type,
                 VBSyntax.TypeOfExpressionSyntax s => s.Type,
@@ -307,17 +311,21 @@ namespace Microsoft.EntityFrameworkCore
             };
 
         private static bool IsInternal(SymbolAnalysisContext context, ITypeSymbol symbol)
+            // ReSharper disable once RedundantCast
             => (object)symbol.ContainingAssembly != context.Compilation.Assembly
                 && (IsInInternalNamespace(symbol) || HasInternalAttribute(symbol));
 
         private static bool IsInternal(OperationAnalysisContext context, ITypeSymbol symbol)
+            // ReSharper disable once RedundantCast
             => (object)symbol.ContainingAssembly != context.Compilation.Assembly
                 && (IsInInternalNamespace(symbol) || HasInternalAttribute(symbol));
 
         private static bool HasInternalAttribute(ISymbol symbol)
             => symbol != null
-                && symbol.GetAttributes().Any(a =>
-                    a.AttributeClass.ToDisplayString() == "Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkInternalAttribute");
+                && symbol.GetAttributes().Any(
+                    a =>
+                        a.AttributeClass.ToDisplayString()
+                        == "Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkInternalAttribute");
 
         private static bool IsInInternalNamespace(ISymbol symbol)
         {
@@ -326,10 +334,11 @@ namespace Microsoft.EntityFrameworkCore
                 var i = ns.IndexOf("EntityFrameworkCore");
 
                 return
-                    i != -1 &&
-                    (i == 0 || ns[i - 1] == '.') &&
-                    i + EFLen < ns.Length && ns[i + EFLen] == '.' &&
-                    ns.EndsWith(".Internal", StringComparison.Ordinal);
+                    i != -1
+                    && (i == 0 || ns[i - 1] == '.')
+                    && i + EFLen < ns.Length
+                    && ns[i + EFLen] == '.'
+                    && ns.EndsWith(".Internal", StringComparison.Ordinal);
             }
 
             return false;

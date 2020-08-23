@@ -58,7 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 
         /// <inheritdoc />
         public virtual void ProcessModelFinalizing(
-            IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
         {
             if (_options?.UseProxies == true)
             {

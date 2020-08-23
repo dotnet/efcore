@@ -64,7 +64,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual ProxiesOptionsExtension Clone() => new ProxiesOptionsExtension(this);
+        protected virtual ProxiesOptionsExtension Clone()
+            => new ProxiesOptionsExtension(this);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -72,7 +73,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool UseLazyLoadingProxies => _useLazyLoadingProxies;
+        public virtual bool UseLazyLoadingProxies
+            => _useLazyLoadingProxies;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -80,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool UseChangeTrackingProxies => _useChangeTrackingProxies;
+        public virtual bool UseChangeTrackingProxies
+            => _useChangeTrackingProxies;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -88,7 +91,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CheckEquality => _checkEquality;
+        public virtual bool CheckEquality
+            => _checkEquality;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -96,7 +100,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool UseProxies => UseLazyLoadingProxies || UseChangeTrackingProxies;
+        public virtual bool UseProxies
+            => UseLazyLoadingProxies || UseChangeTrackingProxies;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -173,18 +178,20 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             private new ProxiesOptionsExtension Extension
                 => (ProxiesOptionsExtension)base.Extension;
 
-            public override bool IsDatabaseProvider => false;
+            public override bool IsDatabaseProvider
+                => false;
 
             public override string LogFragment
                 => _logFragment ??= Extension.UseLazyLoadingProxies && Extension.UseChangeTrackingProxies
                     ? "using lazy-loading and change tracking proxies "
                     : Extension.UseLazyLoadingProxies
-                    ? "using lazy-loading proxies "
-                    : Extension.UseChangeTrackingProxies
-                    ? "using change tracking proxies "
-                    : "";
+                        ? "using lazy-loading proxies "
+                        : Extension.UseChangeTrackingProxies
+                            ? "using change tracking proxies "
+                            : "";
 
-            public override long GetServiceProviderHashCode() => Extension.UseProxies ? 541 : 0;
+            public override long GetServiceProviderHashCode()
+                => Extension.UseProxies ? 541 : 0;
 
             public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
             {
