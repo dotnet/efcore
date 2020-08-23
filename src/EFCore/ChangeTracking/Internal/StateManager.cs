@@ -151,11 +151,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             InternalEntityEntryNotifier.StateChanging(entry, newState);
 
             UpdateReferenceMaps(entry, newState, entry.EntityState);
-
-            if (entry.EntityState is EntityState.Detached && newState != EntityState.Added)
-            {
-                ValueGenerationManager.Generate(entry, includePKs: false);
-            }
         }
 
         /// <summary>
