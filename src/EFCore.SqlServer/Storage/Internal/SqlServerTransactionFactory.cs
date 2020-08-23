@@ -23,7 +23,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual RelationalTransaction Create(
-            IRelationalConnection connection, DbTransaction transaction, Guid transactionId, IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger, bool transactionOwned)
+            IRelationalConnection connection,
+            DbTransaction transaction,
+            Guid transactionId,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger,
+            bool transactionOwned)
             => new SqlServerTransaction(connection, transaction, transactionId, logger, transactionOwned);
     }
 }

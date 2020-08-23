@@ -70,14 +70,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
             private new SqlServerNetTopologySuiteOptionsExtension Extension
                 => (SqlServerNetTopologySuiteOptionsExtension)base.Extension;
 
-            public override bool IsDatabaseProvider => false;
+            public override bool IsDatabaseProvider
+                => false;
 
-            public override long GetServiceProviderHashCode() => 0;
+            public override long GetServiceProviderHashCode()
+                => 0;
 
             public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
                 => debugInfo["SqlServer:" + nameof(SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions.UseNetTopologySuite)] = "1";
 
-            public override string LogFragment => "using NetTopologySuite ";
+            public override string LogFragment
+                => "using NetTopologySuite ";
         }
     }
 }

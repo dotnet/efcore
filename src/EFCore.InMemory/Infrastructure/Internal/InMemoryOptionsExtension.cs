@@ -60,7 +60,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual InMemoryOptionsExtension Clone() => new InMemoryOptionsExtension(this);
+        protected virtual InMemoryOptionsExtension Clone()
+            => new InMemoryOptionsExtension(this);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -68,7 +69,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string StoreName => _storeName;
+        public virtual string StoreName
+            => _storeName;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -91,7 +93,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InMemoryDatabaseRoot DatabaseRoot => _databaseRoot;
+        public virtual InMemoryDatabaseRoot DatabaseRoot
+            => _databaseRoot;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -139,7 +142,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
             private new InMemoryOptionsExtension Extension
                 => (InMemoryOptionsExtension)base.Extension;
 
-            public override bool IsDatabaseProvider => true;
+            public override bool IsDatabaseProvider
+                => true;
 
             public override string LogFragment
             {
@@ -158,7 +162,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
                 }
             }
 
-            public override long GetServiceProviderHashCode() => Extension._databaseRoot?.GetHashCode() ?? 0L;
+            public override long GetServiceProviderHashCode()
+                => Extension._databaseRoot?.GetHashCode() ?? 0L;
 
             public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
                 => debugInfo["InMemoryDatabase:DatabaseRoot"]

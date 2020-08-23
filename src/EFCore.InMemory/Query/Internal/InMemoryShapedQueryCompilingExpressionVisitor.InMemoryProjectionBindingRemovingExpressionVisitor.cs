@@ -70,7 +70,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         _materializationContextBindings[
                             (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object];
 
-                    Check.DebugAssert(property != null || methodCallExpression.Type.IsNullableType(), "Must read nullable value without property");
+                    Check.DebugAssert(
+                        property != null || methodCallExpression.Type.IsNullableType(), "Must read nullable value without property");
 
                     return Expression.Call(
                         methodCallExpression.Method,
@@ -93,7 +94,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     var valueBuffer = queryExpression.CurrentParameter;
                     var property = InferPropertyFromInner(queryExpression.Projection[projectionIndex]);
 
-                    Check.DebugAssert(property != null || projectionBindingExpression.Type.IsNullableType()
+                    Check.DebugAssert(
+                        property != null
+                        || projectionBindingExpression.Type.IsNullableType()
                         || projectionBindingExpression.Type == typeof(ValueBuffer), "Must read nullable value without property");
 
                     return valueBuffer.CreateValueBufferReadValueExpression(projectionBindingExpression.Type, projectionIndex, property);
@@ -115,7 +118,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
 
             private object GetProjectionIndex(
-                InMemoryQueryExpression queryExpression, ProjectionBindingExpression projectionBindingExpression)
+                InMemoryQueryExpression queryExpression,
+                ProjectionBindingExpression projectionBindingExpression)
             {
                 return projectionBindingExpression.ProjectionMember != null
                     ? ((ConstantExpression)queryExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember)).Value

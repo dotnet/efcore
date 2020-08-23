@@ -97,7 +97,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             conventionSet.ModelFinalizingConventions.Add(valueGenerationStrategyConvention);
             ReplaceConvention(conventionSet.ModelFinalizingConventions, storeGenerationConvention);
-            ReplaceConvention(conventionSet.ModelFinalizingConventions,
+            ReplaceConvention(
+                conventionSet.ModelFinalizingConventions,
                 (SharedTableConvention)new SqlServerSharedTableConvention(Dependencies, RelationalDependencies));
             conventionSet.ModelFinalizingConventions.Add(new SqlServerDbFunctionConvention(Dependencies, RelationalDependencies));
 

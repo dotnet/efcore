@@ -51,19 +51,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         {
         }
 
-        private static string GetStoreName(bool unicode, bool fixedLength) => unicode
-            ? fixedLength ? "nchar" : "nvarchar"
-            : fixedLength
-                ? "char"
-                : "varchar";
+        private static string GetStoreName(bool unicode, bool fixedLength)
+            => unicode
+                ? fixedLength ? "nchar" : "nvarchar"
+                : fixedLength
+                    ? "char"
+                    : "varchar";
 
-        private static DbType? GetDbType(bool unicode, bool fixedLength) => unicode
-            ? (fixedLength
-                ? System.Data.DbType.StringFixedLength
-                : (DbType?)null)
-            : (fixedLength
-                ? System.Data.DbType.AnsiStringFixedLength
-                : System.Data.DbType.AnsiString);
+        private static DbType? GetDbType(bool unicode, bool fixedLength)
+            => unicode
+                ? (fixedLength
+                    ? System.Data.DbType.StringFixedLength
+                    : (DbType?)null)
+                : (fixedLength
+                    ? System.Data.DbType.AnsiStringFixedLength
+                    : System.Data.DbType.AnsiString);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -161,7 +163,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         protected override string GenerateNonNullSqlLiteral(object value)
             => EscapeLineBreaks(EscapeSqlLiteral((string)value));
 
-        private static readonly char[] LineBreakChars = new char[] { '\r', '\n' };
+        private static readonly char[] LineBreakChars = { '\r', '\n' };
+
         private string EscapeLineBreaks(string value)
         {
             var unicodePrefix = IsUnicode ? "N" : string.Empty;
@@ -177,11 +180,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 return value[0] == '\n' ? "CHAR(10)" : "CHAR(13)";
             }
 
-            return ($"CONCAT({unicodePrefix}'" + value
-                    .Replace("\r", $"', CHAR(13), {unicodePrefix}'")
-                    .Replace("\n", $"', CHAR(10), {unicodePrefix}'") + "')")
-                    .Replace($"{unicodePrefix}'', ", string.Empty)
-                    .Replace($", {unicodePrefix}''", string.Empty);
+            return ($"CONCAT({unicodePrefix}'"
+                    + value
+                        .Replace("\r", $"', CHAR(13), {unicodePrefix}'")
+                        .Replace("\n", $"', CHAR(10), {unicodePrefix}'")
+                    + "')")
+                .Replace($"{unicodePrefix}'', ", string.Empty)
+                .Replace($", {unicodePrefix}''", string.Empty);
         }
     }
 }

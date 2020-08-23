@@ -54,7 +54,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
         [UsedImplicitly]
         private static Func<IInMemoryTable> CreateFactory<TKey>(
-            IEntityType entityType, IInMemoryTable baseTable, bool sensitiveLoggingEnabled)
+            IEntityType entityType,
+            IInMemoryTable baseTable,
+            bool sensitiveLoggingEnabled)
             => () => new InMemoryTable<TKey>(entityType, baseTable, sensitiveLoggingEnabled);
     }
 }

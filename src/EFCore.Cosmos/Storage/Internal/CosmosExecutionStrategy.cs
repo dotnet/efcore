@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
             static bool IsTransient(int status)
                 => status == (int)HttpStatusCode.ServiceUnavailable
-                       || status == (int)HttpStatusCode.TooManyRequests;
+                    || status == (int)HttpStatusCode.TooManyRequests;
         }
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             return baseDelay == null
                 ? null
                 : CallOnWrappedException(lastException, GetDelayFromException)
-                   ?? baseDelay;
+                ?? baseDelay;
         }
 
         private static TimeSpan? GetDelayFromException(Exception exception)

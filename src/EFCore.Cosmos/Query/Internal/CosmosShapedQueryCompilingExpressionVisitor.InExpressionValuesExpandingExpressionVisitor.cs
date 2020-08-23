@@ -16,7 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             private readonly IReadOnlyDictionary<string, object> _parametersValues;
 
             public InExpressionValuesExpandingExpressionVisitor(
-                ISqlExpressionFactory sqlExpressionFactory, IReadOnlyDictionary<string, object> parametersValues)
+                ISqlExpressionFactory sqlExpressionFactory,
+                IReadOnlyDictionary<string, object> parametersValues)
             {
                 _sqlExpressionFactory = sqlExpressionFactory;
                 _parametersValues = parametersValues;

@@ -40,7 +40,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static string SetDefaultContainer(
-            [NotNull] this IConventionModel model, [CanBeNull] string name, bool fromDataAnnotation = false)
+            [NotNull] this IConventionModel model,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
         {
             model.SetOrRemoveAnnotation(
                 CosmosAnnotationNames.ContainerName,

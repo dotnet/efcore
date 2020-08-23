@@ -92,7 +92,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             _commandLogger = commandLogger;
         }
 
-        private CosmosClient Client => _singletonWrapper.Client;
+        private CosmosClient Client
+            => _singletonWrapper.Client;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -582,7 +583,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var queryDefinition = new QueryDefinition(query.Query);
 
             queryDefinition = query.Parameters
-                .Aggregate(queryDefinition,
+                .Aggregate(
+                    queryDefinition,
                     (current, parameter) => current.WithParameter(parameter.Name, parameter.Value));
 
             if (string.IsNullOrEmpty(partitionKey))
@@ -609,7 +611,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
         }
-
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static JsonTextReader CreateJsonReader(TextReader reader)
@@ -678,9 +679,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 _cosmosSqlQuery = cosmosSqlQuery;
             }
 
-            public IEnumerator<JObject> GetEnumerator() => new Enumerator(this);
+            public IEnumerator<JObject> GetEnumerator()
+                => new Enumerator(this);
 
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            IEnumerator IEnumerable.GetEnumerator()
+                => GetEnumerator();
 
             private sealed class Enumerator : IEnumerator<JObject>
             {
@@ -703,9 +706,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     _partitionKey = documentEnumerable._partitionKey;
                     _cosmosSqlQuery = documentEnumerable._cosmosSqlQuery;
                 }
+
                 public JObject Current { get; private set; }
 
-                object IEnumerator.Current => Current;
+                object IEnumerator.Current
+                    => Current;
 
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 public bool MoveNext()
@@ -713,7 +718,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     if (_jsonReader == null)
                     {
                         _query ??= _cosmosClientWrapper.CreateQuery(_containerId, _partitionKey, _cosmosSqlQuery).GetAsyncEnumerator();
-                        
+
                         if (!_query.MoveNextAsync().AsTask().GetAwaiter().GetResult())
                         {
                             Current = default;
@@ -757,7 +762,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     _response = null;
                 }
 
-                public void Reset() => throw new NotImplementedException();
+                public void Reset()
+                    => throw new NotImplementedException();
             }
         }
 
@@ -816,7 +822,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
                     if (_jsonReader == null)
                     {
-                        _query ??= _cosmosClientWrapper.CreateQuery(_containerId, _partitionKey, _cosmosSqlQuery).GetAsyncEnumerator(_cancellationToken);
+                        _query ??= _cosmosClientWrapper.CreateQuery(_containerId, _partitionKey, _cosmosSqlQuery)
+                            .GetAsyncEnumerator(_cancellationToken);
 
                         if (!await _query.MoveNextAsync().ConfigureAwait(false))
                         {

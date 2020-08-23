@@ -54,7 +54,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SqlExpression Translate(
-            IModel model, SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments,
+            IModel model,
+            SqlExpression instance,
+            MethodInfo method,
+            IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
             Check.NotNull(model, nameof(model));

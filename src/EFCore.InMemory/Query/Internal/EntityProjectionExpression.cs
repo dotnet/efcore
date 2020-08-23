@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
@@ -34,7 +33,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public EntityProjectionExpression(
-            [NotNull] IEntityType entityType, [NotNull] IDictionary<IProperty, Expression> readExpressionMap)
+            [NotNull] IEntityType entityType,
+            [NotNull] IDictionary<IProperty, Expression> readExpressionMap)
         {
             EntityType = entityType;
             _readExpressionMap = readExpressionMap;
@@ -47,20 +47,24 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEntityType EntityType { get; }
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override Type Type => EntityType.ClrType;
+        public override Type Type
+            => EntityType.ClrType;
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public sealed override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType
+            => ExpressionType.Extension;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -72,8 +76,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             if (!derivedType.GetAllBaseTypes().Contains(EntityType))
             {
-                throw new InvalidOperationException(InMemoryStrings.InvalidDerivedTypeInEntityProjection(
-                    derivedType.DisplayName(), EntityType.DisplayName()));
+                throw new InvalidOperationException(
+                    InMemoryStrings.InvalidDerivedTypeInEntityProjection(
+                        derivedType.DisplayName(), EntityType.DisplayName()));
             }
 
             var readExpressionMap = new Dictionary<IProperty, Expression>();

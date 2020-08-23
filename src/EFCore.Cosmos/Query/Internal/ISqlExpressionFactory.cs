@@ -125,7 +125,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         SqlBinaryExpression Add(
-            [NotNull] SqlExpression left, [NotNull] SqlExpression right, [CanBeNull] CoreTypeMapping typeMapping = null);
+            [NotNull] SqlExpression left,
+            [NotNull] SqlExpression right,
+            [CanBeNull] CoreTypeMapping typeMapping = null);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -134,7 +136,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         SqlBinaryExpression Subtract(
-            [NotNull] SqlExpression left, [NotNull] SqlExpression right, [CanBeNull] CoreTypeMapping typeMapping = null);
+            [NotNull] SqlExpression left,
+            [NotNull] SqlExpression right,
+            [CanBeNull] CoreTypeMapping typeMapping = null);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -143,7 +147,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         SqlBinaryExpression Multiply(
-            [NotNull] SqlExpression left, [NotNull] SqlExpression right, [CanBeNull] CoreTypeMapping typeMapping = null);
+            [NotNull] SqlExpression left,
+            [NotNull] SqlExpression right,
+            [CanBeNull] CoreTypeMapping typeMapping = null);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -152,7 +158,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         SqlBinaryExpression Divide(
-            [NotNull] SqlExpression left, [NotNull] SqlExpression right, [CanBeNull] CoreTypeMapping typeMapping = null);
+            [NotNull] SqlExpression left,
+            [NotNull] SqlExpression right,
+            [CanBeNull] CoreTypeMapping typeMapping = null);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -161,7 +169,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         SqlBinaryExpression Modulo(
-            [NotNull] SqlExpression left, [NotNull] SqlExpression right, [CanBeNull] CoreTypeMapping typeMapping = null);
+            [NotNull] SqlExpression left,
+            [NotNull] SqlExpression right,
+            [CanBeNull] CoreTypeMapping typeMapping = null);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -170,7 +180,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         SqlBinaryExpression And(
-            [NotNull] SqlExpression left, [NotNull] SqlExpression right, [CanBeNull] CoreTypeMapping typeMapping = null);
+            [NotNull] SqlExpression left,
+            [NotNull] SqlExpression right,
+            [CanBeNull] CoreTypeMapping typeMapping = null);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -179,7 +191,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         SqlBinaryExpression Or(
-            [NotNull] SqlExpression left, [NotNull] SqlExpression right, [CanBeNull] CoreTypeMapping typeMapping = null);
+            [NotNull] SqlExpression left,
+            [NotNull] SqlExpression right,
+            [CanBeNull] CoreTypeMapping typeMapping = null);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -204,7 +218,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         SqlUnaryExpression Convert(
-            [NotNull] SqlExpression operand, [NotNull] Type type, [CanBeNull] CoreTypeMapping typeMapping = null);
+            [NotNull] SqlExpression operand,
+            [NotNull] Type type,
+            [CanBeNull] CoreTypeMapping typeMapping = null);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -241,7 +257,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         SqlConditionalExpression Condition(
-            [NotNull] SqlExpression test, [NotNull] SqlExpression ifTrue, [NotNull] SqlExpression ifFalse);
+            [NotNull] SqlExpression test,
+            [NotNull] SqlExpression ifTrue,
+            [NotNull] SqlExpression ifFalse);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

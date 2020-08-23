@@ -51,7 +51,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
         /// <param name="options"> The options to use when generating commands. </param>
         /// <returns> The list of commands to be executed or scripted. </returns>
-        public override IReadOnlyList<MigrationCommand> Generate(IReadOnlyList<MigrationOperation> operations, IModel model = null, MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
+        public override IReadOnlyList<MigrationCommand> Generate(
+            IReadOnlyList<MigrationOperation> operations,
+            IModel model = null,
+            MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
             => base.Generate(RewriteOperations(operations, model), model, options);
 
         private bool IsSpatialiteColumn(AddColumnOperation operation, IModel model)
@@ -311,9 +314,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         ColumnType = column.StoreType,
                         IsNullable = column.IsNullable,
                         DefaultValue = rebuild.Value.AddColumnsDeferred.TryGetValue(column.Name, out var originalOperation)
-                                && !originalOperation.IsNullable
-                            ? originalOperation.DefaultValue
-                            : column.DefaultValue,
+                            && !originalOperation.IsNullable
+                                ? originalOperation.DefaultValue
+                                : column.DefaultValue,
                         DefaultValueSql = column.DefaultValueSql,
                         ComputedColumnSql = column.ComputedColumnSql,
                         IsStored = column.IsStored,
@@ -380,10 +383,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     intoBuilder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(column.Name));
 
                     var defaultValue = rebuild.Value.AlterColumnsDeferred.TryGetValue(column.Name, out var alterColumnOperation)
-                            && !alterColumnOperation.IsNullable
-                            && alterColumnOperation.OldColumn.IsNullable
-                        ? alterColumnOperation.DefaultValue
-                        : null;
+                        && !alterColumnOperation.IsNullable
+                        && alterColumnOperation.OldColumn.IsNullable
+                            ? alterColumnOperation.DefaultValue
+                            : null;
                     if (defaultValue != null)
                     {
                         selectBuilder.Append("IFNULL(");
@@ -436,21 +439,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             if (rebuilds.Any())
             {
                 operations.Add(
-                    new SqlOperation
-                    {
-                        Sql = "PRAGMA foreign_keys = 0;",
-                        SuppressTransaction = true
-                    });
+                    new SqlOperation { Sql = "PRAGMA foreign_keys = 0;", SuppressTransaction = true });
             }
 
             foreach (var rebuild in rebuilds)
             {
                 operations.Add(
-                    new DropTableOperation
-                    {
-                        Name = rebuild.Key.Table,
-                        Schema = rebuild.Key.Schema
-                    });
+                    new DropTableOperation { Name = rebuild.Key.Table, Schema = rebuild.Key.Schema });
                 operations.Add(
                     new RenameTableOperation
                     {
@@ -464,11 +459,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             if (rebuilds.Any())
             {
                 operations.Add(
-                new SqlOperation
-                {
-                    Sql = "PRAGMA foreign_keys = 1;",
-                    SuppressTransaction = true
-                });
+                    new SqlOperation { Sql = "PRAGMA foreign_keys = 1;", SuppressTransaction = true });
             }
 
             foreach (var index in indexesToRebuild)
@@ -830,7 +821,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="builder"> The command builder to use to build the commands. </param>
         /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
         protected override void Generate(
-            AddForeignKeyOperation operation, IModel model, MigrationCommandListBuilder builder, bool terminate = true)
+            AddForeignKeyOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder,
+            bool terminate = true)
             => throw new NotSupportedException(
                 SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
@@ -843,7 +837,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="builder"> The command builder to use to build the commands. </param>
         /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
         protected override void Generate(
-            AddPrimaryKeyOperation operation, IModel model, MigrationCommandListBuilder builder, bool terminate = true)
+            AddPrimaryKeyOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder,
+            bool terminate = true)
             => throw new NotSupportedException(
                 SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
@@ -878,7 +875,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="builder"> The command builder to use to build the commands. </param>
         /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
         protected override void Generate(
-            DropColumnOperation operation, IModel model, MigrationCommandListBuilder builder, bool terminate = true)
+            DropColumnOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder,
+            bool terminate = true)
             => throw new NotSupportedException(
                 SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
@@ -891,7 +891,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="builder"> The command builder to use to build the commands. </param>
         /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
         protected override void Generate(
-            DropForeignKeyOperation operation, IModel model, MigrationCommandListBuilder builder, bool terminate = true)
+            DropForeignKeyOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder,
+            bool terminate = true)
             => throw new NotSupportedException(
                 SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
@@ -904,7 +907,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="builder"> The command builder to use to build the commands. </param>
         /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
         protected override void Generate(
-            DropPrimaryKeyOperation operation, IModel model, MigrationCommandListBuilder builder, bool terminate = true)
+            DropPrimaryKeyOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder,
+            bool terminate = true)
             => throw new NotSupportedException(
                 SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 

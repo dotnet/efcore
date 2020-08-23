@@ -76,7 +76,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments, IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+        public virtual SqlExpression Translate(
+            SqlExpression instance,
+            MethodInfo method,
+            IReadOnlyList<SqlExpression> arguments,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
             Check.NotNull(method, nameof(method));
             Check.NotNull(arguments, nameof(arguments));
@@ -97,8 +101,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     }
 
                     return _sqlExpressionFactory.Case(
-                            new[]
-                            {
+                        new[]
+                        {
                             new CaseWhenClause(
                                 nullCheck,
                                 _sqlExpressionFactory.Function(
@@ -107,16 +111,16 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                                     nullable: false,
                                     finalArguments.Select(a => false),
                                     method.ReturnType))
-                            },
-                            null);
+                        },
+                        null);
                 }
 
                 return _sqlExpressionFactory.Function(
-                        functionName,
-                        finalArguments,
-                        nullable: true,
-                        finalArguments.Select(a => true),
-                        method.ReturnType);
+                    functionName,
+                    finalArguments,
+                    nullable: true,
+                    finalArguments.Select(a => true),
+                    method.ReturnType);
             }
 
             if (Equals(method, _getGeometryN))

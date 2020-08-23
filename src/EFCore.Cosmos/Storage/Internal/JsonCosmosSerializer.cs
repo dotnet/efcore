@@ -51,6 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             return streamPayload;
         }
 
-        private JsonSerializer GetSerializer() => CosmosClientWrapper.Serializer;
+        private JsonSerializer GetSerializer()
+            => CosmosClientWrapper.Serializer;
     }
 }

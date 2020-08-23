@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             base.ProcessPropertyAnnotationChanged(propertyBuilder, name, annotation, oldAnnotation, context);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         protected override void Validate(IConventionProperty property, in StoreObjectIdentifier storeObject)
         {
             if (property.GetValueGenerationStrategyConfigurationSource() != null)

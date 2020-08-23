@@ -12,17 +12,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
     public enum CosmosConcurrencyMode
     {
         /// <summary>
-        /// No concurrency check.
+        ///     No concurrency check.
         /// </summary>
         None = 0,
 
         /// <summary>
-        /// Accept if token matches current value.
+        ///     Accept if token matches current value.
         /// </summary>
         IfMatch,
 
         /// <summary>
-        /// Accept if token does not match current value.
+        ///     Accept if token does not match current value.
         /// </summary>
         IfNoneMatch = 2,
     }

@@ -3,13 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Newtonsoft.Json.Linq;
 
@@ -59,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             }
 
             if ((clrType.IsValueType
-                 && !clrType.IsEnum)
+                    && !clrType.IsEnum)
                 || clrType == typeof(string))
             {
                 return new CosmosTypeMapping(clrType);

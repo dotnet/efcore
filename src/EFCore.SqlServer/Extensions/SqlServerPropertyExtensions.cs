@@ -56,7 +56,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static string SetHiLoSequenceName(
-            [NotNull] this IConventionProperty property, [CanBeNull] string name, bool fromDataAnnotation = false)
+            [NotNull] this IConventionProperty property,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
         {
             property.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.HiLoSequenceName,
@@ -112,7 +114,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static string SetHiLoSequenceSchema(
-            [NotNull] this IConventionProperty property, [CanBeNull] string schema, bool fromDataAnnotation = false)
+            [NotNull] this IConventionProperty property,
+            [CanBeNull] string schema,
+            bool fromDataAnnotation = false)
         {
             property.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.HiLoSequenceSchema,
@@ -193,7 +197,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static int? SetIdentitySeed(
-            [NotNull] this IConventionProperty property, int? seed, bool fromDataAnnotation = false)
+            [NotNull] this IConventionProperty property,
+            int? seed,
+            bool fromDataAnnotation = false)
         {
             property.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.IdentitySeed,
@@ -257,7 +263,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static int? SetIdentityIncrement(
-            [NotNull] this IConventionProperty property, int? increment, bool fromDataAnnotation = false)
+            [NotNull] this IConventionProperty property,
+            int? increment,
+            bool fromDataAnnotation = false)
         {
             property.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.IdentityIncrement,
@@ -369,7 +377,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="value"> The strategy to use. </param>
         public static void SetValueGenerationStrategy(
-            [NotNull] this IMutableProperty property, SqlServerValueGenerationStrategy? value)
+            [NotNull] this IMutableProperty property,
+            SqlServerValueGenerationStrategy? value)
         {
             CheckValueGenerationStrategy(property, value);
 
@@ -384,7 +393,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static SqlServerValueGenerationStrategy? SetValueGenerationStrategy(
-            [NotNull] this IConventionProperty property, SqlServerValueGenerationStrategy? value, bool fromDataAnnotation = false)
+            [NotNull] this IConventionProperty property,
+            SqlServerValueGenerationStrategy? value,
+            bool fromDataAnnotation = false)
         {
             CheckValueGenerationStrategy(property, value);
 

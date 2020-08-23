@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections;
 using System.Linq;
 using JetBrains.Annotations;
@@ -305,8 +304,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         }
 
         private IProperty GetOrdinalKeyProperty(IEntityType entityType)
-            => entityType.FindPrimaryKey().Properties.FirstOrDefault(p =>
-                p.GetJsonPropertyName().Length == 0 && p.IsOrdinalKeyProperty());
+            => entityType.FindPrimaryKey().Properties.FirstOrDefault(
+                p =>
+                    p.GetJsonPropertyName().Length == 0 && p.IsOrdinalKeyProperty());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

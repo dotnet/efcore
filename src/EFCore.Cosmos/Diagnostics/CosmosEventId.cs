@@ -31,7 +31,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
-        private static EventId MakeQueryId(Id id) => new EventId((int)id, _queryPrefix + id);
+
+        private static EventId MakeQueryId(Id id)
+            => new EventId((int)id, _queryPrefix + id);
 
         /// <summary>
         ///     <para>

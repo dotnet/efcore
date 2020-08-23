@@ -50,11 +50,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
                 => new Enumerator(this, cancellationToken);
 
-            public IEnumerator<T> GetEnumerator() => new Enumerator(this);
+            public IEnumerator<T> GetEnumerator()
+                => new Enumerator(this);
 
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            IEnumerator IEnumerable.GetEnumerator()
+                => GetEnumerator();
 
-            public string ToQueryString() => InMemoryStrings.NoQueryStrings;
+            public string ToQueryString()
+                => InMemoryStrings.NoQueryStrings;
 
             private sealed class Enumerator : IEnumerator<T>, IAsyncEnumerator<T>
             {
@@ -80,7 +83,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                 public T Current { get; private set; }
 
-                object IEnumerator.Current => Current;
+                object IEnumerator.Current
+                    => Current;
 
                 public bool MoveNext()
                 {
@@ -151,7 +155,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     return enumerator.DisposeAsyncIfAvailable();
                 }
 
-                public void Reset() => throw new NotImplementedException();
+                public void Reset()
+                    => throw new NotImplementedException();
             }
         }
     }

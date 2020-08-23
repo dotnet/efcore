@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -132,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                 && methodCallExpression.Method.Name == nameof(Enumerable.ToList))
                             {
                                 var subqueryTranslation = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
-                                        methodCallExpression.Arguments[0]);
+                                    methodCallExpression.Arguments[0]);
 
                                 if (subqueryTranslation != null)
                                 {
@@ -170,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     return translation == null
                         ? base.Visit(expression)
                         : new ProjectionBindingExpression(
-                        _queryExpression, _queryExpression.AddToProjection(translation), expression.Type.MakeNullable());
+                            _queryExpression, _queryExpression.AddToProjection(translation), expression.Type.MakeNullable());
                 }
                 else
                 {
@@ -481,10 +480,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var operand = Visit(unaryExpression.Operand);
 
             return (unaryExpression.NodeType == ExpressionType.Convert
-                || unaryExpression.NodeType == ExpressionType.ConvertChecked)
+                    || unaryExpression.NodeType == ExpressionType.ConvertChecked)
                 && unaryExpression.Type == operand.Type
-                ? operand
-                : unaryExpression.Update(MatchTypes(operand, unaryExpression.Operand.Type));
+                    ? operand
+                    : unaryExpression.Update(MatchTypes(operand, unaryExpression.Operand.Type));
         }
 
         // TODO: Debugging
@@ -497,7 +496,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         }
 
         private CollectionShaperExpression AddCollectionProjection(
-            ShapedQueryExpression subquery, INavigationBase navigation, Type elementType)
+            ShapedQueryExpression subquery,
+            INavigationBase navigation,
+            Type elementType)
             => new CollectionShaperExpression(
                 new ProjectionBindingExpression(
                     _queryExpression,

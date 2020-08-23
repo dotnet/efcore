@@ -81,12 +81,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         private static readonly MethodInfo _firstOrDefaultMethodInfoWithoutArgs
             = typeof(Enumerable).GetRuntimeMethods().Single(
                 m => m.Name == nameof(Enumerable.FirstOrDefault)
-                && m.GetParameters().Length == 1).MakeGenericMethod(new[] { typeof(char) });
+                    && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
 
         private static readonly MethodInfo _lastOrDefaultMethodInfoWithoutArgs
-             = typeof(Enumerable).GetRuntimeMethods().Single(
+            = typeof(Enumerable).GetRuntimeMethods().Single(
                 m => m.Name == nameof(Enumerable.LastOrDefault)
-                && m.GetParameters().Length == 1).MakeGenericMethod(new[] { typeof(char) });
+                    && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private const char LikeEscapeChar = '\\';
@@ -109,7 +109,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SqlExpression Translate(
-            SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments, IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+            SqlExpression instance,
+            MethodInfo method,
+            IReadOnlyList<SqlExpression> arguments,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
             Check.NotNull(method, nameof(method));
             Check.NotNull(arguments, nameof(arguments));
@@ -248,20 +251,22 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     method.ReturnType);
             }
 
-
             if (_lastOrDefaultMethodInfoWithoutArgs.Equals(method))
             {
                 var argument = arguments[0];
                 return _sqlExpressionFactory.Function(
                     "substr",
-                    new[] { argument,
-                          _sqlExpressionFactory.Function(
-                                "length",
-                                new[] { argument },
-                                nullable: true,
-                                argumentsPropagateNullability: new[] { true },
-                                typeof(int)),
-                        _sqlExpressionFactory.Constant(1) },
+                    new[]
+                    {
+                        argument,
+                        _sqlExpressionFactory.Function(
+                            "length",
+                            new[] { argument },
+                            nullable: true,
+                            argumentsPropagateNullability: new[] { true },
+                            typeof(int)),
+                        _sqlExpressionFactory.Constant(1)
+                    },
                     nullable: true,
                     argumentsPropagateNullability: new[] { true, true, true },
                     method.ReturnType);
@@ -377,7 +382,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         }
 
         // See https://www.sqlite.org/lang_expr.html
-        private bool IsLikeWildChar(char c) => c == '%' || c == '_';
+        private bool IsLikeWildChar(char c)
+            => c == '%' || c == '_';
 
         private string EscapeLikePattern(string pattern)
         {
@@ -433,7 +439,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             return _sqlExpressionFactory.Function(
                 functionName,
                 sqlArguments,
-
                 nullable: true,
                 argumentsPropagateNullability: sqlArguments.Select(a => true).ToList(),
                 typeof(string),
