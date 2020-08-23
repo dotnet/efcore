@@ -20,7 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     Gets the contract version of this handler.
         /// </summary>
         /// <value> The contract version of this handler. </value>
-        public virtual int Version => 0;
+        public virtual int Version
+            => 0;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="OperationReportHandler" /> class.

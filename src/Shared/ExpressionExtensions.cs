@@ -14,7 +14,6 @@ namespace System.Linq.Expressions
             => RemoveConvert(expression) is ConstantExpression constantExpression
                 && constantExpression.Value == null;
 
-
         public static LambdaExpression UnwrapLambdaFromQuote(this Expression expression)
             => (LambdaExpression)(expression is UnaryExpression unary && expression.NodeType == ExpressionType.Quote
                 ? unary.Operand

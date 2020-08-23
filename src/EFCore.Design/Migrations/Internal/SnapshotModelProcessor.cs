@@ -92,7 +92,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     typeMappingConvention.ProcessModelFinalizing(conventionModel.Builder, null);
                 }
 
-                var relationalModelConvention = conventionSet.ModelFinalizedConventions.OfType<RelationalModelConvention>().FirstOrDefault();
+                var relationalModelConvention =
+                    conventionSet.ModelFinalizedConventions.OfType<RelationalModelConvention>().FirstOrDefault();
                 if (relationalModelConvention != null)
                 {
                     model = relationalModelConvention.ProcessModelFinalized(conventionModel);
@@ -117,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ProcessElement((IAnnotatable)entityType, version);
 
             if ((version.StartsWith("2.0", StringComparison.Ordinal)
-                 || version.StartsWith("2.1", StringComparison.Ordinal))
+                    || version.StartsWith("2.1", StringComparison.Ordinal))
                 && entityType is IMutableEntityType mutableEntityType
                 && !entityType.IsOwned())
             {
@@ -160,8 +161,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private void UpdateSequences(IModel model, string version)
         {
             if ((!version.StartsWith("1.", StringComparison.Ordinal)
-                 && !version.StartsWith("2.", StringComparison.Ordinal)
-                 && !version.StartsWith("3.", StringComparison.Ordinal))
+                    && !version.StartsWith("2.", StringComparison.Ordinal)
+                    && !version.StartsWith("3.", StringComparison.Ordinal))
                 || !(model is IMutableModel mutableModel))
             {
                 return;

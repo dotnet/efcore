@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -138,6 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     GenerateOnConfiguring(connectionString, suppressConnectionStringWarning);
                 }
+
                 GenerateOnModelCreating(model, useDataAnnotations);
             }
 
@@ -475,8 +475,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (explicitName)
             {
                 lines.Add(
-                    $".{nameof(RelationalKeyBuilderExtensions.HasName)}" +
-                    $"({_code.Literal(key.GetName())})");
+                    $".{nameof(RelationalKeyBuilderExtensions.HasName)}" + $"({_code.Literal(key.GetName())})");
             }
 
             lines.AddRange(
@@ -502,10 +501,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     parameterString += ", " + _code.Literal(schema);
                 }
 
-                var lines = new List<string>
-                {
-                    $".{nameof(RelationalEntityTypeBuilderExtensions.ToTable)}({parameterString})"
-                };
+                var lines = new List<string> { $".{nameof(RelationalEntityTypeBuilderExtensions.ToTable)}({parameterString})" };
 
                 AppendMultiLineFluentApi(entityType, lines);
             }
@@ -524,10 +520,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     parameterString += ", " + _code.Literal(viewSchema);
                 }
 
-                var lines = new List<string>
-                {
-                    $".{nameof(RelationalEntityTypeBuilderExtensions.ToView)}({parameterString})"
-                };
+                var lines = new List<string> { $".{nameof(RelationalEntityTypeBuilderExtensions.ToView)}({parameterString})" };
 
                 AppendMultiLineFluentApi(entityType, lines);
             }
@@ -540,10 +533,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .ToDictionary(a => a.Name, a => a);
             _annotationCodeGenerator.RemoveAnnotationsHandledByConventions(index, annotations);
 
-            var lines = new List<string> {
-                $".{nameof(EntityTypeBuilder.HasIndex)}" +
-                $"({_code.Lambda(index.Properties, "e")}, " +
-                $"{_code.Literal(index.GetDatabaseName())})" };
+            var lines = new List<string>
+            {
+                $".{nameof(EntityTypeBuilder.HasIndex)}"
+                + $"({_code.Lambda(index.Properties, "e")}, "
+                + $"{_code.Literal(index.GetDatabaseName())})"
+            };
             annotations.Remove(RelationalAnnotationNames.Name);
 
             if (index.IsUnique)
@@ -560,7 +555,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateProperty(IProperty property, bool useDataAnnotations)
         {
-            var lines = new List<string> { $".{nameof(EntityTypeBuilder.Property)}({_code.Lambda(new [] { property.Name }, "e")})" };
+            var lines = new List<string> { $".{nameof(EntityTypeBuilder.Property)}({_code.Lambda(new[] { property.Name }, "e")})" };
 
             var annotations = _annotationCodeGenerator
                 .FilterIgnoredAnnotations(property.GetAnnotations())
@@ -592,8 +587,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 if (columnType != null)
                 {
                     lines.Add(
-                        $".{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}" +
-                        $"({_code.Literal(columnType)})");
+                        $".{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}" + $"({_code.Literal(columnType)})");
                 }
 
                 var maxLength = property.GetMaxLength();
@@ -601,8 +595,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 if (maxLength.HasValue)
                 {
                     lines.Add(
-                        $".{nameof(PropertyBuilder.HasMaxLength)}" +
-                        $"({_code.Literal(maxLength.Value)})");
+                        $".{nameof(PropertyBuilder.HasMaxLength)}" + $"({_code.Literal(maxLength.Value)})");
                 }
             }
 
@@ -611,21 +604,18 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (precision != null && scale != null && scale != 0)
             {
                 lines.Add(
-                    $".{nameof(PropertyBuilder.HasPrecision)}" +
-                    $"({_code.Literal(precision.Value)}, {_code.Literal(scale.Value)})");
+                    $".{nameof(PropertyBuilder.HasPrecision)}" + $"({_code.Literal(precision.Value)}, {_code.Literal(scale.Value)})");
             }
             else if (precision != null)
             {
                 lines.Add(
-                    $".{nameof(PropertyBuilder.HasPrecision)}" +
-                    $"({_code.Literal(precision.Value)})");
+                    $".{nameof(PropertyBuilder.HasPrecision)}" + $"({_code.Literal(precision.Value)})");
             }
 
             if (property.IsUnicode() != null)
             {
                 lines.Add(
-                    $".{nameof(PropertyBuilder.IsUnicode)}" +
-                    $"({(property.IsUnicode() == false ? "false" : "")})");
+                    $".{nameof(PropertyBuilder.IsUnicode)}" + $"({(property.IsUnicode() == false ? "false" : "")})");
             }
 
             var defaultValue = property.GetDefaultValue();
@@ -637,16 +627,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             else if (defaultValue != null)
             {
                 lines.Add(
-                    $".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}" +
-                    $"({_code.UnknownLiteral(defaultValue)})");
+                    $".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}" + $"({_code.UnknownLiteral(defaultValue)})");
                 annotations.Remove(RelationalAnnotationNames.DefaultValue);
             }
 
             var valueGenerated = property.ValueGenerated;
             var isRowVersion = false;
-            if (((IConventionProperty)property).GetValueGeneratedConfigurationSource() is ConfigurationSource valueGeneratedConfigurationSource
+            if (((IConventionProperty)property).GetValueGeneratedConfigurationSource() is ConfigurationSource
+                valueGeneratedConfigurationSource
                 && valueGeneratedConfigurationSource != ConfigurationSource.Convention
-                && RelationalValueGenerationConvention.GetValueGenerated(property) != valueGenerated)
+                && ValueGenerationConvention.GetValueGenerated(property) != valueGenerated)
             {
                 var methodName = valueGenerated switch
                 {
@@ -695,9 +685,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var lines = new List<string>
             {
                 $".{nameof(EntityTypeBuilder.HasOne)}("
-                + (foreignKey.DependentToPrincipal != null ? $"d => d.{foreignKey.DependentToPrincipal.Name}" : null) + ")",
+                + (foreignKey.DependentToPrincipal != null ? $"d => d.{foreignKey.DependentToPrincipal.Name}" : null)
+                + ")",
                 $".{(foreignKey.IsUnique ? nameof(ReferenceNavigationBuilder.WithOne) : nameof(ReferenceNavigationBuilder.WithMany))}"
-                + "(" + (foreignKey.PrincipalToDependent != null ? $"p => p.{foreignKey.PrincipalToDependent.Name}" : null) + ")"
+                + "("
+                + (foreignKey.PrincipalToDependent != null ? $"p => p.{foreignKey.PrincipalToDependent.Name}" : null)
+                + ")"
             };
 
             if (!foreignKey.PrincipalKey.IsPrimaryKey())
@@ -722,8 +715,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 canUseDataAnnotations = false;
                 lines.Add(
-                    $".{nameof(ReferenceReferenceBuilder.OnDelete)}" +
-                    $"({_code.Literal(foreignKey.DeleteBehavior)})");
+                    $".{nameof(ReferenceReferenceBuilder.OnDelete)}" + $"({_code.Literal(foreignKey.DeleteBehavior)})");
             }
 
             if (!string.IsNullOrEmpty((string)foreignKey[RelationalAnnotationNames.Name]))
@@ -807,7 +799,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         private IList<string> GenerateAnnotations(IEnumerable<IAnnotation> annotations)
-            => annotations.Select(a =>
-                $".HasAnnotation({_code.Literal(a.Name)}, " + $"{_code.UnknownLiteral(a.Value)})").ToList();
+            => annotations.Select(
+                a =>
+                    $".HasAnnotation({_code.Literal(a.Name)}, " + $"{_code.UnknownLiteral(a.Value)})").ToList();
     }
 }

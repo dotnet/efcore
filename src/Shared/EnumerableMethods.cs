@@ -101,11 +101,17 @@ namespace Microsoft.EntityFrameworkCore
             => methodInfo.IsGenericMethod
                 && AverageWithSelectorMethods.Values.Contains(methodInfo.GetGenericMethodDefinition());
 
-        public static MethodInfo GetSumWithoutSelector(Type type) => SumWithoutSelectorMethods[type];
-        public static MethodInfo GetSumWithSelector(Type type) => SumWithSelectorMethods[type];
+        public static MethodInfo GetSumWithoutSelector(Type type)
+            => SumWithoutSelectorMethods[type];
 
-        public static MethodInfo GetAverageWithoutSelector(Type type) => AverageWithoutSelectorMethods[type];
-        public static MethodInfo GetAverageWithSelector(Type type) => AverageWithSelectorMethods[type];
+        public static MethodInfo GetSumWithSelector(Type type)
+            => SumWithSelectorMethods[type];
+
+        public static MethodInfo GetAverageWithoutSelector(Type type)
+            => AverageWithoutSelectorMethods[type];
+
+        public static MethodInfo GetAverageWithSelector(Type type)
+            => AverageWithSelectorMethods[type];
 
         public static MethodInfo GetMaxWithoutSelector(Type type)
             => MaxWithoutSelectorMethods.TryGetValue(type, out var method)
@@ -384,16 +390,16 @@ namespace Microsoft.EntityFrameworkCore
 
             MaxWithoutSelectorMethods = new Dictionary<Type, MethodInfo>
             {
-                { typeof(decimal), GetMethodWithoutSelector<decimal>(enumerableMethods,nameof(Queryable.Max)) },
-                { typeof(long), GetMethodWithoutSelector<long>(enumerableMethods,nameof(Queryable.Max)) },
-                { typeof(int), GetMethodWithoutSelector<int>(enumerableMethods,nameof(Queryable.Max)) },
-                { typeof(double), GetMethodWithoutSelector<double>(enumerableMethods,nameof(Queryable.Max)) },
-                { typeof(float), GetMethodWithoutSelector<float>(enumerableMethods,nameof(Queryable.Max)) },
-                { typeof(decimal?), GetMethodWithoutSelector<decimal?>(enumerableMethods,nameof(Queryable.Max)) },
-                { typeof(long?), GetMethodWithoutSelector<long?>(enumerableMethods,nameof(Queryable.Max)) },
-                { typeof(int?), GetMethodWithoutSelector<int?>(enumerableMethods,nameof(Queryable.Max)) },
-                { typeof(double?), GetMethodWithoutSelector<double?>(enumerableMethods,nameof(Queryable.Max)) },
-                { typeof(float?), GetMethodWithoutSelector<float?>(enumerableMethods,nameof(Queryable.Max)) }
+                { typeof(decimal), GetMethodWithoutSelector<decimal>(enumerableMethods, nameof(Queryable.Max)) },
+                { typeof(long), GetMethodWithoutSelector<long>(enumerableMethods, nameof(Queryable.Max)) },
+                { typeof(int), GetMethodWithoutSelector<int>(enumerableMethods, nameof(Queryable.Max)) },
+                { typeof(double), GetMethodWithoutSelector<double>(enumerableMethods, nameof(Queryable.Max)) },
+                { typeof(float), GetMethodWithoutSelector<float>(enumerableMethods, nameof(Queryable.Max)) },
+                { typeof(decimal?), GetMethodWithoutSelector<decimal?>(enumerableMethods, nameof(Queryable.Max)) },
+                { typeof(long?), GetMethodWithoutSelector<long?>(enumerableMethods, nameof(Queryable.Max)) },
+                { typeof(int?), GetMethodWithoutSelector<int?>(enumerableMethods, nameof(Queryable.Max)) },
+                { typeof(double?), GetMethodWithoutSelector<double?>(enumerableMethods, nameof(Queryable.Max)) },
+                { typeof(float?), GetMethodWithoutSelector<float?>(enumerableMethods, nameof(Queryable.Max)) }
             };
 
             MaxWithSelectorMethods = new Dictionary<Type, MethodInfo>

@@ -73,7 +73,8 @@ namespace JetBrains.Annotations
         }
 
         public UsedImplicitlyAttribute(
-            ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags)
+            ImplicitUseKindFlags useKindFlags,
+            ImplicitUseTargetFlags targetFlags)
         {
             UseKindFlags = useKindFlags;
             TargetFlags = targetFlags;

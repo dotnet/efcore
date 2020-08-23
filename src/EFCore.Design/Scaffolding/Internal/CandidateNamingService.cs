@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             return allForeignKeysBetweenDependentAndPrincipal?.Count() > 1
                 ? foreignKey.DeclaringEntityType.ShortName()
-                  + dependentEndNavigationPropertyName
+                + dependentEndNavigationPropertyName
                 : foreignKey.DeclaringEntityType.ShortName();
         }
 
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private static string StripId(string commonPrefix)
         {
             if (commonPrefix.Length < 3
-                   || !commonPrefix.EndsWith("id", StringComparison.OrdinalIgnoreCase))
+                || !commonPrefix.EndsWith("id", StringComparison.OrdinalIgnoreCase))
             {
                 return commonPrefix;
             }
