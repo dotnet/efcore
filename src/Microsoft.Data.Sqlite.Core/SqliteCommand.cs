@@ -7,7 +7,6 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
-using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite.Properties;
@@ -206,8 +205,8 @@ namespace Microsoft.Data.Sqlite
         ///     Releases any resources used by the connection and closes it.
         /// </summary>
         /// <param name="disposing">
-        ///     <see langword="true"/> to release managed and unmanaged resources;
-        ///     <see langword="false"/> to release only unmanaged resources.
+        ///     <see langword="true" /> to release managed and unmanaged resources;
+        ///     <see langword="false" /> to release only unmanaged resources.
         /// </param>
         protected override void Dispose(bool disposing)
         {
@@ -343,8 +342,7 @@ namespace Microsoft.Data.Sqlite
                         }
                     }
 
-                    if (sqlite3_libversion_number() < 3028000 ||
-                        sqlite3_stmt_isexplain(stmt) == 0)
+                    if (sqlite3_libversion_number() < 3028000 || sqlite3_stmt_isexplain(stmt) == 0)
                     {
                         throw new InvalidOperationException(Resources.MissingParameters(string.Join(", ", unboundParams)));
                     }
