@@ -21,7 +21,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     /// </summary>
     public class SqlServerDataLengthFunctionTranslator : IMethodCallTranslator
     {
-        private static readonly List<string> _longReturningTypes = new List<string> { "nvarchar(max)", "varchar(max)", "varbinary(max)" };
+        private static readonly List<string> _longReturningTypes = new List<string>
+        {
+            "nvarchar(max)",
+            "varchar(max)",
+            "varbinary(max)"
+        };
 
         private static readonly HashSet<MethodInfo> _methodInfoDataLengthMapping
             = new HashSet<MethodInfo>
@@ -29,35 +34,27 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                     nameof(SqlServerDbFunctionsExtensions.DataLength),
                     new[] { typeof(DbFunctions), typeof(string) }),
-
                 typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                     nameof(SqlServerDbFunctionsExtensions.DataLength),
                     new[] { typeof(DbFunctions), typeof(bool?) }),
-
                 typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                     nameof(SqlServerDbFunctionsExtensions.DataLength),
                     new[] { typeof(DbFunctions), typeof(double?) }),
-
                 typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                     nameof(SqlServerDbFunctionsExtensions.DataLength),
                     new[] { typeof(DbFunctions), typeof(decimal?) }),
-
                 typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                     nameof(SqlServerDbFunctionsExtensions.DataLength),
                     new[] { typeof(DbFunctions), typeof(DateTime?) }),
-
                 typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                     nameof(SqlServerDbFunctionsExtensions.DataLength),
                     new[] { typeof(DbFunctions), typeof(TimeSpan?) }),
-
                 typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                     nameof(SqlServerDbFunctionsExtensions.DataLength),
                     new[] { typeof(DbFunctions), typeof(DateTimeOffset?) }),
-
                 typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                     nameof(SqlServerDbFunctionsExtensions.DataLength),
                     new[] { typeof(DbFunctions), typeof(byte[]) }),
-
                 typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                     nameof(SqlServerDbFunctionsExtensions.DataLength),
                     new[] { typeof(DbFunctions), typeof(Guid?) })
@@ -83,7 +80,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SqlExpression Translate(
-            SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments, IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+            SqlExpression instance,
+            MethodInfo method,
+            IReadOnlyList<SqlExpression> arguments,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
             Check.NotNull(method, nameof(method));
             Check.NotNull(arguments, nameof(arguments));

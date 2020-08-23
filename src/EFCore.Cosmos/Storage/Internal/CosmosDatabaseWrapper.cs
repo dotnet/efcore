@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Cosmos;
@@ -19,8 +20,6 @@ using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
-
-using Database = Microsoft.EntityFrameworkCore.Storage.Database;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
@@ -143,7 +142,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override async Task<int> SaveChangesAsync(
-            IList<IUpdateEntry> entries, CancellationToken cancellationToken = default)
+            IList<IUpdateEntry> entries,
+            CancellationToken cancellationToken = default)
         {
             var rowsAffected = 0;
             var entriesSaved = new HashSet<IUpdateEntry>();
@@ -395,9 +395,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             throw exception.Status switch
             {
                 (int)HttpStatusCode.PreconditionFailed =>
-                    new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
+                new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
                 (int)HttpStatusCode.Conflict =>
-                    new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
+                new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
                 _ => Rethrow(exception),
             };
         }
@@ -409,9 +409,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             throw exception.Response.Status switch
             {
                 (int)HttpStatusCode.PreconditionFailed =>
-                    new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
+                new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
                 (int)HttpStatusCode.Conflict =>
-                    new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
+                new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
                 _ => Rethrow(exception),
             };
         }
@@ -419,7 +419,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         private static Exception Rethrow(Exception ex)
         {
             // Re-throw an exception, preserving the original stack and details, without being in the original "catch" block.
-            System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex).Throw();
+            ExceptionDispatchInfo.Capture(ex).Throw();
             return ex;
         }
     }

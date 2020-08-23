@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotEmpty(databaseName, nameof(databaseName));
 
             var extension = optionsBuilder.Options.FindExtension<CosmosOptionsExtension>()
-                            ?? new CosmosOptionsExtension();
+                ?? new CosmosOptionsExtension();
 
             extension = extension
                 .WithAccountEndpoint(accountEndpoint)
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(databaseName, nameof(databaseName));
 
             var extension = optionsBuilder.Options.FindExtension<CosmosOptionsExtension>()
-                            ?? new CosmosOptionsExtension();
+                ?? new CosmosOptionsExtension();
 
             extension = extension
                 .WithConnectionString(connectionString)

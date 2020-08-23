@@ -22,29 +22,57 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     public class SqlServerFromPartsFunctionTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo _dateFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
-            .GetRuntimeMethod(nameof(SqlServerDbFunctionsExtensions.DateFromParts),
+            .GetRuntimeMethod(
+                nameof(SqlServerDbFunctionsExtensions.DateFromParts),
                 new[] { typeof(DbFunctions), typeof(int), typeof(int), typeof(int) });
 
         private static readonly MethodInfo _dateTimeFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
-            .GetRuntimeMethod(nameof(SqlServerDbFunctionsExtensions.DateTimeFromParts),
+            .GetRuntimeMethod(
+                nameof(SqlServerDbFunctionsExtensions.DateTimeFromParts),
                 new[] { typeof(DbFunctions), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int) });
 
         private static readonly MethodInfo _dateTime2FromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
-            .GetRuntimeMethod(nameof(SqlServerDbFunctionsExtensions.DateTime2FromParts),
-                new[] { typeof(DbFunctions), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int),
-                    typeof(int), typeof(int), typeof(int) });
+            .GetRuntimeMethod(
+                nameof(SqlServerDbFunctionsExtensions.DateTime2FromParts),
+                new[]
+                {
+                    typeof(DbFunctions),
+                    typeof(int),
+                    typeof(int),
+                    typeof(int),
+                    typeof(int),
+                    typeof(int),
+                    typeof(int),
+                    typeof(int),
+                    typeof(int)
+                });
 
         private static readonly MethodInfo _dateTimeOffsetFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
-            .GetRuntimeMethod(nameof(SqlServerDbFunctionsExtensions.DateTimeOffsetFromParts),
-                new[] { typeof(DbFunctions), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int),
-                    typeof(int), typeof(int), typeof(int), typeof(int), typeof(int) });
+            .GetRuntimeMethod(
+                nameof(SqlServerDbFunctionsExtensions.DateTimeOffsetFromParts),
+                new[]
+                {
+                    typeof(DbFunctions),
+                    typeof(int),
+                    typeof(int),
+                    typeof(int),
+                    typeof(int),
+                    typeof(int),
+                    typeof(int),
+                    typeof(int),
+                    typeof(int),
+                    typeof(int),
+                    typeof(int)
+                });
 
         private static readonly MethodInfo _smallDateTimeFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
-            .GetRuntimeMethod(nameof(SqlServerDbFunctionsExtensions.SmallDateTimeFromParts),
+            .GetRuntimeMethod(
+                nameof(SqlServerDbFunctionsExtensions.SmallDateTimeFromParts),
                 new[] { typeof(DbFunctions), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int) });
 
         private static readonly MethodInfo _timeFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
-            .GetRuntimeMethod(nameof(SqlServerDbFunctionsExtensions.TimeFromParts),
+            .GetRuntimeMethod(
+                nameof(SqlServerDbFunctionsExtensions.TimeFromParts),
                 new[] { typeof(DbFunctions), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int) });
 
         private static readonly IDictionary<MethodInfo, (string FunctionName, string ReturnType)> _methodFunctionMapping
@@ -60,7 +88,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly IRelationalTypeMappingSource _typeMappingSource;
-
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -83,7 +110,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SqlExpression Translate(
-            SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments, IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+            SqlExpression instance,
+            MethodInfo method,
+            IReadOnlyList<SqlExpression> arguments,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
             Check.NotNull(method, nameof(method));
             Check.NotNull(arguments, nameof(arguments));

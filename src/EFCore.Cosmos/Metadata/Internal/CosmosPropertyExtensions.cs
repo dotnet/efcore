@@ -23,7 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal
         /// </summary>
         public static bool IsOrdinalKeyProperty([NotNull] this IProperty property)
         {
-            Check.DebugAssert(property.DeclaringEntityType.IsOwned(), $"Expected {property.DeclaringEntityType.DisplayName()} to be owned.");
+            Check.DebugAssert(
+                property.DeclaringEntityType.IsOwned(), $"Expected {property.DeclaringEntityType.DisplayName()} to be owned.");
             Check.DebugAssert(property.GetJsonPropertyName().Length == 0, $"Expected {property.Name} to be non-persisted.");
 
             return property.IsPrimaryKey()

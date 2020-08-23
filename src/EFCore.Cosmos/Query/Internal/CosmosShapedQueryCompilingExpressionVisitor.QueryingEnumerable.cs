@@ -67,8 +67,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
                 => new AsyncEnumerator(this, cancellationToken);
 
-            public IEnumerator<T> GetEnumerator() => new Enumerator(this);
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            public IEnumerator<T> GetEnumerator()
+                => new Enumerator(this);
+
+            IEnumerator IEnumerable.GetEnumerator()
+                => GetEnumerator();
 
             private CosmosSqlQuery GenerateQuery()
                 => _querySqlGeneratorFactory.Create().GetSqlQuery(
@@ -127,7 +130,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                 public T Current { get; private set; }
 
-                object IEnumerator.Current => Current;
+                object IEnumerator.Current
+                    => Current;
 
                 public bool MoveNext()
                 {
@@ -143,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                                 _enumerator = _cosmosQueryContext.CosmosClient
                                     .ExecuteSqlQuery(
-                                       _selectExpression.Container,
+                                        _selectExpression.Container,
                                         _partitionKey,
                                         sqlQuery)
                                     .GetEnumerator();
@@ -174,7 +178,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     _enumerator = null;
                 }
 
-                public void Reset() => throw new NotImplementedException();
+                public void Reset()
+                    => throw new NotImplementedException();
             }
 
             private sealed class AsyncEnumerator : IAsyncEnumerator<T>

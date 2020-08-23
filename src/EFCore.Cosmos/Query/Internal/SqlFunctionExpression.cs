@@ -128,14 +128,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is SqlFunctionExpression sqlFunctionExpression
-                   && Equals(sqlFunctionExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is SqlFunctionExpression sqlFunctionExpression
+                    && Equals(sqlFunctionExpression));
 
         private bool Equals(SqlFunctionExpression sqlFunctionExpression)
             => base.Equals(sqlFunctionExpression)
-               && string.Equals(Name, sqlFunctionExpression.Name)
-               && Arguments.SequenceEqual(sqlFunctionExpression.Arguments);
+                && string.Equals(Name, sqlFunctionExpression.Name)
+                && Arguments.SequenceEqual(sqlFunctionExpression.Arguments);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

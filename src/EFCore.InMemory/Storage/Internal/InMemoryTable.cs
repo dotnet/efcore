@@ -58,6 +58,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                     {
                         _valueConverters = new List<(int, ValueConverter)>();
                     }
+
                     _valueConverters.Add((property.GetIndex(), converter));
                 }
 
@@ -68,6 +69,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                     {
                         _valueComparers = new List<(int, ValueComparer)>();
                     }
+
                     _valueComparers.Add((property.GetIndex(), comparer));
                 }
             }
@@ -96,7 +98,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InMemoryIntegerValueGenerator<TProperty> GetIntegerValueGenerator<TProperty>(
-            IProperty property, IReadOnlyList<IInMemoryTable> tables)
+            IProperty property,
+            IReadOnlyList<IInMemoryTable> tables)
         {
             if (_integerGenerators == null)
             {
@@ -127,7 +130,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<object[]> Rows => _rows.Values;
+        public virtual IEnumerable<object[]> Rows
+            => _rows.Values;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -338,7 +342,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         /// <param name="entry"> The update entry which resulted in the conflict(s). </param>
         /// <param name="concurrencyConflicts"> The conflicting properties with their associated database values. </param>
         protected virtual void ThrowUpdateConcurrencyException(
-            [NotNull] IUpdateEntry entry, [NotNull] Dictionary<IProperty, object> concurrencyConflicts)
+            [NotNull] IUpdateEntry entry,
+            [NotNull] Dictionary<IProperty, object> concurrencyConflicts)
         {
             Check.NotNull(entry, nameof(entry));
             Check.NotNull(concurrencyConflicts, nameof(concurrencyConflicts));

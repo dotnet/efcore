@@ -57,7 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         protected override string GenerateNonNullSqlLiteral(object value)
             => EscapeLineBreaks(EscapeSqlLiteral((string)value));
 
-        private static readonly char[] LineBreakChars = new char[] { '\r', '\n' };
+        private static readonly char[] LineBreakChars = { '\r', '\n' };
+
         private static string EscapeLineBreaks(string value)
         {
             if (value == null
@@ -66,9 +67,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                 return $"'{value}'";
             }
 
-            return ("('" + value
-                .Replace("\r", "' || CHAR(13) || '")
-                .Replace("\n", "' || CHAR(10) || '") + "')")
+            return ("('"
+                    + value
+                        .Replace("\r", "' || CHAR(13) || '")
+                        .Replace("\n", "' || CHAR(10) || '")
+                    + "')")
                 .Replace("'' || ", string.Empty)
                 .Replace(" || ''", string.Empty);
         }

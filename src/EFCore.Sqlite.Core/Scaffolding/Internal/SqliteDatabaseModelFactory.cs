@@ -19,7 +19,6 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-
 using static SQLitePCL.raw;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
@@ -252,23 +251,24 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                     SqliteException.ThrowExceptionForRC(rc, db);
                 }
 
-                table.Columns.Add(new DatabaseColumn
-                {
-                    Table = table,
-                    Name = columnName,
-                    StoreType = dataType,
-                    IsNullable = !notNull,
-                    DefaultValueSql = defaultValue,
-                    ValueGenerated = autoIncrement != 0
-                        ? ValueGenerated.OnAdd
-                        : default(ValueGenerated?),
-                    ComputedColumnSql = hidden != 2L && hidden != 3L
-                        ? null
-                        : string.Empty,
-                    IsStored = hidden != 3L
-                        ? default(bool?)
-                        : true
-                });
+                table.Columns.Add(
+                    new DatabaseColumn
+                    {
+                        Table = table,
+                        Name = columnName,
+                        StoreType = dataType,
+                        IsNullable = !notNull,
+                        DefaultValueSql = defaultValue,
+                        ValueGenerated = autoIncrement != 0
+                            ? ValueGenerated.OnAdd
+                            : default(ValueGenerated?),
+                        ComputedColumnSql = hidden != 2L && hidden != 3L
+                            ? null
+                            : string.Empty,
+                        IsStored = hidden != 3L
+                            ? default(bool?)
+                            : true
+                    });
             }
         }
 
@@ -279,7 +279,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                 return null;
             }
 
-            if (notNull && defaultValue == "0"
+            if (notNull
+                && defaultValue == "0"
                 && _typeMappingSource.FindMapping(dataType).ClrType.IsNumeric())
             {
                 return null;
@@ -312,8 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 
             var primaryKey = new DatabasePrimaryKey
             {
-                Table = table,
-                Name = name.StartsWith("sqlite_", StringComparison.Ordinal) ? string.Empty : name
+                Table = table, Name = name.StartsWith("sqlite_", StringComparison.Ordinal) ? string.Empty : name
             };
 
             _logger.PrimaryKeyFound(name, table.Name);
@@ -399,8 +399,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                 var constraintName = reader1.GetString(0);
                 var uniqueConstraint = new DatabaseUniqueConstraint
                 {
-                    Table = table,
-                    Name = constraintName.StartsWith("sqlite_", StringComparison.Ordinal) ? string.Empty : constraintName
+                    Table = table, Name = constraintName.StartsWith("sqlite_", StringComparison.Ordinal) ? string.Empty : constraintName
                 };
 
                 _logger.UniqueConstraintFound(constraintName, table.Name);

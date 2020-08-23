@@ -19,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             public CosmosProjectionBindingRemovingExpressionVisitor(
                 [NotNull] SelectExpression selectExpression,
                 [NotNull] ParameterExpression jObjectParameter,
-                bool trackQueryResults) : base(jObjectParameter, trackQueryResults)
+                bool trackQueryResults)
+                : base(jObjectParameter, trackQueryResults)
             {
                 _selectExpression = selectExpression;
             }
@@ -31,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 => projectionBindingExpression.ProjectionMember != null
                     ? (int)((ConstantExpression)_selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember)).Value
                     : projectionBindingExpression.Index
-                      ?? throw new InvalidOperationException(CoreStrings.QueryFailed(projectionBindingExpression.Print(), GetType().Name));
+                    ?? throw new InvalidOperationException(CoreStrings.QueryFailed(projectionBindingExpression.Print(), GetType().Name));
         }
     }
 }

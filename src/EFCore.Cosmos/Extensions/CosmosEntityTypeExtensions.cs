@@ -19,17 +19,17 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to get the container name for. </param>
         /// <returns> The name of the container to which the entity type is mapped. </returns>
-        public static string GetContainer([NotNull] this IEntityType entityType) =>
-            entityType.BaseType != null
+        public static string GetContainer([NotNull] this IEntityType entityType)
+            => entityType.BaseType != null
                 ? entityType.GetRootType().GetContainer()
                 : (string)entityType[CosmosAnnotationNames.ContainerName]
-                  ?? GetDefaultContainer(entityType);
+                ?? GetDefaultContainer(entityType);
 
         private static string GetDefaultContainer(IEntityType entityType)
             => entityType.IsOwned()
                 ? null
                 : entityType.Model.GetDefaultContainer()
-                  ?? entityType.ShortName();
+                ?? entityType.ShortName();
 
         /// <summary>
         ///     Sets the name of the container to which the entity type is mapped.
@@ -48,7 +48,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         public static void SetContainer(
-            [NotNull] this IConventionEntityType entityType, [CanBeNull] string name, bool fromDataAnnotation = false)
+            [NotNull] this IConventionEntityType entityType,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
             => entityType.SetOrRemoveAnnotation(
                 CosmosAnnotationNames.ContainerName,
                 Check.NullButNotEmpty(name, nameof(name)),
@@ -68,9 +70,9 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to get the containing property name for. </param>
         /// <returns> The name of the parent property to which the entity type is mapped. </returns>
-        public static string GetContainingPropertyName([NotNull] this IEntityType entityType) =>
-            entityType[CosmosAnnotationNames.PropertyName] as string
-            ?? GetDefaultContainingPropertyName(entityType);
+        public static string GetContainingPropertyName([NotNull] this IEntityType entityType)
+            => entityType[CosmosAnnotationNames.PropertyName] as string
+                ?? GetDefaultContainingPropertyName(entityType);
 
         private static string GetDefaultContainingPropertyName(IEntityType entityType)
             => entityType.FindOwnership()?.PrincipalToDependent.Name;
@@ -92,7 +94,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         public static void SetContainingPropertyName(
-            [NotNull] this IConventionEntityType entityType, [CanBeNull] string name, bool fromDataAnnotation = false)
+            [NotNull] this IConventionEntityType entityType,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
             => entityType.SetOrRemoveAnnotation(
                 CosmosAnnotationNames.PropertyName,
                 Check.NullButNotEmpty(name, nameof(name)),
@@ -132,7 +136,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         public static void SetPartitionKeyPropertyName(
-            [NotNull] this IConventionEntityType entityType, [CanBeNull] string name, bool fromDataAnnotation = false)
+            [NotNull] this IConventionEntityType entityType,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
             => entityType.SetOrRemoveAnnotation(
                 CosmosAnnotationNames.PartitionKeyName,
                 Check.NullButNotEmpty(name, nameof(name)),
@@ -172,7 +178,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         public static void SetETagPropertyName(
-            [NotNull] this IConventionEntityType entityType, [CanBeNull] string name, bool fromDataAnnotation = false)
+            [NotNull] this IConventionEntityType entityType,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
             => entityType.SetOrRemoveAnnotation(
                 CosmosAnnotationNames.ETagName,
                 Check.NullButNotEmpty(name, nameof(name)),
@@ -188,10 +196,10 @@ namespace Microsoft.EntityFrameworkCore
                 ?.GetConfigurationSource();
 
         /// <summary>
-        ///     Gets the <see cref="IProperty"/> on this entity that is mapped to cosmos etag, if it exists.
+        ///     Gets the <see cref="IProperty" /> on this entity that is mapped to cosmos etag, if it exists.
         /// </summary>
         /// <param name="entityType"> The entity type to get the etag property for. </param>
-        /// <returns> The <see cref="IProperty"/> mapped to etag, or null if no property is mapped to etag. </returns>
+        /// <returns> The <see cref="IProperty" /> mapped to etag, or null if no property is mapped to etag. </returns>
         public static IProperty GetETagProperty([NotNull] this IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));

@@ -21,12 +21,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     public class SqlServerTimeSpanMemberTranslator : IMemberTranslator
     {
         private static readonly Dictionary<string, string> _datePartMappings = new Dictionary<string, string>
-            {
-                { nameof(TimeSpan.Hours), "hour" },
-                { nameof(TimeSpan.Minutes), "minute" },
-                { nameof(TimeSpan.Seconds), "second" },
-                { nameof(TimeSpan.Milliseconds), "millisecond" }
-            };
+        {
+            { nameof(TimeSpan.Hours), "hour" },
+            { nameof(TimeSpan.Minutes), "minute" },
+            { nameof(TimeSpan.Seconds), "second" },
+            { nameof(TimeSpan.Milliseconds), "millisecond" }
+        };
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -48,7 +48,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SqlExpression Translate(
-            SqlExpression instance, MemberInfo member, Type returnType, IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+            SqlExpression instance,
+            MemberInfo member,
+            Type returnType,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
             Check.NotNull(member, nameof(member));
             Check.NotNull(returnType, nameof(returnType));
@@ -56,13 +59,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             if (member.DeclaringType == typeof(TimeSpan) && _datePartMappings.TryGetValue(member.Name, out string value))
             {
-                return _sqlExpressionFactory.Function("DATEPART", new []
-                    {
-                        _sqlExpressionFactory.Fragment(value),
-                        instance
-                    },
+                return _sqlExpressionFactory.Function(
+                    "DATEPART", new[] { _sqlExpressionFactory.Fragment(value), instance },
                     nullable: true,
-                    argumentsPropagateNullability: new [] { false, true },
+                    argumentsPropagateNullability: new[] { false, true },
                     returnType);
             }
 

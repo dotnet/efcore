@@ -31,14 +31,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="modelBuilder"> The builder for the model. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessModelInitialized(
-            IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
         {
             modelBuilder.HasValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
         }
 
         /// <inheritdoc />
         public virtual void ProcessModelFinalizing(
-            IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {

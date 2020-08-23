@@ -62,14 +62,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         private SqlExpression BuildCompareToExpression(SqlExpression sqlExpression)
             => sqlExpression is SqlConstantExpression sqlConstantExpression
                 && sqlConstantExpression.Value is bool boolValue
-                ? _sqlExpressionFactory.Equal(
-                    boolValue
-                        ? _sqlExpressionFactory.Constant(1)
-                        : _sqlExpressionFactory.Constant(0),
-                    _sqlExpressionFactory.Constant(1))
-                : _sqlExpressionFactory.Equal(
-                    sqlExpression,
-                    _sqlExpressionFactory.Constant(true));
+                    ? _sqlExpressionFactory.Equal(
+                        boolValue
+                            ? _sqlExpressionFactory.Constant(1)
+                            : _sqlExpressionFactory.Constant(0),
+                        _sqlExpressionFactory.Constant(1))
+                    : _sqlExpressionFactory.Equal(
+                        sqlExpression,
+                        _sqlExpressionFactory.Constant(true));
 
         // !(a == b) -> (a != b)
         // !(a != b) -> (a == b)
@@ -79,14 +79,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 && sqlUnaryExpression.Type == typeof(bool)
                 && sqlUnaryExpression.Operand is SqlBinaryExpression sqlBinaryOperand
                 && (sqlBinaryOperand.OperatorType == ExpressionType.Equal || sqlBinaryOperand.OperatorType == ExpressionType.NotEqual)
-                ? _sqlExpressionFactory.MakeBinary(
-                    sqlBinaryOperand.OperatorType == ExpressionType.Equal
-                        ? ExpressionType.NotEqual
-                        : ExpressionType.Equal,
-                    sqlBinaryOperand.Left,
-                    sqlBinaryOperand.Right,
-                    sqlBinaryOperand.TypeMapping)
-                : sqlExpression;
+                    ? _sqlExpressionFactory.MakeBinary(
+                        sqlBinaryOperand.OperatorType == ExpressionType.Equal
+                            ? ExpressionType.NotEqual
+                            : ExpressionType.Equal,
+                        sqlBinaryOperand.Left,
+                        sqlBinaryOperand.Right,
+                        sqlBinaryOperand.TypeMapping)
+                    : sqlExpression;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -369,7 +369,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             switch (sqlUnaryExpression.OperatorType)
             {
                 case ExpressionType.Not
-                when sqlUnaryExpression.Type == typeof(bool):
+                    when sqlUnaryExpression.Type == typeof(bool):
                 {
                     _isSearchCondition = true;
                     resultCondition = true;

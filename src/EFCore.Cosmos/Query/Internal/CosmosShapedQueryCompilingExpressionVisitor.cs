@@ -4,7 +4,6 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Newtonsoft.Json.Linq;
@@ -66,7 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     selectExpression.ApplyProjection();
 
                     shaperBody = new CosmosProjectionBindingRemovingExpressionVisitor(
-                        selectExpression, jObjectParameter, QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+                            selectExpression, jObjectParameter,
+                            QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll)
                         .Visit(shaperBody);
 
                     var shaperLambda = Expression.Lambda(
@@ -85,12 +85,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         Expression.Constant(shaperLambda.Compile()),
                         Expression.Constant(_contextType),
                         Expression.Constant(_partitionKeyFromExtension, typeof(string)),
-                        Expression.Constant(QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution));
+                        Expression.Constant(
+                            QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution));
 
                 case ReadItemExpression readItemExpression:
 
                     shaperBody = new CosmosProjectionBindingRemovingReadItemExpressionVisitor(
-                            readItemExpression, jObjectParameter, QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+                            readItemExpression, jObjectParameter,
+                            QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll)
                         .Visit(shaperBody);
 
                     var shaperReadItemLambda = Expression.Lambda(
@@ -106,7 +108,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         Expression.Constant(readItemExpression),
                         Expression.Constant(shaperReadItemLambda.Compile()),
                         Expression.Constant(_contextType),
-                        Expression.Constant(QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution));
+                        Expression.Constant(
+                            QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution));
 
                 default:
                     throw new NotImplementedException();

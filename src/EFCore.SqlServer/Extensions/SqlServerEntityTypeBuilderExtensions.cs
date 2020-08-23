@@ -21,7 +21,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="memoryOptimized"> A value indicating whether the table is memory-optimized. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder IsMemoryOptimized(
-            [NotNull] this EntityTypeBuilder entityTypeBuilder, bool memoryOptimized = true)
+            [NotNull] this EntityTypeBuilder entityTypeBuilder,
+            bool memoryOptimized = true)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
@@ -38,7 +39,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="memoryOptimized"> A value indicating whether the table is memory-optimized. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder<TEntity> IsMemoryOptimized<TEntity>(
-            [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder, bool memoryOptimized = true)
+            [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
+            bool memoryOptimized = true)
             where TEntity : class
             => (EntityTypeBuilder<TEntity>)IsMemoryOptimized((EntityTypeBuilder)entityTypeBuilder, memoryOptimized);
 
@@ -49,7 +51,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="memoryOptimized"> A value indicating whether the table is memory-optimized. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static OwnedNavigationBuilder IsMemoryOptimized(
-            [NotNull] this OwnedNavigationBuilder collectionOwnershipBuilder, bool memoryOptimized = true)
+            [NotNull] this OwnedNavigationBuilder collectionOwnershipBuilder,
+            bool memoryOptimized = true)
         {
             Check.NotNull(collectionOwnershipBuilder, nameof(collectionOwnershipBuilder));
 
@@ -67,7 +70,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="memoryOptimized"> A value indicating whether the table is memory-optimized. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static OwnedNavigationBuilder<TEntity, TRelatedEntity> IsMemoryOptimized<TEntity, TRelatedEntity>(
-            [NotNull] this OwnedNavigationBuilder<TEntity, TRelatedEntity> collectionOwnershipBuilder, bool memoryOptimized = true)
+            [NotNull] this OwnedNavigationBuilder<TEntity, TRelatedEntity> collectionOwnershipBuilder,
+            bool memoryOptimized = true)
             where TEntity : class
             where TRelatedEntity : class
             => (OwnedNavigationBuilder<TEntity, TRelatedEntity>)IsMemoryOptimized(

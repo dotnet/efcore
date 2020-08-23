@@ -64,7 +64,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SqlExpression Translate(
-            SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments, IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+            SqlExpression instance,
+            MethodInfo method,
+            IReadOnlyList<SqlExpression> arguments,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
             Check.NotNull(method, nameof(method));
             Check.NotNull(arguments, nameof(arguments));
@@ -74,13 +77,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 && arguments.Count == 0
                 && instance != null
                 && _typeMapping.TryGetValue(instance.Type, out var storeType)
-                ? _sqlExpressionFactory.Function(
-                    "CONVERT",
-                    new[] { _sqlExpressionFactory.Fragment(storeType), instance },
-                    nullable: true,
-                    argumentsPropagateNullability: new bool[] { false, true },
-                    typeof(string))
-                : null;
+                    ? _sqlExpressionFactory.Function(
+                        "CONVERT",
+                        new[] { _sqlExpressionFactory.Fragment(storeType), instance },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { false, true },
+                        typeof(string))
+                    : null;
         }
     }
 }

@@ -75,7 +75,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="indexBuilder"> The builder for the index. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessIndexAdded(
-            IConventionIndexBuilder indexBuilder, IConventionContext<IConventionIndexBuilder> context)
+            IConventionIndexBuilder indexBuilder,
+            IConventionContext<IConventionIndexBuilder> context)
             => SetIndexFilter(indexBuilder);
 
         /// <summary>
@@ -84,7 +85,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="indexBuilder"> The builder for the index. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessIndexUniquenessChanged(
-            IConventionIndexBuilder indexBuilder, IConventionContext<bool?> context)
+            IConventionIndexBuilder indexBuilder,
+            IConventionContext<bool?> context)
             => SetIndexFilter(indexBuilder);
 
         /// <summary>

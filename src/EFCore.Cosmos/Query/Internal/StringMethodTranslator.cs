@@ -29,14 +29,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) });
 
         private static readonly MethodInfo _firstOrDefaultMethodInfoWithoutArgs
-           = typeof(Enumerable).GetRuntimeMethods().Single(
-               m => m.Name == nameof(Enumerable.FirstOrDefault)
-               && m.GetParameters().Length == 1).MakeGenericMethod(new[] { typeof(char) });
+            = typeof(Enumerable).GetRuntimeMethods().Single(
+                m => m.Name == nameof(Enumerable.FirstOrDefault)
+                    && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
 
         private static readonly MethodInfo _lastOrDefaultMethodInfoWithoutArgs
-             = typeof(Enumerable).GetRuntimeMethods().Single(
+            = typeof(Enumerable).GetRuntimeMethods().Single(
                 m => m.Name == nameof(Enumerable.LastOrDefault)
-                && m.GetParameters().Length == 1).MakeGenericMethod(new[] { typeof(char) });
+                    && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -58,7 +58,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SqlExpression Translate(
-            SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments, IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+            SqlExpression instance,
+            MethodInfo method,
+            IReadOnlyList<SqlExpression> arguments,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
             Check.NotNull(method, nameof(method));
             Check.NotNull(arguments, nameof(arguments));
@@ -73,7 +76,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             {
                 return TranslateSystemFunction("LEFT", arguments[0], _sqlExpressionFactory.Constant(1), typeof(char));
             }
-
 
             if (_lastOrDefaultMethodInfoWithoutArgs.Equals(method))
             {

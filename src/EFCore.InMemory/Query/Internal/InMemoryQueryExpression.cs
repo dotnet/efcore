@@ -47,7 +47,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IReadOnlyList<Expression> Projection => _valueBufferSlots;
+        public virtual IReadOnlyList<Expression> Projection
+            => _valueBufferSlots;
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -55,27 +57,33 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Expression ServerQueryExpression { get; private set; }
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ParameterExpression CurrentParameter => _groupingParameter ?? _valueBufferParameter;
+        public virtual ParameterExpression CurrentParameter
+            => _groupingParameter ?? _valueBufferParameter;
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override Type Type => typeof(IEnumerable<ValueBuffer>);
+        public override Type Type
+            => typeof(IEnumerable<ValueBuffer>);
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public sealed override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType
+            => ExpressionType.Extension;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -111,7 +119,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             var entityProjection = new EntityProjectionExpression(entityType, readExpressionMap);
             _projectionMapping[new ProjectionMember()] = entityProjection;
-
         }
 
         /// <summary>
@@ -220,7 +227,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int AddSubqueryProjection([NotNull] ShapedQueryExpression shapedQueryExpression, [CanBeNull] out Expression innerShaper)
+        public virtual int AddSubqueryProjection(
+            [NotNull] ShapedQueryExpression shapedQueryExpression,
+            [CanBeNull] out Expression innerShaper)
         {
             var subquery = (InMemoryQueryExpression)shapedQueryExpression.QueryExpression;
             subquery.ApplyProjection();
@@ -433,8 +442,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             => expression is MethodCallExpression methodCallExpression
                 && methodCallExpression.Method.IsGenericMethod
                 && methodCallExpression.Method.GetGenericMethodDefinition() == ExpressionExtensions.ValueBufferTryReadValueMethod
-                ? (IPropertyBase)((ConstantExpression)methodCallExpression.Arguments[2]).Value
-                : null;
+                    ? (IPropertyBase)((ConstantExpression)methodCallExpression.Arguments[2]).Value
+                    : null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -490,7 +499,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InMemoryGroupByShaperExpression ApplyGrouping([NotNull] Expression groupingKey, [NotNull] Expression shaperExpression)
+        public virtual InMemoryGroupByShaperExpression ApplyGrouping(
+            [NotNull] Expression groupingKey,
+            [NotNull] Expression shaperExpression)
         {
             PushdownIntoSubquery();
 
@@ -707,7 +718,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var projectionMapping = new Dictionary<ProjectionMember, Expression>();
             var replacingVisitor = new ReplacingExpressionVisitor(
                 new Expression[] { CurrentParameter, innerQueryExpression.CurrentParameter },
-                new Expression[] { MakeMemberAccess(outerParameter, outerMemberInfo), innerParameter});
+                new Expression[] { MakeMemberAccess(outerParameter, outerMemberInfo), innerParameter });
 
             var index = 0;
             outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
@@ -803,7 +814,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void AddSelectMany(
-            [NotNull] InMemoryQueryExpression innerQueryExpression, [CanBeNull] Type transparentIdentifierType, bool innerNullable)
+            [NotNull] InMemoryQueryExpression innerQueryExpression,
+            [CanBeNull] Type transparentIdentifierType,
+            bool innerNullable)
         {
             var outerParameter = Parameter(typeof(ValueBuffer), "outer");
             var innerParameter = Parameter(typeof(ValueBuffer), "inner");
@@ -941,7 +954,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var projectionMapping = new Dictionary<ProjectionMember, Expression>();
             var replacingVisitor = new ReplacingExpressionVisitor(
                 new Expression[] { CurrentParameter, innerQueryExpression.CurrentParameter },
-                new Expression[] { MakeMemberAccess(outerParameter, outerMemberInfo), innerParameter});
+                new Expression[] { MakeMemberAccess(outerParameter, outerMemberInfo), innerParameter });
             var index = 0;
 
             EntityProjectionExpression copyEntityProjectionToOuter(EntityProjectionExpression entityProjection)

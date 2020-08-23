@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     A convention that ensures that <see cref="IDbFunction.Schema"/> is populated for database functions which
-    ///     have <see cref="IDbFunction.IsBuiltIn"/> flag set to <see langword="false"/>.
+    ///     A convention that ensures that <see cref="IDbFunction.Schema" /> is populated for database functions which
+    ///     have <see cref="IDbFunction.IsBuiltIn" /> flag set to <see langword="false" />.
     /// </summary>
     public class SqlServerDbFunctionConvention : IModelFinalizingConvention
     {
@@ -36,7 +36,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
         /// <inheritdoc />
-        public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        public virtual void ProcessModelFinalizing(
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
         {
             foreach (var dbFunction in modelBuilder.Metadata.GetDbFunctions())
             {

@@ -37,7 +37,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         }
 
         public SqlExpression Translate(
-            SqlExpression instance, MemberInfo member, Type returnType, IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+            SqlExpression instance,
+            MemberInfo member,
+            Type returnType,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
             Check.NotNull(member, nameof(member));
             Check.NotNull(returnType, nameof(returnType));

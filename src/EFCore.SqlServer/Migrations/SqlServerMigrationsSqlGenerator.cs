@@ -57,7 +57,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
         /// <param name="options"> The options to use when generating commands. </param>
         /// <returns> The list of commands to be executed or scripted. </returns>
-        public override IReadOnlyList<MigrationCommand> Generate(IReadOnlyList<MigrationOperation> operations, IModel model = null, MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
+        public override IReadOnlyList<MigrationCommand> Generate(
+            IReadOnlyList<MigrationOperation> operations,
+            IModel model = null,
+            MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
         {
             _operations = operations;
             try
@@ -1509,7 +1512,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected virtual void Rename(
             [NotNull] string name,
             [NotNull] string newName,
-            [NotNull] MigrationCommandListBuilder builder) => Rename(name, newName, /*type:*/ null, builder);
+            [NotNull] MigrationCommandListBuilder builder)
+            => Rename(name, newName, /*type:*/ null, builder);
 
         /// <summary>
         ///     Generates a rename.
@@ -1883,7 +1887,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
 
-            string Literal(string s) => stringTypeMapping.GenerateSqlLiteral(s);
+            string Literal(string s)
+                => stringTypeMapping.GenerateSqlLiteral(s);
         }
 
         /// <summary>
@@ -1946,7 +1951,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
 
-            string Literal(string s) => stringTypeMapping.GenerateSqlLiteral(s);
+            string Literal(string s)
+                => stringTypeMapping.GenerateSqlLiteral(s);
         }
 
         /// <summary>
@@ -1954,7 +1960,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Migrations.
         /// </summary>
         /// <param name="model"> The target model. </param>
-        /// <returns> <see langword="true"/> if a filter should be generated. </returns>
+        /// <returns> <see langword="true" /> if a filter should be generated. </returns>
         protected virtual bool UseLegacyIndexFilters([CanBeNull] IModel model)
             => !TryGetVersion(model, out var version) || VersionComparer.Compare(version, "2.0.0") < 0;
 

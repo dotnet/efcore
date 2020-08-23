@@ -67,11 +67,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void ValidateDecimalColumns(
-            [NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            [NotNull] IModel model,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             foreach (IConventionProperty property in model.GetEntityTypes()
                 .SelectMany(t => t.GetDeclaredProperties())
-                .Where(p => p.ClrType.UnwrapNullableType() == typeof(decimal)
+                .Where(
+                    p => p.ClrType.UnwrapNullableType() == typeof(decimal)
                         && !p.IsForeignKey()))
             {
                 var valueConverterConfigurationSource = property.GetValueConverterConfigurationSource();
@@ -84,9 +86,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
 
                 var columnTypeConfigurationSource = property.GetColumnTypeConfigurationSource();
                 if (((columnTypeConfigurationSource == null
-                        && ConfigurationSource.Convention.Overrides(property.GetTypeMappingConfigurationSource()))
-                    || (columnTypeConfigurationSource != null
-                        && ConfigurationSource.Convention.Overrides(columnTypeConfigurationSource)))
+                            && ConfigurationSource.Convention.Overrides(property.GetTypeMappingConfigurationSource()))
+                        || (columnTypeConfigurationSource != null
+                            && ConfigurationSource.Convention.Overrides(columnTypeConfigurationSource)))
                     && (ConfigurationSource.Convention.Overrides(property.GetPrecisionConfigurationSource())
                         || ConfigurationSource.Convention.Overrides(property.GetScaleConfigurationSource())))
                 {
@@ -107,12 +109,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void ValidateByteIdentityMapping(
-            [NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            [NotNull] IModel model,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             foreach (var entityType in model.GetEntityTypes())
             {
                 foreach (var property in entityType.GetDeclaredProperties()
-                    .Where(p => p.ClrType.UnwrapNullableType() == typeof(byte)
+                    .Where(
+                        p => p.ClrType.UnwrapNullableType() == typeof(byte)
                             && p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn))
                 {
                     logger.ByteIdentityColumnWarning(property);
@@ -127,12 +131,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void ValidateNonKeyValueGeneration(
-            [NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            [NotNull] IModel model,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             foreach (var entityType in model.GetEntityTypes())
             {
                 foreach (var property in entityType.GetDeclaredProperties()
-                    .Where(p => p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.SequenceHiLo
+                    .Where(
+                        p => p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.SequenceHiLo
                             && ((IConventionProperty)p).GetValueGenerationStrategyConfigurationSource() != null
                             && !p.IsKey()
                             && p.ValueGenerated != ValueGenerated.Never
@@ -152,7 +158,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void ValidateIndexIncludeProperties(
-            [NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            [NotNull] IModel model,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             foreach (var index in model.GetEntityTypes().SelectMany(t => t.GetDeclaredIndexes()))
             {

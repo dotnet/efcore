@@ -12,7 +12,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -32,13 +31,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
         private static readonly MethodInfo _parameterValueExtractor =
             typeof(CosmosSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterValueExtractor));
+
         private static readonly MethodInfo _parameterListValueExtractor =
             typeof(CosmosSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterListValueExtractor));
 
         private static readonly MethodInfo _concatMethodInfo
             = typeof(string).GetRuntimeMethod(nameof(string.Concat), new[] { typeof(object), typeof(object) });
+
         private static readonly MethodInfo _stringEqualsWithStringComparison
             = typeof(string).GetRuntimeMethod(nameof(string.Equals), new[] { typeof(string), typeof(StringComparison) });
+
         private static readonly MethodInfo _stringEqualsWithStringComparisonStatic
             = typeof(string).GetRuntimeMethod(nameof(string.Equals), new[] { typeof(string), typeof(string), typeof(StringComparison) });
 
@@ -184,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             var visitedRight = Visit(right);
 
             if ((binaryExpression.NodeType == ExpressionType.Equal
-                || binaryExpression.NodeType == ExpressionType.NotEqual)
+                    || binaryExpression.NodeType == ExpressionType.NotEqual)
                 // Visited expression could be null, We need to pass MemberInitExpression
                 && TryRewriteEntityEquality(binaryExpression.NodeType, visitedLeft ?? left, visitedRight ?? right, out var result))
             {
@@ -206,12 +208,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             return TranslationFailed(binaryExpression.Left, visitedLeft, out var sqlLeft)
                 || TranslationFailed(binaryExpression.Right, visitedRight, out var sqlRight)
-                ? null
-                : _sqlExpressionFactory.MakeBinary(
-                    uncheckedNodeTypeVariant,
-                    sqlLeft,
-                    sqlRight,
-                    null);
+                    ? null
+                    : _sqlExpressionFactory.MakeBinary(
+                        uncheckedNodeTypeVariant,
+                        sqlLeft,
+                        sqlRight,
+                        null);
 
             static bool TryUnwrapConvertToObject(Expression expression, out Expression operand)
             {
@@ -246,8 +248,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             return TranslationFailed(conditionalExpression.Test, test, out var sqlTest)
                 || TranslationFailed(conditionalExpression.IfTrue, ifTrue, out var sqlIfTrue)
                 || TranslationFailed(conditionalExpression.IfFalse, ifFalse, out var sqlIfFalse)
-                ? null
-                : _sqlExpressionFactory.Condition(sqlTest, sqlIfTrue, sqlIfFalse);
+                    ? null
+                    : _sqlExpressionFactory.Condition(sqlTest, sqlIfTrue, sqlIfFalse);
         }
 
         /// <summary>
@@ -298,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 case ProjectionBindingExpression projectionBindingExpression:
                     return projectionBindingExpression.ProjectionMember != null
                         ? ((SelectExpression)projectionBindingExpression.QueryExpression)
-                            .GetMappedProjection(projectionBindingExpression.ProjectionMember)
+                        .GetMappedProjection(projectionBindingExpression.ProjectionMember)
                         : null;
 
                 default:
@@ -312,7 +314,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override Expression VisitInvocation(InvocationExpression invocationExpression) => null;
+        protected override Expression VisitInvocation(InvocationExpression invocationExpression)
+            => null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -320,7 +323,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override Expression VisitLambda<T>(Expression<T> lambdaExpression) => null;
+        protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
+            => null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -328,7 +332,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override Expression VisitListInit(ListInitExpression listInitExpression) => null;
+        protected override Expression VisitListInit(ListInitExpression listInitExpression)
+            => null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -385,10 +390,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 var left = Visit(methodCallExpression.Object);
                 var right = Visit(RemoveObjectConvert(methodCallExpression.Arguments[0]));
 
-                if (TryRewriteEntityEquality(ExpressionType.Equal,
-                        left ?? methodCallExpression.Object,
-                        right ?? methodCallExpression.Arguments[0],
-                        out var result))
+                if (TryRewriteEntityEquality(
+                    ExpressionType.Equal,
+                    left ?? methodCallExpression.Object,
+                    right ?? methodCallExpression.Arguments[0],
+                    out var result))
                 {
                     return result;
                 }
@@ -411,7 +417,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 var left = Visit(RemoveObjectConvert(methodCallExpression.Arguments[0]));
                 var right = Visit(RemoveObjectConvert(methodCallExpression.Arguments[1]));
 
-                if (TryRewriteEntityEquality(ExpressionType.Equal,
+                if (TryRewriteEntityEquality(
+                    ExpressionType.Equal,
                     left ?? methodCallExpression.Arguments[0],
                     right ?? methodCallExpression.Arguments[1],
                     out var result))
@@ -504,9 +511,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
                 else
                 {
-                    AddTranslationErrorDetails(CoreStrings.QueryUnableToTranslateMethod(
-                        methodCallExpression.Method.DeclaringType?.DisplayName(),
-                        methodCallExpression.Method.Name));
+                    AddTranslationErrorDetails(
+                        CoreStrings.QueryUnableToTranslateMethod(
+                            methodCallExpression.Method.DeclaringType?.DisplayName(),
+                            methodCallExpression.Method.Name));
                 }
             }
 
@@ -516,8 +524,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 => expression is UnaryExpression unaryExpression
                     && (unaryExpression.NodeType == ExpressionType.Convert || unaryExpression.NodeType == ExpressionType.ConvertChecked)
                     && unaryExpression.Type == typeof(object)
-                    ? unaryExpression.Operand
-                    : expression;
+                        ? unaryExpression.Operand
+                        : expression;
         }
 
         /// <summary>
@@ -535,7 +543,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override Expression VisitNewArray(NewArrayExpression newArrayExpression) => null;
+        protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
+            => null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -619,7 +628,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                 var derivedType = entityType.GetDerivedTypes().SingleOrDefault(et => et.ClrType == typeBinaryExpression.TypeOperand);
                 if (derivedType != null
-                    && TryBindMember(entityReferenceExpression,
+                    && TryBindMember(
+                        entityReferenceExpression,
                         MemberIdentity.Create(entityType.GetDiscriminatorProperty().Name)) is SqlExpression discriminatorColumn)
                 {
                     var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
@@ -646,8 +656,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             }
 
             var result = member.MemberInfo != null
-                ? entityReferenceExpression.ParameterEntity.BindMember(member.MemberInfo, entityReferenceExpression.Type, clientEval: false, out _)
-                : entityReferenceExpression.ParameterEntity.BindMember(member.Name, entityReferenceExpression.Type, clientEval: false, out _);
+                ? entityReferenceExpression.ParameterEntity.BindMember(
+                    member.MemberInfo, entityReferenceExpression.Type, clientEval: false, out _)
+                : entityReferenceExpression.ParameterEntity.BindMember(
+                    member.Name, entityReferenceExpression.Type, clientEval: false, out _);
 
             if (result == null)
             {
@@ -661,7 +673,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             {
                 EntityProjectionExpression entityProjectionExpression => new EntityReferenceExpression(entityProjectionExpression),
                 ObjectArrayProjectionExpression objectArrayProjectionExpression
-                    => new EntityReferenceExpression(objectArrayProjectionExpression.InnerProjection),
+                => new EntityReferenceExpression(objectArrayProjectionExpression.InnerProjection),
                 _ => result
             };
         }
@@ -723,7 +735,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             {
                 case SqlConstantExpression sqlConstantExpression:
                     var values = (IEnumerable)sqlConstantExpression.Value;
-                    var propertyValueList = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(property.ClrType.MakeNullable()));
+                    var propertyValueList =
+                        (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(property.ClrType.MakeNullable()));
                     var propertyGetter = property.GetGetter();
                     foreach (var value in values)
                     {
@@ -734,7 +747,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     break;
 
                 case SqlParameterExpression sqlParameterExpression
-                when sqlParameterExpression.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal):
+                    when sqlParameterExpression.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal):
                     var lambda = Expression.Lambda(
                         Expression.Call(
                             _parameterListValueExtractor.MakeGenericMethod(entityType.ClrType, property.ClrType.MakeNullable()),
@@ -745,8 +758,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     );
 
                     var newParameterName =
-                        $"{_runtimeParameterPrefix}" +
-                        $"{sqlParameterExpression.Name.Substring(QueryCompilationContext.QueryParameterPrefix.Length)}_{property.Name}";
+                        $"{_runtimeParameterPrefix}"
+                        + $"{sqlParameterExpression.Name.Substring(QueryCompilationContext.QueryParameterPrefix.Length)}_{property.Name}";
 
                     rewrittenSource = _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
                     break;
@@ -755,10 +768,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return false;
             }
 
-            result = Visit(Expression.Call(
-                EnumerableMethods.Contains.MakeGenericMethod(property.ClrType.MakeNullable()),
-                rewrittenSource,
-                CreatePropertyAccessExpression(item, property)));
+            result = Visit(
+                Expression.Call(
+                    EnumerableMethods.Contains.MakeGenericMethod(property.ClrType.MakeNullable()),
+                    rewrittenSource,
+                    CreatePropertyAccessExpression(item, property)));
 
             return true;
         }
@@ -786,10 +800,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     throw new InvalidOperationException(CoreStrings.EntityEqualityOnKeylessEntityNotSupported(entityType1.DisplayName()));
                 }
 
-                result = Visit(primaryKeyProperties1.Select(p =>
-                    Expression.MakeBinary(
-                        nodeType, CreatePropertyAccessExpression(nonNullEntityReference, p), Expression.Constant(null, p.ClrType.MakeNullable())))
-                    .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r)));
+                result = Visit(
+                    primaryKeyProperties1.Select(
+                            p =>
+                                Expression.MakeBinary(
+                                    nodeType, CreatePropertyAccessExpression(nonNullEntityReference, p),
+                                    Expression.Constant(null, p.ClrType.MakeNullable())))
+                        .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r)));
 
                 return true;
             }
@@ -814,11 +831,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 throw new InvalidOperationException(CoreStrings.EntityEqualityOnKeylessEntityNotSupported(entityType.DisplayName()));
             }
 
-            result = Visit(primaryKeyProperties.Select(p =>
-                    Expression.MakeBinary(
-                        nodeType,
-                        CreatePropertyAccessExpression(left, p),
-                        CreatePropertyAccessExpression(right, p)))
+            result = Visit(
+                primaryKeyProperties.Select(
+                        p =>
+                            Expression.MakeBinary(
+                                nodeType,
+                                CreatePropertyAccessExpression(left, p),
+                                CreatePropertyAccessExpression(right, p)))
                     .Aggregate((l, r) => Expression.AndAlso(l, r)));
 
             return true;
@@ -833,7 +852,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         property.GetGetter().GetClrValue(sqlConstantExpression.Value), property.ClrType.MakeNullable());
 
                 case SqlParameterExpression sqlParameterExpression
-                when sqlParameterExpression.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal):
+                    when sqlParameterExpression.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal):
                     var lambda = Expression.Lambda(
                         Expression.Call(
                             _parameterValueExtractor.MakeGenericMethod(property.ClrType.MakeNullable()),
@@ -843,14 +862,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         QueryCompilationContext.QueryContextParameter);
 
                     var newParameterName =
-                        $"{_runtimeParameterPrefix}" +
-                        $"{sqlParameterExpression.Name.Substring(QueryCompilationContext.QueryParameterPrefix.Length)}_{property.Name}";
+                        $"{_runtimeParameterPrefix}"
+                        + $"{sqlParameterExpression.Name.Substring(QueryCompilationContext.QueryParameterPrefix.Length)}_{property.Name}";
 
                     return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
 
                 case MemberInitExpression memberInitExpression
-                when memberInitExpression.Bindings.SingleOrDefault(
-                    mb => mb.Member.Name == property.Name) is MemberAssignment memberAssignment:
+                    when memberInitExpression.Bindings.SingleOrDefault(
+                        mb => mb.Member.Name == property.Name) is MemberAssignment memberAssignment:
                     return memberAssignment.Expression;
 
                 default:
@@ -865,7 +884,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         }
 
         private static List<TProperty> ParameterListValueExtractor<TEntity, TProperty>(
-            QueryContext context, string baseParameterName, IProperty property)
+            QueryContext context,
+            string baseParameterName,
+            IProperty property)
         {
             if (!(context.ParameterValues[baseParameterName] is IEnumerable<TEntity> baseListParameter))
             {
@@ -902,8 +923,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                 case MemberInitExpression memberInitExpression:
                     return CanEvaluate(memberInitExpression.NewExpression)
-                           && memberInitExpression.Bindings.All(
-                               mb => mb is MemberAssignment memberAssignment && CanEvaluate(memberAssignment.Expression));
+                        && memberInitExpression.Bindings.All(
+                            mb => mb is MemberAssignment memberAssignment && CanEvaluate(memberAssignment.Expression));
 
                 default:
                     return false;
@@ -944,14 +965,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             public IEntityType EntityType { get; }
 
             public override Type Type { get; }
-            public override ExpressionType NodeType => ExpressionType.Extension;
+
+            public override ExpressionType NodeType
+                => ExpressionType.Extension;
 
             public Expression Convert(Type type)
             {
                 return type == typeof(object) // Ignore object conversion
                     || type.IsAssignableFrom(Type) // Ignore conversion to base/interface
-                    ? this
-                    : new EntityReferenceExpression(ParameterEntity, type);
+                        ? this
+                        : new EntityReferenceExpression(ParameterEntity, type);
             }
         }
 

@@ -168,7 +168,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionPropertyBuilder HasIdentityColumnSeed(
-            [NotNull] this IConventionPropertyBuilder propertyBuilder, int? seed, bool fromDataAnnotation = false)
+            [NotNull] this IConventionPropertyBuilder propertyBuilder,
+            int? seed,
+            bool fromDataAnnotation = false)
         {
             if (propertyBuilder.CanSetIdentityColumnSeed(seed, fromDataAnnotation))
             {
@@ -187,7 +189,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given value can be set as the seed for SQL Server IDENTITY. </returns>
         public static bool CanSetIdentityColumnSeed(
-            [NotNull] this IConventionPropertyBuilder propertyBuilder, int? seed, bool fromDataAnnotation = false)
+            [NotNull] this IConventionPropertyBuilder propertyBuilder,
+            int? seed,
+            bool fromDataAnnotation = false)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
@@ -205,7 +209,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionPropertyBuilder HasIdentityColumnIncrement(
-            [NotNull] this IConventionPropertyBuilder propertyBuilder, int? increment, bool fromDataAnnotation = false)
+            [NotNull] this IConventionPropertyBuilder propertyBuilder,
+            int? increment,
+            bool fromDataAnnotation = false)
         {
             if (propertyBuilder.CanSetIdentityColumnIncrement(increment, fromDataAnnotation))
             {
@@ -224,7 +230,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given value can be set as the default increment for SQL Server IDENTITY. </returns>
         public static bool CanSetIdentityColumnIncrement(
-            [NotNull] this IConventionPropertyBuilder propertyBuilder, int? increment, bool fromDataAnnotation = false)
+            [NotNull] this IConventionPropertyBuilder propertyBuilder,
+            int? increment,
+            bool fromDataAnnotation = false)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 

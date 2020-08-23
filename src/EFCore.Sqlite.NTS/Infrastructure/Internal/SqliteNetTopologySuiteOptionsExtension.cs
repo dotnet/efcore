@@ -70,11 +70,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
             private new SqliteNetTopologySuiteOptionsExtension Extension
                 => (SqliteNetTopologySuiteOptionsExtension)base.Extension;
 
-            public override bool IsDatabaseProvider => false;
+            public override bool IsDatabaseProvider
+                => false;
 
-            public override string LogFragment => "using NetTopologySuite ";
+            public override string LogFragment
+                => "using NetTopologySuite ";
 
-            public override long GetServiceProviderHashCode() => 0;
+            public override long GetServiceProviderHashCode()
+                => 0;
 
             public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
                 => debugInfo["NetTopologySuite"] = "1";

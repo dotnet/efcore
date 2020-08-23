@@ -832,7 +832,8 @@ namespace Microsoft.EntityFrameworkCore
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(IsDate)));
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="DateTime" /> structure to the specified year, month, day, hour, minute, second, and millisecond.
+        ///     Initializes a new instance of the <see cref="DateTime" /> structure to the specified year, month, day, hour, minute, second, and
+        ///     millisecond.
         ///     Corresponds to the SQL Server's DATETIMEFROMPARTS(year, month, day, hour, minute, second, millisecond).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
@@ -872,7 +873,8 @@ namespace Microsoft.EntityFrameworkCore
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DateFromParts)));
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="DateTime" /> structure to the specified year, month, day, hour, minute, second, fractions, and precision.
+        ///     Initializes a new instance of the <see cref="DateTime" /> structure to the specified year, month, day, hour, minute, second, fractions,
+        ///     and precision.
         ///     Corresponds to the SQL Server's DATETIME2FROMPARTS (year, month, day, hour, minute, seconds, fractions, precision).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
@@ -884,7 +886,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="second">The seconds (0 through 59).</param>
         /// <param name="fractions">The fractional seconds (0 through 9999999).</param>
         /// <param name="precision">The precision of the datetime2 value (0 through 7).</param>
-        /// <returns>New instance of the <see cref="DateTime" /> structure to the specified year, month, day, hour, minute, second, fractions, and precision.</returns>
+        /// <returns>
+        ///     New instance of the <see cref="DateTime" /> structure to the specified year, month, day, hour, minute, second, fractions, and
+        ///     precision.
+        /// </returns>
         public static DateTime DateTime2FromParts(
             [CanBeNull] this DbFunctions _,
             int year,
@@ -898,8 +903,10 @@ namespace Microsoft.EntityFrameworkCore
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DateTime2FromParts)));
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="DateTimeOffset" /> structure to the specified year, month, day, hour, minute, second, fractions, hourOffset, minuteOffset and precision.
-        ///     Corresponds to the SQL Server's DATETIMEOFFSETFROMPARTS (year, month, day, hour, minute, seconds, fractions, hour_offset, minute_offset, precision).
+        ///     Initializes a new instance of the <see cref="DateTimeOffset" /> structure to the specified year, month, day, hour, minute, second,
+        ///     fractions, hourOffset, minuteOffset and precision.
+        ///     Corresponds to the SQL Server's DATETIMEOFFSETFROMPARTS (year, month, day, hour, minute, seconds, fractions, hour_offset,
+        ///     minute_offset, precision).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="year">The year (1753 through 9999).</param>
@@ -912,7 +919,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="hourOffset">The hour portion of the time zone offset (-14 through +14).</param>
         /// <param name="minuteOffset">The minute portion of the time zone offset (0 or 30).</param>
         /// <param name="precision">The precision of the datetimeoffset value (0 through 7).</param>
-        /// <returns>New instance of the <see cref="DateTimeOffset" /> structure to the specified year, month, day, hour, minute, second, fractions, hourOffset, minuteOffset and precision.</returns>
+        /// <returns>
+        ///     New instance of the <see cref="DateTimeOffset" /> structure to the specified year, month, day, hour, minute, second, fractions,
+        ///     hourOffset, minuteOffset and precision.
+        /// </returns>
         public static DateTimeOffset DateTimeOffsetFromParts(
             [CanBeNull] this DbFunctions _,
             int year,

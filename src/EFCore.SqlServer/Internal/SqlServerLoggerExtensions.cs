@@ -143,7 +143,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, sqlServerValueGenerationStrategy.ToString(), otherValueGenerationStrategy,
+                definition.Log(
+                    diagnostics, sqlServerValueGenerationStrategy.ToString(), otherValueGenerationStrategy,
                     property.Name, property.DeclaringEntityType.DisplayName());
             }
 

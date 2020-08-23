@@ -58,8 +58,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return deleteBehavior;
             }
 
-            if (selfReferencingSkipNavigation == selfReferencingSkipNavigation.DeclaringEntityType.GetDeclaredSkipNavigations()
-                .First(s => s == selfReferencingSkipNavigation || s == selfReferencingSkipNavigation.Inverse))
+            if (selfReferencingSkipNavigation
+                == selfReferencingSkipNavigation.DeclaringEntityType.GetDeclaredSkipNavigations()
+                    .First(s => s == selfReferencingSkipNavigation || s == selfReferencingSkipNavigation.Inverse))
             {
                 selfReferencingSkipNavigation.Inverse.ForeignKey?.Builder.OnDelete(
                     GetTargetDeleteBehavior(selfReferencingSkipNavigation.Inverse.ForeignKey));

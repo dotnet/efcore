@@ -38,7 +38,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(IModel model, IDictionary<string, IAnnotation> annotations)
+        public override IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
+            IModel model,
+            IDictionary<string, IAnnotation> annotations)
             => base.GenerateFluentApiCalls(model, annotations)
                 .Concat(GenerateValueGenerationStrategy(annotations, onModel: true))
                 .ToList();
@@ -49,7 +51,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(IProperty property, IDictionary<string, IAnnotation> annotations)
+        public override IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
+            IProperty property,
+            IDictionary<string, IAnnotation> annotations)
             => base.GenerateFluentApiCalls(property, annotations)
                 .Concat(GenerateValueGenerationStrategy(annotations, onModel: false))
                 .ToList();
@@ -110,7 +114,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
             };
 
         private IReadOnlyList<MethodCallCodeFragment> GenerateValueGenerationStrategy(
-            IDictionary<string, IAnnotation> annotations, bool onModel)
+            IDictionary<string, IAnnotation> annotations,
+            bool onModel)
         {
             var strategy = GetAndRemove<SqlServerValueGenerationStrategy>(SqlServerAnnotationNames.ValueGenerationStrategy);
 

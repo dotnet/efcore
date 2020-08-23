@@ -13,7 +13,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
@@ -333,7 +332,8 @@ WHERE name = '{connection.Database}';";
                     })
                     : (Func<string, string, string>?)null;
 
-        private static string EscapeLiteral(string s) => $"N'{s}'";
+        private static string EscapeLiteral(string s)
+            => $"N'{s}'";
 
         private IReadOnlyDictionary<string, (string, string)> GetTypeAliases(DbConnection connection)
         {

@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Newtonsoft.Json.Linq;
 
 // ReSharper disable once CheckNamespace
@@ -117,6 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                             {
                                 newKey = entityTypeBuilder.HasKey(new[] { idProperty, partitionKeyProperty })?.Metadata;
                             }
+
                             entityTypeBuilder.HasNoKey(new[] { idProperty });
                         }
                     }

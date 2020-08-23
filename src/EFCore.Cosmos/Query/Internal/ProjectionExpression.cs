@@ -60,7 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override Type Type => Expression.Type;
+        public override Type Type
+            => Expression.Type;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -68,7 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public sealed override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType
+            => ExpressionType.Extension;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -120,13 +122,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is ProjectionExpression projectionExpression
-                   && Equals(projectionExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is ProjectionExpression projectionExpression
+                    && Equals(projectionExpression));
 
         private bool Equals(ProjectionExpression projectionExpression)
             => string.Equals(Alias, projectionExpression.Alias)
-               && Expression.Equals(projectionExpression.Expression);
+                && Expression.Equals(projectionExpression.Expression);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -134,6 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override int GetHashCode() => HashCode.Combine(Alias, Expression);
+        public override int GetHashCode()
+            => HashCode.Combine(Alias, Expression);
     }
 }

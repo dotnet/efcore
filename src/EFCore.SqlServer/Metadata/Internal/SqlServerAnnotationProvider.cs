@@ -149,8 +149,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
             if (includeProperties != null)
             {
                 var includeColumns = (IReadOnlyList<string>)includeProperties
-                    .Select(p => modelIndex.DeclaringEntityType.FindProperty(p)
-                    .GetColumnName(StoreObjectIdentifier.Table(table.Name, table.Schema)))
+                    .Select(
+                        p => modelIndex.DeclaringEntityType.FindProperty(p)
+                            .GetColumnName(StoreObjectIdentifier.Table(table.Name, table.Schema)))
                     .ToArray();
 
                 yield return new Annotation(
@@ -184,11 +185,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
         public override IEnumerable<IAnnotation> For(IColumn column)
         {
             var table = StoreObjectIdentifier.Table(column.Table.Name, column.Table.Schema);
-            var property = column.PropertyMappings.Where(m =>
-                m.TableMapping.IsSharedTablePrincipal && m.TableMapping.EntityType == m.Property.DeclaringEntityType)
+            var property = column.PropertyMappings.Where(
+                    m =>
+                        m.TableMapping.IsSharedTablePrincipal && m.TableMapping.EntityType == m.Property.DeclaringEntityType)
                 .Select(m => m.Property)
-                .FirstOrDefault(p => p.GetValueGenerationStrategy(table)
-                    == SqlServerValueGenerationStrategy.IdentityColumn);
+                .FirstOrDefault(
+                    p => p.GetValueGenerationStrategy(table)
+                        == SqlServerValueGenerationStrategy.IdentityColumn);
             if (property != null)
             {
                 var seed = property.GetIdentitySeed(table);

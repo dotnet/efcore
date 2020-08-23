@@ -84,7 +84,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IReadOnlyList<ProjectionExpression> Projection => _projection;
+        public virtual IReadOnlyList<ProjectionExpression> Projection
+            => _projection;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -100,7 +101,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IReadOnlyList<OrderingExpression> Orderings => _orderings;
+        public virtual IReadOnlyList<OrderingExpression> Orderings
+            => _orderings;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -143,7 +145,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         public virtual Expression GetMappedProjection([NotNull] ProjectionMember projectionMember)
             => _projectionMapping[projectionMember];
 
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -170,12 +171,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return GetString(_partitionKeyValueConverter, constantExpression.Value);
 
                 case ParameterExpression parameterExpression
-                when parameterValues.TryGetValue(parameterExpression.Name, out var value):
+                    when parameterValues.TryGetValue(parameterExpression.Name, out var value):
                     return GetString(_partitionKeyValueConverter, value);
 
                 default:
                     return null;
-
             }
 
             static string GetString(ValueConverter converter, object value)
@@ -248,8 +248,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int AddToProjection([NotNull] ObjectArrayProjectionExpression objectArrayProjection) =>
-            AddToProjection(objectArrayProjection, null);
+        public virtual int AddToProjection([NotNull] ObjectArrayProjectionExpression objectArrayProjection)
+            => AddToProjection(objectArrayProjection, null);
 
         private int AddToProjection([NotNull] Expression expression, string alias)
         {
@@ -260,8 +260,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             }
 
             var baseAlias = alias
-                            ?? (expression as IAccessExpression)?.Name
-                            ?? "c";
+                ?? (expression as IAccessExpression)?.Name
+                ?? "c";
 
             var currentAlias = baseAlias;
             var counter = 0;
@@ -421,7 +421,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override Type Type => typeof(object);
+        public override Type Type
+            => typeof(object);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -429,7 +430,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public sealed override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType
+            => ExpressionType.Extension;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

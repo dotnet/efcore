@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Specify the partition key for partition used for the query. Required when using
-        ///     a resource token that provides permission based on a partition key for authentication,  
+        ///     a resource token that provides permission based on a partition key for authentication,
         /// </summary>
         /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
         /// <param name="source"> The source query. </param>

@@ -47,10 +47,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             DbType? dbType = null)
             : base(
                 new RelationalTypeMappingParameters(
-                        new CoreTypeMappingParameters(typeof(DateTime)),
-                        storeType,
-                        StoreTypePostfix.Precision,
-                        dbType))
+                    new CoreTypeMappingParameters(typeof(DateTime)),
+                    storeType,
+                    StoreTypePostfix.Precision,
+                    dbType))
         {
         }
 

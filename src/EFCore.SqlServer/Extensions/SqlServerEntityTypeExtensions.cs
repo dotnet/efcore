@@ -37,7 +37,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static bool? SetIsMemoryOptimized(
-            [NotNull] this IConventionEntityType entityType, bool? memoryOptimized, bool fromDataAnnotation = false)
+            [NotNull] this IConventionEntityType entityType,
+            bool? memoryOptimized,
+            bool fromDataAnnotation = false)
         {
             entityType.SetOrRemoveAnnotation(SqlServerAnnotationNames.MemoryOptimized, memoryOptimized, fromDataAnnotation);
 

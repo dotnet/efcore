@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                 storeName = projection.Alias;
                             }
                             else if (projectionExpression is UnaryExpression convertExpression
-                                     && convertExpression.NodeType == ExpressionType.Convert)
+                                && convertExpression.NodeType == ExpressionType.Convert)
                             {
                                 // Unwrap EntityProjectionExpression when the root entity is not projected
                                 projectionExpression = ((UnaryExpression)convertExpression.Operand).Operand;

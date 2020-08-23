@@ -63,7 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override ShapedQueryExpression TranslateOrderBy(
-            ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
+            ShapedQueryExpression source,
+            LambdaExpression keySelector,
+            bool ascending)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(keySelector, nameof(keySelector));
@@ -121,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
         private static Type GetProviderType(SqlExpression expression)
             => expression.TypeMapping?.Converter?.ProviderClrType
-               ?? expression.TypeMapping?.ClrType
-               ?? expression.Type;
+                ?? expression.TypeMapping?.ClrType
+                ?? expression.Type;
     }
 }

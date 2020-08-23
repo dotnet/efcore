@@ -70,14 +70,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) });
 
         private static readonly MethodInfo _firstOrDefaultMethodInfoWithoutArgs
-             = typeof(Enumerable).GetRuntimeMethods().Single(
-                 m => m.Name == nameof(Enumerable.FirstOrDefault)
-                 && m.GetParameters().Length == 1).MakeGenericMethod(new[] { typeof(char) });
+            = typeof(Enumerable).GetRuntimeMethods().Single(
+                m => m.Name == nameof(Enumerable.FirstOrDefault)
+                    && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
 
         private static readonly MethodInfo _lastOrDefaultMethodInfoWithoutArgs
-             = typeof(Enumerable).GetRuntimeMethods().Single(
+            = typeof(Enumerable).GetRuntimeMethods().Single(
                 m => m.Name == nameof(Enumerable.LastOrDefault)
-                && m.GetParameters().Length == 1).MakeGenericMethod(new[] { typeof(char) });
+                    && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -102,7 +102,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SqlExpression Translate(
-            SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments, IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+            SqlExpression instance,
+            MethodInfo method,
+            IReadOnlyList<SqlExpression> arguments,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
             Check.NotNull(method, nameof(method));
             Check.NotNull(arguments, nameof(arguments));
@@ -332,20 +335,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     method.ReturnType);
             }
 
-
             if (_lastOrDefaultMethodInfoWithoutArgs.Equals(method))
             {
                 var argument = arguments[0];
                 return _sqlExpressionFactory.Function(
                     "SUBSTRING",
-                    new[] { argument,
-                          _sqlExpressionFactory.Function(
-                                "LEN",
-                                new[] { argument },
-                                nullable: true,
-                                argumentsPropagateNullability: new[] { true },
-                                typeof(int)),
-                        _sqlExpressionFactory.Constant(1) },
+                    new[]
+                    {
+                        argument,
+                        _sqlExpressionFactory.Function(
+                            "LEN",
+                            new[] { argument },
+                            nullable: true,
+                            argumentsPropagateNullability: new[] { true },
+                            typeof(int)),
+                        _sqlExpressionFactory.Constant(1)
+                    },
                     nullable: true,
                     argumentsPropagateNullability: new[] { true, true, true },
                     method.ReturnType);
@@ -439,7 +444,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         }
 
         // See https://docs.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql
-        private bool IsLikeWildChar(char c) => c == '%' || c == '_' || c == '[';
+        private bool IsLikeWildChar(char c)
+            => c == '%' || c == '_' || c == '[';
 
         private string EscapeLikePattern(string pattern)
         {

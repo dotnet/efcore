@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
             return !(base.VisitBinary(binaryExpression) is SqlExpression visitedExpression)
-                ? (Expression)null
+                ? null
                 : (Expression)(visitedExpression is SqlBinaryExpression sqlBinary
                     && _arithmeticOperatorTypes.Contains(sqlBinary.OperatorType)
                     && (_dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Left))
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     "DATALENGTH",
                     new[] { sqlExpression },
                     nullable: true,
-                    argumentsPropagateNullability: new bool[] { true },
+                    argumentsPropagateNullability: new[] { true },
                     isBinaryMaxDataType ? typeof(long) : typeof(int));
 
                 return isBinaryMaxDataType
@@ -123,6 +123,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     typeof(long)));
         }
 
-        private static string GetProviderType(SqlExpression expression) => expression.TypeMapping?.StoreType;
+        private static string GetProviderType(SqlExpression expression)
+            => expression.TypeMapping?.StoreType;
     }
 }

@@ -290,18 +290,22 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             => expression == null
                 ? null
                 : expression.TypeMapping?.Converter?.ProviderClrType
-                   ?? expression.TypeMapping?.ClrType
-                   ?? expression.Type;
+                ?? expression.TypeMapping?.ClrType
+                ?? expression.Type;
 
-        private static bool AreOperandsDecimals(SqlBinaryExpression sqlExpression) => GetProviderType(sqlExpression.Left) == typeof(decimal)
-            && GetProviderType(sqlExpression.Right) == typeof(decimal);
+        private static bool AreOperandsDecimals(SqlBinaryExpression sqlExpression)
+            => GetProviderType(sqlExpression.Left) == typeof(decimal)
+                && GetProviderType(sqlExpression.Right) == typeof(decimal);
 
-        private static bool AttemptDecimalCompare(SqlBinaryExpression sqlBinary) =>
-            AreOperandsDecimals(sqlBinary)
-            && new[]
-            {
-                ExpressionType.GreaterThan, ExpressionType.GreaterThanOrEqual, ExpressionType.LessThan, ExpressionType.LessThanOrEqual
-            }.Contains(sqlBinary.OperatorType);
+        private static bool AttemptDecimalCompare(SqlBinaryExpression sqlBinary)
+            => AreOperandsDecimals(sqlBinary)
+                && new[]
+                {
+                    ExpressionType.GreaterThan,
+                    ExpressionType.GreaterThanOrEqual,
+                    ExpressionType.LessThan,
+                    ExpressionType.LessThanOrEqual
+                }.Contains(sqlBinary.OperatorType);
 
         private Expression DoDecimalCompare(SqlExpression visitedExpression, ExpressionType op, SqlExpression left, SqlExpression right)
         {
@@ -323,10 +327,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             };
         }
 
-        private static bool AttemptDecimalArithmetic(SqlBinaryExpression sqlBinary) =>
-            AreOperandsDecimals(sqlBinary)
-            && new[] { ExpressionType.Add, ExpressionType.Subtract, ExpressionType.Multiply, ExpressionType.Divide }.Contains(
-                sqlBinary.OperatorType);
+        private static bool AttemptDecimalArithmetic(SqlBinaryExpression sqlBinary)
+            => AreOperandsDecimals(sqlBinary)
+                && new[] { ExpressionType.Add, ExpressionType.Subtract, ExpressionType.Multiply, ExpressionType.Divide }.Contains(
+                    sqlBinary.OperatorType);
 
         private Expression DoDecimalArithmetics(SqlExpression visitedExpression, ExpressionType op, SqlExpression left, SqlExpression right)
         {

@@ -48,7 +48,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static string SetHiLoSequenceName(
-            [NotNull] this IConventionModel model, [CanBeNull] string name, bool fromDataAnnotation = false)
+            [NotNull] this IConventionModel model,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
         {
             Check.NullButNotEmpty(name, nameof(name));
 
@@ -94,7 +96,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static string SetHiLoSequenceSchema(
-            [NotNull] this IConventionModel model, [CanBeNull] string value, bool fromDataAnnotation = false)
+            [NotNull] this IConventionModel model,
+            [CanBeNull] string value,
+            bool fromDataAnnotation = false)
         {
             Check.NullButNotEmpty(value, nameof(value));
 
@@ -180,7 +184,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static int? SetIdentityIncrement(
-            [NotNull] this IConventionModel model, int? increment, bool fromDataAnnotation = false)
+            [NotNull] this IConventionModel model,
+            int? increment,
+            bool fromDataAnnotation = false)
         {
             model.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.IdentityIncrement,
@@ -214,7 +220,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model. </param>
         /// <param name="value"> The value to set. </param>
         public static void SetValueGenerationStrategy(
-            [NotNull] this IMutableModel model, SqlServerValueGenerationStrategy? value)
+            [NotNull] this IMutableModel model,
+            SqlServerValueGenerationStrategy? value)
             => model.SetOrRemoveAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, value);
 
         /// <summary>
@@ -226,7 +233,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static SqlServerValueGenerationStrategy? SetValueGenerationStrategy(
-            [NotNull] this IConventionModel model, SqlServerValueGenerationStrategy? value, bool fromDataAnnotation = false)
+            [NotNull] this IConventionModel model,
+            SqlServerValueGenerationStrategy? value,
+            bool fromDataAnnotation = false)
         {
             model.SetOrRemoveAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, value, fromDataAnnotation);
 
@@ -265,7 +274,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static string SetDatabaseMaxSize(
-            [NotNull] this IConventionModel model, [CanBeNull] string value, bool fromDataAnnotation = false)
+            [NotNull] this IConventionModel model,
+            [CanBeNull] string value,
+            bool fromDataAnnotation = false)
         {
             model.SetOrRemoveAnnotation(SqlServerAnnotationNames.MaxDatabaseSize, value, fromDataAnnotation);
 
@@ -304,7 +315,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static string SetServiceTierSql(
-            [NotNull] this IConventionModel model, [CanBeNull] string value, bool fromDataAnnotation = false)
+            [NotNull] this IConventionModel model,
+            [CanBeNull] string value,
+            bool fromDataAnnotation = false)
         {
             model.SetOrRemoveAnnotation(SqlServerAnnotationNames.ServiceTierSql, value, fromDataAnnotation);
 
@@ -343,7 +356,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static string SetPerformanceLevelSql(
-            [NotNull] this IConventionModel model, [CanBeNull] string value, bool fromDataAnnotation = false)
+            [NotNull] this IConventionModel model,
+            [CanBeNull] string value,
+            bool fromDataAnnotation = false)
         {
             model.SetOrRemoveAnnotation(SqlServerAnnotationNames.PerformanceLevelSql, value, fromDataAnnotation);
 

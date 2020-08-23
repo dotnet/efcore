@@ -31,7 +31,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerNetTopologySuiteMemberTranslatorPlugin(
-            [NotNull] IRelationalTypeMappingSource typeMappingSource, [NotNull] ISqlExpressionFactory sqlExpressionFactory)
+            [NotNull] IRelationalTypeMappingSource typeMappingSource,
+            [NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             Translators = new IMemberTranslator[]
             {
