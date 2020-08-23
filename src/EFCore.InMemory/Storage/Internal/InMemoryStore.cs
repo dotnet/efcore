@@ -227,7 +227,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 baseTable = table;
             }
 
-
             return _tables[_useNameMatching ? (object)entityType.FullName() : entityType];
         }
     }

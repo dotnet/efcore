@@ -54,9 +54,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && caseExpression.ElseResult is CaseExpression nestedCaseExpression
                 && nestedCaseExpression.Operand == null)
             {
-                return VisitExtension(_sqlExpressionFactory.Case(
-                    caseExpression.WhenClauses.Union(nestedCaseExpression.WhenClauses).ToList(),
-                    nestedCaseExpression.ElseResult));
+                return VisitExtension(
+                    _sqlExpressionFactory.Case(
+                        caseExpression.WhenClauses.Union(nestedCaseExpression.WhenClauses).ToList(),
+                        nestedCaseExpression.ElseResult));
             }
 
             if (extensionExpression is SqlBinaryExpression sqlBinaryExpression)
@@ -73,15 +74,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && caseExpression.Operand == null
                 && caseExpression.ElseResult == null
                 && caseExpression.WhenClauses.Count == 3
-                && caseExpression.WhenClauses.All(c => c.Test is SqlBinaryExpression
-                    && c.Result is SqlConstantExpression constant
-                    && constant.Value is int))
+                && caseExpression.WhenClauses.All(
+                    c => c.Test is SqlBinaryExpression
+                        && c.Result is SqlConstantExpression constant
+                        && constant.Value is int))
             {
-                var whenClauses = caseExpression.WhenClauses.Select(c => new
-                {
-                    test = (SqlBinaryExpression)c.Test,
-                    resultValue = (int)((SqlConstantExpression)c.Result).Value
-                }).ToList();
+                var whenClauses = caseExpression.WhenClauses.Select(
+                    c => new { test = (SqlBinaryExpression)c.Test, resultValue = (int)((SqlConstantExpression)c.Result).Value }).ToList();
 
                 if (whenClauses[0].test.Left.Equals(whenClauses[1].test.Left)
                     && whenClauses[1].test.Left.Equals(whenClauses[2].test.Left)
@@ -125,63 +124,71 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 // CompareTo(a, b) != 1 -> a <= b
                 // CompareTo(a, b) != -1 -> a >= b
                 case ExpressionType.NotEqual:
-                    return (SqlExpression)Visit(intValue switch
-                    {
-                        0 => _sqlExpressionFactory.NotEqual(testLeft, testRight),
-                        1 => _sqlExpressionFactory.LessThanOrEqual(testLeft, testRight),
-                        _ => _sqlExpressionFactory.GreaterThanOrEqual(testLeft, testRight),
-                    });
+                    return (SqlExpression)Visit(
+                        intValue switch
+                        {
+                            0 => _sqlExpressionFactory.NotEqual(testLeft, testRight),
+                            1 => _sqlExpressionFactory.LessThanOrEqual(testLeft, testRight),
+                            _ => _sqlExpressionFactory.GreaterThanOrEqual(testLeft, testRight),
+                        });
 
                 // CompareTo(a, b) > 0 -> a > b
                 // CompareTo(a, b) > 1 -> false
                 // CompareTo(a, b) > -1 -> a >= b
                 case ExpressionType.GreaterThan:
-                    return (SqlExpression)Visit(intValue switch
-                    {
-                        0 => _sqlExpressionFactory.GreaterThan(testLeft, testRight),
-                        1 => _sqlExpressionFactory.Constant(false, sqlBinaryExpression.TypeMapping),
-                        _ => _sqlExpressionFactory.GreaterThanOrEqual(testLeft, testRight),
-                    });
+                    return (SqlExpression)Visit(
+                        intValue switch
+                        {
+                            0 => _sqlExpressionFactory.GreaterThan(testLeft, testRight),
+                            1 => _sqlExpressionFactory.Constant(false, sqlBinaryExpression.TypeMapping),
+                            _ => _sqlExpressionFactory.GreaterThanOrEqual(testLeft, testRight),
+                        });
 
                 // CompareTo(a, b) >= 0 -> a >= b
                 // CompareTo(a, b) >= 1 -> a > b
                 // CompareTo(a, b) >= -1 -> true
                 case ExpressionType.GreaterThanOrEqual:
-                    return (SqlExpression)Visit(intValue switch
-                    {
-                        0 => _sqlExpressionFactory.GreaterThanOrEqual(testLeft, testRight),
-                        1 => _sqlExpressionFactory.GreaterThan(testLeft, testRight),
-                        _ => _sqlExpressionFactory.Constant(true, sqlBinaryExpression.TypeMapping),
-                    });
+                    return (SqlExpression)Visit(
+                        intValue switch
+                        {
+                            0 => _sqlExpressionFactory.GreaterThanOrEqual(testLeft, testRight),
+                            1 => _sqlExpressionFactory.GreaterThan(testLeft, testRight),
+                            _ => _sqlExpressionFactory.Constant(true, sqlBinaryExpression.TypeMapping),
+                        });
 
                 // CompareTo(a, b) < 0 -> a < b
                 // CompareTo(a, b) < 1 -> a <= b
                 // CompareTo(a, b) < -1 -> false
                 case ExpressionType.LessThan:
-                    return (SqlExpression)Visit(intValue switch
-                    {
-                        0 => _sqlExpressionFactory.LessThan(testLeft, testRight),
-                        1 => _sqlExpressionFactory.LessThanOrEqual(testLeft, testRight),
-                        _ => _sqlExpressionFactory.Constant(false, sqlBinaryExpression.TypeMapping),
-                    });
+                    return (SqlExpression)Visit(
+                        intValue switch
+                        {
+                            0 => _sqlExpressionFactory.LessThan(testLeft, testRight),
+                            1 => _sqlExpressionFactory.LessThanOrEqual(testLeft, testRight),
+                            _ => _sqlExpressionFactory.Constant(false, sqlBinaryExpression.TypeMapping),
+                        });
 
                 // operatorType == ExpressionType.LessThanOrEqual
                 // CompareTo(a, b) <= 0 -> a <= b
                 // CompareTo(a, b) <= 1 -> true
                 // CompareTo(a, b) <= -1 -> a < b
                 default:
-                    return (SqlExpression)Visit(intValue switch
-                    {
-                        0 => _sqlExpressionFactory.LessThanOrEqual(testLeft, testRight),
-                        1 => _sqlExpressionFactory.Constant(true, sqlBinaryExpression.TypeMapping),
-                        _ => _sqlExpressionFactory.LessThan(testLeft, testRight),
-                    });
-            };
+                    return (SqlExpression)Visit(
+                        intValue switch
+                        {
+                            0 => _sqlExpressionFactory.LessThanOrEqual(testLeft, testRight),
+                            1 => _sqlExpressionFactory.Constant(true, sqlBinaryExpression.TypeMapping),
+                            _ => _sqlExpressionFactory.LessThan(testLeft, testRight),
+                        });
+            }
+
+            ;
         }
 
         private Expression SimplifySqlBinary(SqlBinaryExpression sqlBinaryExpression)
         {
-            var sqlConstantComponent = sqlBinaryExpression.Left as SqlConstantExpression ?? sqlBinaryExpression.Right as SqlConstantExpression;
+            var sqlConstantComponent =
+                sqlBinaryExpression.Left as SqlConstantExpression ?? sqlBinaryExpression.Right as SqlConstantExpression;
             var caseComponent = sqlBinaryExpression.Left as CaseExpression ?? sqlBinaryExpression.Right as CaseExpression;
 
             // generic CASE statement comparison optimization:
@@ -224,11 +231,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var right = (SqlExpression)Visit(sqlBinaryExpression.Right);
 
             if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso
-                 || sqlBinaryExpression.OperatorType == ExpressionType.OrElse)
+                || sqlBinaryExpression.OperatorType == ExpressionType.OrElse)
             {
                 var leftCandidateInfo = GetInExressionCandidateInfo(left);
                 var rightCandidateInfo = GetInExressionCandidateInfo(right);
-                if (leftCandidateInfo.OptimizeCandidate && rightCandidateInfo.OptimizeCandidate
+                if (leftCandidateInfo.OptimizeCandidate
+                    && rightCandidateInfo.OptimizeCandidate
                     && leftCandidateInfo.ColumnExpression == rightCandidateInfo.ColumnExpression
                     && leftCandidateInfo.OperationType == rightCandidateInfo.OperationType)
                 {
@@ -240,8 +248,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         && !(rightCandidateInfo.ConstantValue is string)
                         && !(rightCandidateInfo.ConstantValue is byte[]);
 
-                    if ((leftCandidateInfo.OperationType == ExpressionType.Equal && sqlBinaryExpression.OperatorType == ExpressionType.OrElse)
-                        || (leftCandidateInfo.OperationType == ExpressionType.NotEqual && sqlBinaryExpression.OperatorType == ExpressionType.AndAlso))
+                    if ((leftCandidateInfo.OperationType == ExpressionType.Equal
+                            && sqlBinaryExpression.OperatorType == ExpressionType.OrElse)
+                        || (leftCandidateInfo.OperationType == ExpressionType.NotEqual
+                            && sqlBinaryExpression.OperatorType == ExpressionType.AndAlso))
                     {
                         object leftValue;
                         object rightValue;
@@ -281,7 +291,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             _sqlExpressionFactory.Constant(resultArray, leftCandidateInfo.TypeMapping),
                             leftCandidateInfo.OperationType == ExpressionType.NotEqual);
                     }
-                    else if (leftConstantIsEnumerable && rightConstantIsEnumerable)
+
+                    if (leftConstantIsEnumerable && rightConstantIsEnumerable)
                     {
                         // a IN (1, 2, 3) && a IN (2, 3, 4) -> a IN (2, 3)
                         // a NOT IN (1, 2, 3) || a NOT IN (2, 3, 4) -> a NOT IN (2, 3)
@@ -290,9 +301,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             (IEnumerable)rightCandidateInfo.ConstantValue);
 
                         return _sqlExpressionFactory.In(
-                                leftCandidateInfo.ColumnExpression,
-                                _sqlExpressionFactory.Constant(resultArray, leftCandidateInfo.TypeMapping),
-                                leftCandidateInfo.OperationType == ExpressionType.NotEqual);
+                            leftCandidateInfo.ColumnExpression,
+                            _sqlExpressionFactory.Constant(resultArray, leftCandidateInfo.TypeMapping),
+                            leftCandidateInfo.OperationType == ExpressionType.NotEqual);
                     }
                 }
             }
@@ -363,7 +374,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return result;
         }
 
-        private (bool OptimizeCandidate, ColumnExpression ColumnExpression, object ConstantValue, RelationalTypeMapping TypeMapping, ExpressionType OperationType) GetInExressionCandidateInfo(SqlExpression sqlExpression)
+        private (bool OptimizeCandidate, ColumnExpression ColumnExpression, object ConstantValue, RelationalTypeMapping TypeMapping,
+            ExpressionType OperationType) GetInExressionCandidateInfo(SqlExpression sqlExpression)
         {
             if (sqlExpression is SqlUnaryExpression sqlUnaryExpression
                 && sqlUnaryExpression.OperatorType == ExpressionType.Not)

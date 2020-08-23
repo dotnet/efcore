@@ -60,7 +60,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override ResultSetMapping AppendSelectAffectedCountCommand(
-            StringBuilder commandStringBuilder, string name, string schema, int commandPosition)
+            StringBuilder commandStringBuilder,
+            string name,
+            string schema,
+            int commandPosition)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotEmpty(name, nameof(name));

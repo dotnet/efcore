@@ -14,7 +14,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
-    ///     A comparer which implements <see cref="IEqualityComparer{T}"/> for <see cref="Expression"/>.
+    ///     A comparer which implements <see cref="IEqualityComparer{T}" /> for <see cref="Expression" />.
     /// </summary>
     public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression>
     {
@@ -33,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Returns the hash code for given expression.
         /// </summary>
-        /// <param name="obj"> The <see cref="Expression"/> obj to compute hash code for. </param>
-        /// <returns> The hash code value for <paramref name="obj"/>. </returns>
+        /// <param name="obj"> The <see cref="Expression" /> obj to compute hash code for. </param>
+        /// <returns> The hash code value for <paramref name="obj" />. </returns>
         public int GetHashCode(Expression obj)
         {
             if (obj == null)
@@ -75,6 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             hash.Add(constantExpression.Value);
                         }
+
                         break;
 
                     case DefaultExpression defaultExpression:
@@ -190,6 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 hash.Add(handler.Test);
                             }
                         }
+
                         break;
 
                     case TypeBinaryExpression typeBinaryExpression:
@@ -282,7 +284,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="x"> The left expression. </param>
         /// <param name="y"> The right expression. </param>
         /// <returns> <see langword="true" /> if the expressions are equal, <see langword="false" /> otherwise. </returns>
-        public bool Equals(Expression x, Expression y) => new ExpressionComparer().Compare(x, y);
+        public bool Equals(Expression x, Expression y)
+            => new ExpressionComparer().Compare(x, y);
 
         private struct ExpressionComparer
         {
@@ -331,7 +334,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     NewArrayExpression leftNewArray => CompareNewArray(leftNewArray, (NewArrayExpression)right),
                     NewExpression leftNew => CompareNew(leftNew, (NewExpression)right),
                     ParameterExpression leftParameter => CompareParameter(leftParameter, (ParameterExpression)right),
-                    RuntimeVariablesExpression leftRuntimeVariables => CompareRuntimeVariables(leftRuntimeVariables, (RuntimeVariablesExpression)right),
+                    RuntimeVariablesExpression leftRuntimeVariables => CompareRuntimeVariables(
+                        leftRuntimeVariables, (RuntimeVariablesExpression)right),
                     SwitchExpression leftSwitch => CompareSwitch(leftSwitch, (SwitchExpression)right),
                     TryExpression leftTry => CompareTry(leftTry, (TryExpression)right),
                     TypeBinaryExpression leftTypeBinary => CompareTypeBinary(leftTypeBinary, (TypeBinaryExpression)right),
@@ -400,6 +404,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             _parameterScope.Remove(a.Parameters[j]);
                         }
+
                         return false;
                     }
 
@@ -452,8 +457,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             private bool CompareParameter(ParameterExpression a, ParameterExpression b)
                 => _parameterScope != null
                     && _parameterScope.TryGetValue(a, out var mapped)
-                    ? mapped.Name == b.Name
-                    : a.Name == b.Name;
+                        ? mapped.Name == b.Name
+                        : a.Name == b.Name;
 
             private bool CompareRuntimeVariables(RuntimeVariablesExpression a, RuntimeVariablesExpression b)
                 => CompareExpressionList(a.Variables, b.Variables);

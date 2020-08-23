@@ -109,9 +109,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         {
                             var targetEntry = stateManager.GetOrCreateEntry(relatedEntity, targetType);
                             await TraverseGraphAsync(
-                                (EntityEntryGraphNode<TState>)node.CreateNode(node, targetEntry, navigation),
-                                handleNode,
-                                cancellationToken)
+                                    (EntityEntryGraphNode<TState>)node.CreateNode(node, targetEntry, navigation),
+                                    handleNode,
+                                    cancellationToken)
                                 .ConfigureAwait(false);
                         }
                     }
@@ -119,9 +119,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         var targetEntry = stateManager.GetOrCreateEntry(navigationValue, targetType);
                         await TraverseGraphAsync(
-                            (EntityEntryGraphNode<TState>)node.CreateNode(node, targetEntry, navigation),
-                            handleNode,
-                            cancellationToken)
+                                (EntityEntryGraphNode<TState>)node.CreateNode(node, targetEntry, navigation),
+                                handleNode,
+                                cancellationToken)
                             .ConfigureAwait(false);
                     }
                 }

@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     internal abstract class TestContext<TEntity> : DbContext
-            where TEntity : class
+        where TEntity : class
     {
         private static readonly InMemoryDatabaseRoot _dbRoot = new InMemoryDatabaseRoot();
 

@@ -10,50 +10,42 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class InheritanceRelationshipsQueryFixtureBase : SharedStoreFixtureBase<InheritanceRelationshipsContext>, IQueryFixtureBase
+    public abstract class InheritanceRelationshipsQueryFixtureBase : SharedStoreFixtureBase<InheritanceRelationshipsContext>,
+        IQueryFixtureBase
     {
         protected override string StoreName { get; } = "InheritanceRelationships";
 
-        public Func<DbContext> GetContextCreator() => () => CreateContext();
+        public Func<DbContext> GetContextCreator()
+            => () => CreateContext();
 
-        public ISetSource GetExpectedData() => new InheritanceRelationshipsData();
+        public ISetSource GetExpectedData()
+            => new InheritanceRelationshipsData();
 
         public IReadOnlyDictionary<Type, object> GetEntitySorters()
             => new Dictionary<Type, Func<object, object>>
             {
                 { typeof(BaseCollectionOnBase), e => ((BaseCollectionOnBase)e)?.Id },
                 { typeof(DerivedCollectionOnBase), e => ((DerivedCollectionOnBase)e)?.Id },
-
                 { typeof(BaseCollectionOnDerived), e => ((BaseCollectionOnDerived)e)?.Id },
                 { typeof(DerivedCollectionOnDerived), e => ((DerivedCollectionOnDerived)e)?.Id },
-
                 { typeof(BaseInheritanceRelationshipEntity), e => ((BaseInheritanceRelationshipEntity)e)?.Id },
                 { typeof(DerivedInheritanceRelationshipEntity), e => ((DerivedInheritanceRelationshipEntity)e)?.Id },
-
                 { typeof(BaseReferenceOnBase), e => ((BaseReferenceOnBase)e)?.Id },
                 { typeof(DerivedReferenceOnBase), e => ((DerivedReferenceOnBase)e)?.Id },
-
                 { typeof(BaseReferenceOnDerived), e => ((BaseReferenceOnDerived)e)?.Id },
                 { typeof(DerivedReferenceOnDerived), e => ((DerivedReferenceOnDerived)e)?.Id },
-
                 { typeof(CollectionOnBase), e => ((CollectionOnBase)e)?.Id },
                 { typeof(CollectionOnDerived), e => ((CollectionOnDerived)e)?.Id },
-
                 { typeof(NestedCollectionBase), e => ((NestedCollectionBase)e)?.Id },
                 { typeof(NestedCollectionDerived), e => ((NestedCollectionDerived)e)?.Id },
-
                 { typeof(NestedReferenceBase), e => ((NestedReferenceBase)e)?.Id },
-
                 { typeof(NonEntityBase), e => ((NonEntityBase)e)?.Id },
                 { typeof(PrincipalEntity), e => ((PrincipalEntity)e)?.Id },
-
                 { typeof(OwnedEntity), e => ((OwnedEntity)e)?.Id },
                 { typeof(ReferencedEntity), e => ((ReferencedEntity)e)?.Id },
-
                 { typeof(ReferenceOnBase), e => ((ReferenceOnBase)e)?.Id },
                 { typeof(ReferenceOnDerived), e => ((ReferenceOnDerived)e)?.Id },
             }.ToDictionary(e => e.Key, e => (object)e.Value);
-
 
         public IReadOnlyDictionary<Type, object> GetEntityAsserters()
             => new Dictionary<Type, Action<object, object>>
@@ -88,7 +80,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(ee.Name, aa.Name);
                             Assert.Equal(ee.BaseParentId, aa.BaseParentId);
                             Assert.Equal(ee.DerivedProperty, aa.DerivedProperty);
-
                         }
                     }
                 },
@@ -105,7 +96,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(ee.Id, aa.Id);
                             Assert.Equal(ee.Name, aa.Name);
                             Assert.Equal(ee.ParentId, aa.ParentId);
-
                         }
                     }
                 },
@@ -122,7 +112,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(ee.Id, aa.Id);
                             Assert.Equal(ee.Name, aa.Name);
                             Assert.Equal(ee.ParentId, aa.ParentId);
-
                         }
                     }
                 },
@@ -424,7 +413,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 //{ typeof(OwnedEntity), e => ((OwnedEntity)e)?.Id },
             }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             modelBuilder.Owned<OwnedEntity>();
@@ -434,7 +422,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<DerivedCollectionOnBase>();
             modelBuilder.Entity<DerivedReferenceOnDerived>();
             modelBuilder.Entity<DerivedCollectionOnDerived>();
-
 
             modelBuilder.Entity<BaseCollectionOnBase>().Property(e => e.Id).ValueGeneratedNever();
             modelBuilder.Entity<BaseCollectionOnDerived>().Property(e => e.Id).ValueGeneratedNever();

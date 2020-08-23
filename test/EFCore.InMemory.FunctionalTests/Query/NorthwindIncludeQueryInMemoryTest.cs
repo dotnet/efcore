@@ -8,7 +8,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class NorthwindIncludeQueryInMemoryTest : NorthwindIncludeQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
     {
-        public NorthwindIncludeQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+        public NorthwindIncludeQueryInMemoryTest(
+            NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture,
+            ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;

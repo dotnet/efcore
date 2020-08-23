@@ -73,13 +73,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
 
                 modelBuilder.Owned<OneToOneOwnedWithField>();
-                modelBuilder.Entity<OneToOneOwnerWithField>(e =>
-                {
-                    e.Property(p => p.Id);
-                    e.Property(p => p.AlternateKey);
-                    e.Property(p => p.Description);
-                    e.HasKey(p => p.Id);
-                });
+                modelBuilder.Entity<OneToOneOwnerWithField>(
+                    e =>
+                    {
+                        e.Property(p => p.Id);
+                        e.Property(p => p.AlternateKey);
+                        e.Property(p => p.Description);
+                        e.HasKey(p => p.Id);
+                    });
 
                 modelBuilder.Entity<OneToOneOwnerWithField>()
                     .OwnsOne(
@@ -118,13 +119,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
 
                 modelBuilder.Owned<OneToManyOwnedWithField>();
-                modelBuilder.Entity<OneToManyOwnerWithField>(e =>
-                {
-                    e.Property(p => p.Id);
-                    e.Property(p => p.AlternateKey);
-                    e.Property(p => p.Description);
-                    e.HasKey(p => p.Id);
-                });
+                modelBuilder.Entity<OneToManyOwnerWithField>(
+                    e =>
+                    {
+                        e.Property(p => p.Id);
+                        e.Property(p => p.AlternateKey);
+                        e.Property(p => p.Description);
+                        e.HasKey(p => p.Id);
+                    });
 
                 modelBuilder.Entity<OneToManyOwnerWithField>()
                     .OwnsMany(
@@ -281,14 +283,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         nameof(Customer)),
                     Assert.Throws<InvalidOperationException>(
                         () => modelBuilder
-                                .Entity<Customer>()
-                                .OwnsOne(
-                                    c => c.Details,
-                                    r =>
-                                    {
-                                        r.HasOne(d => d.Customer)
-                                            .WithMany();
-                                    })).Message);
+                            .Entity<Customer>()
+                            .OwnsOne(
+                                c => c.Details,
+                                r =>
+                                {
+                                    r.HasOne(d => d.Customer)
+                                        .WithMany();
+                                })).Message);
             }
 
             [ConditionalFact]
@@ -495,7 +497,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("CustomerId", ownership2.Properties.Single().Name);
 
                 var foreignKey = model.FindEntityType(typeof(SpecialCustomer)).GetReferencingForeignKeys()
-                    .Single(fk => fk.DeclaringEntityType.ClrType == typeof(Order)
+                    .Single(
+                        fk => fk.DeclaringEntityType.ClrType == typeof(Order)
                             && fk.PrincipalToDependent == null);
                 Assert.Same(ownership1.DeclaringEntityType, foreignKey.DeclaringEntityType);
                 Assert.Null(foreignKey.PrincipalToDependent);
@@ -567,7 +570,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                                 ownedNavigationBuilder.HasData(new List<object> { new OrderDetails { OrderId = -1 } });
                                 break;
                             case HasDataOverload.Enumerable | HasDataOverload.Generic:
-                                ownedNavigationBuilder.HasData(new List<OrderDetails>() { new OrderDetails { OrderId = -1 } });
+                                ownedNavigationBuilder.HasData(new List<OrderDetails> { new OrderDetails { OrderId = -1 } });
                                 break;
                             default:
                                 Assert.True(false, $"Unexpected HasData overload specification {hasDataOverload}");
@@ -606,12 +609,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         ob.HasKey(o => o.OrderId);
                         ob.HasData(
                             new Order { OrderId = -2, CustomerId = -1 });
-                        ob.OwnsMany(o => o.Products, pb =>
-                        {
-                            pb.WithOwner(p => p.Order);
-                            pb.Ignore(p => p.Categories);
-                            pb.HasKey(p => p.Id);
-                        });
+                        ob.OwnsMany(
+                            o => o.Products, pb =>
+                            {
+                                pb.WithOwner(p => p.Order);
+                                pb.Ignore(p => p.Categories);
+                                pb.HasKey(p => p.Id);
+                            });
                     });
 
                 var model = modelBuilder.FinalizeModel();
@@ -647,11 +651,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     {
                         r.Ignore(o => o.OrderCombination);
                         r.Ignore(o => o.Details);
-                        r.OwnsMany(o => o.Products, pb =>
-                        {
-                            pb.WithOwner(p => p.Order);
-                            pb.Ignore(p => p.Categories);
-                        });
+                        r.OwnsMany(
+                            o => o.Products, pb =>
+                            {
+                                pb.WithOwner(p => p.Order);
+                                pb.Ignore(p => p.Categories);
+                            });
                     });
 
                 var model = modelBuilder.FinalizeModel();
@@ -693,12 +698,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         r.Ignore(o => o.OrderCombination);
                         r.Ignore(o => o.Details);
                         r.Ignore(o => o.OrderId);
-                        r.OwnsMany(o => o.Products, pb =>
-                        {
-                            pb.WithOwner(p => p.Order);
-                            pb.Ignore(p => p.Categories);
-                            pb.Ignore(p => p.Id);
-                        });
+                        r.OwnsMany(
+                            o => o.Products, pb =>
+                            {
+                                pb.WithOwner(p => p.Order);
+                                pb.Ignore(p => p.Categories);
+                                pb.Ignore(p => p.Id);
+                            });
                     });
 
                 var model = modelBuilder.FinalizeModel();
@@ -1492,9 +1498,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         typeof(OneToOneNavPrincipalOwner).Name),
                     Assert.Throws<InvalidOperationException>(
                         () => modelBuilder
-                                .Entity<OneToOneNavPrincipalOwner>()
-                                .OwnsMany<OwnedNavDependent>("OwnedDependent")).Message
-                 );
+                            .Entity<OneToOneNavPrincipalOwner>()
+                            .OwnsMany<OwnedNavDependent>("OwnedDependent")).Message
+                );
             }
 
             [ConditionalFact]
@@ -1509,8 +1515,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         typeof(OneToManyNavPrincipalOwner).Name),
                     Assert.Throws<InvalidOperationException>(
                         () => modelBuilder
-                                .Entity<OneToManyNavPrincipalOwner>()
-                                .OwnsOne<OwnedOneToManyNavDependent>("OwnedDependents")).Message);
+                            .Entity<OneToManyNavPrincipalOwner>()
+                            .OwnsOne<OwnedOneToManyNavDependent>("OwnedDependents")).Message);
             }
 
             [ConditionalFact]
@@ -1521,18 +1527,21 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<OwnerOfSharedType>(
                     b =>
                     {
-                        b.OwnsOne<Dictionary<string, object>>("Shared1", e => e.Reference, sb =>
-                        {
-                            sb.IndexerProperty<int>("Value");
-                        });
+                        b.OwnsOne(
+                            "Shared1", e => e.Reference, sb =>
+                            {
+                                sb.IndexerProperty<int>("Value");
+                            });
                         b.OwnsMany("Shared2", e => e.Collection).IndexerProperty<bool>("IsDeleted");
-                        b.OwnsOne(e => e.OwnedNavigation,
+                        b.OwnsOne(
+                            e => e.OwnedNavigation,
                             o =>
                             {
-                                o.OwnsOne<Dictionary<string, object>>("Shared3", e => e.Reference, sb =>
-                                {
-                                    sb.IndexerProperty<int>("NestedValue");
-                                });
+                                o.OwnsOne(
+                                    "Shared3", e => e.Reference, sb =>
+                                    {
+                                        sb.IndexerProperty<int>("NestedValue");
+                                    });
                                 o.OwnsMany("Shared4", e => e.Collection).IndexerProperty<long>("NestedLong");
                             });
                     });
@@ -1543,10 +1552,26 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     model.GetEntityTypes().OrderBy(e => e.Name),
                     t => { Assert.Equal(typeof(NestedOwnerOfSharedType), t.ClrType); },
                     t => { Assert.Equal(typeof(OwnerOfSharedType), t.ClrType); },
-                    t => { Assert.Equal("Shared1", t.Name); Assert.NotNull(t.FindProperty("Value")); },
-                    t => { Assert.Equal("Shared2", t.Name); Assert.NotNull(t.FindProperty("IsDeleted")); },
-                    t => { Assert.Equal("Shared3", t.Name); Assert.NotNull(t.FindProperty("NestedValue")); },
-                    t => { Assert.Equal("Shared4", t.Name); Assert.NotNull(t.FindProperty("NestedLong")); });
+                    t =>
+                    {
+                        Assert.Equal("Shared1", t.Name);
+                        Assert.NotNull(t.FindProperty("Value"));
+                    },
+                    t =>
+                    {
+                        Assert.Equal("Shared2", t.Name);
+                        Assert.NotNull(t.FindProperty("IsDeleted"));
+                    },
+                    t =>
+                    {
+                        Assert.Equal("Shared3", t.Name);
+                        Assert.NotNull(t.FindProperty("NestedValue"));
+                    },
+                    t =>
+                    {
+                        Assert.Equal("Shared4", t.Name);
+                        Assert.NotNull(t.FindProperty("NestedLong"));
+                    });
             }
 
             [ConditionalFact]
@@ -1560,10 +1585,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.OwnsOne("Shared1", e => e.Reference);
                         b.OwnsOne("Shared1", e => e.Reference);
 
-                        Assert.Equal(CoreStrings.ClashingNamedOwnedType(
-                            "Shared1", nameof(OwnerOfSharedType), nameof(OwnerOfSharedType.Collection)),
-                            Assert.Throws<InvalidOperationException>(() =>
-                                b.OwnsMany("Shared1", e => e.Collection)).Message);
+                        Assert.Equal(
+                            CoreStrings.ClashingNamedOwnedType(
+                                "Shared1", nameof(OwnerOfSharedType), nameof(OwnerOfSharedType.Collection)),
+                            Assert.Throws<InvalidOperationException>(
+                                () =>
+                                    b.OwnsMany("Shared1", e => e.Collection)).Message);
                     });
             }
 

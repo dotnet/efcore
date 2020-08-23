@@ -249,8 +249,7 @@ namespace TestNamespace
         {
             var modelGenerationOptions = new ModelCodeGenerationOptions
             {
-                ContextNamespace = "TestNamespace",
-                ModelNamespace = "AnotherNamespaceOfModel"
+                ContextNamespace = "TestNamespace", ModelNamespace = "AnotherNamespaceOfModel"
             };
 
             const string entityInAnotherNamespaceTypeName = "EntityInAnotherNamespace";
@@ -295,7 +294,9 @@ namespace TestNamespace
                 new ModelCodeGenerationOptions(),
                 code =>
                 {
-                    Assert.Contains(@$"Property(e => e.ValueGeneratedOnAdd){Environment.NewLine}                    .ValueGeneratedOnAdd()", code.ContextFile.Code);
+                    Assert.Contains(
+                        @$"Property(e => e.ValueGeneratedOnAdd){Environment.NewLine}                    .ValueGeneratedOnAdd()",
+                        code.ContextFile.Code);
                     Assert.Contains("Property(e => e.ValueGeneratedOnAddOrUpdate).ValueGeneratedOnAddOrUpdate()", code.ContextFile.Code);
                     Assert.Contains("Property(e => e.ConcurrencyToken).IsConcurrencyToken()", code.ContextFile.Code);
                     Assert.Contains("Property(e => e.ValueGeneratedOnUpdate).ValueGeneratedOnUpdate()", code.ContextFile.Code);
@@ -371,7 +372,8 @@ namespace TestNamespace
         public void ComputedColumnSql_works_stored()
         {
             Test(
-                modelBuilder => modelBuilder.Entity("Entity").Property<string>("ComputedColumn").HasComputedColumnSql("1 + 2", stored: true),
+                modelBuilder => modelBuilder.Entity("Entity").Property<string>("ComputedColumn")
+                    .HasComputedColumnSql("1 + 2", stored: true),
                 new ModelCodeGenerationOptions(),
                 code => Assert.Contains(".HasComputedColumnSql(\"1 + 2\", true)", code.ContextFile.Code),
                 model =>
@@ -592,22 +594,24 @@ namespace TestNamespace
             Test(
                 modelBuilder =>
                 {
-                    modelBuilder.Entity("PrincipalEntity", b =>
-                    {
-                        b.Property<int>("Id");
-                        b.Property<int>("PrincipalId");
-                        b.Property<int>("AlternateId");
-                        b.HasKey("AlternateId");
-                    });
-                    modelBuilder.Entity("DependentEntity", b =>
-                    {
-                        b.Property<int>("Id");
-                        b.Property<int>("DependentId");
-                        b.HasOne("PrincipalEntity", "NavigationToPrincipal")
-                            .WithOne("NavigationToDependent")
-                            .HasForeignKey("DependentEntity", "DependentId")
-                            .HasPrincipalKey("PrincipalEntity", "PrincipalId");
-                    });
+                    modelBuilder.Entity(
+                        "PrincipalEntity", b =>
+                        {
+                            b.Property<int>("Id");
+                            b.Property<int>("PrincipalId");
+                            b.Property<int>("AlternateId");
+                            b.HasKey("AlternateId");
+                        });
+                    modelBuilder.Entity(
+                        "DependentEntity", b =>
+                        {
+                            b.Property<int>("Id");
+                            b.Property<int>("DependentId");
+                            b.HasOne("PrincipalEntity", "NavigationToPrincipal")
+                                .WithOne("NavigationToDependent")
+                                .HasForeignKey("DependentEntity", "DependentId")
+                                .HasPrincipalKey("PrincipalEntity", "PrincipalId");
+                        });
                 },
                 new ModelCodeGenerationOptions { UseDataAnnotations = false },
                 code =>
@@ -678,7 +682,7 @@ namespace TestNamespace
                         code.ContextFile);
                 },
                 model => { });
-                }
+        }
 
         private class TestCodeGeneratorPlugin : ProviderCodeGeneratorPlugin
         {

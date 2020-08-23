@@ -199,7 +199,8 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private BloggingContext CreateContext() => (BloggingContext)Fixture.CreateContext();
+        private BloggingContext CreateContext()
+            => (BloggingContext)Fixture.CreateContext();
 
         private void ExecuteWithStrategyInTransaction(
             Action<BloggingContext> testOperation,
@@ -258,8 +259,13 @@ namespace Microsoft.EntityFrameworkCore
         public class BatchingTestFixture : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "BatchingTest";
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+
+            public TestSqlLoggerFactory TestSqlLoggerFactory
+                => (TestSqlLoggerFactory)ListLoggerFactory;
+
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
+
             protected override Type ContextType { get; } = typeof(BloggingContext);
 
             protected override bool ShouldLogCategory(string logCategory)

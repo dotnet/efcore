@@ -19,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> One of the entity types related by the foreign key. </param>
         /// <returns> The entity type related to the given one. </returns>
         public static IMutableEntityType GetRelatedEntityType(
-            [NotNull] this IMutableForeignKey foreignKey, [NotNull] IMutableEntityType entityType)
+            [NotNull] this IMutableForeignKey foreignKey,
+            [NotNull] IMutableEntityType entityType)
             => (IMutableEntityType)((IForeignKey)foreignKey).GetRelatedEntityType(entityType);
 
         /// <summary>

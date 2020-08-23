@@ -21,8 +21,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         public bool Property { get; set; }
         public bool? IsModerated { get; set; }
         public int Tenant { get; set; }
-        public int GetId() => 2;
-        public Indirection GetFlag() => new Indirection();
+
+        public int GetId()
+            => 2;
+
+        public Indirection GetFlag()
+            => new Indirection();
+
         public List<int> TenantIds { get; set; }
         public Indirection IndirectionFlag { get; set; }
 
@@ -80,7 +85,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private static void ConfigureFilterParams(
-            EntityTypeBuilder<LocalMethodParamsFilter> builder, QueryFilterFuncletizationContext context)
+            EntityTypeBuilder<LocalMethodParamsFilter> builder,
+            QueryFilterFuncletizationContext context)
         {
             builder.HasQueryFilter(e => e.IsEnabled == context.Property);
         }
@@ -240,13 +246,15 @@ namespace Microsoft.EntityFrameworkCore.Query
     public static class FilterExtensions
     {
         public static void BuilderFilter(
-            this EntityTypeBuilder<ExtensionBuilderFilter> builder, QueryFilterFuncletizationContext context)
+            this EntityTypeBuilder<ExtensionBuilderFilter> builder,
+            QueryFilterFuncletizationContext context)
         {
             builder.HasQueryFilter(e => e.IsEnabled == context.Field);
         }
 
         public static void ContextFilter(
-            this DbContextWrapper wrapper, EntityTypeBuilder<ExtensionContextFilter> builder)
+            this DbContextWrapper wrapper,
+            EntityTypeBuilder<ExtensionContextFilter> builder)
         {
             builder.HasQueryFilter(e => e.IsEnabled == wrapper.Context.IndirectionFlag.Enabled);
         }
@@ -255,7 +263,9 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class Indirection
     {
         public bool Enabled { get; set; }
-        public int GetId() => 2;
+
+        public int GetId()
+            => 2;
 
         public static void ConfigureFilter(EntityTypeBuilder<RemoteMethodParamsFilter> builder, DbContextWrapper wrapper)
         {
@@ -265,7 +275,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
     public class IncorrectDbContext : DbContext
     {
-        public int BossId => 1;
+        public int BossId
+            => 1;
     }
 
     #endregion

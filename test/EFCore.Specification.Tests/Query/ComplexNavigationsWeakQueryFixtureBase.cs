@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         protected override string StoreName { get; } = "ComplexNavigationsOwned";
 
-        public override ISetSource GetExpectedData() => new ComplexNavigationsWeakData();
+        public override ISetSource GetExpectedData()
+            => new ComplexNavigationsWeakData();
 
         Func<DbContext, ISetSource> IQueryFixtureBase.GetSetSourceCreator()
             => context => new ComplexNavigationsWeakSetExtractor(context);

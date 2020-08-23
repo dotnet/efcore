@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             static bool SameColumnNames(IIndex index, IIndex duplicateIndex, StoreObjectIdentifier storeObject)
                 => index.GetIncludeProperties().Select(
-                    p => index.DeclaringEntityType.FindProperty(p).GetColumnName(storeObject))
+                        p => index.DeclaringEntityType.FindProperty(p).GetColumnName(storeObject))
                     .SequenceEqual(
                         duplicateIndex.GetIncludeProperties().Select(
                             p => duplicateIndex.DeclaringEntityType.FindProperty(p)
@@ -118,9 +118,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => index.GetIncludeProperties() == null
                 ? "{}"
                 : "{'"
-                    + string.Join("', '",
-                        index.GetIncludeProperties().Select(p => index.DeclaringEntityType.FindProperty(p)
+                + string.Join(
+                    "', '",
+                    index.GetIncludeProperties().Select(
+                        p => index.DeclaringEntityType.FindProperty(p)
                             ?.GetColumnName(storeObject)))
-                    + "'}";
+                + "'}";
     }
 }

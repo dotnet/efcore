@@ -52,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the string format to be used to generate SQL literals of this type.
         /// </summary>
-        protected override string SqlLiteralFormatString => "TIMESTAMP '" + DateTimeFormatConst + "'";
+        protected override string SqlLiteralFormatString
+            => "TIMESTAMP '" + DateTimeFormatConst + "'";
     }
 }

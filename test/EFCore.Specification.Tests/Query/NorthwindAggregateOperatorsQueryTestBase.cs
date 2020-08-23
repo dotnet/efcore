@@ -24,7 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
+        protected NorthwindContext CreateContext()
+            => Fixture.CreateContext();
 
         protected virtual void ClearLog()
         {
@@ -48,7 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             public int Order { get; set; }
             public string Customer { get; set; }
 
-            private bool Equals(ProjectedType other) => Equals(Order, other.Order);
+            private bool Equals(ProjectedType other)
+                => Equals(Order, other.Order);
 
             public override bool Equals(object obj)
             {
@@ -63,7 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     && Equals((ProjectedType)obj);
             }
 
-            public override int GetHashCode() => Order.GetHashCode();
+            public override int GetHashCode()
+                => Order.GetHashCode();
         }
 
         [ConditionalTheory]
@@ -712,9 +715,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 9);
         }
 
-        protected static bool ClientEvalPredicate(Order order) => order.OrderID > 10000;
+        protected static bool ClientEvalPredicate(Order order)
+            => order.OrderID > 10000;
 
-        private static int ClientEvalSelectorStateless() => 42;
+        private static int ClientEvalSelectorStateless()
+            => 42;
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -1537,7 +1542,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        private static readonly IEnumerable<string> _customers = new string[] { "ALFKI", "WRONG" };
+        private static readonly IEnumerable<string> _customers = new[] { "ALFKI", "WRONG" };
 
         [ConditionalTheory(Skip = "Issue#18658")]
         [MemberData(nameof(IsAsyncData))]
@@ -1581,7 +1586,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Order>().Where(o => ss.Set<Order>().Where(o => o.CustomerID == "VINET").Select(o => o.CustomerID).Contains(null)));
+                ss => ss.Set<Order>().Where(
+                    o => ss.Set<Order>().Where(o => o.CustomerID == "VINET").Select(o => o.CustomerID).Contains(null)));
         }
 
         [ConditionalTheory]
@@ -1590,7 +1596,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Order>().Where(o => !ss.Set<Order>().Where(o => o.CustomerID == "VINET").Select(o => o.CustomerID).Contains(null)),
+                ss => ss.Set<Order>().Where(
+                    o => !ss.Set<Order>().Where(o => o.CustomerID == "VINET").Select(o => o.CustomerID).Contains(null)),
                 entryCount: 830);
         }
 
@@ -1600,9 +1607,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Order>().Where(o => ss.Set<Order>().Where(o => o.CustomerID == "VINET").Select(o => o.CustomerID)
-                    .Contains(null) == ss.Set<Order>().Where(o => o.CustomerID != "VINET").Select(o => o.CustomerID)
-                    .Contains(null)),
+                ss => ss.Set<Order>().Where(
+                    o => ss.Set<Order>().Where(o => o.CustomerID == "VINET").Select(o => o.CustomerID)
+                            .Contains(null)
+                        == ss.Set<Order>().Where(o => o.CustomerID != "VINET").Select(o => o.CustomerID)
+                            .Contains(null)),
                 entryCount: 830);
         }
 
@@ -1612,7 +1621,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQueryScalar(
                 async,
-                ss => ss.Set<Order>().Select(o => ss.Set<Order>().Where(o => o.CustomerID == "VINET").Select(o => o.CustomerID).Contains(null)));
+                ss => ss.Set<Order>().Select(
+                    o => ss.Set<Order>().Where(o => o.CustomerID == "VINET").Select(o => o.CustomerID).Contains(null)));
         }
 
         [ConditionalTheory]
@@ -1621,7 +1631,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQueryScalar(
                 async,
-                ss => ss.Set<Order>().Select(o => ss.Set<Customer>().Where(o => o.CustomerID != "VINET").Select(o => o.CustomerID).Contains(null)));
+                ss => ss.Set<Order>().Select(
+                    o => ss.Set<Customer>().Where(o => o.CustomerID != "VINET").Select(o => o.CustomerID).Contains(null)));
         }
 
         [ConditionalTheory]
@@ -1900,13 +1911,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertTranslationFailedWithDetails(
                 () => AssertAverage(
-                async,
-                ss => ss.Set<Order>(),
-                selector: c => c.ShipVia),
+                    async,
+                    ss => ss.Set<Order>(),
+                    selector: c => c.ShipVia),
                 CoreStrings.QueryUnableToTranslateMember(nameof(Order.ShipVia), nameof(Order)));
         }
 
-        private static string CodeFormat(int str) => str.ToString();
+        private static string CodeFormat(int str)
+            => str.ToString();
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]

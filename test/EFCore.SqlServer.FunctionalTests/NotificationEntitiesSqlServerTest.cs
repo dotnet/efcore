@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class NotificationEntitiesSqlServerFixture : NotificationEntitiesFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
         }
     }
 }

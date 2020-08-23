@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Gets a <see cref="IComparer{T}" /> for comparing values in tracked <see cref="IUpdateEntry"/> entries.
+        ///         Gets a <see cref="IComparer{T}" /> for comparing values in tracked <see cref="IUpdateEntry" /> entries.
         ///     </para>
         /// </summary>
         /// <param name="propertyBase"> The property. </param>

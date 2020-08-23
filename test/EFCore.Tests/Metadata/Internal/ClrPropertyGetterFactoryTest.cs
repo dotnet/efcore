@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -24,11 +23,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class FakeProperty : IProperty, IClrPropertyGetter
         {
-            public object GetClrValue(object entity) => throw new NotImplementedException();
-            public bool HasDefaultValue(object entity) => throw new NotImplementedException();
-            public object this[string name] => throw new NotImplementedException();
-            public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
-            public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();
+            public object GetClrValue(object entity)
+                => throw new NotImplementedException();
+
+            public bool HasDefaultValue(object entity)
+                => throw new NotImplementedException();
+
+            public object this[string name]
+                => throw new NotImplementedException();
+
+            public IAnnotation FindAnnotation(string name)
+                => throw new NotImplementedException();
+
+            public IEnumerable<IAnnotation> GetAnnotations()
+                => throw new NotImplementedException();
+
             public string Name { get; }
             public ITypeBase DeclaringType { get; }
             public Type ClrType { get; }
@@ -96,7 +105,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(123, new ClrPropertyGetterFactory().Create(propertyB).GetClrValue(new IndexedClass { Id = 7 }));
         }
 
-        private static ModelBuilder CreateModelBuilder() => InMemoryTestHelpers.Instance.CreateConventionBuilder();
+        private static ModelBuilder CreateModelBuilder()
+            => InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
         private class Customer
         {
@@ -106,7 +116,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private struct Fuel
         {
-            public Fuel(double volume) => Volume = volume;
+            public Fuel(double volume)
+                => Volume = volume;
+
             public double Volume { get; }
         }
 
@@ -114,12 +126,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             private readonly Dictionary<string, object> _internalValues = new Dictionary<string, object>
             {
-                {"PropertyA", "ValueA" },
-                {"PropertyB", 123 }
+                { "PropertyA", "ValueA" }, { "PropertyB", 123 }
             };
 
             internal int Id { get; set; }
-            internal object this[string name] => _internalValues[name];
+
+            internal object this[string name]
+                => _internalValues[name];
         }
     }
 }

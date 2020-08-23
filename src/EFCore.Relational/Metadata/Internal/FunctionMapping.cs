@@ -33,13 +33,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             DbFunction = dbFunction;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public virtual bool IsDefaultFunctionMapping { get; set; }
 
-        /// <inheritdoc/>
-        public virtual IStoreFunction StoreFunction => (IStoreFunction)base.Table;
+        /// <inheritdoc />
+        public virtual IStoreFunction StoreFunction
+            => (IStoreFunction)base.Table;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public virtual IDbFunction DbFunction { get; }
 
         /// <summary>
@@ -48,9 +49,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+        public override string ToString()
+            => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         IEnumerable<IFunctionColumnMapping> IFunctionMapping.ColumnMappings
         {
             [DebuggerStepThrough]

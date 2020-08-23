@@ -16,7 +16,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Relational-specific extension methods for <see cref="IModel" /> and extension methods for <see cref="IRelationalModel"/>.
+    ///     Relational-specific extension methods for <see cref="IModel" /> and extension methods for <see cref="IRelationalModel" />.
     /// </summary>
     public static class RelationalModelExtensions
     {
@@ -87,7 +87,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured schema. </returns>
         public static string SetDefaultSchema(
-            [NotNull] this IConventionModel model, [CanBeNull] string value, bool fromDataAnnotation = false)
+            [NotNull] this IConventionModel model,
+            [CanBeNull] string value,
+            bool fromDataAnnotation = false)
         {
             model.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.DefaultSchema,
@@ -182,7 +184,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     the given schema was found.
         /// </returns>
         public static IMutableSequence FindSequence(
-            [NotNull] this IMutableModel model, [NotNull] string name, [CanBeNull] string schema = null)
+            [NotNull] this IMutableModel model,
+            [NotNull] string name,
+            [CanBeNull] string schema = null)
             => (IMutableSequence)((IModel)model).FindSequence(name, schema);
 
         /// <summary>
@@ -196,7 +200,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     the given schema was found.
         /// </returns>
         public static IConventionSequence FindSequence(
-            [NotNull] this IConventionModel model, [NotNull] string name, [CanBeNull] string schema = null)
+            [NotNull] this IConventionModel model,
+            [NotNull] string name,
+            [CanBeNull] string schema = null)
             => (IConventionSequence)((IModel)model).FindSequence(name, schema);
 
         /// <summary>
@@ -208,7 +214,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="schema"> The schema name, or <see langword="null" /> to use the default schema. </param>
         /// <returns> The sequence. </returns>
         public static IMutableSequence AddSequence(
-            [NotNull] this IMutableModel model, [NotNull] string name, [CanBeNull] string schema = null)
+            [NotNull] this IMutableModel model,
+            [NotNull] string name,
+            [CanBeNull] string schema = null)
             => Sequence.AddSequence(model, name, schema, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -221,7 +229,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The sequence. </returns>
         public static IConventionSequence AddSequence(
-            [NotNull] this IConventionModel model, [NotNull] string name, [CanBeNull] string schema = null, bool fromDataAnnotation = false)
+            [NotNull] this IConventionModel model,
+            [NotNull] string name,
+            [CanBeNull] string schema = null,
+            bool fromDataAnnotation = false)
             => Sequence.AddSequence(
                 (IMutableModel)model, name, schema,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -237,7 +248,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     the given schema was found.
         /// </returns>
         public static IMutableSequence RemoveSequence(
-            [NotNull] this IMutableModel model, [NotNull] string name, [CanBeNull] string schema = null)
+            [NotNull] this IMutableModel model,
+            [NotNull] string name,
+            [CanBeNull] string schema = null)
             => Sequence.RemoveSequence(Check.NotNull(model, nameof(model)), name, schema);
 
         /// <summary>
@@ -251,7 +264,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     the given schema was found.
         /// </returns>
         public static IConventionSequence RemoveSequence(
-            [NotNull] this IConventionModel model, [NotNull] string name, [CanBeNull] string schema = null)
+            [NotNull] this IConventionModel model,
+            [NotNull] string name,
+            [CanBeNull] string schema = null)
             => Sequence.RemoveSequence((IMutableModel)Check.NotNull(model, nameof(model)), name, schema);
 
         /// <summary>
@@ -341,7 +356,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The new <see cref="IMutableDbFunction" />. </returns>
         public static IMutableDbFunction AddDbFunction([NotNull] this IMutableModel model, [NotNull] MethodInfo methodInfo)
             => DbFunction.AddDbFunction(
-                 model, Check.NotNull(methodInfo, nameof(methodInfo)), ConfigurationSource.Explicit);
+                model, Check.NotNull(methodInfo, nameof(methodInfo)), ConfigurationSource.Explicit);
 
         /// <summary>
         ///     Creates an <see cref="IConventionDbFunction" /> mapped to the given method.
@@ -351,10 +366,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new <see cref="IConventionDbFunction" />. </returns>
         public static IConventionDbFunction AddDbFunction(
-            [NotNull] this IConventionModel model, [NotNull] MethodInfo methodInfo, bool fromDataAnnotation = false)
+            [NotNull] this IConventionModel model,
+            [NotNull] MethodInfo methodInfo,
+            bool fromDataAnnotation = false)
             => DbFunction.AddDbFunction(
-                 (IMutableModel)model, Check.NotNull(methodInfo, nameof(methodInfo)),
-                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+                (IMutableModel)model, Check.NotNull(methodInfo, nameof(methodInfo)),
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     Creates an <see cref="IMutableDbFunction" />.
@@ -368,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] string name,
             [NotNull] Type returnType)
             => DbFunction.AddDbFunction(
-                 model, Check.NotNull(name, nameof(name)), returnType, ConfigurationSource.Explicit);
+                model, Check.NotNull(name, nameof(name)), returnType, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     Creates an <see cref="IConventionDbFunction" />.
@@ -384,10 +401,10 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] Type returnType,
             bool fromDataAnnotation = false)
             => DbFunction.AddDbFunction(
-                 (IMutableModel)model,
-                 Check.NotNull(name, nameof(name)),
-                 returnType,
-                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+                (IMutableModel)model,
+                Check.NotNull(name, nameof(name)),
+                returnType,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     Removes the <see cref="IMutableDbFunction" /> that is mapped to the method represented by the given

@@ -8,8 +8,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner
 {
     public static class EntityExtensions
     {
-        public static SessionResponse MapSessionResponse(this Session session) =>
-            new SessionResponse
+        public static SessionResponse MapSessionResponse(this Session session)
+            => new SessionResponse
             {
                 Id = session.Id,
                 Title = session.Title,
@@ -23,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner
                 Abstract = session.Abstract
             };
 
-        public static SpeakerResponse MapSpeakerResponse(this Speaker speaker) =>
-            new SpeakerResponse
+        public static SpeakerResponse MapSpeakerResponse(this Speaker speaker)
+            => new SpeakerResponse
             {
                 Id = speaker.Id,
                 Name = speaker.Name,
@@ -37,8 +37,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner
                     .ToList()
             };
 
-        public static AttendeeResponse MapAttendeeResponse(this Attendee attendee) =>
-            new AttendeeResponse
+        public static AttendeeResponse MapAttendeeResponse(this Attendee attendee)
+            => new AttendeeResponse
             {
                 Id = attendee.Id,
                 FirstName = attendee.FirstName,

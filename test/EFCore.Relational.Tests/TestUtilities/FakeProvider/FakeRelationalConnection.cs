@@ -55,11 +55,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
             return optionsBuilder.Options;
         }
 
-        public void UseConnection(DbConnection connection) => _connection = connection;
+        public void UseConnection(DbConnection connection)
+            => _connection = connection;
 
-        public override DbConnection DbConnection => _connection ?? base.DbConnection;
+        public override DbConnection DbConnection
+            => _connection ?? base.DbConnection;
 
-        public IReadOnlyList<FakeDbConnection> DbConnections => _dbConnections;
+        public IReadOnlyList<FakeDbConnection> DbConnections
+            => _dbConnections;
 
         protected override DbConnection CreateDbConnection()
         {

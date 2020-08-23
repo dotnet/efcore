@@ -36,6 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Creates a new <see cref="ParameterNameGenerator" />.
         /// </summary>
         /// <returns> The newly created generator. </returns>
-        public virtual ParameterNameGenerator Create() => new ParameterNameGenerator();
+        public virtual ParameterNameGenerator Create()
+            => new ParameterNameGenerator();
     }
 }

@@ -10,8 +10,10 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class NorthwindQueryInMemoryFixture<TModelCustomizer> : NorthwindQueryFixtureBase<TModelCustomizer>
         where TModelCustomizer : IModelCustomizer, new()
     {
-        protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory
+            => InMemoryTestStoreFactory.Instance;
 
-        protected override Type ContextType => typeof(NorthwindInMemoryContext);
+        protected override Type ContextType
+            => typeof(NorthwindInMemoryContext);
     }
 }

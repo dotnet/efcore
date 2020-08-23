@@ -309,8 +309,8 @@ SELECT 1 ELSE SELECT 0");
         // Login failed is thrown when database does not exist (See Issue #776)
         // Unable to attach database file is thrown when file does not exist (See Issue #2810)
         // Unable to open the physical file is thrown when file does not exist (See Issue #2810)
-        private static bool IsDoesNotExist(SqlException exception) =>
-            exception.Number == 4060 || exception.Number == 1832 || exception.Number == 5120;
+        private static bool IsDoesNotExist(SqlException exception)
+            => exception.Number == 4060 || exception.Number == 1832 || exception.Number == 5120;
 
         // See Issue #985
         private bool RetryOnExistsFailure(SqlException exception)
@@ -391,10 +391,12 @@ SELECT 1 ELSE SELECT 0");
         }
 
         // Clear connection pools in case there are active connections that are pooled
-        private static void ClearAllPools() => SqlConnection.ClearAllPools();
+        private static void ClearAllPools()
+            => SqlConnection.ClearAllPools();
 
         // Clear connection pool for the database connection since after the 'create database' call, a previously
         // invalid connection may now be valid.
-        private void ClearPool() => SqlConnection.ClearPool((SqlConnection)_connection.DbConnection);
+        private void ClearPool()
+            => SqlConnection.ClearPool((SqlConnection)_connection.DbConnection);
     }
 }

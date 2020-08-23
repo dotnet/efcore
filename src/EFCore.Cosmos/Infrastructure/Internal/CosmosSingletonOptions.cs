@@ -4,7 +4,6 @@
 using System;
 using System.Net;
 using Azure.Cosmos;
-using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;

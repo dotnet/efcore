@@ -45,7 +45,10 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static async Task Returns_false_when_database_does_not_exist_test(
-            bool async, bool ambientTransaction, bool useCanConnect, bool file)
+            bool async,
+            bool ambientTransaction,
+            bool useCanConnect,
+            bool file)
         {
             using var testDatabase = SqlServerTestStore.Create("NonExisting", file);
             using var context = new BloggingContext(testDatabase);
@@ -811,7 +814,8 @@ namespace Microsoft.EntityFrameworkCore
                 return HasTablesAsync(cancellationToken);
             }
 
-            public IExecutionStrategyFactory ExecutionStrategyFactory => Dependencies.ExecutionStrategyFactory;
+            public IExecutionStrategyFactory ExecutionStrategyFactory
+                => Dependencies.ExecutionStrategyFactory;
         }
     }
 }

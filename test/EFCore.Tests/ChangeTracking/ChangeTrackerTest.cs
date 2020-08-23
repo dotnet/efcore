@@ -470,7 +470,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             private int _current;
             private bool _generatesTemporaryValues;
 
-            public override bool GeneratesTemporaryValues => _generatesTemporaryValues;
+            public override bool GeneratesTemporaryValues
+                => _generatesTemporaryValues;
 
             public override int Next(EntityEntry entry)
                 => Interlocked.Increment(ref _current);
@@ -1164,7 +1165,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         private class Cat
         {
-            public Cat(int id) => Id = id;
+            public Cat(int id)
+                => Id = id;
 
             // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
             public int Id { get; private set; }
@@ -1178,7 +1180,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         private class Hat
         {
-            public Hat(int id) => Id = id;
+            public Hat(int id)
+                => Id = id;
 
             // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
             public int Id { get; private set; }
@@ -1191,7 +1194,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         private class Mat
         {
-            public Mat(int id) => Id = id;
+            public Mat(int id)
+                => Id = id;
 
             // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
             public int Id { get; private set; }
@@ -1263,16 +1267,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     .Property(e => e.Id)
                     .HasValueGenerator<InMemoryIntegerValueGenerator<int>>();
 
-                modelBuilder.Entity<Mat>(b =>
-                {
-                    b.Property(e => e.Id).HasValueGenerator<InMemoryIntegerValueGenerator<int>>();
-                    b.HasMany(e => e.Cats)
-                        .WithMany(e => e.Mats)
-                        .UsingEntity<CatMat>(
-                            ts => ts.HasOne<Cat>().WithMany(),
-                            ts => ts.HasOne<Mat>().WithMany())
-                        .HasKey(ts => new { ts.CatId, ts.MatId });
-                });
+                modelBuilder.Entity<Mat>(
+                    b =>
+                    {
+                        b.Property(e => e.Id).HasValueGenerator<InMemoryIntegerValueGenerator<int>>();
+                        b.HasMany(e => e.Cats)
+                            .WithMany(e => e.Mats)
+                            .UsingEntity<CatMat>(
+                                ts => ts.HasOne<Cat>().WithMany(),
+                                ts => ts.HasOne<Mat>().WithMany())
+                            .HasKey(ts => new { ts.CatId, ts.MatId });
+                    });
             }
         }
 

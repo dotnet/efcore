@@ -27,7 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         //Since this is always generated while compiling there is no query provider associated
         public TableValuedFunctionQueryRootExpression(
-            [NotNull] IEntityType entityType, [NotNull] IStoreFunction function, [NotNull] IReadOnlyCollection<Expression> arguments)
+            [NotNull] IEntityType entityType,
+            [NotNull] IStoreFunction function,
+            [NotNull] IReadOnlyCollection<Expression> arguments)
             : base(entityType)
         {
             Check.NotNull(function, nameof(function));
@@ -44,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IStoreFunction Function { get; }
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

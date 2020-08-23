@@ -33,8 +33,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             Database = new DatabaseModel();
             Table = new DatabaseTable { Database = Database, Name = "Foo" };
-            IdColumn = new DatabaseColumn { Table = Table, Name = "Id", StoreType = "int" };
-            IdPrimaryKey = new DatabasePrimaryKey {
+            IdColumn = new DatabaseColumn
+            {
+                Table = Table,
+                Name = "Id",
+                StoreType = "int"
+            };
+            IdPrimaryKey = new DatabasePrimaryKey
+            {
                 Table = Table,
                 Name = "IdPrimaryKey",
                 Columns = { IdColumn }
@@ -159,7 +165,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                             },
                             new DatabaseColumn
                             {
-                                Table = Table, Name = "salary",
+                                Table = Table,
+                                Name = "salary",
                                 StoreType = "int",
                                 IsNullable = true
                             },
@@ -191,7 +198,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 }
             };
 
-            var entityType = (EntityType)_factory.Create(info, new ModelReverseEngineerOptions { NoPluralize = true }).FindEntityType("Jobs");
+            var entityType =
+                (EntityType)_factory.Create(info, new ModelReverseEngineerOptions { NoPluralize = true }).FindEntityType("Jobs");
 
             Assert.Collection(
                 entityType.GetProperties(),
@@ -247,9 +255,24 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         Columns =
                         {
                             IdColumn,
-                            new DatabaseColumn { Table = Table, Name = "ProductSKU" , StoreType = "nvarchar(max)" },
-                            new DatabaseColumn { Table = Table, Name = "supplierID" , StoreType = "nvarchar(max)" },
-                            new DatabaseColumn { Table = Table, Name = "Vendor_Discount" , StoreType = "nvarchar(max)" }
+                            new DatabaseColumn
+                            {
+                                Table = Table,
+                                Name = "ProductSKU",
+                                StoreType = "nvarchar(max)"
+                            },
+                            new DatabaseColumn
+                            {
+                                Table = Table,
+                                Name = "supplierID",
+                                StoreType = "nvarchar(max)"
+                            },
+                            new DatabaseColumn
+                            {
+                                Table = Table,
+                                Name = "Vendor_Discount",
+                                StoreType = "nvarchar(max)"
+                            }
                         },
                         PrimaryKey = IdPrimaryKey
                     }
@@ -282,16 +305,32 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         Columns =
                         {
                             IdColumn,
-                            new DatabaseColumn { Table = Table, Name = "ProductSKU" , StoreType = "nvarchar(max)" },
-                            new DatabaseColumn { Table = Table, Name = "supplierID" , StoreType = "nvarchar(max)" },
-                            new DatabaseColumn { Table = Table, Name = "Vendor_Discount" , StoreType = "nvarchar(max)" }
+                            new DatabaseColumn
+                            {
+                                Table = Table,
+                                Name = "ProductSKU",
+                                StoreType = "nvarchar(max)"
+                            },
+                            new DatabaseColumn
+                            {
+                                Table = Table,
+                                Name = "supplierID",
+                                StoreType = "nvarchar(max)"
+                            },
+                            new DatabaseColumn
+                            {
+                                Table = Table,
+                                Name = "Vendor_Discount",
+                                StoreType = "nvarchar(max)"
+                            }
                         },
                         PrimaryKey = IdPrimaryKey
                     }
                 }
             };
 
-            var entityType = _factory.Create(info, new ModelReverseEngineerOptions { NoPluralize = true }).FindEntityType("NaturalProducts");
+            var entityType = _factory.Create(info, new ModelReverseEngineerOptions { NoPluralize = true })
+                .FindEntityType("NaturalProducts");
 
             Assert.Collection(
                 entityType.GetProperties(),
@@ -307,7 +346,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         [InlineData("DateTime2(4)", "DateTime2(4)")]
         public void Column_type_annotation(string storeType, string expectedColumnType)
         {
-            var column = new DatabaseColumn { Table = Table, Name = "Col", StoreType = storeType };
+            var column = new DatabaseColumn
+            {
+                Table = Table,
+                Name = "Col",
+                StoreType = storeType
+            };
 
             var info = new DatabaseModel
             {
@@ -336,7 +380,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         [ConditionalFact]
         public void Column_ordinal_annotation()
         {
-            var col1 = new DatabaseColumn { Table = Table, Name = "Col1" , StoreType = "nvarchar(max)" };
+            var col1 = new DatabaseColumn
+            {
+                Table = Table,
+                Name = "Col1",
+                StoreType = "nvarchar(max)"
+            };
             var info = new DatabaseModel
             {
                 Tables =
@@ -348,8 +397,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         Columns =
                         {
                             col1,
-                            new DatabaseColumn { Table = Table, Name = "Col2" , StoreType = "nvarchar(max)" },
-                            new DatabaseColumn { Table = Table, Name = "Col3" , StoreType = "nvarchar(max)" }
+                            new DatabaseColumn
+                            {
+                                Table = Table,
+                                Name = "Col2",
+                                StoreType = "nvarchar(max)"
+                            },
+                            new DatabaseColumn
+                            {
+                                Table = Table,
+                                Name = "Col3",
+                                StoreType = "nvarchar(max)"
+                            }
                         },
                         PrimaryKey = new DatabasePrimaryKey
                         {
@@ -390,12 +449,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 }
             };
 
-            info.Tables.First().Columns.Add(new DatabaseColumn
-            {
-                Table = info.Tables.First(),
-                Name = "Coli",
-                StoreType = StoreType
-            });
+            info.Tables.First().Columns.Add(
+                new DatabaseColumn
+                {
+                    Table = info.Tables.First(),
+                    Name = "Coli",
+                    StoreType = StoreType
+                });
 
             Assert.Single(_factory.Create(info, new ModelReverseEngineerOptions()).FindEntityType("E").GetProperties());
             Assert.Single(_reporter.Messages, t => t.Contains(DesignStrings.CannotFindTypeMappingForColumn("E.Coli", StoreType)));
@@ -420,12 +480,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     }
                 }
             };
-            foreach (var column in keyProps.Select(k => new DatabaseColumn
-            {
-                Table = Table,
-                Name = k,
-                StoreType = "int"
-            }))
+            foreach (var column in keyProps.Select(
+                k => new DatabaseColumn
+                {
+                    Table = Table,
+                    Name = k,
+                    StoreType = "int"
+                }))
             {
                 info.Tables[0].Columns.Add(column);
                 info.Tables[0].PrimaryKey.Columns.Add(column);
@@ -440,7 +501,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         [ConditionalFact]
         public void Unique_constraint()
         {
-            var myColumn = new DatabaseColumn { Table = Table, Name = "MyColumn" , StoreType = "int" };
+            var myColumn = new DatabaseColumn
+            {
+                Table = Table,
+                Name = "MyColumn",
+                StoreType = "int"
+            };
 
             var databaseModel = new DatabaseModel
             {
@@ -476,7 +542,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         [ConditionalFact]
         public void Indexes_and_alternate_keys()
         {
-            var c1 = new DatabaseColumn { Table = Table, Name = "C1" , StoreType = "int" };
+            var c1 = new DatabaseColumn
+            {
+                Table = Table,
+                Name = "C1",
+                StoreType = "int"
+            };
             var table = new DatabaseTable
             {
                 Database = Database,
@@ -484,8 +555,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 Columns =
                 {
                     c1,
-                    new DatabaseColumn { Table = Table, Name = "C2" , StoreType = "int" },
-                    new DatabaseColumn { Table = Table, Name = "C3" , StoreType = "int" }
+                    new DatabaseColumn
+                    {
+                        Table = Table,
+                        Name = "C2",
+                        StoreType = "int"
+                    },
+                    new DatabaseColumn
+                    {
+                        Table = Table,
+                        Name = "C3",
+                        StoreType = "int"
+                    }
                 },
                 PrimaryKey = new DatabasePrimaryKey
                 {
@@ -523,7 +604,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 {
                     Table = Table,
                     Name = "UNQ_C3_C1",
-                    Columns = { table.Columns.ElementAt(2), table.Columns.ElementAt(0) }, IsUnique = true
+                    Columns = { table.Columns.ElementAt(2), table.Columns.ElementAt(0) },
+                    IsUnique = true
                 });
 
             var info = new DatabaseModel { Tables = { table } };
@@ -621,7 +703,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var databaseModel = new DatabaseModel();
             var masterTable = new DatabaseTable { Database = databaseModel, Name = "Master" };
-            var idColumn = new DatabaseColumn { Table = masterTable, Name = "Id" , StoreType = "int" };
+            var idColumn = new DatabaseColumn
+            {
+                Table = masterTable,
+                Name = "Id",
+                StoreType = "int"
+            };
             masterTable.Columns.Add(idColumn);
             masterTable.PrimaryKey = new DatabasePrimaryKey
             {
@@ -631,7 +718,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             };
             databaseModel.Tables.Add(masterTable);
             var detailTable = new DatabaseTable { Database = databaseModel, Name = "Detail" };
-            var masterIdColumn = new DatabaseColumn { Table = detailTable, Name = "MasterId" , StoreType = "int" };
+            var masterIdColumn = new DatabaseColumn
+            {
+                Table = detailTable,
+                Name = "MasterId",
+                StoreType = "int"
+            };
             detailTable.Columns.Add(masterIdColumn);
             detailTable.ForeignKeys.Add(
                 new DatabaseForeignKey
@@ -759,8 +851,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
         [ConditionalFact]
         public void Composite_foreign_key()
         {
-            var ida = new DatabaseColumn { Table = Table, Name = "Id_A" , StoreType = "int" };
-            var idb = new DatabaseColumn { Table = Table, Name = "Id_B" , StoreType = "int" };
+            var ida = new DatabaseColumn
+            {
+                Table = Table,
+                Name = "Id_A",
+                StoreType = "int"
+            };
+            var idb = new DatabaseColumn
+            {
+                Table = Table,
+                Name = "Id_B",
+                StoreType = "int"
+            };
             var parentTable = new DatabaseTable
             {
                 Database = Database,
@@ -780,8 +882,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 Columns =
                 {
                     IdColumn,
-                    new DatabaseColumn { Table = Table, Name = "ParentId_A" , StoreType = "int" },
-                    new DatabaseColumn { Table = Table, Name = "ParentId_B" , StoreType = "int" }
+                    new DatabaseColumn
+                    {
+                        Table = Table,
+                        Name = "ParentId_A",
+                        StoreType = "int"
+                    },
+                    new DatabaseColumn
+                    {
+                        Table = Table,
+                        Name = "ParentId_B",
+                        StoreType = "int"
+                    }
                 },
                 PrimaryKey = IdPrimaryKey
             };
@@ -867,14 +979,32 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 Database = Database,
                 Name = "Parent",
-                Columns = { IdColumn, new DatabaseColumn { Table = Table, Name = "NotPkId" , StoreType = "int" } },
+                Columns =
+                {
+                    IdColumn,
+                    new DatabaseColumn
+                    {
+                        Table = Table,
+                        Name = "NotPkId",
+                        StoreType = "int"
+                    }
+                },
                 PrimaryKey = IdPrimaryKey
             };
             var childrenTable = new DatabaseTable
             {
                 Database = Database,
                 Name = "Children",
-                Columns = { IdColumn, new DatabaseColumn { Table = Table, Name = "ParentId" , StoreType = "int" } },
+                Columns =
+                {
+                    IdColumn,
+                    new DatabaseColumn
+                    {
+                        Table = Table,
+                        Name = "ParentId",
+                        StoreType = "int"
+                    }
+                },
                 PrimaryKey = IdPrimaryKey
             };
             childrenTable.ForeignKeys.Add(
@@ -1013,8 +1143,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
         [ConditionalFact]
         public void Unique_index_composite_foreign_key()
         {
-            var ida = new DatabaseColumn { Table = Table, Name = "Id_A" , StoreType = "int" };
-            var idb = new DatabaseColumn { Table = Table, Name = "Id_B" , StoreType = "int" };
+            var ida = new DatabaseColumn
+            {
+                Table = Table,
+                Name = "Id_A",
+                StoreType = "int"
+            };
+            var idb = new DatabaseColumn
+            {
+                Table = Table,
+                Name = "Id_B",
+                StoreType = "int"
+            };
             var parentTable = new DatabaseTable
             {
                 Database = Database,
@@ -1034,8 +1174,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 Columns =
                 {
                     IdColumn,
-                    new DatabaseColumn { Table = Table, Name = "ParentId_A" , StoreType = "int" },
-                    new DatabaseColumn { Table = Table, Name = "ParentId_B" , StoreType = "int" }
+                    new DatabaseColumn
+                    {
+                        Table = Table,
+                        Name = "ParentId_A",
+                        StoreType = "int"
+                    },
+                    new DatabaseColumn
+                    {
+                        Table = Table,
+                        Name = "ParentId_B",
+                        StoreType = "int"
+                    }
                 },
                 PrimaryKey = IdPrimaryKey
             };
@@ -1044,7 +1194,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 {
                     Table = Table,
                     Name = "IX_Foo",
-                    IsUnique = true, Columns = { childrenTable.Columns.ElementAt(1), childrenTable.Columns.ElementAt(2) }
+                    IsUnique = true,
+                    Columns = { childrenTable.Columns.ElementAt(1), childrenTable.Columns.ElementAt(2) }
                 });
             childrenTable.ForeignKeys.Add(
                 new DatabaseForeignKey
@@ -1082,8 +1233,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         Columns =
                         {
                             IdColumn,
-                            new DatabaseColumn { Table = Table, Name = "San itized", StoreType = "int" },
-                            new DatabaseColumn { Table = Table, Name = "San+itized", StoreType = "int" }
+                            new DatabaseColumn
+                            {
+                                Table = Table,
+                                Name = "San itized",
+                                StoreType = "int"
+                            },
+                            new DatabaseColumn
+                            {
+                                Table = Table,
+                                Name = "San+itized",
+                                StoreType = "int"
+                            }
                         },
                         PrimaryKey = IdPrimaryKey
                     },
@@ -1529,9 +1690,24 @@ namespace Microsoft.EntityFrameworkCore.Internal
         [ConditionalFact]
         public void Correct_arguments_to_scaffolding_typemapper()
         {
-            var principalPkColumn = new DatabaseColumn { Table = Table, Name = "PrimaryKey", StoreType = "nvarchar(450)" };
-            var principalAkColumn = new DatabaseColumn { Table = Table, Name = "AlternateKey", StoreType = "nvarchar(450)" };
-            var principalIndexColumn = new DatabaseColumn { Table = Table, Name = "Index", StoreType = "nvarchar(450)" };
+            var principalPkColumn = new DatabaseColumn
+            {
+                Table = Table,
+                Name = "PrimaryKey",
+                StoreType = "nvarchar(450)"
+            };
+            var principalAkColumn = new DatabaseColumn
+            {
+                Table = Table,
+                Name = "AlternateKey",
+                StoreType = "nvarchar(450)"
+            };
+            var principalIndexColumn = new DatabaseColumn
+            {
+                Table = Table,
+                Name = "Index",
+                StoreType = "nvarchar(450)"
+            };
             var rowversionColumn = new DatabaseColumn
             {
                 Table = Table,
@@ -1552,21 +1728,65 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     principalIndexColumn,
                     rowversionColumn
                 },
-                PrimaryKey = new DatabasePrimaryKey { Table = Table, Name = "PK_Foo", Columns = { principalPkColumn } },
-                UniqueConstraints = { new DatabaseUniqueConstraint { Table = Table, Name = "AK_Foo", Columns = { principalAkColumn } } },
-                Indexes = { new DatabaseIndex { Table = Table, Name = "IX_Foo", Columns = { principalIndexColumn } } }
+                PrimaryKey = new DatabasePrimaryKey
+                {
+                    Table = Table,
+                    Name = "PK_Foo",
+                    Columns = { principalPkColumn }
+                },
+                UniqueConstraints =
+                {
+                    new DatabaseUniqueConstraint
+                    {
+                        Table = Table,
+                        Name = "AK_Foo",
+                        Columns = { principalAkColumn }
+                    }
+                },
+                Indexes =
+                {
+                    new DatabaseIndex
+                    {
+                        Table = Table,
+                        Name = "IX_Foo",
+                        Columns = { principalIndexColumn }
+                    }
+                }
             };
 
-            var dependentIdColumn = new DatabaseColumn { Table = Table, Name = "Id" , StoreType = "int" };
-            var dependentFkColumn = new DatabaseColumn { Table = Table, Name = "BlogAlternateKey" , StoreType = "nvarchar(450)" };
+            var dependentIdColumn = new DatabaseColumn
+            {
+                Table = Table,
+                Name = "Id",
+                StoreType = "int"
+            };
+            var dependentFkColumn = new DatabaseColumn
+            {
+                Table = Table,
+                Name = "BlogAlternateKey",
+                StoreType = "nvarchar(450)"
+            };
 
             var dependentTable = new DatabaseTable
             {
                 Database = Database,
                 Name = "Dependent",
                 Columns = { dependentIdColumn, dependentFkColumn },
-                PrimaryKey = new DatabasePrimaryKey { Table = Table, Name = "PK_Foo", Columns = { dependentIdColumn } },
-                Indexes = { new DatabaseIndex { Table = Table, Name = "IX_Foo", Columns = { dependentFkColumn } } },
+                PrimaryKey = new DatabasePrimaryKey
+                {
+                    Table = Table,
+                    Name = "PK_Foo",
+                    Columns = { dependentIdColumn }
+                },
+                Indexes =
+                {
+                    new DatabaseIndex
+                    {
+                        Table = Table,
+                        Name = "IX_Foo",
+                        Columns = { dependentFkColumn }
+                    }
+                },
                 ForeignKeys =
                 {
                     new DatabaseForeignKey
@@ -1594,7 +1814,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         [ConditionalFact]
         public void Unmapped_column_is_ignored()
         {
-            var columnWithUnknownType = new DatabaseColumn { Table = Table, Name = "ColumnWithUnknownStoreType" , StoreType = "unknown_type" };
+            var columnWithUnknownType = new DatabaseColumn
+            {
+                Table = Table,
+                Name = "ColumnWithUnknownStoreType",
+                StoreType = "unknown_type"
+            };
 
             var dbModel = new DatabaseModel
             {
@@ -1676,39 +1901,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     new DatabaseTable
                     {
                         Name = userTableName,
-                        Columns =
-                        {
-                            new DatabaseColumn
-                            {
-                                Name = "id",
-                                StoreType = "int"
-                            }
-                        },
-                        PrimaryKey = new DatabasePrimaryKey
-                        {
-                            Columns = { new DatabaseColumnRef("id") }
-                        }
+                        Columns = { new DatabaseColumn { Name = "id", StoreType = "int" } },
+                        PrimaryKey = new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("id") } }
                     },
                     new DatabaseTable
                     {
                         Name = postTableName,
                         Columns =
                         {
-                            new DatabaseColumn
-                            {
-                                Name = "id",
-                                StoreType = "int"
-                            },
-                            new DatabaseColumn
-                            {
-                                Name = "author_id",
-                                StoreType = "int"
-                            }
+                            new DatabaseColumn { Name = "id", StoreType = "int" },
+                            new DatabaseColumn { Name = "author_id", StoreType = "int" }
                         },
-                        PrimaryKey = new DatabasePrimaryKey
-                        {
-                            Columns = { new DatabaseColumnRef("id") }
-                        },
+                        PrimaryKey = new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("id") } },
                         ForeignKeys =
                         {
                             new DatabaseForeignKey

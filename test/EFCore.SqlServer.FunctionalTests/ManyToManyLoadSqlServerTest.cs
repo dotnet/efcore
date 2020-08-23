@@ -42,9 +42,11 @@ WHERE [e].[Id] = @__p_0
 ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id], [t0].[OneId], [t0].[TwoId], [t0].[Id]");
         }
 
-        protected override void ClearLog() => Fixture.TestSqlLoggerFactory.Clear();
+        protected override void ClearLog()
+            => Fixture.TestSqlLoggerFactory.Clear();
 
-        protected override void RecordLog() => Sql = Fixture.TestSqlLoggerFactory.Sql;
+        protected override void RecordLog()
+            => Sql = Fixture.TestSqlLoggerFactory.Sql;
 
         private const string FileNewLine = @"
 ";
@@ -93,9 +95,11 @@ ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id], [t0].[OneId], [t0].[TwoId
 
         public class ManyToManyLoadSqlServerFixture : ManyToManyLoadFixtureBase
         {
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
+            public TestSqlLoggerFactory TestSqlLoggerFactory
+                => (TestSqlLoggerFactory)ListLoggerFactory;
 
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {

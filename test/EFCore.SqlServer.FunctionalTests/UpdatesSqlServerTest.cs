@@ -26,13 +26,7 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     context.AddRange(
-                        new ProductWithBytes
-                        {
-                            ProductCategories = new List<ProductCategory>
-                            {
-                                new ProductCategory { CategoryId = 77 }
-                            }
-                        },
+                        new ProductWithBytes { ProductCategories = new List<ProductCategory> { new ProductCategory { CategoryId = 77 } } },
                         new Category { Id = 77, PrincipalId = 777 });
 
                     context.SaveChanges();
@@ -75,7 +69,6 @@ INTO @inserted0;
 SELECT [t].[Id] FROM [ProductBase] t
 INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id])
 ORDER BY [i].[_Position];");
-
         }
 
         public override void Save_replaced_principal()

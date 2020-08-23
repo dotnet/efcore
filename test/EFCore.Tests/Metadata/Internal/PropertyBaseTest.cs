@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -744,7 +743,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private static IMutableNavigation CreateReferenceNavigation<TEntity>(
-            string fieldName, string navigationName = Reference)
+            string fieldName,
+            string navigationName = Reference)
             where TEntity : class
         {
             var model = CreateModelBuilder();
@@ -761,7 +761,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private static IMutableNavigation CreateCollectionNavigation<TEntity>(
-            string fieldName, string navigationName = Collection)
+            string fieldName,
+            string navigationName = Collection)
             where TEntity : class
         {
             var model = CreateModelBuilder();
@@ -777,10 +778,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return navigation;
         }
 
-        private static ModelBuilder CreateModelBuilder() => InMemoryTestHelpers.Instance.CreateConventionBuilder();
+        private static ModelBuilder CreateModelBuilder()
+            => InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
         private void MemberInfoTest(
-            IMutableProperty property, PropertyAccessMode? accessMode, string forConstruction, string forSet, string forGet)
+            IMutableProperty property,
+            PropertyAccessMode? accessMode,
+            string forConstruction,
+            string forSet,
+            string forGet)
         {
             property.SetPropertyAccessMode(accessMode);
 
@@ -788,7 +794,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private void MemberInfoTest(
-            IMutableNavigation navigation, PropertyAccessMode? accessMode, string forConstruction, string forSet, string forGet)
+            IMutableNavigation navigation,
+            PropertyAccessMode? accessMode,
+            string forConstruction,
+            string forSet,
+            string forGet)
         {
             navigation.SetPropertyAccessMode(accessMode);
 
@@ -796,7 +806,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private void MemberInfoTestCommon(
-            IPropertyBase propertyBase, PropertyAccessMode? accessMode, string forConstruction, string forSet, string forGet)
+            IPropertyBase propertyBase,
+            PropertyAccessMode? accessMode,
+            string forConstruction,
+            string forSet,
+            string forGet)
         {
             string failMessage = null;
             try
@@ -1023,9 +1037,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 _collection = collection;
             }
 
-            public int Foo => _foo;
-            public ReadOnlyProp Reference => _reference;
-            public IEnumerable<ReadOnlyProp> Collection => _collection;
+            public int Foo
+                => _foo;
+
+            public ReadOnlyProp Reference
+                => _reference;
+
+            public IEnumerable<ReadOnlyProp> Collection
+                => _collection;
         }
 
         private class ReadOnlyAutoProp
@@ -1065,9 +1084,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             public int Id { get; set; }
-            public int Foo => _foo;
-            public ReadOnlyFieldProp Reference => _reference;
-            public IEnumerable<ReadOnlyFieldProp> Collection => _collection;
+
+            public int Foo
+                => _foo;
+
+            public ReadOnlyFieldProp Reference
+                => _reference;
+
+            public IEnumerable<ReadOnlyFieldProp> Collection
+                => _collection;
         }
 
         private class WriteOnlyProp
@@ -1163,9 +1188,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             public int Id { get; set; }
-            public int Foo => _notFound;
-            public ReadOnlyPropNoField Reference => _notFoundRef;
-            public IEnumerable<ReadOnlyPropNoField> Collection => _notFoundColl;
+
+            public int Foo
+                => _notFound;
+
+            public ReadOnlyPropNoField Reference
+                => _notFoundRef;
+
+            public IEnumerable<ReadOnlyPropNoField> Collection
+                => _notFoundColl;
         }
 
         private class WriteOnlyPropNoField
@@ -1194,9 +1225,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class PrivateSetterInBase : PrivateSetterBase
         {
-            public override int Foo => _foo;
-            public override PrivateSetterInBase Reference => _reference;
-            public override IEnumerable<PrivateSetterInBase> Collection => _collection;
+            public override int Foo
+                => _foo;
+
+            public override PrivateSetterInBase Reference
+                => _reference;
+
+            public override IEnumerable<PrivateSetterInBase> Collection
+                => _collection;
         }
 
         private class PrivateSetterBase

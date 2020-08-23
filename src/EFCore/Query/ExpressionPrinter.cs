@@ -79,7 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="items"> A collection of items to print. </param>
         /// <param name="joinAction"> A join action to use when joining printout of individual item in the collection. </param>
-        public virtual void VisitCollection<T>([NotNull] IReadOnlyCollection<T> items,
+        public virtual void VisitCollection<T>(
+            [NotNull] IReadOnlyCollection<T> items,
             [CanBeNull] Action<ExpressionPrinter> joinAction = null)
             where T : Expression
         {
@@ -140,7 +141,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Creates a scoped indenter that will increment the indent, then decrement it when disposed.
         /// </summary>
         /// <returns> An indenter. </returns>
-        public virtual IDisposable Indent() => _stringBuilder.Indent();
+        public virtual IDisposable Indent()
+            => _stringBuilder.Indent();
 
         /// <summary>
         ///     Appends the given string to current output being built.
@@ -204,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Returns binary operator string corresponding to given <see cref="ExpressionType"/>.
+        ///     Returns binary operator string corresponding to given <see cref="ExpressionType" />.
         /// </summary>
         /// <param name="expressionType"> The expression type to generate binary operator for. </param>
         /// <returns> The binary operator string. </returns>
@@ -978,11 +980,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Visit(indexExpression.Object);
             _stringBuilder.Append("[");
-            VisitArguments(indexExpression.Arguments, s =>
-            {
-                _stringBuilder.Append(s);
-                return null;
-            });
+            VisitArguments(
+                indexExpression.Arguments, s =>
+                {
+                    _stringBuilder.Append(s);
+                    return null;
+                });
             _stringBuilder.Append("]");
 
             return indexExpression;

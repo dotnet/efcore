@@ -329,13 +329,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="defaultValueSql"> The SQL expression to use for the column's default constraint. </param>
         /// <param name="computedColumnSql"> The SQL expression to use to compute the column value. </param>
         /// <param name="oldClrType">
-        ///     The CLR type that the column was previously mapped to. Can be <see langword="null" />, in which case previous value is considered unknown.
+        ///     The CLR type that the column was previously mapped to. Can be <see langword="null" />, in which case previous value is considered
+        ///     unknown.
         /// </param>
         /// <param name="oldType">
         ///     The previous store/database type of the column. Can be <see langword="null" />, in which case previous value is considered unknown.
         /// </param>
         /// <param name="oldUnicode">
-        ///     Indicates whether or not the column could previously contain Unicode data, or <see langword="null" /> if not specified or not applicable.
+        ///     Indicates whether or not the column could previously contain Unicode data, or <see langword="null" /> if not specified or not
+        ///     applicable.
         /// </param>
         /// <param name="oldMaxLength">
         ///     The previous maximum length of data that can be stored in the column, or <see langword="null" /> if not specified or not applicable.
@@ -345,18 +347,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     in SQL Server. Can be <see langword="null" />, in which case previous value is considered unknown.
         /// </param>
         /// <param name="oldNullable">
-        ///     Indicates whether or not the column could previously store <see langword="null" /> values. Can be <see langword="null" />, in which case previous value is
+        ///     Indicates whether or not the column could previously store <see langword="null" /> values. Can be <see langword="null" />, in which
+        ///     case previous value is
         ///     considered unknown.
         /// </param>
         /// <param name="oldDefaultValue">
         ///     The previous default value for the column. Can be <see langword="null" />, in which case previous value is considered unknown.
         /// </param>
         /// <param name="oldDefaultValueSql">
-        ///     The previous SQL expression used for the column's default constraint. Can be <see langword="null" />, in which case previous value is considered
+        ///     The previous SQL expression used for the column's default constraint. Can be <see langword="null" />, in which case previous value is
+        ///     considered
         ///     unknown.
         /// </param>
         /// <param name="oldComputedColumnSql">
-        ///     The previous SQL expression used to compute the column value. Can be <see langword="null" />, in which case previous value is considered unknown.
+        ///     The previous SQL expression used to compute the column value. Can be <see langword="null" />, in which case previous value is
+        ///     considered unknown.
         /// </param>
         /// <param name="fixedLength"> Indicates whether or not the column is constrained to fixed-length data. </param>
         /// <param name="oldFixedLength"> Indicates whether or not the column was previously constrained to fixed-length data. </param>
@@ -374,7 +379,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     The maximum number of decimal places that is allowed in this column, or <see langword="null" /> if not specified or not applicable.
         /// </param>
         /// <param name="oldScale">
-        ///     The previous maximum number of decimal places that is allowed in this column, or <see langword="null" /> if not specified or not applicable.
+        ///     The previous maximum number of decimal places that is allowed in this column, or <see langword="null" /> if not specified or not
+        ///     applicable.
         /// </param>
         /// <param name="stored"> Whether the value of the computed column is stored in the database or not. </param>
         /// <param name="oldStored"> Whether the value of the previous computed column was stored in the database or not. </param>
@@ -471,10 +477,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] string collation = null,
             [CanBeNull] string oldCollation = null)
         {
-            var operation = new AlterDatabaseOperation
-            {
-                Collation = collation
-            };
+            var operation = new AlterDatabaseOperation { Collation = collation };
             Operations.Add(operation);
 
             return new AlterOperationBuilder<AlterDatabaseOperation>(operation);
@@ -696,7 +699,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         /// <summary>
         ///     <para>
-        ///         Warning, this API is obsolete. Use <see cref="AddCheckConstraint"/> instead.
+        ///         Warning, this API is obsolete. Use <see cref="AddCheckConstraint" /> instead.
         ///     </para>
         ///     <para>
         ///         Builds an <see cref="AddCheckConstraintOperation" /> to create a new check constraint.
@@ -1588,22 +1591,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString() => base.ToString();
+        public override string ToString()
+            => base.ToString();
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
+        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => base.Equals(obj);
+        public override bool Equals(object obj)
+            => base.Equals(obj);
 
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
         /// <returns> A hash code for the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode()
+            => base.GetHashCode();
 
         #endregion
     }

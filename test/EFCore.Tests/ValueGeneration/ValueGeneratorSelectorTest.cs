@@ -139,7 +139,8 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
                 throw new NotImplementedException();
             }
 
-            public override bool GeneratesTemporaryValues => false;
+            public override bool GeneratesTemporaryValues
+                => false;
         }
     }
 }

@@ -15,8 +15,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             => new ValueTask<bool>(
                 TestEnvironment.IsConfigured && (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || !TestEnvironment.IsLocalDb));
 
-        public string SkipReason => TestEnvironment.IsLocalDb
-            ? "LocalDb is not accessible on this platform. An external SQL Server must be configured."
-            : "No test SQL Server has been configured.";
+        public string SkipReason
+            => TestEnvironment.IsLocalDb
+                ? "LocalDb is not accessible on this platform. An external SQL Server must be configured."
+                : "No test SQL Server has been configured.";
     }
 }

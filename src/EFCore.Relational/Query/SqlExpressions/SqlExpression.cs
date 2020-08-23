@@ -24,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="SqlExpression" /> class.
         /// </summary>
-        /// <param name="type"> The <see cref="System.Type"/> of the expression. </param>
-        /// <param name="typeMapping"> The <see cref="RelationalTypeMapping"/> associated with the expression. </param>
+        /// <param name="type"> The <see cref="System.Type" /> of the expression. </param>
+        /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
         protected SqlExpression([NotNull] Type type, [CanBeNull] RelationalTypeMapping typeMapping)
         {
             Check.NotNull(type, nameof(type));
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public override Type Type { get; }
 
         /// <summary>
-        ///     The <see cref="RelationalTypeMapping"/> associated with this expression.
+        ///     The <see cref="RelationalTypeMapping" /> associated with this expression.
         /// </summary>
         public virtual RelationalTypeMapping TypeMapping { get; }
 
@@ -49,16 +49,18 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             => throw new InvalidOperationException(RelationalStrings.VisitChildrenMustBeOverridden);
 
         /// <inheritdoc />
-        public sealed override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType
+            => ExpressionType.Extension;
 
         /// <summary>
-        ///     Creates a printable string representation of the given expression using <see cref="ExpressionPrinter"/>.
+        ///     Creates a printable string representation of the given expression using <see cref="ExpressionPrinter" />.
         /// </summary>
         /// <param name="expressionPrinter"> The expression printer to use. </param>
         protected abstract void Print([NotNull] ExpressionPrinter expressionPrinter);
 
         /// <inheritdoc />
-        void IPrintableExpression.Print(ExpressionPrinter expressionPrinter) => Print(expressionPrinter);
+        void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
+            => Print(expressionPrinter);
 
         /// <inheritdoc />
         public override bool Equals(object obj)
@@ -69,10 +71,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         private bool Equals(SqlExpression sqlExpression)
             => Type == sqlExpression.Type
-               && ((TypeMapping == null && sqlExpression.TypeMapping == null)
-                || TypeMapping?.Equals(sqlExpression.TypeMapping) == true);
+                && ((TypeMapping == null && sqlExpression.TypeMapping == null)
+                    || TypeMapping?.Equals(sqlExpression.TypeMapping) == true);
 
         /// <inheritdoc />
-        public override int GetHashCode() => HashCode.Combine(Type, TypeMapping);
+        public override int GetHashCode()
+            => HashCode.Combine(Type, TypeMapping);
     }
 }

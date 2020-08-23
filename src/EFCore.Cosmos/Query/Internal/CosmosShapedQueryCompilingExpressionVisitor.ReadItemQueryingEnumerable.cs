@@ -54,9 +54,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
                 => new Enumerator(this, cancellationToken);
 
-            public IEnumerator<T> GetEnumerator() => new Enumerator(this);
+            public IEnumerator<T> GetEnumerator()
+                => new Enumerator(this);
 
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            IEnumerator IEnumerable.GetEnumerator()
+                => GetEnumerator();
 
             public string ToQueryString()
             {
@@ -163,7 +165,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 return value != null;
             }
 
-
             private sealed class Enumerator : IEnumerator<T>, IAsyncEnumerator<T>
             {
                 private readonly CosmosQueryContext _cosmosQueryContext;
@@ -190,7 +191,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     _cancellationToken = cancellationToken;
                 }
 
-                object IEnumerator.Current => Current;
+                object IEnumerator.Current
+                    => Current;
 
                 public T Current { get; private set; }
 
@@ -241,7 +243,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         {
                             if (!_hasExecuted)
                             {
-
                                 if (!_readItemEnumerable.TryGetResourceId(out var resourceId))
                                 {
                                     throw new InvalidOperationException(CosmosStrings.ResourceIdMissing);
@@ -255,10 +256,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                 EntityFrameworkEventSource.Log.QueryExecuting();
 
                                 _item = await _cosmosQueryContext.CosmosClient.ExecuteReadItemAsync(
-                                    _readItemExpression.Container,
-                                    partitionKey,
-                                    resourceId,
-                                    _cancellationToken)
+                                        _readItemExpression.Container,
+                                        partitionKey,
+                                        resourceId,
+                                        _cancellationToken)
                                     .ConfigureAwait(false);
 
                                 return ShapeResult();
@@ -288,7 +289,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return default;
                 }
 
-                public void Reset() => throw new NotImplementedException();
+                public void Reset()
+                    => throw new NotImplementedException();
 
                 private bool ShapeResult()
                 {

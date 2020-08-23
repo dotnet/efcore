@@ -159,7 +159,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        public static string SetDatabaseName([NotNull] this IConventionIndex index, [CanBeNull] string name, bool fromDataAnnotation = false)
+        public static string SetDatabaseName(
+            [NotNull] this IConventionIndex index,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
         {
             index.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.Name,
@@ -265,8 +268,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> The table indexes to which the index is mapped. </returns>
-        public static IEnumerable<ITableIndex> GetMappedTableIndexes([NotNull] this IIndex index) =>
-            (IEnumerable<ITableIndex>)index[RelationalAnnotationNames.TableIndexMappings]
+        public static IEnumerable<ITableIndex> GetMappedTableIndexes([NotNull] this IIndex index)
+            => (IEnumerable<ITableIndex>)index[RelationalAnnotationNames.TableIndexMappings]
                 ?? Enumerable.Empty<ITableIndex>();
 
         /// <summary>
@@ -293,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore
             for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
             {
                 IIndex linkedIndex = null;
-                foreach(var otherIndex in rootIndex.DeclaringEntityType
+                foreach (var otherIndex in rootIndex.DeclaringEntityType
                     .FindRowInternalForeignKeys(storeObject)
                     .SelectMany(fk => fk.PrincipalEntityType.GetIndexes()))
                 {
@@ -328,7 +331,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The index found, or <see langword="null" /> if none was found.</returns>
         public static IMutableIndex FindSharedObjectRootIndex(
-            [NotNull] this IMutableIndex index, in StoreObjectIdentifier storeObject)
+            [NotNull] this IMutableIndex index,
+            in StoreObjectIdentifier storeObject)
             => (IMutableIndex)((IIndex)index).FindSharedObjectRootIndex(storeObject);
 
         /// <summary>
@@ -344,7 +348,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The index found, or <see langword="null" /> if none was found.</returns>
         public static IConventionIndex FindSharedObjectRootIndex(
-            [NotNull] this IConventionIndex index, in StoreObjectIdentifier storeObject)
+            [NotNull] this IConventionIndex index,
+            in StoreObjectIdentifier storeObject)
             => (IConventionIndex)((IIndex)index).FindSharedObjectRootIndex(storeObject);
     }
 }

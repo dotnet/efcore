@@ -82,10 +82,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (_splitQuery
                     && collectionJoin == null)
                 {
-                    throw new InvalidOperationException(RelationalStrings.UnableToSplitCollectionProjectionInSplitQuery(
-                        $"{nameof(QuerySplittingBehavior)}.{QuerySplittingBehavior.SplitQuery}",
-                        nameof(RelationalQueryableExtensions.AsSplitQuery),
-                        nameof(RelationalQueryableExtensions.AsSingleQuery)));
+                    throw new InvalidOperationException(
+                        RelationalStrings.UnableToSplitCollectionProjectionInSplitQuery(
+                            $"{nameof(QuerySplittingBehavior)}.{QuerySplittingBehavior.SplitQuery}",
+                            nameof(RelationalQueryableExtensions.AsSplitQuery),
+                            nameof(RelationalQueryableExtensions.AsSingleQuery)));
                 }
 
                 return collectionJoin;

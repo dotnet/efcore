@@ -60,7 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual OwnershipBuilder<TEntity, TDependentEntity> HasAnnotation(
-            [NotNull] string annotation, [NotNull] object value)
+            [NotNull] string annotation,
+            [NotNull] object value)
             => (OwnershipBuilder<TEntity, TDependentEntity>)base.HasAnnotation(annotation, value);
 
         /// <summary>

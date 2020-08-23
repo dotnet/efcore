@@ -7,8 +7,10 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class F1InMemoryFixture : F1FixtureBase
     {
-        public override TestHelpers TestHelpers => InMemoryTestHelpers.Instance;
+        public override TestHelpers TestHelpers
+            => InMemoryTestHelpers.Instance;
 
-        protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory
+            => InMemoryTestStoreFactory.Instance;
     }
 }

@@ -1058,7 +1058,8 @@ COMMIT;
 
         public class MigrationsInfrastructureSqliteFixture : MigrationsInfrastructureFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqliteTestStoreFactory.Instance;
         }
     }
 }

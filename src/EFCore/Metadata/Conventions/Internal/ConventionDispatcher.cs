@@ -112,7 +112,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string OnEntityTypeIgnored(
-            [NotNull] IConventionModelBuilder modelBuilder, [NotNull] string name, [CanBeNull] Type type)
+            [NotNull] IConventionModelBuilder modelBuilder,
+            [NotNull] string name,
+            [CanBeNull] Type type)
             => _scope.OnEntityTypeIgnored(modelBuilder, name, type);
 
         /// <summary>
@@ -122,7 +124,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IConventionEntityType OnEntityTypeRemoved(
-            [NotNull] IConventionModelBuilder modelBuilder, [NotNull] IConventionEntityType type)
+            [NotNull] IConventionModelBuilder modelBuilder,
+            [NotNull] IConventionEntityType type)
             => _scope.OnEntityTypeRemoved(modelBuilder, type);
 
         /// <summary>
@@ -188,7 +191,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IConventionForeignKey OnForeignKeyRemoved(
-            [NotNull] IConventionEntityTypeBuilder entityTypeBuilder, [NotNull] IConventionForeignKey foreignKey)
+            [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
+            [NotNull] IConventionForeignKey foreignKey)
             => _scope.OnForeignKeyRemoved(entityTypeBuilder, foreignKey);
 
         /// <summary>
@@ -471,7 +475,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IConventionIndex OnIndexRemoved(
-            [NotNull] IConventionEntityTypeBuilder entityTypeBuilder, [NotNull] IConventionIndex index)
+            [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
+            [NotNull] IConventionIndex index)
             => _scope.OnIndexRemoved(entityTypeBuilder, index);
 
         /// <summary>
@@ -543,7 +548,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual FieldInfo OnPropertyFieldChanged(
-            [NotNull] IConventionPropertyBuilder propertyBuilder, [CanBeNull] FieldInfo newFieldInfo, [CanBeNull] FieldInfo oldFieldInfo)
+            [NotNull] IConventionPropertyBuilder propertyBuilder,
+            [CanBeNull] FieldInfo newFieldInfo,
+            [CanBeNull] FieldInfo oldFieldInfo)
             => _scope.OnPropertyFieldChanged(propertyBuilder, newFieldInfo, oldFieldInfo);
 
         /// <summary>
@@ -576,7 +583,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionBatch DelayConventions() => new ConventionBatch(this);
+        public virtual IConventionBatch DelayConventions()
+            => new ConventionBatch(this);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -603,7 +611,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Conditional("DEBUG")]
         public virtual void AssertNoScope()
         {
-            Check.DebugAssert(_scope == _immediateConventionScope, "Expected no active convention scopes");            
+            Check.DebugAssert(_scope == _immediateConventionScope, "Expected no active convention scopes");
         }
 
         private sealed class ConventionBatch : IConventionBatch

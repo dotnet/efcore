@@ -173,7 +173,8 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public ILogger CreateLogger(string name) => Logger;
+            public ILogger CreateLogger(string name)
+                => Logger;
 
             public void Dispose()
             {
@@ -181,7 +182,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public class TestLogger : ILogger
             {
-                public IDisposable BeginScope<TState>(TState state) => NullScope.Instance;
+                public IDisposable BeginScope<TState>(TState state)
+                    => NullScope.Instance;
 
                 public void Log<TState>(
                     LogLevel logLevel,
@@ -199,7 +201,8 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 }
 
-                public bool IsEnabled(LogLevel logLevel) => true;
+                public bool IsEnabled(LogLevel logLevel)
+                    => true;
 
                 public IReadOnlyList<KeyValuePair<string, object>> LastDatabaseErrorState { get; private set; }
                 public Exception LastDatabaseErrorException { get; private set; }

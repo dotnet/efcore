@@ -55,7 +55,9 @@ namespace Microsoft.EntityFrameworkCore
         public class DataAnnotationInMemoryFixture : DataAnnotationFixtureBase
         {
             public static readonly string DatabaseName = "DataAnnotations";
-            protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+
+            protected override ITestStoreFactory TestStoreFactory
+                => InMemoryTestStoreFactory.Instance;
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base.AddOptions(builder).ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));

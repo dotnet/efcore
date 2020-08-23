@@ -12,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class GearsOfWarFromSqlQueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : GearsOfWarQueryRelationalFixture, new()
     {
-        protected GearsOfWarFromSqlQueryTestBase(TFixture fixture) => Fixture = fixture;
+        protected GearsOfWarFromSqlQueryTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
@@ -39,7 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         private FormattableString NormalizeDelimitersInInterpolatedString(FormattableString sql)
             => Fixture.TestStore.NormalizeDelimitersInInterpolatedString(sql);
 
-        protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
+        protected GearsOfWarContext CreateContext()
+            => Fixture.CreateContext();
 
         protected virtual void ClearLog()
         {

@@ -22,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected override Assembly TargetAssembly => typeof(EntityType).Assembly;
+        protected override Assembly TargetAssembly
+            => typeof(EntityType).Assembly;
 
         protected override void AddServices(ServiceCollection serviceCollection)
             => new EntityFrameworkServicesBuilder(serviceCollection).TryAddCoreServices();
@@ -82,18 +83,27 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(EntityFrameworkServiceCollectionExtensions)
             };
 
-            public override List<(Type Type, Type ReadonlyExtensions, Type MutableExtensions, Type ConventionExtensions, Type ConventionBuilderExtensions)> MetadataExtensionTypes { get; }
+            public override
+                List<(Type Type, Type ReadonlyExtensions, Type MutableExtensions, Type ConventionExtensions, Type
+                    ConventionBuilderExtensions)> MetadataExtensionTypes { get; }
                 = new List<(Type, Type, Type, Type, Type)>
                 {
-                    { (typeof(IModel), typeof(ModelExtensions), typeof(MutableModelExtensions), typeof(ConventionModelExtensions), null) },
-                    { (typeof(IAnnotatable), typeof(AnnotatableExtensions), typeof(MutableAnnotatableExtensions), typeof(ConventionAnnotatableExtensions), null) },
-                    { (typeof(IEntityType), typeof(EntityTypeExtensions), typeof(MutableEntityTypeExtensions), typeof(ConventionEntityTypeExtensions), null) },
-                    { (typeof(ITypeBase), typeof(TypeBaseExtensions), typeof(MutableTypeBaseExtensions), typeof(ConventionTypeBaseExtensions), null) },
-                    { (typeof(IKey),typeof(KeyExtensions), typeof(MutableKeyExtensions), typeof(ConventionKeyExtensions), null) },
-                    { (typeof(IForeignKey), typeof(ForeignKeyExtensions), typeof(MutableForeignKeyExtensions), typeof(ConventionForeignKeyExtensions), null) },
-                    { (typeof(IProperty), typeof(PropertyExtensions), typeof(MutablePropertyExtensions), typeof(ConventionPropertyExtensions), null) },
-                    { (typeof(INavigation), typeof(NavigationExtensions), typeof(MutableNavigationExtensions), typeof(ConventionNavigationExtensions), null) },
-                    { (typeof(IPropertyBase), typeof(PropertyBaseExtensions), typeof(MutablePropertyBaseExtensions), typeof(ConventionPropertyBaseExtensions), null) }
+                    (typeof(IModel), typeof(ModelExtensions), typeof(MutableModelExtensions), typeof(ConventionModelExtensions), null),
+                    (typeof(IAnnotatable), typeof(AnnotatableExtensions), typeof(MutableAnnotatableExtensions),
+                        typeof(ConventionAnnotatableExtensions), null),
+                    (typeof(IEntityType), typeof(EntityTypeExtensions), typeof(MutableEntityTypeExtensions),
+                        typeof(ConventionEntityTypeExtensions), null),
+                    (typeof(ITypeBase), typeof(TypeBaseExtensions), typeof(MutableTypeBaseExtensions),
+                        typeof(ConventionTypeBaseExtensions), null),
+                    (typeof(IKey), typeof(KeyExtensions), typeof(MutableKeyExtensions), typeof(ConventionKeyExtensions), null),
+                    (typeof(IForeignKey), typeof(ForeignKeyExtensions), typeof(MutableForeignKeyExtensions),
+                        typeof(ConventionForeignKeyExtensions), null),
+                    (typeof(IProperty), typeof(PropertyExtensions), typeof(MutablePropertyExtensions),
+                        typeof(ConventionPropertyExtensions), null),
+                    (typeof(INavigation), typeof(NavigationExtensions), typeof(MutableNavigationExtensions),
+                        typeof(ConventionNavigationExtensions), null),
+                    (typeof(IPropertyBase), typeof(PropertyBaseExtensions), typeof(MutablePropertyBaseExtensions),
+                        typeof(ConventionPropertyBaseExtensions), null)
                 };
 
             public override HashSet<MethodInfo> NonVirtualMethods { get; } = new HashSet<MethodInfo>
@@ -113,13 +123,19 @@ namespace Microsoft.EntityFrameworkCore
 
             public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new HashSet<MethodInfo>
             {
-                typeof(OwnedNavigationBuilder<,>).GetMethod(nameof(OwnedNavigationBuilder.OwnsOne), 0, new []{ typeof(string), typeof(string) }),
-                typeof(OwnedNavigationBuilder<,>).GetMethod(nameof(OwnedNavigationBuilder.OwnsOne), 0, new []{ typeof(string), typeof(Type), typeof(string) }),
-                typeof(OwnedNavigationBuilder<,>).GetMethod(nameof(OwnedNavigationBuilder.OwnsOne), 0, new []{ typeof(Type), typeof(string) }),
-                typeof(OwnedNavigationBuilder<,>).GetMethod(nameof(OwnedNavigationBuilder.OwnsMany), 0, new []{ typeof(string), typeof(string) }),
-                typeof(OwnedNavigationBuilder<,>).GetMethod(nameof(OwnedNavigationBuilder.OwnsMany), 0, new []{ typeof(string), typeof(Type), typeof(string) }),
-                typeof(OwnedNavigationBuilder<,>).GetMethod(nameof(OwnedNavigationBuilder.OwnsMany), 0, new []{ typeof(Type), typeof(string) }),
-                typeof(IConventionPropertyBase).GetMethod(nameof(IConventionPropertyBase.SetField), new []{ typeof(string), typeof(bool) }),
+                typeof(OwnedNavigationBuilder<,>).GetMethod(
+                    nameof(OwnedNavigationBuilder.OwnsOne), 0, new[] { typeof(string), typeof(string) }),
+                typeof(OwnedNavigationBuilder<,>).GetMethod(
+                    nameof(OwnedNavigationBuilder.OwnsOne), 0, new[] { typeof(string), typeof(Type), typeof(string) }),
+                typeof(OwnedNavigationBuilder<,>).GetMethod(
+                    nameof(OwnedNavigationBuilder.OwnsOne), 0, new[] { typeof(Type), typeof(string) }),
+                typeof(OwnedNavigationBuilder<,>).GetMethod(
+                    nameof(OwnedNavigationBuilder.OwnsMany), 0, new[] { typeof(string), typeof(string) }),
+                typeof(OwnedNavigationBuilder<,>).GetMethod(
+                    nameof(OwnedNavigationBuilder.OwnsMany), 0, new[] { typeof(string), typeof(Type), typeof(string) }),
+                typeof(OwnedNavigationBuilder<,>).GetMethod(
+                    nameof(OwnedNavigationBuilder.OwnsMany), 0, new[] { typeof(Type), typeof(string) }),
+                typeof(IConventionPropertyBase).GetMethod(nameof(IConventionPropertyBase.SetField), new[] { typeof(string), typeof(bool) }),
                 typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.FindAnnotation)),
                 typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.GetAnnotations)),
                 typeof(IMutableAnnotatable).GetMethod("set_Item"),
@@ -139,20 +155,32 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(IConventionAnnotatableBuilder).GetMethod(nameof(IConventionAnnotatableBuilder.HasNonNullAnnotation)),
                 typeof(IConventionEntityTypeBuilder).GetMethod(nameof(IConventionEntityTypeBuilder.RemoveUnusedImplicitProperties)),
                 typeof(IConventionEntityTypeBuilder).GetMethod(nameof(IConventionEntityTypeBuilder.Ignore)),
-                typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.Ignore), new []{ typeof(Type), typeof(bool) }),
-                typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.Ignore), new []{ typeof(string), typeof(bool) }),
-                typeof(IConventionPropertyBuilder).GetMethod(nameof(IConventionPropertyBuilder.HasField), new[] {typeof(string), typeof(bool) }),
-                typeof(IConventionPropertyBuilder).GetMethod(nameof(IConventionPropertyBuilder.HasField), new[] {typeof(FieldInfo), typeof(bool) }),
-                typeof(IConventionPropertyBuilder).GetMethod(nameof(IConventionPropertyBuilder.UsePropertyAccessMode), new[] {typeof(PropertyAccessMode), typeof(bool) }),
-                typeof(IConventionServicePropertyBuilder).GetMethod(nameof(IConventionServicePropertyBuilder.HasField), new[] {typeof(string), typeof(bool) }),
-                typeof(IConventionServicePropertyBuilder).GetMethod(nameof(IConventionServicePropertyBuilder.HasField), new[] {typeof(FieldInfo), typeof(bool) }),
-                typeof(IConventionServicePropertyBuilder).GetMethod(nameof(IConventionServicePropertyBuilder.UsePropertyAccessMode), new[] {typeof(PropertyAccessMode), typeof(bool) }),
-                typeof(IConventionNavigationBuilder).GetMethod(nameof(IConventionNavigationBuilder.HasField), new[] {typeof(string), typeof(bool) }),
-                typeof(IConventionNavigationBuilder).GetMethod(nameof(IConventionNavigationBuilder.HasField), new[] {typeof(FieldInfo), typeof(bool) }),
-                typeof(IConventionNavigationBuilder).GetMethod(nameof(IConventionNavigationBuilder.UsePropertyAccessMode), new[] {typeof(PropertyAccessMode), typeof(bool) }),
-                typeof(IConventionSkipNavigationBuilder).GetMethod(nameof(IConventionSkipNavigationBuilder.HasField), new[] {typeof(string), typeof(bool) }),
-                typeof(IConventionSkipNavigationBuilder).GetMethod(nameof(IConventionSkipNavigationBuilder.HasField), new[] {typeof(FieldInfo), typeof(bool) }),
-                typeof(IConventionSkipNavigationBuilder).GetMethod(nameof(IConventionSkipNavigationBuilder.UsePropertyAccessMode), new[] {typeof(PropertyAccessMode), typeof(bool) }),
+                typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.Ignore), new[] { typeof(Type), typeof(bool) }),
+                typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.Ignore), new[] { typeof(string), typeof(bool) }),
+                typeof(IConventionPropertyBuilder).GetMethod(
+                    nameof(IConventionPropertyBuilder.HasField), new[] { typeof(string), typeof(bool) }),
+                typeof(IConventionPropertyBuilder).GetMethod(
+                    nameof(IConventionPropertyBuilder.HasField), new[] { typeof(FieldInfo), typeof(bool) }),
+                typeof(IConventionPropertyBuilder).GetMethod(
+                    nameof(IConventionPropertyBuilder.UsePropertyAccessMode), new[] { typeof(PropertyAccessMode), typeof(bool) }),
+                typeof(IConventionServicePropertyBuilder).GetMethod(
+                    nameof(IConventionServicePropertyBuilder.HasField), new[] { typeof(string), typeof(bool) }),
+                typeof(IConventionServicePropertyBuilder).GetMethod(
+                    nameof(IConventionServicePropertyBuilder.HasField), new[] { typeof(FieldInfo), typeof(bool) }),
+                typeof(IConventionServicePropertyBuilder).GetMethod(
+                    nameof(IConventionServicePropertyBuilder.UsePropertyAccessMode), new[] { typeof(PropertyAccessMode), typeof(bool) }),
+                typeof(IConventionNavigationBuilder).GetMethod(
+                    nameof(IConventionNavigationBuilder.HasField), new[] { typeof(string), typeof(bool) }),
+                typeof(IConventionNavigationBuilder).GetMethod(
+                    nameof(IConventionNavigationBuilder.HasField), new[] { typeof(FieldInfo), typeof(bool) }),
+                typeof(IConventionNavigationBuilder).GetMethod(
+                    nameof(IConventionNavigationBuilder.UsePropertyAccessMode), new[] { typeof(PropertyAccessMode), typeof(bool) }),
+                typeof(IConventionSkipNavigationBuilder).GetMethod(
+                    nameof(IConventionSkipNavigationBuilder.HasField), new[] { typeof(string), typeof(bool) }),
+                typeof(IConventionSkipNavigationBuilder).GetMethod(
+                    nameof(IConventionSkipNavigationBuilder.HasField), new[] { typeof(FieldInfo), typeof(bool) }),
+                typeof(IConventionSkipNavigationBuilder).GetMethod(
+                    nameof(IConventionSkipNavigationBuilder.UsePropertyAccessMode), new[] { typeof(PropertyAccessMode), typeof(bool) }),
             };
 
             public override HashSet<MethodInfo> MetadataMethodExceptions { get; } = new HashSet<MethodInfo>

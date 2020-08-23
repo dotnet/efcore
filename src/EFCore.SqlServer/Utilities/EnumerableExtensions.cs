@@ -14,7 +14,8 @@ namespace System.Collections.Generic
             => string.Join(separator, source);
 
         public static IEnumerable<T> Distinct<T>(
-            this IEnumerable<T> source, Func<T, T, bool> comparer)
+            this IEnumerable<T> source,
+            Func<T, T, bool> comparer)
             where T : class
             => source.Distinct(new DynamicEqualityComparer<T>(comparer));
 
@@ -28,9 +29,11 @@ namespace System.Collections.Generic
                 _func = func;
             }
 
-            public bool Equals(T x, T y) => _func(x, y);
+            public bool Equals(T x, T y)
+                => _func(x, y);
 
-            public int GetHashCode(T obj) => 0; // force Equals
+            public int GetHashCode(T obj)
+                => 0; // force Equals
         }
     }
 }

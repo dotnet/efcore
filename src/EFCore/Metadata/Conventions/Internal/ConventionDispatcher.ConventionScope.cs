@@ -13,8 +13,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     {
         private abstract class ConventionScope : ConventionNode
         {
-            public virtual ConventionScope Parent => null;
-            public virtual IReadOnlyList<ConventionNode> Children => null;
+            public virtual ConventionScope Parent
+                => null;
+
+            public virtual IReadOnlyList<ConventionNode> Children
+                => null;
 
             public int GetLeafCount()
             {
@@ -64,9 +67,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 [CanBeNull] IConventionEntityType previousBaseType);
 
             public abstract string OnEntityTypeIgnored(
-                [NotNull] IConventionModelBuilder modelBuilder, [NotNull] string name, [CanBeNull] Type type);
+                [NotNull] IConventionModelBuilder modelBuilder,
+                [NotNull] string name,
+                [CanBeNull] Type type);
 
-            public abstract string OnEntityTypeMemberIgnored([NotNull] IConventionEntityTypeBuilder entityTypeBuilder, [NotNull] string name);
+            public abstract string OnEntityTypeMemberIgnored(
+                [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
+                [NotNull] string name);
 
             public abstract IConventionKey OnEntityTypePrimaryKeyChanged(
                 [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
@@ -74,7 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 [CanBeNull] IConventionKey previousPrimaryKey);
 
             public abstract IConventionEntityType OnEntityTypeRemoved(
-                [NotNull] IConventionModelBuilder modelBuilder, [NotNull] IConventionEntityType entityType);
+                [NotNull] IConventionModelBuilder modelBuilder,
+                [NotNull] IConventionEntityType entityType);
 
             public abstract IConventionForeignKeyBuilder OnForeignKeyAdded([NotNull] IConventionForeignKeyBuilder relationshipBuilder);
 
@@ -82,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 [NotNull] IConventionForeignKeyBuilder relationshipBuilder,
                 [NotNull] string name,
                 [CanBeNull] IConventionAnnotation annotation,
-                [CanBeNull]IConventionAnnotation oldAnnotation);
+                [CanBeNull] IConventionAnnotation oldAnnotation);
 
             public abstract bool? OnForeignKeyOwnershipChanged(
                 [NotNull] IConventionForeignKeyBuilder relationshipBuilder);
@@ -96,7 +104,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 [NotNull] IConventionKey oldPrincipalKey);
 
             public abstract IConventionForeignKey OnForeignKeyRemoved(
-                [NotNull] IConventionEntityTypeBuilder entityTypeBuilder, [NotNull] IConventionForeignKey foreignKey);
+                [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
+                [NotNull] IConventionForeignKey foreignKey);
 
             public abstract bool? OnForeignKeyRequirednessChanged(
                 [NotNull] IConventionForeignKeyBuilder relationshipBuilder);
@@ -116,7 +125,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 [CanBeNull] IConventionAnnotation oldAnnotation);
 
             public abstract IConventionIndex OnIndexRemoved(
-                [NotNull] IConventionEntityTypeBuilder entityTypeBuilder, [NotNull] IConventionIndex index);
+                [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
+                [NotNull] IConventionIndex index);
 
             public abstract bool? OnIndexUniquenessChanged([NotNull] IConventionIndexBuilder indexBuilder);
             public abstract IConventionKeyBuilder OnKeyAdded([NotNull] IConventionKeyBuilder keyBuilder);
@@ -127,7 +137,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 [CanBeNull] IConventionAnnotation annotation,
                 [CanBeNull] IConventionAnnotation oldAnnotation);
 
-            public abstract IConventionKey OnKeyRemoved([NotNull] IConventionEntityTypeBuilder entityTypeBuilder, [NotNull] IConventionKey key);
+            public abstract IConventionKey OnKeyRemoved(
+                [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
+                [NotNull] IConventionKey key);
 
             public abstract IConventionAnnotation OnModelAnnotationChanged(
                 [NotNull] IConventionModelBuilder modelBuilder,
@@ -182,11 +194,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 [CanBeNull] IConventionAnnotation oldAnnotation);
 
             public abstract FieldInfo OnPropertyFieldChanged(
-                [NotNull] IConventionPropertyBuilder propertyBuilder, FieldInfo newFieldInfo, [CanBeNull] FieldInfo oldFieldInfo);
+                [NotNull] IConventionPropertyBuilder propertyBuilder,
+                FieldInfo newFieldInfo,
+                [CanBeNull] FieldInfo oldFieldInfo);
 
             public abstract bool? OnPropertyNullabilityChanged([NotNull] IConventionPropertyBuilder propertyBuilder);
 
-            public abstract IConventionProperty OnPropertyRemoved([NotNull] IConventionEntityTypeBuilder entityTypeBuilder, [NotNull] IConventionProperty property);
+            public abstract IConventionProperty OnPropertyRemoved(
+                [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
+                [NotNull] IConventionProperty property);
         }
     }
 }

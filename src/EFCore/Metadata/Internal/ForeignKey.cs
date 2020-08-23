@@ -149,7 +149,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
+        public virtual ConfigurationSource GetConfigurationSource()
+            => _configurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -173,7 +174,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <param name="oldAnnotation"> The old annotation. </param>
         /// <returns> The annotation that was set. </returns>
         protected override IConventionAnnotation OnAnnotationSet(
-            string name, IConventionAnnotation annotation, IConventionAnnotation oldAnnotation)
+            string name,
+            IConventionAnnotation annotation,
+            IConventionAnnotation oldAnnotation)
             => Builder.ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyAnnotationChanged(Builder, name, annotation, oldAnnotation);
 
         /// <summary>
@@ -216,7 +219,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public virtual ConfigurationSource? GetPropertiesConfigurationSource() => _propertiesConfigurationSource;
+        public virtual ConfigurationSource? GetPropertiesConfigurationSource()
+            => _propertiesConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -240,7 +244,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public virtual ConfigurationSource? GetPrincipalKeyConfigurationSource() => _principalKeyConfigurationSource;
+        public virtual ConfigurationSource? GetPrincipalKeyConfigurationSource()
+            => _principalKeyConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -261,7 +266,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public virtual ConfigurationSource? GetPrincipalEndConfigurationSource() => _principalEndConfigurationSource;
+        public virtual ConfigurationSource? GetPrincipalEndConfigurationSource()
+            => _principalEndConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -318,7 +324,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public virtual ConfigurationSource? GetDependentToPrincipalConfigurationSource() => _dependentToPrincipalConfigurationSource;
+        public virtual ConfigurationSource? GetDependentToPrincipalConfigurationSource()
+            => _dependentToPrincipalConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -366,7 +373,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public virtual ConfigurationSource? GetPrincipalToDependentConfigurationSource() => _principalToDependentConfigurationSource;
+        public virtual ConfigurationSource? GetPrincipalToDependentConfigurationSource()
+            => _principalToDependentConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -546,7 +554,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 : oldUnique;
         }
 
-        private static bool DefaultIsUnique => false;
+        private static bool DefaultIsUnique
+            => false;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -555,7 +564,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public virtual ConfigurationSource? GetIsUniqueConfigurationSource() => _isUniqueConfigurationSource;
+        public virtual ConfigurationSource? GetIsUniqueConfigurationSource()
+            => _isUniqueConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -589,7 +599,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 : oldRequired;
         }
 
-        private bool DefaultIsRequired => !Properties.Any(p => p.IsNullable);
+        private bool DefaultIsRequired
+            => !Properties.Any(p => p.IsNullable);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -598,7 +609,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public virtual ConfigurationSource? GetIsRequiredConfigurationSource() => _isRequiredConfigurationSource;
+        public virtual ConfigurationSource? GetIsRequiredConfigurationSource()
+            => _isRequiredConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -648,7 +660,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 : oldRequired;
         }
 
-        private bool DefaultIsRequiredDependent => false;
+        private bool DefaultIsRequiredDependent
+            => false;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -657,7 +670,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public virtual ConfigurationSource? GetIsRequiredDependentConfigurationSource() => _isRequiredDependentConfigurationSource;
+        public virtual ConfigurationSource? GetIsRequiredDependentConfigurationSource()
+            => _isRequiredDependentConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -702,7 +716,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return DeleteBehavior;
         }
 
-        private static DeleteBehavior DefaultDeleteBehavior => DeleteBehavior.ClientSetNull;
+        private static DeleteBehavior DefaultDeleteBehavior
+            => DeleteBehavior.ClientSetNull;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -711,7 +726,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public virtual ConfigurationSource? GetDeleteBehaviorConfigurationSource() => _deleteBehaviorConfigurationSource;
+        public virtual ConfigurationSource? GetDeleteBehaviorConfigurationSource()
+            => _deleteBehaviorConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -759,7 +775,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 : oldIsOwnership;
         }
 
-        private static bool DefaultIsOwnership => false;
+        private static bool DefaultIsOwnership
+            => false;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -768,7 +785,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public virtual ConfigurationSource? GetIsOwnershipConfigurationSource() => _isOwnershipConfigurationSource;
+        public virtual ConfigurationSource? GetIsOwnershipConfigurationSource()
+            => _isOwnershipConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -972,8 +990,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IMutableNavigation IMutableForeignKey.SetDependentToPrincipal(string name) =>
-            SetDependentToPrincipal(name, ConfigurationSource.Explicit);
+        IMutableNavigation IMutableForeignKey.SetDependentToPrincipal(string name)
+            => SetDependentToPrincipal(name, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -982,8 +1000,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IMutableNavigation IMutableForeignKey.SetDependentToPrincipal(MemberInfo property) =>
-            SetDependentToPrincipal(property, ConfigurationSource.Explicit);
+        IMutableNavigation IMutableForeignKey.SetDependentToPrincipal(MemberInfo property)
+            => SetDependentToPrincipal(property, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -992,8 +1010,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IMutableNavigation IMutableForeignKey.SetPrincipalToDependent(string name) =>
-            HasPrincipalToDependent(name, ConfigurationSource.Explicit);
+        IMutableNavigation IMutableForeignKey.SetPrincipalToDependent(string name)
+            => HasPrincipalToDependent(name, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1002,8 +1020,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IMutableNavigation IMutableForeignKey.SetPrincipalToDependent(MemberInfo property) =>
-            HasPrincipalToDependent(property, ConfigurationSource.Explicit);
+        IMutableNavigation IMutableForeignKey.SetPrincipalToDependent(MemberInfo property)
+            => HasPrincipalToDependent(property, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1170,7 +1188,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+        public override string ToString()
+            => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         private void Validate(
             IReadOnlyList<Property> properties,
@@ -1345,11 +1364,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private static bool ArePropertyCountsEqual(
-            IReadOnlyList<IProperty> principalProperties, IReadOnlyList<IProperty> dependentProperties)
+            IReadOnlyList<IProperty> principalProperties,
+            IReadOnlyList<IProperty> dependentProperties)
             => principalProperties.Count == dependentProperties.Count;
 
         private static bool ArePropertyTypesCompatible(
-            IReadOnlyList<IProperty> principalProperties, IReadOnlyList<IProperty> dependentProperties)
+            IReadOnlyList<IProperty> principalProperties,
+            IReadOnlyList<IProperty> dependentProperties)
             => principalProperties.Select(p => p.ClrType.UnwrapNullableType()).SequenceEqual(
                 dependentProperties.Select(p => p.ClrType.UnwrapNullableType()));
     }

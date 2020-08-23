@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var property = ConsumedProperties[0];
 
             return Expression.Call(bindingInfo.MaterializationContextExpression, MaterializationContext.GetValueBufferMethod)
-                   .CreateValueBufferReadValueExpression(property.ClrType, bindingInfo.GetValueBufferIndex(property), property);
+                .CreateValueBufferReadValueExpression(property.ClrType, bindingInfo.GetValueBufferIndex(property), property);
         }
     }
 }

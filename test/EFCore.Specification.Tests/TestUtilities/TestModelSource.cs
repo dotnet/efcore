@@ -20,7 +20,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         protected override IModel CreateModel(
-            DbContext context, IConventionSetBuilder conventionSetBuilder, ModelDependencies modelDependencies)
+            DbContext context,
+            IConventionSetBuilder conventionSetBuilder,
+            ModelDependencies modelDependencies)
         {
             var modelBuilder = new ModelBuilder(conventionSetBuilder.CreateConventionSet(), modelDependencies);
 

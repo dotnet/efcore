@@ -35,7 +35,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         }
 
         private void Test(
-            string createSql, IEnumerable<string> tables, IEnumerable<string> schemas, Action<DatabaseModel> asserter, string cleanupSql)
+            string createSql,
+            IEnumerable<string> tables,
+            IEnumerable<string> schemas,
+            Action<DatabaseModel> asserter,
+            string cleanupSql)
         {
             Fixture.TestStore.ExecuteNonQuery(createSql);
 
@@ -351,7 +355,6 @@ DROP TABLE PrincipalTable;");
                     Assert.Equal(new[] { "Id3", "Id1", "Id2" }, foreignKey.Columns.Select(c => c.Name));
                     Assert.Equal("MinimalFKTest1", foreignKey.PrincipalTable.Name);
                     Assert.Equal(new[] { "Id2", "Id3", "Id1" }, foreignKey.PrincipalColumns.Select(c => c.Name));
-
                 },
                 @"
                     DROP TABLE MinimalFKTest2;
@@ -1006,8 +1009,12 @@ DROP TABLE PrincipalTable;");
         public class SqliteDatabaseModelFixture : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = nameof(SqliteDatabaseModelFactoryTest);
-            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
-            public new SqliteTestStore TestStore => (SqliteTestStore)base.TestStore;
+
+            protected override ITestStoreFactory TestStoreFactory
+                => SqliteTestStoreFactory.Instance;
+
+            public new SqliteTestStore TestStore
+                => (SqliteTestStore)base.TestStore;
 
             protected override bool ShouldLogCategory(string logCategory)
                 => logCategory == DbLoggerCategory.Scaffolding.Name;

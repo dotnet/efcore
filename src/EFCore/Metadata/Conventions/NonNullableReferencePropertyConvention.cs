@@ -42,7 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="propertyBuilder"> The builder for the property. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessPropertyAdded(
-            IConventionPropertyBuilder propertyBuilder, IConventionContext<IConventionPropertyBuilder> context)
+            IConventionPropertyBuilder propertyBuilder,
+            IConventionContext<IConventionPropertyBuilder> context)
         {
             Process(propertyBuilder);
         }

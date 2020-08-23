@@ -6,7 +6,6 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -524,7 +523,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [InlineData(SqlServerValueGenerationStrategy.SequenceHiLo, "DefaultValueSql")]
         [InlineData(SqlServerValueGenerationStrategy.SequenceHiLo, "ComputedColumnSql")]
         public void SqlServerValueGenerationStrategy_warns_when_setting_conflicting_value_generation_strategies(
-            SqlServerValueGenerationStrategy sqlServerValueGenerationStrategy, string conflictingValueGenerationStrategy)
+            SqlServerValueGenerationStrategy sqlServerValueGenerationStrategy,
+            string conflictingValueGenerationStrategy)
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
@@ -552,11 +552,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             propertyBuilder.Metadata.SetValueGenerationStrategy(sqlServerValueGenerationStrategy);
             ConfigureProperty(propertyBuilder.Metadata, "DefaultValue", "2");
 
-            VerifyWarnings( new[] {
-                SqlServerResources.LogConflictingValueGenerationStrategies(new TestLogger<SqlServerLoggingDefinitions>())
-                    .GenerateMessage(sqlServerValueGenerationStrategy.ToString(), "DefaultValue", "Id", nameof(Dog)),
-                RelationalResources.LogKeyHasDefaultValue(new TestLogger<SqlServerLoggingDefinitions>())
-                    .GenerateMessage("Id", nameof(Dog))
+            VerifyWarnings(
+                new[]
+                {
+                    SqlServerResources.LogConflictingValueGenerationStrategies(new TestLogger<SqlServerLoggingDefinitions>())
+                        .GenerateMessage(sqlServerValueGenerationStrategy.ToString(), "DefaultValue", "Id", nameof(Dog)),
+                    RelationalResources.LogKeyHasDefaultValue(new TestLogger<SqlServerLoggingDefinitions>())
+                        .GenerateMessage("Id", nameof(Dog))
                 },
                 modelBuilder.Model);
         }
@@ -596,6 +598,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public string Name { get; set; }
         }
 
-        protected override TestHelpers TestHelpers => SqlServerTestHelpers.Instance;
+        protected override TestHelpers TestHelpers
+            => SqlServerTestHelpers.Instance;
     }
 }

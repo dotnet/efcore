@@ -136,7 +136,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("_etag", etagProperty.GetJsonPropertyName());
         }
 
-        protected virtual ModelBuilder CreateConventionModelBuilder() => CosmosTestHelpers.Instance.CreateConventionBuilder();
+        protected virtual ModelBuilder CreateConventionModelBuilder()
+            => CosmosTestHelpers.Instance.CreateConventionBuilder();
 
         private class Customer
         {

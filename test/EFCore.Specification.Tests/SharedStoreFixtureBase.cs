@@ -20,7 +20,9 @@ namespace Microsoft.EntityFrameworkCore
         protected abstract string StoreName { get; }
         protected abstract ITestStoreFactory TestStoreFactory { get; }
         public TestStore TestStore { get; }
-        protected virtual bool UsePooling => true;
+
+        protected virtual bool UsePooling
+            => true;
 
         private IDbContextPool _contextPool;
 
@@ -77,7 +79,8 @@ namespace Microsoft.EntityFrameworkCore
             => base.AddServices(serviceCollection)
                 .AddSingleton<ILoggerFactory>(TestStoreFactory.CreateListLoggerFactory(ShouldLogCategory));
 
-        protected virtual bool ShouldLogCategory(string logCategory) => false;
+        protected virtual bool ShouldLogCategory(string logCategory)
+            => false;
 
         public virtual void Reseed()
         {
@@ -120,6 +123,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        public virtual Task DisposeAsync() => TestStore.DisposeAsync();
+        public virtual Task DisposeAsync()
+            => TestStore.DisposeAsync();
     }
 }

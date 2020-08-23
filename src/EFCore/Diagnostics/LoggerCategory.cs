@@ -23,13 +23,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     The logger category name.
         /// </summary>
         /// <returns> The logger category name. </returns>
-        public override string ToString() => Name;
+        public override string ToString()
+            => Name;
 
         /// <summary>
         ///     The logger category name.
         /// </summary>
         /// <param name="loggerCategory"> The category. </param>
-        public static implicit operator string([NotNull] LoggerCategory<T> loggerCategory) => loggerCategory.ToString();
+        public static implicit operator string([NotNull] LoggerCategory<T> loggerCategory)
+            => loggerCategory.ToString();
 
         private static string ToName(Type loggerCategoryType)
         {

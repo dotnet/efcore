@@ -23,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return model;
         }
 
-        protected override ModelBuilder GetModelBuilder() => CosmosConventionSetBuilder.CreateModelBuilder();
+        protected override ModelBuilder GetModelBuilder()
+            => CosmosConventionSetBuilder.CreateModelBuilder();
     }
 }

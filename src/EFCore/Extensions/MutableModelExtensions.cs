@@ -182,7 +182,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to set the access mode for. </param>
         /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or <see langword="null" /> to clear the mode set.</param>
         public static void SetPropertyAccessMode(
-            [NotNull] this IMutableModel model, PropertyAccessMode? propertyAccessMode)
+            [NotNull] this IMutableModel model,
+            PropertyAccessMode? propertyAccessMode)
             => Check.NotNull((Model)model, nameof(model))
                 .SetPropertyAccessMode(propertyAccessMode, ConfigurationSource.Explicit);
 
@@ -193,7 +194,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to set the default change tracking strategy for. </param>
         /// <param name="changeTrackingStrategy"> The strategy to use. </param>
         public static void SetChangeTrackingStrategy(
-            [NotNull] this IMutableModel model, ChangeTrackingStrategy? changeTrackingStrategy)
+            [NotNull] this IMutableModel model,
+            ChangeTrackingStrategy? changeTrackingStrategy)
             => Check.NotNull((Model)model, nameof(model))
                 .SetChangeTrackingStrategy(changeTrackingStrategy, ConfigurationSource.Explicit);
 
@@ -259,6 +261,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model to finalize. </param>
         /// <returns> The finalized <see cref="IModel" />. </returns>
-        public static IModel FinalizeModel([NotNull] this IMutableModel model) => ((Model)model).FinalizeModel();
+        public static IModel FinalizeModel([NotNull] this IMutableModel model)
+            => ((Model)model).FinalizeModel();
     }
 }

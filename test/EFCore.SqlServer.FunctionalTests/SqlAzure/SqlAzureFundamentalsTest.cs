@@ -13,7 +13,9 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
     [SqlServerCondition(SqlServerCondition.IsSqlAzure)]
     public class SqlAzureFundamentalsTest : IClassFixture<SqlAzureFixture>
     {
-        public SqlAzureFundamentalsTest(SqlAzureFixture fixture) => Fixture = fixture;
+        public SqlAzureFundamentalsTest(SqlAzureFixture fixture)
+            => Fixture = fixture;
+
         public SqlAzureFixture Fixture { get; }
 
         [ConditionalFact]
@@ -77,6 +79,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
             Assert.NotNull(order.Customer);
         }
 
-        protected AdventureWorksContext CreateContext() => Fixture.CreateContext();
+        protected AdventureWorksContext CreateContext()
+            => Fixture.CreateContext();
     }
 }

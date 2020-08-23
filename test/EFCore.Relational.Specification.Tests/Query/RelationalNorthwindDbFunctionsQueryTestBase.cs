@@ -17,10 +17,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        protected virtual bool CanExecuteQueryString => false;
+        protected virtual bool CanExecuteQueryString
+            => false;
 
         protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
-            => new RelationalQueryAsserter(fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+            => new RelationalQueryAsserter(
+                fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]

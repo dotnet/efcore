@@ -5,11 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -85,7 +83,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private class FakeServiceProvider : IServiceProvider
         {
-            public object GetService(Type serviceType) => null;
+            public object GetService(Type serviceType)
+                => null;
         }
 
         private class FakeInternalEntityEntry : InternalEntityEntry
@@ -106,17 +105,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 DeclaringType = entityType;
             }
 
-            public IEntityType DeclaringEntityType => (IEntityType)DeclaringType;
+            public IEntityType DeclaringEntityType
+                => (IEntityType)DeclaringType;
 
-            public IEntityType TargetEntityType => throw new NotImplementedException();
+            public IEntityType TargetEntityType
+                => throw new NotImplementedException();
 
-            public INavigationBase Inverse => throw new NotImplementedException();
+            public INavigationBase Inverse
+                => throw new NotImplementedException();
 
-            public bool IsCollection => throw new NotImplementedException();
+            public bool IsCollection
+                => throw new NotImplementedException();
 
             public override TypeBase DeclaringType { get; }
 
-            public override Type ClrType => throw new NotImplementedException();
+            public override Type ClrType
+                => throw new NotImplementedException();
 
             public IClrCollectionAccessor GetCollectionAccessor()
             {

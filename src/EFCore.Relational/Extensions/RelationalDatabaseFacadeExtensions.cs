@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
         ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
-        ///         consider using <see cref="ExecuteSqlInterpolated"/> to create parameters.
+        ///         consider using <see cref="ExecuteSqlInterpolated" /> to create parameters.
         ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
@@ -199,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
         ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
-        ///         consider using <see cref="ExecuteSqlInterpolated"/> to create parameters.
+        ///         consider using <see cref="ExecuteSqlInterpolated" /> to create parameters.
         ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
@@ -326,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
         ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
-        ///         consider using <see cref="ExecuteSqlInterpolated"/> to create parameters.
+        ///         consider using <see cref="ExecuteSqlInterpolated" /> to create parameters.
         ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
@@ -364,7 +364,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
         ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
-        ///         consider using <see cref="ExecuteSqlInterpolated"/> to create parameters.
+        ///         consider using <see cref="ExecuteSqlInterpolated" /> to create parameters.
         ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
@@ -537,7 +537,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="transaction"> The <see cref="DbTransaction" /> to use. </param>
         /// <returns> A <see cref="IDbContextTransaction" /> that encapsulates the given transaction. </returns>
         public static IDbContextTransaction UseTransaction(
-            [NotNull] this DatabaseFacade databaseFacade, [CanBeNull] DbTransaction transaction)
+            [NotNull] this DatabaseFacade databaseFacade,
+            [CanBeNull] DbTransaction transaction)
             => databaseFacade.UseTransaction(transaction, Guid.NewGuid());
 
         /// <summary>
@@ -548,7 +549,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="transactionId"> The unique identifier for the transaction. </param>
         /// <returns> A <see cref="IDbContextTransaction" /> that encapsulates the given transaction. </returns>
         public static IDbContextTransaction UseTransaction(
-            [NotNull] this DatabaseFacade databaseFacade, [CanBeNull] DbTransaction transaction, Guid transactionId)
+            [NotNull] this DatabaseFacade databaseFacade,
+            [CanBeNull] DbTransaction transaction,
+            Guid transactionId)
         {
             var transactionManager = GetTransactionManager(databaseFacade);
 
@@ -662,13 +665,13 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Returns <see langword="true"/> if the database provider currently in use is a relational database.
+        ///         Returns <see langword="true" /> if the database provider currently in use is a relational database.
         ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The facade from <see cref="DbContext.Database" />. </param>
         /// <returns>
-        ///     <see langword="true"/> if a relational database provider is being used;
-        ///    <see langword="false"/> otherwise.
+        ///     <see langword="true" /> if a relational database provider is being used;
+        ///     <see langword="false" /> otherwise.
         /// </returns>
         public static bool IsRelational([NotNull] this DatabaseFacade databaseFacade)
             => ((IDatabaseFacadeDependenciesAccessor)Check.NotNull(databaseFacade, nameof(databaseFacade)))

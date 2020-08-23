@@ -10,7 +10,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -47,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns the <see cref="CoreTypeMapping" /> for the given property.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The type mapping, or <see langword="null"/> if none was found. </returns>
+        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
         public static CoreTypeMapping FindTypeMapping([NotNull] this IProperty property)
             => ((Property)property).TypeMapping;
 
@@ -56,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     if the given property is part of a foreign key.
         /// </summary>
         /// <param name="property"> The foreign key property. </param>
-        /// <returns> The first associated principal property, or <see langword="null"/> if none exists. </returns>
+        /// <returns> The first associated principal property, or <see langword="null" /> if none exists. </returns>
         public static IProperty FindFirstPrincipal([NotNull] this IProperty property)
         {
             Check.NotNull(property, nameof(property));
@@ -121,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets a value indicating whether this property is used as a foreign key (or part of a composite foreign key).
         /// </summary>
         /// <param name="property"> The property to check. </param>
-        /// <returns> <see langword="true"/> if the property is used as a foreign key, otherwise <see langword="false"/>. </returns>
+        /// <returns> <see langword="true" /> if the property is used as a foreign key, otherwise <see langword="false" />. </returns>
         public static bool IsForeignKey([NotNull] this IProperty property)
             => Check.NotNull((Property)property, nameof(property)).ForeignKeys != null;
 
@@ -129,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets a value indicating whether this property is used as an index (or part of a composite index).
         /// </summary>
         /// <param name="property"> The property to check. </param>
-        /// <returns> <see langword="true"/> if the property is used as an index, otherwise <see langword="false"/>. </returns>
+        /// <returns> <see langword="true" /> if the property is used as an index, otherwise <see langword="false" />. </returns>
         public static bool IsIndex([NotNull] this IProperty property)
             => Check.NotNull((Property)property, nameof(property)).Indexes != null;
 
@@ -137,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets a value indicating whether this property is used as a unique index (or part of a unique composite index).
         /// </summary>
         /// <param name="property"> The property to check. </param>
-        /// <returns> <see langword="true"/> if the property is used as an unique index, otherwise <see langword="false"/>. </returns>
+        /// <returns> <see langword="true" /> if the property is used as an unique index, otherwise <see langword="false" />. </returns>
         public static bool IsUniqueIndex([NotNull] this IProperty property)
             => Check.NotNull(property, nameof(property)).AsProperty().Indexes?.Any(e => e.IsUnique) == true;
 
@@ -145,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets a value indicating whether this property is used as the primary key (or part of a composite primary key).
         /// </summary>
         /// <param name="property"> The property to check. </param>
-        /// <returns> <see langword="true"/> if the property is used as the primary key, otherwise <see langword="false"/>. </returns>
+        /// <returns> <see langword="true" /> if the property is used as the primary key, otherwise <see langword="false" />. </returns>
         public static bool IsPrimaryKey([NotNull] this IProperty property)
             => FindContainingPrimaryKey(property) != null;
 
@@ -154,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     (or part of a composite primary or alternate key).
         /// </summary>
         /// <param name="property"> The property to check. </param>
-        /// <returns> <see langword="true"/> if the property is used as a key, otherwise <see langword="false"/>. </returns>
+        /// <returns> <see langword="true" /> if the property is used as a key, otherwise <see langword="false" />. </returns>
         public static bool IsKey([NotNull] this IProperty property)
             => Check.NotNull((Property)property, nameof(property)).Keys != null;
 
@@ -181,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     is included).
         /// </summary>
         /// <param name="property"> The property to get primary key for. </param>
-        /// <returns> The primary that use this property, or <see langword="null"/> if it is not part of the primary key. </returns>
+        /// <returns> The primary that use this property, or <see langword="null" /> if it is not part of the primary key. </returns>
         public static IKey FindContainingPrimaryKey([NotNull] this IProperty property)
             => Check.NotNull((Property)property, nameof(property)).PrimaryKey;
 
@@ -199,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     then this is the maximum number of characters.
         /// </summary>
         /// <param name="property"> The property to get the maximum length of. </param>
-        /// <returns> The maximum length, or <see langword="null"/> if none if defined. </returns>
+        /// <returns> The maximum length, or <see langword="null" /> if none if defined. </returns>
         public static int? GetMaxLength([NotNull] this IProperty property)
         {
             Check.NotNull(property, nameof(property));
@@ -213,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     then this is the maximum number of digits.
         /// </summary>
         /// <param name="property"> The property to get the precision of. </param>
-        /// <returns> The precision, or <see langword="null"/> if none is defined. </returns>
+        /// <returns> The precision, or <see langword="null" /> if none is defined. </returns>
         public static int? GetPrecision([NotNull] this IProperty property)
         {
             Check.NotNull(property, nameof(property));
@@ -227,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     then this is the maximum number of decimal places.
         /// </summary>
         /// <param name="property"> The property to get the scale of. </param>
-        /// <returns> The scale, or <see langword="null"/> if none is defined. </returns>
+        /// <returns> The scale, or <see langword="null" /> if none is defined. </returns>
         public static int? GetScale([NotNull] this IProperty property)
         {
             Check.NotNull(property, nameof(property));
@@ -239,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets a value indicating whether or not the property can persist Unicode characters.
         /// </summary>
         /// <param name="property"> The property to get the Unicode setting for. </param>
-        /// <returns> The Unicode setting, or <see langword="null"/> if none is defined. </returns>
+        /// <returns> The Unicode setting, or <see langword="null" /> if none is defined. </returns>
         public static bool? IsUnicode([NotNull] this IProperty property)
         {
             Check.NotNull(property, nameof(property));
@@ -296,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets the factory that has been set to generate values for this property, if any.
         /// </summary>
         /// <param name="property"> The property to get the value generator factory for. </param>
-        /// <returns> The factory, or <see langword="null"/> if no factory has been set. </returns>
+        /// <returns> The factory, or <see langword="null" /> if no factory has been set. </returns>
         public static Func<IProperty, IEntityType, ValueGenerator> GetValueGeneratorFactory([NotNull] this IProperty property)
             => (Func<IProperty, IEntityType, ValueGenerator>)
                 Check.NotNull(property, nameof(property))[CoreAnnotationNames.ValueGeneratorFactory];
@@ -305,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets the custom <see cref="ValueConverter" /> set for this property.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The converter, or <see langword="null"/> if none has been set. </returns>
+        /// <returns> The converter, or <see langword="null" /> if none has been set. </returns>
         public static ValueConverter GetValueConverter([NotNull] this IProperty property)
             => (ValueConverter)Check.NotNull(property, nameof(property))[CoreAnnotationNames.ValueConverter];
 
@@ -313,15 +312,15 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets the type that the property value will be converted to before being sent to the database provider.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The provider type, or <see langword="null"/> if none has been set. </returns>
+        /// <returns> The provider type, or <see langword="null" /> if none has been set. </returns>
         public static Type GetProviderClrType([NotNull] this IProperty property)
             => (Type)Check.NotNull(property, nameof(property))[CoreAnnotationNames.ProviderClrType];
 
         /// <summary>
-        ///     Gets the <see cref="ValueComparer" /> for this property, or <see langword="null"/> if none is set.
+        ///     Gets the <see cref="ValueComparer" /> for this property, or <see langword="null" /> if none is set.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The comparer, or <see langword="null"/> if none has been set. </returns>
+        /// <returns> The comparer, or <see langword="null" /> if none has been set. </returns>
         public static ValueComparer GetValueComparer([NotNull] this IProperty property)
         {
             Check.NotNull(property, nameof(property));
@@ -331,10 +330,10 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Gets the <see cref="ValueComparer" /> to use with keys for this property, or <see langword="null"/> if none is set.
+        ///     Gets the <see cref="ValueComparer" /> to use with keys for this property, or <see langword="null" /> if none is set.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The comparer, or <see langword="null"/> if none has been set. </returns>
+        /// <returns> The comparer, or <see langword="null" /> if none has been set. </returns>
         public static ValueComparer GetKeyValueComparer([NotNull] this IProperty property)
         {
             Check.NotNull(property, nameof(property));
@@ -344,10 +343,10 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Gets the <see cref="ValueComparer" /> to use for structural copies for this property, or <see langword="null"/> if none is set.
+        ///     Gets the <see cref="ValueComparer" /> to use for structural copies for this property, or <see langword="null" /> if none is set.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The comparer, or <see langword="null"/> if none has been set. </returns>
+        /// <returns> The comparer, or <see langword="null" /> if none has been set. </returns>
         [Obsolete("Use GetKeyValueComparer. A separate structural comparer is no longer supported.")]
         public static ValueComparer GetStructuralValueComparer([NotNull] this IProperty property)
             => property.GetKeyValueComparer();
@@ -389,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     when throwing exceptions about keys, indexes, etc. that use the properties.
         /// </summary>
         /// <param name="properties"> The properties to format. </param>
-        /// <param name="includeTypes"> If true, then type names are included in the string. The default is <see langword="false"/>.</param>
+        /// <param name="includeTypes"> If true, then type names are included in the string. The default is <see langword="false" />.</param>
         /// <returns> The string representation. </returns>
         public static string Format([NotNull] this IEnumerable<IPropertyBase> properties, bool includeTypes = false)
             => "{"
@@ -521,8 +520,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
-            if (!singleLine &&
-                (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {
                 builder.Append(property.AnnotationsToDebugString(indent + 2));
             }

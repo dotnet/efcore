@@ -48,7 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     The function parameter metadata that is being built.
         /// </summary>
-        public virtual IMutableDbFunctionParameter Metadata => Builder.Metadata;
+        public virtual IMutableDbFunctionParameter Metadata
+            => Builder.Metadata;
 
         /// <summary>
         ///     Sets the store type of the function parameter in the database.
@@ -81,16 +82,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString() => base.ToString();
+        public override string ToString()
+            => base.ToString();
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
+        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
-        public override bool Equals(object obj) => base.Equals(obj);
+        public override bool Equals(object obj)
+            => base.Equals(obj);
 
         /// <summary>
         ///     Serves as the default hash function.
@@ -98,7 +101,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> A hash code for the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode()
+            => base.GetHashCode();
 
         #endregion
     }

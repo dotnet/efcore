@@ -35,14 +35,19 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         private static readonly MethodInfo _parameterValueExtractor =
             typeof(InMemoryExpressionTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterValueExtractor));
+
         private static readonly MethodInfo _parameterListValueExtractor =
             typeof(InMemoryExpressionTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterListValueExtractor));
+
         private static readonly MethodInfo _getParameterValueMethodInfo =
             typeof(InMemoryExpressionTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(GetParameterValue));
+
         private static readonly MethodInfo _likeMethodInfo = typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string) });
+            nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string) });
+
         private static readonly MethodInfo _likeMethodInfoWithEscape = typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(string) });
+            nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(string) });
+
         private static readonly MethodInfo _inMemoryLikeMethodInfo =
             typeof(InMemoryExpressionTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(InMemoryLike));
 
@@ -54,6 +59,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private static readonly string _defaultEscapeRegexCharsPattern = BuildEscapeRegexCharsPattern(_regexSpecialChars);
 
         private static readonly TimeSpan _regexTimeout = TimeSpan.FromMilliseconds(value: 1000.0);
+
         private static string BuildEscapeRegexCharsPattern(IEnumerable<char> regexSpecialChars)
             => string.Join("|", regexSpecialChars.Select(c => @"\" + c));
 
@@ -157,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
 
             if ((binaryExpression.NodeType == ExpressionType.Equal
-                || binaryExpression.NodeType == ExpressionType.NotEqual)
+                    || binaryExpression.NodeType == ExpressionType.NotEqual)
                 // Visited expression could be null, We need to pass MemberInitExpression
                 && TryRewriteEntityEquality(
                     binaryExpression.NodeType, newLeft ?? binaryExpression.Left, newRight ?? binaryExpression.Right, out var result))
@@ -264,7 +270,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 case ProjectionBindingExpression projectionBindingExpression:
                     return projectionBindingExpression.ProjectionMember != null
                         ? ((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
-                            .GetMappedProjection(projectionBindingExpression.ProjectionMember)
+                        .GetMappedProjection(projectionBindingExpression.ProjectionMember)
                         : null;
 
                 case InMemoryGroupByShaperExpression inMemoryGroupByShaperExpression:
@@ -284,21 +290,26 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override Expression VisitInvocation(InvocationExpression invocationExpression) => null;
+        protected override Expression VisitInvocation(InvocationExpression invocationExpression)
+            => null;
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override Expression VisitLambda<T>(Expression<T> lambdaExpression) => null;
+        protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
+            => null;
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override Expression VisitListInit(ListInitExpression listInitExpression) => null;
+        protected override Expression VisitListInit(ListInitExpression listInitExpression)
+            => null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -417,7 +428,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                             result = expression == null
                                 ? null
-                                : Expression.Call(EnumerableMethods.GetAverageWithoutSelector(expression.Type.TryGetSequenceType()), expression);
+                                : Expression.Call(
+                                    EnumerableMethods.GetAverageWithoutSelector(expression.Type.TryGetSequenceType()), expression);
                             break;
                         }
 
@@ -551,7 +563,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                             result = expression == null
                                 ? null
-                                : Expression.Call(EnumerableMethods.GetSumWithoutSelector(expression.Type.TryGetSequenceType()), expression);
+                                : Expression.Call(
+                                    EnumerableMethods.GetSumWithoutSelector(expression.Type.TryGetSequenceType()), expression);
                             break;
                         }
 
@@ -605,7 +618,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         return result;
                     }
 
-                    static GroupingElementExpression ApplySelector(GroupingElementExpression groupingElement, LambdaExpression lambdaExpression)
+                    static GroupingElementExpression ApplySelector(
+                        GroupingElementExpression groupingElement,
+                        LambdaExpression lambdaExpression)
                     {
                         var selector = RemapLambda(groupingElement, lambdaExpression);
 
@@ -646,13 +661,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 }
 
                 if (!(innerExpression is ProjectionBindingExpression projectionBindingExpression
-                     && (convertedType == null
+                    && (convertedType == null
                         || convertedType.MakeNullable() == innerExpression.Type)))
                 {
                     return null;
                 }
 
-                return ProcessSingleResultScalar(subquery.ServerQueryExpression,
+                return ProcessSingleResultScalar(
+                    subquery.ServerQueryExpression,
                     subquery.GetMappedProjection(projectionBindingExpression.ProjectionMember),
                     subquery.CurrentParameter,
                     methodCallExpression.Type);
@@ -690,10 +706,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 var left = Visit(methodCallExpression.Object);
                 var right = Visit(methodCallExpression.Arguments[0]);
 
-                if (TryRewriteEntityEquality(ExpressionType.Equal,
-                        left ?? methodCallExpression.Object,
-                        right ?? methodCallExpression.Arguments[0],
-                        out var result))
+                if (TryRewriteEntityEquality(
+                    ExpressionType.Equal,
+                    left ?? methodCallExpression.Object,
+                    right ?? methodCallExpression.Arguments[0],
+                    out var result))
                 {
                     return result;
                 }
@@ -714,14 +731,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 if (methodCallExpression.Arguments[0].Type == typeof(object[])
                     && methodCallExpression.Arguments[0] is NewArrayExpression)
                 {
-                    return Visit(ConvertObjectArrayEqualityComparison(
-                        methodCallExpression.Arguments[0], methodCallExpression.Arguments[1]));
+                    return Visit(
+                        ConvertObjectArrayEqualityComparison(
+                            methodCallExpression.Arguments[0], methodCallExpression.Arguments[1]));
                 }
 
                 var left = Visit(methodCallExpression.Arguments[0]);
                 var right = Visit(methodCallExpression.Arguments[1]);
 
-                if (TryRewriteEntityEquality(ExpressionType.Equal,
+                if (TryRewriteEntityEquality(
+                    ExpressionType.Equal,
                     left ?? methodCallExpression.Arguments[0],
                     right ?? methodCallExpression.Arguments[1],
                     out var result))
@@ -1099,7 +1118,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         }
 
         private static Expression ProcessSingleResultScalar(
-            Expression serverQuery, Expression readValueExpression, Expression valueBufferParameter, Type type)
+            Expression serverQuery,
+            Expression readValueExpression,
+            Expression valueBufferParameter,
+            Type type)
         {
             var singleResult = ((LambdaExpression)((NewExpression)serverQuery).Arguments[0]).Body;
             if (readValueExpression is UnaryExpression unaryExpression
@@ -1195,7 +1217,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             {
                 case ConstantExpression constantExpression:
                     var values = (IEnumerable)constantExpression.Value;
-                    var propertyValueList = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(property.ClrType.MakeNullable()));
+                    var propertyValueList =
+                        (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(property.ClrType.MakeNullable()));
                     var propertyGetter = property.GetGetter();
                     foreach (var value in values)
                     {
@@ -1206,7 +1229,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     break;
 
                 case MethodCallExpression methodCallExpression
-                when methodCallExpression.Method.IsGenericMethod
+                    when methodCallExpression.Method.IsGenericMethod
                     && methodCallExpression.Method.GetGenericMethodDefinition() == _getParameterValueMethodInfo:
                     var parameterName = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
                     var lambda = Expression.Lambda(
@@ -1219,8 +1242,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     );
 
                     var newParameterName =
-                        $"{_runtimeParameterPrefix}" +
-                        $"{parameterName.Substring(QueryCompilationContext.QueryParameterPrefix.Length)}_{property.Name}";
+                        $"{_runtimeParameterPrefix}"
+                        + $"{parameterName.Substring(QueryCompilationContext.QueryParameterPrefix.Length)}_{property.Name}";
 
                     rewrittenSource = _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
                     break;
@@ -1229,10 +1252,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     return false;
             }
 
-            result = Visit(Expression.Call(
-                EnumerableMethods.Contains.MakeGenericMethod(property.ClrType.MakeNullable()),
-                rewrittenSource,
-                CreatePropertyAccessExpression(item, property)));
+            result = Visit(
+                Expression.Call(
+                    EnumerableMethods.Contains.MakeGenericMethod(property.ClrType.MakeNullable()),
+                    rewrittenSource,
+                    CreatePropertyAccessExpression(item, property)));
 
             return true;
         }
@@ -1260,10 +1284,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     throw new InvalidOperationException(CoreStrings.EntityEqualityOnKeylessEntityNotSupported(entityType1.DisplayName()));
                 }
 
-                result = Visit(primaryKeyProperties1.Select(p =>
-                    Expression.MakeBinary(
-                        nodeType, CreatePropertyAccessExpression(nonNullEntityReference, p), Expression.Constant(null, p.ClrType.MakeNullable())))
-                    .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r)));
+                result = Visit(
+                    primaryKeyProperties1.Select(
+                            p =>
+                                Expression.MakeBinary(
+                                    nodeType, CreatePropertyAccessExpression(nonNullEntityReference, p),
+                                    Expression.Constant(null, p.ClrType.MakeNullable())))
+                        .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r)));
 
                 return true;
             }
@@ -1296,11 +1323,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     CoreStrings.EntityEqualitySubqueryWithCompositeKeyNotSupported(entityType.DisplayName()));
             }
 
-            result = Visit(primaryKeyProperties.Select(p =>
-                    Expression.MakeBinary(
-                        nodeType,
-                        CreatePropertyAccessExpression(left, p),
-                        CreatePropertyAccessExpression(right, p)))
+            result = Visit(
+                primaryKeyProperties.Select(
+                        p =>
+                            Expression.MakeBinary(
+                                nodeType,
+                                CreatePropertyAccessExpression(left, p),
+                                CreatePropertyAccessExpression(right, p)))
                     .Aggregate((l, r) => Expression.AndAlso(l, r)));
 
             return true;
@@ -1315,7 +1344,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         property.GetGetter().GetClrValue(constantExpression.Value), property.ClrType.MakeNullable());
 
                 case MethodCallExpression methodCallExpression
-                when methodCallExpression.Method.IsGenericMethod
+                    when methodCallExpression.Method.IsGenericMethod
                     && methodCallExpression.Method.GetGenericMethodDefinition() == _getParameterValueMethodInfo:
                     var parameterName = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
                     var lambda = Expression.Lambda(
@@ -1327,24 +1356,24 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         QueryCompilationContext.QueryContextParameter);
 
                     var newParameterName =
-                        $"{_runtimeParameterPrefix}" +
-                        $"{parameterName.Substring(QueryCompilationContext.QueryParameterPrefix.Length)}_{property.Name}";
+                        $"{_runtimeParameterPrefix}"
+                        + $"{parameterName.Substring(QueryCompilationContext.QueryParameterPrefix.Length)}_{property.Name}";
 
                     return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
 
                 case MemberInitExpression memberInitExpression
-                when memberInitExpression.Bindings.SingleOrDefault(
-                    mb => mb.Member.Name == property.Name) is MemberAssignment memberAssignment:
+                    when memberInitExpression.Bindings.SingleOrDefault(
+                        mb => mb.Member.Name == property.Name) is MemberAssignment memberAssignment:
                     return memberAssignment.Expression.Type.IsNullableType()
                         ? memberAssignment.Expression
                         : Expression.Convert(memberAssignment.Expression, property.ClrType.MakeNullable());
 
                 case NewExpression newExpression
-                when CanEvaluate(newExpression):
+                    when CanEvaluate(newExpression):
                     return CreatePropertyAccessExpression(GetValue(newExpression), property);
 
                 case MemberInitExpression memberInitExpression
-                when CanEvaluate(memberInitExpression):
+                    when CanEvaluate(memberInitExpression):
                     return CreatePropertyAccessExpression(GetValue(memberInitExpression), property);
 
                 default:
@@ -1359,7 +1388,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         }
 
         private static List<TProperty> ParameterListValueExtractor<TEntity, TProperty>(
-            QueryContext context, string baseParameterName, IProperty property)
+            QueryContext context,
+            string baseParameterName,
+            IProperty property)
         {
             if (!(context.ParameterValues[baseParameterName] is IEnumerable<TEntity> baseListParameter))
             {
@@ -1425,8 +1456,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 => expression is UnaryExpression unaryExpression
                     && expression.Type == typeof(object)
                     && expression.NodeType == ExpressionType.Convert
-                    ? unaryExpression.Operand
-                    : expression;
+                        ? unaryExpression.Operand
+                        : expression;
         }
 
         private static bool IsNullConstantExpression(Expression expression)
@@ -1575,8 +1606,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             public ShapedQueryExpression SubqueryEntity { get; }
             public IEntityType EntityType { get; }
 
-            public override Type Type => EntityType.ClrType;
-            public override ExpressionType NodeType => ExpressionType.Extension;
+            public override Type Type
+                => EntityType.ClrType;
+
+            public override ExpressionType NodeType
+                => ExpressionType.Extension;
 
             public Expression Convert(Type type)
             {
@@ -1600,16 +1634,19 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 ValueBufferParameter = valueBufferParameter;
                 Selector = selector;
             }
+
             public Expression Source { get; private set; }
             public bool IsDistinct { get; private set; }
             public Expression Selector { get; private set; }
             public ParameterExpression ValueBufferParameter { get; }
+
             public GroupingElementExpression ApplyDistinct()
             {
                 IsDistinct = true;
 
                 return this;
             }
+
             public GroupingElementExpression ApplySelector(Expression expression)
             {
                 Selector = expression;
@@ -1624,8 +1661,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 return this;
             }
 
-            public override Type Type => typeof(IEnumerable<>).MakeGenericType(Selector.Type);
-            public override ExpressionType NodeType => ExpressionType.Extension;
+            public override Type Type
+                => typeof(IEnumerable<>).MakeGenericType(Selector.Type);
+
+            public override ExpressionType NodeType
+                => ExpressionType.Extension;
         }
     }
 }

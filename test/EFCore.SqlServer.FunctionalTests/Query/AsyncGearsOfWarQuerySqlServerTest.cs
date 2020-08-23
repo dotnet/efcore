@@ -14,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        protected override bool CanExecuteQueryString => true;
+        protected override bool CanExecuteQueryString
+            => true;
     }
 }

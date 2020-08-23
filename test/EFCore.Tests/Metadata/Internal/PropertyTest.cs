@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
 // ReSharper disable UnassignedGetOnlyAutoProperty
@@ -40,9 +39,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class FakeProperty : IProperty
         {
-            public object this[string name] => throw new NotImplementedException();
-            public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
-            public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();
+            public object this[string name]
+                => throw new NotImplementedException();
+
+            public IAnnotation FindAnnotation(string name)
+                => throw new NotImplementedException();
+
+            public IEnumerable<IAnnotation> GetAnnotations()
+                => throw new NotImplementedException();
+
             public string Name { get; }
             public ITypeBase DeclaringType { get; }
             public Type ClrType { get; }
@@ -195,7 +200,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(property.IsConcurrencyToken);
         }
 
-        private static IMutableModel CreateModel() => new Model();
+        private static IMutableModel CreateModel()
+            => new Model();
 
         private class Entity
         {

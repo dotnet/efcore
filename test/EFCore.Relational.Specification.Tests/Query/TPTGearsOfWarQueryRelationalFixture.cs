@@ -9,9 +9,12 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class TPTGearsOfWarQueryRelationalFixture : GearsOfWarQueryFixtureBase
     {
         protected override string StoreName { get; } = "TPTGearsOfWarQueryTest";
-        public new RelationalTestStore TestStore => (RelationalTestStore)base.TestStore;
 
-        public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
+        public new RelationalTestStore TestStore
+            => (RelationalTestStore)base.TestStore;
+
+        public TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)ListLoggerFactory;
 
         protected override bool ShouldLogCategory(string logCategory)
             => logCategory == DbLoggerCategory.Query.Name;

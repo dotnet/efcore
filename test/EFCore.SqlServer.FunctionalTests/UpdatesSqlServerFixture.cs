@@ -9,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class UpdatesSqlServerFixture : UpdatesRelationalFixture
     {
-        protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerTestStoreFactory.Instance;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(

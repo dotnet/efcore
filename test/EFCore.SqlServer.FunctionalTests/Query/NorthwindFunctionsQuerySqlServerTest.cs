@@ -10,11 +10,13 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindFunctionsQuerySqlServerTest : NorthwindFunctionsQueryRelationalTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    public class NorthwindFunctionsQuerySqlServerTest : NorthwindFunctionsQueryRelationalTestBase<
+        NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         public NorthwindFunctionsQuerySqlServerTest(
 #pragma warning disable IDE0060 // Remove unused parameter
-            NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+            NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture,
+            ITestOutputHelper testOutputHelper)
 #pragma warning restore IDE0060 // Remove unused parameter
             : base(fixture)
         {
@@ -22,7 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        protected override bool CanExecuteQueryString => true;
+        protected override bool CanExecuteQueryString
+            => true;
 
         public override async Task String_StartsWith_Literal(bool async)
         {
@@ -891,10 +894,12 @@ WHERE ([o].[OrderID] = 11077) AND (SIGN([o].[Discount]) > 0)");
         }
 
         [ConditionalTheory(Skip = "Issue#17328")]
-        public override Task Where_math_min(bool async) => base.Where_math_min(async);
+        public override Task Where_math_min(bool async)
+            => base.Where_math_min(async);
 
         [ConditionalTheory(Skip = "Issue#17328")]
-        public override Task Where_math_max(bool async) => base.Where_math_max(async);
+        public override Task Where_math_max(bool async)
+            => base.Where_math_max(async);
 
         public override async Task Where_guid_newguid(bool async)
         {

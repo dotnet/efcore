@@ -192,7 +192,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual EntityType BaseType => _baseType;
+        public virtual EntityType BaseType
+            => _baseType;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -270,7 +271,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConfigurationSource? GetIsKeylessConfigurationSource() => _isKeylessConfigurationSource;
+        public virtual ConfigurationSource? GetIsKeylessConfigurationSource()
+            => _isKeylessConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -423,7 +425,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public virtual ConfigurationSource? GetBaseTypeConfigurationSource() => _baseTypeConfigurationSource;
+        public virtual ConfigurationSource? GetBaseTypeConfigurationSource()
+            => _baseTypeConfigurationSource;
 
         [DebuggerStepThrough]
         private void UpdateBaseTypeConfigurationSource(ConfigurationSource configurationSource)
@@ -439,7 +442,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         // Note this is ISet because there is no suitable readonly interface in the profiles we are using
         [DebuggerStepThrough]
-        public virtual ISet<EntityType> GetDirectlyDerivedTypes() => _directlyDerivedTypes;
+        public virtual ISet<EntityType> GetDirectlyDerivedTypes()
+            => _directlyDerivedTypes;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -473,8 +477,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [DebuggerStepThrough]
         public virtual IEnumerable<EntityType> GetDerivedTypesInclusive()
             => _directlyDerivedTypes.Count == 0
-            ? new[] { this }
-            : new[] { this }.Concat(GetDerivedTypes());
+                ? new[] { this }
+                : new[] { this }.Concat(GetDerivedTypes());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -485,8 +489,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [DebuggerStepThrough]
         public virtual IEnumerable<ForeignKey> GetForeignKeysInHierarchy()
             => _directlyDerivedTypes.Count == 0
-            ? GetForeignKeys()
-            : GetForeignKeys().Concat(GetDerivedForeignKeys());
+                ? GetForeignKeys()
+                : GetForeignKeys().Concat(GetDerivedForeignKeys());
 
         private bool InheritsFrom(EntityType entityType)
         {
@@ -511,7 +515,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public virtual EntityType RootType() => (EntityType)((IEntityType)this).GetRootType();
+        public virtual EntityType RootType()
+            => (EntityType)((IEntityType)this).GetRootType();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -519,7 +524,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+        public override string ToString()
+            => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <summary>
         ///     Runs the conventions when an annotation was set or removed.
@@ -529,7 +535,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <param name="oldAnnotation"> The old annotation. </param>
         /// <returns> The annotation that was set. </returns>
         protected override IConventionAnnotation OnAnnotationSet(
-            string name, IConventionAnnotation annotation, IConventionAnnotation oldAnnotation)
+            string name,
+            IConventionAnnotation annotation,
+            IConventionAnnotation oldAnnotation)
             => Model.ConventionDispatcher.OnEntityTypeAnnotationChanged(Builder, name, annotation, oldAnnotation);
 
         /// <summary>
@@ -681,7 +689,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Key FindDeclaredPrimaryKey() => _primaryKey;
+        public virtual Key FindDeclaredPrimaryKey()
+            => _primaryKey;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -711,7 +720,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConfigurationSource? GetPrimaryKeyConfigurationSource() => _primaryKeyConfigurationSource;
+        public virtual ConfigurationSource? GetPrimaryKeyConfigurationSource()
+            => _primaryKeyConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -825,8 +835,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Key FindKey([NotNull] IProperty property) => FindKey(
-            new[] { property });
+        public virtual Key FindKey([NotNull] IProperty property)
+            => FindKey(
+                new[] { property });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -848,7 +859,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<Key> GetDeclaredKeys() => _keys.Values;
+        public virtual IEnumerable<Key> GetDeclaredKeys()
+            => _keys.Values;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -926,11 +938,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var foreignKey = key.GetReferencingForeignKeys().FirstOrDefault();
             if (foreignKey != null)
             {
-                throw new InvalidOperationException(CoreStrings.KeyInUse(
-                    key.Properties.Format(),
-                    this.DisplayName(),
-                    foreignKey.Properties.Format(),
-                    foreignKey.DeclaringEntityType.DisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.KeyInUse(
+                        key.Properties.Format(),
+                        this.DisplayName(),
+                        foreignKey.Properties.Format(),
+                        foreignKey.DeclaringEntityType.DisplayName()));
             }
         }
 
@@ -940,7 +953,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<Key> GetKeys() => _baseType?.GetKeys().Concat(_keys.Values) ?? _keys.Values;
+        public virtual IEnumerable<Key> GetKeys()
+            => _baseType?.GetKeys().Concat(_keys.Values) ?? _keys.Values;
 
         #endregion
 
@@ -1154,7 +1168,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<ForeignKey> GetDeclaredForeignKeys() => _foreignKeys;
+        public virtual IEnumerable<ForeignKey> GetDeclaredForeignKeys()
+            => _foreignKeys;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1164,8 +1179,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<ForeignKey> GetDerivedForeignKeys()
             => _directlyDerivedTypes.Count == 0
-            ? Enumerable.Empty<ForeignKey>()
-            : GetDerivedTypes().SelectMany(et => et.GetDeclaredForeignKeys());
+                ? Enumerable.Empty<ForeignKey>()
+                : GetDerivedTypes().SelectMany(et => et.GetDeclaredForeignKeys());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1175,10 +1190,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<ForeignKey> GetForeignKeys()
             => _baseType != null
-            ? _foreignKeys.Count == 0
-                ? _baseType.GetForeignKeys()
-                : _baseType.GetForeignKeys().Concat(_foreignKeys)
-            : _foreignKeys;
+                ? _foreignKeys.Count == 0
+                    ? _baseType.GetForeignKeys()
+                    : _baseType.GetForeignKeys().Concat(_foreignKeys)
+                : _foreignKeys;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1252,7 +1267,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => _directlyDerivedTypes.Count == 0
                 ? Enumerable.Empty<ForeignKey>()
                 : GetDerivedTypes().Select(et => et.FindDeclaredForeignKey(properties, principalKey, principalEntityType))
-                .Where(fk => fk != null);
+                    .Where(fk => fk != null);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1279,7 +1294,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => _directlyDerivedTypes.Count == 0
                 ? ToEnumerable(FindForeignKey(properties, principalKey, principalEntityType))
                 : ToEnumerable(FindForeignKey(properties, principalKey, principalEntityType))
-                .Concat(FindDerivedForeignKeys(properties, principalKey, principalEntityType));
+                    .Concat(FindDerivedForeignKeys(properties, principalKey, principalEntityType));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1547,7 +1562,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<Navigation> GetDeclaredNavigations() => _navigations.Values;
+        public virtual IEnumerable<Navigation> GetDeclaredNavigations()
+            => _navigations.Values;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1685,7 +1701,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (targetEntityType.DeclaredReferencingSkipNavigations == null)
             {
-                targetEntityType.DeclaredReferencingSkipNavigations = new SortedSet<SkipNavigation>(SkipNavigationComparer.Instance) { skipNavigation };
+                targetEntityType.DeclaredReferencingSkipNavigations =
+                    new SortedSet<SkipNavigation>(SkipNavigationComparer.Instance) { skipNavigation };
             }
             else
             {
@@ -1718,16 +1735,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     return memberInfo.GetMemberType();
                 }
-                else
+
+                var clashingMemberInfo = ClrType?.GetMembersInHierarchy(name).FirstOrDefault();
+                if (clashingMemberInfo != null)
                 {
-                    var clashingMemberInfo = ClrType?.GetMembersInHierarchy(name).FirstOrDefault();
-                    if (clashingMemberInfo != null)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.PropertyClashingNonIndexer(
-                                name,
-                                this.DisplayName()));
-                    }
+                    throw new InvalidOperationException(
+                        CoreStrings.PropertyClashingNonIndexer(
+                            name,
+                            this.DisplayName()));
                 }
             }
 
@@ -1773,7 +1788,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<SkipNavigation> GetDeclaredSkipNavigations() => _skipNavigations.Values;
+        public virtual IEnumerable<SkipNavigation> GetDeclaredSkipNavigations()
+            => _skipNavigations.Values;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1783,8 +1799,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<SkipNavigation> GetDerivedSkipNavigations()
             => _directlyDerivedTypes.Count == 0
-            ? Enumerable.Empty<SkipNavigation>()
-            : GetDerivedTypes().SelectMany(et => et.GetDeclaredSkipNavigations());
+                ? Enumerable.Empty<SkipNavigation>()
+                : GetDerivedTypes().SelectMany(et => et.GetDeclaredSkipNavigations());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1850,8 +1866,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (navigation.DeclaringEntityType != this)
             {
-                throw new InvalidOperationException(CoreStrings.SkipNavigationWrongType(
-                    navigation.Name, this.DisplayName(), navigation.DeclaringEntityType.DisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.SkipNavigationWrongType(
+                        navigation.Name, this.DisplayName(), navigation.DeclaringEntityType.DisplayName()));
             }
 
             if (navigation.Inverse?.Inverse == navigation)
@@ -1920,8 +1937,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<SkipNavigation> GetDerivedReferencingSkipNavigations()
             => _directlyDerivedTypes.Count == 0
-            ? Enumerable.Empty<SkipNavigation>()
-            : GetDerivedTypes().SelectMany(et => et.GetDeclaredReferencingSkipNavigations());
+                ? Enumerable.Empty<SkipNavigation>()
+                : GetDerivedTypes().SelectMany(et => et.GetDeclaredReferencingSkipNavigations());
 
         private SortedSet<SkipNavigation> DeclaredReferencingSkipNavigations { get; set; }
 
@@ -2099,8 +2116,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<Index> GetDeclaredIndexes()
             => _namedIndexes.Count == 0
-            ? _unnamedIndexes.Values
-            : _unnamedIndexes.Values.Concat(_namedIndexes.Values);
+                ? _unnamedIndexes.Values
+                : _unnamedIndexes.Values.Concat(_namedIndexes.Values);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2110,8 +2127,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<Index> GetDerivedIndexes()
             => _directlyDerivedTypes.Count == 0
-            ? Enumerable.Empty<Index>()
-            : GetDerivedTypes().SelectMany(et => et.GetDeclaredIndexes());
+                ? Enumerable.Empty<Index>()
+                : GetDerivedTypes().SelectMany(et => et.GetDeclaredIndexes());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2143,8 +2160,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<Index> FindDerivedIndexes([NotNull] IReadOnlyList<IProperty> properties)
             => _directlyDerivedTypes.Count == 0
-            ? Enumerable.Empty<Index>()
-            : GetDerivedTypes().Select(et => et.FindDeclaredIndex(properties)).Where(i => i != null);
+                ? Enumerable.Empty<Index>()
+                : GetDerivedTypes().Select(et => et.FindDeclaredIndex(properties)).Where(i => i != null);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2154,8 +2171,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<Index> FindDerivedIndexes([NotNull] string name)
             => _directlyDerivedTypes.Count == 0
-            ? Enumerable.Empty<Index>()
-            : GetDerivedTypes().Select(et => et.FindDeclaredIndex(Check.NotEmpty(name, nameof(name)))).Where(i => i != null);
+                ? Enumerable.Empty<Index>()
+                : GetDerivedTypes().Select(et => et.FindDeclaredIndex(Check.NotEmpty(name, nameof(name)))).Where(i => i != null);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2165,8 +2182,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<Index> FindIndexesInHierarchy([NotNull] IReadOnlyList<IProperty> properties)
             => _directlyDerivedTypes.Count == 0
-            ? ToEnumerable(FindIndex(properties))
-            : ToEnumerable(FindIndex(properties)).Concat(FindDerivedIndexes(properties));
+                ? ToEnumerable(FindIndex(properties))
+                : ToEnumerable(FindIndex(properties)).Concat(FindDerivedIndexes(properties));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2176,8 +2193,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<Index> FindIndexesInHierarchy([NotNull] string name)
             => _directlyDerivedTypes.Count == 0
-            ? ToEnumerable(FindIndex(Check.NotEmpty(name, nameof(name))))
-            : ToEnumerable(FindIndex(Check.NotEmpty(name, nameof(name)))).Concat(FindDerivedIndexes(name));
+                ? ToEnumerable(FindIndex(Check.NotEmpty(name, nameof(name))))
+                : ToEnumerable(FindIndex(Check.NotEmpty(name, nameof(name)))).Concat(FindDerivedIndexes(name));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2264,10 +2281,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<Index> GetIndexes()
             => _baseType != null
-            ? _namedIndexes.Count == 0 && _unnamedIndexes.Count == 0
-                ? _baseType.GetIndexes()
-                : _baseType.GetIndexes().Concat(GetDeclaredIndexes())
-            : GetDeclaredIndexes();
+                ? _namedIndexes.Count == 0 && _unnamedIndexes.Count == 0
+                    ? _baseType.GetIndexes()
+                    : _baseType.GetIndexes().Concat(GetDeclaredIndexes())
+                : GetDeclaredIndexes();
 
         #endregion
 
@@ -2366,10 +2383,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     throw new InvalidOperationException(
                         HasSharedClrType
-                        ? CoreStrings.PropertyWrongEntitySharedClrType(
-                            memberInfo.Name, this.DisplayName(), ClrType.ShortDisplayName(), memberInfo.DeclaringType?.ShortDisplayName())
-                        : CoreStrings.PropertyWrongEntityClrType(
-                            memberInfo.Name, this.DisplayName(), memberInfo.DeclaringType?.ShortDisplayName()));
+                            ? CoreStrings.PropertyWrongEntitySharedClrType(
+                                memberInfo.Name, this.DisplayName(), ClrType.ShortDisplayName(),
+                                memberInfo.DeclaringType?.ShortDisplayName())
+                            : CoreStrings.PropertyWrongEntityClrType(
+                                memberInfo.Name, this.DisplayName(), memberInfo.DeclaringType?.ShortDisplayName()));
                 }
             }
             else if (IsPropertyBag)
@@ -2378,7 +2396,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                Check.DebugAssert(ClrType?.GetMembersInHierarchy(name).FirstOrDefault() == null,
+                Check.DebugAssert(
+                    ClrType?.GetMembersInHierarchy(name).FirstOrDefault() == null,
                     "MemberInfo not supplied for non-shadow property");
             }
 
@@ -2434,7 +2453,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<Property> GetDeclaredProperties() => _properties.Values;
+        public virtual IEnumerable<Property> GetDeclaredProperties()
+            => _properties.Values;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2853,10 +2873,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<ServiceProperty> GetServiceProperties()
             => _baseType != null
-            ? _serviceProperties.Count == 0
-                ? _baseType.GetServiceProperties()
-                : _baseType.GetServiceProperties().Concat(_serviceProperties.Values)
-            : _serviceProperties.Values;
+                ? _serviceProperties.Count == 0
+                    ? _baseType.GetServiceProperties()
+                    : _baseType.GetServiceProperties().Concat(_serviceProperties.Values)
+                : _serviceProperties.Values;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3042,7 +3062,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ChangeTrackingStrategy? SetChangeTrackingStrategy(
-            ChangeTrackingStrategy? changeTrackingStrategy, ConfigurationSource configurationSource)
+            ChangeTrackingStrategy? changeTrackingStrategy,
+            ConfigurationSource configurationSource)
         {
             if (changeTrackingStrategy != null)
             {
@@ -3412,7 +3433,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IKey IEntityType.FindPrimaryKey() => FindPrimaryKey();
+        IKey IEntityType.FindPrimaryKey()
+            => FindPrimaryKey();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3421,7 +3443,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IMutableKey IMutableEntityType.FindPrimaryKey() => FindPrimaryKey();
+        IMutableKey IMutableEntityType.FindPrimaryKey()
+            => FindPrimaryKey();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3430,7 +3453,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionKey IConventionEntityType.FindPrimaryKey() => FindPrimaryKey();
+        IConventionKey IConventionEntityType.FindPrimaryKey()
+            => FindPrimaryKey();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3461,7 +3485,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IKey IEntityType.FindKey(IReadOnlyList<IProperty> properties) => FindKey(properties);
+        IKey IEntityType.FindKey(IReadOnlyList<IProperty> properties)
+            => FindKey(properties);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3470,7 +3495,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IMutableKey IMutableEntityType.FindKey(IReadOnlyList<IProperty> properties) => FindKey(properties);
+        IMutableKey IMutableEntityType.FindKey(IReadOnlyList<IProperty> properties)
+            => FindKey(properties);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3479,7 +3505,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionKey IConventionEntityType.FindKey(IReadOnlyList<IProperty> properties) => FindKey(properties);
+        IConventionKey IConventionEntityType.FindKey(IReadOnlyList<IProperty> properties)
+            => FindKey(properties);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3488,7 +3515,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IEnumerable<IKey> IEntityType.GetKeys() => GetKeys();
+        IEnumerable<IKey> IEntityType.GetKeys()
+            => GetKeys();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3497,7 +3525,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IEnumerable<IMutableKey> IMutableEntityType.GetKeys() => GetKeys();
+        IEnumerable<IMutableKey> IMutableEntityType.GetKeys()
+            => GetKeys();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3506,7 +3535,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IEnumerable<IConventionKey> IConventionEntityType.GetKeys() => GetKeys();
+        IEnumerable<IConventionKey> IConventionEntityType.GetKeys()
+            => GetKeys();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3515,7 +3545,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IMutableKey IMutableEntityType.RemoveKey(IMutableKey key) => RemoveKey((Key)key);
+        IMutableKey IMutableEntityType.RemoveKey(IMutableKey key)
+            => RemoveKey((Key)key);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3524,7 +3555,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionKey IConventionEntityType.RemoveKey(IConventionKey key) => RemoveKey((Key)key);
+        IConventionKey IConventionEntityType.RemoveKey(IConventionKey key)
+            => RemoveKey((Key)key);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3534,7 +3566,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IMutableForeignKey IMutableEntityType.AddForeignKey(
-            IReadOnlyList<IMutableProperty> properties, IMutableKey principalKey, IMutableEntityType principalEntityType)
+            IReadOnlyList<IMutableProperty> properties,
+            IMutableKey principalKey,
+            IMutableEntityType principalEntityType)
             => AddForeignKey(
                 properties.Cast<Property>().ToList(),
                 (Key)principalKey,
@@ -3572,7 +3606,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IForeignKey IEntityType.FindForeignKey(
-            IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
+            IReadOnlyList<IProperty> properties,
+            IKey principalKey,
+            IEntityType principalEntityType)
             => FindForeignKey(properties, principalKey, principalEntityType);
 
         /// <summary>
@@ -3583,7 +3619,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IMutableForeignKey IMutableEntityType.FindForeignKey(
-            IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
+            IReadOnlyList<IProperty> properties,
+            IKey principalKey,
+            IEntityType principalEntityType)
             => FindForeignKey(properties, principalKey, principalEntityType);
 
         /// <summary>
@@ -3594,7 +3632,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IConventionForeignKey IConventionEntityType.FindForeignKey(
-            IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
+            IReadOnlyList<IProperty> properties,
+            IKey principalKey,
+            IEntityType principalEntityType)
             => FindForeignKey(properties, principalKey, principalEntityType);
 
         /// <summary>
@@ -3604,7 +3644,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IEnumerable<IForeignKey> IEntityType.GetForeignKeys() => GetForeignKeys();
+        IEnumerable<IForeignKey> IEntityType.GetForeignKeys()
+            => GetForeignKeys();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3613,7 +3654,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IEnumerable<IMutableForeignKey> IMutableEntityType.GetForeignKeys() => GetForeignKeys();
+        IEnumerable<IMutableForeignKey> IMutableEntityType.GetForeignKeys()
+            => GetForeignKeys();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3622,7 +3664,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IEnumerable<IConventionForeignKey> IConventionEntityType.GetForeignKeys() => GetForeignKeys();
+        IEnumerable<IConventionForeignKey> IConventionEntityType.GetForeignKeys()
+            => GetForeignKeys();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3657,7 +3700,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] IMutableEntityType targetEntityType,
             bool collection,
             bool onDependent)
-            => AddSkipNavigation(name, memberInfo, (EntityType)targetEntityType, collection, onDependent,
+            => AddSkipNavigation(
+                name, memberInfo, (EntityType)targetEntityType, collection, onDependent,
                 ConfigurationSource.Explicit);
 
         /// <summary>
@@ -3674,7 +3718,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             bool collection,
             bool onDependent,
             bool fromDataAnnotation)
-            => AddSkipNavigation(name, memberInfo, (EntityType)targetEntityType, collection, onDependent,
+            => AddSkipNavigation(
+                name, memberInfo, (EntityType)targetEntityType, collection, onDependent,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -3827,7 +3872,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IConventionIndex IConventionEntityType.AddIndex(
-            IReadOnlyList<IConventionProperty> properties, string name, bool fromDataAnnotation)
+            IReadOnlyList<IConventionProperty> properties,
+            string name,
+            bool fromDataAnnotation)
             => AddIndex(
                 properties.Cast<Property>().ToList(),
                 name,
@@ -3840,7 +3887,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IIndex IEntityType.FindIndex(IReadOnlyList<IProperty> properties) => FindIndex(properties);
+        IIndex IEntityType.FindIndex(IReadOnlyList<IProperty> properties)
+            => FindIndex(properties);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3849,7 +3897,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IIndex IEntityType.FindIndex(string name) => FindIndex(name);
+        IIndex IEntityType.FindIndex(string name)
+            => FindIndex(name);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3858,7 +3907,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IMutableIndex IMutableEntityType.FindIndex(IReadOnlyList<IProperty> properties) => FindIndex(properties);
+        IMutableIndex IMutableEntityType.FindIndex(IReadOnlyList<IProperty> properties)
+            => FindIndex(properties);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3867,7 +3917,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IMutableIndex IMutableEntityType.FindIndex(string name) => FindIndex(name);
+        IMutableIndex IMutableEntityType.FindIndex(string name)
+            => FindIndex(name);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3876,7 +3927,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionIndex IConventionEntityType.FindIndex(IReadOnlyList<IProperty> properties) => FindIndex(properties);
+        IConventionIndex IConventionEntityType.FindIndex(IReadOnlyList<IProperty> properties)
+            => FindIndex(properties);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3885,7 +3937,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionIndex IConventionEntityType.FindIndex(string name) => FindIndex(name);
+        IConventionIndex IConventionEntityType.FindIndex(string name)
+            => FindIndex(name);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3894,7 +3947,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IEnumerable<IIndex> IEntityType.GetIndexes() => GetIndexes();
+        IEnumerable<IIndex> IEntityType.GetIndexes()
+            => GetIndexes();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3903,7 +3957,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IEnumerable<IMutableIndex> IMutableEntityType.GetIndexes() => GetIndexes();
+        IEnumerable<IMutableIndex> IMutableEntityType.GetIndexes()
+            => GetIndexes();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3912,7 +3967,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IEnumerable<IConventionIndex> IConventionEntityType.GetIndexes() => GetIndexes();
+        IEnumerable<IConventionIndex> IConventionEntityType.GetIndexes()
+            => GetIndexes();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3921,7 +3977,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IMutableIndex IMutableEntityType.RemoveIndex(IMutableIndex index) => RemoveIndex((Index)index);
+        IMutableIndex IMutableEntityType.RemoveIndex(IMutableIndex index)
+            => RemoveIndex((Index)index);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3930,7 +3987,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionIndex IConventionEntityType.RemoveIndex(IConventionIndex index) => RemoveIndex((Index)index);
+        IConventionIndex IConventionEntityType.RemoveIndex(IConventionIndex index)
+            => RemoveIndex((Index)index);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3940,7 +3998,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IMutableProperty IMutableEntityType.AddProperty(string name, Type propertyType, MemberInfo memberInfo)
-            => AddProperty(name, propertyType, memberInfo ?? ClrType?.GetMembersInHierarchy(name).FirstOrDefault(),
+            => AddProperty(
+                name, propertyType, memberInfo ?? ClrType?.GetMembersInHierarchy(name).FirstOrDefault(),
                 ConfigurationSource.Explicit, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -3951,7 +4010,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IConventionProperty IConventionEntityType.AddProperty(
-            string name, Type propertyType, MemberInfo memberInfo, bool setTypeConfigurationSource, bool fromDataAnnotation)
+            string name,
+            Type propertyType,
+            MemberInfo memberInfo,
+            bool setTypeConfigurationSource,
+            bool fromDataAnnotation)
             => AddProperty(
                 name,
                 propertyType,
@@ -3968,7 +4031,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IProperty IEntityType.FindProperty(string name) => FindProperty(name);
+        IProperty IEntityType.FindProperty(string name)
+            => FindProperty(name);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3977,7 +4041,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IMutableProperty IMutableEntityType.FindProperty(string name) => FindProperty(name);
+        IMutableProperty IMutableEntityType.FindProperty(string name)
+            => FindProperty(name);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3986,7 +4051,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionProperty IConventionEntityType.FindProperty(string name) => FindProperty(name);
+        IConventionProperty IConventionEntityType.FindProperty(string name)
+            => FindProperty(name);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3995,7 +4061,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IEnumerable<IProperty> IEntityType.GetProperties() => GetProperties();
+        IEnumerable<IProperty> IEntityType.GetProperties()
+            => GetProperties();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4004,7 +4071,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IEnumerable<IMutableProperty> IMutableEntityType.GetProperties() => GetProperties();
+        IEnumerable<IMutableProperty> IMutableEntityType.GetProperties()
+            => GetProperties();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4013,7 +4081,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IEnumerable<IConventionProperty> IConventionEntityType.GetProperties() => GetProperties();
+        IEnumerable<IConventionProperty> IConventionEntityType.GetProperties()
+            => GetProperties();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4022,7 +4091,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IMutableProperty IMutableEntityType.RemoveProperty(IMutableProperty property) => RemoveProperty((Property)property);
+        IMutableProperty IMutableEntityType.RemoveProperty(IMutableProperty property)
+            => RemoveProperty((Property)property);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4031,7 +4101,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionProperty IConventionEntityType.RemoveProperty(IConventionProperty property) => RemoveProperty((Property)property);
+        IConventionProperty IConventionEntityType.RemoveProperty(IConventionProperty property)
+            => RemoveProperty((Property)property);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4060,7 +4131,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IServiceProperty IEntityType.FindServiceProperty(string name) => FindServiceProperty(name);
+        IServiceProperty IEntityType.FindServiceProperty(string name)
+            => FindServiceProperty(name);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4069,7 +4141,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IMutableServiceProperty IMutableEntityType.FindServiceProperty(string name) => FindServiceProperty(name);
+        IMutableServiceProperty IMutableEntityType.FindServiceProperty(string name)
+            => FindServiceProperty(name);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4078,7 +4151,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionServiceProperty IConventionEntityType.FindServiceProperty(string name) => FindServiceProperty(name);
+        IConventionServiceProperty IConventionEntityType.FindServiceProperty(string name)
+            => FindServiceProperty(name);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4087,7 +4161,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IEnumerable<IServiceProperty> IEntityType.GetServiceProperties() => GetServiceProperties();
+        IEnumerable<IServiceProperty> IEntityType.GetServiceProperties()
+            => GetServiceProperties();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4096,7 +4171,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IEnumerable<IMutableServiceProperty> IMutableEntityType.GetServiceProperties() => GetServiceProperties();
+        IEnumerable<IMutableServiceProperty> IMutableEntityType.GetServiceProperties()
+            => GetServiceProperties();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4105,7 +4181,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IEnumerable<IConventionServiceProperty> IConventionEntityType.GetServiceProperties() => GetServiceProperties();
+        IEnumerable<IConventionServiceProperty> IConventionEntityType.GetServiceProperties()
+            => GetServiceProperties();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4114,7 +4191,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IMutableServiceProperty IMutableEntityType.RemoveServiceProperty(string name) => RemoveServiceProperty(name);
+        IMutableServiceProperty IMutableEntityType.RemoveServiceProperty(string name)
+            => RemoveServiceProperty(name);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4123,7 +4201,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionServiceProperty IConventionEntityType.RemoveServiceProperty(string name) => RemoveServiceProperty(name);
+        IConventionServiceProperty IConventionEntityType.RemoveServiceProperty(string name)
+            => RemoveServiceProperty(name);
 
         #endregion
 

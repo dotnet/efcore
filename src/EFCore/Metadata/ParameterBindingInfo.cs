@@ -43,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The index where its value can be found. </returns>
-        public int GetValueBufferIndex([NotNull] IPropertyBase property) => property.GetIndex();
+        public int GetValueBufferIndex([NotNull] IPropertyBase property)
+            => property.GetIndex();
     }
 }

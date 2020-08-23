@@ -7,9 +7,12 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindFunctionsQuerySqliteTest : NorthwindFunctionsQueryRelationalTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
+    public class NorthwindFunctionsQuerySqliteTest : NorthwindFunctionsQueryRelationalTestBase<
+        NorthwindQuerySqliteFixture<NoopModelCustomizer>>
     {
-        public NorthwindFunctionsQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+        public NorthwindFunctionsQuerySqliteTest(
+            NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture,
+            ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
@@ -228,7 +231,6 @@ FROM ""Customers"" AS ""c""
 WHERE (""c"".""ContactName"" = '') OR (instr(""c"".""ContactName"", ""c"".""ContactName"") > 0)");
         }
 
-
         public override async Task String_FirstOrDefault_MethodCall(bool async)
         {
             await base.String_FirstOrDefault_MethodCall(async);
@@ -238,7 +240,6 @@ FROM ""Customers"" AS ""c""
 WHERE substr(""c"".""ContactName"", 1, 1) = 'A'");
         }
 
-
         public override async Task String_LastOrDefault_MethodCall(bool async)
         {
             await base.String_LastOrDefault_MethodCall(async);
@@ -247,7 +248,6 @@ WHERE substr(""c"".""ContactName"", 1, 1) = 'A'");
 FROM ""Customers"" AS ""c""
 WHERE substr(""c"".""ContactName"", length(""c"".""ContactName""), 1) = 's'");
         }
-
 
         public override async Task String_Contains_MethodCall(bool async)
         {
@@ -278,7 +278,6 @@ WHERE ""c"".""Region"" IS NULL OR (trim(""c"".""Region"") = '')");
 FROM ""Customers"" AS ""c""
 WHERE ""c"".""CustomerID"" = 'ALFKI'");
         }
-
 
         public override async Task Replace_with_emptystring(bool async)
         {

@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact(Skip = "See issue #17386")]
-        public override Task Query_with_array_parameter_async() => null;
+        public override Task Query_with_array_parameter_async()
+            => null;
     }
 }

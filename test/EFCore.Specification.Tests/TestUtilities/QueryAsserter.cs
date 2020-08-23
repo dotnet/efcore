@@ -16,9 +16,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class QueryAsserter
     {
-        private static readonly MethodInfo _assertIncludeEntity = typeof(QueryAsserter).GetTypeInfo().GetDeclaredMethod(nameof(AssertIncludeEntity));
-        private static readonly MethodInfo _assertIncludeCollectionMethodInfo = typeof(QueryAsserter).GetTypeInfo().GetDeclaredMethod(nameof(AssertIncludeCollection));
-        private static readonly MethodInfo _filteredIncludeMethodInfo = typeof(QueryAsserter).GetTypeInfo().GetDeclaredMethod(nameof(FilteredInclude));
+        private static readonly MethodInfo _assertIncludeEntity =
+            typeof(QueryAsserter).GetTypeInfo().GetDeclaredMethod(nameof(AssertIncludeEntity));
+
+        private static readonly MethodInfo _assertIncludeCollectionMethodInfo =
+            typeof(QueryAsserter).GetTypeInfo().GetDeclaredMethod(nameof(AssertIncludeCollection));
+
+        private static readonly MethodInfo _filteredIncludeMethodInfo =
+            typeof(QueryAsserter).GetTypeInfo().GetDeclaredMethod(nameof(FilteredInclude));
 
         private readonly Func<DbContext> _contextCreator;
         private readonly IReadOnlyDictionary<Type, object> _entitySorters;
@@ -602,7 +607,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 ? await RewriteServerQuery(actualQuery(SetSourceCreator(context))).MinAsync(actualSelector)
                 : RewriteServerQuery(actualQuery(SetSourceCreator(context))).Min(actualSelector);
 
-            var rewrittenExpectedSelector = (Expression<Func<TResult, TSelector>>)new ExpectedQueryRewritingVisitor().Visit(expectedSelector);
+            var rewrittenExpectedSelector =
+                (Expression<Func<TResult, TSelector>>)new ExpectedQueryRewritingVisitor().Visit(expectedSelector);
             var expected = RewriteExpectedQuery(expectedQuery(ExpectedData)).Min(rewrittenExpectedSelector);
 
             AssertEqual(expected, actual, asserter);
@@ -641,7 +647,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 ? await RewriteServerQuery(actualQuery(SetSourceCreator(context))).MaxAsync(actualSelector)
                 : RewriteServerQuery(actualQuery(SetSourceCreator(context))).Max(actualSelector);
 
-            var rewrittenExpectedSelector = (Expression<Func<TResult, TSelector>>)new ExpectedQueryRewritingVisitor().Visit(expectedSelector);
+            var rewrittenExpectedSelector =
+                (Expression<Func<TResult, TSelector>>)new ExpectedQueryRewritingVisitor().Visit(expectedSelector);
             var expected = RewriteExpectedQuery(expectedQuery(ExpectedData)).Max(rewrittenExpectedSelector);
 
             AssertEqual(expected, actual, asserter);
@@ -931,7 +938,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 ? await RewriteServerQuery(actualQuery(SetSourceCreator(context))).SumAsync(actualSelector)
                 : RewriteServerQuery(actualQuery(SetSourceCreator(context))).Sum(actualSelector);
 
-            var rewrittenExpectedSelector = (Expression<Func<TResult, decimal?>>)new ExpectedQueryRewritingVisitor().Visit(expectedSelector);
+            var rewrittenExpectedSelector =
+                (Expression<Func<TResult, decimal?>>)new ExpectedQueryRewritingVisitor().Visit(expectedSelector);
             var expected = RewriteExpectedQuery(expectedQuery(ExpectedData)).Sum(rewrittenExpectedSelector);
 
             AssertEqual(expected, actual, asserter);
@@ -1301,7 +1309,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 ? await RewriteServerQuery(actualQuery(SetSourceCreator(context))).AverageAsync(actualSelector)
                 : RewriteServerQuery(actualQuery(SetSourceCreator(context))).Average(actualSelector);
 
-            var rewrittenExpectedSelector = (Expression<Func<TResult, decimal?>>)new ExpectedQueryRewritingVisitor().Visit(expectedSelector);
+            var rewrittenExpectedSelector =
+                (Expression<Func<TResult, decimal?>>)new ExpectedQueryRewritingVisitor().Visit(expectedSelector);
             var expected = RewriteExpectedQuery(expectedQuery(ExpectedData)).Average(rewrittenExpectedSelector);
 
             AssertEqual(expected, actual, asserter);
@@ -1515,8 +1524,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 ((Action<TElement, TElement>)asserter)(expected, actual);
                 ProcessIncludes(expected, actual, expectedIncludes);
-
-                return;
             }
         }
 
@@ -1562,7 +1569,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                         this,
                         BindingFlags.NonPublic,
                         null,
-                        new object[] { expectedIncludedNavigation, expectedInclude },
+                        new[] { expectedIncludedNavigation, expectedInclude },
                         CultureInfo.CurrentCulture);
 
                     assertOrder = (bool)expectedInclude.GetType()
@@ -1602,7 +1609,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         private IQueryable<T> RewriteServerQuery<T>(IQueryable<T> query)
-           => query.Provider.CreateQuery<T>(_rewriteServerQueryExpression(query.Expression));
+            => query.Provider.CreateQuery<T>(_rewriteServerQueryExpression(query.Expression));
 
         private IQueryable<T> RewriteExpectedQuery<T>(IQueryable<T> query)
             => query.Provider.CreateQuery<T>(_rewriteExpectedQueryExpression(query.Expression));

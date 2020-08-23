@@ -66,17 +66,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the underlying reader for the result set.
         /// </summary>
-        public virtual DbDataReader DbDataReader => _reader;
+        public virtual DbDataReader DbDataReader
+            => _reader;
 
         /// <summary>
         ///     Gets the underlying command for the result set.
         /// </summary>
-        public virtual DbCommand DbCommand => _command;
+        public virtual DbCommand DbCommand
+            => _command;
 
         /// <summary>
-        ///     Calls <see cref="System.Data.Common.DbDataReader.Read()"/> on the underlying <see cref="System.Data.Common.DbDataReader"/>.
+        ///     Calls <see cref="System.Data.Common.DbDataReader.Read()" /> on the underlying <see cref="System.Data.Common.DbDataReader" />.
         /// </summary>
-        /// <returns> <see langword="true"/> if there are more rows; otherwise <see langword="false"/>. </returns>
+        /// <returns> <see langword="true" /> if there are more rows; otherwise <see langword="false" />. </returns>
         public virtual bool Read()
         {
             _readCount++;
@@ -85,10 +87,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Calls <see cref="System.Data.Common.DbDataReader.ReadAsync(CancellationToken)"/> on the underlying
-        ///     <see cref="System.Data.Common.DbDataReader"/>.
+        ///     Calls <see cref="System.Data.Common.DbDataReader.ReadAsync(CancellationToken)" /> on the underlying
+        ///     <see cref="System.Data.Common.DbDataReader" />.
         /// </summary>
-        /// <returns> <see langword="true"/> if there are more rows; otherwise <see langword="false"/>. </returns>
+        /// <returns> <see langword="true" /> if there are more rows; otherwise <see langword="false" />. </returns>
         public virtual Task<bool> ReadAsync(CancellationToken cancellationToken = default)
         {
             _readCount++;

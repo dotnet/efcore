@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -92,7 +91,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             }
                             catch (Exception)
                             {
-                                Assert.True(false, "Need to add fake test factory for type " + type.DisplayName() + " in class " + eventIdType.Name + "Test");
+                                Assert.True(
+                                    false,
+                                    "Need to add fake test factory for type "
+                                    + type.DisplayName()
+                                    + " in class "
+                                    + eventIdType.Name
+                                    + "Test");
                             }
                         }
                     }

@@ -8,16 +8,20 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindKeylessEntitiesQuerySqlServerTest : NorthwindKeylessEntitiesQueryRelationalTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    public class NorthwindKeylessEntitiesQuerySqlServerTest : NorthwindKeylessEntitiesQueryRelationalTestBase<
+        NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
-        public NorthwindKeylessEntitiesQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+        public NorthwindKeylessEntitiesQuerySqlServerTest(
+            NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture,
+            ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             ClearLog();
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        protected override bool CanExecuteQueryString => true;
+        protected override bool CanExecuteQueryString
+            => true;
 
         [ConditionalTheory]
         public override async Task KeylessEntity_simple(bool async)

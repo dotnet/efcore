@@ -36,14 +36,16 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(tempValue, entry.Property(e => e.Id).CurrentValue);
         }
 
-        protected override bool EnforcesFKs => true;
+        protected override bool EnforcesFKs
+            => true;
 
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());
 
         public class StoreGeneratedFixupSqliteFixture : StoreGeneratedFixupRelationalFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqliteTestStoreFactory.Instance;
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
     ///     The <see cref="DiagnosticSource" /> event payload base class for events that
-    ///     references two <see cref="SqlExpression"/>.
+    ///     references two <see cref="SqlExpression" />.
     /// </summary>
     public class TwoSqlExpressionsEventData : EventData
     {

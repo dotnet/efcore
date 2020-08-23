@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public interface IQueryCompilationContextFactory
     {
         /// <summary>
-        ///     Creates a new <see cref="QueryCompilationContext"/>.
+        ///     Creates a new <see cref="QueryCompilationContext" />.
         /// </summary>
         /// <param name="async"> Specifies whether the query is async. </param>
         /// <returns> The created query compilation context. </returns>

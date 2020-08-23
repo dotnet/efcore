@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="storeType"> The store type of the function parameter in the database. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true"/> if the store type can be set for this property. </returns>
+        /// <returns> <see langword="true" /> if the store type can be set for this property. </returns>
         bool CanSetStoreType([CanBeNull] string storeType, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -40,7 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The same builder instance if the configuration was applied; null otherwise. </returns>
         IConventionDbFunctionParameterBuilder HasTypeMapping(
-            [CanBeNull] RelationalTypeMapping typeMapping, bool fromDataAnnotation = false);
+            [CanBeNull] RelationalTypeMapping typeMapping,
+            bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether <see cref="RelationalTypeMapping" /> can be set for this property
@@ -48,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="typeMapping"> The type mapping to use for the function parameter. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true"/> if the type mapping can be set for this property. </returns>
+        /// <returns> <see langword="true" /> if the type mapping can be set for this property. </returns>
         bool CanSetTypeMapping([CanBeNull] RelationalTypeMapping typeMapping, bool fromDataAnnotation = false);
     }
 }

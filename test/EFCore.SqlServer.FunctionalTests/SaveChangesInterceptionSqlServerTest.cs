@@ -20,7 +20,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public abstract class InterceptionSqlServerFixtureBase : InterceptionFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
 
             protected override IServiceCollection InjectInterceptors(
                 IServiceCollection serviceCollection,
@@ -38,9 +39,11 @@ namespace Microsoft.EntityFrameworkCore
 
             public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
             {
-                protected override string StoreName => "SaveChangesInterception";
+                protected override string StoreName
+                    => "SaveChangesInterception";
 
-                protected override bool ShouldSubscribeToDiagnosticListener => false;
+                protected override bool ShouldSubscribeToDiagnosticListener
+                    => false;
 
                 public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 {
@@ -62,9 +65,11 @@ namespace Microsoft.EntityFrameworkCore
 
             public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
             {
-                protected override string StoreName => "SaveChangesInterceptionWithDiagnostics";
+                protected override string StoreName
+                    => "SaveChangesInterceptionWithDiagnostics";
 
-                protected override bool ShouldSubscribeToDiagnosticListener => true;
+                protected override bool ShouldSubscribeToDiagnosticListener
+                    => true;
 
                 public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 {

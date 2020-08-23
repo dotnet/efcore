@@ -54,7 +54,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             private readonly bool _multipleActiveResultSetsEnabled;
 
             public SqlServerCompiledQueryCacheKey(
-                RelationalCompiledQueryCacheKey relationalCompiledQueryCacheKey, bool multipleActiveResultSetsEnabled)
+                RelationalCompiledQueryCacheKey relationalCompiledQueryCacheKey,
+                bool multipleActiveResultSetsEnabled)
             {
                 _relationalCompiledQueryCacheKey = relationalCompiledQueryCacheKey;
                 _multipleActiveResultSetsEnabled = multipleActiveResultSetsEnabled;
@@ -62,13 +63,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             public override bool Equals(object obj)
                 => obj is SqlServerCompiledQueryCacheKey sqlServerCompiledQueryCacheKey
-                   && Equals(sqlServerCompiledQueryCacheKey);
+                    && Equals(sqlServerCompiledQueryCacheKey);
 
             public bool Equals(SqlServerCompiledQueryCacheKey other)
                 => _relationalCompiledQueryCacheKey.Equals(other._relationalCompiledQueryCacheKey)
-                   && _multipleActiveResultSetsEnabled == other._multipleActiveResultSetsEnabled;
+                    && _multipleActiveResultSetsEnabled == other._multipleActiveResultSetsEnabled;
 
-            public override int GetHashCode() => HashCode.Combine(_relationalCompiledQueryCacheKey, _multipleActiveResultSetsEnabled);
+            public override int GetHashCode()
+                => HashCode.Combine(_relationalCompiledQueryCacheKey, _multipleActiveResultSetsEnabled);
         }
     }
 }

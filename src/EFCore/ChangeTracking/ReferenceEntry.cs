@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        private  void SetFkPropertiesModified(
+        private void SetFkPropertiesModified(
             INavigation navigation,
             InternalEntityEntry internalEntityEntry,
             bool modified)

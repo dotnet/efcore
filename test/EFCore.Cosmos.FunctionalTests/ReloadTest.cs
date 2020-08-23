@@ -1,18 +1,17 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 using Newtonsoft.Json.Linq;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos
 {
     public class ReloadTest
     {
-        public static IEnumerable<object[]> IsAsyncData = new[]
-        {
-            new object[] { true },
-            new object[] { false }
-        };
+        public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { true }, new object[] { false } };
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]

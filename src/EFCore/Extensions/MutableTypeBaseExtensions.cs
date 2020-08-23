@@ -26,7 +26,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The type for which to set the access mode. </param>
         /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or <see langword="null" /> to clear the mode set.</param>
         public static void SetPropertyAccessMode(
-            [NotNull] this IMutableTypeBase entityType, PropertyAccessMode? propertyAccessMode)
+            [NotNull] this IMutableTypeBase entityType,
+            PropertyAccessMode? propertyAccessMode)
             => Check.NotNull(entityType, nameof(entityType)).AsTypeBase()
                 .SetPropertyAccessMode(propertyAccessMode, ConfigurationSource.Explicit);
 
@@ -42,7 +43,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The type for which to set the access mode. </param>
         /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or <see langword="null" /> to clear the mode set.</param>
         public static void SetNavigationAccessMode(
-            [NotNull] this IMutableTypeBase entityType, PropertyAccessMode? propertyAccessMode)
+            [NotNull] this IMutableTypeBase entityType,
+            PropertyAccessMode? propertyAccessMode)
             => Check.NotNull(entityType, nameof(entityType)).AsTypeBase()
                 .SetNavigationAccessMode(propertyAccessMode, ConfigurationSource.Explicit);
     }

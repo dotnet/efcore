@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -817,7 +816,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public bool Disposed { get; set; }
 
-            public void Dispose() => Disposed = true;
+            public void Dispose()
+                => Disposed = true;
 
             public object GetService(Type serviceType)
             {
@@ -833,7 +833,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 public static FakeServiceScope Scope { get; } = new FakeServiceScope();
 
-                public IServiceScope CreateScope() => Scope;
+                public IServiceScope CreateScope()
+                    => Scope;
             }
 
             public class FakeServiceScope : IServiceScope
@@ -842,7 +843,8 @@ namespace Microsoft.EntityFrameworkCore
 
                 public IServiceProvider ServiceProvider { get; set; } = new FakeServiceProvider();
 
-                public void Dispose() => Disposed = true;
+                public void Dispose()
+                    => Disposed = true;
             }
         }
 

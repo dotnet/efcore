@@ -345,7 +345,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         protected class TestModelCacheKeyFactory : IModelCacheKeyFactory
         {
-            public object Create(DbContext context) => new object();
+            public object Create(DbContext context)
+                => new object();
         }
 
         protected class OneDee

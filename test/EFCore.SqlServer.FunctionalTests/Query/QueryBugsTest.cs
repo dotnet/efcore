@@ -1271,7 +1271,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                                 on eVersion.RootEntityId equals eRoot.Id
                                 into RootEntities
                             from eRootJoined in RootEntities.DefaultIfEmpty()
-                                // ReSharper disable once ConstantNullCoalescingCondition
+                            // ReSharper disable once ConstantNullCoalescingCondition
                             select new { One = 1, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
 
                 var result = query.ToList();
@@ -1290,7 +1290,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                                 on eVersion.RootEntityId equals eRoot.Id
                                 into RootEntities
                             from eRootJoined in RootEntities.DefaultIfEmpty()
-                                // ReSharper disable once ConstantNullCoalescingCondition
+                            // ReSharper disable once ConstantNullCoalescingCondition
                             select new
                             {
                                 One = eRootJoined,
@@ -1314,7 +1314,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                                 on eVersion.RootEntityId equals eRoot.Id
                                 into RootEntities
                             from eRootJoined in RootEntities.DefaultIfEmpty()
-                                // ReSharper disable once MergeConditionalExpression
+                            // ReSharper disable once MergeConditionalExpression
 #pragma warning disable IDE0029 // Use coalesce expression
                             select eRootJoined != null ? eRootJoined : eVersion;
 #pragma warning restore IDE0029 // Use coalesce expression
@@ -2213,7 +2213,8 @@ WHERE [e].[Name] IS NULL");
         {
             var parameter = Expression.Parameter(typeof(Entity8909));
             var predicate = Expression.Lambda<Func<Entity8909, bool>>(
-                Expression.MakeBinary(ExpressionType.Equal,
+                Expression.MakeBinary(
+                    ExpressionType.Equal,
                     Expression.PropertyOrField(parameter, "Id"),
                     Expression.Constant(1)),
                 parameter);
@@ -3433,7 +3434,8 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL");
         #region Bug11923
 
 #pragma warning disable IDE0060 // Remove unused parameter
-        private static bool ClientMethod11923(int id) => true;
+        private static bool ClientMethod11923(int id)
+            => true;
 #pragma warning restore IDE0060 // Remove unused parameter
 
         [ConditionalFact(Skip = "Issue #17244")]
@@ -4301,7 +4303,8 @@ END IN ('0a47bcb7-a1cb-4345-8944-c58f82d6aac7', '5f221fb9-66f4-442a-92c9-d97ed59
                         }).ToList();
 
                 Assert.Single(partners);
-                Assert.Collection(partners[0].Addresses,
+                Assert.Collection(
+                    partners[0].Addresses,
                     t =>
                     {
                         Assert.NotNull(t.Turnovers);
@@ -4820,8 +4823,7 @@ LEFT JOIN [Categories] AS [c] ON [p].[CategoryId] = [c].[Id]");
                     context.Products.Add(
                         new Product15684
                         {
-                            Name = "Apple",
-                            Category = new Category15684 { Name = "Fruit", Status = CategoryStatus15684.Active }
+                            Name = "Apple", Category = new Category15684 { Name = "Fruit", Status = CategoryStatus15684.Active }
                         });
 
                     context.Products.Add(new Product15684 { Name = "Bike" });
@@ -5667,10 +5669,17 @@ WHERE [f].[String] = N'1337'");
                 _value = value;
             }
 
-            public string Value => _value.ToString();
-            public override string ToString() => Value;
-            public static implicit operator string(Bar6864 bar) => bar.Value;
-            public Bar6864 Clone() => new Bar6864(_value);
+            public string Value
+                => _value.ToString();
+
+            public override string ToString()
+                => Value;
+
+            public static implicit operator string(Bar6864 bar)
+                => bar.Value;
+
+            public Bar6864 Clone()
+                => new Bar6864(_value);
         }
 
         #endregion
@@ -5781,7 +5790,8 @@ FROM [Blogs] AS [b]");
                 Blogs.Select(b => ClientMethod(b)).ToList();
             }
 
-            public int ClientMethod(Blog7222 blog) => blog.Id;
+            public int ClientMethod(Blog7222 blog)
+                => blog.Id;
         }
 
         private SqlServerTestStore CreateDatabase7222()
@@ -6606,16 +6616,11 @@ WHERE EXISTS (
                 () => new BugContext17794(_options),
                 context =>
                 {
-                    context.Add(new Offer17794
-                    {
-                        Actions = new List<OfferAction17794>
+                    context.Add(
+                        new Offer17794
                         {
-                            new OfferAction17794
-                            {
-                                Action = OfferActions17794.Accepted
-                            }
-                        }
-                    });
+                            Actions = new List<OfferAction17794> { new OfferAction17794 { Action = OfferActions17794.Accepted } }
+                        });
 
                     context.SaveChanges();
 
@@ -6642,7 +6647,7 @@ WHERE EXISTS (
             public ICollection<OfferAction17794> Actions { get; set; }
         }
 
-        private enum OfferActions17794 : int
+        private enum OfferActions17794
         {
             Accepted = 1,
             Declined = 2
@@ -6654,6 +6659,7 @@ WHERE EXISTS (
 
             [Required]
             public Offer17794 Offer { get; set; }
+
             public int OfferId { get; set; }
 
             [Required]
@@ -6667,7 +6673,6 @@ WHERE EXISTS (
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-
             }
 
             public BugContext17794(DbContextOptions options)
@@ -6731,7 +6736,7 @@ FROM [MockEntities] AS [m]");
             Assert.Equal(
                 CoreStrings.TranslationFailed(
                     @"DbSet<MockEntity>()    .Cast<IDummyEntity>()    .Where(e => e.Id == __id_0)"),
-                    message.Replace("\r", "").Replace("\n", ""));
+                message.Replace("\r", "").Replace("\n", ""));
         }
 
         private SqlServerTestStore CreateDatabase18087()
@@ -6739,21 +6744,10 @@ FROM [MockEntities] AS [m]");
                 () => new BugContext18087(_options),
                 context =>
                 {
-                    context.AddRange(new MockEntity()
-                    {
-                        Name = "Entity1",
-                        NavigationEntity = null
-                    },
-                    new MockEntity()
-                    {
-                        Name = "Entity2",
-                        NavigationEntity = null
-                    },
-                    new MockEntity()
-                    {
-                        Name = "NewEntity",
-                        NavigationEntity = null
-                    });
+                    context.AddRange(
+                        new MockEntity { Name = "Entity1", NavigationEntity = null },
+                        new MockEntity { Name = "Entity2", NavigationEntity = null },
+                        new MockEntity { Name = "NewEntity", NavigationEntity = null });
 
                     context.SaveChanges();
 
@@ -6951,14 +6945,19 @@ WHERE (
 
             var query = context.Set<CustomerView19708>().ToList();
 
-            Assert.Collection(query,
+            Assert.Collection(
+                query,
                 t => AssertCustomerView(t, 1, "First", 1, "FirstChild"),
                 t => AssertCustomerView(t, 2, "Second", 2, "SecondChild1"),
                 t => AssertCustomerView(t, 2, "Second", 3, "SecondChild2"),
                 t => AssertCustomerView(t, 3, "Third", null, ""));
 
             static void AssertCustomerView(
-                CustomerView19708 actual, int id, string name, int? customerMembershipId, string customerMembershipName)
+                CustomerView19708 actual,
+                int id,
+                string name,
+                int? customerMembershipId,
+                string customerMembershipName)
             {
                 Assert.Equal(id, actual.Id);
                 Assert.Equal(name, actual.Name);
@@ -6967,7 +6966,7 @@ WHERE (
             }
 
             AssertSql(
-    @"SELECT [c].[Id], [c].[Name], [c0].[Id] AS [CustomerMembershipId], CASE
+                @"SELECT [c].[Id], [c].[Name], [c0].[Id] AS [CustomerMembershipId], CASE
     WHEN [c0].[Id] IS NOT NULL THEN [c0].[Name]
     ELSE N''
 END AS [CustomerMembershipName]
@@ -7010,16 +7009,14 @@ LEFT JOIN [CustomerMemberships] AS [c0] ON [c].[Id] = [c0].[CustomerId]");
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<CustomerFilter19708>()
-                    .HasQueryFilter(e => (from a in (from c in Customers
-                                                     join cm in CustomerMemberships on c.Id equals cm.CustomerId into g
-                                                     from cm in g.DefaultIfEmpty()
-                                                     select new
-                                                     {
-                                                         c.Id,
-                                                         CustomerMembershipId = (int?)cm.Id
-                                                     })
-                                          where a.CustomerMembershipId != null && a.Id == e.CustomerId
-                                          select a).Count() > 0)
+                    .HasQueryFilter(
+                        e => (from a in (from c in Customers
+                                         join cm in CustomerMemberships on c.Id equals cm.CustomerId into g
+                                         from cm in g.DefaultIfEmpty()
+                                         select new { c.Id, CustomerMembershipId = (int?)cm.Id })
+                              where a.CustomerMembershipId != null && a.Id == e.CustomerId
+                              select a).Count()
+                            > 0)
                     .HasKey(e => e.CustomerId);
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -7155,11 +7152,8 @@ WHERE [e].[Id] = CAST(1 AS bigint)");
             using var context = new BugContext20097(_options);
 
             var originalQuery = context.Entities.Select(a => new MyModel20097 { Id = a.Id });
-            checked
-            {
-                var query = originalQuery.Where(a => ((IHaveId20097)a).Id == 1).ToList();
-                Assert.Single(query);
-            }
+            var query = originalQuery.Where(a => ((IHaveId20097)a).Id == 1).ToList();
+            Assert.Single(query);
 
             AssertSql(
                 @"SELECT [e].[Id]
@@ -7374,7 +7368,8 @@ ORDER BY [p].[Id], [c].[Id]"
             using var context = new BugContext21355(options);
 
             Assert.Contains(
-                RelationalResources.LogMultipleCollectionIncludeWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage(),
+                RelationalResources.LogMultipleCollectionIncludeWarning(new TestLogger<TestRelationalLoggingDefinitions>())
+                    .GenerateMessage(),
                 Assert.Throws<InvalidOperationException>(
                     () => context.Parents.Include(p => p.Children1).Include(p => p.Children2).ToList()).Message);
         }
@@ -7563,7 +7558,9 @@ ORDER BY [p].[Id]"
             public Parent21355 Parent { get; set; }
         }
 
-        private (DbContextOptions, TestSqlLoggerFactory) CreateOptions21355(QuerySplittingBehavior? querySplittingBehavior, bool mars = true)
+        private (DbContextOptions, TestSqlLoggerFactory) CreateOptions21355(
+            QuerySplittingBehavior? querySplittingBehavior,
+            bool mars = true)
         {
             var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest", multipleActiveResultSets: mars);
             var testSqlLoggerFactory = new TestSqlLoggerFactory();
@@ -7582,15 +7579,7 @@ ORDER BY [p].[Id]"
             var context = new BugContext21355(optionsBuilder.Options);
             if (context.Database.EnsureCreatedResiliently())
             {
-                context.Add(new Parent21355
-                {
-                    Id = "Parent1",
-                    Children1 = new List<Child21355>
-                    {
-                        new Child21355(),
-                        new Child21355()
-                    }
-                });
+                context.Add(new Parent21355 { Id = "Parent1", Children1 = new List<Child21355> { new Child21355(), new Child21355() } });
                 context.SaveChanges();
             }
 
@@ -7743,8 +7732,7 @@ FROM [Parents] AS [p]");
                             OwnedReference = new Owned21540(),
                             Collection = new List<Collection21540>
                             {
-                                new Collection21540(),
-                                new Collection21540(),
+                                new Collection21540(), new Collection21540(),
                             }
                         }
                     };
@@ -7840,7 +7828,8 @@ FROM [Businesses] AS [b]");
             {
                 var ids = new[] { 1, 2, 3 };
 
-                Parallel.For(0, 100,
+                Parallel.For(
+                    0, 100,
                     i =>
                     {
                         using var context = new MyContext21666(_options);
@@ -7890,11 +7879,11 @@ FROM [Businesses] AS [b]");
                 Expression<Func<IBook21768, BookViewModel21768>> projection = b => new BookViewModel21768
                 {
                     FirstPage = b.FrontCover.Illustrations.FirstOrDefault(i => i.State >= IllustrationState21768.Approved) != null
-                         ? new PageViewModel21768
-                         {
-                             Uri = b.FrontCover.Illustrations.FirstOrDefault(i => i.State >= IllustrationState21768.Approved).Uri
-                         }
-                         : null,
+                        ? new PageViewModel21768
+                        {
+                            Uri = b.FrontCover.Illustrations.FirstOrDefault(i => i.State >= IllustrationState21768.Approved).Uri
+                        }
+                        : null,
                 };
 
                 var result = context.Books.Where(b => b.Id == 1).Select(projection).SingleOrDefault();
@@ -7961,15 +7950,21 @@ WHERE [b].[Id] = 1");
 
             public BookCover21768 BackCover { get; set; }
             public int BackCoverId { get; set; }
-            IBookCover21768 IBook21768.FrontCover => FrontCover;
-            IBookCover21768 IBook21768.BackCover => BackCover;
+
+            IBookCover21768 IBook21768.FrontCover
+                => FrontCover;
+
+            IBookCover21768 IBook21768.BackCover
+                => BackCover;
         }
 
         private class BookCover21768 : IBookCover21768
         {
             public int Id { get; set; }
             public ICollection<CoverIllustration21768> Illustrations { get; set; }
-            IEnumerable<ICoverIllustration21768> IBookCover21768.Illustrations => Illustrations;
+
+            IEnumerable<ICoverIllustration21768> IBookCover21768.Illustrations
+                => Illustrations;
         }
 
         private class CoverIllustration21768 : ICoverIllustration21768
@@ -7980,7 +7975,8 @@ WHERE [b].[Id] = 1");
             public string Uri { get; set; }
             public IllustrationState21768 State { get; set; }
 
-            IBookCover21768 ICoverIllustration21768.Cover => Cover;
+            IBookCover21768 ICoverIllustration21768.Cover
+                => Cover;
         }
 
         private enum IllustrationState21768
@@ -8102,10 +8098,7 @@ CROSS JOIN (
         {
             using (CreateDatabase18510())
             {
-                using var context = new MyContext18510(_options)
-                {
-                    TenantId = 1
-                };
+                using var context = new MyContext18510(_options) { TenantId = 1 };
 
                 var query1 = context.Entities.ToList();
                 Assert.True(query1.All(x => x.TenantId == 1));
@@ -8248,7 +8241,9 @@ ORDER BY [e].[Id], [o].[Id]");
             private readonly List<OtherEntity21803> _otherEntities = new List<OtherEntity21803>();
 
             public int Id { get; private set; }
-            public IEnumerable<OtherEntity21803> OtherEntities => _otherEntities;
+
+            public IEnumerable<OtherEntity21803> OtherEntities
+                => _otherEntities;
         }
 
         private class OtherEntity21803
@@ -8337,17 +8332,19 @@ FROM [Entity21807] AS [e]");
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Entity21807>(builder =>
-                {
-                    builder.HasKey(x => x.Id);
-
-                    builder.OwnsOne(x => x.Contact, contact =>
+                modelBuilder.Entity<Entity21807>(
+                    builder =>
                     {
-                        contact.OwnsOne(c => c.Address);
-                    });
+                        builder.HasKey(x => x.Id);
 
-                    builder.Navigation(x => x.Contact).IsRequired();
-                });
+                        builder.OwnsOne(
+                            x => x.Contact, contact =>
+                            {
+                                contact.OwnsOne(c => c.Address);
+                            });
+
+                        builder.Navigation(x => x.Contact).IsRequired();
+                    });
             }
         }
 
@@ -8356,17 +8353,7 @@ FROM [Entity21807] AS [e]");
                 () => new MyContext21807(_options),
                 context =>
                 {
-                    context.Add(new Entity21807
-                    {
-                        Id = "1",
-                        Contact = new Contact21807
-                        {
-                            Address = new Address21807
-                            {
-                                Zip = "12345"
-                            }
-                        }
-                    });
+                    context.Add(new Entity21807 { Id = "1", Contact = new Contact21807 { Address = new Address21807 { Zip = "12345" } } });
 
                     context.SaveChanges();
 
@@ -8440,33 +8427,36 @@ ORDER BY [u].[Id] DESC");
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<User22054>(builder =>
-                {
-                    builder.HasKey(x => x.Id);
-
-                    builder.OwnsOne(x => x.Contact, contact =>
+                modelBuilder.Entity<User22054>(
+                    builder =>
                     {
-                        contact.Property(e => e.SharedProperty).IsRequired().HasColumnName("SharedProperty");
+                        builder.HasKey(x => x.Id);
 
-                        contact.OwnsOne(c => c.Address, address =>
-                        {
-                            address.Property<string>("SharedProperty").IsRequired().HasColumnName("SharedProperty");
-                        });
+                        builder.OwnsOne(
+                            x => x.Contact, contact =>
+                            {
+                                contact.Property(e => e.SharedProperty).IsRequired().HasColumnName("SharedProperty");
+
+                                contact.OwnsOne(
+                                    c => c.Address, address =>
+                                    {
+                                        address.Property<string>("SharedProperty").IsRequired().HasColumnName("SharedProperty");
+                                    });
+                            });
+
+                        builder.OwnsOne(e => e.Data)
+                            .Property<byte[]>("RowVersion")
+                            .IsRowVersion()
+                            .IsRequired()
+                            .HasColumnType("TIMESTAMP")
+                            .HasColumnName("RowVersion");
+
+                        builder.Property(x => x.RowVersion)
+                            .HasColumnType("TIMESTAMP")
+                            .IsRowVersion()
+                            .IsRequired()
+                            .HasColumnName("RowVersion");
                     });
-
-                    builder.OwnsOne(e => e.Data)
-                        .Property<byte[]>("RowVersion")
-                        .IsRowVersion()
-                        .IsRequired()
-                        .HasColumnType("TIMESTAMP")
-                        .HasColumnName("RowVersion");
-
-                    builder.Property<byte[]>(x => x.RowVersion)
-                        .HasColumnType("TIMESTAMP")
-                        .IsRowVersion()
-                        .IsRequired()
-                        .HasColumnName("RowVersion");
-                });
             }
         }
 
@@ -8478,10 +8468,7 @@ ORDER BY [u].[Id] DESC");
                     context.AddRange(
                         new User22054
                         {
-                            Data = new Data22054
-                            {
-                                Data = "Data1"
-                            },
+                            Data = new Data22054 { Data = "Data1" },
                             Contact = new Contact22054
                             {
                                 MobileNumber = "123456",
@@ -8496,10 +8483,7 @@ ORDER BY [u].[Id] DESC");
                         },
                         new User22054
                         {
-                            Data = new Data22054
-                            {
-                                Data = "Data2"
-                            },
+                            Data = new Data22054 { Data = "Data2" },
                             Contact = new Contact22054
                             {
                                 MobileNumber = "654321",
@@ -8507,11 +8491,7 @@ ORDER BY [u].[Id] DESC");
                                 Address = null
                             }
                         },
-                        new User22054
-                        {
-                            Contact = null,
-                            Data = null
-                        });
+                        new User22054 { Contact = null, Data = null });
 
                     context.SaveChanges();
 

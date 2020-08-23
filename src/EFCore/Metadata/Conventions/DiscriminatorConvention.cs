@@ -112,7 +112,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="entityTypes"> The entity types to configure. </param>
         /// <param name="discriminatorBuilder"> The discriminator builder. </param>
         protected virtual void SetDefaultDiscriminatorValues(
-            [NotNull] IEnumerable<IConventionEntityType> entityTypes, [NotNull] IConventionDiscriminatorBuilder discriminatorBuilder)
+            [NotNull] IEnumerable<IConventionEntityType> entityTypes,
+            [NotNull] IConventionDiscriminatorBuilder discriminatorBuilder)
         {
             foreach (var entityType in entityTypes)
             {

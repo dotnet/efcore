@@ -17,7 +17,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             _compareAnnotations = compareAnnotations;
         }
 
-        public int Compare(IKey x, IKey y) => PropertyListComparer.Instance.Compare(x.Properties, y.Properties);
+        public int Compare(IKey x, IKey y)
+            => PropertyListComparer.Instance.Compare(x.Properties, y.Properties);
 
         public bool Equals(IKey x, IKey y)
         {
@@ -32,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 && (!_compareAnnotations || x.GetAnnotations().SequenceEqual(y.GetAnnotations(), AnnotationComparer.Instance));
         }
 
-        public int GetHashCode(IKey obj) => PropertyListComparer.Instance.GetHashCode(obj.Properties);
+        public int GetHashCode(IKey obj)
+            => PropertyListComparer.Instance.GetHashCode(obj.Properties);
     }
 }

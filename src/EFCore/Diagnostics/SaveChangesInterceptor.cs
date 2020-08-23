@@ -17,10 +17,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Called at the start of <see cref="M:DbContext.SaveChanges" />.
         /// </summary>
-        /// <param name="eventData"> Contextual information about the <see cref="DbContext"/> being used. </param>
+        /// <param name="eventData"> Contextual information about the <see cref="DbContext" /> being used. </param>
         /// <param name="result">
         ///     Represents the current result if one exists.
-        ///     This value will have <see cref="InterceptionResult{Int32}.HasResult" /> set to <see langword="true"/> if some previous
+        ///     This value will have <see cref="InterceptionResult{Int32}.HasResult" /> set to <see langword="true" /> if some previous
         ///     interceptor suppressed execution by calling <see cref="InterceptionResult{Int32}.SuppressWithResult" />.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
@@ -39,11 +39,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         Called at the end of <see cref="M:DbContext.SaveChanges" />.
         ///     </para>
         ///     <para>
-        ///         This method is still called if an interceptor suppressed creation of a command in <see cref="ISaveChangesInterceptor.SavingChanges" />.
+        ///         This method is still called if an interceptor suppressed creation of a command in
+        ///         <see cref="ISaveChangesInterceptor.SavingChanges" />.
         ///         In this case, <paramref name="result" /> is the result returned by <see cref="ISaveChangesInterceptor.SavingChanges" />.
         ///     </para>
         /// </summary>
-        /// <param name="eventData"> Contextual information about the <see cref="DbContext"/> being used. </param>
+        /// <param name="eventData"> Contextual information about the <see cref="DbContext" /> being used. </param>
         /// <param name="result">
         ///     The result of the call to <see cref="M:DbContext.SaveChanges" />.
         ///     This value is typically used as the return value for the implementation of this method.
@@ -57,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => result;
 
         /// <summary>
-        ///     Called when an exception has been thrown in <see cref="M:DbContext.SaveChanges"/>.
+        ///     Called when an exception has been thrown in <see cref="M:DbContext.SaveChanges" />.
         /// </summary>
         /// <param name="eventData"> Contextual information about the failure. </param>
         public virtual void SaveChangesFailed(DbContextErrorEventData eventData)
@@ -67,10 +68,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Called at the start of <see cref="M:DbContext.SaveChangesAsync" />.
         /// </summary>
-        /// <param name="eventData"> Contextual information about the <see cref="DbContext"/> being used. </param>
+        /// <param name="eventData"> Contextual information about the <see cref="DbContext" /> being used. </param>
         /// <param name="result">
         ///     Represents the current result if one exists.
-        ///     This value will have <see cref="InterceptionResult{Int32}.HasResult" /> set to <see langword="true"/> if some previous
+        ///     This value will have <see cref="InterceptionResult{Int32}.HasResult" /> set to <see langword="true" /> if some previous
         ///     interceptor suppressed execution by calling <see cref="InterceptionResult{Int32}.SuppressWithResult" />.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
@@ -93,11 +94,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         Called at the end of <see cref="M:DbContext.SaveChangesAsync" />.
         ///     </para>
         ///     <para>
-        ///         This method is still called if an interceptor suppressed creation of a command in <see cref="ISaveChangesInterceptor.SavingChangesAsync" />.
+        ///         This method is still called if an interceptor suppressed creation of a command in
+        ///         <see cref="ISaveChangesInterceptor.SavingChangesAsync" />.
         ///         In this case, <paramref name="result" /> is the result returned by <see cref="ISaveChangesInterceptor.SavingChangesAsync" />.
         ///     </para>
         /// </summary>
-        /// <param name="eventData"> Contextual information about the <see cref="DbContext"/> being used. </param>
+        /// <param name="eventData"> Contextual information about the <see cref="DbContext" /> being used. </param>
         /// <param name="result">
         ///     The result of the call to <see cref="M:DbContext.SaveChangesAsync" />.
         ///     This value is typically used as the return value for the implementation of this method.
@@ -115,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => new ValueTask<int>(result);
 
         /// <summary>
-        ///     Called when an exception has been thrown in <see cref="M:DbContext.SaveChangesAsync"/>.
+        ///     Called when an exception has been thrown in <see cref="M:DbContext.SaveChangesAsync" />.
         /// </summary>
         /// <param name="eventData"> Contextual information about the failure. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>

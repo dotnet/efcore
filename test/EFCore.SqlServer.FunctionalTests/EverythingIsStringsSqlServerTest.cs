@@ -191,23 +191,31 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 
         public class EverythingIsStringsSqlServerFixture : BuiltInDataTypesFixtureBase
         {
-            public override bool StrictEquality => true;
+            public override bool StrictEquality
+                => true;
 
-            public override bool SupportsAnsi => true;
+            public override bool SupportsAnsi
+                => true;
 
-            public override bool SupportsUnicodeToAnsiConversion => true;
+            public override bool SupportsUnicodeToAnsiConversion
+                => true;
 
-            public override bool SupportsLargeStringComparisons => true;
+            public override bool SupportsLargeStringComparisons
+                => true;
 
             protected override string StoreName { get; } = "EverythingIsStrings";
 
-            protected override ITestStoreFactory TestStoreFactory => SqlServerStringsTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerStringsTestStoreFactory.Instance;
 
-            public override bool SupportsBinaryKeys => true;
+            public override bool SupportsBinaryKeys
+                => true;
 
-            public override bool SupportsDecimalComparisons => true;
+            public override bool SupportsDecimalComparisons
+                => true;
 
-            public override DateTime DefaultDateTime => new DateTime();
+            public override DateTime DefaultDateTime
+                => new DateTime();
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base

@@ -144,7 +144,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         }
 
         private ModificationCommandBatch StartNewBatch(
-            ParameterNameGenerator parameterNameGenerator, ModificationCommand modificationCommand)
+            ParameterNameGenerator parameterNameGenerator,
+            ModificationCommand modificationCommand)
         {
             parameterNameGenerator.Reset();
             var batch = _modificationCommandBatchFactory.Create();
@@ -197,7 +198,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             sharedTablesCommandsMap.Add(tableKey, sharedCommandsMap);
                         }
 
-                        command = sharedCommandsMap.GetOrAddValue(entry,
+                        command = sharedCommandsMap.GetOrAddValue(
+                            entry,
                             (n, s, c) => new ModificationCommand(n, s, generateParameterName, _sensitiveLoggingEnabled, c));
                         isMainEntry = sharedCommandsMap.IsMainEntry(entry);
                     }

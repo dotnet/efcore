@@ -22,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="annotationName"> The key of the annotation to find. </param>
         /// <returns> The annotation with the specified name. </returns>
         public static IConventionAnnotation GetAnnotation(
-            [NotNull] this IConventionAnnotatable annotatable, [NotNull] string annotationName)
+            [NotNull] this IConventionAnnotatable annotatable,
+            [NotNull] string annotationName)
             => (IConventionAnnotation)((IAnnotatable)annotatable).GetAnnotation(annotationName);
 
         /// <summary>

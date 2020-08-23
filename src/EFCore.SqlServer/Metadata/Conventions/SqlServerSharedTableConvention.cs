@@ -1,14 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
-using System.Text;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions

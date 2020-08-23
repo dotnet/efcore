@@ -9,14 +9,17 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class NorthwindJoinQuerySqlServerTest : NorthwindJoinQueryRelationalTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
-        public NorthwindJoinQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+        public NorthwindJoinQuerySqlServerTest(
+            NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture,
+            ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             ClearLog();
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        protected override bool CanExecuteQueryString => true;
+        protected override bool CanExecuteQueryString
+            => true;
 
         public override async Task Join_customers_orders_projection(bool async)
         {

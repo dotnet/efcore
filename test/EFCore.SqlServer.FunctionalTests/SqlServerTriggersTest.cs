@@ -12,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerTriggersTest : IClassFixture<SqlServerTriggersTest.SqlServerTriggersFixture>
     {
-        public SqlServerTriggersTest(SqlServerTriggersFixture fixture) => Fixture = fixture;
+        public SqlServerTriggersTest(SqlServerTriggersFixture fixture)
+            => Fixture = fixture;
 
         private SqlServerTriggersFixture Fixture { get; }
 
@@ -91,7 +92,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(product.Version, productBackup.Version);
         }
 
-        protected TriggersContext CreateContext() => (TriggersContext)Fixture.CreateContext();
+        protected TriggersContext CreateContext()
+            => (TriggersContext)Fixture.CreateContext();
 
         protected class TriggersContext : PoolableDbContext
         {
@@ -138,7 +140,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected override string StoreName { get; } = "SqlServerTriggers";
             protected override Type ContextType { get; } = typeof(TriggersContext);
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
 
             protected override void Seed(PoolableDbContext context)
             {

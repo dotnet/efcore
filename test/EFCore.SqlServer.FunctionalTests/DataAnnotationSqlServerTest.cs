@@ -131,7 +131,8 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<One>();
 
-            Assert.Equal("Name",
+            Assert.Equal(
+                "Name",
                 modelBuilder.Model.FindEntityType(typeof(One)).FindProperty(nameof(One.RequiredColumn)).GetColumnName());
         }
 
@@ -277,8 +278,11 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
 
         public class DataAnnotationSqlServerFixture : DataAnnotationFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
+
+            public TestSqlLoggerFactory TestSqlLoggerFactory
+                => (TestSqlLoggerFactory)ListLoggerFactory;
         }
     }
 }

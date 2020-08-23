@@ -262,7 +262,6 @@ WHERE (([dbo].[StringLength]([c].[FirstName]) <> [dbo].[StringLength]([c].[LastN
 ORDER BY [c].[Id]");
         }
 
-
         public override void Scalar_Function_SqlFragment_Static()
         {
             base.Scalar_Function_SqlFragment_Static();
@@ -534,15 +533,14 @@ CROSS APPLY [dbo].[GetCustomerOrderCountByYear]([c].[Id]) AS [g]
 ORDER BY [g].[Year]");
         }
 
-
         public override void QF_Select_Direct_In_Anonymous()
         {
             base.QF_Select_Direct_In_Anonymous();
 
-            AssertSql(@"SELECT [t].[AmountSold], [t].[ProductId]
+            AssertSql(
+                @"SELECT [t].[AmountSold], [t].[ProductId]
 FROM [dbo].[GetTopTwoSellingProducts]() AS [t]",
-
-@"SELECT [c].[Id]
+                @"SELECT [c].[Id]
 FROM [Customers] AS [c]");
         }
 
@@ -591,10 +589,10 @@ INNER JOIN (
         {
             base.QF_Select_Correlated_Subquery_In_Anonymous_Nested();
 
-            AssertSql(@"SELECT [t].[AmountSold], [t].[ProductId]
+            AssertSql(
+                @"SELECT [t].[AmountSold], [t].[ProductId]
 FROM [dbo].[GetTopTwoSellingProducts]() AS [t]",
-
-                    @"SELECT [c].[Id], [t].[OrderId], [t].[OrderId0], [t].[CustomerId], [t].[OrderDate]
+                @"SELECT [c].[Id], [t].[OrderId], [t].[OrderId0], [t].[CustomerId], [t].[OrderDate]
 FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT [m].[OrderId], [m0].[OrderId] AS [OrderId0], [m0].[CustomerId], [m0].[OrderDate]
@@ -872,7 +870,9 @@ ORDER BY [a].[Id], [g].[Year]");
         public class SqlServer : UdfFixtureBase
         {
             protected override string StoreName { get; } = "UDFDbFunctionSqlServerTests";
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
 
             protected override void Seed(DbContext context)
             {
@@ -1070,7 +1070,6 @@ ORDER BY [a].[Id], [g].[Year]");
 
                                                         return
                                                     end");
-
 
                 context.Database.ExecuteSqlRaw(
                     @"create function [dbo].[AddValues] (@a int, @b int)

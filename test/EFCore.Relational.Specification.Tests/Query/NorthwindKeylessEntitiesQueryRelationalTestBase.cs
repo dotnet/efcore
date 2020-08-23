@@ -19,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        protected virtual bool CanExecuteQueryString => false;
+        protected virtual bool CanExecuteQueryString
+            => false;
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -28,17 +29,19 @@ namespace Microsoft.EntityFrameworkCore.Query
             var message = (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => AssertQuery(
                     async,
-                    ss => ss.Set<CustomerQuery>().Select(cq => new
-                    {
-                        cq.City,
-                        cq.CompanyName,
-                        OrderDetailIds = ss.Set<Customer>().Where(c => c.City == cq.City).ToList()
-                    }).OrderBy(x => x.City).Take(2)))).Message;
+                    ss => ss.Set<CustomerQuery>().Select(
+                        cq => new
+                        {
+                            cq.City,
+                            cq.CompanyName,
+                            OrderDetailIds = ss.Set<Customer>().Where(c => c.City == cq.City).ToList()
+                        }).OrderBy(x => x.City).Take(2)))).Message;
 
             Assert.Equal(RelationalStrings.ProjectingCollectionOnKeylessEntityNotSupported, message);
         }
 
         protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
-            => new RelationalQueryAsserter(fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+            => new RelationalQueryAsserter(
+                fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
     }
 }

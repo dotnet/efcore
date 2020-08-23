@@ -9,7 +9,6 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -19,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         Provides translations for LINQ <see cref="MethodCallExpression"/> expressions by dispatching to multiple specialized
+    ///         Provides translations for LINQ <see cref="MethodCallExpression" /> expressions by dispatching to multiple specialized
     ///         method call translators.
     ///     </para>
     ///     <para>
@@ -64,7 +63,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <inheritdoc />
         public virtual SqlExpression Translate(
-            IModel model, SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments,
+            IModel model,
+            SqlExpression instance,
+            MethodInfo method,
+            IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
             Check.NotNull(model, nameof(model));

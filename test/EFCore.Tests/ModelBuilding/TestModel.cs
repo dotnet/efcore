@@ -145,6 +145,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public OrderDetails Details { get; set; }
             public ICollection<Product> Products { get; set; }
             public event PropertyChangedEventHandler PropertyChanged;
+
             protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
             {
                 if (PropertyChanged == null)
@@ -816,6 +817,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             private string _optional;
 
             public int Id { get; set; }
+
             public object this[string name]
             {
                 get
@@ -856,6 +858,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             private readonly Dictionary<string, object> _indexerData = new Dictionary<string, object>();
 
             public int Id { get; set; }
+
             public object this[string name]
             {
                 get => _indexerData[name];
@@ -1040,7 +1043,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public int OneToOneOwnerId;
             public OneToOneOwnerWithField OneToOneOwner { get; set; }
-
         }
 
         protected class ImplicitManyToManyA
@@ -1050,7 +1052,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public List<ImplicitManyToManyB> Bs { get; set; }
         }
-
 
         protected class ImplicitManyToManyB
         {
@@ -1100,6 +1101,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class AmbiguousInversePropertyRight
         {
             public int Id { get; set; }
+
             [InverseProperty("BaseRights")]
             public List<AmbiguousInversePropertyLeft> BaseLefts { get; set; }
         }

@@ -15,11 +15,13 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : SharedStoreFixtureBase<DbContext>, new()
     {
-        protected UdfDbFunctionTestBase(TFixture fixture) => Fixture = fixture;
+        protected UdfDbFunctionTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
-        protected UDFSqlContext CreateContext() => (UDFSqlContext)Fixture.CreateContext();
+        protected UDFSqlContext CreateContext()
+            => (UDFSqlContext)Fixture.CreateContext();
 
         #region Model
 
@@ -127,59 +129,102 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             [DbFunction("len", IsBuiltIn = true)]
-            public static long MyCustomLengthStatic(string s) => throw new Exception();
-            public static bool IsDateStatic(string date) => throw new Exception();
-            public static int AddOneStatic(int num) => num + 1;
-            public static int AddFiveStatic(int number) => number + 5;
-            public static int CustomerOrderCountStatic(int customerId) => throw new NotImplementedException();
+            public static long MyCustomLengthStatic(string s)
+                => throw new Exception();
 
-            public static int CustomerOrderCountWithClientStatic(int customerId) => customerId switch
-            {
-                1 => 3,
-                2 => 2,
-                3 => 1,
-                4 => 0,
-                _ => throw new Exception()
-            };
+            public static bool IsDateStatic(string date)
+                => throw new Exception();
 
-            public static string StarValueStatic(int starCount, int value) => throw new NotImplementedException();
-            public static bool IsTopCustomerStatic(int customerId) => throw new NotImplementedException();
-            public static int GetCustomerWithMostOrdersAfterDateStatic(DateTime? startDate) => throw new NotImplementedException();
-            public static DateTime? GetReportingPeriodStartDateStatic(ReportingPeriod periodId) => throw new NotImplementedException();
-            public static string GetSqlFragmentStatic() => throw new NotImplementedException();
+            public static int AddOneStatic(int num)
+                => num + 1;
 
-            public long MyCustomLengthInstance(string s) => throw new Exception();
-            public bool IsDateInstance(string date) => throw new Exception();
-            public int AddOneInstance(int num) => num + 1;
-            public int AddFiveInstance(int number) => number + 5;
-            public int CustomerOrderCountInstance(int customerId) => throw new NotImplementedException();
+            public static int AddFiveStatic(int number)
+                => number + 5;
 
-            public int CustomerOrderCountWithClientInstance(int customerId) => customerId switch
-            {
-                1 => 3,
-                2 => 2,
-                3 => 1,
-                4 => 0,
-                _ => throw new Exception()
-            };
+            public static int CustomerOrderCountStatic(int customerId)
+                => throw new NotImplementedException();
 
-            public string StarValueInstance(int starCount, int value) => throw new NotImplementedException();
-            public bool IsTopCustomerInstance(int customerId) => throw new NotImplementedException();
-            public int GetCustomerWithMostOrdersAfterDateInstance(DateTime? startDate) => throw new NotImplementedException();
-            public DateTime? GetReportingPeriodStartDateInstance(ReportingPeriod periodId) => throw new NotImplementedException();
-            public string DollarValueInstance(int starCount, string value) => throw new NotImplementedException();
+            public static int CustomerOrderCountWithClientStatic(int customerId)
+                => customerId switch
+                {
+                    1 => 3,
+                    2 => 2,
+                    3 => 1,
+                    4 => 0,
+                    _ => throw new Exception()
+                };
+
+            public static string StarValueStatic(int starCount, int value)
+                => throw new NotImplementedException();
+
+            public static bool IsTopCustomerStatic(int customerId)
+                => throw new NotImplementedException();
+
+            public static int GetCustomerWithMostOrdersAfterDateStatic(DateTime? startDate)
+                => throw new NotImplementedException();
+
+            public static DateTime? GetReportingPeriodStartDateStatic(ReportingPeriod periodId)
+                => throw new NotImplementedException();
+
+            public static string GetSqlFragmentStatic()
+                => throw new NotImplementedException();
+
+            public long MyCustomLengthInstance(string s)
+                => throw new Exception();
+
+            public bool IsDateInstance(string date)
+                => throw new Exception();
+
+            public int AddOneInstance(int num)
+                => num + 1;
+
+            public int AddFiveInstance(int number)
+                => number + 5;
+
+            public int CustomerOrderCountInstance(int customerId)
+                => throw new NotImplementedException();
+
+            public int CustomerOrderCountWithClientInstance(int customerId)
+                => customerId switch
+                {
+                    1 => 3,
+                    2 => 2,
+                    3 => 1,
+                    4 => 0,
+                    _ => throw new Exception()
+                };
+
+            public string StarValueInstance(int starCount, int value)
+                => throw new NotImplementedException();
+
+            public bool IsTopCustomerInstance(int customerId)
+                => throw new NotImplementedException();
+
+            public int GetCustomerWithMostOrdersAfterDateInstance(DateTime? startDate)
+                => throw new NotImplementedException();
+
+            public DateTime? GetReportingPeriodStartDateInstance(ReportingPeriod periodId)
+                => throw new NotImplementedException();
+
+            public string DollarValueInstance(int starCount, string value)
+                => throw new NotImplementedException();
 
             [DbFunction(Schema = "dbo")]
-            public static string IdentityString(string s) => throw new Exception();
+            public static string IdentityString(string s)
+                => throw new Exception();
 
-            public static string IdentityStringPropagateNull(string s) => throw new Exception();
+            public static string IdentityStringPropagateNull(string s)
+                => throw new Exception();
 
             [DbFunction(IsNullable = false)]
-            public static string IdentityStringNonNullable(string s) => throw new Exception();
+            public static string IdentityStringNonNullable(string s)
+                => throw new Exception();
 
-            public static string IdentityStringNonNullableFluent(string s) => throw new Exception();
+            public static string IdentityStringNonNullableFluent(string s)
+                => throw new Exception();
 
-            public string StringLength(string s) => throw new Exception();
+            public string StringLength(string s)
+                => throw new Exception();
 
             public int AddValues(int a, int b)
             {
@@ -254,7 +299,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IdentityStringPropagateNull), new[] { typeof(string) }))
                     .HasParameter("s").PropagatesNullability();
 
-                modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IdentityStringNonNullableFluent), new[] { typeof(string) }))
+                modelBuilder.HasDbFunction(
+                        typeof(UDFSqlContext).GetMethod(nameof(IdentityStringNonNullableFluent), new[] { typeof(string) }))
                     .IsNullable(false);
 
                 //Instance
@@ -284,7 +330,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 //Table
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerOrderCountByYear), new[] { typeof(int) }));
-                modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerOrderCountByYearOnlyFrom2000), new[] { typeof(int), typeof(bool) }));
+                modelBuilder.HasDbFunction(
+                    typeof(UDFSqlContext).GetMethod(nameof(GetCustomerOrderCountByYearOnlyFrom2000), new[] { typeof(int), typeof(bool) }));
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetTopTwoSellingProducts)));
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetTopSellingProductsForCustomer)));
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetOrdersWithMultipleProducts)));
@@ -300,7 +347,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             protected override Type ContextType { get; } = typeof(UDFSqlContext);
 
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
+            public TestSqlLoggerFactory TestSqlLoggerFactory
+                => (TestSqlLoggerFactory)ListLoggerFactory;
 
             protected override bool ShouldLogCategory(string logCategory)
                 => logCategory == DbLoggerCategory.Query.Name;
@@ -321,8 +369,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     OrderDate = new DateTime(2000, 1, 20),
                     Items = new List<LineItem>
                     {
-                        new LineItem { Quantity = 5, Product = product1},
-                        new LineItem { Quantity = 15, Product = product3}
+                        new LineItem { Quantity = 5, Product = product1 }, new LineItem { Quantity = 15, Product = product3 }
                     }
                 };
 
@@ -332,9 +379,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     OrderDate = new DateTime(2000, 2, 21),
                     Items = new List<LineItem>
                     {
-                        new LineItem { Quantity = 1, Product = product1},
-                        new LineItem { Quantity = 6, Product = product2},
-                        new LineItem { Quantity = 200, Product = product3}
+                        new LineItem { Quantity = 1, Product = product1 },
+                        new LineItem { Quantity = 6, Product = product2 },
+                        new LineItem { Quantity = 200, Product = product3 }
                     }
                 };
 
@@ -342,10 +389,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     Name = "Order13",
                     OrderDate = new DateTime(2001, 3, 20),
-                    Items = new List<LineItem>
-                    {
-                        new LineItem { Quantity = 50, Product = product4},
-                    }
+                    Items = new List<LineItem> { new LineItem { Quantity = 50, Product = product4 }, }
                 };
 
                 var order21 = new Order
@@ -354,9 +398,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     OrderDate = new DateTime(2000, 4, 21),
                     Items = new List<LineItem>
                     {
-                        new LineItem { Quantity = 1, Product = product1},
-                        new LineItem { Quantity = 34, Product = product4},
-                        new LineItem { Quantity = 100, Product = product5}
+                        new LineItem { Quantity = 1, Product = product1 },
+                        new LineItem { Quantity = 34, Product = product4 },
+                        new LineItem { Quantity = 100, Product = product5 }
                     }
                 };
 
@@ -366,8 +410,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     OrderDate = new DateTime(2000, 5, 20),
                     Items = new List<LineItem>
                     {
-                        new LineItem { Quantity = 34, Product = product3},
-                        new LineItem { Quantity = 100, Product = product4}
+                        new LineItem { Quantity = 34, Product = product3 }, new LineItem { Quantity = 100, Product = product4 }
                     }
                 };
 
@@ -375,26 +418,68 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     Name = "Order31",
                     OrderDate = new DateTime(2001, 6, 21),
-                    Items = new List<LineItem>
-                    {
-                        new LineItem { Quantity = 5, Product = product5}
-                    }
+                    Items = new List<LineItem> { new LineItem { Quantity = 5, Product = product5 } }
                 };
 
-                var address11 = new Address { Street = "1600 Pennsylvania Avenue", City = "Washington", State = "DC" };
-                var address12 = new Address { Street = "742 Evergreen Terrace", City = "SpringField", State = "" };
-                var address21 = new Address { Street = "Apartment 5A, 129 West 81st Street", City = "New York", State = "NY" };
-                var address31 = new Address { Street = "425 Grove Street, Apt 20", City = "New York", State = "NY" };
-                var address32 = new Address { Street = "342 GravelPit Terrace", City = "BedRock", State = "" };
-                var address41 = new Address { Street = "4222 Clinton Way", City = "Los Angles", State = "CA" };
-                var address42 = new Address { Street = "1060 West Addison Street", City = "Chicago", State = "IL" };
-                var address43 = new Address { Street = "112 ½ Beacon Street", City = "Boston", State = "MA" };
+                var address11 = new Address
+                {
+                    Street = "1600 Pennsylvania Avenue",
+                    City = "Washington",
+                    State = "DC"
+                };
+                var address12 = new Address
+                {
+                    Street = "742 Evergreen Terrace",
+                    City = "SpringField",
+                    State = ""
+                };
+                var address21 = new Address
+                {
+                    Street = "Apartment 5A, 129 West 81st Street",
+                    City = "New York",
+                    State = "NY"
+                };
+                var address31 = new Address
+                {
+                    Street = "425 Grove Street, Apt 20",
+                    City = "New York",
+                    State = "NY"
+                };
+                var address32 = new Address
+                {
+                    Street = "342 GravelPit Terrace",
+                    City = "BedRock",
+                    State = ""
+                };
+                var address41 = new Address
+                {
+                    Street = "4222 Clinton Way",
+                    City = "Los Angles",
+                    State = "CA"
+                };
+                var address42 = new Address
+                {
+                    Street = "1060 West Addison Street",
+                    City = "Chicago",
+                    State = "IL"
+                };
+                var address43 = new Address
+                {
+                    Street = "112 ½ Beacon Street",
+                    City = "Boston",
+                    State = "MA"
+                };
 
                 var customer1 = new Customer
                 {
                     FirstName = "Customer",
                     LastName = "One",
-                    Orders = new List<Order> { order11, order12, order13 },
+                    Orders = new List<Order>
+                    {
+                        order11,
+                        order12,
+                        order13
+                    },
                     Addresses = new List<Address> { address11, address12 }
                 };
 
@@ -418,11 +503,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     FirstName = "Customer",
                     LastName = "Four",
-                    Addresses = new List<Address> { address41, address42, address43 }
+                    Addresses = new List<Address>
+                    {
+                        address41,
+                        address42,
+                        address43
+                    }
                 };
 
                 ((UDFSqlContext)context).Products.AddRange(product1, product2, product3, product4, product5);
-                ((UDFSqlContext)context).Addresses.AddRange(address11, address12, address21, address31, address32, address41, address42, address43);
+                ((UDFSqlContext)context).Addresses.AddRange(
+                    address11, address12, address21, address31, address32, address41, address42, address43);
                 ((UDFSqlContext)context).Customers.AddRange(customer1, customer2, customer3, customer4);
                 ((UDFSqlContext)context).Orders.AddRange(order11, order12, order13, order21, order22, order31);
             }
@@ -466,8 +557,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                        where c.Id == 1
                        select new
                        {
-                           c.FirstName,
-                           OrderCount = UDFSqlContext.CustomerOrderCountStatic(UDFSqlContext.AddFiveStatic(c.Id - 5))
+                           c.FirstName, OrderCount = UDFSqlContext.CustomerOrderCountStatic(UDFSqlContext.AddFiveStatic(c.Id - 5))
                        }).Single());
         }
 
@@ -871,8 +961,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var result = context.Customers
                 .OrderBy(c => c.Id)
-                .Where(c => UDFSqlContext.IdentityStringNonNullable(c.FirstName) != null
-                    && UDFSqlContext.IdentityStringNonNullableFluent(c.FirstName) != null)
+                .Where(
+                    c => UDFSqlContext.IdentityStringNonNullable(c.FirstName) != null
+                        && UDFSqlContext.IdentityStringNonNullableFluent(c.FirstName) != null)
                 .ToList();
 
             Assert.Equal(4, result.Count);
@@ -1340,7 +1431,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var query = (from c in context.Customers
                              select new { c.Id, orders = context.GetCustomerOrderCountByYear(c.Id) });
 
-
                 //Assert.Contains(
                 //    RelationalStrings.DbFunctionCantProjectIQueryable(),
                 //    Assert.Throws<InvalidOperationException>(() => query.ToList()).Message);
@@ -1390,7 +1480,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                               from r in context.GetCustomerOrderCountByYear(c.Id)
                               orderby r.Year
                               select r
-                             ).ToList();
+                    ).ToList();
 
                 Assert.Equal(4, orders.Count);
                 Assert.Equal(2, orders[0].Count);
@@ -1444,8 +1534,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var results = (from c in context.Customers
                                select new
                                {
-                                   c.Id,
-                                   Prods = context.GetTopTwoSellingProducts().ToList(),
+                                   c.Id, Prods = context.GetTopTwoSellingProducts().ToList(),
                                }).ToList();
 
                 Assert.Equal(4, results.Count);
@@ -1463,11 +1552,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var cust = (from c in context.Customers
                             where c.Id == 1
-                            select new
-                            {
-                                c.Id,
-                                Orders = context.GetOrdersWithMultipleProducts(context.AddValues(c.Id, 1)).ToList()
-                            }).ToList();
+                            select new { c.Id, Orders = context.GetOrdersWithMultipleProducts(context.AddValues(c.Id, 1)).ToList() })
+                    .ToList();
 
                 Assert.Single(cust);
 
@@ -1488,7 +1574,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                                select new
                                {
                                    c.Id,
-                                   OrderCountYear = context.GetOrdersWithMultipleProducts(c.Id).Where(o => o.OrderDate.Day == 21).ToList()
+                                   OrderCountYear = context.GetOrdersWithMultipleProducts(c.Id).Where(o => o.OrderDate.Day == 21)
+                                       .ToList()
                                }).ToList();
 
                 Assert.Equal(4, results.Count);
@@ -1540,11 +1627,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                                select new
                                {
                                    c.Id,
-                                   OrderCountYear = context.GetOrdersWithMultipleProducts(c.Id).Where(o => o.OrderDate.Day == 21).Select(o => new
-                                   {
-                                       OrderCountYearNested = context.GetOrdersWithMultipleProducts(o.CustomerId).ToList(),
-                                       Prods = context.GetTopTwoSellingProducts().ToList(),
-                                   }).ToList()
+                                   OrderCountYear = context.GetOrdersWithMultipleProducts(c.Id).Where(o => o.OrderDate.Day == 21).Select(
+                                       o => new
+                                       {
+                                           OrderCountYearNested = context.GetOrdersWithMultipleProducts(o.CustomerId).ToList(),
+                                           Prods = context.GetTopTwoSellingProducts().ToList(),
+                                       }).ToList()
                                }).ToList();
 
                 Assert.Equal(4, results.Count);
@@ -1572,7 +1660,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                                select new
                                {
                                    c.Id,
-                                   Prods = context.GetTopTwoSellingProducts().Where(p => p.AmountSold == 249).Select(p => p.ProductId).ToList(),
+                                   Prods = context.GetTopTwoSellingProducts().Where(p => p.AmountSold == 249).Select(p => p.ProductId)
+                                       .ToList(),
                                    Addresses = c.Addresses.Where(a => a.State == "NY").ToList()
                                }).ToList();
 
@@ -1598,7 +1687,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                                select new
                                {
                                    c.Id,
-                                   Prods = context.GetTopTwoSellingProducts().Where(p => p.AmountSold == 249).Select(p => p.ProductId).ToList(),
+                                   Prods = context.GetTopTwoSellingProducts().Where(p => p.AmountSold == 249).Select(p => p.ProductId)
+                                       .ToList(),
                                }).ToList();
 
                 Assert.Equal(4, results.Count);
@@ -1620,7 +1710,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                                select new
                                {
                                    c.Id,
-                                   Prods = context.GetTopTwoSellingProducts().Where(p => p.AmountSold == amount).Select(p => p.ProductId).ToList(),
+                                   Prods = context.GetTopTwoSellingProducts().Where(p => p.AmountSold == amount).Select(p => p.ProductId)
+                                       .ToList(),
                                }).ToList();
 
                 Assert.Equal(4, results.Count);
@@ -1944,7 +2035,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-
         [ConditionalFact]
         public virtual void QF_Correlated_Nested_Func_Call()
         {
@@ -1979,12 +2069,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                             select new
                             {
                                 c.Id,
-                                Orders = context.GetOrdersWithMultipleProducts(c.Id).Select(mpo => new
-                                {
-                                    //how to I setup the PK/FK combo properly for this?  Is it even possible?
-                                    //OrderName = mpo.Order.Name,
-                                    CustomerName = mpo.Customer.LastName
-                                }).ToList()
+                                Orders = context.GetOrdersWithMultipleProducts(c.Id).Select(
+                                    mpo => new
+                                    {
+                                        //how to I setup the PK/FK combo properly for this?  Is it even possible?
+                                        //OrderName = mpo.Order.Name,
+                                        CustomerName = mpo.Customer.LastName
+                                    }).ToList()
                             }).ToList();
 
                 Assert.Equal(4, cust.Count);
@@ -2035,7 +2126,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                              from r in context.GetCustomerOrderCountByYearOnlyFrom2000(c.Id, c.LastName != prm)
                              orderby r.Year
                              select r
-                             ).ToList();
+                    ).ToList();
 
                 Assert.Equal(4, query.Count);
                 Assert.Equal(1, query[0].CustomerId);
@@ -2059,10 +2150,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 from r in context.Orders.ToList()
                                     .Where(x => x.CustomerId == 1 && (a.City != a.State || x.OrderDate.Year == 2000))
                                     .GroupBy(x => new { x.CustomerId, x.OrderDate.Year })
-                                    .Select(x => new OrderByYear { CustomerId = x.Key.CustomerId, Year = x.Key.Year, Count = x.Count() })
+                                    .Select(
+                                        x => new OrderByYear
+                                        {
+                                            CustomerId = x.Key.CustomerId,
+                                            Year = x.Key.Year,
+                                            Count = x.Count()
+                                        })
                                 orderby a.Id, r.Year
                                 select r
-                             ).ToList();
+                    ).ToList();
 
                 ClearLog();
 
@@ -2070,7 +2167,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                              from r in context.GetCustomerOrderCountByYearOnlyFrom2000(1, a.City == a.State)
                              orderby a.Id, r.Year
                              select r
-                             ).ToList();
+                    ).ToList();
 
                 Assert.Equal(expected.Count, query.Count);
                 for (var i = 0; i < expected.Count; i++)

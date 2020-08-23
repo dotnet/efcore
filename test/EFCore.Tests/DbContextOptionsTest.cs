@@ -142,11 +142,14 @@ namespace Microsoft.EntityFrameworkCore
                 {
                 }
 
-                public override bool IsDatabaseProvider => false;
+                public override bool IsDatabaseProvider
+                    => false;
 
-                public override long GetServiceProviderHashCode() => 0;
+                public override long GetServiceProviderHashCode()
+                    => 0;
 
-                public override string LogFragment => "";
+                public override string LogFragment
+                    => "";
 
                 public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
                 {
@@ -177,11 +180,14 @@ namespace Microsoft.EntityFrameworkCore
                 {
                 }
 
-                public override bool IsDatabaseProvider => true;
+                public override bool IsDatabaseProvider
+                    => true;
 
-                public override long GetServiceProviderHashCode() => 0;
+                public override long GetServiceProviderHashCode()
+                    => 0;
 
-                public override string LogFragment => "";
+                public override string LogFragment
+                    => "";
 
                 public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
                 {
@@ -221,10 +227,17 @@ namespace Microsoft.EntityFrameworkCore
 
         private class FakeMemoryCache : IMemoryCache
         {
-            public void Dispose() => throw new NotImplementedException();
-            public bool TryGetValue(object key, out object value) => throw new NotImplementedException();
-            public ICacheEntry CreateEntry(object key) => throw new NotImplementedException();
-            public void Remove(object key) => throw new NotImplementedException();
+            public void Dispose()
+                => throw new NotImplementedException();
+
+            public bool TryGetValue(object key, out object value)
+                => throw new NotImplementedException();
+
+            public ICacheEntry CreateEntry(object key)
+                => throw new NotImplementedException();
+
+            public void Remove(object key)
+                => throw new NotImplementedException();
         }
 
         [ConditionalFact]
@@ -239,7 +252,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private class FakeServiceProvider : IServiceProvider
         {
-            public object GetService(Type serviceType) => throw new NotImplementedException();
+            public object GetService(Type serviceType)
+                => throw new NotImplementedException();
         }
 
         [ConditionalFact]
@@ -275,8 +289,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(WarningBehavior.Throw, warningConfiguration.DefaultBehavior);
         }
 
-        private DbContextOptionsBuilder<UnkoolContext> GenericCheck(DbContextOptionsBuilder<UnkoolContext> optionsBuilder) =>
-            optionsBuilder;
+        private DbContextOptionsBuilder<UnkoolContext> GenericCheck(DbContextOptionsBuilder<UnkoolContext> optionsBuilder)
+            => optionsBuilder;
 
         [ConditionalFact]
         public void Generic_builder_returns_generic_options()
@@ -285,7 +299,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(((DbContextOptionsBuilder)builder).Options, GenericCheck(builder.Options));
         }
 
-        private DbContextOptions<UnkoolContext> GenericCheck(DbContextOptions<UnkoolContext> options) => options;
+        private DbContextOptions<UnkoolContext> GenericCheck(DbContextOptions<UnkoolContext> options)
+            => options;
 
         private class UnkoolContext : DbContext
         {

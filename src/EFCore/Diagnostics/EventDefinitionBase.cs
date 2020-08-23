@@ -85,9 +85,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 CoreStrings.WarningAsErrorTemplate(EventId.ToString(), message, EventIdCode));
 
         /// <summary>
-        ///     The configured <see cref="WarningBehavior"/>.
+        ///     The configured <see cref="WarningBehavior" />.
         /// </summary>
-        public virtual WarningBehavior WarningBehavior { get;  }
+        public virtual WarningBehavior WarningBehavior { get; }
 
         internal sealed class MessageExtractingLogger : ILogger
         {
@@ -109,9 +109,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 Message = formatter(state, exception);
             }
 
-            bool ILogger.IsEnabled(LogLevel logLevel) => true;
+            bool ILogger.IsEnabled(LogLevel logLevel)
+                => true;
 
-            IDisposable ILogger.BeginScope<TState>([CanBeNull] TState state) => throw new NotImplementedException();
+            IDisposable ILogger.BeginScope<TState>([CanBeNull] TState state)
+                => throw new NotImplementedException();
         }
     }
 }

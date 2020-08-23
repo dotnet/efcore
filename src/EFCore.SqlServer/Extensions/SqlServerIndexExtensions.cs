@@ -64,7 +64,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static bool? SetIsClustered(
-            [NotNull] this IConventionIndex index, bool? value, bool fromDataAnnotation = false)
+            [NotNull] this IConventionIndex index,
+            bool? value,
+            bool fromDataAnnotation = false)
         {
             index.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.Clustered,
@@ -108,7 +110,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="properties"> The value to set. </param>
         /// <returns> The configured property names. </returns>
         public static IReadOnlyList<string> SetIncludeProperties(
-            [NotNull] this IConventionIndex index, [NotNull] IReadOnlyList<string> properties, bool fromDataAnnotation = false)
+            [NotNull] this IConventionIndex index,
+            [NotNull] IReadOnlyList<string> properties,
+            bool fromDataAnnotation = false)
         {
             index.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.Include,
@@ -152,7 +156,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static bool? SetIsCreatedOnline(
-            [NotNull] this IConventionIndex index, bool? createdOnline, bool fromDataAnnotation = false)
+            [NotNull] this IConventionIndex index,
+            bool? createdOnline,
+            bool fromDataAnnotation = false)
         {
             index.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.CreatedOnline,
@@ -176,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <returns> <see langword="true" /> if the index is online. </returns>
         public static int? GetFillFactor([NotNull] this IIndex index)
-           => (int?)index[SqlServerAnnotationNames.FillFactor];
+            => (int?)index[SqlServerAnnotationNames.FillFactor];
 
         /// <summary>
         ///     Sets a value indicating whether the index uses the fill factor.

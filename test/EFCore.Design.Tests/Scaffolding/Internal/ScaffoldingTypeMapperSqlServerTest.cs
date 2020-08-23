@@ -41,7 +41,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var mapping = CreateMapper().FindMapping("decimal(18,2)", isKeyOrIndex, rowVersion: false);
 
-            AssertMapping<decimal>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            AssertMapping<decimal>(
+                mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
         }
 
         [ConditionalTheory]
@@ -61,7 +62,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var mapping = CreateMapper().FindMapping("numeric(17,4)", isKeyOrIndex, rowVersion: false);
 
-            AssertMapping<decimal>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            AssertMapping<decimal>(
+                mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
         }
 
         [ConditionalTheory]
@@ -81,7 +83,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var mapping = CreateMapper().FindMapping("datetime", isKeyOrIndex, rowVersion: false);
 
-            AssertMapping<DateTime>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            AssertMapping<DateTime>(
+                mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
         }
 
         [ConditionalTheory]
@@ -91,7 +94,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var mapping = CreateMapper().FindMapping("datetime2", isKeyOrIndex, rowVersion: false);
 
-            AssertMapping<DateTime>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            AssertMapping<DateTime>(
+                mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
         }
 
         [ConditionalFact]
@@ -123,7 +127,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var mapping = CreateMapper().FindMapping("varbinary(max)", keyOrIndex: true, rowVersion: false);
 
-            AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            AssertMapping<byte[]>(
+                mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
         }
 
         [ConditionalFact]
@@ -171,7 +176,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var mapping = CreateMapper().FindMapping("varbinary(max)", keyOrIndex: false, rowVersion: true);
 
-            AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            AssertMapping<byte[]>(
+                mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
         }
 
         [ConditionalFact]
@@ -179,7 +185,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var mapping = CreateMapper().FindMapping("varbinary(200)", keyOrIndex: false, rowVersion: true);
 
-            AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            AssertMapping<byte[]>(
+                mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
         }
 
         [ConditionalFact]
@@ -187,7 +194,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var mapping = CreateMapper().FindMapping("varbinary(8)", keyOrIndex: false, rowVersion: true);
 
-            AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            AssertMapping<byte[]>(
+                mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
         }
 
         [ConditionalFact]
@@ -195,7 +203,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var mapping = CreateMapper().FindMapping("binary(max)", keyOrIndex: false, rowVersion: true);
 
-            AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            AssertMapping<byte[]>(
+                mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
         }
 
         [ConditionalFact]
@@ -203,7 +212,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var mapping = CreateMapper().FindMapping("binary(200)", keyOrIndex: false, rowVersion: true);
 
-            AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            AssertMapping<byte[]>(
+                mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
         }
 
         [ConditionalFact]
@@ -211,7 +221,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var mapping = CreateMapper().FindMapping("binary(8)", keyOrIndex: false, rowVersion: true);
 
-            AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            AssertMapping<byte[]>(
+                mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
         }
 
         [ConditionalFact]
@@ -235,7 +246,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var mapping = CreateMapper().FindMapping("varchar(max)", keyOrIndex: false, rowVersion: false);
 
-            AssertMapping<string>(mapping, inferred: true, maxLength: null, unicode: false, fixedLength: null, precision: null, scale: null);
+            AssertMapping<string>(
+                mapping, inferred: true, maxLength: null, unicode: false, fixedLength: null, precision: null, scale: null);
         }
 
         [ConditionalFact]
@@ -251,7 +263,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var mapping = CreateMapper().FindMapping("nvarchar(max)", keyOrIndex: true, rowVersion: false);
 
-            AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            AssertMapping<string>(
+                mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
         }
 
         [ConditionalFact]
@@ -267,7 +280,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var mapping = CreateMapper().FindMapping("varchar(max)", keyOrIndex: true, rowVersion: false);
 
-            AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            AssertMapping<string>(
+                mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
         }
 
         [ConditionalFact]
@@ -291,7 +305,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var mapping = CreateMapper().FindMapping("varchar(900)", keyOrIndex: true, rowVersion: false);
 
-            AssertMapping<string>(mapping, inferred: true, maxLength: null, unicode: false, fixedLength: null, precision: null, scale: null);
+            AssertMapping<string>(
+                mapping, inferred: true, maxLength: null, unicode: false, fixedLength: null, precision: null, scale: null);
         }
 
         [ConditionalFact]
@@ -315,7 +330,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var mapping = CreateMapper().FindMapping("nchar(max)", keyOrIndex: true, rowVersion: false);
 
-            AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            AssertMapping<string>(
+                mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
         }
 
         [ConditionalFact]
@@ -331,7 +347,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var mapping = CreateMapper().FindMapping("char(max)", keyOrIndex: true, rowVersion: false);
 
-            AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            AssertMapping<string>(
+                mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
         }
 
         [ConditionalFact]
@@ -355,7 +372,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var mapping = CreateMapper().FindMapping("char(900)", keyOrIndex: true, rowVersion: false);
 
-            AssertMapping<string>(mapping, inferred: true, maxLength: null, unicode: false, fixedLength: true, precision: null, scale: null);
+            AssertMapping<string>(
+                mapping, inferred: true, maxLength: null, unicode: false, fixedLength: true, precision: null, scale: null);
         }
 
         [ConditionalFact]
@@ -363,12 +381,18 @@ namespace Microsoft.EntityFrameworkCore
         {
             var mapping = CreateMapper().FindMapping("text", keyOrIndex: true, rowVersion: false);
 
-            AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            AssertMapping<string>(
+                mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
         }
 
         private static void AssertMapping<T>(
-            TypeScaffoldingInfo mapping, bool inferred, int? maxLength,
-            bool? unicode, bool? fixedLength, int? precision, int? scale)
+            TypeScaffoldingInfo mapping,
+            bool inferred,
+            int? maxLength,
+            bool? unicode,
+            bool? fixedLength,
+            int? precision,
+            int? scale)
         {
             Assert.Same(typeof(T), mapping.ClrType);
             Assert.Equal(inferred, mapping.IsInferred);

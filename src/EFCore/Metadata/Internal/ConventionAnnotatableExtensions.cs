@@ -31,10 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 annotatable.RemoveAnnotation(name);
                 return null;
             }
-            else
-            {
-                return annotatable.SetAnnotation(name, value, configurationSource);
-            }
+
+            return annotatable.SetAnnotation(name, value, configurationSource);
         }
     }
 }

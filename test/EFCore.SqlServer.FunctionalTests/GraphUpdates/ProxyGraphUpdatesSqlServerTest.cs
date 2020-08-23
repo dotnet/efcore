@@ -23,8 +23,11 @@ namespace Microsoft.EntityFrameworkCore
 
             public abstract class ProxyGraphUpdatesSqlServerFixtureBase : ProxyGraphUpdatesFixtureBase
             {
-                public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
-                protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+                public TestSqlLoggerFactory TestSqlLoggerFactory
+                    => (TestSqlLoggerFactory)ListLoggerFactory;
+
+                protected override ITestStoreFactory TestStoreFactory
+                    => SqlServerTestStoreFactory.Instance;
             }
         }
 
@@ -35,8 +38,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            protected override bool DoesLazyLoading => true;
-            protected override bool DoesChangeTracking => false;
+            protected override bool DoesLazyLoading
+                => true;
+
+            protected override bool DoesChangeTracking
+                => false;
 
             public class ProxyGraphUpdatesWithLazyLoadingSqlServerFixture : ProxyGraphUpdatesSqlServerFixtureBase
             {
@@ -64,8 +70,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            protected override bool DoesLazyLoading => false;
-            protected override bool DoesChangeTracking => true;
+            protected override bool DoesLazyLoading
+                => false;
+
+            protected override bool DoesChangeTracking
+                => true;
 
             public class ProxyGraphUpdatesWithChangeTrackingSqlServerFixture : ProxyGraphUpdatesSqlServerFixtureBase
             {
@@ -86,15 +95,19 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public class ChangeTrackingAndLazyLoading : ProxyGraphUpdatesSqlServerTestBase<ChangeTrackingAndLazyLoading.ProxyGraphUpdatesWithChangeTrackingAndLazyLoadingSqlServerFixture>
+        public class ChangeTrackingAndLazyLoading : ProxyGraphUpdatesSqlServerTestBase<
+            ChangeTrackingAndLazyLoading.ProxyGraphUpdatesWithChangeTrackingAndLazyLoadingSqlServerFixture>
         {
             public ChangeTrackingAndLazyLoading(ProxyGraphUpdatesWithChangeTrackingAndLazyLoadingSqlServerFixture fixture)
                 : base(fixture)
             {
             }
 
-            protected override bool DoesLazyLoading => true;
-            protected override bool DoesChangeTracking => true;
+            protected override bool DoesLazyLoading
+                => true;
+
+            protected override bool DoesChangeTracking
+                => true;
 
             public class ProxyGraphUpdatesWithChangeTrackingAndLazyLoadingSqlServerFixture : ProxyGraphUpdatesSqlServerFixtureBase
             {

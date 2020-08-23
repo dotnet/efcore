@@ -22,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
+        protected NorthwindContext CreateContext()
+            => Fixture.CreateContext();
 
         protected virtual void ClearLog()
         {
@@ -71,9 +72,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private static readonly Random _randomGenerator = new Random();
-        private static T ClientProjection<T>(T t, object _) => t;
-        private static bool ClientPredicate<T>(T t, object _) => true;
-        private static int ClientOrderBy<T>(T t, object _) => _randomGenerator.Next(0, 20);
+
+        private static T ClientProjection<T>(T t, object _)
+            => t;
+
+        private static bool ClientPredicate<T>(T t, object _)
+            => true;
+
+        private static int ClientOrderBy<T>(T t, object _)
+            => _randomGenerator.Next(0, 20);
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -225,7 +232,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        private static int ClientFunction(int a, int b) => a + b + 1;
+        private static int ClientFunction(int a, int b)
+            => a + b + 1;
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -321,8 +329,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new IExpectedInclude[]
             {
-                new ExpectedInclude<OrderDetail>(od => od.Order),
-                new ExpectedInclude<Order>(o => o.Customer, "Order")
+                new ExpectedInclude<OrderDetail>(od => od.Order), new ExpectedInclude<Order>(o => o.Customer, "Order")
             };
 
             return AssertQuery(
@@ -978,14 +985,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         // ReSharper disable once MemberCanBeMadeStatic.Local
-        private static int ClientMethod(int argument) => argument;
+        private static int ClientMethod(int argument)
+            => argument;
 
         [ConditionalFact]
         public virtual void Navigation_in_subquery_referencing_outer_query()
         {
             using var context = CreateContext();
             var query = from o in context.Orders
-                            // ReSharper disable once UseMethodAny.0
+                        // ReSharper disable once UseMethodAny.0
                         where (from od in context.OrderDetails
                                where o.Customer.Country == od.Order.Customer.Country
                                select od).Count()

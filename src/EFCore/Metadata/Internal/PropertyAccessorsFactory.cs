@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -50,7 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private static Func<IUpdateEntry, TProperty> CreateCurrentValueGetter<TProperty>(
-            IPropertyBase propertyBase, bool useStoreGeneratedValues)
+            IPropertyBase propertyBase,
+            bool useStoreGeneratedValues)
         {
             var entityClrType = propertyBase.DeclaringType.ClrType;
             var updateParameter = Expression.Parameter(typeof(IUpdateEntry), "entry");

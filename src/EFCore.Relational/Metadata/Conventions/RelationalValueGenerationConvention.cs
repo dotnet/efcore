@@ -93,9 +93,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        private void ProcessTableChanged(IConventionEntityTypeBuilder entityTypeBuilder,
-            string oldTable, string oldSchema,
-            string newTable, string newSchema)
+        private void ProcessTableChanged(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            string oldTable,
+            string oldSchema,
+            string newTable,
+            string newSchema)
         {
             var primaryKey = entityTypeBuilder.Metadata.FindPrimaryKey();
             if (primaryKey == null)
@@ -111,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 : null;
 
             if ((oldLink?.Any() != true
-                && newLink?.Any() != true)
+                    && newLink?.Any() != true)
                 || newLink == null)
             {
                 return;
@@ -148,7 +151,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public static ValueGenerated? GetValueGenerated([NotNull] IProperty property, in StoreObjectIdentifier storeObject)
         {
             var valueGenerated = GetValueGenerated(property);
-            return valueGenerated ?? (property.GetComputedColumnSql(storeObject) != null
+            return valueGenerated
+                ?? (property.GetComputedColumnSql(storeObject) != null
                     ? ValueGenerated.OnAddOrUpdate
                     : property.GetDefaultValue(storeObject) != null || property.GetDefaultValueSql(storeObject) != null
                         ? ValueGenerated.OnAdd

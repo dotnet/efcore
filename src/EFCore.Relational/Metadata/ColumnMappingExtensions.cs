@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
             if (singleLine)
             {
-                builder.Append($"ColumnMapping: ");
+                builder.Append("ColumnMapping: ");
             }
 
             builder
@@ -52,8 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Append(".")
                 .Append(columnMapping.Column.Name);
 
-            if (!singleLine &&
-                (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {
                 builder.Append(columnMapping.AnnotationsToDebugString(indent + 2));
             }

@@ -19,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class WithConstructorsSqliteFixture : WithConstructorsFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqliteTestStoreFactory.Instance;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {

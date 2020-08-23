@@ -12,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class InternalUsageDiagnosticAnalyzerTest : DiagnosticAnalyzerTestBase
     {
-        protected override DiagnosticAnalyzer CreateDiagnosticAnalyzer() => new InternalUsageDiagnosticAnalyzer();
+        protected override DiagnosticAnalyzer CreateDiagnosticAnalyzer()
+            => new InternalUsageDiagnosticAnalyzer();
 
         [ConditionalFact]
         public Task Invocation_on_type_in_internal_namespace()
@@ -38,14 +39,16 @@ class MyClass : Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalPara
 
             var diagnostics = await GetDiagnosticsFullSourceAsync(source);
 
-            Assert.Collection(diagnostics,
+            Assert.Collection(
+                diagnostics,
                 diagnostic =>
                 {
                     Assert.Equal(InternalUsageDiagnosticAnalyzer.Id, diagnostic.Id);
                     Assert.Equal(DiagnosticSeverity.Warning, diagnostic.Severity);
                     Assert.Equal(
                         string.Format(
-                            InternalUsageDiagnosticAnalyzer.MessageFormat, "Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalParameter"),
+                            InternalUsageDiagnosticAnalyzer.MessageFormat,
+                            "Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalParameter"),
                         diagnostic.GetMessage());
 
                     var span = diagnostic.Location.SourceSpan;
@@ -59,7 +62,8 @@ class MyClass : Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalPara
                     Assert.Equal(DiagnosticSeverity.Warning, diagnostic.Severity);
                     Assert.Equal(
                         string.Format(
-                            InternalUsageDiagnosticAnalyzer.MessageFormat, "Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalParameter"),
+                            InternalUsageDiagnosticAnalyzer.MessageFormat,
+                            "Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalParameter"),
                         diagnostic.GetMessage());
 
                     var span = diagnostic.Location.SourceSpan;

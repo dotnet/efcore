@@ -57,7 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void SetDataReader(
-            int collectionId, [NotNull] RelationalDataReader relationalDataReader)
+            int collectionId,
+            [NotNull] RelationalDataReader relationalDataReader)
         {
             while (DataReaders.Count <= collectionId)
             {
@@ -74,7 +75,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void SetSplitQueryCollectionContext(
-            int collectionId, [NotNull] SplitQueryCollectionContext splitQueryCollectionContext)
+            int collectionId,
+            [NotNull] SplitQueryCollectionContext splitQueryCollectionContext)
         {
             while (Collections.Count <= collectionId)
             {

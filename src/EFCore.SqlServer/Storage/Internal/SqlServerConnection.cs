@@ -28,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
     {
         // Compensate for slow SQL Server database creation
         private const int DefaultMasterConnectionCommandTimeout = 60;
+
         private static readonly ConcurrentDictionary<string, bool> _multipleActiveResultSetsEnabledMap =
             new ConcurrentDictionary<string, bool>();
 
@@ -68,7 +69,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override DbConnection CreateDbConnection() => new SqlConnection(GetValidatedConnectionString());
+        protected override DbConnection CreateDbConnection()
+            => new SqlConnection(GetValidatedConnectionString());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -102,14 +104,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             {
                 var connectionString = ConnectionString;
 
-                return connectionString != null && _multipleActiveResultSetsEnabledMap.GetOrAdd(
-                    connectionString, cs => new SqlConnectionStringBuilder(cs).MultipleActiveResultSets);
+                return connectionString != null
+                    && _multipleActiveResultSetsEnabledMap.GetOrAdd(
+                        connectionString, cs => new SqlConnectionStringBuilder(cs).MultipleActiveResultSets);
             }
         }
 
         /// <summary>
         ///     Indicates whether the store connection supports ambient transactions
         /// </summary>
-        protected override bool SupportsAmbientTransactions => true;
+        protected override bool SupportsAmbientTransactions
+            => true;
     }
 }

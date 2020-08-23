@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -10,17 +9,21 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindGroupByQuerySqlServerTest : NorthwindGroupByQueryRelationalTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    public class NorthwindGroupByQuerySqlServerTest : NorthwindGroupByQueryRelationalTestBase<
+        NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         // ReSharper disable once UnusedParameter.Local
-        public NorthwindGroupByQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+        public NorthwindGroupByQuerySqlServerTest(
+            NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture,
+            ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        protected override bool CanExecuteQueryString => true;
+        protected override bool CanExecuteQueryString
+            => true;
 
         public override async Task GroupBy_Property_Select_Average(bool async)
         {
@@ -1535,7 +1538,6 @@ FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
 
-
         public override async Task GroupBy_Where_Count(bool async)
         {
             await base.GroupBy_Where_Count(async);
@@ -2158,7 +2160,7 @@ GROUP BY [o].[CustomerID]");
 
         public override async Task GroupBy_Property_Select_LongCount_with_predicate(bool async)
         {
-           await base.GroupBy_Property_Select_LongCount_with_predicate(async);
+            await base.GroupBy_Property_Select_LongCount_with_predicate(async);
 
             AssertSql(
                 @"SELECT COUNT_BIG(CASE

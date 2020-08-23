@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         ///     Gets a value to be assigned to a property.
         /// </summary>
         /// <returns> The value to be assigned to a property. </returns>
-        public override bool GeneratesTemporaryValues => true;
+        public override bool GeneratesTemporaryValues
+            => true;
     }
 }

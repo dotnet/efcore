@@ -52,7 +52,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionAnnotatableBuilder HasNonNullAnnotation(
-            [NotNull] string name, [CanBeNull] object value, bool fromDataAnnotation = false);
+            [NotNull] string name,
+            [CanBeNull] object value,
+            bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets or removes the annotation stored under the given name.
@@ -66,7 +68,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </returns>
         [Obsolete("Use HasNonNullAnnotation")]
         IConventionAnnotatableBuilder SetOrRemoveAnnotation(
-            [NotNull] string name, [CanBeNull] object value, bool fromDataAnnotation = false)
+            [NotNull] string name,
+            [CanBeNull] object value,
+            bool fromDataAnnotation = false)
             => HasNonNullAnnotation(name, value, fromDataAnnotation);
 
         /// <summary>

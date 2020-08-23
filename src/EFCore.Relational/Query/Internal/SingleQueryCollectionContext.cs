@@ -39,6 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ResultContext ResultContext { get; }
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -46,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual object Parent { get; }
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -53,6 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual object Collection { get; }
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -60,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual object[] ParentIdentifier { get; }
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -67,6 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual object[] OuterIdentifier { get; }
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

@@ -21,7 +21,8 @@ namespace Microsoft.EntityFrameworkCore
         protected static readonly Guid Guid77 = new Guid("{DE390D36-DAAC-4C8B-91F7-E9F5DAA7EF01}");
         protected static readonly Guid Guid78 = new Guid("{4C80406F-49AF-4D85-AFFB-75C146A98A70}");
 
-        protected StoreGeneratedFixupTestBase(TFixture fixture) => Fixture = fixture;
+        protected StoreGeneratedFixupTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
@@ -4638,7 +4639,8 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual void ExecuteWithStrategyInTransaction(Action<DbContext> testOperation)
             => TestHelpers.ExecuteWithStrategyInTransaction(CreateContext, UseTransaction, testOperation);
 
-        protected DbContext CreateContext() => Fixture.CreateContext();
+        protected DbContext CreateContext()
+            => Fixture.CreateContext();
 
         public abstract class StoreGeneratedFixupFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {

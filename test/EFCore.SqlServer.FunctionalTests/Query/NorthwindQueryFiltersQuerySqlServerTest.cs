@@ -8,9 +8,12 @@ using Xunit.Abstractions;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindQueryFiltersQuerySqlServerTest : NorthwindQueryFiltersQueryTestBase<NorthwindQuerySqlServerFixture<NorthwindQueryFiltersCustomizer>>
+    public class NorthwindQueryFiltersQuerySqlServerTest : NorthwindQueryFiltersQueryTestBase<
+        NorthwindQuerySqlServerFixture<NorthwindQueryFiltersCustomizer>>
     {
-        public NorthwindQueryFiltersQuerySqlServerTest(NorthwindQuerySqlServerFixture<NorthwindQueryFiltersCustomizer> fixture, ITestOutputHelper testOutputHelper)
+        public NorthwindQueryFiltersQuerySqlServerTest(
+            NorthwindQuerySqlServerFixture<NorthwindQueryFiltersCustomizer> fixture,
+            ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             fixture.TestSqlLoggerFactory.Clear();

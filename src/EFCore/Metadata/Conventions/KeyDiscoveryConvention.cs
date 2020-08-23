@@ -199,14 +199,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         /// <inheritdoc />
         public virtual void ProcessPropertyAdded(
-            IConventionPropertyBuilder propertyBuilder, IConventionContext<IConventionPropertyBuilder> context)
+            IConventionPropertyBuilder propertyBuilder,
+            IConventionContext<IConventionPropertyBuilder> context)
         {
             TryConfigurePrimaryKey(propertyBuilder.Metadata.DeclaringEntityType.Builder);
         }
 
         /// <inheritdoc />
         public virtual void ProcessKeyRemoved(
-            IConventionEntityTypeBuilder entityTypeBuilder, IConventionKey key, IConventionContext<IConventionKey> context)
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionKey key,
+            IConventionContext<IConventionKey> context)
         {
             if (entityTypeBuilder.Metadata.FindPrimaryKey() == null)
             {
@@ -240,7 +243,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 TryConfigurePrimaryKey(foreignKey.DeclaringEntityType.Builder);
             }
         }
-
 
         /// <inheritdoc />
         public virtual void ProcessForeignKeyOwnershipChanged(

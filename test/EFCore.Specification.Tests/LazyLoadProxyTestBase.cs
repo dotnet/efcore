@@ -4,10 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.IO;
 using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -16,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -24,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : LazyLoadProxyTestBase<TFixture>.LoadFixtureBase
     {
-        protected LazyLoadProxyTestBase(TFixture fixture) => Fixture = fixture;
+        protected LazyLoadProxyTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
@@ -1127,7 +1126,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Modified, CascadeTiming.Never)]
         [InlineData(EntityState.Deleted, CascadeTiming.Never)]
         public virtual void Lazy_load_many_to_one_reference_to_principal_already_loaded(
-            EntityState state, CascadeTiming cascadeDeleteTiming)
+            EntityState state,
+            CascadeTiming cascadeDeleteTiming)
         {
             using var context = CreateContext(lazyLoadingEnabled: true);
             context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
@@ -1212,7 +1212,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Modified, CascadeTiming.Never)]
         [InlineData(EntityState.Deleted, CascadeTiming.Never)]
         public virtual void Lazy_load_one_to_one_reference_to_dependent_already_loaded(
-            EntityState state, CascadeTiming cascadeDeleteTiming)
+            EntityState state,
+            CascadeTiming cascadeDeleteTiming)
         {
             using var context = CreateContext(lazyLoadingEnabled: true);
             context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
@@ -2046,14 +2047,12 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.IsNotType<Blog>(blog);
             }
 
-            var serialized = Newtonsoft.Json.JsonConvert.SerializeObject(
-                blogs, new Newtonsoft.Json.JsonSerializerSettings
-                {
-                    ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore,
-                    Formatting = Newtonsoft.Json.Formatting.Indented
-                });
+            var serialized = JsonConvert.SerializeObject(
+                blogs,
+                new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore, Formatting = Formatting.Indented });
 
-            Assert.Equal(@"[
+            Assert.Equal(
+                @"[
   {
     ""Writer"": {
       ""FirstName"": ""firstNameWriter0"",
@@ -2098,7 +2097,7 @@ namespace Microsoft.EntityFrameworkCore
   }
 ]", serialized, ignoreLineEndingDifferences: true);
 
-            var newBlogs = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Blog>>(serialized);
+            var newBlogs = JsonConvert.DeserializeObject<List<Blog>>(serialized);
 
             VerifyBlogs(newBlogs);
             foreach (var blog in newBlogs)
@@ -2226,7 +2225,8 @@ namespace Microsoft.EntityFrameworkCore
             using var context = CreateContext(lazyLoadingEnabled: true);
 
             // ReSharper disable once ConvertToLocalFunction
-            bool opaquePredicate(Blog _) => true;
+            bool opaquePredicate(Blog _)
+                => true;
 
             var blogs = context.Set<Blog>().Where(opaquePredicate);
 
@@ -2499,6 +2499,7 @@ namespace Microsoft.EntityFrameworkCore
                 set => _backing = value;
             }
         }
+
         public class Child
         {
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -2766,7 +2767,8 @@ namespace Microsoft.EntityFrameworkCore
                         .AddEntityFrameworkProxies());
 
             // By-design. Lazy loaders are not disposed when using pooling
-            protected override bool UsePooling => false;
+            protected override bool UsePooling
+                => false;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
@@ -2946,10 +2948,8 @@ namespace Microsoft.EntityFrameworkCore
                         SingleAk = new SingleAk { Id = 42 },
                         ChildrenShadowFk = new List<ChildShadowFk> { new ChildShadowFk { Id = 51 }, new ChildShadowFk { Id = 52 } },
                         SingleShadowFk = new SingleShadowFk { Id = 62 },
-                        ChildrenCompositeKey = new List<ChildCompositeKey>
-                        {
-                            new ChildCompositeKey { Id = 51 }, new ChildCompositeKey { Id = 52 }
-                        },
+                        ChildrenCompositeKey =
+                            new List<ChildCompositeKey> { new ChildCompositeKey { Id = 51 }, new ChildCompositeKey { Id = 52 } },
                         SingleCompositeKey = new SingleCompositeKey { Id = 62 },
                         WithRecursiveProperty = new WithRecursiveProperty { Id = 8086 }
                     });
@@ -3014,25 +3014,17 @@ namespace Microsoft.EntityFrameworkCore
                 context.Add(
                     new NonVirtualOneToOneOwner
                     {
-                        Id = 100,
-                        Address = new OwnedAddress { Street = "Paradise Alley", PostalCode = "WEEEEEE" }
+                        Id = 100, Address = new OwnedAddress { Street = "Paradise Alley", PostalCode = "WEEEEEE" }
                     });
 
                 context.Add(
-                    new VirtualOneToOneOwner
-                    {
-                        Id = 200,
-                        Address = new OwnedAddress { Street = "Dead End", PostalCode = "N0 WA1R" }
-                    });
+                    new VirtualOneToOneOwner { Id = 200, Address = new OwnedAddress { Street = "Dead End", PostalCode = "N0 WA1R" } });
 
                 context.Add(
                     new NonVirtualOneToManyOwner
                     {
                         Id = 300,
-                        Addresses = new List<OwnedAddress>
-                            {
-                                new OwnedAddress { Street = "4 Privet Drive", PostalCode = "SURREY" }
-                            }
+                        Addresses = new List<OwnedAddress> { new OwnedAddress { Street = "4 Privet Drive", PostalCode = "SURREY" } }
                     });
 
                 context.Add(
@@ -3040,21 +3032,18 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         Id = 400,
                         Addresses = new List<OwnedAddress>
-                            {
-                                new OwnedAddress { Street = "The Ministry", PostalCode = "MAG1C" },
-                                new OwnedAddress { Street = "Diagon Alley", PostalCode = "WC2H 0AW" },
-                                new OwnedAddress { Street = "Shell Cottage", PostalCode = "THE SEA" }
-                            }
+                        {
+                            new OwnedAddress { Street = "The Ministry", PostalCode = "MAG1C" },
+                            new OwnedAddress { Street = "Diagon Alley", PostalCode = "WC2H 0AW" },
+                            new OwnedAddress { Street = "Shell Cottage", PostalCode = "THE SEA" }
+                        }
                     });
 
                 context.Add(
                     new ExplicitLazyLoadNonVirtualOneToManyOwner
                     {
                         Id = 500,
-                        Addresses = new List<OwnedAddress>
-                            {
-                                new OwnedAddress { Street = "Spinner's End", PostalCode = "BE WA1R" }
-                            }
+                        Addresses = new List<OwnedAddress> { new OwnedAddress { Street = "Spinner's End", PostalCode = "BE WA1R" } }
                     });
 
                 context.Add(
@@ -3062,9 +3051,9 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         Id = 600,
                         Addresses = new List<OwnedAddress>
-                            {
-                                new OwnedAddress { Street = "12 Grimmauld Place", PostalCode = "L0N D0N" }
-                            }
+                        {
+                            new OwnedAddress { Street = "12 Grimmauld Place", PostalCode = "L0N D0N" }
+                        }
                     });
 
                 context.SaveChanges();

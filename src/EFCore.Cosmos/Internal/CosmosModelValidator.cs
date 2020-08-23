@@ -220,7 +220,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                     continue;
                 }
 
-                var idProperty = entityType.GetProperties().FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
+                var idProperty = entityType.GetProperties()
+                    .FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
                 if (idProperty == null)
                 {
                     throw new InvalidOperationException(CosmosStrings.NoIdProperty(entityType.DisplayName()));
@@ -261,8 +262,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
 
                     if (!partitionKey.GetContainingKeys().Any(k => k.Properties.Contains(idProperty)))
                     {
-                        throw new InvalidOperationException(CosmosStrings.NoPartitionKeyKey(
-                            entityType.DisplayName(), partitionKeyPropertyName, idProperty.Name));
+                        throw new InvalidOperationException(
+                            CosmosStrings.NoPartitionKeyKey(
+                                entityType.DisplayName(), partitionKeyPropertyName, idProperty.Name));
                     }
                 }
             }
@@ -294,10 +296,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                         throw new InvalidOperationException(
                             CosmosStrings.JsonPropertyCollision(property.Name, otherProperty.Name, entityType.DisplayName(), jsonName));
                     }
-                    else
-                    {
-                        properties[jsonName] = property;
-                    }
+
+                    properties[jsonName] = property;
                 }
 
                 foreach (var navigation in entityType.GetNavigations())
@@ -313,10 +313,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                         throw new InvalidOperationException(
                             CosmosStrings.JsonPropertyCollision(navigation.Name, otherProperty.Name, entityType.DisplayName(), jsonName));
                     }
-                    else
-                    {
-                        properties[jsonName] = navigation;
-                    }
+
+                    properties[jsonName] = navigation;
                 }
             }
         }

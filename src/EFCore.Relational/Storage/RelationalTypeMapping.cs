@@ -362,7 +362,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             int? scale = null)
             : this(
                 new RelationalTypeMappingParameters(
-                    new CoreTypeMappingParameters(clrType), storeType, StoreTypePostfix.None, dbType, unicode, size, fixedLength, precision, scale))
+                    new CoreTypeMappingParameters(clrType), storeType, StoreTypePostfix.None, dbType, unicode, size, fixedLength, precision,
+                    scale))
         {
         }
 
@@ -416,7 +417,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the name of the database type.
         /// </summary>
-        public virtual StoreTypePostfix StoreTypePostfix => Parameters.StoreTypePostfix;
+        public virtual StoreTypePostfix StoreTypePostfix
+            => Parameters.StoreTypePostfix;
 
         /// <summary>
         ///     Gets the name of the database type.
@@ -431,32 +433,38 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the <see cref="System.Data.DbType" /> to be used.
         /// </summary>
-        public virtual DbType? DbType => Parameters.DbType;
+        public virtual DbType? DbType
+            => Parameters.DbType;
 
         /// <summary>
         ///     Gets a value indicating whether the type should handle Unicode data or not.
         /// </summary>
-        public virtual bool IsUnicode => Parameters.Unicode;
+        public virtual bool IsUnicode
+            => Parameters.Unicode;
 
         /// <summary>
         ///     Gets the size of data the property is configured to store, or null if no size is configured.
         /// </summary>
-        public virtual int? Size => Parameters.Size;
+        public virtual int? Size
+            => Parameters.Size;
 
-         /// <summary>
+        /// <summary>
         ///     Gets the precision of data the property is configured to store, or null if no precision is configured.
         /// </summary>
-        public virtual int? Precision => Parameters.Precision;
+        public virtual int? Precision
+            => Parameters.Precision;
 
-         /// <summary>
+        /// <summary>
         ///     Gets the scale of data the property is configured to store, or null if no scale is configured.
         /// </summary>
-        public virtual int? Scale => Parameters.Scale;
+        public virtual int? Scale
+            => Parameters.Scale;
 
         /// <summary>
         ///     Gets a value indicating whether the type is constrained to fixed-length data.
         /// </summary>
-        public virtual bool IsFixedLength => Parameters.FixedLength;
+        public virtual bool IsFixedLength
+            => Parameters.FixedLength;
 
         /// <summary>
         ///     Gets the string format to be used to generate SQL literals of this type.
@@ -514,8 +522,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         // This allows us to use converter on enum value or print enum value directly if supported by provider
         private object ConvertUnderlyingEnumValueToEnum(object value)
             => value?.GetType().IsInteger() == true && ClrType.UnwrapNullableType().IsEnum
-            ? Enum.ToObject(ClrType.UnwrapNullableType(), value)
-            : value;
+                ? Enum.ToObject(ClrType.UnwrapNullableType(), value)
+                : value;
 
         /// <summary>
         ///     Configures type information of a <see cref="DbParameter" />.

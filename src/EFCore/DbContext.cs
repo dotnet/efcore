@@ -160,7 +160,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        IDbSetSource IDbContextDependencies.SetSource => DbContextDependencies.SetSource;
+        IDbSetSource IDbContextDependencies.SetSource
+            => DbContextDependencies.SetSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -169,7 +170,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        IEntityFinderFactory IDbContextDependencies.EntityFinderFactory => DbContextDependencies.EntityFinderFactory;
+        IEntityFinderFactory IDbContextDependencies.EntityFinderFactory
+            => DbContextDependencies.EntityFinderFactory;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -178,7 +180,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        IAsyncQueryProvider IDbContextDependencies.QueryProvider => DbContextDependencies.QueryProvider;
+        IAsyncQueryProvider IDbContextDependencies.QueryProvider
+            => DbContextDependencies.QueryProvider;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -187,7 +190,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        IStateManager IDbContextDependencies.StateManager => DbContextDependencies.StateManager;
+        IStateManager IDbContextDependencies.StateManager
+            => DbContextDependencies.StateManager;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -196,7 +200,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        IChangeDetector IDbContextDependencies.ChangeDetector => DbContextDependencies.ChangeDetector;
+        IChangeDetector IDbContextDependencies.ChangeDetector
+            => DbContextDependencies.ChangeDetector;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -205,7 +210,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        IEntityGraphAttacher IDbContextDependencies.EntityGraphAttacher => DbContextDependencies.EntityGraphAttacher;
+        IEntityGraphAttacher IDbContextDependencies.EntityGraphAttacher
+            => DbContextDependencies.EntityGraphAttacher;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -214,7 +220,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        IDiagnosticsLogger<DbLoggerCategory.Update> IDbContextDependencies.UpdateLogger => DbContextDependencies.UpdateLogger;
+        IDiagnosticsLogger<DbLoggerCategory.Update> IDbContextDependencies.UpdateLogger
+            => DbContextDependencies.UpdateLogger;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -457,7 +464,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     A concurrency violation occurs when an unexpected number of rows are affected during save.
         ///     This is usually because the data in the database has been modified since it was loaded into memory.
         /// </exception>
-        public virtual int SaveChanges() => SaveChanges(acceptAllChangesOnSuccess: true);
+        public virtual int SaveChanges()
+            => SaveChanges(acceptAllChangesOnSuccess: true);
 
         /// <summary>
         ///     <para>
@@ -652,17 +660,17 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     An event fired at the beginning of a call to <see cref="M:SaveChanges"/> or <see cref="M:SaveChangesAsync"/>
+        ///     An event fired at the beginning of a call to <see cref="M:SaveChanges" /> or <see cref="M:SaveChangesAsync" />
         /// </summary>
         public event EventHandler<SavingChangesEventArgs> SavingChanges;
 
         /// <summary>
-        ///     An event fired at the end of a call to <see cref="M:SaveChanges"/> or <see cref="M:SaveChangesAsync"/>
+        ///     An event fired at the end of a call to <see cref="M:SaveChanges" /> or <see cref="M:SaveChangesAsync" />
         /// </summary>
         public event EventHandler<SavedChangesEventArgs> SavedChanges;
 
         /// <summary>
-        ///     An event fired if a call to <see cref="M:SaveChanges"/> or <see cref="M:SaveChangesAsync"/> fails with an exception.
+        ///     An event fired if a call to <see cref="M:SaveChanges" /> or <see cref="M:SaveChangesAsync" /> fails with an exception.
         /// </summary>
         public event EventHandler<SaveChangesFailedEventArgs> SaveChangesFailed;
 
@@ -691,10 +699,13 @@ namespace Microsoft.EntityFrameworkCore
 
             if (_configurationSnapshot?.AutoDetectChangesEnabled != null)
             {
-                Check.DebugAssert(_configurationSnapshot.QueryTrackingBehavior.HasValue, "!configurationSnapshot.QueryTrackingBehavior.HasValue");
+                Check.DebugAssert(
+                    _configurationSnapshot.QueryTrackingBehavior.HasValue, "!configurationSnapshot.QueryTrackingBehavior.HasValue");
                 Check.DebugAssert(_configurationSnapshot.LazyLoadingEnabled.HasValue, "!configurationSnapshot.LazyLoadingEnabled.HasValue");
-                Check.DebugAssert(_configurationSnapshot.CascadeDeleteTiming.HasValue, "!configurationSnapshot.CascadeDeleteTiming.HasValue");
-                Check.DebugAssert(_configurationSnapshot.DeleteOrphansTiming.HasValue, "!configurationSnapshot.DeleteOrphansTiming.HasValue");
+                Check.DebugAssert(
+                    _configurationSnapshot.CascadeDeleteTiming.HasValue, "!configurationSnapshot.CascadeDeleteTiming.HasValue");
+                Check.DebugAssert(
+                    _configurationSnapshot.DeleteOrphansTiming.HasValue, "!configurationSnapshot.DeleteOrphansTiming.HasValue");
 
                 ChangeTracker.AutoDetectChangesEnabled = _configurationSnapshot.AutoDetectChangesEnabled.Value;
                 ChangeTracker.QueryTrackingBehavior = _configurationSnapshot.QueryTrackingBehavior.Value;
@@ -1518,9 +1529,9 @@ namespace Microsoft.EntityFrameworkCore
             foreach (var entity in entities)
             {
                 await SetEntityStateAsync(
-                    stateManager.GetOrCreateEntry(entity),
-                    EntityState.Added,
-                    cancellationToken)
+                        stateManager.GetOrCreateEntry(entity),
+                        EntityState.Added,
+                        cancellationToken)
                     .ConfigureAwait(false);
             }
         }
@@ -1688,7 +1699,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or null.</returns>
         public virtual ValueTask<object> FindAsync(
-            [NotNull] Type entityType, [CanBeNull] object[] keyValues, CancellationToken cancellationToken)
+            [NotNull] Type entityType,
+            [CanBeNull] object[] keyValues,
+            CancellationToken cancellationToken)
         {
             CheckDisposed();
 
@@ -1759,14 +1772,15 @@ namespace Microsoft.EntityFrameworkCore
         ///         not directly exposed in the public API surface.
         ///     </para>
         /// </summary>
-        IServiceProvider IInfrastructure<IServiceProvider>.Instance => InternalServiceProvider;
+        IServiceProvider IInfrastructure<IServiceProvider>.Instance
+            => InternalServiceProvider;
 
         /// <summary>
         ///     Creates a queryable for given query expression.
         /// </summary>
         /// <typeparam name="TResult"> The result type of the query expression. </typeparam>
         /// <param name="expression"> The query expression to create. </param>
-        /// <returns> An <see cref="IQueryable{T}"/> representing the query. </returns>
+        /// <returns> An <see cref="IQueryable{T}" /> representing the query. </returns>
         public virtual IQueryable<TResult> FromExpression<TResult>([NotNull] Expression<Func<IQueryable<TResult>>> expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -1781,22 +1795,25 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString() => base.ToString();
+        public override string ToString()
+            => base.ToString();
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
+        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => base.Equals(obj);
+        public override bool Equals(object obj)
+            => base.Equals(obj);
 
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
         /// <returns> A hash code for the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode()
+            => base.GetHashCode();
 
         #endregion
     }

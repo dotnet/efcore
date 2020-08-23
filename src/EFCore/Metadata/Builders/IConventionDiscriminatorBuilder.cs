@@ -42,7 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         IConventionDiscriminatorBuilder HasValue(
-            [NotNull] IConventionEntityType entityType, [CanBeNull] object value, bool fromDataAnnotation = false);
+            [NotNull] IConventionEntityType entityType,
+            [CanBeNull] object value,
+            bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the discriminator value can be set from this configuration source.

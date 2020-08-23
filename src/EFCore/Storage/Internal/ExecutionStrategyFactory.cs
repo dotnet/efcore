@@ -43,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     Creates a new  <see cref="IExecutionStrategy" />.
         /// </summary>
         /// <returns>An instance of <see cref="IExecutionStrategy" />.</returns>
-        public virtual IExecutionStrategy Create() => new NonRetryingExecutionStrategy(Dependencies);
+        public virtual IExecutionStrategy Create()
+            => new NonRetryingExecutionStrategy(Dependencies);
     }
 }

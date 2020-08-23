@@ -177,10 +177,17 @@ namespace Microsoft.EntityFrameworkCore
                 return default;
             }
 
-            public IQueryable CreateQuery(Expression expression) => throw new NotImplementedException();
-            public IQueryable<TElement> CreateQuery<TElement>(Expression expression) => throw new NotImplementedException();
-            public object Execute(Expression expression) => throw new NotImplementedException();
-            public TResult Execute<TResult>(Expression expression) => throw new NotImplementedException();
+            public IQueryable CreateQuery(Expression expression)
+                => throw new NotImplementedException();
+
+            public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
+                => throw new NotImplementedException();
+
+            public object Execute(Expression expression)
+                => throw new NotImplementedException();
+
+            public TResult Execute<TResult>(Expression expression)
+                => throw new NotImplementedException();
         }
 
         private class FakeQueryable<TElement> : IQueryable<TElement>
@@ -190,14 +197,18 @@ namespace Microsoft.EntityFrameworkCore
                 Provider = provider;
             }
 
-            public Type ElementType => typeof(TElement);
+            public Type ElementType
+                => typeof(TElement);
 
             public Expression Expression { get; set; }
 
             public IQueryProvider Provider { get; }
 
-            public IEnumerator<TElement> GetEnumerator() => throw new NotImplementedException();
-            IEnumerator IEnumerable.GetEnumerator() => throw new NotImplementedException();
+            public IEnumerator<TElement> GetEnumerator()
+                => throw new NotImplementedException();
+
+            IEnumerator IEnumerable.GetEnumerator()
+                => throw new NotImplementedException();
         }
 
         [ConditionalFact]
@@ -303,7 +314,8 @@ namespace Microsoft.EntityFrameworkCore
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e));
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, LegacyReferenceEqualityComparer.Instance));
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, LegacyReferenceEqualityComparer.Instance));
-            await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e, LegacyReferenceEqualityComparer.Instance));
+            await SourceNonAsyncEnumerableTest<int>(
+                () => Source().ToDictionaryAsync(e => e, e => e, LegacyReferenceEqualityComparer.Instance));
             await SourceNonAsyncEnumerableTest<int>(
                 () => Source().ToDictionaryAsync(e => e, e => e, LegacyReferenceEqualityComparer.Instance, new CancellationToken()));
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToListAsync());
@@ -313,12 +325,14 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Throws<InvalidOperationException>(() => Source().AsAsyncEnumerable()).Message);
         }
 
-        private static IQueryable<T> Source<T>() => new FakeQueryable<T>();
+        private static IQueryable<T> Source<T>()
+            => new FakeQueryable<T>();
 
-        private static IQueryable<int> Source() => Source<int>();
+        private static IQueryable<int> Source()
+            => Source<int>();
 
-        private static async Task SourceNonAsyncQueryableTest(Func<Task> test) =>
-            Assert.Equal(
+        private static async Task SourceNonAsyncQueryableTest(Func<Task> test)
+            => Assert.Equal(
                 CoreStrings.IQueryableProviderNotAsync,
                 (await Assert.ThrowsAsync<InvalidOperationException>(test)).Message);
 

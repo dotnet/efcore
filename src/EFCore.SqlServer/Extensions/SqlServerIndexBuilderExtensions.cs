@@ -43,7 +43,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="clustered"> A value indicating whether the index is clustered. </param>
         /// <returns> A builder to further configure the index. </returns>
         public static IndexBuilder<TEntity> IsClustered<TEntity>(
-            [NotNull] this IndexBuilder<TEntity> indexBuilder, bool clustered = true)
+            [NotNull] this IndexBuilder<TEntity> indexBuilder,
+            bool clustered = true)
             => (IndexBuilder<TEntity>)IsClustered((IndexBuilder)indexBuilder, clustered);
 
         /// <summary>
@@ -110,7 +111,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="propertyNames"> An array of property names to be used in 'include' clause. </param>
         /// <returns> A builder to further configure the index. </returns>
         public static IndexBuilder<TEntity> IncludeProperties<TEntity>(
-            [NotNull] this IndexBuilder<TEntity> indexBuilder, [NotNull] params string[] propertyNames)
+            [NotNull] this IndexBuilder<TEntity> indexBuilder,
+            [NotNull] params string[] propertyNames)
         {
             Check.NotNull(indexBuilder, nameof(indexBuilder));
             Check.NotNull(propertyNames, nameof(propertyNames));
@@ -136,7 +138,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> A builder to further configure the index. </returns>
         public static IndexBuilder<TEntity> IncludeProperties<TEntity>(
-            [NotNull] this IndexBuilder<TEntity> indexBuilder, [NotNull] Expression<Func<TEntity, object>> includeExpression)
+            [NotNull] this IndexBuilder<TEntity> indexBuilder,
+            [NotNull] Expression<Func<TEntity, object>> includeExpression)
         {
             Check.NotNull(indexBuilder, nameof(indexBuilder));
             Check.NotNull(includeExpression, nameof(includeExpression));
@@ -214,7 +217,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="createdOnline"> A value indicating whether the index is created with online option. </param>
         /// <returns> A builder to further configure the index. </returns>
         public static IndexBuilder<TEntity> IsCreatedOnline<TEntity>(
-            [NotNull] this IndexBuilder<TEntity> indexBuilder, bool createdOnline = true)
+            [NotNull] this IndexBuilder<TEntity> indexBuilder,
+            bool createdOnline = true)
             => (IndexBuilder<TEntity>)IsCreatedOnline((IndexBuilder)indexBuilder, createdOnline);
 
         /// <summary>
@@ -285,7 +289,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fillFactor"> A value indicating whether the index is created with fill factor option. </param>
         /// <returns> A builder to further configure the index. </returns>
         public static IndexBuilder<TEntity> HasFillFactor<TEntity>(
-            [NotNull] this IndexBuilder<TEntity> indexBuilder, int fillFactor)
+            [NotNull] this IndexBuilder<TEntity> indexBuilder,
+            int fillFactor)
             => (IndexBuilder<TEntity>)HasFillFactor((IndexBuilder)indexBuilder, fillFactor);
 
         /// <summary>

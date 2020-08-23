@@ -460,7 +460,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         public static EntityTypeBuilder<TEntity> GenericEntityBuilderExtension<TEntity>(
-            this EntityTypeBuilder<TEntity> builder, string value)
+            this EntityTypeBuilder<TEntity> builder,
+            string value)
             where TEntity : class
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
@@ -535,7 +536,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         public static EntityTypeBuilder<TEntity> SharedNameExtension<TEntity, TBuilder>(
-            this EntityTypeBuilder<TEntity> builder, string value)
+            this EntityTypeBuilder<TEntity> builder,
+            string value)
             where TEntity : class
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");

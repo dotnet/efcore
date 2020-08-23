@@ -8,7 +8,8 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindAsyncSimpleQueryInMemoryTest : NorthwindAsyncSimpleQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
+    public class NorthwindAsyncSimpleQueryInMemoryTest : NorthwindAsyncSimpleQueryTestBase<
+        NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
     {
         public NorthwindAsyncSimpleQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture)
             : base(fixture)

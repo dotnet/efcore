@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="operand"> The <see cref="Operand"/> property of the result. </param>
+        /// <param name="operand"> The <see cref="Operand" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual DistinctExpression Update([NotNull] SqlExpression operand)
         {
@@ -81,6 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 && Operand.Equals(distinctExpression.Operand);
 
         /// <inheritdoc />
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Operand);
+        public override int GetHashCode()
+            => HashCode.Combine(base.GetHashCode(), Operand);
     }
 }

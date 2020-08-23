@@ -49,7 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         private Expression CreateTableValuedFunctionQueryRootExpression(
-            IStoreFunction function, IReadOnlyCollection<Expression> arguments)
+                IStoreFunction function,
+                IReadOnlyCollection<Expression> arguments)
             // See issue #19970
             => new TableValuedFunctionQueryRootExpression(function.EntityTypeMappings.Single().EntityType, function, arguments);
     }

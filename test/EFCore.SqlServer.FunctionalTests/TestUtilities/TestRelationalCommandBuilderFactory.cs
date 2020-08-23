@@ -36,7 +36,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             public RelationalCommandBuilderDependencies Dependencies { get; }
 
-            public IReadOnlyList<IRelationalParameter> Parameters => _parameters;
+            public IReadOnlyList<IRelationalParameter> Parameters
+                => _parameters;
 
             public IRelationalCommandBuilder AddParameter(IRelationalParameter parameter)
             {
@@ -45,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 return this;
             }
 
-            public IRelationalTypeMappingSource TypeMappingSource => Dependencies.TypeMappingSource;
+            public IRelationalTypeMappingSource TypeMappingSource
+                => Dependencies.TypeMappingSource;
 
             public IRelationalCommand Build()
                 => new TestRelationalCommand(
@@ -81,7 +83,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 return this;
             }
 
-            public int CommandTextLength => Instance.Length;
+            public int CommandTextLength
+                => Instance.Length;
         }
 
         private class TestRelationalCommand : IRelationalCommand
@@ -96,9 +99,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 _realRelationalCommand = new RelationalCommand(dependencies, commandText, parameters);
             }
 
-            public string CommandText => _realRelationalCommand.CommandText;
+            public string CommandText
+                => _realRelationalCommand.CommandText;
 
-            public IReadOnlyList<IRelationalParameter> Parameters => _realRelationalCommand.Parameters;
+            public IReadOnlyList<IRelationalParameter> Parameters
+                => _realRelationalCommand.Parameters;
 
             public int ExecuteNonQuery(RelationalCommandParameterObject parameterObject)
             {

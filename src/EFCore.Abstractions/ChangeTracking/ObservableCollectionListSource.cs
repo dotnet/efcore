@@ -58,7 +58,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     Always false because there is never a contained collection.
         /// </summary>
-        bool IListSource.ContainsListCollection => false;
+        bool IListSource.ContainsListCollection
+            => false;
 
         /// <summary>
         ///     Returns an <see cref="IBindingList" /> implementation that stays in sync with
@@ -68,6 +69,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <returns>
         ///     An <see cref="IBindingList" /> in sync with the ObservableCollection.
         /// </returns>
-        IList IListSource.GetList() => _bindingList ?? (_bindingList = this.ToBindingList());
+        IList IListSource.GetList()
+            => _bindingList ?? (_bindingList = this.ToBindingList());
     }
 }

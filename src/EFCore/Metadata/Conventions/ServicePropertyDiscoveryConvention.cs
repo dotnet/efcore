@@ -44,7 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessEntityTypeAdded(
-            IConventionEntityTypeBuilder entityTypeBuilder, IConventionContext<IConventionEntityTypeBuilder> context)
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionContext<IConventionEntityTypeBuilder> context)
             => Process(entityTypeBuilder);
 
         /// <summary>
@@ -132,7 +133,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="name"> The name of the ignored member. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessEntityTypeMemberIgnored(
-            IConventionEntityTypeBuilder entityTypeBuilder, string name, IConventionContext<string> context)
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            string name,
+            IConventionContext<string> context)
         {
             var entityType = entityTypeBuilder.Metadata;
             var duplicateMap = GetDuplicateServiceProperties(entityType);
@@ -166,7 +169,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <inheritdoc />
-        public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        public virtual void ProcessModelFinalizing(
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {

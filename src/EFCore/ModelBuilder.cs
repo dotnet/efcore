@@ -92,7 +92,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     The model being configured.
         /// </summary>
-        public virtual IMutableModel Model => Builder.Metadata;
+        public virtual IMutableModel Model
+            => Builder.Metadata;
 
         /// <summary>
         ///     Adds or updates an annotation on the model. If an annotation with the key specified in
@@ -120,7 +121,8 @@ namespace Microsoft.EntityFrameworkCore
         ///         application code.
         ///     </para>
         /// </summary>
-        IConventionModelBuilder IInfrastructure<IConventionModelBuilder>.Instance => _builder;
+        IConventionModelBuilder IInfrastructure<IConventionModelBuilder>.Instance
+            => _builder;
 
         /// <summary>
         ///     Returns an object that can be used to configure a given entity type in the model.
@@ -257,7 +259,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelBuilder SharedTypeEntity<TEntity>([NotNull] string name, [NotNull] Action<EntityTypeBuilder<TEntity>> buildAction)
+        public virtual ModelBuilder SharedTypeEntity<TEntity>(
+            [NotNull] string name,
+            [NotNull] Action<EntityTypeBuilder<TEntity>> buildAction)
             where TEntity : class
         {
             Check.NotEmpty(name, nameof(name));
@@ -345,7 +349,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelBuilder SharedTypeEntity([NotNull] string name, [NotNull] Type type, [NotNull] Action<EntityTypeBuilder> buildAction)
+        public virtual ModelBuilder SharedTypeEntity(
+            [NotNull] string name,
+            [NotNull] Type type,
+            [NotNull] Action<EntityTypeBuilder> buildAction)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(type, nameof(type));
@@ -430,7 +437,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
         public virtual ModelBuilder ApplyConfigurationsFromAssembly(
-            [NotNull] Assembly assembly, [CanBeNull] Func<Type, bool> predicate = null)
+            [NotNull] Assembly assembly,
+            [CanBeNull] Func<Type, bool> predicate = null)
         {
             var applyEntityConfigurationMethod = typeof(ModelBuilder)
                 .GetMethods()
@@ -537,9 +545,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     explicitly in cases where the automatic execution is not possible.
         /// </summary>
         /// <returns> The finalized <see cref="IModel" />. </returns>
-        public virtual IModel FinalizeModel() => Builder.Metadata.FinalizeModel();
+        public virtual IModel FinalizeModel()
+            => Builder.Metadata.FinalizeModel();
 
-        private InternalModelBuilder Builder => (InternalModelBuilder)this.GetInfrastructure();
+        private InternalModelBuilder Builder
+            => (InternalModelBuilder)this.GetInfrastructure();
 
         #region Hidden System.Object members
 
@@ -548,22 +558,25 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString() => base.ToString();
+        public override string ToString()
+            => base.ToString();
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
+        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => base.Equals(obj);
+        public override bool Equals(object obj)
+            => base.Equals(obj);
 
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
         /// <returns> A hash code for the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode()
+            => base.GetHashCode();
 
         #endregion
     }

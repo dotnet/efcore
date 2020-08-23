@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var bytes = ip.GetAddressBytes();
 
             Assert.Equal(ip, converter(bytes));
-             
+
             Assert.Null(converter(null));
         }
 

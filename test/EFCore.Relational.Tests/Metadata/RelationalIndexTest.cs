@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -29,30 +28,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             modelBuilder.Model.FinalizeModel();
 
-            var index0 = (Internal.Index)entityBuilder.Metadata.GetIndexes().First();
+            var index0 = (Index)entityBuilder.Metadata.GetIndexes().First();
             Assert.Equal(ConfigurationSource.DataAnnotation, index0.GetConfigurationSource());
             Assert.Equal("IndexOnAAndB", index0.Name);
             Assert.Equal("MyIndexOnAAndB", index0.GetDatabaseName());
             Assert.Equal(ConfigurationSource.Explicit, index0.GetDatabaseNameConfigurationSource());
             Assert.True(index0.IsUnique);
             Assert.Equal(ConfigurationSource.DataAnnotation, index0.GetIsUniqueConfigurationSource());
-            Assert.Collection(index0.Properties,
+            Assert.Collection(
+                index0.Properties,
                 prop0 => Assert.Equal("A", prop0.Name),
                 prop1 => Assert.Equal("B", prop1.Name));
 
-            var index1 = (Internal.Index)entityBuilder.Metadata.GetIndexes().Skip(1).First();
+            var index1 = (Index)entityBuilder.Metadata.GetIndexes().Skip(1).First();
             Assert.Equal(ConfigurationSource.DataAnnotation, index1.GetConfigurationSource());
             Assert.Equal("IndexOnBAndC", index1.Name);
             Assert.Equal("MyIndexOnBAndC", index1.GetDatabaseName());
             Assert.Equal(ConfigurationSource.Explicit, index1.GetDatabaseNameConfigurationSource());
             Assert.False(index1.IsUnique);
             Assert.Null(index1.GetIsUniqueConfigurationSource());
-            Assert.Collection(index1.Properties,
+            Assert.Collection(
+                index1.Properties,
                 prop0 => Assert.Equal("B", prop0.Name),
                 prop1 => Assert.Equal("C", prop1.Name));
         }
 
-        protected virtual ModelBuilder CreateConventionModelBuilder() => RelationalTestHelpers.Instance.CreateConventionBuilder();
+        protected virtual ModelBuilder CreateConventionModelBuilder()
+            => RelationalTestHelpers.Instance.CreateConventionBuilder();
 
         [Index(nameof(A), nameof(B), Name = "IndexOnAAndB", IsUnique = true)]
         [Index(nameof(B), nameof(C), Name = "IndexOnBAndC")]

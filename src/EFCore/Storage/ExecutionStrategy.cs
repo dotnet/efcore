@@ -126,7 +126,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Indicates whether this <see cref="IExecutionStrategy" /> might retry the execution after a failure.
         /// </summary>
-        public virtual bool RetriesOnFailure => !Suspended;
+        public virtual bool RetriesOnFailure
+            => !Suspended;
 
         /// <summary>
         ///     Executes the specified operation and returns the result.
@@ -391,7 +392,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The result from <paramref name="exceptionHandler" />.
         /// </returns>
         public static TResult CallOnWrappedException<TResult>(
-            [NotNull] Exception exception, [NotNull] Func<Exception, TResult> exceptionHandler)
+            [NotNull] Exception exception,
+            [NotNull] Func<Exception, TResult> exceptionHandler)
             => exception is DbUpdateException dbUpdateException
                 ? CallOnWrappedException(dbUpdateException.InnerException, exceptionHandler)
                 : exceptionHandler(exception);

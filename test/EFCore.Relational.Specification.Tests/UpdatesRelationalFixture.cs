@@ -8,7 +8,8 @@ namespace Microsoft.EntityFrameworkCore
 {
     public abstract class UpdatesRelationalFixture : UpdatesFixtureBase
     {
-        public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
+        public TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)ListLoggerFactory;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

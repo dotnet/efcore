@@ -9,11 +9,13 @@ using Xunit.Abstractions;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class IncompleteMappingInheritanceQuerySqlServerTest : InheritanceRelationalQueryTestBase<IncompleteMappingInheritanceQuerySqlServerFixture>
+    public class IncompleteMappingInheritanceQuerySqlServerTest : InheritanceRelationalQueryTestBase<
+        IncompleteMappingInheritanceQuerySqlServerFixture>
     {
 #pragma warning disable IDE0060 // Remove unused parameter
         public IncompleteMappingInheritanceQuerySqlServerTest(
-            IncompleteMappingInheritanceQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+            IncompleteMappingInheritanceQuerySqlServerFixture fixture,
+            ITestOutputHelper testOutputHelper)
 #pragma warning restore IDE0060 // Remove unused parameter
             : base(fixture)
         {

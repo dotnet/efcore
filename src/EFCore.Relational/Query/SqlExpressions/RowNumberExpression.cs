@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="partitions"> A list expressions to partition by. </param>
         /// <param name="orderings"> A list of ordering expressions to order by. </param>
-        /// <param name="typeMapping"> The <see cref="RelationalTypeMapping"/> associated with the expression. </param>
+        /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
         public RowNumberExpression(
             [CanBeNull] IReadOnlyList<SqlExpression> partitions,
             [NotNull] IReadOnlyList<OrderingExpression> orderings,
@@ -44,6 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     The list of expressions used in partitioning.
         /// </summary>
         public virtual IReadOnlyList<SqlExpression> Partitions { get; }
+
         /// <summary>
         ///     The list of ordering expressions used to order inside the given partition.
         /// </summary>
@@ -80,11 +81,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="partitions"> The <see cref="Partitions"/> property of the result. </param>
-        /// <param name="orderings"> The <see cref="Orderings"/> property of the result. </param>
+        /// <param name="partitions"> The <see cref="Partitions" /> property of the result. </param>
+        /// <param name="orderings"> The <see cref="Orderings" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual RowNumberExpression Update(
-            [CanBeNull] IReadOnlyList<SqlExpression> partitions, [NotNull] IReadOnlyList<OrderingExpression> orderings)
+            [CanBeNull] IReadOnlyList<SqlExpression> partitions,
+            [NotNull] IReadOnlyList<OrderingExpression> orderings)
         {
             Check.NotNull(orderings, nameof(orderings));
 

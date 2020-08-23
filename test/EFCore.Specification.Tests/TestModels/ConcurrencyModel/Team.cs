@@ -84,7 +84,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
             }
         }
 
-        public virtual ICollection<Sponsor> Sponsors => _sponsors;
+        public virtual ICollection<Sponsor> Sponsors
+            => _sponsors;
 
         public int? GearboxId { get; set; }
 

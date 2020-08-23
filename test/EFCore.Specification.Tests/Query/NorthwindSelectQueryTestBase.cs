@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 using Xunit;
 
 #pragma warning disable RCS1202 // Avoid NullReferenceException.
@@ -23,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
+        protected NorthwindContext CreateContext()
+            => Fixture.CreateContext();
 
         protected virtual void ClearLog()
         {
@@ -828,29 +828,29 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 os => from c in os.Set<Customer>()
                       select
-                      c.CustomerID == "1"
-                        ? "01"
-                        : c.CustomerID == "2"
-                            ? "02"
-                            : c.CustomerID == "3"
-                                ? "03"
-                                : c.CustomerID == "4"
-                                    ? "04"
-                                    : c.CustomerID == "5"
-                                        ? "05"
-                                        : c.CustomerID == "6"
-                                            ? "06"
-                                            : c.CustomerID == "7"
-                                                ? "07"
-                                                : c.CustomerID == "8"
-                                                    ? "08"
-                                                    : c.CustomerID == "9"
-                                                        ? "09"
-                                                        : c.CustomerID == "10"
-                                                            ? "10"
-                                                            : c.CustomerID == "11"
-                                                                ? "11"
-                                                                : null);
+                          c.CustomerID == "1"
+                              ? "01"
+                              : c.CustomerID == "2"
+                                  ? "02"
+                                  : c.CustomerID == "3"
+                                      ? "03"
+                                      : c.CustomerID == "4"
+                                          ? "04"
+                                          : c.CustomerID == "5"
+                                              ? "05"
+                                              : c.CustomerID == "6"
+                                                  ? "06"
+                                                  : c.CustomerID == "7"
+                                                      ? "07"
+                                                      : c.CustomerID == "8"
+                                                          ? "08"
+                                                          : c.CustomerID == "9"
+                                                              ? "09"
+                                                              : c.CustomerID == "10"
+                                                                  ? "10"
+                                                                  : c.CustomerID == "11"
+                                                                      ? "11"
+                                                                      : null);
         }
 
         [ConditionalTheory]
@@ -1248,7 +1248,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 4);
         }
 
-        private static string ClientMethod(Customer c) => c.CustomerID;
+        private static string ClientMethod(Customer c)
+            => c.CustomerID;
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -1449,7 +1450,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Customer>().Select(
                     c => (int?)ss.Set<Order>().Where(o => o.CustomerID == "John Doe").Select(o => o.CustomerID).FirstOrDefault().Length),
                 ss => ss.Set<Customer>().Select(
-                    c => (int?)ss.Set<Order>().Where(o => o.CustomerID == "John Doe").Select(o => o.CustomerID).FirstOrDefault().MaybeScalar(e => e.Length)));
+                    c => ss.Set<Order>().Where(o => o.CustomerID == "John Doe").Select(o => o.CustomerID).FirstOrDefault()
+                        .MaybeScalar(e => e.Length)));
         }
 
         [ConditionalTheory]
@@ -1480,7 +1482,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         && Id == customerListItem.Id
                         && City == customerListItem.City);
 
-            public override int GetHashCode() => HashCode.Combine(Id, City);
+            public override int GetHashCode()
+                => HashCode.Combine(Id, City);
         }
 
         [ConditionalTheory]
@@ -1692,13 +1695,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => (from c in ss.Set<Customer>()
-                       select new
-                       {
-                           c.CustomerID,
-                           Orders = c.Orders.Select(o => o.OrderDate).ToList()
-                       })
-                      .AsNoTracking()
-                      .OrderBy(a => a.CustomerID),
+                       select new { c.CustomerID, Orders = c.Orders.Select(o => o.OrderDate).ToList() })
+                    .AsNoTracking()
+                    .OrderBy(a => a.CustomerID),
                 assertOrder: true,
                 elementAsserter: (e, a) =>
                 {
@@ -1743,11 +1742,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<Customer>()
-                .Where(c => c.CustomerID.StartsWith("A"))
-                .OrderBy(c => c.CustomerID)
-                .Select(c => ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).AsEnumerable())
-                .Where(e => e.Where(o => o.OrderID < 11000).Count() > 0)
-                .Select(e => e.Where(o => o.OrderID < 10750)),
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).AsEnumerable())
+                    .Where(e => e.Where(o => o.OrderID < 11000).Count() > 0)
+                    .Select(e => e.Where(o => o.OrderID < 10750)),
                 assertOrder: true,
                 entryCount: 18);
         }
@@ -1760,11 +1759,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Customer>()
                     .OrderBy(c => c.CustomerID)
-                    .Select(c => c.City == "Seattle"
-                        ? new IdName<string> { Id = "PAY", Name = "Pay" }
-                        : new IdName<string> { Id = "REC", Name = "Receive" }),
+                    .Select(
+                        c => c.City == "Seattle"
+                            ? new IdName<string> { Id = "PAY", Name = "Pay" }
+                            : new IdName<string> { Id = "REC", Name = "Receive" }),
                 assertOrder: true,
-                elementAsserter: (e, a) => { Assert.Equal(e.Id, a.Id); Assert.Equal(e.Name, a.Name); });
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+                    Assert.Equal(e.Name, a.Name);
+                });
         }
 
         private class IdName<T>
@@ -1780,11 +1784,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
-                    .Select(c => new
-                    {
-                        O1 = c.Orders.Select(e => new { Value = 1 }),
-                        O2 = c.Orders.Select(e => new { AnotherValue = 1 })
-                    }),
+                    .Select(c => new { O1 = c.Orders.Select(e => new { Value = 1 }), O2 = c.Orders.Select(e => new { AnotherValue = 1 }) }),
                 assertOrder: true, //single element
                 elementAsserter: (e, a) =>
                 {
@@ -1804,16 +1804,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Order>()
                     .Select(o => o.Customer)
                     .Distinct()
-                    .Select(c => new
-                    {
-                        c.CustomerID,
-                        Orders = c.Orders.Where(x => filteredOrderIds.Contains(x.OrderID)).OrderBy(x => x.OrderID).Select(x => new
+                    .Select(
+                        c => new
                         {
                             c.CustomerID,
-                            x.OrderID,
-                            x.OrderDate
-                        })
-                    }),
+                            Orders = c.Orders.Where(x => filteredOrderIds.Contains(x.OrderID)).OrderBy(x => x.OrderID)
+                                .Select(
+                                    x => new
+                                    {
+                                        c.CustomerID,
+                                        x.OrderID,
+                                        x.OrderDate
+                                    })
+                        }),
                 elementSorter: e => e.CustomerID,
                 elementAsserter: (e, a) =>
                 {
@@ -1829,16 +1832,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<Order>()
-                    .Select(o => new Order
-                    {
-                        OrderID = o.OrderID,
-                        Customer = new Customer
+                    .Select(
+                        o => new Order
                         {
-                            CustomerID = o.Customer.CustomerID,
-                            City = o.Customer.City
-                        },
-                        OrderDate = o.OrderDate
-                    }),
+                            OrderID = o.OrderID,
+                            Customer = new Customer { CustomerID = o.Customer.CustomerID, City = o.Customer.City },
+                            OrderDate = o.OrderDate
+                        }),
                 elementAsserter: (e, a) =>
                 {
                     AssertEqual(e, a);

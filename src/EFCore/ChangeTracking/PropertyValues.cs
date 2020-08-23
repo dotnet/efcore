@@ -4,8 +4,8 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using System.Linq;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -160,14 +160,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <returns> True if the property exists, otherwise false. </returns>
         public virtual bool TryGetValue<TValue>([NotNull] string propertyName, out TValue value)
         {
-            var property = Properties.FirstOrDefault(p=> p.Name == propertyName);
+            var property = Properties.FirstOrDefault(p => p.Name == propertyName);
             if (property != null)
             {
                 value = GetValue<TValue>(propertyName);
                 return true;
             }
 
-            value = default(TValue);
+            value = default;
             return false;
         }
 
@@ -187,22 +187,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString() => base.ToString();
+        public override string ToString()
+            => base.ToString();
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
+        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => base.Equals(obj);
+        public override bool Equals(object obj)
+            => base.Equals(obj);
 
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
         /// <returns> A hash code for the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode()
+            => base.GetHashCode();
 
         #endregion
     }

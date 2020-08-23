@@ -51,7 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 new List<IList<object[]>> { new[] { new object[] { 1, "a" } }, new object[0][] });
             var columns = new ReaderColumn[]
             {
-                new ReaderColumn<int>(false, null, (r, _) => r.GetInt32(0)), new ReaderColumn<object>(true, null, (r, _) => r.GetValue(1))
+                new ReaderColumn<int>(false, null, (r, _) => r.GetInt32(0)),
+                new ReaderColumn<object>(true, null, (r, _) => r.GetValue(1))
             };
 
             var bufferedDataReader = new BufferedDataReader(reader);
@@ -172,7 +173,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         private async Task Verify_method_result<T>(
-            Func<BufferedDataReader, T> method, bool async, T expectedResult,
+            Func<BufferedDataReader, T> method,
+            bool async,
+            T expectedResult,
             params object[][] dataReaderContents)
         {
             var reader = new FakeDbDataReader(new[] { "name" }, dataReaderContents);
@@ -212,6 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 r => (T)readerMethod.Invoke(r, new object[] { 0 }), async, value, new object[] { value });
         }
 
-        private static MethodInfo GetReaderMethod(Type type) => RelationalTypeMapping.GetDataReaderMethod(type);
+        private static MethodInfo GetReaderMethod(Type type)
+            => RelationalTypeMapping.GetDataReaderMethod(type);
     }
 }

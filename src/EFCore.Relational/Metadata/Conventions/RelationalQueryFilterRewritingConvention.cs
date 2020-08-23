@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     else
                     {
                         var formattableString = Expression.Lambda<Func<FormattableString>>(
-                           Expression.Convert(methodCallExpression.Arguments[1], typeof(FormattableString))).Compile().Invoke();
+                            Expression.Convert(methodCallExpression.Arguments[1], typeof(FormattableString))).Compile().Invoke();
 
                         sql = formattableString.Format;
                         argument = Expression.Constant(formattableString.GetArguments());

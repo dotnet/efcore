@@ -11,7 +11,8 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class AutoincrementTest : IClassFixture<AutoincrementTest.AutoincrementFixture>
     {
-        public AutoincrementTest(AutoincrementFixture fixture) => Fixture = fixture;
+        public AutoincrementTest(AutoincrementFixture fixture)
+            => Fixture = fixture;
 
         protected AutoincrementFixture Fixture { get; }
 
@@ -37,13 +38,18 @@ namespace Microsoft.EntityFrameworkCore
             Assert.NotNull(begins);
         }
 
-        private BatContext CreateContext() => (BatContext)Fixture.CreateContext();
+        private BatContext CreateContext()
+            => (BatContext)Fixture.CreateContext();
 
         public class AutoincrementFixture : SharedStoreFixtureBase<DbContext>
         {
             protected override string StoreName { get; } = "AutoincrementTest";
-            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
-            protected override Type ContextType => typeof(BatContext);
+
+            protected override ITestStoreFactory TestStoreFactory
+                => SqliteTestStoreFactory.Instance;
+
+            protected override Type ContextType
+                => typeof(BatContext);
         }
 
         protected class BatContext : PoolableDbContext

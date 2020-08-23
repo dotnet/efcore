@@ -34,7 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Type CollectionType => typeof(TCollection);
+        public virtual Type CollectionType
+            => typeof(TCollection);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -197,8 +198,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return false;
                 case SortedSet<TElement> sortedSet:
                     return sortedSet.TryGetValue((TElement)value, out var found)
-                           && ReferenceEquals(found, value)
-                           && sortedSet.Remove(found);
+                        && ReferenceEquals(found, value)
+                        && sortedSet.Remove(found);
                 default:
                     return collection?.Remove((TElement)value) ?? false;
             }
@@ -230,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return false;
                 case SortedSet<TElement> sortedSet:
                     return sortedSet.TryGetValue((TElement)value, out var found)
-                           && ReferenceEquals(found, value);
+                        && ReferenceEquals(found, value);
                 default:
                     return collection?.Contains((TElement)value) == true;
             }

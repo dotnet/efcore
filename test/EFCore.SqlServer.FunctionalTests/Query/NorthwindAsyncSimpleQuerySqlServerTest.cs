@@ -13,18 +13,21 @@ using Xunit.Abstractions;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindAsyncSimpleQuerySqlServerTest : NorthwindAsyncSimpleQueryRelationalTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    public class NorthwindAsyncSimpleQuerySqlServerTest : NorthwindAsyncSimpleQueryRelationalTestBase<
+        NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         // ReSharper disable once UnusedParameter.Local
         public NorthwindAsyncSimpleQuerySqlServerTest(
-            NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+            NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture,
+            ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        protected override bool CanExecuteQueryString => true;
+        protected override bool CanExecuteQueryString
+            => true;
 
         [ConditionalFact]
         public override Task Throws_on_concurrent_query_list()

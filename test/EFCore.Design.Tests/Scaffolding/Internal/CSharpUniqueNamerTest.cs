@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Xunit;
@@ -16,8 +15,18 @@ namespace Microsoft.EntityFrameworkCore
         {
             var namer = new CSharpUniqueNamer<DatabaseColumn>(s => s.Name, new CSharpUtilities(), null);
             var table = new DatabaseTable { Database = new DatabaseModel(), Name = "foo" };
-            var input1 = new DatabaseColumn { Table = table, Name = "Id", StoreType = "int" };
-            var input2 = new DatabaseColumn { Table = table, Name = "Id", StoreType = "int" };
+            var input1 = new DatabaseColumn
+            {
+                Table = table,
+                Name = "Id",
+                StoreType = "int"
+            };
+            var input2 = new DatabaseColumn
+            {
+                Table = table,
+                Name = "Id",
+                StoreType = "int"
+            };
 
             Assert.Equal("Id", namer.GetName(input1));
             Assert.Equal("Id", namer.GetName(input1));

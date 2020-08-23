@@ -168,7 +168,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return true;
             }
 
-            public override int GetHashCode() => 0;
+            public override int GetHashCode()
+                => 0;
         }
     }
 }

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
 namespace Microsoft.EntityFrameworkCore.Migrations

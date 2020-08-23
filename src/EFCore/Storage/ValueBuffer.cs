@@ -58,12 +58,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the number of values in this buffer.
         /// </summary>
-        public int Count => _values.Length;
+        public int Count
+            => _values.Length;
 
         /// <summary>
         ///     Gets a value indicating whether the value buffer is empty.
         /// </summary>
-        public bool IsEmpty => _values == null;
+        public bool IsEmpty
+            => _values == null;
 
         /// <summary>
         ///     Determines if this value buffer is equivalent to a given object (i.e. if they are both value buffers and contain the same values).
@@ -72,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The object to compare this value buffer to.
         /// </param>
         /// <returns>
-        ///     <see langword="true"/> if the object is a <see cref="ValueBuffer" /> and contains the same values, otherwise <see langword="false"/>. 
+        ///     <see langword="true" /> if the object is a <see cref="ValueBuffer" /> and contains the same values, otherwise <see langword="false" />.
         /// </returns>
         public override bool Equals(object obj)
             => !(obj is null)

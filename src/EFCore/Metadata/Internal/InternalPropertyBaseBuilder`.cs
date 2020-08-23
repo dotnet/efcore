@@ -33,7 +33,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalPropertyBaseBuilder<TPropertyBase> HasField([CanBeNull] string fieldName, ConfigurationSource configurationSource)
+        public virtual InternalPropertyBaseBuilder<TPropertyBase> HasField(
+            [CanBeNull] string fieldName,
+            ConfigurationSource configurationSource)
         {
             if (CanSetField(fieldName, configurationSource))
             {
@@ -79,7 +81,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalPropertyBaseBuilder<TPropertyBase> HasField([CanBeNull] FieldInfo fieldInfo, ConfigurationSource configurationSource)
+        public virtual InternalPropertyBaseBuilder<TPropertyBase> HasField(
+            [CanBeNull] FieldInfo fieldInfo,
+            ConfigurationSource configurationSource)
         {
             if (CanSetField(fieldInfo, configurationSource))
             {
@@ -112,7 +116,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalPropertyBaseBuilder<TPropertyBase> UsePropertyAccessMode(
-            PropertyAccessMode? propertyAccessMode, ConfigurationSource configurationSource)
+            PropertyAccessMode? propertyAccessMode,
+            ConfigurationSource configurationSource)
         {
             if (CanSetPropertyAccessMode(propertyAccessMode, configurationSource))
             {
@@ -131,7 +136,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CanSetPropertyAccessMode(
-            PropertyAccessMode? propertyAccessMode, ConfigurationSource? configurationSource)
+            PropertyAccessMode? propertyAccessMode,
+            ConfigurationSource? configurationSource)
             => configurationSource.Overrides(Metadata.GetPropertyAccessModeConfigurationSource())
                 || ((IPropertyBase)Metadata).GetPropertyAccessMode() == propertyAccessMode;
     }

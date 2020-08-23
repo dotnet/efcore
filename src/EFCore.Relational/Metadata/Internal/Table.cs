@@ -48,7 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual UniqueConstraint PrimaryKey
         {
-            get => _primaryKey; [param: NotNull]
+            get => _primaryKey;
+            [param: NotNull]
             set
             {
                 var oldPrimaryKey = _primaryKey;
@@ -119,10 +120,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual SortedDictionary<string, TableIndex> Indexes { get; }
             = new SortedDictionary<string, TableIndex>();
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public virtual bool IsExcludedFromMigrations { get; set; }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public override IColumnBase FindColumn(IProperty property)
             => property.GetTableColumnMappings()
                 .FirstOrDefault(cm => cm.TableMapping.Table == this)
@@ -134,56 +135,57 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+        public override string ToString()
+            => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         IEnumerable<ITableMapping> ITable.EntityTypeMappings
         {
             [DebuggerStepThrough]
             get => base.EntityTypeMappings.Cast<ITableMapping>();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         IEnumerable<IColumn> ITable.Columns
         {
             [DebuggerStepThrough]
             get => base.Columns.Values.Cast<IColumn>();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         IEnumerable<IForeignKeyConstraint> ITable.ForeignKeyConstraints
         {
             [DebuggerStepThrough]
             get => ForeignKeyConstraints.Values;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         IPrimaryKeyConstraint ITable.PrimaryKey
         {
             [DebuggerStepThrough]
             get => PrimaryKey;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         IEnumerable<IUniqueConstraint> ITable.UniqueConstraints
         {
             [DebuggerStepThrough]
             get => UniqueConstraints.Values;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         IEnumerable<ITableIndex> ITable.Indexes
         {
             [DebuggerStepThrough]
             get => Indexes.Values;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IColumn ITable.FindColumn(string name)
             => (IColumn)base.FindColumn(name);
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IColumn ITable.FindColumn(IProperty property)
             => (IColumn)FindColumn(property);

@@ -433,6 +433,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected SqlServerTestStore TestStore { get; }
 
-        public void Dispose() => TestStore.Dispose();
+        public void Dispose()
+            => TestStore.Dispose();
     }
 }

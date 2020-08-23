@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Model = model;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public virtual IModel Model { get; }
 
         /// <summary>
@@ -79,25 +79,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual SortedDictionary<(string, string, IReadOnlyList<string>), StoreFunction> Functions { get; }
             = new SortedDictionary<(string, string, IReadOnlyList<string>), StoreFunction>(NamedListComparer.Instance);
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public virtual ITable FindTable(string name, string schema)
             => Tables.TryGetValue((name, schema), out var table)
                 ? table
                 : null;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public virtual IView FindView(string name, string schema)
             => Views.TryGetValue((name, schema), out var view)
                 ? view
                 : null;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public virtual ISqlQuery FindQuery(string name)
             => Queries.TryGetValue(name, out var query)
                 ? query
                 : null;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public virtual IStoreFunction FindFunction(string name, string schema, IReadOnlyList<string> parameters)
             => Functions.TryGetValue((name, schema, parameters), out var function)
                 ? function
@@ -110,7 +110,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IModel Add(
-            [NotNull] IConventionModel model, [CanBeNull] IRelationalAnnotationProvider relationalAnnotationProvider)
+            [NotNull] IConventionModel model,
+            [CanBeNull] IRelationalAnnotationProvider relationalAnnotationProvider)
         {
             if (model.FindAnnotation(RelationalAnnotationNames.RelationalModel) != null)
             {
@@ -236,8 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var tableMapping = new TableMappingBase(entityType, defaultTable, includesDerivedTypes: true)
             {
-                IsSharedTablePrincipal = true,
-                IsSplitEntityTypePrincipal = true
+                IsSharedTablePrincipal = true, IsSplitEntityTypePrincipal = true
             };
 
             foreach (var property in entityType.GetProperties())
@@ -322,7 +322,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     if (mappedType == entityType)
                     {
-                        Check.DebugAssert(table.EntityTypeMappings.Count == 0
+                        Check.DebugAssert(
+                            table.EntityTypeMappings.Count == 0
                             || table.IsExcludedFromMigrations == entityType.IsTableExcludedFromMigrations(),
                             "Table should be excluded on all entity types");
 
@@ -517,10 +518,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var mappedQuery = StoreObjectIdentifier.SqlQuery(definingType);
                 if (!databaseModel.Queries.TryGetValue(mappedQuery.Name, out var sqlQuery))
                 {
-                    sqlQuery = new SqlQuery(mappedQuery.Name, databaseModel)
-                    {
-                        Sql = mappedTypeSqlQuery
-                    };
+                    sqlQuery = new SqlQuery(mappedQuery.Name, databaseModel) { Sql = mappedTypeSqlQuery };
                     databaseModel.Queries.Add(mappedQuery.Name, sqlQuery);
                 }
 
@@ -701,7 +699,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     column.IsNullable = false;
                 }
 
-                var columnMapping = new FunctionColumnMapping(property, column, property.FindRelationalTypeMapping(mappedFunction), functionMapping);
+                var columnMapping = new FunctionColumnMapping(
+                    property, column, property.FindRelationalTypeMapping(mappedFunction), functionMapping);
                 functionMapping.ColumnMappings.Add(columnMapping);
                 column.PropertyMappings.Add(columnMapping);
 
@@ -769,14 +768,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         }
 
                         var principalTable = (Table)principalMapping.Table;
-                        var name = foreignKey.GetConstraintName(storeObject,
+                        var name = foreignKey.GetConstraintName(
+                            storeObject,
                             StoreObjectIdentifier.Table(principalTable.Name, principalTable.Schema));
                         if (name == null)
                         {
                             continue;
                         }
 
-                        var foreignKeyConstraints = foreignKey[RelationalAnnotationNames.ForeignKeyMappings] as SortedSet<ForeignKeyConstraint>;
+                        var foreignKeyConstraints =
+                            foreignKey[RelationalAnnotationNames.ForeignKeyMappings] as SortedSet<ForeignKeyConstraint>;
                         if (table.ForeignKeyConstraints.TryGetValue(name, out var constraint))
                         {
                             if (foreignKeyConstraints == null)
@@ -829,7 +830,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             break;
                         }
 
-                        constraint = new ForeignKeyConstraint(name, table, principalTable, columns, principalColumns,
+                        constraint = new ForeignKeyConstraint(
+                            name, table, principalTable, columns, principalColumns,
                             ToReferentialAction(foreignKey.DeleteBehavior));
                         constraint.MappedForeignKeys.Add(foreignKey);
 
@@ -969,6 +971,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         {
                             rowInternalForeignKeys = new SortedSet<IForeignKey>(ForeignKeyComparer.Instance);
                         }
+
                         rowInternalForeignKeys.Add(foreignKey);
 
                         if (referencingInternalForeignKeyMap == null)
@@ -983,6 +986,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             internalReferencingForeignKeys = new SortedSet<IForeignKey>(ForeignKeyComparer.Instance);
                             referencingInternalForeignKeyMap[principalEntityType] = internalReferencingForeignKeys;
                         }
+
                         ((SortedSet<IForeignKey>)internalReferencingForeignKeys).Add(foreignKey);
                     }
                 }
@@ -1040,6 +1044,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         continue;
                     }
+
                     optionalTypes[entityType] = optional;
 
                     if (referencingInternalForeignKeyMap.TryGetValue(entityType, out var referencingInternalForeignKeys))

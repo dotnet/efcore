@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     ///         An expression that represents a parameter in a SQL tree.
     ///     </para>
     ///     <para>
-    ///         This is a simple wrapper around a <see cref="ParameterExpression"/> in the SQL tree.
+    ///         This is a simple wrapper around a <see cref="ParameterExpression" /> in the SQL tree.
     ///         Instances of this type cannot be constructed by application or database provider code. If this is a problem for your
     ///         application or provider, then please file an issue at https://github.com/dotnet/efcore.
     ///     </para>
@@ -33,7 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     The name of the parameter.
         /// </summary>
-        public string Name => _parameterExpression.Name;
+        public string Name
+            => _parameterExpression.Name;
 
         /// <summary>
         ///     The bool value indicating if this parameter can have null values.
@@ -76,6 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 && string.Equals(Name, sqlParameterExpression.Name);
 
         /// <inheritdoc />
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Name);
+        public override int GetHashCode()
+            => HashCode.Combine(base.GetHashCode(), Name);
     }
 }

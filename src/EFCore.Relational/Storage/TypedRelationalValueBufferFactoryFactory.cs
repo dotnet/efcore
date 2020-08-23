@@ -151,7 +151,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static TValue ThrowReadValueException<TValue>(
-            Exception exception, object value, IPropertyBase property = null)
+            Exception exception,
+            object value,
+            IPropertyBase property = null)
         {
             var expectedType = typeof(TValue);
             var actualType = value?.GetType();

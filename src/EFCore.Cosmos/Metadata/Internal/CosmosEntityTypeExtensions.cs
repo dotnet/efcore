@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal
         /// </summary>
         public static bool IsDocumentRoot([NotNull] this IEntityType entityType)
             => entityType.BaseType?.IsDocumentRoot()
-               ?? (!entityType.IsOwned()
-                   || entityType[CosmosAnnotationNames.ContainerName] != null);
+                ?? (!entityType.IsOwned()
+                    || entityType[CosmosAnnotationNames.ContainerName] != null);
     }
 }

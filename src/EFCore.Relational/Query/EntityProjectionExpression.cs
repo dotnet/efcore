@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -17,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         An expression that represents an entity in the projection of <see cref="SelectExpression"/>.
+    ///         An expression that represents an entity in the projection of <see cref="SelectExpression" />.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -27,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class EntityProjectionExpression : Expression
     {
         private readonly IDictionary<IProperty, ColumnExpression> _propertyExpressionMap = new Dictionary<IProperty, ColumnExpression>();
+
         private readonly IDictionary<INavigation, EntityShaperExpression> _ownedNavigationMap
             = new Dictionary<INavigation, EntityShaperExpression>();
 
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="entityType"> The entity type to shape. </param>
         /// <param name="propertyExpressionMap"> A dictionary of column expressions corresponding to properties of the entity type. </param>
-        /// <param name="discriminatorExpression"> A <see cref="SqlExpression"/> to generate discriminator for each concrete entity type in hierarchy. </param>
+        /// <param name="discriminatorExpression"> A <see cref="SqlExpression" /> to generate discriminator for each concrete entity type in hierarchy. </param>
         public EntityProjectionExpression(
             [NotNull] IEntityType entityType,
             [NotNull] IDictionary<IProperty, ColumnExpression> propertyExpressionMap,
@@ -65,14 +65,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The entity type being projected out.
         /// </summary>
         public virtual IEntityType EntityType { get; }
+
         /// <summary>
-        ///     A <see cref="SqlExpression"/> to generate discriminator for entity type.
+        ///     A <see cref="SqlExpression" /> to generate discriminator for entity type.
         /// </summary>
         public virtual SqlExpression DiscriminatorExpression { get; }
+
         /// <inheritdoc />
-        public sealed override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType
+            => ExpressionType.Extension;
+
         /// <inheritdoc />
-        public override Type Type => EntityType.ClrType;
+        public override Type Type
+            => EntityType.ClrType;
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -124,8 +129,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (!derivedType.GetAllBaseTypes().Contains(EntityType))
             {
-                throw new InvalidOperationException(RelationalStrings.InvalidDerivedTypeInEntityProjection(
-                    derivedType.DisplayName(), EntityType.DisplayName()));
+                throw new InvalidOperationException(
+                    RelationalStrings.InvalidDerivedTypeInEntityProjection(
+                        derivedType.DisplayName(), EntityType.DisplayName()));
             }
 
             var propertyExpressionMap = new Dictionary<IProperty, ColumnExpression>();
@@ -194,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <summary>
         ///     Binds a navigation with this entity projection to get entity shaper for the target entity type of the navigation which was
-        ///     previously added using <see cref="AddNavigationBinding(INavigation, EntityShaperExpression)"/> method.
+        ///     previously added using <see cref="AddNavigationBinding(INavigation, EntityShaperExpression)" /> method.
         /// </summary>
         /// <param name="navigation"> A navigation to bind. </param>
         /// <returns> An entity shaper expression for the target entity type of the navigation. </returns>

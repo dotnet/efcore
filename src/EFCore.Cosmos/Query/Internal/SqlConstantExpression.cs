@@ -42,7 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual object Value => _constantExpression.Value;
+        public virtual object Value
+            => _constantExpression.Value;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -138,15 +139,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is SqlConstantExpression sqlConstantExpression
-                   && Equals(sqlConstantExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is SqlConstantExpression sqlConstantExpression
+                    && Equals(sqlConstantExpression));
 
         private bool Equals(SqlConstantExpression sqlConstantExpression)
             => base.Equals(sqlConstantExpression)
-               && (Value == null
-                   ? sqlConstantExpression.Value == null
-                   : Value.Equals(sqlConstantExpression.Value));
+                && (Value == null
+                    ? sqlConstantExpression.Value == null
+                    : Value.Equals(sqlConstantExpression.Value));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -154,6 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Value);
+        public override int GetHashCode()
+            => HashCode.Combine(base.GetHashCode(), Value);
     }
 }

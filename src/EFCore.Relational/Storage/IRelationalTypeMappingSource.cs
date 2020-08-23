@@ -90,7 +90,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="storeTypeName"> The database type name. </param>
         /// <param name="keyOrIndex"> If <see langword="true" />, then a special mapping for a key or index may be returned. </param>
         /// <param name="unicode">
-        ///     Specify <see langword="true" /> for Unicode mapping, <see langword="false" /> for Ansi mapping or <see langword="null" /> for the default.
+        ///     Specify <see langword="true" /> for Unicode mapping, <see langword="false" /> for Ansi mapping or <see langword="null" /> for the
+        ///     default.
         /// </param>
         /// <param name="size"> Specifies a size for the mapping, or <see langword="null" /> for default. </param>
         /// <param name="rowVersion"> Specifies a row-version, or <see langword="null" /> for default. </param>

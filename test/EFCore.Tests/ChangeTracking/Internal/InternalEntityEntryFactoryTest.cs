@@ -81,7 +81,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(entity, entry.Entity);
         }
 
-        private static IMutableModel CreateModel() => new Model();
+        private static IMutableModel CreateModel()
+            => new Model();
 
         private class RedHook
         {

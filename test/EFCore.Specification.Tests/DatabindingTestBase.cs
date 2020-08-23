@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class DatabindingTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : F1FixtureBase, new()
     {
-        protected DatabindingTestBase(TFixture fixture) => Fixture = fixture;
+        protected DatabindingTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 

@@ -28,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private PollingCounter _totalExecutionStrategyOperationFailuresCounter;
         private IncrementingPollingCounter _executionStrategyOperationFailuresPerSecondCounter;
         private PollingCounter _totalOptimisticConcurrencyFailuresCounter;
+
         private IncrementingPollingCounter _optimisticConcurrencyFailuresPerSecondCounter;
         // ReSharper restore NotAccessedField.Local
 
@@ -36,47 +37,58 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         public static readonly EntityFrameworkEventSource Log = new EntityFrameworkEventSource();
 
-        private EntityFrameworkEventSource() : base("Microsoft.EntityFrameworkCore") {}
+        private EntityFrameworkEventSource()
+            : base("Microsoft.EntityFrameworkCore")
+        {
+        }
 
         /// <summary>
         ///     Indicates that a new <see cref="DbContext" /> instance is being initialized.
         /// </summary>
-        public void DbContextInitializing() => Interlocked.Increment(ref _activeDbContexts);
+        public void DbContextInitializing()
+            => Interlocked.Increment(ref _activeDbContexts);
 
         /// <summary>
         ///     Indicates that a <see cref="DbContext" /> instance is being disposed.
         /// </summary>
-        public void DbContextDisposing() => Interlocked.Decrement(ref _activeDbContexts);
+        public void DbContextDisposing()
+            => Interlocked.Decrement(ref _activeDbContexts);
 
         /// <summary>
         ///     Indicates that a query is about to begin execution.
         /// </summary>
-        public void QueryExecuting() => Interlocked.Increment(ref _totalQueries);
+        public void QueryExecuting()
+            => Interlocked.Increment(ref _totalQueries);
 
         /// <summary>
         ///     Indicates that changes are about to be saved.
         /// </summary>
-        public void SavingChanges() => Interlocked.Increment(ref _totalSaveChanges);
+        public void SavingChanges()
+            => Interlocked.Increment(ref _totalSaveChanges);
 
         /// <summary>
         ///     Indicates a hit in the compiled query cache, signifying that query compilation will not need to occur.
         /// </summary>
-        public void CompiledQueryCacheHit() => Interlocked.Increment(ref _compiledQueryCacheInfo.Hits);
+        public void CompiledQueryCacheHit()
+            => Interlocked.Increment(ref _compiledQueryCacheInfo.Hits);
 
         /// <summary>
         ///     Indicates a miss in the compiled query cache, signifying that query compilation will need to occur.
         /// </summary>
-        public void CompiledQueryCacheMiss() => Interlocked.Increment(ref _compiledQueryCacheInfo.Misses);
+        public void CompiledQueryCacheMiss()
+            => Interlocked.Increment(ref _compiledQueryCacheInfo.Misses);
 
         /// <summary>
         ///     Indicates that an operation executed by an <see cref="IExecutionStrategy" /> failed (and may be retried).
         /// </summary>
-        public void ExecutionStrategyOperationFailure() => Interlocked.Increment(ref _totalExecutionStrategyOperationFailures);
+        public void ExecutionStrategyOperationFailure()
+            => Interlocked.Increment(ref _totalExecutionStrategyOperationFailures);
 
         /// <summary>
         ///     Indicates that an optimistic concurrency failure has occurred.
         /// </summary>
-        public void OptimisticConcurrencyFailure() => Interlocked.Increment(ref _totalOptimisticConcurrencyFailures);
+        public void OptimisticConcurrencyFailure()
+            => Interlocked.Increment(ref _totalOptimisticConcurrencyFailures);
 
         /// <inheritdoc />
         protected override void OnEventCommand(EventCommandEventArgs command)
@@ -94,19 +106,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     DisplayName = "Active DbContexts"
                 };
 
-                _totalQueriesCounter ??= new PollingCounter("total-queries", this, () => _totalQueries)
-                {
-                    DisplayName = "Queries (Total)"
-                };
+                _totalQueriesCounter ??= new PollingCounter("total-queries", this, () => _totalQueries) { DisplayName = "Queries (Total)" };
 
                 _queriesPerSecondCounter ??= new IncrementingPollingCounter(
                     "queries-per-second",
                     this,
-                    () => _totalQueries)
-                {
-                    DisplayName = "Queries",
-                    DisplayRateTimeScale = TimeSpan.FromSeconds(1)
-                };
+                    () => _totalQueries) { DisplayName = "Queries", DisplayRateTimeScale = TimeSpan.FromSeconds(1) };
 
                 _totalSaveChangesCounter ??= new PollingCounter("total-save-changes", this, () => _totalSaveChanges)
                 {
@@ -116,52 +121,37 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 _saveChangesPerSecondCounter ??= new IncrementingPollingCounter(
                     "save-changes-per-second",
                     this,
-                    () => _totalSaveChanges)
-                {
-                    DisplayName = "SaveChanges",
-                    DisplayRateTimeScale = TimeSpan.FromSeconds(1)
-                };
+                    () => _totalSaveChanges) { DisplayName = "SaveChanges", DisplayRateTimeScale = TimeSpan.FromSeconds(1) };
 
                 _compiledQueryCacheHitRateCounter ??= new PollingCounter(
                     "compiled-query-cache-hit-rate",
                     this,
-                    () => _compiledQueryCacheInfo.CalculateAndReset())
-                {
-                    DisplayName = "Query Cache Hit Rate", DisplayUnits = "%"
-                };
+                    () => _compiledQueryCacheInfo.CalculateAndReset()) { DisplayName = "Query Cache Hit Rate", DisplayUnits = "%" };
 
                 _totalExecutionStrategyOperationFailuresCounter ??= new PollingCounter(
                     "total-execution-strategy-operation-failures",
                     this,
-                    () => _totalExecutionStrategyOperationFailures)
-                {
-                    DisplayName = "Execution Strategy Operation Failures (Total)"
-                };
+                    () => _totalExecutionStrategyOperationFailures) { DisplayName = "Execution Strategy Operation Failures (Total)" };
 
                 _executionStrategyOperationFailuresPerSecondCounter ??= new IncrementingPollingCounter(
                     "execution-strategy-operation-failures-per-second",
                     this,
                     () => _totalExecutionStrategyOperationFailures)
                 {
-                    DisplayName = "Execution Strategy Operation Failures",
-                    DisplayRateTimeScale = TimeSpan.FromSeconds(1)
+                    DisplayName = "Execution Strategy Operation Failures", DisplayRateTimeScale = TimeSpan.FromSeconds(1)
                 };
 
                 _totalOptimisticConcurrencyFailuresCounter ??= new PollingCounter(
                     "total-optimistic-concurrency-failures",
                     this,
-                    () => _totalOptimisticConcurrencyFailures)
-                {
-                    DisplayName = "Optimistic Concurrency Failures (Total)"
-                };
+                    () => _totalOptimisticConcurrencyFailures) { DisplayName = "Optimistic Concurrency Failures (Total)" };
 
                 _optimisticConcurrencyFailuresPerSecondCounter ??= new IncrementingPollingCounter(
                     "optimistic-concurrency-failures-per-second",
                     this,
                     () => _totalOptimisticConcurrencyFailures)
                 {
-                    DisplayName = "Optimistic Concurrency Failures",
-                    DisplayRateTimeScale = TimeSpan.FromSeconds(1)
+                    DisplayName = "Optimistic Concurrency Failures", DisplayRateTimeScale = TimeSpan.FromSeconds(1)
                 };
             }
         }
@@ -171,6 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             [FieldOffset(0)]
             internal int Hits;
+
             [FieldOffset(4)]
             internal int Misses;
 
@@ -178,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             private long _all;
 
             /// <summary>
-            /// Returns the atomically-calculated hit rate and atomically resets <see cref="Hits" /> and <see cref="Misses" /> to 0.
+            ///     Returns the atomically-calculated hit rate and atomically resets <see cref="Hits" /> and <see cref="Misses" /> to 0.
             /// </summary>
             internal double CalculateAndReset()
             {

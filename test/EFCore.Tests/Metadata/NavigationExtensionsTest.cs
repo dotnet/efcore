@@ -103,8 +103,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         private static IModel BuildModel(
-            bool createProducts = true, bool createCategory = true,
-            bool createFeaturedProductCategory = true, bool createFeaturedProduct = true)
+            bool createProducts = true,
+            bool createCategory = true,
+            bool createFeaturedProductCategory = true,
+            bool createFeaturedProduct = true)
         {
             var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
             var model = builder.Model;

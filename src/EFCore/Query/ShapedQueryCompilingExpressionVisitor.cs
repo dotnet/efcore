@@ -12,7 +12,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -175,7 +174,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             return result;
         }
 
-
         /// <summary>
         ///     Visits given shaped query expression to create an expression of enumerable.
         /// </summary>
@@ -184,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected abstract Expression VisitShapedQuery([NotNull] ShapedQueryExpression shapedQueryExpression);
 
         /// <summary>
-        ///     Inject entity materializers in given shaper expression. <see cref="EntityShaperExpression"/> is replaced with materializer
+        ///     Inject entity materializers in given shaper expression. <see cref="EntityShaperExpression" /> is replaced with materializer
         ///     expression for given entity.
         /// </summary>
         /// <param name="expression"> The expression to inject entity materializers. </param>
@@ -223,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return constantExpression.Value == null
                     || _typeMappingSource.FindMapping(constantExpression.Type) != null
                     || constantExpression.Value is Array array
-                        && array.Length == 0;
+                    && array.Length == 0;
             }
 
             protected override Expression VisitConstant(ConstantExpression constantExpression)
@@ -449,20 +447,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     if (primaryKey != null)
                     {
-                        expressions.Add(Expression.IfThen(
-                            primaryKey.Properties.Select(
-                                p => Expression.NotEqual(
-                                        valueBufferExpression.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
-                                        Expression.Constant(null)))
-                                .Aggregate((a, b) => Expression.AndAlso(a, b)),
-                            MaterializeEntity(
-                                entityShaperExpression, materializationContextVariable, concreteEntityTypeVariable, instanceVariable, null)));
+                        expressions.Add(
+                            Expression.IfThen(
+                                primaryKey.Properties.Select(
+                                        p => Expression.NotEqual(
+                                            valueBufferExpression.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
+                                            Expression.Constant(null)))
+                                    .Aggregate((a, b) => Expression.AndAlso(a, b)),
+                                MaterializeEntity(
+                                    entityShaperExpression, materializationContextVariable, concreteEntityTypeVariable, instanceVariable,
+                                    null)));
                     }
                     else
                     {
                         expressions.Add(
                             MaterializeEntity(
-                                entityShaperExpression, materializationContextVariable, concreteEntityTypeVariable, instanceVariable, null));
+                                entityShaperExpression, materializationContextVariable, concreteEntityTypeVariable, instanceVariable,
+                                null));
                     }
                 }
 
@@ -496,7 +497,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var valueBufferExpression = Expression.Call(materializationContextVariable, MaterializationContext.GetValueBufferMethod);
                 var expressionContext = (returnType, materializationContextVariable, concreteEntityTypeVariable, shadowValuesVariable);
                 expressions.Add(
-                    Expression.Assign(concreteEntityTypeVariable,
+                    Expression.Assign(
+                        concreteEntityTypeVariable,
                         ReplacingExpressionVisitor.Replace(
                             entityShaperExpression.MaterializationCondition.Parameters[0],
                             valueBufferExpression,
@@ -580,7 +582,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 Expression.NewArrayInit(
                                     typeof(object),
                                     shadowProperties.Select(
-                                        p => valueBufferExpression.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p))))));
+                                        p => valueBufferExpression.CreateValueBufferReadValueExpression(
+                                            typeof(object), p.GetIndex(), p))))));
                 }
 
                 materializer = materializer.Type == returnType

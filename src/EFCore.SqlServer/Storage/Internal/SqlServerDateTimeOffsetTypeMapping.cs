@@ -42,10 +42,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             DbType? dbType = System.Data.DbType.DateTimeOffset)
             : base(
                 new RelationalTypeMappingParameters(
-                        new CoreTypeMappingParameters(typeof(DateTimeOffset)),
-                        storeType,
-                        StoreTypePostfix.Precision,
-                        dbType))
+                    new CoreTypeMappingParameters(typeof(DateTimeOffset)),
+                    storeType,
+                    StoreTypePostfix.Precision,
+                    dbType))
         {
         }
 

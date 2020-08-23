@@ -22,8 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public class QueryRootExpression : Expression, IPrintableExpression
     {
-        private readonly Type _type;
-
         /// <summary>
         ///     Creates a new instance of the <see cref="QueryRootExpression" /> class with associated query provider.
         /// </summary>
@@ -36,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             QueryProvider = asyncQueryProvider;
             EntityType = entityType;
-            _type = typeof(IQueryable<>).MakeGenericType(entityType.ClrType);
+            Type = typeof(IQueryable<>).MakeGenericType(entityType.ClrType);
         }
 
         /// <summary>
@@ -49,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             EntityType = entityType;
             QueryProvider = null;
-            _type = typeof(IQueryable<>).MakeGenericType(entityType.ClrType);
+            Type = typeof(IQueryable<>).MakeGenericType(entityType.ClrType);
         }
 
         /// <summary>
@@ -66,18 +64,26 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Detaches the associated query provider from this query root expression.
         /// </summary>
         /// <returns> A new query root expression without query provider. </returns>
-        public virtual Expression DetachQueryProvider() => new QueryRootExpression(EntityType);
+        public virtual Expression DetachQueryProvider()
+            => new QueryRootExpression(EntityType);
+
         /// <inheritdoc />
-        public override ExpressionType NodeType => ExpressionType.Extension;
+        public override ExpressionType NodeType
+            => ExpressionType.Extension;
+
         /// <inheritdoc />
-        public override Type Type => _type;
+        public override Type Type { get; }
+
         /// <inheritdoc />
-        public override bool CanReduce => false;
+        public override bool CanReduce
+            => false;
+
         /// <inheritdoc />
-        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+            => this;
 
         /// <summary>
-        ///     Creates a printable string representation of the given expression using <see cref="ExpressionPrinter"/>.
+        ///     Creates a printable string representation of the given expression using <see cref="ExpressionPrinter" />.
         /// </summary>
         /// <param name="expressionPrinter"> The expression printer to use. </param>
         protected virtual void Print([NotNull] ExpressionPrinter expressionPrinter)
@@ -95,16 +101,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        void IPrintableExpression.Print(ExpressionPrinter expressionPrinter) => Print(expressionPrinter);
+        void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
+            => Print(expressionPrinter);
 
         /// <inheritdoc />
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                || obj is QueryRootExpression queryRootExpression
+                && (ReferenceEquals(this, obj)
+                    || obj is QueryRootExpression queryRootExpression
                     && EntityType == queryRootExpression.EntityType);
 
         /// <inheritdoc />
-        public override int GetHashCode() => EntityType.GetHashCode();
+        public override int GetHashCode()
+            => EntityType.GetHashCode();
     }
 }

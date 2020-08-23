@@ -40,7 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The underlying <see cref="IServiceCollection" />.
         /// </summary>
-        public virtual IServiceCollection ServiceCollection => _map.ServiceCollection;
+        public virtual IServiceCollection ServiceCollection
+            => _map.ServiceCollection;
 
         /// <summary>
         ///     Adds a <see cref="ServiceLifetime.Transient" /> service implemented by the given concrete
@@ -508,6 +509,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 // Generic arg on Func may be object, but this is the best we can do and matches logic in D.I. container
                 ?? descriptor.ImplementationFactory?.GetType().GenericTypeArguments[1];
 
-        IInternalServiceCollectionMap IInfrastructure<IInternalServiceCollectionMap>.Instance => _map;
+        IInternalServiceCollectionMap IInfrastructure<IInternalServiceCollectionMap>.Instance
+            => _map;
     }
 }

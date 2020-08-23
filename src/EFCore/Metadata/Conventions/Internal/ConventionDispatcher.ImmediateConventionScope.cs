@@ -195,7 +195,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             public override IConventionEntityType OnEntityTypeRemoved(
-                IConventionModelBuilder modelBuilder, IConventionEntityType entityType)
+                IConventionModelBuilder modelBuilder,
+                IConventionEntityType entityType)
             {
                 using (_dispatcher.DelayConventions())
                 {
@@ -283,7 +284,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             public override IConventionKey OnEntityTypePrimaryKeyChanged(
-                IConventionEntityTypeBuilder entityTypeBuilder, IConventionKey newPrimaryKey, IConventionKey previousPrimaryKey)
+                IConventionEntityTypeBuilder entityTypeBuilder,
+                IConventionKey newPrimaryKey,
+                IConventionKey previousPrimaryKey)
             {
                 if (entityTypeBuilder.Metadata.Builder == null)
                 {
@@ -388,7 +391,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             public override IConventionForeignKey OnForeignKeyRemoved(
-                IConventionEntityTypeBuilder entityTypeBuilder, IConventionForeignKey foreignKey)
+                IConventionEntityTypeBuilder entityTypeBuilder,
+                IConventionForeignKey foreignKey)
             {
                 if (entityTypeBuilder.Metadata.Builder == null)
                 {
@@ -878,7 +882,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     _skipNavigationConventionContext.ResetState(navigation);
                     foreach (var skipNavigationConvention in _conventionSet.SkipNavigationRemovedConventions)
                     {
-                        skipNavigationConvention.ProcessSkipNavigationRemoved(entityTypeBuilder, navigation, _skipNavigationConventionContext);
+                        skipNavigationConvention.ProcessSkipNavigationRemoved(
+                            entityTypeBuilder, navigation, _skipNavigationConventionContext);
                         if (_skipNavigationConventionContext.ShouldStopProcessing())
                         {
                             return _skipNavigationConventionContext.Result;
@@ -1152,7 +1157,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             public override FieldInfo OnPropertyFieldChanged(
-                IConventionPropertyBuilder propertyBuilder, FieldInfo newFieldInfo, FieldInfo oldFieldInfo)
+                IConventionPropertyBuilder propertyBuilder,
+                FieldInfo newFieldInfo,
+                FieldInfo oldFieldInfo)
             {
                 if (propertyBuilder.Metadata.Builder == null
                     || propertyBuilder.Metadata.DeclaringEntityType.Builder == null)

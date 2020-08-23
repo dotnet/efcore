@@ -145,7 +145,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             for (var i = 1; i < modificationCommands.Count; i++)
             {
                 commandStringBuilder.AppendLine(",");
-                AppendValues(commandStringBuilder, name, schema, modificationCommands[i].ColumnModifications.Where(o => o.IsWrite).ToList());
+                AppendValues(
+                    commandStringBuilder, name, schema, modificationCommands[i].ColumnModifications.Where(o => o.IsWrite).ToList());
             }
 
             commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
@@ -491,7 +492,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override ResultSetMapping AppendSelectAffectedCountCommand(
-            StringBuilder commandStringBuilder, string name, string schema, int commandPosition)
+            StringBuilder commandStringBuilder,
+            string name,
+            string schema,
+            int commandPosition)
         {
             commandStringBuilder
                 .Append("SELECT @@ROWCOUNT")

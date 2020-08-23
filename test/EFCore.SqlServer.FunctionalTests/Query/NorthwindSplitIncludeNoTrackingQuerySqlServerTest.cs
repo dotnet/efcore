@@ -6,10 +6,13 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindSplitIncludeNoTrackingQuerySqlServerTest : NorthwindSplitIncludeNoTrackingQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    public class NorthwindSplitIncludeNoTrackingQuerySqlServerTest : NorthwindSplitIncludeNoTrackingQueryTestBase<
+        NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         // ReSharper disable once UnusedParameter.Local
-        public NorthwindSplitIncludeNoTrackingQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+        public NorthwindSplitIncludeNoTrackingQuerySqlServerTest(
+            NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture,
+            ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();

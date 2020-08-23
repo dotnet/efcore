@@ -24,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => _concurrencyDetector = concurrencyDetector;
 
         /// <inheritdoc />
-        public void Dispose() => _concurrencyDetector.ExitCriticalSection();
+        public void Dispose()
+            => _concurrencyDetector.ExitCriticalSection();
     }
 }

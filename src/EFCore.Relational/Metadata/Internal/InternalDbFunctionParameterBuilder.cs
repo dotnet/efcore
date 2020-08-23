@@ -18,7 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class InternalDbFunctionParameterBuilder : AnnotatableBuilder<DbFunctionParameter, IConventionModelBuilder>, IConventionDbFunctionParameterBuilder
+    public class InternalDbFunctionParameterBuilder : AnnotatableBuilder<DbFunctionParameter, IConventionModelBuilder>,
+        IConventionDbFunctionParameterBuilder
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -39,7 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IConventionDbFunctionParameterBuilder HasStoreType(
-            [CanBeNull] string storeType, ConfigurationSource configurationSource)
+            [CanBeNull] string storeType,
+            ConfigurationSource configurationSource)
         {
             if (CanSetStoreType(storeType, configurationSource))
             {
@@ -67,7 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IConventionDbFunctionParameterBuilder HasTypeMapping(
-            [CanBeNull] RelationalTypeMapping typeMapping, ConfigurationSource configurationSource)
+            [CanBeNull] RelationalTypeMapping typeMapping,
+            ConfigurationSource configurationSource)
         {
             if (CanSetTypeMapping(typeMapping, configurationSource))
             {
@@ -137,7 +140,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         /// <inheritdoc />
         [DebuggerStepThrough]
         IConventionDbFunctionParameterBuilder IConventionDbFunctionParameterBuilder.HasTypeMapping(
-            RelationalTypeMapping typeMapping, bool fromDataAnnotation)
+            RelationalTypeMapping typeMapping,
+            bool fromDataAnnotation)
             => HasTypeMapping(typeMapping, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />

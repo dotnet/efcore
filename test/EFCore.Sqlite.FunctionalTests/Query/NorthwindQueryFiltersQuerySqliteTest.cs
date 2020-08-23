@@ -5,9 +5,12 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindQueryFiltersQuerySqliteTest : NorthwindQueryFiltersQueryTestBase<NorthwindQuerySqliteFixture<NorthwindQueryFiltersCustomizer>>
+    public class NorthwindQueryFiltersQuerySqliteTest : NorthwindQueryFiltersQueryTestBase<
+        NorthwindQuerySqliteFixture<NorthwindQueryFiltersCustomizer>>
     {
-        public NorthwindQueryFiltersQuerySqliteTest(NorthwindQuerySqliteFixture<NorthwindQueryFiltersCustomizer> fixture, ITestOutputHelper testOutputHelper)
+        public NorthwindQueryFiltersQuerySqliteTest(
+            NorthwindQuerySqliteFixture<NorthwindQueryFiltersCustomizer> fixture,
+            ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             fixture.TestSqlLoggerFactory.Clear();

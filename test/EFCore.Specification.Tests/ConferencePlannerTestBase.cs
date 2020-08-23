@@ -368,7 +368,9 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData("Scott", 1, 0)]
         [InlineData("C#", 3, 3)]
         public virtual async Task SearchController_Search(
-            string searchTerm, int totalCount, int sessionCount)
+            string searchTerm,
+            int totalCount,
+            int sessionCount)
         {
             await ExecuteWithStrategyInTransactionAsync(
                 async context =>
@@ -757,7 +759,8 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TFixture Fixture { get; }
 
-        protected ApplicationDbContext CreateContext() => Fixture.CreateContext();
+        protected ApplicationDbContext CreateContext()
+            => Fixture.CreateContext();
 
         protected virtual Task ExecuteWithStrategyInTransactionAsync(
             Func<ApplicationDbContext, Task> testOperation,
@@ -780,7 +783,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected override string StoreName { get; } = "ConferencePlanner";
 
-            protected override bool UsePooling => false;
+            protected override bool UsePooling
+                => false;
 
             protected override void Seed(ApplicationDbContext context)
             {

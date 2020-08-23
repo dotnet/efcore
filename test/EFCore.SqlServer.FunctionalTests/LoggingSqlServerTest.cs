@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore
                 .UseInternalServiceProvider(services.AddEntityFrameworkSqlServer().BuildServiceProvider())
                 .UseSqlServer("Data Source=LoggingSqlServerTest.db", relationalAction);
 
-        protected override string ProviderName => "Microsoft.EntityFrameworkCore.SqlServer";
+        protected override string ProviderName
+            => "Microsoft.EntityFrameworkCore.SqlServer";
     }
 }

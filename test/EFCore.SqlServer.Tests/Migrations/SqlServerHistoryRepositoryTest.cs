@@ -12,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class SqlServerHistoryRepositoryTest
     {
-        private static string EOL => Environment.NewLine;
+        private static string EOL
+            => Environment.NewLine;
 
         [ConditionalFact]
         public void GetCreateScript_works()

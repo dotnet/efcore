@@ -15,13 +15,17 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         private GeometryFactory _geometryFactory;
 
-        public Func<DbContext> GetContextCreator() => () => CreateContext();
+        public Func<DbContext> GetContextCreator()
+            => () => CreateContext();
 
-        public ISetSource GetExpectedData() => new SpatialData(GeometryFactory);
+        public ISetSource GetExpectedData()
+            => new SpatialData(GeometryFactory);
 
-        public IReadOnlyDictionary<Type, object> GetEntitySorters() => null;
+        public IReadOnlyDictionary<Type, object> GetEntitySorters()
+            => null;
 
-        public IReadOnlyDictionary<Type, object> GetEntityAsserters() => null;
+        public IReadOnlyDictionary<Type, object> GetEntityAsserters()
+            => null;
 
         public virtual GeometryFactory GeometryFactory
             => LazyInitializer.EnsureInitialized(

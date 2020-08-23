@@ -17,15 +17,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         where TFixture : ManyToManyQueryFixtureBase, new()
     {
         private static readonly MethodInfo _asNoTrackingMethodInfo
-               = typeof(EntityFrameworkQueryableExtensions)
-                   .GetTypeInfo().GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTracking));
+            = typeof(EntityFrameworkQueryableExtensions)
+                .GetTypeInfo().GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTracking));
 
         protected ManyToManyNoTrackingQueryTestBase(TFixture fixture)
             : base(fixture)
         {
         }
 
-        protected override bool IgnoreEntryCount => true;
+        protected override bool IgnoreEntryCount
+            => true;
 
         protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)
         {
@@ -39,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 return methodCallExpression.Update(
                     null, new[] { ApplyNoTracking(methodCallExpression.Arguments[0]) }
-                                .Concat(methodCallExpression.Arguments.Skip(1)));
+                        .Concat(methodCallExpression.Arguments.Skip(1)));
             }
 
             return ApplyNoTracking(serverQueryExpression);
@@ -47,8 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             static Expression ApplyNoTracking(Expression source)
             {
                 return Expression.Call(
-                  _asNoTrackingMethodInfo.MakeGenericMethod(source.Type.TryGetSequenceType()),
-                   source);
+                    _asNoTrackingMethodInfo.MakeGenericMethod(source.Type.TryGetSequenceType()),
+                    source);
             }
         }
 
@@ -61,12 +62,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
                         async,
-                        ss => ss.Set<EntityThree>().AsNoTracking().Include(e => e.OneSkipPayloadFullShared).ThenInclude(e => e.ThreeSkipPayloadFullShared),
-                        elementAsserter: (e, a) => AssertInclude(e, a,
+                        ss => ss.Set<EntityThree>().AsNoTracking().Include(e => e.OneSkipPayloadFullShared)
+                            .ThenInclude(e => e.ThreeSkipPayloadFullShared),
+                        elementAsserter: (e, a) => AssertInclude(
+                            e, a,
                             new ExpectedInclude<EntityThree>(et => et.OneSkipPayloadFullShared),
                             new ExpectedInclude<EntityOne>(et => et.ThreeSkipPayloadFullShared, "OneSkipPayloadFullShared"))))).Message);
         }
 
-        public override Task Include_skip_navigation_then_include_inverse_works_for_tracking_query(bool async) => Task.CompletedTask;
+        public override Task Include_skip_navigation_then_include_inverse_works_for_tracking_query(bool async)
+            => Task.CompletedTask;
     }
 }

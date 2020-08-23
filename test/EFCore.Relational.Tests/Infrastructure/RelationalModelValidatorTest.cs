@@ -1269,7 +1269,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Animal>().HasDiscriminator<int>("Discriminator");
             modelBuilder.Entity<Cat>().ToTable("Cat");
 
-            VerifyError(RelationalStrings.TPHTableMismatch(nameof(Cat), nameof(Cat), nameof(Animal), nameof(Animal)),
+            VerifyError(
+                RelationalStrings.TPHTableMismatch(nameof(Cat), nameof(Cat), nameof(Animal), nameof(Animal)),
                 modelBuilder.Model);
         }
 
@@ -1280,7 +1281,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Animal>().ToView("Animal").HasDiscriminator<int>("Discriminator");
             modelBuilder.Entity<Cat>().ToView("Cat");
 
-            VerifyError(RelationalStrings.TPHViewMismatch(nameof(Cat), nameof(Cat), nameof(Animal), nameof(Animal)),
+            VerifyError(
+                RelationalStrings.TPHViewMismatch(nameof(Cat), nameof(Cat), nameof(Animal), nameof(Animal)),
                 modelBuilder.Model);
         }
 
@@ -1313,11 +1315,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .Ignore(a => a.FavoritePerson);
 
             modelBuilder.Entity<Cat>(
-             x =>
-             {
-                 x.ToTable("Cat");
-                 x.HasOne(c => c.FavoritePerson).WithOne().HasForeignKey<Cat>(c => c.Id);
-             });
+                x =>
+                {
+                    x.ToTable("Cat");
+                    x.HasOne(c => c.FavoritePerson).WithOne().HasForeignKey<Cat>(c => c.Id);
+                });
 
             modelBuilder.Entity<Person>().ToTable("Cat");
 
@@ -1337,11 +1339,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .ToView("Animal");
 
             modelBuilder.Entity<Cat>(
-             x =>
-             {
-                 x.ToView("Cat");
-                 x.HasOne(c => c.FavoritePerson).WithOne().HasForeignKey<Cat>(c => c.Id);
-             });
+                x =>
+                {
+                    x.ToView("Cat");
+                    x.HasOne(c => c.FavoritePerson).WithOne().HasForeignKey<Cat>(c => c.Id);
+                });
 
             modelBuilder.Entity<Person>().ToView("Cat");
 
@@ -1369,7 +1371,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var property = modelBuilder.Entity<Animal>().Property(a => a.Name).GetInfrastructure();
             property.HasColumnName("DogName", StoreObjectIdentifier.Table("Dog", null));
 
-            VerifyError(RelationalStrings.TableOverrideMismatch("Animal.Name", "Dog"),
+            VerifyError(
+                RelationalStrings.TableOverrideMismatch("Animal.Name", "Dog"),
                 modelBuilder.Model);
         }
 
@@ -1391,7 +1394,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var property = modelBuilder.Entity<Animal>().Property(a => a.Name).GetInfrastructure();
             property.HasColumnName("DogName", StoreObjectIdentifier.View("Dog", null));
 
-            VerifyError(RelationalStrings.ViewOverrideMismatch("Animal.Name", "Dog"),
+            VerifyError(
+                RelationalStrings.ViewOverrideMismatch("Animal.Name", "Dog"),
                 modelBuilder.Model);
         }
 
@@ -1402,7 +1406,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var property = modelBuilder.Entity<Animal>().Property(a => a.Name).GetInfrastructure();
             property.HasColumnName("DogName", StoreObjectIdentifier.SqlQuery("Dog"));
 
-            VerifyError(RelationalStrings.SqlQueryOverrideMismatch("Animal.Name", "Dog"),
+            VerifyError(
+                RelationalStrings.SqlQueryOverrideMismatch("Animal.Name", "Dog"),
                 modelBuilder.Model);
         }
 
@@ -1413,7 +1418,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var property = modelBuilder.Entity<Animal>().Property(a => a.Name).GetInfrastructure();
             property.HasColumnName("DogName", StoreObjectIdentifier.DbFunction("Dog"));
 
-            VerifyError(RelationalStrings.FunctionOverrideMismatch("Animal.Name", "Dog"),
+            VerifyError(
+                RelationalStrings.FunctionOverrideMismatch("Animal.Name", "Dog"),
                 modelBuilder.Model);
         }
 
@@ -1559,12 +1565,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             var function = modelBuilder.HasDbFunction(TestMethods.MethodAMi).Metadata;
 
-            modelBuilder.Entity<DerivedTestMethods>(db =>
-            {
-                db.HasBaseType((string)null);
-                db.OwnsOne(d => d.SomeTestMethods).ToFunction(function.ModelName);
-                db.OwnsOne(d => d.OtherTestMethods).ToFunction(function.ModelName);
-            });
+            modelBuilder.Entity<DerivedTestMethods>(
+                db =>
+                {
+                    db.HasBaseType((string)null);
+                    db.OwnsOne(d => d.SomeTestMethods).ToFunction(function.ModelName);
+                    db.OwnsOne(d => d.OtherTestMethods).ToFunction(function.ModelName);
+                });
 
             VerifyError(
                 RelationalStrings.DbFunctionInvalidIQueryableOwnedReturnType(
@@ -1690,8 +1697,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             Validate(modelBuilder.Model);
 
-            Assert.Empty(LoggerFactory.Log
-                .Where(l => l.Level != LogLevel.Trace && l.Level != LogLevel.Debug));
+            Assert.Empty(
+                LoggerFactory.Log
+                    .Where(l => l.Level != LogLevel.Trace && l.Level != LogLevel.Debug));
         }
 
         [ConditionalFact]
@@ -1759,12 +1767,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             modelBuilder.HasDbFunction(TestMethods.MethodFMi);
 
-            VerifyError(RelationalStrings.TableValuedFunctionNonTPH(
-                TestMethods.MethodFMi.DeclaringType.FullName + "." + TestMethods.MethodFMi.Name + "()", "C"), modelBuilder.Model);
+            VerifyError(
+                RelationalStrings.TableValuedFunctionNonTPH(
+                    TestMethods.MethodFMi.DeclaringType.FullName + "." + TestMethods.MethodFMi.Name + "()", "C"), modelBuilder.Model);
         }
 
         private static void GenerateMapping(IMutableProperty property)
-            => property.SetTypeMapping(new TestRelationalTypeMappingSource(
+            => property.SetTypeMapping(
+                new TestRelationalTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                         TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
                     .FindMapping(property));
@@ -1852,19 +1862,30 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private class TestMethods : BaseTestMethods
         {
-            public static readonly MethodInfo MethodAMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodA));
-            public static readonly MethodInfo MethodBMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodB));
-            public static readonly MethodInfo MethodCMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodC));
-            public static readonly MethodInfo MethodDMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodD));
-            public static readonly MethodInfo MethodEMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodE));
-            public static readonly MethodInfo MethodFMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodF));
+            public static readonly MethodInfo MethodAMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(MethodA));
+            public static readonly MethodInfo MethodBMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(MethodB));
+            public static readonly MethodInfo MethodCMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(MethodC));
+            public static readonly MethodInfo MethodDMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(MethodD));
+            public static readonly MethodInfo MethodEMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(MethodE));
+            public static readonly MethodInfo MethodFMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(MethodF));
 
-            public static IQueryable<TestMethods> MethodA() => throw new NotImplementedException();
-            public static IQueryable<TestMethods> MethodB(int id) => throw new NotImplementedException();
-            public static TestMethods MethodC() => throw new NotImplementedException();
-            public static int MethodD(TestMethods methods) => throw new NotImplementedException();
-            public static int MethodE() => throw new NotImplementedException();
-            public static IQueryable<C> MethodF() => throw new NotImplementedException();
+            public static IQueryable<TestMethods> MethodA()
+                => throw new NotImplementedException();
+
+            public static IQueryable<TestMethods> MethodB(int id)
+                => throw new NotImplementedException();
+
+            public static TestMethods MethodC()
+                => throw new NotImplementedException();
+
+            public static int MethodD(TestMethods methods)
+                => throw new NotImplementedException();
+
+            public static int MethodE()
+                => throw new NotImplementedException();
+
+            public static IQueryable<C> MethodF()
+                => throw new NotImplementedException();
         }
 
         protected virtual ModelBuilder CreateModelBuilderWithoutConvention<T>(
@@ -1880,6 +1901,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             return new ModelBuilder(conventionSet);
         }
 
-        protected override TestHelpers TestHelpers => RelationalTestHelpers.Instance;
+        protected override TestHelpers TestHelpers
+            => RelationalTestHelpers.Instance;
     }
 }

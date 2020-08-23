@@ -84,7 +84,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGenerator.Internal
                     || obj?.GetType() == GetType()
                     && Equals((IntClass)obj);
 
-            public override int GetHashCode() => Value;
+            public override int GetHashCode()
+                => Value;
 
             public int Value { get; }
         }

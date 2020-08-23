@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
-    ///     A common interface for event payload classes that have an <see cref="INavigationBase"/>.
+    ///     A common interface for event payload classes that have an <see cref="INavigationBase" />.
     /// </summary>
     public interface INavigationBaseEventData
     {

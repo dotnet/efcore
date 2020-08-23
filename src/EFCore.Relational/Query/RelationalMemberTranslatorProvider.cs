@@ -17,7 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         Provides translations for LINQ <see cref="MemberExpression" /> expressions by dispatching to multiple specialized member translators.
+    ///         Provides translations for LINQ <see cref="MemberExpression" /> expressions by dispatching to multiple specialized member
+    ///         translators.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
@@ -46,7 +47,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <inheritdoc />
         public virtual SqlExpression Translate(
-            SqlExpression instance, MemberInfo member, Type returnType, IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+            SqlExpression instance,
+            MemberInfo member,
+            Type returnType,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
             Check.NotNull(member, nameof(member));
             Check.NotNull(returnType, nameof(returnType));

@@ -12,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class IncludeOneToOneTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : IncludeOneToOneTestBase<TFixture>.OneToOneQueryFixtureBase, new()
     {
-        protected IncludeOneToOneTestBase(TFixture fixture) => Fixture = fixture;
+        protected IncludeOneToOneTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         public TFixture Fixture { get; }
 
@@ -140,7 +141,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(3 + 3, context.ChangeTracker.Entries().Count());
         }
 
-        protected virtual DbContext CreateContext() => Fixture.CreateContext();
+        protected virtual DbContext CreateContext()
+            => Fixture.CreateContext();
 
         public abstract class OneToOneQueryFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {

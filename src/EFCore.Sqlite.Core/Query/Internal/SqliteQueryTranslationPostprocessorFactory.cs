@@ -3,7 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
@@ -47,4 +46,3 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         }
     }
 }
-

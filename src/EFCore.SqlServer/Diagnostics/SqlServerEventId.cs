@@ -63,7 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
-        private static EventId MakeValidationId(Id id) => new EventId((int)id, _validationPrefix + id);
+
+        private static EventId MakeValidationId(Id id)
+            => new EventId((int)id, _validationPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -116,10 +118,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
-        public static readonly EventId ConflictingValueGenerationStrategiesWarning = MakeValidationId(Id.ConflictingValueGenerationStrategiesWarning);
+        public static readonly EventId ConflictingValueGenerationStrategiesWarning =
+            MakeValidationId(Id.ConflictingValueGenerationStrategiesWarning);
 
         private static readonly string _scaffoldingPrefix = DbLoggerCategory.Scaffolding.Name + ".";
-        private static EventId MakeScaffoldingId(Id id) => new EventId((int)id, _scaffoldingPrefix + id);
+
+        private static EventId MakeScaffoldingId(Id id)
+            => new EventId((int)id, _scaffoldingPrefix + id);
 
         /// <summary>
         ///     A column was found.

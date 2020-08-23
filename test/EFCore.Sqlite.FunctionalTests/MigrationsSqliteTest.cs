@@ -881,24 +881,31 @@ FROM People;",
             => AssertNotSupportedAsync(base.Create_sequence, SqliteStrings.SequencesNotSupported);
 
         // SQLite does not support schemas
-        protected override bool AssertSchemaNames => false;
+        protected override bool AssertSchemaNames
+            => false;
 
         // Reverse-engineering of comments isn't supported in Sqlite
-        protected override bool AssertComments => false;
+        protected override bool AssertComments
+            => false;
 
         // Reverse engineering of computed columns isn't fully supported on SQLite
-        protected override bool AssertComputedColumns => false;
+        protected override bool AssertComputedColumns
+            => false;
 
         // Our current version Sqlite doesn't seem to support scaffolding collations
-        protected override bool AssertCollations => false;
+        protected override bool AssertCollations
+            => false;
 
         // Reverse engineering of index filters isn't supported in SQLite
-        protected override bool AssertIndexFilters => false;
+        protected override bool AssertIndexFilters
+            => false;
 
         // Reverse engineering of constraint names isn't supported in SQLite
-        protected override bool AssertConstraintNames => false;
+        protected override bool AssertConstraintNames
+            => false;
 
-        protected override string NonDefaultCollation => "NOCASE";
+        protected override string NonDefaultCollation
+            => "NOCASE";
 
         protected virtual async Task AssertNotSupportedAsync(Func<Task> action, string? message = null)
         {
@@ -912,8 +919,12 @@ FROM People;",
         public class MigrationsSqliteFixture : MigrationsFixtureBase
         {
             protected override string StoreName { get; } = nameof(MigrationsSqliteTest);
-            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
-            public override TestHelpers TestHelpers => SqliteTestHelpers.Instance;
+
+            protected override ITestStoreFactory TestStoreFactory
+                => SqliteTestStoreFactory.Instance;
+
+            public override TestHelpers TestHelpers
+                => SqliteTestHelpers.Instance;
 
             protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
                 => base.AddServices(serviceCollection)

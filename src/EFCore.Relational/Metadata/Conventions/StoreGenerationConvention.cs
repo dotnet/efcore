@@ -87,7 +87,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <inheritdoc />
-        public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        public virtual void ProcessModelFinalizing(
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {

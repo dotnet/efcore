@@ -211,9 +211,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Single(context.ChangeTracker.Entries());
         }
 
-        public override Task Include_with_cycle_does_not_throw_when_AsNoTrackingWithIdentityResolution(bool async) => Task.CompletedTask;
+        public override Task Include_with_cycle_does_not_throw_when_AsNoTrackingWithIdentityResolution(bool async)
+            => Task.CompletedTask;
 
-        protected override bool IgnoreEntryCount => true;
+        protected override bool IgnoreEntryCount
+            => true;
 
         protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)
         {

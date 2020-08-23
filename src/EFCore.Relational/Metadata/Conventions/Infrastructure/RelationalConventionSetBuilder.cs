@@ -67,7 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
 
             var tableNameFromDbSetConvention = new TableNameFromDbSetConvention(Dependencies, RelationalDependencies);
             conventionSet.EntityTypeAddedConventions.Add(new RelationalTableAttributeConvention(Dependencies, RelationalDependencies));
-            conventionSet.EntityTypeAddedConventions.Add(new RelationalTableCommentAttributeConvention(Dependencies, RelationalDependencies));
+            conventionSet.EntityTypeAddedConventions.Add(
+                new RelationalTableCommentAttributeConvention(Dependencies, RelationalDependencies));
             conventionSet.EntityTypeAddedConventions.Add(tableNameFromDbSetConvention);
 
             ValueGenerationConvention valueGenerationConvention =

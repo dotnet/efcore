@@ -429,7 +429,8 @@ FROM root c
 WHERE c[""Discriminator""] IN (""Eagle"", ""Kiwi"")");
         }
 
-        protected override bool EnforcesFkConstraints => false;
+        protected override bool EnforcesFkConstraints
+            => false;
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

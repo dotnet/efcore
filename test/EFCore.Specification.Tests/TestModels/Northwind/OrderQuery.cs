@@ -36,9 +36,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                 && Equals((OrderQuery)obj);
         }
 
-        public static bool operator ==(OrderQuery left, OrderQuery right) => Equals(left, right);
+        public static bool operator ==(OrderQuery left, OrderQuery right)
+            => Equals(left, right);
 
-        public static bool operator !=(OrderQuery left, OrderQuery right) => !Equals(left, right);
+        public static bool operator !=(OrderQuery left, OrderQuery right)
+            => !Equals(left, right);
 
         public override int GetHashCode()
         {

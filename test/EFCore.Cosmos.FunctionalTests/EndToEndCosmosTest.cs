@@ -4,10 +4,8 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -216,10 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
                 var entry = context.Add(customer);
 
-                entry.Property<JObject>("__jObject").CurrentValue = new JObject
-                {
-                    ["key1"] = "value1"
-                };
+                entry.Property<JObject>("__jObject").CurrentValue = new JObject { ["key1"] = "value1" };
 
                 context.SaveChanges();
 
@@ -303,10 +298,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
                 var entry = context.Add(customer);
 
-                entry.Property<JObject>("__jObject").CurrentValue = new JObject
-                {
-                    ["key1"] = "value1"
-                };
+                entry.Property<JObject>("__jObject").CurrentValue = new JObject { ["key1"] = "value1" };
 
                 await context.SaveChangesAsync();
 
@@ -365,7 +357,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         {
             var options = Fixture.CreateOptions();
 
-            var customer = new CustomerGuid { Id = Guid.NewGuid(), Name = "Theon", PartitionKey = 42 };
+            var customer = new CustomerGuid
+            {
+                Id = Guid.NewGuid(),
+                Name = "Theon",
+                PartitionKey = 42
+            };
 
             using (var context = new CustomerContextGuid(options))
             {
@@ -455,12 +452,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<CustomerGuid>(cb =>
-                {
-                    cb.Property(c => c.Id).HasConversion<string>().ToJsonProperty("id");
-                    cb.Property(c => c.PartitionKey).HasConversion<string>().ToJsonProperty("pk");
-                    cb.HasPartitionKey(c => c.PartitionKey);
-                });
+                modelBuilder.Entity<CustomerGuid>(
+                    cb =>
+                    {
+                        cb.Property(c => c.Id).HasConversion<string>().ToJsonProperty("id");
+                        cb.Property(c => c.PartitionKey).HasConversion<string>().ToJsonProperty("pk");
+                        cb.HasPartitionKey(c => c.PartitionKey);
+                    });
             }
         }
 
@@ -482,8 +480,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             {
                 await context.Database.EnsureCreatedAsync();
 
-                Assert.Null(context.Model.FindEntityType(typeof(CustomerWithResourceId))
-                    .FindProperty(StoreKeyConvention.DefaultIdPropertyName));
+                Assert.Null(
+                    context.Model.FindEntityType(typeof(CustomerWithResourceId))
+                        .FindProperty(StoreKeyConvention.DefaultIdPropertyName));
 
                 context.Add(customer);
                 context.Add(
@@ -589,7 +588,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             {
                 context.Database.EnsureCreated();
 
-                Assert.Equal(CosmosStrings.InvalidResourceId,
+                Assert.Equal(
+                    CosmosStrings.InvalidResourceId,
                     Assert.Throws<InvalidOperationException>(() => context.Set<CustomerWithResourceId>().Find(1, "")).Message);
             }
         }
@@ -739,7 +739,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 Assert.Equal(42, customerFromStore.Id);
                 Assert.Equal("Theon", customerFromStore.Name);
                 Assert.Equal(pk1, customerFromStore.PartitionKey);
-                AssertSql(context, @"@__p_1='42'
+                AssertSql(
+                    context, @"@__p_1='42'
 
 SELECT c
 FROM root c
@@ -799,11 +800,7 @@ OFFSET 0 LIMIT 1");
         {
             var options = Fixture.CreateOptions();
 
-            var customer = new CustomerNoPartitionKey
-            {
-                Id = 42,
-                Name = "Theon"
-            };
+            var customer = new CustomerNoPartitionKey { Id = 42, Name = "Theon" };
 
             await using (var context = new PartitionKeyContextEntityWithNoPartitionKey(options))
             {
@@ -829,11 +826,7 @@ OFFSET 0 LIMIT 1");
         {
             var options = Fixture.CreateOptions();
 
-            var customer = new Customer
-            {
-                Id = 42,
-                Name = "Theon"
-            };
+            var customer = new Customer { Id = 42, Name = "Theon" };
 
             await using (var context = new PartitionKeyContextPrimaryKey(options))
             {
@@ -859,11 +852,7 @@ OFFSET 0 LIMIT 1");
         {
             var options = Fixture.CreateOptions();
 
-            var customer = new CustomerWithResourceId
-            {
-                id = "42",
-                Name = "Theon"
-            };
+            var customer = new CustomerWithResourceId { id = "42", Name = "Theon" };
 
             await using (var context = new PartitionKeyContextWithPrimaryKeyResourceId(options))
             {
@@ -880,7 +869,8 @@ OFFSET 0 LIMIT 1");
 
                 Assert.Equal("42", customerFromStore.id);
                 Assert.Equal("Theon", customerFromStore.Name);
-                AssertSql(context, @"@__p_0='42'
+                AssertSql(
+                    context, @"@__p_0='42'
 
 SELECT c
 FROM root c
@@ -941,7 +931,7 @@ OFFSET 0 LIMIT 1");
                         cb.Property(c => c.PartitionKey).HasConversion<string>();
 
                         cb.HasPartitionKey(c => c.PartitionKey);
-                        cb.HasKey(c => new { c.PartitionKey, c.Id});
+                        cb.HasKey(c => new { c.PartitionKey, c.Id });
                     });
             }
         }
@@ -1411,7 +1401,9 @@ OFFSET 0 LIMIT 1");
                 TestStore = CosmosTestStore.Create(DatabaseName);
             }
 
-            protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => CosmosTestStoreFactory.Instance;
+
             public virtual CosmosTestStore TestStore { get; }
 
             public DbContextOptions CreateOptions()
@@ -1421,9 +1413,11 @@ OFFSET 0 LIMIT 1");
                 return CreateOptions(TestStore);
             }
 
-            public Task InitializeAsync() => Task.CompletedTask;
+            public Task InitializeAsync()
+                => Task.CompletedTask;
 
-            public Task DisposeAsync() => TestStore.DisposeAsync();
+            public Task DisposeAsync()
+                => TestStore.DisposeAsync();
         }
     }
 }

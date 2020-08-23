@@ -357,7 +357,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static PropertyBase AsPropertyBase(
-            [NotNull] this IPropertyBase propertyBase, [NotNull] [CallerMemberName] string methodName = "")
+            [NotNull] this IPropertyBase propertyBase,
+            [NotNull] [CallerMemberName] string methodName = "")
             => MetadataExtensions.AsConcreteMetadataType<IPropertyBase, PropertyBase>(propertyBase, methodName);
     }
 }

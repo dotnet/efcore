@@ -313,7 +313,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         }
 
         private static readonly List<string> _nameBasesUsingPrecision =
-            new List<string> { "decimal", "dec", "numeric", "datetime2", "datetimeoffset", "double precision", "float" };
+            new List<string>
+            {
+                "decimal",
+                "dec",
+                "numeric",
+                "datetime2",
+                "datetimeoffset",
+                "double precision",
+                "float"
+            };
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

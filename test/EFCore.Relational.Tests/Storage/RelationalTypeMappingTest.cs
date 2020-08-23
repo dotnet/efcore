@@ -349,7 +349,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         protected virtual void Test_GenerateSqlLiteral_helper(
-            RelationalTypeMapping typeMapping, object value, string literalValue)
+            RelationalTypeMapping typeMapping,
+            object value,
+            string literalValue)
         {
             Assert.Equal(literalValue, typeMapping.GenerateSqlLiteral(value));
         }

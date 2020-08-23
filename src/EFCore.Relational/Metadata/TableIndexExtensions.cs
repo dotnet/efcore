@@ -58,8 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     .Append(" Filtered");
             }
 
-            if (!singleLine &&
-                (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {
                 builder.Append(index.AnnotationsToDebugString(indent + 2));
             }

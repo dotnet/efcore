@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     new RelationalSqlGenerationHelper(
                         new RelationalSqlGenerationHelperDependencies())));
 
-        class DummyQuerySqlGenerator : QuerySqlGenerator
+        private class DummyQuerySqlGenerator : QuerySqlGenerator
         {
             public DummyQuerySqlGenerator([NotNull] QuerySqlGeneratorDependencies dependencies)
                 : base(dependencies)

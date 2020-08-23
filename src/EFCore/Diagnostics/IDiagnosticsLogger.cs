@@ -61,10 +61,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         IInterceptors Interceptors { get; }
 
         /// <summary>
-        ///     Checks whether or not the message should be sent to the <see cref="ILogger"/>.
+        ///     Checks whether or not the message should be sent to the <see cref="ILogger" />.
         /// </summary>
         /// <param name="definition"> The definition of the event to log. </param>
-        /// <returns> <see langword="true"/> if <see cref="ILogger"/> logging is enabled and the event should not be ignored; <see langword="false"/> otherwise. </returns>
+        /// <returns>
+        ///     <see langword="true" /> if <see cref="ILogger" /> logging is enabled and the event should not be ignored;
+        ///     <see langword="false" /> otherwise.
+        /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] // Because hot path for logging
         bool ShouldLog([NotNull] EventDefinitionBase definition)
             // No null checks; low-level code in hot path for logging.
@@ -78,8 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="definition"> The definition of the event to log. </param>
         /// <param name="eventData"> The event data. </param>
-        /// <param name="diagnosticSourceEnabled"> True to dispatch to a <see cref="DiagnosticSource" />; <see langword="false"/> otherwise. </param>
-        /// <param name="simpleLogEnabled"> True to dispatch to a <see cref="IDbContextLogger" />; <see langword="false"/> otherwise. </param>
+        /// <param name="diagnosticSourceEnabled"> True to dispatch to a <see cref="DiagnosticSource" />; <see langword="false" /> otherwise. </param>
+        /// <param name="simpleLogEnabled"> True to dispatch to a <see cref="IDbContextLogger" />; <see langword="false" /> otherwise. </param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] // Because hot path for logging
         void DispatchEventData(
             [NotNull] EventDefinitionBase definition,
@@ -106,9 +109,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     the given event.
         /// </summary>
         /// <param name="definition"> The definition of the event. </param>
-        /// <param name="diagnosticSourceEnabled"> Set to <see langword="true"/> if a <see cref="DiagnosticSource" /> is enabled; <see langword="false"/> otherwise. </param>
-        /// <param name="simpleLogEnabled"> True to <see langword="true"/> if a <see cref="IDbContextLogger" /> is enabled; <see langword="false"/> otherwise. </param>
-        /// <returns> <see langword="true"/> if either a diagnostic source or a LogTo logger is enabled; <see langword="false"/> otherwise. </returns>
+        /// <param name="diagnosticSourceEnabled">
+        ///     Set to <see langword="true" /> if a <see cref="DiagnosticSource" /> is enabled;
+        ///     <see langword="false" /> otherwise.
+        /// </param>
+        /// <param name="simpleLogEnabled">
+        ///     True to <see langword="true" /> if a <see cref="IDbContextLogger" /> is enabled; <see langword="false" />
+        ///     otherwise.
+        /// </param>
+        /// <returns> <see langword="true" /> if either a diagnostic source or a LogTo logger is enabled; <see langword="false" /> otherwise. </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] // Because hot path for logging
         bool NeedsEventData(
             [NotNull] EventDefinitionBase definition,
@@ -133,9 +142,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="definition"> The definition of the event. </param>
         /// <param name="interceptor"> The <see cref="IInterceptor" /> to use if enabled; otherwise null. </param>
-        /// <param name="diagnosticSourceEnabled"> Set to <see langword="true"/> if a <see cref="DiagnosticSource" /> is enabled; <see langword="false"/> otherwise. </param>
-        /// <param name="simpleLogEnabled"> True to <see langword="true"/> if a <see cref="IDbContextLogger" /> is enabled; <see langword="false"/> otherwise. </param>
-        /// <returns> <see langword="true"/> if either a diagnostic source, a LogTo logger, or an interceptor is enabled; <see langword="false"/> otherwise. </returns>
+        /// <param name="diagnosticSourceEnabled">
+        ///     Set to <see langword="true" /> if a <see cref="DiagnosticSource" /> is enabled;
+        ///     <see langword="false" /> otherwise.
+        /// </param>
+        /// <param name="simpleLogEnabled">
+        ///     True to <see langword="true" /> if a <see cref="IDbContextLogger" /> is enabled; <see langword="false" />
+        ///     otherwise.
+        /// </param>
+        /// <returns>
+        ///     <see langword="true" /> if either a diagnostic source, a LogTo logger, or an interceptor is enabled; <see langword="false" />
+        ///     otherwise.
+        /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] // Because hot path for logging
         bool NeedsEventData<TInterceptor>(
             [NotNull] EventDefinitionBase definition,

@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -12,7 +11,8 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class EndToEndInMemoryTest : IClassFixture<InMemoryFixture>
     {
-        public EndToEndInMemoryTest(InMemoryFixture fixture) => Fixture = fixture;
+        public EndToEndInMemoryTest(InMemoryFixture fixture)
+            => Fixture = fixture;
 
         protected InMemoryFixture Fixture { get; }
 

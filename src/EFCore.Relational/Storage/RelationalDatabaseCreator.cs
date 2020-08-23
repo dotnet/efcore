@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     contains the schema for the current model.
         /// </summary>
         /// <returns>
-        ///     <see langword="true"/> if the database exists; otherwise <see langword="false"/>.
+        ///     <see langword="true" /> if the database exists; otherwise <see langword="false" />.
         /// </returns>
         public abstract bool Exists();
 
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains
-        ///     <see langword="true"/> if the database exists; otherwise <see langword="false"/>.
+        ///     <see langword="true" /> if the database exists; otherwise <see langword="false" />.
         /// </returns>
         public virtual Task<bool> ExistsAsync(CancellationToken cancellationToken = default)
         {
@@ -139,7 +139,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="options"> The options to use when generating commands. </param>
         /// <returns> The generated commands. </returns>
-        protected virtual IReadOnlyList<MigrationCommand> GetCreateTablesCommands(MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
+        protected virtual IReadOnlyList<MigrationCommand> GetCreateTablesCommands(
+            MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
             => Dependencies.MigrationsSqlGenerator.Generate(
                 Dependencies.ModelDiffer.GetDifferences(null, Dependencies.Model.GetRelationalModel()), Dependencies.Model, options);
 
@@ -177,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         /// <returns>
-        ///     <see langword="true"/> if the database is deleted, <see langword="false"/> if it did not exist.
+        ///     <see langword="true" /> if the database is deleted, <see langword="false" /> if it did not exist.
         /// </returns>
         public virtual bool EnsureDeleted()
         {
@@ -202,8 +203,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
-        ///     A task that represents the asynchronous save operation. The task result contains <see langword="true"/>
-        ///     if the database is deleted, <see langword="false"/> if it did not exist.
+        ///     A task that represents the asynchronous save operation. The task result contains <see langword="true" />
+        ///     if the database is deleted, <see langword="false" /> if it did not exist.
         /// </returns>
         public virtual async Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default)
         {
@@ -223,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     to ensure it is compatible with the model for this context.
         /// </summary>
         /// <returns>
-        ///     <see langword="true"/> if the database is created, <see langword="false"/> if it already existed.
+        ///     <see langword="true" /> if the database is created, <see langword="false" /> if it already existed.
         /// </returns>
         public virtual bool EnsureCreated()
         {
@@ -253,8 +254,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
-        ///     A task that represents the asynchronous save operation. The task result contains <see langword="true"/>
-        ///     if the database is created, <see langword="false"/> if it already existed.
+        ///     A task that represents the asynchronous save operation. The task result contains <see langword="true" />
+        ///     if the database is created, <see langword="false" /> if it already existed.
         /// </returns>
         public virtual async Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
         {

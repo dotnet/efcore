@@ -3,11 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -351,8 +351,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public override Expression Visit(Expression expression)
                 => expression?.Type != typeof(object)
                     && expression?.Type.IsAssignableFrom(_contextType) == true
-                    ? ContextParameterExpression
-                    : base.Visit(expression);
+                        ? ContextParameterExpression
+                        : base.Visit(expression);
         }
 
         private static Expression RemoveConvert(Expression expression)
@@ -466,7 +466,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private IDictionary<Expression, bool> _evaluatableExpressions;
 
             public EvaluatableExpressionFindingExpressionVisitor(
-                IEvaluatableExpressionFilter evaluatableExpressionFilter, IModel model, bool parameterize)
+                IEvaluatableExpressionFilter evaluatableExpressionFilter,
+                IModel model,
+                bool parameterize)
             {
                 _evaluatableExpressionFilter = evaluatableExpressionFilter;
                 _model = model;
@@ -627,7 +629,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private static bool IsEvaluatableNodeType(Expression expression)
                 => expression.NodeType != ExpressionType.Extension
                     || expression.CanReduce
-                        && IsEvaluatableNodeType(expression.ReduceAndCheck());
+                    && IsEvaluatableNodeType(expression.ReduceAndCheck());
 
             private static bool IsQueryableMethod(Expression expression)
                 => expression is MethodCallExpression methodCallExpression

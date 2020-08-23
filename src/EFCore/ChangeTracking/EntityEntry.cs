@@ -61,7 +61,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     Gets the entity being tracked by this entry.
         /// </summary>
-        public virtual object Entity => InternalEntry.Entity;
+        public virtual object Entity
+            => InternalEntry.Entity;
 
         /// <summary>
         ///     <para>
@@ -114,17 +115,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        InternalEntityEntry IInfrastructure<InternalEntityEntry>.Instance => InternalEntry;
+        InternalEntityEntry IInfrastructure<InternalEntityEntry>.Instance
+            => InternalEntry;
 
         /// <summary>
         ///     Gets the context that is tracking the entity.
         /// </summary>
-        public virtual DbContext Context => InternalEntry.StateManager.Context;
+        public virtual DbContext Context
+            => InternalEntry.StateManager.Context;
 
         /// <summary>
         ///     Gets the metadata about the shape of the entity, its relationships to other entities, and how it maps to the database.
         /// </summary>
-        public virtual IEntityType Metadata => InternalEntry.EntityType;
+        public virtual IEntityType Metadata
+            => InternalEntry.EntityType;
 
         /// <summary>
         ///     Provides access to change tracking information and operations for a given
@@ -286,7 +290,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         true since any value is considered a valid key value.
         ///     </para>
         /// </summary>
-        public virtual bool IsKeySet => InternalEntry.IsKeySet.IsSet;
+        public virtual bool IsKeySet
+            => InternalEntry.IsKeySet.IsSet;
 
         /// <summary>
         ///     Gets the current property values for this entity.
@@ -372,7 +377,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         not yet have had its permanent key value created.
         ///     </para>
         /// </summary>
-        public virtual void Reload() => Reload(GetDatabaseValues());
+        public virtual void Reload()
+            => Reload(GetDatabaseValues());
 
         /// <summary>
         ///     <para>
@@ -420,7 +426,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Returns a string that represents the current object.
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
-        public override string ToString() => InternalEntry.ToString();
+        public override string ToString()
+            => InternalEntry.ToString();
 
         /// <summary>
         ///     <para>
@@ -442,16 +449,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
+        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => base.Equals(obj);
+        public override bool Equals(object obj)
+            => base.Equals(obj);
 
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
         /// <returns> A hash code for the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode()
+            => base.GetHashCode();
 
         #endregion
     }

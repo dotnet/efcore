@@ -33,7 +33,8 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TFixture Fixture { get; }
 
-        protected DbContext CreateContext() => Fixture.CreateContext();
+        protected DbContext CreateContext()
+            => Fixture.CreateContext();
 
         protected virtual void ExecuteWithStrategyInTransaction(Action<DbContext> testOperation)
             => TestHelpers.ExecuteWithStrategyInTransaction(CreateContext, UseTransaction, testOperation);
@@ -45,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore
         public virtual ModelBuilder CreateModelBuilder()
         {
             var context = CreateContext();
-            return new ModelBuilder(context.GetService<IConventionSetBuilder>().CreateConventionSet(),
+            return new ModelBuilder(
+                context.GetService<IConventionSetBuilder>().CreateConventionSet(),
                 context.GetService<ModelDependencies>());
         }
 

@@ -208,7 +208,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [ConditionalFact]
         public void Can_only_override_existing_CustomValueGenerator_factory_explicitly()
         {
-            ValueGenerator factory(IProperty p, IEntityType e) => new CustomValueGenerator1();
+            ValueGenerator factory(IProperty p, IEntityType e)
+                => new CustomValueGenerator1();
 
             var metadata = CreateProperty();
             metadata.SetValueGeneratorFactory(factory);
@@ -299,7 +300,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new NotImplementedException();
             }
 
-            public override bool GeneratesTemporaryValues => false;
+            public override bool GeneratesTemporaryValues
+                => false;
         }
 
         private class CustomValueGenerator2 : ValueGenerator<string>
@@ -309,7 +311,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new NotImplementedException();
             }
 
-            public override bool GeneratesTemporaryValues => false;
+            public override bool GeneratesTemporaryValues
+                => false;
         }
 
         [ConditionalFact]
@@ -464,7 +467,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return entityBuilder.Property(Customer.NameProperty, ConfigurationSource.Convention);
         }
 
-        private Property CreateProperty() => CreateInternalPropertyBuilder().Metadata;
+        private Property CreateProperty()
+            => CreateInternalPropertyBuilder().Metadata;
 
         private class Customer
         {

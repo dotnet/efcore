@@ -43,7 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 Assert.Throws<InvalidOperationException>(() => CreatePropertyMappingValidator()(modelBuilder.Metadata)).Message);
         }
 
-        protected override TestHelpers TestHelpers => RelationalTestHelpers.Instance;
+        protected override TestHelpers TestHelpers
+            => RelationalTestHelpers.Instance;
 
         protected override IModelValidator CreateModelValidator()
         {

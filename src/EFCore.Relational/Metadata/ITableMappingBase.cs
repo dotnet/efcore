@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     Gets the value indicating whether the mapped table-like object includes rows for the derived entity types.
-        ///     Set to <see langword="false"/> for inherited mappings.
+        ///     Set to <see langword="false" /> for inherited mappings.
         /// </summary>
         bool IncludesDerivedTypes { get; }
     }

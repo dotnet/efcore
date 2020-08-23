@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -57,7 +56,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return comparer == null ? value : comparer.Snapshot(value);
             }
 
-            public bool IsEmpty => _values == null;
+            public bool IsEmpty
+                => _values == null;
         }
     }
 }

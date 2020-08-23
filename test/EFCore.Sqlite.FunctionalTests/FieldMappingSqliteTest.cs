@@ -22,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public abstract class FieldMappingSqliteFixtureBase : FieldMappingFixtureBase
             {
-                protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+                protected override ITestStoreFactory TestStoreFactory
+                    => SqliteTestStoreFactory.Instance;
             }
         }
 

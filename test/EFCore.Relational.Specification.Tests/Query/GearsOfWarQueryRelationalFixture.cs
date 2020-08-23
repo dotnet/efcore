@@ -7,9 +7,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class GearsOfWarQueryRelationalFixture : GearsOfWarQueryFixtureBase
     {
-        public new RelationalTestStore TestStore => (RelationalTestStore)base.TestStore;
+        public new RelationalTestStore TestStore
+            => (RelationalTestStore)base.TestStore;
 
-        public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
+        public TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)ListLoggerFactory;
 
         protected override bool ShouldLogCategory(string logCategory)
             => logCategory == DbLoggerCategory.Query.Name;

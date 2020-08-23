@@ -13,16 +13,20 @@ using Xunit.Abstractions;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindMiscellaneousQuerySqlServerTest : NorthwindMiscellaneousQueryRelationalTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    public class NorthwindMiscellaneousQuerySqlServerTest : NorthwindMiscellaneousQueryRelationalTestBase<
+        NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
-        public NorthwindMiscellaneousQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+        public NorthwindMiscellaneousQuerySqlServerTest(
+            NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture,
+            ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             ClearLog();
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        protected override bool CanExecuteQueryString => true;
+        protected override bool CanExecuteQueryString
+            => true;
 
         public override void Shaper_command_caching_when_parameter_names_different()
         {
@@ -108,13 +112,13 @@ ORDER BY [t0].[CustomerID]");
                     {
                         var orderDetails = context.OrderDetails;
 
-                        Customer Query(NorthwindContext param) =>
-                            (from c in context.Customers
-                             from o in context.Set<Order>()
-                             from od in orderDetails
-                             from e1 in param.Employees
-                             from e2 in param.Set<Order>()
-                             select c).First();
+                        Customer Query(NorthwindContext param)
+                            => (from c in context.Customers
+                                from o in context.Set<Order>()
+                                from od in orderDetails
+                                from e1 in param.Employees
+                                from e2 in param.Set<Order>()
+                                select c).First();
 
                         Assert.NotNull(Query(context));
 
@@ -5127,7 +5131,8 @@ FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]");
         }
 
-        public override async Task Pending_selector_in_cardinality_reducing_method_is_applied_before_expanding_collection_navigation_member(bool async)
+        public override async Task Pending_selector_in_cardinality_reducing_method_is_applied_before_expanding_collection_navigation_member(
+            bool async)
         {
             await base.Pending_selector_in_cardinality_reducing_method_is_applied_before_expanding_collection_navigation_member(async);
 

@@ -366,6 +366,7 @@ FROM [Customers]"))
         private FormattableString NormalizeDelimitersInInterpolatedString(FormattableString sql)
             => Fixture.TestStore.NormalizeDelimitersInInterpolatedString(sql);
 
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
+        protected NorthwindContext CreateContext()
+            => Fixture.CreateContext();
     }
 }

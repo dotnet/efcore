@@ -22,6 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal
         /// </summary>
         public static bool IsEmbedded([NotNull] this INavigation navigation)
             => !navigation.IsOnDependent
-               && !navigation.ForeignKey.DeclaringEntityType.IsDocumentRoot();
+                && !navigation.ForeignKey.DeclaringEntityType.IsDocumentRoot();
     }
 }

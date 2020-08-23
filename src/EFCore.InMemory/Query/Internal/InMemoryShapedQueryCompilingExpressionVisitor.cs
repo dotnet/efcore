@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -91,7 +90,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 innerEnumerable,
                 Expression.Constant(shaperLambda.Compile()),
                 Expression.Constant(_contextType),
-                Expression.Constant(QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution));
+                Expression.Constant(
+                    QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution));
         }
 
         private static readonly MethodInfo _tableMethodInfo

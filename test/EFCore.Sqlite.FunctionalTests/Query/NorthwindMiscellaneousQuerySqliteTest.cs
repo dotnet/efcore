@@ -12,10 +12,13 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindMiscellaneousQuerySqliteTest : NorthwindMiscellaneousQueryRelationalTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
+    public class NorthwindMiscellaneousQuerySqliteTest : NorthwindMiscellaneousQueryRelationalTestBase<
+        NorthwindQuerySqliteFixture<NoopModelCustomizer>>
     {
         // ReSharper disable once UnusedParameter.Local
-        public NorthwindMiscellaneousQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+        public NorthwindMiscellaneousQuerySqliteTest(
+            NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture,
+            ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
@@ -239,7 +242,8 @@ FROM (
         public override Task Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result(bool async)
             => null;
 
-        public override Task SelectMany_correlated_subquery_hard(bool async) => null;
+        public override Task SelectMany_correlated_subquery_hard(bool async)
+            => null;
 
         public override async Task Concat_string_int(bool async)
         {
@@ -285,13 +289,11 @@ FROM ""Orders"" AS ""o""");
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.DefaultIfEmpty_in_subquery_nested_filter_order_comparison(async))).Message);
 
-
         public override async Task Select_subquery_recursive_trivial(bool async)
             => Assert.Equal(
                 SqliteStrings.ApplyNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Select_subquery_recursive_trivial(async))).Message);
-
 
         public override async Task Select_correlated_subquery_ordered(bool async)
             => Assert.Equal(

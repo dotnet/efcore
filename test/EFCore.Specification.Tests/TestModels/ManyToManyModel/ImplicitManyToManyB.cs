@@ -11,6 +11,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
     {
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public virtual int Id { get; set; }
+
         public virtual string Name { get; set; }
 
         public virtual ICollection<ImplicitManyToManyA> As { get; } = new ObservableCollection<ImplicitManyToManyA>();

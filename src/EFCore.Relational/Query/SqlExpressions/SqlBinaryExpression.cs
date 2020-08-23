@@ -56,8 +56,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="operatorType"> The operator to apply. </param>
         /// <param name="left"> An expression which is left operand. </param>
         /// <param name="right"> An expression which is right operand. </param>
-        /// <param name="type"> The <see cref="Type"/> of the expression. </param>
-        /// <param name="typeMapping"> The <see cref="RelationalTypeMapping"/> associated with the expression. </param>
+        /// <param name="type"> The <see cref="Type" /> of the expression. </param>
+        /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
         public SqlBinaryExpression(
             ExpressionType operatorType,
             [NotNull] SqlExpression left,
@@ -71,8 +71,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             if (!IsValidOperator(operatorType))
             {
-                throw new InvalidOperationException(RelationalStrings.UnsupportedOperatorForSqlExpression(
-                    operatorType, typeof(SqlBinaryExpression).ShortDisplayName()));
+                throw new InvalidOperationException(
+                    RelationalStrings.UnsupportedOperatorForSqlExpression(
+                        operatorType, typeof(SqlBinaryExpression).ShortDisplayName()));
             }
 
             OperatorType = operatorType;
@@ -84,10 +85,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     The operator of this SQL binary operation.
         /// </summary>
         public virtual ExpressionType OperatorType { get; }
+
         /// <summary>
         ///     The left operand.
         /// </summary>
         public virtual SqlExpression Left { get; }
+
         /// <summary>
         ///     The right operand.
         /// </summary>
@@ -108,8 +111,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="left"> The <see cref="Left"/> property of the result. </param>
-        /// <param name="right"> The <see cref="Right"/> property of the result. </param>
+        /// <param name="left"> The <see cref="Left" /> property of the result. </param>
+        /// <param name="right"> The <see cref="Right" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual SqlBinaryExpression Update([NotNull] SqlExpression left, [NotNull] SqlExpression right)
         {
@@ -156,7 +159,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 expressionPrinter.Append(")");
             }
 
-            static bool RequiresBrackets(SqlExpression expression) => expression is SqlBinaryExpression || expression is LikeExpression;
+            static bool RequiresBrackets(SqlExpression expression)
+                => expression is SqlBinaryExpression || expression is LikeExpression;
         }
 
         /// <inheritdoc />
@@ -173,6 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 && Right.Equals(sqlBinaryExpression.Right);
 
         /// <inheritdoc />
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), OperatorType, Left, Right);
+        public override int GetHashCode()
+            => HashCode.Combine(base.GetHashCode(), OperatorType, Left, Right);
     }
 }

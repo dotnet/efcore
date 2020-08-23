@@ -1821,7 +1821,6 @@ FROM [Entities1] AS [e]
 WHERE 0 = 1");
         }
 
-
         public override async Task Empty_subquery_with_contains_negated_returns_true(bool async)
         {
             await base.Empty_subquery_with_contains_negated_returns_true(async);
@@ -1830,6 +1829,7 @@ WHERE 0 = 1");
                 @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
 FROM [Entities1] AS [e]");
         }
+
         public override async Task Nullable_string_FirstOrDefault_compared_to_nullable_string_LastOrDefault(bool async)
         {
             await base.Nullable_string_FirstOrDefault_compared_to_nullable_string_LastOrDefault(async);

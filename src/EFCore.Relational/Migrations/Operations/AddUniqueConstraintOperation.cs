@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string[] Columns { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     Creates a new <see cref="AddUniqueConstraintOperation"/> from the specified unique constraint.
+        ///     Creates a new <see cref="AddUniqueConstraintOperation" /> from the specified unique constraint.
         /// </summary>
         /// <param name="uniqueConstraint"> The unique constraint. </param>
         /// <returns> The operation. </returns>

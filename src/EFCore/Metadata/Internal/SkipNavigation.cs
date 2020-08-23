@@ -76,7 +76,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override Type ClrType => this.GetIdentifyingMemberInfo()?.GetMemberType();
+        public override Type ClrType
+            => this.GetIdentifyingMemberInfo()?.GetMemberType();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -108,7 +109,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override TypeBase DeclaringType => DeclaringEntityType;
+        public override TypeBase DeclaringType
+            => DeclaringEntityType;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -116,7 +118,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual EntityType JoinEntityType => IsOnDependent ? ForeignKey?.PrincipalEntityType : ForeignKey?.DeclaringEntityType;
+        public virtual EntityType JoinEntityType
+            => IsOnDependent ? ForeignKey?.PrincipalEntityType : ForeignKey?.DeclaringEntityType;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -194,10 +197,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (Inverse?.JoinEntityType != null
                 && Inverse.JoinEntityType != JoinEntityType)
             {
-                throw new InvalidOperationException(CoreStrings.SkipInverseMismatchedForeignKey(
-                    foreignKey.Properties.Format(),
-                    Name, JoinEntityType.DisplayName(),
-                    Inverse.Name, Inverse.JoinEntityType.DisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.SkipInverseMismatchedForeignKey(
+                        foreignKey.Properties.Format(),
+                        Name, JoinEntityType.DisplayName(),
+                        Inverse.Name, Inverse.JoinEntityType.DisplayName()));
             }
 
             return isChanging
@@ -247,16 +251,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (inverse.DeclaringEntityType != TargetEntityType)
             {
-                throw new InvalidOperationException(CoreStrings.SkipNavigationWrongInverse(
-                    inverse.Name, inverse.DeclaringEntityType.DisplayName(), Name, TargetEntityType.DisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.SkipNavigationWrongInverse(
+                        inverse.Name, inverse.DeclaringEntityType.DisplayName(), Name, TargetEntityType.DisplayName()));
             }
 
             if (inverse.JoinEntityType != null
                 && JoinEntityType != null
                 && inverse.JoinEntityType != JoinEntityType)
             {
-                throw new InvalidOperationException(CoreStrings.SkipInverseMismatchedJoinType(
-                    inverse.Name, inverse.JoinEntityType.DisplayName(), Name, JoinEntityType.DisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.SkipInverseMismatchedJoinType(
+                        inverse.Name, inverse.JoinEntityType.DisplayName(), Name, JoinEntityType.DisplayName()));
             }
 
             Inverse = inverse;
@@ -303,7 +309,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <param name="oldAnnotation"> The old annotation. </param>
         /// <returns> The annotation that was set. </returns>
         protected override IConventionAnnotation OnAnnotationSet(
-            string name, IConventionAnnotation annotation, IConventionAnnotation oldAnnotation)
+            string name,
+            IConventionAnnotation annotation,
+            IConventionAnnotation oldAnnotation)
             => DeclaringType.Model.ConventionDispatcher.OnSkipNavigationAnnotationChanged(
                 Builder, name, annotation, oldAnnotation);
 
@@ -345,7 +353,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+        public override string ToString()
+            => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <inheritdoc />
         IConventionSkipNavigationBuilder IConventionSkipNavigation.Builder
@@ -390,7 +399,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <inheritdoc />
         [DebuggerStepThrough]
         IConventionForeignKey IConventionSkipNavigation.SetForeignKey([CanBeNull] IConventionForeignKey foreignKey, bool fromDataAnnotation)
-            => SetForeignKey((ForeignKey)foreignKey, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+            => SetForeignKey(
+                (ForeignKey)foreignKey, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         ISkipNavigation ISkipNavigation.Inverse
@@ -406,7 +416,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionSkipNavigation IConventionSkipNavigation.SetInverse([CanBeNull] IConventionSkipNavigation inverse, bool fromDataAnnotation)
-            => SetInverse((SkipNavigation)inverse, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        IConventionSkipNavigation IConventionSkipNavigation.SetInverse(
+            [CanBeNull] IConventionSkipNavigation inverse,
+            bool fromDataAnnotation)
+            => SetInverse(
+                (SkipNavigation)inverse, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

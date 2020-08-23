@@ -58,20 +58,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
 
-                modelBuilder.Entity<OneToOnePrincipalWithField>(e =>
-                {
-                    e.Property(p => p.Id);
-                    e.Property(p => p.Name);
-                    e.HasKey(p => p.Id);
-                });
-                modelBuilder.Entity<DependentWithField>(e =>
-                {
-                    e.Property(d => d.DependentWithFieldId);
-                    e.Property(d => d.OneToOnePrincipalId);
-                    e.Ignore(d => d.ManyToManyPrincipals);
-                    e.Ignore(d => d.OneToManyPrincipal);
-                    e.HasKey(d => d.DependentWithFieldId);
-                });
+                modelBuilder.Entity<OneToOnePrincipalWithField>(
+                    e =>
+                    {
+                        e.Property(p => p.Id);
+                        e.Property(p => p.Name);
+                        e.HasKey(p => p.Id);
+                    });
+                modelBuilder.Entity<DependentWithField>(
+                    e =>
+                    {
+                        e.Property(d => d.DependentWithFieldId);
+                        e.Property(d => d.OneToOnePrincipalId);
+                        e.Ignore(d => d.ManyToManyPrincipals);
+                        e.Ignore(d => d.OneToManyPrincipal);
+                        e.HasKey(d => d.DependentWithFieldId);
+                    });
 
                 modelBuilder.Entity<DependentWithField>()
                     .HasOne(d => d.OneToOnePrincipal)
@@ -3415,14 +3417,17 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .HasOne(e => e.Nob).WithOne(e => e.Hob)
                     .IsRequired();
 
-                Assert.Contains(modelBuilder.ModelLoggerFactory.Log, l => l.Level == LogLevel.Warning
-                    && l.Message == CoreResources.LogAmbiguousEndRequired(new TestLogger<TestLoggingDefinitions>())
-                        .GenerateMessage("{'NobId11', 'NobId21'}", typeof(Hob).Name));
+                Assert.Contains(
+                    modelBuilder.ModelLoggerFactory.Log, l => l.Level == LogLevel.Warning
+                        && l.Message
+                        == CoreResources.LogAmbiguousEndRequired(new TestLogger<TestLoggingDefinitions>())
+                            .GenerateMessage("{'NobId11', 'NobId21'}", typeof(Hob).Name));
 
                 Assert.Equal(
                     CoreStrings.AmbiguousEndRequiredInverted("{'NobId11', 'NobId21'}", typeof(Hob).Name, typeof(Nob).Name),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        foreignKeyBuilder.HasForeignKey<Nob>()).Message);
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            foreignKeyBuilder.HasForeignKey<Nob>()).Message);
             }
 
             [ConditionalFact]
@@ -4026,7 +4031,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.False(fk.Properties.Single().IsShadowProperty());
                 Assert.Equal(OneToOnePrincipalEntity.EntityMatchingProperty.Name, fk.Properties.Single().Name);
             }
-
 
             [ConditionalFact]
             public virtual void Multiple_self_referencing_navigations_throw_as_ambiguous()

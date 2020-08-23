@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Query;
+using MethodInfoExtensions = Microsoft.EntityFrameworkCore.Infrastructure.MethodInfoExtensions;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
@@ -31,24 +32,20 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private static readonly MethodInfo _maybeScalarNonNullableMethod;
 
         /// <summary>
-        /// used to map shadow property to a series of non-shadow member expressions,
-        /// e.g. order.CustomerId -> order.Customer + customer.Id
-        /// key: source type + shadow property name
-        /// value: list of MemberInfos that should be used during rewrite
+        ///     used to map shadow property to a series of non-shadow member expressions,
+        ///     e.g. order.CustomerId -> order.Customer + customer.Id
+        ///     key: source type + shadow property name
+        ///     value: list of MemberInfos that should be used during rewrite
         /// </summary>
         private readonly Dictionary<(Type type, string name), MemberInfo[]> _efPropertyMemberInfoMappings;
 
-        private bool _negated = false;
+        private bool _negated;
 
         static ExpectedQueryRewritingVisitor()
         {
             var maybeScalarMethods = typeof(QueryTestExtensions).GetMethods()
                 .Where(m => m.Name == nameof(QueryTestExtensions.MaybeScalar))
-                .Select(m => new
-                {
-                    method = m,
-                    argument = m.GetParameters()[1].ParameterType.GetGenericArguments()[1]
-                });
+                .Select(m => new { method = m, argument = m.GetParameters()[1].ParameterType.GetGenericArguments()[1] });
 
             _maybeScalarNullableMethod = maybeScalarMethods.Single(x => x.argument.IsNullableValueType()).method;
             _maybeScalarNonNullableMethod = maybeScalarMethods.Single(x => !x.argument.IsNullableValueType()).method;
@@ -102,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 return RewriteJoinGroupJoin(methodCallExpression);
             }
 
-            if (Infrastructure.MethodInfoExtensions.IsEFPropertyMethod(methodCallExpression.Method))
+            if (MethodInfoExtensions.IsEFPropertyMethod(methodCallExpression.Method))
             {
                 var rewritten = TryConvertEFPropertyToMemberAccess(methodCallExpression);
 
@@ -239,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private Expression TryConvertEFPropertyToMemberAccess(Expression expression)
         {
             if (expression is MethodCallExpression methodCallExpression
-                && Infrastructure.MethodInfoExtensions.IsEFPropertyMethod(methodCallExpression.Method))
+                && MethodInfoExtensions.IsEFPropertyMethod(methodCallExpression.Method))
             {
                 var caller = RemoveConvertToObject(methodCallExpression.Arguments[0]);
                 var propertyName = (methodCallExpression.Arguments[1] as ConstantExpression)?.Value as string
@@ -275,7 +272,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     }
                 }
 
-                throw new InvalidOperationException($"Couldn't convert EF.Property() method. Caller type: '{caller.Type.Name}'. Property name: '{propertyName}'.");
+                throw new InvalidOperationException(
+                    $"Couldn't convert EF.Property() method. Caller type: '{caller.Type.Name}'. Property name: '{propertyName}'.");
             }
 
             return expression;
@@ -285,8 +283,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     && (expression.NodeType == ExpressionType.Convert
                         || expression.NodeType == ExpressionType.ConvertChecked)
                     && expression.Type == typeof(object)
-                    ? RemoveConvertToObject(unaryExpression.Operand)
-                    : expression;
+                        ? RemoveConvertToObject(unaryExpression.Operand)
+                        : expression;
         }
 
         private Expression AddNullProtectionForNonNullableMemberAccess(Expression expression)
@@ -304,8 +302,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var methodInfo = (memberExpression.Type.IsNullableValueType()
                     ? _maybeScalarNullableMethod
                     : _maybeScalarNonNullableMethod).MakeGenericMethod(
-                        instance.Type,
-                        memberExpression.Type.UnwrapNullableType());
+                    instance.Type,
+                    memberExpression.Type.UnwrapNullableType());
 
                 return Expression.Call(methodInfo, instance, maybeLambda);
             }
@@ -315,7 +313,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
-            if ((unaryExpression.NodeType == ExpressionType.Convert || unaryExpression.NodeType == ExpressionType.ConvertChecked || unaryExpression.NodeType == ExpressionType.TypeAs)
+            if ((unaryExpression.NodeType == ExpressionType.Convert
+                    || unaryExpression.NodeType == ExpressionType.ConvertChecked
+                    || unaryExpression.NodeType == ExpressionType.TypeAs)
                 && unaryExpression.Operand is MemberExpression memberOperand
                 && memberOperand.Type.IsValueType
                 && !memberOperand.Type.IsNullableValueType()

@@ -87,7 +87,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         private void Add_principal_and_dependent_one_to_many(
-            EntityState entityState, bool principalFirst, bool setFk, bool setToPrincipal, bool setToDependent)
+            EntityState entityState,
+            bool principalFirst,
+            bool setFk,
+            bool setToPrincipal,
+            bool setToDependent)
         {
             using var context = new FixupContext();
             var principal = new Category(77);
@@ -204,7 +208,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         private void Add_principal_and_dependent_one_to_one(
-            EntityState entityState, bool principalFirst, bool setFk, bool setToPrincipal, bool setToDependent)
+            EntityState entityState,
+            bool principalFirst,
+            bool setFk,
+            bool setToPrincipal,
+            bool setToDependent)
         {
             using var context = new FixupContext();
             var principal = new Parent(77);

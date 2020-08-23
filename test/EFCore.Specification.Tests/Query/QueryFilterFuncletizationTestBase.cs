@@ -15,11 +15,13 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class QueryFilterFuncletizationTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : QueryFilterFuncletizationFixtureBase, new()
     {
-        protected QueryFilterFuncletizationTestBase(TFixture fixture) => Fixture = fixture;
+        protected QueryFilterFuncletizationTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
-        protected QueryFilterFuncletizationContext CreateContext() => Fixture.CreateContext();
+        protected QueryFilterFuncletizationContext CreateContext()
+            => Fixture.CreateContext();
 
         [ConditionalFact]
         public virtual void DbContext_property_parameter_does_not_clash_with_closure_parameter_name()

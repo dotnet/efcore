@@ -32,7 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         /// <inheritdoc />
         public virtual void ProcessModelFinalizing(
-            IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
         {
             RemoveEntityTypesUnreachableByNavigations(modelBuilder, context);
             RemoveNavigationlessForeignKeys(modelBuilder);
@@ -40,7 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private void RemoveEntityTypesUnreachableByNavigations(
-            IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
         {
             var model = modelBuilder.Metadata;
             var rootEntityTypes = GetRoots(model, ConfigurationSource.DataAnnotation);
@@ -103,11 +105,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 _model = model;
             }
 
-            public override IEnumerable<IConventionEntityType> Vertices => _model.GetEntityTypes();
+            public override IEnumerable<IConventionEntityType> Vertices
+                => _model.GetEntityTypes();
 
             public override IEnumerable<IConventionEntityType> GetOutgoingNeighbors(IConventionEntityType from)
                 => from.GetForeignKeys().Where(fk => fk.DependentToPrincipal != null).Select(fk => fk.PrincipalEntityType)
-                    .Union(from.GetReferencingForeignKeys().Where(fk => fk.PrincipalToDependent != null).Select(fk => fk.DeclaringEntityType))
+                    .Union(
+                        from.GetReferencingForeignKeys().Where(fk => fk.PrincipalToDependent != null).Select(fk => fk.DeclaringEntityType))
                     .Union(from.GetSkipNavigations().Where(sn => sn.ForeignKey != null).Select(sn => sn.ForeignKey.DeclaringEntityType))
                     .Union(from.GetSkipNavigations().Where(sn => sn.TargetEntityType != null).Select(sn => sn.TargetEntityType));
 
@@ -123,4 +127,3 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
     }
 }
-

@@ -387,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore
             var stream = new StringWriter();
             var actual = await LogTest(
                 async, stream, b => b.LogTo(
-                    stream.WriteLine, LogLevel.Information, DbContextLoggerOptions.DefaultWithUtcTime),6, true);
+                    stream.WriteLine, LogLevel.Information, DbContextLoggerOptions.DefaultWithUtcTime), 6, true);
 
             AssertLog(
                 actual,
@@ -439,7 +439,8 @@ namespace Microsoft.EntityFrameworkCore
                         // May fail if test happens to span midnight on a change in length; seems unlikely!
                         var end = (utc ? 28 : DateTime.Now.ToShortDateString().Length + 13) + dateAt;
                         normalized = normalized.Substring(0, dateAt)
-                            + (utc ? "YYYY-MM-DDTHH:MM:SS.MMMMMMTZ" : "<Local Date> HH:mm:ss.fff") + normalized.Substring(end);
+                            + (utc ? "YYYY-MM-DDTHH:MM:SS.MMMMMMTZ" : "<Local Date> HH:mm:ss.fff")
+                            + normalized.Substring(end);
                     }
                 }
 

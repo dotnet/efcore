@@ -20,7 +20,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     return SpatialiteLoader.TryLoad(connection);
                 });
 
-        public ValueTask<bool> IsMetAsync() => new ValueTask<bool>(_loaded.Value);
+        public ValueTask<bool> IsMetAsync()
+            => new ValueTask<bool>(_loaded.Value);
 
         public string SkipReason
             => "mod_spatialite not found. Install it to run this test.";

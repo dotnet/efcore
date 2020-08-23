@@ -19,10 +19,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private static readonly MethodInfo _stringCompareWithComparisonMethod =
             typeof(string).GetRuntimeMethod(nameof(string.Compare), new[] { typeof(string), typeof(string), typeof(StringComparison) });
+
         private static readonly MethodInfo _stringCompareWithoutComparisonMethod =
             typeof(string).GetRuntimeMethod(nameof(string.Compare), new[] { typeof(string), typeof(string) });
+
         private static readonly MethodInfo _startsWithMethodInfo =
             typeof(string).GetRuntimeMethod(nameof(string.StartsWith), new[] { typeof(string) });
+
         private static readonly MethodInfo _endsWithMethodInfo =
             typeof(string).GetRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) });
 
@@ -262,7 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (isLeftNullConstant != isRightNullConstant
                     && ((binaryTest.NodeType == ExpressionType.Equal
-                        && IsNullConstant(conditionalExpression.IfTrue))
+                            && IsNullConstant(conditionalExpression.IfTrue))
                         || (binaryTest.NodeType == ExpressionType.NotEqual
                             && IsNullConstant(conditionalExpression.IfFalse))))
                 {
@@ -279,6 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         nonNullExpression = Expression.Convert(nonNullExpression, nonNullExpression.Type.MakeNullable());
                     }
+
                     var nullExpression = Expression.Constant(null, nonNullExpression.Type);
 
                     return Expression.Condition(

@@ -48,7 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyAdded(
-            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<IConventionForeignKeyBuilder> context)
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IConventionContext<IConventionForeignKeyBuilder> context)
         {
             var foreignKey = relationshipBuilder.Metadata;
             CreateIndex(foreignKey.Properties, foreignKey.IsUnique, foreignKey.DeclaringEntityType.Builder);
@@ -61,7 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="foreignKey"> The removed foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyRemoved(
-            IConventionEntityTypeBuilder entityTypeBuilder, IConventionForeignKey foreignKey,
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionForeignKey foreignKey,
             IConventionContext<IConventionForeignKey> context)
         {
             OnForeignKeyRemoved(foreignKey.DeclaringEntityType, foreignKey.Properties);
@@ -92,7 +94,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private static void OnForeignKeyRemoved(
-            IConventionEntityType declaringType, IReadOnlyList<IConventionProperty> foreignKeyProperties)
+            IConventionEntityType declaringType,
+            IReadOnlyList<IConventionProperty> foreignKeyProperties)
         {
             var index = declaringType.FindIndex(foreignKeyProperties);
             if (index == null)
@@ -138,7 +141,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="key"> The key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessKeyRemoved(
-            IConventionEntityTypeBuilder entityTypeBuilder, IConventionKey key, IConventionContext<IConventionKey> context)
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionKey key,
+            IConventionContext<IConventionKey> context)
         {
             foreach (var otherForeignKey in key.DeclaringEntityType.GetDerivedTypesInclusive()
                 .SelectMany(t => t.GetDeclaredForeignKeys())
@@ -238,7 +243,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyUniquenessChanged(
-            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<bool?> context)
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IConventionContext<bool?> context)
         {
             var foreignKey = relationshipBuilder.Metadata;
             var index = foreignKey.DeclaringEntityType.FindIndex(foreignKey.Properties);
@@ -280,7 +286,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="indexBuilder"> The builder for the index. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessIndexUniquenessChanged(
-            IConventionIndexBuilder indexBuilder, IConventionContext<bool?> context)
+            IConventionIndexBuilder indexBuilder,
+            IConventionContext<bool?> context)
         {
             var index = indexBuilder.Metadata;
             if (index.IsUnique)
@@ -305,14 +312,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <summary>
-        ///     Creates an <see cref="IConventionIndex"/>.
+        ///     Creates an <see cref="IConventionIndex" />.
         /// </summary>
         /// <param name="properties"> The properties that constitute the index. </param>
         /// <param name="unique"> Whether the index to create should be unique. </param>
         /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
         /// <returns> The created index. </returns>
         protected virtual IConventionIndex CreateIndex(
-            [NotNull] IReadOnlyList<IConventionProperty> properties, bool unique, [NotNull] IConventionEntityTypeBuilder entityTypeBuilder)
+            [NotNull] IReadOnlyList<IConventionProperty> properties,
+            bool unique,
+            [NotNull] IConventionEntityTypeBuilder entityTypeBuilder)
         {
             foreach (var key in entityTypeBuilder.Metadata.GetKeys())
             {
@@ -359,7 +368,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             => index.DeclaringEntityType.Builder.HasNoIndex(index);
 
         /// <inheritdoc />
-        public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        public virtual void ProcessModelFinalizing(
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
         {
             var definition = CoreResources.LogRedundantIndexRemoved(Dependencies.Logger);
             if (!Dependencies.Logger.ShouldLog(definition)

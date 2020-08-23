@@ -13,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class OverzealousInitializationTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : OverzealousInitializationTestBase<TFixture>.OverzealousInitializationFixtureBase, new()
     {
-        protected OverzealousInitializationTestBase(TFixture fixture) => Fixture = fixture;
+        protected OverzealousInitializationTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         [ConditionalFact]
         public virtual void Fixup_does_not_ignore_eagerly_initialized_reference_navs()
@@ -33,10 +34,11 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected  class Album
+        protected class Album
         {
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
+
             public int ArtistId { get; set; }
 
             public virtual Artist Artist { get; set; }
@@ -53,6 +55,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
+
             public string Name { get; set; }
         }
 
@@ -60,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
+
             public int AlbumId { get; set; }
         }
 
@@ -80,11 +84,13 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TFixture Fixture { get; }
 
-        protected AlbumViewerContext CreateContext() => Fixture.CreateContext();
+        protected AlbumViewerContext CreateContext()
+            => Fixture.CreateContext();
 
         public abstract class OverzealousInitializationFixtureBase : SharedStoreFixtureBase<AlbumViewerContext>
         {
-            public virtual IDisposable BeginTransaction(DbContext context) => context.Database.BeginTransaction();
+            public virtual IDisposable BeginTransaction(DbContext context)
+                => context.Database.BeginTransaction();
 
             protected override string StoreName { get; } = "OverzealousInitialization";
 
@@ -93,22 +99,19 @@ namespace Microsoft.EntityFrameworkCore
                 var artists = new[]
                 {
                     new Artist { Id = 1, Name = "Freddie" },
-                    new Artist { Id = 2, Name = "Kendrick"},
+                    new Artist { Id = 2, Name = "Kendrick" },
                     new Artist { Id = 3, Name = "Jarvis" }
                 };
 
                 for (var i = 1; i <= 10; i++)
                 {
-                    context.Add(new Album
-                    {
-                        Id = i,
-                        Artist = artists[i % 3],
-                        Tracks = new List<Track>
+                    context.Add(
+                        new Album
                         {
-                            new Track { Id = i * 2 },
-                            new Track { Id = i * 2 + 1}
-                        }
-                    });
+                            Id = i,
+                            Artist = artists[i % 3],
+                            Tracks = new List<Track> { new Track { Id = i * 2 }, new Track { Id = i * 2 + 1 } }
+                        });
                 }
 
                 context.SaveChanges();

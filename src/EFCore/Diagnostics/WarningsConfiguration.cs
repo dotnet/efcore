@@ -49,12 +49,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Override this method in a derived class to ensure that any clone created is also of that class.
         /// </summary>
         /// <returns> A clone of this instance, which can be modified before being returned as immutable. </returns>
-        protected virtual WarningsConfiguration Clone() => new WarningsConfiguration(this);
+        protected virtual WarningsConfiguration Clone()
+            => new WarningsConfiguration(this);
 
         /// <summary>
         ///     The option set from the <see cref="DefaultBehavior" /> method.
         /// </summary>
-        public virtual WarningBehavior DefaultBehavior => _defaultBehavior;
+        public virtual WarningBehavior DefaultBehavior
+            => _defaultBehavior;
 
         /// <summary>
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
@@ -80,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="warningBehavior"> The behavior to set. </param>
         /// <returns> A new instance with the behaviors set. </returns>
         public virtual WarningsConfiguration WithExplicit(
-            [NotNull] IEnumerable<EventId> eventIds, WarningBehavior warningBehavior)
+            [NotNull] IEnumerable<EventId> eventIds,
+            WarningBehavior warningBehavior)
         {
             var clone = Clone();
 
@@ -134,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 : null;
 
         /// <summary>
-        ///     Gets the <see cref="LogLevel" /> set for the given event ID, or <see langword="null"/>
+        ///     Gets the <see cref="LogLevel" /> set for the given event ID, or <see langword="null" />
         ///     if no explicit behavior has been set.
         /// </summary>
         /// <returns> The <see cref="LogLevel" /> set for the given event ID. </returns>

@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public interface IQuerySqlGeneratorFactory
     {
         /// <summary>
-        ///     Creates a new <see cref="QuerySqlGenerator"/>.
+        ///     Creates a new <see cref="QuerySqlGenerator" />.
         /// </summary>
         /// <returns> A SQL generator. </returns>
         QuerySqlGenerator Create();

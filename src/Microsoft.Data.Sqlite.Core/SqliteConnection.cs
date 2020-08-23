@@ -375,8 +375,8 @@ namespace Microsoft.Data.Sqlite
         ///     Releases any resources used by the connection and closes it.
         /// </summary>
         /// <param name="disposing">
-        ///     <see langword="true"/> to release managed and unmanaged resources;
-        ///     <see langword="false"/> to release only unmanaged resources.
+        ///     <see langword="true" /> to release managed and unmanaged resources;
+        ///     <see langword="false" /> to release only unmanaged resources.
         /// </param>
         protected override void Dispose(bool disposing)
         {
@@ -476,8 +476,10 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         ///     Begins a transaction on the connection.
         /// </summary>
-        /// <param name="deferred"><see langword="true"/> to defer the creation of the transaction.
-        /// This also causes transactions to upgrade from read transactions to write transactions as needed by their commands.</param>
+        /// <param name="deferred">
+        ///     <see langword="true" /> to defer the creation of the transaction.
+        ///     This also causes transactions to upgrade from read transactions to write transactions as needed by their commands.
+        /// </param>
         /// <returns>The transaction.</returns>
         /// <remarks>
         ///     Warning, commands inside a deferred transaction can fail if they cause the
@@ -514,8 +516,10 @@ namespace Microsoft.Data.Sqlite
         ///     Begins a transaction on the connection.
         /// </summary>
         /// <param name="isolationLevel">The isolation level of the transaction.</param>
-        /// <param name="deferred"><see langword="true"/> to defer the creation of the transaction.
-        /// This also causes transactions to upgrade from read transactions to write transactions as needed by their commands.</param>
+        /// <param name="deferred">
+        ///     <see langword="true" /> to defer the creation of the transaction.
+        ///     This also causes transactions to upgrade from read transactions to write transactions as needed by their commands.
+        /// </param>
         /// <returns>The transaction.</returns>
         /// <remarks>
         ///     Warning, commands inside a deferred transaction can fail if they cause the
@@ -552,7 +556,7 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         ///     Enables extension loading on the connection.
         /// </summary>
-        /// <param name="enable"> <see langword="true"/> to enable; <see langword="false"/> to disable. </param>
+        /// <param name="enable"> <see langword="true" /> to enable; <see langword="false" /> to disable. </param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/extensions">Extensions</seealso>
         public virtual void EnableExtensions(bool enable = true)
         {
@@ -821,8 +825,9 @@ namespace Microsoft.Data.Sqlite
                 SqliteException.ThrowExceptionForRC(rc, _db);
             }
 
-            _aggregates ??= new Dictionary<(string, int), (int, object, delegate_function_aggregate_step, delegate_function_aggregate_final)>(
-                FunctionsKeyComparer.Instance);
+            _aggregates ??=
+                new Dictionary<(string, int), (int, object, delegate_function_aggregate_step, delegate_function_aggregate_final)>(
+                    FunctionsKeyComparer.Instance);
             _aggregates[(name, arity)] = (flags, state, func_step, func_final);
         }
 

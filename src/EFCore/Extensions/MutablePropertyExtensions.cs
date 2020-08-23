@@ -116,7 +116,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to set the value for. </param>
         /// <param name="unicode">
-        ///     <see langword="true" /> if the property accepts Unicode characters, <see langword="false" /> if it does not, <see langword="null" /> to clear the setting.
+        ///     <see langword="true" /> if the property accepts Unicode characters, <see langword="false" /> if it does not, <see langword="null" /> to
+        ///     clear the setting.
         /// </param>
         public static void SetIsUnicode([NotNull] this IMutableProperty property, bool? unicode)
             => property.AsProperty().SetIsUnicode(unicode, ConfigurationSource.Explicit);
@@ -207,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore
         public static CoreTypeMapping SetTypeMapping(
             [NotNull] this IMutableProperty property,
             [NotNull] CoreTypeMapping typeMapping)
-            => ((Property)property).SetTypeMapping(typeMapping,  ConfigurationSource.Explicit);
+            => ((Property)property).SetTypeMapping(typeMapping, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     Sets the custom <see cref="ValueComparer" /> for this property.

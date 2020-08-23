@@ -276,7 +276,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="true" /> if the <see cref="ValueGenerator" /> can be configured for this property.
         /// </returns>
         bool CanSetValueGenerator(
-            [CanBeNull] Func<IProperty, IEntityType, ValueGenerator> factory, bool fromDataAnnotation = false);
+            [CanBeNull] Func<IProperty, IEntityType, ValueGenerator> factory,
+            bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Configures the property so that the property value is converted to and from the database

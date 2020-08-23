@@ -26,7 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="source2"> A table source which is second source in the set operation. </param>
         /// <param name="distinct"> A bool value indicating whether result will remove duplicate rows. </param>
         protected SetOperationBase(
-            [NotNull] string alias, [NotNull] SelectExpression source1, [NotNull] SelectExpression source2, bool distinct)
+            [NotNull] string alias,
+            [NotNull] SelectExpression source1,
+            [NotNull] SelectExpression source2,
+            bool distinct)
             : base(Check.NotEmpty(alias, nameof(alias)))
         {
             Check.NotNull(source1, nameof(source1));
@@ -41,10 +44,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     The bool value indicating whether result will remove duplicate rows.
         /// </summary>
         public virtual bool IsDistinct { get; }
+
         /// <summary>
         ///     The first source of the set operation.
         /// </summary>
         public virtual SelectExpression Source1 { get; }
+
         /// <summary>
         ///     The second source of the set operation.
         /// </summary>

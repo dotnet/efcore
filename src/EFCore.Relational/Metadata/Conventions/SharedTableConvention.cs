@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -37,7 +36,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
         /// <inheritdoc />
-        public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        public virtual void ProcessModelFinalizing(
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
         {
             var maxLength = modelBuilder.Metadata.GetMaxIdentifierLength();
             var tables = new Dictionary<(string TableName, string Schema), List<IConventionEntityType>>();
@@ -66,7 +67,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private static void TryUniquifyTableNames(
-            IConventionModel model, Dictionary<(string Name, string Schema), List<IConventionEntityType>> tables, int maxLength)
+            IConventionModel model,
+            Dictionary<(string Name, string Schema), List<IConventionEntityType>> tables,
+            int maxLength)
         {
             Dictionary<(string Name, string Schema), Dictionary<(string Name, string Schema), List<IConventionEntityType>>> clashingTables
                 = null;
@@ -106,7 +109,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                     if (clashingTables == null)
                     {
-                        clashingTables = new Dictionary<(string Name, string Schema), Dictionary<(string Name, string Schema), List<IConventionEntityType>>>();
+                        clashingTables =
+                            new Dictionary<(string Name, string Schema),
+                                Dictionary<(string Name, string Schema), List<IConventionEntityType>>>();
                     }
 
                     if (!clashingTables.TryGetValue(table, out var clashingSubTables))
@@ -171,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                 var identifyingMemberInfo = property.PropertyInfo ?? (MemberInfo)property.FieldInfo;
                 if ((identifyingMemberInfo != null
-                    && identifyingMemberInfo.IsSameAs(otherProperty.PropertyInfo ?? (MemberInfo)otherProperty.FieldInfo))
+                        && identifyingMemberInfo.IsSameAs(otherProperty.PropertyInfo ?? (MemberInfo)otherProperty.FieldInfo))
                     || (property.IsPrimaryKey() && otherProperty.IsPrimaryKey())
                     || (property.IsConcurrencyToken && otherProperty.IsConcurrencyToken))
                 {
@@ -208,7 +213,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private static string TryUniquify(
-            IConventionProperty property, string columnName, Dictionary<string, IConventionProperty> properties, bool usePrefix,
+            IConventionProperty property,
+            string columnName,
+            Dictionary<string, IConventionProperty> properties,
+            bool usePrefix,
             int maxLength)
         {
             if (property.Builder.CanSetColumnName(null))
@@ -280,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="key"> A key. </param>
         /// <param name="duplicateKey"> Another key. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
-        /// <returns> <see langword="true"/> if compatible </returns>
+        /// <returns> <see langword="true" /> if compatible </returns>
         protected virtual bool AreCompatible(
             [NotNull] IKey key,
             [NotNull] IKey duplicateKey,
@@ -288,7 +296,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             => key.AreCompatible(duplicateKey, storeObject, shouldThrow: false);
 
         private static string TryUniquify<T>(
-            IConventionKey key, string keyName, Dictionary<string, T> keys, int maxLength)
+            IConventionKey key,
+            string keyName,
+            Dictionary<string, T> keys,
+            int maxLength)
         {
             if (key.Builder.CanSetName(null))
             {
@@ -347,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="index"> An index. </param>
         /// <param name="duplicateIndex"> Another index. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
-        /// <returns> <see langword="true"/> if compatible </returns>
+        /// <returns> <see langword="true" /> if compatible </returns>
         protected virtual bool AreCompatible(
             [NotNull] IIndex index,
             [NotNull] IIndex duplicateIndex,
@@ -355,7 +366,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             => index.AreCompatible(duplicateIndex, storeObject, shouldThrow: false);
 
         private static string TryUniquify<T>(
-            IConventionIndex index, string indexName, Dictionary<string, T> indexes, int maxLength)
+            IConventionIndex index,
+            string indexName,
+            Dictionary<string, T> indexes,
+            int maxLength)
         {
             if (index.Builder.CanSetDatabaseName(null))
             {
@@ -435,7 +449,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="foreignKey"> A foreign key. </param>
         /// <param name="duplicateForeignKey"> Another foreign key. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
-        /// <returns> <see langword="true"/> if compatible </returns>
+        /// <returns> <see langword="true" /> if compatible </returns>
         protected virtual bool AreCompatible(
             [NotNull] IForeignKey foreignKey,
             [NotNull] IForeignKey duplicateForeignKey,
@@ -443,7 +457,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             => foreignKey.AreCompatible(duplicateForeignKey, storeObject, shouldThrow: false);
 
         private static string TryUniquify<T>(
-            IConventionForeignKey foreignKey, string foreignKeyName, Dictionary<string, T> foreignKeys, int maxLength)
+            IConventionForeignKey foreignKey,
+            string foreignKeyName,
+            Dictionary<string, T> foreignKeys,
+            int maxLength)
         {
             if (foreignKey.Builder.CanSetConstraintName(null))
             {

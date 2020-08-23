@@ -83,7 +83,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The connection string, or <see langword="null" /> if a <see cref="DbConnection" /> was used instead of
         ///     a connection string.
         /// </summary>
-        public virtual string ConnectionString => _connectionString;
+        public virtual string ConnectionString
+            => _connectionString;
 
         /// <summary>
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
@@ -106,7 +107,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The <see cref="DbConnection" />, or <see langword="null" /> if a connection string was used instead of
         ///     the full connection object.
         /// </summary>
-        public virtual DbConnection Connection => _connection;
+        public virtual DbConnection Connection
+            => _connection;
 
         /// <summary>
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
@@ -128,7 +130,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The command timeout, or <see langword="null" /> if none has been set.
         /// </summary>
-        public virtual int? CommandTimeout => _commandTimeout;
+        public virtual int? CommandTimeout
+            => _commandTimeout;
 
         /// <summary>
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
@@ -155,7 +158,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The maximum number of statements that will be included in commands sent to the database
         ///     during <see cref="DbContext.SaveChanges()" /> or <see langword="null" /> if none has been set.
         /// </summary>
-        public virtual int? MaxBatchSize => _maxBatchSize;
+        public virtual int? MaxBatchSize
+            => _maxBatchSize;
 
         /// <summary>
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
@@ -182,7 +186,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The minimum number of statements that are needed for a multi-statement command sent to the database
         ///     during <see cref="DbContext.SaveChanges()" /> or <see langword="null" /> if none has been set.
         /// </summary>
-        public virtual int? MinBatchSize => _minBatchSize;
+        public virtual int? MinBatchSize
+            => _minBatchSize;
 
         /// <summary>
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
@@ -210,7 +215,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Entity Framework will use C# semantics for null values, and generate SQL to compensate for differences
         ///     in how the database handles nulls.
         /// </summary>
-        public virtual bool UseRelationalNulls => _useRelationalNulls;
+        public virtual bool UseRelationalNulls
+            => _useRelationalNulls;
 
         /// <summary>
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
@@ -228,9 +234,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     The <see cref="QuerySplittingBehavior"/> to use when loading related collections in a query.
+        ///     The <see cref="QuerySplittingBehavior" /> to use when loading related collections in a query.
         /// </summary>
-        public virtual QuerySplittingBehavior? QuerySplittingBehavior => _querySplittingBehavior;
+        public virtual QuerySplittingBehavior? QuerySplittingBehavior
+            => _querySplittingBehavior;
 
         /// <summary>
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
@@ -250,7 +257,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The name of the assembly that contains migrations, or <see langword="null" /> if none has been set.
         /// </summary>
-        public virtual string MigrationsAssembly => _migrationsAssembly;
+        public virtual string MigrationsAssembly
+            => _migrationsAssembly;
 
         /// <summary>
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
@@ -270,7 +278,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The table name to use for the migrations history table, or <see langword="null" /> if none has been set.
         /// </summary>
-        public virtual string MigrationsHistoryTableName => _migrationsHistoryTableName;
+        public virtual string MigrationsHistoryTableName
+            => _migrationsHistoryTableName;
 
         /// <summary>
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
@@ -290,7 +299,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The schema to use for the migrations history table, or <see langword="null" /> if none has been set.
         /// </summary>
-        public virtual string MigrationsHistoryTableSchema => _migrationsHistoryTableSchema;
+        public virtual string MigrationsHistoryTableSchema
+            => _migrationsHistoryTableSchema;
 
         /// <summary>
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
@@ -311,7 +321,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     A factory for creating the default <see cref="IExecutionStrategy" />, or <see langword="null" /> if none has been
         ///     configured.
         /// </summary>
-        public virtual Func<ExecutionStrategyDependencies, IExecutionStrategy> ExecutionStrategyFactory => _executionStrategyFactory;
+        public virtual Func<ExecutionStrategyDependencies, IExecutionStrategy> ExecutionStrategyFactory
+            => _executionStrategyFactory;
 
         /// <summary>
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
@@ -403,14 +414,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             /// <summary>
             ///     True, since this is a database provider base class.
             /// </summary>
-            public override bool IsDatabaseProvider => true;
+            public override bool IsDatabaseProvider
+                => true;
 
             /// <summary>
             ///     Returns a hash code created from any options that would cause a new <see cref="IServiceProvider" />
             ///     to be needed. Most extensions do not have any such options and should return zero.
             /// </summary>
             /// <returns> A hash over options that require a new service provider when changed. </returns>
-            public override long GetServiceProviderHashCode() => 0;
+            public override long GetServiceProviderHashCode()
+                => 0;
 
             /// <summary>
             ///     A message fragment for logging typically containing information about

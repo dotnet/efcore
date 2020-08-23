@@ -414,11 +414,13 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false)]
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true)]
         public virtual void Save_required_one_to_one_changed_by_reference_with_alternate_key(
-            ChangeMechanism changeMechanism, bool useExistingEntities)
+            ChangeMechanism changeMechanism,
+            bool useExistingEntities)
         {
             RequiredSingleAk2 new2 = null;
             RequiredSingleComposite2 new2c = null;
-            RequiredSingleAk1 new1 = null;;
+            RequiredSingleAk1 new1 = null;
+            ;
             Root newRoot;
             RequiredSingleAk1 old1 = null;
             RequiredSingleAk2 old2 = null;
@@ -433,14 +435,15 @@ namespace Microsoft.EntityFrameworkCore
                         e =>
                         {
                             e.AlternateId = Guid.NewGuid();
-                        e.Single = new2;
-                        e.SingleComposite = new2c;
-                    });
-                    newRoot = context.CreateProxy<Root>(e =>
-                    {
-                        e.AlternateId = Guid.NewGuid();
-                        e.RequiredSingleAk = new1;
-                    });
+                            e.Single = new2;
+                            e.SingleComposite = new2c;
+                        });
+                    newRoot = context.CreateProxy<Root>(
+                        e =>
+                        {
+                            e.AlternateId = Guid.NewGuid();
+                            e.RequiredSingleAk = new1;
+                        });
 
                     if (useExistingEntities)
                     {
@@ -541,7 +544,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Save_required_non_PK_one_to_one_changed_by_reference_with_alternate_key(
-            ChangeMechanism changeMechanism, bool useExistingEntities)
+            ChangeMechanism changeMechanism,
+            bool useExistingEntities)
         {
             RequiredNonPkSingleAk2 new2 = null;
             RequiredNonPkSingleAk2Derived new2d = null;
@@ -563,11 +567,12 @@ namespace Microsoft.EntityFrameworkCore
                     new2 = context.CreateProxy<RequiredNonPkSingleAk2>(e => e.AlternateId = Guid.NewGuid());
                     new2d = context.CreateProxy<RequiredNonPkSingleAk2Derived>(e => e.AlternateId = Guid.NewGuid());
                     new2dd = context.CreateProxy<RequiredNonPkSingleAk2MoreDerived>(e => e.AlternateId = Guid.NewGuid());
-                    new1 = context.CreateProxy<RequiredNonPkSingleAk1>(e =>
-                    {
-                        e.AlternateId = Guid.NewGuid();
-                        e.Single = new2;
-                    });
+                    new1 = context.CreateProxy<RequiredNonPkSingleAk1>(
+                        e =>
+                        {
+                            e.AlternateId = Guid.NewGuid();
+                            e.Single = new2;
+                        });
                     new1d = context.CreateProxy<RequiredNonPkSingleAk1Derived>(
                         e =>
                         {
@@ -576,7 +581,7 @@ namespace Microsoft.EntityFrameworkCore
                             e.Root = context.CreateProxy<Root>();
                         });
                     new1dd = context.CreateProxy<RequiredNonPkSingleAk1MoreDerived>(
-                        e  =>
+                        e =>
                         {
                             e.AlternateId = Guid.NewGuid();
                             e.Single = new2dd;

@@ -22,7 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="maxLength"> The maximum length of the identifier. </param>
         /// <returns> A unique identifier. </returns>
         public static string Uniquify<T>(
-            [NotNull] string currentIdentifier, [NotNull] IReadOnlyDictionary<string, T> otherIdentifiers, int maxLength)
+            [NotNull] string currentIdentifier,
+            [NotNull] IReadOnlyDictionary<string, T> otherIdentifiers,
+            int maxLength)
         {
             var finalIdentifier = Truncate(currentIdentifier, maxLength);
             var suffix = 1;

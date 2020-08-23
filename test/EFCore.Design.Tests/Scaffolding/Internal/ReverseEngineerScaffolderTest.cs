@@ -27,15 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var scaffolder = CreateScaffolder();
             var scaffoldedModel = new ScaffoldedModel
             {
-                ContextFile = new ScaffoldedFile
-                {
-                    Path = Path.Combine("..", "Data", "TestContext.cs"),
-                    Code = "// TestContext"
-                },
-                AdditionalFiles =
-                {
-                    new ScaffoldedFile { Path = "TestEntity.cs", Code = "// TestEntity" }
-                }
+                ContextFile = new ScaffoldedFile { Path = Path.Combine("..", "Data", "TestContext.cs"), Code = "// TestContext" },
+                AdditionalFiles = { new ScaffoldedFile { Path = "TestEntity.cs", Code = "// TestEntity" } }
             };
 
             var result = scaffolder.Save(
@@ -67,10 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var scaffoldedModel = new ScaffoldedModel
             {
                 ContextFile = new ScaffoldedFile { Path = "TestContext.cs", Code = "// TestContext" },
-                AdditionalFiles =
-                {
-                    new ScaffoldedFile { Path = "TestEntity.cs", Code = "// TestEntity" }
-                }
+                AdditionalFiles = { new ScaffoldedFile { Path = "TestEntity.cs", Code = "// TestEntity" } }
             };
 
             var ex = Assert.Throws<OperationException>(
@@ -91,10 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             File.WriteAllText(path, "// Old");
 
             var scaffolder = CreateScaffolder();
-            var scaffoldedModel = new ScaffoldedModel
-            {
-                ContextFile = new ScaffoldedFile { Path = "Test.cs", Code = "// Test" }
-            };
+            var scaffoldedModel = new ScaffoldedModel { ContextFile = new ScaffoldedFile { Path = "Test.cs", Code = "// Test" } };
 
             var result = scaffolder.Save(scaffoldedModel, directory.Path, overwriteFiles: true);
 
@@ -172,10 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 "Name=DefaultConnection",
                 new DatabaseModelFactoryOptions(),
                 new ModelReverseEngineerOptions(),
-                new ModelCodeGenerationOptions
-                {
-                    ModelNamespace = "Foo"
-                });
+                new ModelCodeGenerationOptions { ModelNamespace = "Foo" });
 
             Assert.Equal("Data Source=Test", databaseModelFactory.ConnectionString);
 
@@ -205,10 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 "Name=DefaultConnection",
                 new DatabaseModelFactoryOptions(),
                 new ModelReverseEngineerOptions(),
-                new ModelCodeGenerationOptions
-                {
-                    ModelNamespace = "Foo"
-                });
+                new ModelCodeGenerationOptions { ModelNamespace = "Foo" });
 
             Assert.Contains("Data Source=ScaffoldedConnectionString", result.ContextFile.Code);
             Assert.DoesNotContain("Name=DefaultConnection", result.ContextFile.Code);

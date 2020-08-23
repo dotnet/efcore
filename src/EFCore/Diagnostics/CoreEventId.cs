@@ -125,7 +125,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";
-        private static EventId MakeUpdateId(Id id) => new EventId((int)id, _updatePrefix + id);
+
+        private static EventId MakeUpdateId(Id id)
+            => new EventId((int)id, _updatePrefix + id);
 
         /// <summary>
         ///     <para>
@@ -148,7 +150,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             MakeUpdateId(Id.DuplicateDependentEntityTypeInstanceWarning);
 
         private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
-        private static EventId MakeQueryId(Id id) => new EventId((int)id, _queryPrefix + id);
+
+        private static EventId MakeQueryId(Id id)
+            => new EventId((int)id, _queryPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -269,7 +273,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             = MakeQueryId(Id.FirstWithoutOrderByAndFilterWarning);
 
         private static readonly string _infraPrefix = DbLoggerCategory.Infrastructure.Name + ".";
-        private static EventId MakeInfraId(Id id) => new EventId((int)id, _infraPrefix + id);
+
+        private static EventId MakeInfraId(Id id)
+            => new EventId((int)id, _infraPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -402,10 +408,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static readonly EventId RedundantAddServicesCallWarning = MakeInfraId(Id.RedundantAddServicesCallWarning);
 
         private static readonly string _modelPrefix = DbLoggerCategory.Model.Name + ".";
-        private static EventId MakeModelId(Id id) => new EventId((int)id, _modelPrefix + id);
+
+        private static EventId MakeModelId(Id id)
+            => new EventId((int)id, _modelPrefix + id);
 
         private static readonly string _modelValidationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
-        private static EventId MakeModelValidationId(Id id) => new EventId((int)id, _modelValidationPrefix + id);
+
+        private static EventId MakeModelValidationId(Id id)
+            => new EventId((int)id, _modelValidationPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -518,7 +528,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         [Obsolete]
-        public static readonly EventId NonNullableReferenceOnBothNavigations = MakeModelId(Id.Obsolete_NonNullableReferenceOnBothNavigations);
+        public static readonly EventId NonNullableReferenceOnBothNavigations =
+            MakeModelId(Id.Obsolete_NonNullableReferenceOnBothNavigations);
 
         /// <summary>
         ///     <para>
@@ -723,8 +734,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         A <see cref="KeylessAttribute"/> attribute on the entity type is conflicting
-        ///         with a <see cref="KeyAttribute"/> attribute on at least one of its properties.
+        ///         A <see cref="KeylessAttribute" /> attribute on the entity type is conflicting
+        ///         with a <see cref="KeyAttribute" /> attribute on at least one of its properties.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
@@ -734,7 +745,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
-        public static readonly EventId ConflictingKeylessAndKeyAttributesWarning = MakeModelId(Id.ConflictingKeylessAndKeyAttributesWarning);
+        public static readonly EventId ConflictingKeylessAndKeyAttributesWarning =
+            MakeModelId(Id.ConflictingKeylessAndKeyAttributesWarning);
 
         /// <summary>
         ///     <para>
@@ -753,7 +765,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             = MakeModelValidationId(Id.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning);
 
         private static readonly string _changeTrackingPrefix = DbLoggerCategory.ChangeTracking.Name + ".";
-        private static EventId MakeChangeTrackingId(Id id) => new EventId((int)id, _changeTrackingPrefix + id);
+
+        private static EventId MakeChangeTrackingId(Id id)
+            => new EventId((int)id, _changeTrackingPrefix + id);
 
         /// <summary>
         ///     <para>

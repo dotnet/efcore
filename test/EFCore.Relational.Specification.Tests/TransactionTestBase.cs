@@ -427,6 +427,7 @@ namespace Microsoft.EntityFrameworkCore
                         TestStore.CloseConnection();
                     }
                 }
+
                 Assert.Equal(
                     new List<int>
                     {
@@ -474,12 +475,9 @@ namespace Microsoft.EntityFrameworkCore
                         TestStore.CloseConnection();
                     }
                 }
+
                 Assert.Equal(
-                    new List<int>
-                    {
-                        1,
-                        2
-                    },
+                    new List<int> { 1, 2 },
                     context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
                 Assert.Equal(
                     new List<int>
@@ -608,7 +606,9 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(false, false)]
-        public virtual async Task SaveChanges_false_uses_explicit_transaction_without_committing_or_accepting_changes(bool async, bool autoTransaction)
+        public virtual async Task SaveChanges_false_uses_explicit_transaction_without_committing_or_accepting_changes(
+            bool async,
+            bool autoTransaction)
         {
             using (var context = CreateContext())
             {
@@ -1215,17 +1215,22 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(Customers, context.Set<TransactionCustomer>().OrderBy(c => c.Id));
         }
 
-        protected RelationalTestStore TestStore => (RelationalTestStore)Fixture.TestStore;
+        protected RelationalTestStore TestStore
+            => (RelationalTestStore)Fixture.TestStore;
 
         protected abstract bool SnapshotSupported { get; }
 
-        protected virtual bool AmbientTransactionsSupported => false;
+        protected virtual bool AmbientTransactionsSupported
+            => false;
 
-        protected virtual bool DirtyReadsOccur => true;
+        protected virtual bool DirtyReadsOccur
+            => true;
 
-        protected virtual bool SavepointsSupported => true;
+        protected virtual bool SavepointsSupported
+            => true;
 
-        protected DbContext CreateContext() => Fixture.CreateContext();
+        protected DbContext CreateContext()
+            => Fixture.CreateContext();
 
         protected abstract DbContext CreateContextWithConnectionString();
 
@@ -1275,6 +1280,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             public int Id { get; set; }
             public string Name { get; set; }
+
             public override bool Equals(object obj)
             {
                 return !(obj is TransactionCustomer otherCustomer)
@@ -1283,13 +1289,19 @@ namespace Microsoft.EntityFrameworkCore
                     && Name == otherCustomer.Name;
             }
 
-            public override string ToString() => "Id = " + Id + ", Name = " + Name;
+            public override string ToString()
+                => "Id = " + Id + ", Name = " + Name;
 
-            public override int GetHashCode() => HashCode.Combine(Id, Name);
-
+            public override int GetHashCode()
+                => HashCode.Combine(Id, Name);
         }
-        protected class TransactionCustomer : TransactionEntity { }
 
-        protected class TransactionOrder : TransactionEntity { }
+        protected class TransactionCustomer : TransactionEntity
+        {
+        }
+
+        protected class TransactionOrder : TransactionEntity
+        {
+        }
     }
 }

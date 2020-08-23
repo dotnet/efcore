@@ -71,8 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                 {
                     var comparer = property.IsKey()
                         || property.IsForeignKey()
-                        ? property.GetKeyValueComparer()
-                        : property.GetValueComparer();
+                            ? property.GetKeyValueComparer()
+                            : property.GetValueComparer();
 
                     HandleChanging(invocation, property, comparer);
                 }

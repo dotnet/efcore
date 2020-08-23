@@ -57,6 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates an <see cref="IExecutionStrategy" /> for the current database provider.
         /// </summary>
-        public virtual IExecutionStrategy Create() => _createExecutionStrategy(Dependencies);
+        public virtual IExecutionStrategy Create()
+            => _createExecutionStrategy(Dependencies);
     }
 }

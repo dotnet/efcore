@@ -18,7 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
+        protected GearsOfWarContext CreateContext()
+            => Fixture.CreateContext();
 
         [ConditionalFact]
         public virtual async Task Cast_to_derived_type_causes_client_eval()

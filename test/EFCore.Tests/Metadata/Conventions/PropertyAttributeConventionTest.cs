@@ -716,7 +716,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
         }
 
-        private static ModelBuilder CreateModelBuilder() => InMemoryTestHelpers.Instance.CreateConventionBuilder();
+        private static ModelBuilder CreateModelBuilder()
+            => InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
         private class MyContext : DbContext
         {

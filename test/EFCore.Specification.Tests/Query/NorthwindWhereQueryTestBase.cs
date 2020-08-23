@@ -23,7 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
+        protected NorthwindContext CreateContext()
+            => Fixture.CreateContext();
 
         protected virtual void ClearLog()
         {
@@ -1192,7 +1193,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss =>
                     from c in ss.Set<Customer>()
                     from e in ss.Set<Employee>()
-                        // ReSharper disable ArrangeRedundantParentheses
+                    // ReSharper disable ArrangeRedundantParentheses
 #pragma warning disable RCS1032 // Remove redundant parentheses.
                     where (c.City == "London" && c.Country == "UK")
                         && (e.City == "London" && e.Country == "UK")
@@ -1794,7 +1795,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Customer>().Where(c => (object)c.City == (object)(object)"London"),
+                ss => ss.Set<Customer>().Where(c => (object)c.City == (object)"London"),
                 entryCount: 6);
         }
 
@@ -1996,7 +1997,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private int SettableProperty { get; set; }
-        private int ReadOnlyProperty => 5;
+
+        private int ReadOnlyProperty
+            => 5;
+
         private const int ConstantProperty = 1;
 
         [ConditionalTheory]
@@ -2124,7 +2128,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<Customer>()
-                    .Select(c => new { c.CustomerID, Subquery = ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).Select(o => o.CustomerID).AsEnumerable() })
+                    .Select(
+                        c => new
+                        {
+                            c.CustomerID,
+                            Subquery = ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).Select(o => o.CustomerID).AsEnumerable()
+                        })
                     .Where(e => !e.Subquery.Contains("ALFKI")),
                 elementSorter: e => e.CustomerID,
                 elementAsserter: (e, a) => AssertCollection(e.Subquery, a.Subquery));
@@ -2303,7 +2312,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" || c.CustomerID == "ANATR" || c.CustomerID == "ANTON" || c.CustomerID == "ANATR"),
+                ss => ss.Set<Customer>().Where(
+                    c => c.CustomerID == "ALFKI" || c.CustomerID == "ANATR" || c.CustomerID == "ANTON" || c.CustomerID == "ANATR"),
                 entryCount: 3);
         }
 
@@ -2333,7 +2343,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ANTON" || new[] { "ALFKI", "ANATR" }.Contains(c.CustomerID) || c.CustomerID == "ALFKI"),
+                ss => ss.Set<Customer>().Where(
+                    c => c.CustomerID == "ANTON" || new[] { "ALFKI", "ANATR" }.Contains(c.CustomerID) || c.CustomerID == "ALFKI"),
                 entryCount: 3);
         }
 
@@ -2343,7 +2354,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Customer>().Where(c => new[] { "ALFKI", "ANATR" }.Contains(c.CustomerID) || new[] { "ALFKI", "ANTON" }.Contains(c.CustomerID)),
+                ss => ss.Set<Customer>().Where(
+                    c => new[] { "ALFKI", "ANATR" }.Contains(c.CustomerID) || new[] { "ALFKI", "ANTON" }.Contains(c.CustomerID)),
                 entryCount: 3);
         }
 
@@ -2353,7 +2365,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Customer>().Where(c => !new[] { "ALFKI", "ANATR" }.Contains(c.CustomerID) && !new[] { "ALFKI", "ANTON" }.Contains(c.CustomerID)),
+                ss => ss.Set<Customer>().Where(
+                    c => !new[] { "ALFKI", "ANATR" }.Contains(c.CustomerID) && !new[] { "ALFKI", "ANTON" }.Contains(c.CustomerID)),
                 entryCount: 88);
         }
 
@@ -2383,7 +2396,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Customer>().Where(c => new[] { prm1, prm2 }.Contains(c.CustomerID) || c.CustomerID == "ANTON"),
                 entryCount: 3);
         }
-
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -2429,10 +2441,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Customer>().Where(c => new string[] { "ALFKI", "ANATR" }.Contains(c.CustomerID) && (c.CustomerID == "ANATR" || c.CustomerID == "ANTON")),
+                ss => ss.Set<Customer>().Where(
+                    c => new[] { "ALFKI", "ANATR" }.Contains(c.CustomerID) && (c.CustomerID == "ANATR" || c.CustomerID == "ANTON")),
                 entryCount: 1);
         }
-
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -2440,9 +2452,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Customer>().Where(c => (c.Region != "WA" && c.Region != "OR" && c.Region != null) || (c.Region != "WA" && c.Region != null)),
+                ss => ss.Set<Customer>().Where(
+                    c => (c.Region != "WA" && c.Region != "OR" && c.Region != null) || (c.Region != "WA" && c.Region != null)),
                 entryCount: 28);
         }
-
     }
 }

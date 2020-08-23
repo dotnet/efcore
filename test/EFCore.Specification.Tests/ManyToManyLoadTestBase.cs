@@ -17,7 +17,8 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class ManyToManyLoadTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : ManyToManyLoadTestBase<TFixture>.ManyToManyLoadFixtureBase
     {
-        protected ManyToManyLoadTestBase(TFixture fixture) => Fixture = fixture;
+        protected ManyToManyLoadTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         [ConditionalTheory]
         [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
@@ -180,7 +181,6 @@ namespace Microsoft.EntityFrameworkCore
                 }
 
                 context.Entry(left).State = state;
-
             }
 
             context.ChangeTracker.LazyLoadingEnabled = true;
@@ -539,7 +539,9 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
         public virtual async Task Load_collection_using_Query_already_loaded_untyped(
-            EntityState state, bool async, CascadeTiming deleteOrphansTiming)
+            EntityState state,
+            bool async,
+            CascadeTiming deleteOrphansTiming)
         {
             using var context = Fixture.CreateContext();
 
@@ -736,7 +738,8 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TFixture Fixture { get; }
 
-        protected virtual bool ExpectLazyLoading => false;
+        protected virtual bool ExpectLazyLoading
+            => false;
 
         public abstract class ManyToManyLoadFixtureBase : ManyToManyQueryFixtureBase
         {

@@ -91,13 +91,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public IStateManager StateManager => CurrentContext.GetDependencies().StateManager;
+        public IStateManager StateManager
+            => CurrentContext.GetDependencies().StateManager;
 
         /// <summary>
         ///     Gets the query provider.
         /// </summary>
         [Obsolete("Use the service by getting it from " + nameof(CurrentContext) + ".")]
-        public IQueryProvider QueryProvider => CurrentContext.GetDependencies().QueryProvider;
+        public IQueryProvider QueryProvider
+            => CurrentContext.GetDependencies().QueryProvider;
 
         /// <summary>
         ///     The execution strategy.
@@ -126,6 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> A new parameter object with the given service replaced. </returns>
         public QueryContextDependencies With([NotNull] ICurrentDbContext currentContext)
             => new QueryContextDependencies(currentContext, ExecutionStrategyFactory, ConcurrencyDetector, CommandLogger, QueryLogger);
+
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>

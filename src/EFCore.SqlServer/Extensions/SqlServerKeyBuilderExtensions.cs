@@ -36,7 +36,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="clustered"> A value indicating whether the key is clustered. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static KeyBuilder<TEntity> IsClustered<TEntity>(
-            [NotNull] this KeyBuilder<TEntity> keyBuilder, bool clustered = true)
+            [NotNull] this KeyBuilder<TEntity> keyBuilder,
+            bool clustered = true)
             => (KeyBuilder<TEntity>)IsClustered((KeyBuilder)keyBuilder, clustered);
 
         /// <summary>

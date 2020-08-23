@@ -663,11 +663,7 @@ SELECT changes();
         public virtual void AlterTable_mostly_works_when_no_model()
         {
             Generate(
-                new AlterTableOperation
-                {
-                    Name = "Blogs",
-                    Comment = "The Blogs table"
-                });
+                new AlterTableOperation { Name = "Blogs", Comment = "The Blogs table" });
 
             Assert.Empty(Sql);
         }
@@ -677,11 +673,7 @@ SELECT changes();
         {
             var ex = Assert.Throws<NotSupportedException>(
                 () => Generate(
-                    new DropForeignKeyOperation
-                    {
-                        Table = "Posts",
-                        Name = "FK_Posts_BlogId"
-                    }));
+                    new DropForeignKeyOperation { Table = "Posts", Name = "FK_Posts_BlogId" }));
 
             Assert.Equal(SqliteStrings.InvalidMigrationOperation("DropForeignKeyOperation"), ex.Message);
         }
@@ -691,11 +683,7 @@ SELECT changes();
         {
             var ex = Assert.Throws<NotSupportedException>(
                 () => Generate(
-                    new DropPrimaryKeyOperation
-                    {
-                        Table = "Blogs",
-                        Name = "PK_Blogs"
-                    }));
+                    new DropPrimaryKeyOperation { Table = "Blogs", Name = "PK_Blogs" }));
 
             Assert.Equal(SqliteStrings.InvalidMigrationOperation("DropPrimaryKeyOperation"), ex.Message);
         }
@@ -705,11 +693,7 @@ SELECT changes();
         {
             var ex = Assert.Throws<NotSupportedException>(
                 () => Generate(
-                    new DropUniqueConstraintOperation
-                    {
-                        Table = "Blogs",
-                        Name = "AK_Blogs_Uri"
-                    }));
+                    new DropUniqueConstraintOperation { Table = "Blogs", Name = "AK_Blogs_Uri" }));
 
             Assert.Equal(SqliteStrings.InvalidMigrationOperation("DropUniqueConstraintOperation"), ex.Message);
         }
@@ -719,11 +703,7 @@ SELECT changes();
         {
             var ex = Assert.Throws<NotSupportedException>(
                 () => Generate(
-                    new DropColumnOperation
-                    {
-                        Table = "Posts",
-                        Name = "Rating"
-                    }));
+                    new DropColumnOperation { Table = "Posts", Name = "Rating" }));
 
             Assert.Equal(SqliteStrings.InvalidMigrationOperation("DropColumnOperation"), ex.Message);
         }
@@ -960,7 +940,6 @@ PRAGMA foreign_keys = 1;
                         name: "IX_Blog_Name",
                         table: "Blog",
                         column: "Name");
-
                 });
 
             AssertSql(
@@ -1034,12 +1013,13 @@ PRAGMA foreign_keys = 1;
         }
 
         public SqliteMigrationsSqlGeneratorTest()
-            : base(SqliteTestHelpers.Instance,
-                  new ServiceCollection().AddEntityFrameworkSqliteNetTopologySuite(),
-                  SqliteTestHelpers.Instance.AddProviderOptions(
-                  ((IRelationalDbContextOptionsBuilderInfrastructure)
-                    new SqliteDbContextOptionsBuilder(new DbContextOptionsBuilder()).UseNetTopologySuite())
-                  .OptionsBuilder).Options)
+            : base(
+                SqliteTestHelpers.Instance,
+                new ServiceCollection().AddEntityFrameworkSqliteNetTopologySuite(),
+                SqliteTestHelpers.Instance.AddProviderOptions(
+                    ((IRelationalDbContextOptionsBuilderInfrastructure)
+                        new SqliteDbContextOptionsBuilder(new DbContextOptionsBuilder()).UseNetTopologySuite())
+                    .OptionsBuilder).Options)
         {
         }
     }

@@ -42,7 +42,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     Gets the entry tracking information about this entity.
         /// </summary>
-        public virtual EntityEntry SourceEntry => _sourceEntry == null ? null : new EntityEntry(_sourceEntry);
+        public virtual EntityEntry SourceEntry
+            => _sourceEntry == null ? null : new EntityEntry(_sourceEntry);
 
         /// <summary>
         ///     Gets the navigation property that is being traversed to reach this node in the graph.
@@ -52,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     Gets the entry tracking information about this entity.
         /// </summary>
-        public virtual EntityEntry Entry => new EntityEntry(_entry);
+        public virtual EntityEntry Entry
+            => new EntityEntry(_entry);
 
         /// <summary>
         ///     <para>
@@ -63,7 +65,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         application code.
         ///     </para>
         /// </summary>
-        InternalEntityEntry IInfrastructure<InternalEntityEntry>.Instance => _entry;
+        InternalEntityEntry IInfrastructure<InternalEntityEntry>.Instance
+            => _entry;
 
         /// <summary>
         ///     Creates a new node for the entity that is being traversed next in the graph.

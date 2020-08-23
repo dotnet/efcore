@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -149,8 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                             var indexerExpression = Expression.Call(
                                 target,
-                                methodCallExpression.Method,
-                                new[] { methodCallExpression.Arguments[0] });
+                                methodCallExpression.Method, methodCallExpression.Arguments[0]);
 
                             return nullable && !indexerExpression.Type.IsNullableType()
                                 ? Expression.Convert(indexerExpression, indexerExpression.Type.MakeNullable())
@@ -176,7 +175,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         private Expression PushdownMember(
-            MethodCallExpression methodCallExpression, Func<Expression, bool, Expression> createSelector, Type returnType)
+            MethodCallExpression methodCallExpression,
+            Func<Expression, bool, Expression> createSelector,
+            Type returnType)
         {
             var source = methodCallExpression.Arguments[0];
             var queryableType = source.Type.TryGetSequenceType();
@@ -198,7 +199,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 var selector = sourceMethodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
                 var selectorBody = selector.Body;
-                var memberAccessExpression = createSelector(selectorBody, methodCallExpression.Method.Name.EndsWith("OrDefault", StringComparison.Ordinal));
+                var memberAccessExpression = createSelector(
+                    selectorBody, methodCallExpression.Method.Name.EndsWith("OrDefault", StringComparison.Ordinal));
 
                 source = Expression.Call(
                     QueryableMethods.Select.MakeGenericMethod(
@@ -211,7 +213,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             else
             {
                 var parameter = Expression.Parameter(queryableType, "s");
-                var memberAccessExpression = createSelector(parameter, methodCallExpression.Method.Name.EndsWith("OrDefault", StringComparison.Ordinal));
+                var memberAccessExpression = createSelector(
+                    parameter, methodCallExpression.Method.Name.EndsWith("OrDefault", StringComparison.Ordinal));
 
                 source = Expression.Call(
                     QueryableMethods.Select.MakeGenericMethod(queryableType, memberAccessExpression.Type),

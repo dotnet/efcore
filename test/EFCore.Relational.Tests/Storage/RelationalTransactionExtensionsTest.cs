@@ -59,12 +59,23 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             public Guid TransactionId { get; } = Guid.NewGuid();
 
-            public void Commit() => throw new NotImplementedException();
-            public void Dispose() => throw new NotImplementedException();
-            public void Rollback() => throw new NotImplementedException();
-            public Task CommitAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
-            public Task RollbackAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
-            public ValueTask DisposeAsync() => throw new NotImplementedException();
+            public void Commit()
+                => throw new NotImplementedException();
+
+            public void Dispose()
+                => throw new NotImplementedException();
+
+            public void Rollback()
+                => throw new NotImplementedException();
+
+            public Task CommitAsync(CancellationToken cancellationToken = default)
+                => throw new NotImplementedException();
+
+            public Task RollbackAsync(CancellationToken cancellationToken = default)
+                => throw new NotImplementedException();
+
+            public ValueTask DisposeAsync()
+                => throw new NotImplementedException();
         }
 
         private const string ConnectionString = "Fake Connection String";

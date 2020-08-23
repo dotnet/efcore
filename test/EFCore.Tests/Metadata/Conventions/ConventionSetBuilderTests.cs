@@ -35,8 +35,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return model;
         }
 
-        protected virtual ConventionSet GetConventionSet() => InMemoryConventionSetBuilder.Build();
-        protected virtual ModelBuilder GetModelBuilder() => InMemoryConventionSetBuilder.CreateModelBuilder();
+        protected virtual ConventionSet GetConventionSet()
+            => InMemoryConventionSetBuilder.Build();
+
+        protected virtual ModelBuilder GetModelBuilder()
+            => InMemoryConventionSetBuilder.CreateModelBuilder();
 
         [Table("ProductTable")]
         protected class Product

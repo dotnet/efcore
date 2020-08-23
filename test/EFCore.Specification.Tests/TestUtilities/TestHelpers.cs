@@ -106,8 +106,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public IServiceProvider CreateContextServices(IServiceProvider serviceProvider, DbContextOptions options)
             => ((IInfrastructure<IServiceProvider>)CreateContext(serviceProvider, options)).Instance;
 
-        public IServiceProvider CreateContextServices(IServiceProvider serviceProvider) =>
-            ((IInfrastructure<IServiceProvider>)CreateContext(serviceProvider)).Instance;
+        public IServiceProvider CreateContextServices(IServiceProvider serviceProvider)
+            => ((IInfrastructure<IServiceProvider>)CreateContext(serviceProvider)).Instance;
 
         public IServiceProvider CreateContextServices(IModel model)
             => ((IInfrastructure<IServiceProvider>)CreateContext(model)).Instance;
@@ -180,7 +180,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public virtual LoggingDefinitions LoggingDefinitions { get; } = new TestLoggingDefinitions();
 
         public InternalEntityEntry CreateInternalEntry<TEntity>(
-            IModel model, EntityState entityState = EntityState.Detached, TEntity entity = null)
+            IModel model,
+            EntityState entityState = EntityState.Detached,
+            TEntity entity = null)
             where TEntity : class, new()
         {
             var entry = CreateContextServices(model)
@@ -219,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 && !verifyOrdered
                 && expected.Count > 1 // If there is only 1 element then sorting is not necessary
                 && expected.FirstOrDefault(e => e != null) is T nonNullElement
-                    && nonNullElement.GetType().GetInterface(nameof(IComparable)) == null)
+                && nonNullElement.GetType().GetInterface(nameof(IComparable)) == null)
             {
                 if (elementAsserter != null)
                 {

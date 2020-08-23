@@ -89,17 +89,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Gets the internal builder being used to configure the owned entity type.
         /// </summary>
-        IConventionEntityTypeBuilder IInfrastructure<IConventionEntityTypeBuilder>.Instance => DependentEntityType.Builder;
+        IConventionEntityTypeBuilder IInfrastructure<IConventionEntityTypeBuilder>.Instance
+            => DependentEntityType.Builder;
 
         /// <summary>
         ///     The foreign key that represents this ownership.
         /// </summary>
-        public virtual IMutableForeignKey Metadata => Builder.Metadata;
+        public virtual IMutableForeignKey Metadata
+            => Builder.Metadata;
 
         /// <summary>
         ///     The owned entity type being configured.
         /// </summary>
-        public virtual IMutableEntityType OwnedEntityType => DependentEntityType;
+        public virtual IMutableEntityType OwnedEntityType
+            => DependentEntityType;
 
         /// <summary>
         ///     Adds or updates an annotation on the owned entity type. If an annotation with the key specified in

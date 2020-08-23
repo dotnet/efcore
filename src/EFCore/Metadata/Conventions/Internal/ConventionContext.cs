@@ -34,7 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual TMetadata Result => _result;
+        public virtual TMetadata Result
+            => _result;
 
         /// <summary>
         ///     Calling this will prevent further processing of the associated event by other conventions.
@@ -88,7 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     </para>
         /// </summary>
         /// <returns> An object that should be disposed to execute the delayed conventions. </returns>
-        public virtual IConventionBatch DelayConventions() => _dispatcher.DelayConventions();
+        public virtual IConventionBatch DelayConventions()
+            => _dispatcher.DelayConventions();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -96,7 +98,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool ShouldStopProcessing() => _stopProcessing;
+        public virtual bool ShouldStopProcessing()
+            => _stopProcessing;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

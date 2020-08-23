@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
@@ -201,7 +200,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             entityType.SetDiscriminatorValue(null);
         }
 
-        private static IMutableModel CreateModel() => new Model();
+        private static IMutableModel CreateModel()
+            => new Model();
 
         private class A<T>
         {

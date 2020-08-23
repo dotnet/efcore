@@ -7,7 +7,6 @@ using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -1272,7 +1271,8 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected override ModelBuilder CreateModelBuilder() => SqlServerTestHelpers.Instance.CreateConventionBuilder();
+        protected override ModelBuilder CreateModelBuilder()
+            => SqlServerTestHelpers.Instance.CreateConventionBuilder();
 
         private class TestParameter : DbParameter
         {

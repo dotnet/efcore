@@ -53,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosProjectionBindingExpressionVisitor(
-            [NotNull] IModel model, [NotNull] CosmosSqlTranslatingExpressionVisitor sqlTranslator)
+            [NotNull] IModel model,
+            [NotNull] CosmosSqlTranslatingExpressionVisitor sqlTranslator)
         {
             _model = model;
             _sqlTranslator = sqlTranslator;
@@ -133,7 +134,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             return parameterExpression;
                         }
 
-                        if (parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true)
+                        if (parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal)
+                            == true)
                         {
                             return Expression.Call(
                                 _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
@@ -241,8 +243,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 case MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression:
                     return materializeCollectionNavigationExpression.Navigation is INavigation embeddableNavigation
                         && embeddableNavigation.IsEmbedded()
-                        ? base.Visit(materializeCollectionNavigationExpression.Subquery)
-                        : base.VisitExtension(materializeCollectionNavigationExpression);
+                            ? base.Visit(materializeCollectionNavigationExpression.Subquery)
+                            : base.VisitExtension(materializeCollectionNavigationExpression);
 
                 case IncludeExpression includeExpression:
                     if (!_clientEval)
@@ -708,10 +710,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             var operand = Visit(unaryExpression.Operand);
 
             return (unaryExpression.NodeType == ExpressionType.Convert
-                || unaryExpression.NodeType == ExpressionType.ConvertChecked)
+                    || unaryExpression.NodeType == ExpressionType.ConvertChecked)
                 && unaryExpression.Type == operand.Type
-                ? operand
-                : unaryExpression.Update(MatchTypes(operand, unaryExpression.Operand.Type));
+                    ? operand
+                    : unaryExpression.Update(MatchTypes(operand, unaryExpression.Operand.Type));
         }
 
         // TODO: Debugging

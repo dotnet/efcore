@@ -89,8 +89,9 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new TwoDatabasesContext(
                 CreateTestOptions(new DbContextOptionsBuilder(), withConnectionString: true)
-                    .AddInterceptors(new ConnectionStringConnectionInterceptor(
-                        connectionString1, DummyConnectionString))
+                    .AddInterceptors(
+                        new ConnectionStringConnectionInterceptor(
+                            connectionString1, DummyConnectionString))
                     .Options))
             {
                 var data = context.Foos.ToList();
@@ -114,7 +115,10 @@ namespace Microsoft.EntityFrameworkCore
                 _dummyConnectionString = dummyConnectionString;
             }
 
-            public override InterceptionResult ConnectionOpening(DbConnection connection, ConnectionEventData eventData, InterceptionResult result)
+            public override InterceptionResult ConnectionOpening(
+                DbConnection connection,
+                ConnectionEventData eventData,
+                InterceptionResult result)
             {
                 Assert.Equal(_dummyConnectionString, eventData.Context.Database.GetConnectionString());
                 eventData.Context.Database.SetConnectionString(_goodConnectionString);
@@ -130,11 +134,12 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected abstract DbContextOptionsBuilder CreateTestOptions(
-            DbContextOptionsBuilder optionsBuilder, bool withConnectionString = false);
+            DbContextOptionsBuilder optionsBuilder,
+            bool withConnectionString = false);
 
         protected abstract TwoDatabasesWithDataContext CreateBackingContext(string databaseName);
 
-        protected abstract string DummyConnectionString { get;  }
+        protected abstract string DummyConnectionString { get; }
 
         protected class TwoDatabasesContext : DbContext
         {
@@ -148,7 +153,8 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<Foo>();
             }
 
-            public IQueryable<Foo> Foos => this.Set<Foo>().OrderBy(e => e.Id);
+            public IQueryable<Foo> Foos
+                => Set<Foo>().OrderBy(e => e.Id);
         }
 
         protected class TwoDatabasesWithDataContext : TwoDatabasesContext
@@ -174,6 +180,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
+
             public string Bar { get; set; }
         }
     }

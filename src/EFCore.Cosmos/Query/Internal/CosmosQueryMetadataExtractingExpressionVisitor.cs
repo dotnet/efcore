@@ -42,7 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             {
                 var innerQueryable = Visit(methodCallExpression.Arguments[0]);
 
-                _cosmosQueryCompilationContext.PartitionKeyFromExtension = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
+                _cosmosQueryCompilationContext.PartitionKeyFromExtension =
+                    (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
 
                 return innerQueryable;
             }

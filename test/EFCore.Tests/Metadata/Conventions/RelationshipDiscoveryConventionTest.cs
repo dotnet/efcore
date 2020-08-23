@@ -1091,7 +1091,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private static void VerifyRelationship(
-            Navigation navigation, string expectedInverseName, bool unique, bool singleRelationship = true)
+            Navigation navigation,
+            string expectedInverseName,
+            bool unique,
+            bool singleRelationship = true)
         {
             IForeignKey fk = navigation.ForeignKey;
             Assert.Equal(expectedInverseName, navigation.Inverse?.Name);
@@ -1123,7 +1126,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private static void VerifySelfRef(
-            Navigation navigation, string expectedInverseName, bool unique, bool singleRelationship = true)
+            Navigation navigation,
+            string expectedInverseName,
+            bool unique,
+            bool singleRelationship = true)
         {
             IForeignKey fk = navigation.ForeignKey;
             Assert.Single(fk.DeclaringEntityType.Model.GetEntityTypes());
@@ -1205,7 +1211,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
 
             public void ProcessEntityTypeAdded(
-                IConventionEntityTypeBuilder entityTypeBuilder, IConventionContext<IConventionEntityTypeBuilder> context)
+                IConventionEntityTypeBuilder entityTypeBuilder,
+                IConventionContext<IConventionEntityTypeBuilder> context)
             {
                 foreach (var action in _onEntityAdded)
                 {
@@ -1477,7 +1484,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 yield return this;
             }
 
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            IEnumerator IEnumerable.GetEnumerator()
+                => GetEnumerator();
         }
 
         public class AmbiguousCardinalityTwo : IEnumerable<AmbiguousCardinalityTwo>
@@ -1498,7 +1506,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 yield return this;
             }
 
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            IEnumerator IEnumerable.GetEnumerator()
+                => GetEnumerator();
         }
     }
 }

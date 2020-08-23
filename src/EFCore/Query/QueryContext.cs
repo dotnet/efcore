@@ -51,7 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The current DbContext in using while executing the query.
         /// </summary>
-        public virtual DbContext Context => Dependencies.CurrentContext.Context;
+        public virtual DbContext Context
+            => Dependencies.CurrentContext.Context;
 
         /// <summary>
         ///     Parameter object containing dependencies for this service.
@@ -114,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             => (IReadOnlyDictionary<string, object>)_parameterValues;
 
         /// <summary>
-        ///     Adds a parameter to <see cref="ParameterValues"/> for this query.
+        ///     Adds a parameter to <see cref="ParameterValues" /> for this query.
         /// </summary>
         /// <param name="name"> The name. </param>
         /// <param name="value"> The value. </param>
@@ -126,9 +127,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Initializes the <see cref="IStateManager"/> to be used with this QueryContext.
+        ///     Initializes the <see cref="IStateManager" /> to be used with this QueryContext.
         /// </summary>
-        /// <param name="standAlone"> Whether a stand-alone <see cref="IStateManager"/> should be created to perform identity resolution. </param>
+        /// <param name="standAlone"> Whether a stand-alone <see cref="IStateManager" /> should be created to perform identity resolution. </param>
         public virtual void InitializeStateManager(bool standAlone = false)
         {
             if (_stateManager != null)

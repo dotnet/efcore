@@ -31,7 +31,8 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     The cache being used to store value generator instances.
         /// </summary>
-        public virtual IValueGeneratorCache Cache => Dependencies.Cache;
+        public virtual IValueGeneratorCache Cache
+            => Dependencies.Cache;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValueGeneratorSelector" /> class.

@@ -9,7 +9,8 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindKeylessEntitiesQueryInMemoryTest : NorthwindKeylessEntitiesQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
+    public class NorthwindKeylessEntitiesQueryInMemoryTest : NorthwindKeylessEntitiesQueryTestBase<
+        NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
     {
         public NorthwindKeylessEntitiesQueryInMemoryTest(
             NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture,
@@ -34,6 +35,5 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             await Assert.ThrowsAsync<InvalidOperationException>(() => base.KeylessEntity_with_included_nav(async));
         }
-
     }
 }

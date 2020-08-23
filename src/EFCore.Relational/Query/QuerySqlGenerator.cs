@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text.RegularExpressions;
-using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -18,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         A query SQL generator to get <see cref="IRelationalCommand"/> for given <see cref="SelectExpression"/>.
+    ///         A query SQL generator to get <see cref="IRelationalCommand" /> for given <see cref="SelectExpression" />.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -70,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual QuerySqlGeneratorDependencies Dependencies { get; }
 
         /// <summary>
-        ///     Gets a relational command for a <see cref="SelectExpression"/>.
+        ///     Gets a relational command for a <see cref="SelectExpression" />.
         /// </summary>
         /// <param name="selectExpression"> A select expression to print in command text. </param>
         /// <returns> A relational command with a SQL represented by the select expression. </returns>
@@ -102,7 +100,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The current SQL command builder.
         /// </summary>
-        protected virtual IRelationalCommandBuilder Sql => _relationalCommandBuilder;
+        protected virtual IRelationalCommandBuilder Sql
+            => _relationalCommandBuilder;
 
         /// <summary>
         ///     Generates the head comment for tags.
@@ -481,12 +480,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                     continue;
                 }
 
-                if (char.ToLowerInvariant(c) == 's' &&
-                    char.ToLowerInvariant(NextChar()) == 'e' &&
-                    char.ToLowerInvariant(NextChar()) == 'l' &&
-                    char.ToLowerInvariant(NextChar()) == 'e' &&
-                    char.ToLowerInvariant(NextChar()) == 'c' &&
-                    char.ToLowerInvariant(NextChar()) == 't')
+                if (char.ToLowerInvariant(c) == 's'
+                    && char.ToLowerInvariant(NextChar()) == 'e'
+                    && char.ToLowerInvariant(NextChar()) == 'l'
+                    && char.ToLowerInvariant(NextChar()) == 'e'
+                    && char.ToLowerInvariant(NextChar()) == 'c'
+                    && char.ToLowerInvariant(NextChar()) == 't')
                 {
                     var (c1, c2) = (NextChar(), NextChar());
                     if (char.IsWhiteSpace(c1)
@@ -761,6 +760,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         _relationalCommandBuilder.Append(")");
                     }
+
                     break;
                 }
             }
@@ -1048,13 +1048,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             _relationalCommandBuilder.AppendLine($"{GetSetOperation(setOperation)}{(setOperation.IsDistinct ? "" : " ALL")}");
             GenerateSetOperationOperand(setOperation, setOperation.Source2);
 
-            static string GetSetOperation(SetOperationBase operation) => operation switch
-            {
-                ExceptExpression _ => "EXCEPT",
-                IntersectExpression _ => "INTERSECT",
-                UnionExpression _ => "UNION",
-                _ => throw new InvalidOperationException(CoreStrings.UnknownEntity("SetOperationType")),
-            };
+            static string GetSetOperation(SetOperationBase operation)
+                => operation switch
+                {
+                    ExceptExpression _ => "EXCEPT",
+                    IntersectExpression _ => "INTERSECT",
+                    UnionExpression _ => "UNION",
+                    _ => throw new InvalidOperationException(CoreStrings.UnknownEntity("SetOperationType")),
+                };
         }
 
         /// <summary>

@@ -1,8 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
-
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 {
     public class NorthwindRelationalContext : NorthwindContext
@@ -11,7 +9,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             : base(options)
         {
         }
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,7 +23,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             modelBuilder.Entity<CustomerOrderHistory>().HasKey(coh => coh.ProductName);
             modelBuilder.Entity<MostExpensiveProduct>().HasKey(mep => mep.TenMostExpensiveProducts);
 
-            modelBuilder.Entity<CustomerQuery>().ToSqlQuery("SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]");
+            modelBuilder.Entity<CustomerQuery>().ToSqlQuery(
+                "SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]");
 
             modelBuilder.Entity<OrderQuery>().ToSqlQuery(@"select * from ""Orders""");
             modelBuilder.Entity<ProductView>().ToView("Alphabetical list of products");

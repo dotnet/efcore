@@ -9,17 +9,21 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindIncludeQuerySqlServerTest : NorthwindIncludeQueryRelationalTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    public class NorthwindIncludeQuerySqlServerTest : NorthwindIncludeQueryRelationalTestBase<
+        NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         // ReSharper disable once UnusedParameter.Local
-        public NorthwindIncludeQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+        public NorthwindIncludeQuerySqlServerTest(
+            NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture,
+            ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        protected override bool CanExecuteQueryString => true;
+        protected override bool CanExecuteQueryString
+            => true;
 
         public override async Task Include_list(bool async)
         {
@@ -1232,7 +1236,7 @@ ORDER BY [t0].[CustomerID], [t1].[OrderID], [t1].[OrderID0], [t1].[ProductID]");
             await base.Multi_level_includes_are_applied_with_skip_take(async);
 
             AssertSql(
-    @"@__p_0='1'
+                @"@__p_0='1'
 
 SELECT [t0].[CustomerID], [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [t1].[OrderID0], [t1].[ProductID], [t1].[Discount], [t1].[Quantity], [t1].[UnitPrice]
 FROM (

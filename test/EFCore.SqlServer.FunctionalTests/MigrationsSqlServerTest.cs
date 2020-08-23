@@ -23,7 +23,8 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class MigrationsSqlServerTest : MigrationsTestBase<MigrationsSqlServerTest.MigrationsSqlServerFixture>
     {
-        protected static string EOL => Environment.NewLine;
+        protected static string EOL
+            => Environment.NewLine;
 
         public MigrationsSqlServerTest(MigrationsSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -1795,8 +1796,12 @@ WHERE name = '{connection.Database}';";
         public class MigrationsSqlServerFixture : MigrationsFixtureBase
         {
             protected override string StoreName { get; } = nameof(MigrationsSqlServerTest);
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
-            public override TestHelpers TestHelpers => SqlServerTestHelpers.Instance;
+
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
+
+            public override TestHelpers TestHelpers
+                => SqlServerTestHelpers.Instance;
 
             protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
                 => base.AddServices(serviceCollection)

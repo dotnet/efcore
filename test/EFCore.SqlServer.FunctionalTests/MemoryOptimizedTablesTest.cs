@@ -17,7 +17,8 @@ namespace Microsoft.EntityFrameworkCore
     {
         protected MemoryOptimizedTablesFixture Fixture { get; }
 
-        public MemoryOptimizedTablesTest(MemoryOptimizedTablesFixture fixture) => Fixture = fixture;
+        public MemoryOptimizedTablesTest(MemoryOptimizedTablesFixture fixture)
+            => Fixture = fixture;
 
         [ConditionalFact]
         public void Can_create_memoryOptimized_table()
@@ -52,11 +53,13 @@ namespace Microsoft.EntityFrameworkCore
             return TestStore;
         }
 
-        private MemoryOptimizedContext CreateContext() => new MemoryOptimizedContext(Fixture.CreateOptions(TestStore));
+        private MemoryOptimizedContext CreateContext()
+            => new MemoryOptimizedContext(Fixture.CreateOptions(TestStore));
 
         public class MemoryOptimizedTablesFixture : ServiceProviderFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
         }
 
         private class MemoryOptimizedContext : DbContext

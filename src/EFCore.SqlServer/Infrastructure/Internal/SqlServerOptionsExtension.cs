@@ -81,7 +81,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
             private new SqlServerOptionsExtension Extension
                 => (SqlServerOptionsExtension)base.Extension;
 
-            public override bool IsDatabaseProvider => true;
+            public override bool IsDatabaseProvider
+                => true;
 
             public override string LogFragment
             {

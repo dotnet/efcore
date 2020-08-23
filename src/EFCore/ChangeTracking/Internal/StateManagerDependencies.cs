@@ -474,7 +474,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 UpdateLogger,
                 ChangeTrackingLogger);
 
-
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
