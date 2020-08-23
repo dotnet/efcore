@@ -127,7 +127,7 @@ namespace Microsoft.Data.Sqlite
         public override string ParameterName
         {
             get => _parameterName;
-            set => _parameterName = value ?? String.Empty;
+            set => _parameterName = value ?? string.Empty;
         }
 
         /// <summary>
@@ -137,12 +137,13 @@ namespace Microsoft.Data.Sqlite
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
         public override int Size
         {
-            get => _size
-                ?? (_value is string stringValue
-                    ? stringValue.Length
-                    : _value is byte[] byteArray
-                        ? byteArray.Length
-                        : 0);
+            get
+                => _size
+                    ?? (_value is string stringValue
+                        ? stringValue.Length
+                        : _value is byte[] byteArray
+                            ? byteArray.Length
+                            : 0);
 
             set
             {

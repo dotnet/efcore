@@ -12,7 +12,7 @@ namespace SQLitePCL
         private static readonly Dictionary<string, bool> _knownLibraries = new Dictionary<string, bool>
         {
             { "e_sqlcipher", true },
-            { "e_sqlite3", false},
+            { "e_sqlite3", false },
             { "sqlcipher", true },
             { "winsqlite3", false }
         };

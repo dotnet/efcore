@@ -90,21 +90,23 @@ namespace Microsoft.Data.Sqlite
         ///     Gets a value indicating whether the current stream supports reading.
         ///     Always true.
         /// </summary>
-        /// <value><see langword="true"/> if the stream supports reading; otherwise, <see langword="false"/>. </value>
-        public override bool CanRead => true;
+        /// <value><see langword="true" /> if the stream supports reading; otherwise, <see langword="false" />. </value>
+        public override bool CanRead
+            => true;
 
         /// <summary>
         ///     Gets a value indicating whether the current stream supports writing.
         /// </summary>
-        /// <value><see langword="true"/> if the stream supports writing; otherwise, <see langword="false"/>. </value>
+        /// <value><see langword="true" /> if the stream supports writing; otherwise, <see langword="false" />. </value>
         public override bool CanWrite { get; }
 
         /// <summary>
         ///     Gets a value indicating whether the current stream supports seeking.
         ///     Always true.
         /// </summary>
-        /// <value><see langword="true"/> if the stream supports seeking; otherwise, <see langword="false"/>. </value>
-        public override bool CanSeek => true;
+        /// <value><see langword="true" /> if the stream supports seeking; otherwise, <see langword="false" />. </value>
+        public override bool CanSeek
+            => true;
 
         /// <summary>
         ///     Gets the length in bytes of the stream.
@@ -279,7 +281,7 @@ namespace Microsoft.Data.Sqlite
         ///     Releases any resources used by the blob and closes it.
         /// </summary>
         /// <param name="disposing">
-        ///     true to release managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.
+        ///     true to release managed and unmanaged resources; <see langword="false" /> to release only unmanaged resources.
         /// </param>
         protected override void Dispose(bool disposing)
         {
