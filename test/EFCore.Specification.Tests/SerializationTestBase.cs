@@ -3,10 +3,12 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
-using Newtonsoft.Json;
 using Xunit;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -136,23 +138,23 @@ namespace Microsoft.EntityFrameworkCore
 
         private static T RoundtripThroughNewtonsoftJson<T>(T collection, bool ignoreLoops, bool writeIndented)
         {
-            var options = new JsonSerializerSettings
+            var options = new Newtonsoft.Json.JsonSerializerSettings
             {
                 PreserveReferencesHandling = ignoreLoops
-                    ? PreserveReferencesHandling.None
-                    : PreserveReferencesHandling.All,
+                    ? Newtonsoft.Json.PreserveReferencesHandling.None
+                    : Newtonsoft.Json.PreserveReferencesHandling.All,
                 ReferenceLoopHandling = ignoreLoops
-                    ? ReferenceLoopHandling.Ignore
-                    : ReferenceLoopHandling.Error,
+                    ? Newtonsoft.Json.ReferenceLoopHandling.Ignore
+                    : Newtonsoft.Json.ReferenceLoopHandling.Error,
                 EqualityComparer = LegacyReferenceEqualityComparer.Instance,
                 Formatting = writeIndented
-                    ? Formatting.Indented
-                    : Formatting.None
+                    ? Newtonsoft.Json.Formatting.Indented
+                    : Newtonsoft.Json.Formatting.None
             };
 
-            var serializeObject = JsonConvert.SerializeObject(collection, options);
+            var serializeObject = Newtonsoft.Json.JsonConvert.SerializeObject(collection, options);
 
-            return JsonConvert.DeserializeObject<T>(serializeObject);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(serializeObject);
         }
     }
 }

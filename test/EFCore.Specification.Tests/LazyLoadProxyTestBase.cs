@@ -2106,9 +2106,9 @@ namespace Microsoft.EntityFrameworkCore
             }
 
 #if NET5_0
-            var options = new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.Preserve, WriteIndented = true };
+            var options = new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve, WriteIndented = true };
 
-            serialized = JsonSerializer.Serialize(blogs, options);
+            serialized = System.Text.Json.JsonSerializer.Serialize(blogs, options);
 
             Assert.Equal(@"{
   ""$id"": ""1"",
@@ -2170,7 +2170,7 @@ namespace Microsoft.EntityFrameworkCore
   ]
 }", serialized, ignoreLineEndingDifferences: true);
 
-            newBlogs = JsonSerializer.Deserialize<List<Blog>>(serialized, options);
+            newBlogs = System.Text.Json.JsonSerializer.Deserialize<List<Blog>>(serialized, options);
             Assert.IsType<List<Blog>>(newBlogs);
 
             foreach (var blog in newBlogs)
