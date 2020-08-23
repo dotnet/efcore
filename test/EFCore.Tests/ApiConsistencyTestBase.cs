@@ -832,8 +832,9 @@ namespace Microsoft.EntityFrameworkCore
                    let interfaceMappings = type.GetInterfaces().Select(i => type.GetTypeInfo().GetRuntimeInterfaceMap(i))
                    let events = type.GetEvents()
                    from method in type.GetMethods(AnyInstance | BindingFlags.Static | BindingFlags.DeclaredOnly)
-                       .Concat<MethodBase>(type.GetConstructors(
-                           BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static))
+                       .Concat<MethodBase>(
+                           type.GetConstructors(
+                               BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static))
                    where (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
                        && !Fixture.NotAnnotatedMethods.Contains(method)
                        && (method is ConstructorInfo || ((MethodInfo)method).GetBaseDefinition().DeclaringType == method.DeclaringType)
@@ -846,8 +847,10 @@ namespace Microsoft.EntityFrameworkCore
                        : parameter.ParameterType
                    where !parameterType.IsValueType
                        && !parameter.GetCustomAttributes()
-                           .Any(a => a.GetType().Name == nameof(NotNullAttribute)
-                                   || a.GetType().Name == nameof(CanBeNullAttribute))
+                           .Any(
+                               a => a.GetType().Namespace == "JetBrains.Annotations"
+                                   && (a.GetType().Name == nameof(NotNullAttribute)
+                                       || a.GetType().Name == nameof(CanBeNullAttribute)))
                    select $"{type.FullName}.{method.Name}[{parameter.Name}]")
                 .ToList();
 
@@ -875,7 +878,9 @@ namespace Microsoft.EntityFrameworkCore
                            || events.Any(e => e.AddMethod == method || e.RemoveMethod == method)
                            || parameterType.IsValueType && !parameterType.IsNullableType())
                        && attributes.Any(
-                           a => a.GetType().Name == nameof(NotNullAttribute) || a.GetType().Name == nameof(CanBeNullAttribute))
+                           a => a.GetType().Namespace == "JetBrains.Annotations"
+                               && (a.GetType().Name == nameof(NotNullAttribute)
+                                   || a.GetType().Name == nameof(CanBeNullAttribute)))
                        || parameterType.IsValueType
                        && parameterType.IsNullableType()
                        && attributes.Any(a => a.GetType().Name == nameof(CanBeNullAttribute))

@@ -3,12 +3,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using JetbrainsNotNull = JetBrains.Annotations.NotNullAttribute;
+using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="NonNullableConventionBase" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        protected NonNullableConventionBase([JetbrainsNotNull] ProviderConventionSetBuilderDependencies dependencies)
+        protected NonNullableConventionBase([NotNull] ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -46,8 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="memberInfo"> The member info. </param>
         /// <returns> <see langword="true" /> if the member type is a non-nullable reference type. </returns>
         protected virtual bool IsNonNullableReferenceType(
-            [JetbrainsNotNull] IConventionModelBuilder modelBuilder,
-            [JetbrainsNotNull] MemberInfo memberInfo)
+            [NotNull] IConventionModelBuilder modelBuilder,
+            [NotNull] MemberInfo memberInfo)
         {
             if (memberInfo.GetMemberType().IsValueType)
             {
@@ -59,8 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             // First check for [MaybeNull] on the return value. If it exists, the member is nullable.
             var isMaybeNull = memberInfo switch
             {
-                FieldInfo f => f.GetCustomAttribute<MaybeNullAttribute>() != null,
-                PropertyInfo p => p.GetMethod?.ReturnParameter?.GetCustomAttribute<MaybeNullAttribute>() != null,
+                FieldInfo f => f.GetCustomAttribute<CA.MaybeNullAttribute>() != null,
+                PropertyInfo p => p.GetMethod?.ReturnParameter?.GetCustomAttribute<CA.MaybeNullAttribute>() != null,
                 _ => false
             };
 

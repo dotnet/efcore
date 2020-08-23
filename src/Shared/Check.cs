@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         [Conditional("DEBUG")]
-        public static void DebugAssert([CA.DoesNotReturnIfAttribute(false)] bool condition, string message)
+        public static void DebugAssert([CA.DoesNotReturnIf(false)] bool condition, string message)
         {
             if (!condition)
             {
