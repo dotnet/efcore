@@ -177,7 +177,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string Uniquifier(
-            [NotNull] string proposedIdentifier, [CanBeNull] ICollection<string> existingIdentifiers)
+            [NotNull] string proposedIdentifier,
+            [CanBeNull] ICollection<string> existingIdentifiers)
         {
             Check.NotEmpty(proposedIdentifier, nameof(proposedIdentifier));
 
@@ -234,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 return ch < 'A'
                     ? false
                     : ch <= 'Z'
-                      || ch == '_';
+                    || ch == '_';
             }
 
             if (ch <= 'z')
@@ -251,9 +252,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 return ch < 'A'
                     ? ch >= '0'
-                      && ch <= '9'
+                    && ch <= '9'
                     : ch <= 'Z'
-                      || ch == '_';
+                    || ch == '_';
             }
 
             if (ch <= 'z')

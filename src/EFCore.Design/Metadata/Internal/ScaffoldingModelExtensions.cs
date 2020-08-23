@@ -39,8 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static void SetEntityTypeErrors([NotNull] this IMutableModel model, [NotNull] IDictionary<string, string> value) =>
-            model.SetAnnotation(
+        public static void SetEntityTypeErrors([NotNull] this IMutableModel model, [NotNull] IDictionary<string, string> value)
+            => model.SetAnnotation(
                 ScaffoldingAnnotationNames.EntityTypeErrors,
                 Check.NotNull(value, nameof(value)));
 
@@ -59,8 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static void SetDatabaseName([NotNull] this IMutableModel model, [CanBeNull] string value) =>
-            model.SetAnnotation(
+        public static void SetDatabaseName([NotNull] this IMutableModel model, [CanBeNull] string value)
+            => model.SetAnnotation(
                 ScaffoldingAnnotationNames.DatabaseName,
                 Check.NullButNotEmpty(value, nameof(value)));
     }

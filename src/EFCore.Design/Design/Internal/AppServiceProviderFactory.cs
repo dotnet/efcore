@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _reporter.WriteVerbose(DesignStrings.FindingServiceProvider);
 
             return CreateFromHosting(args)
-                   ?? CreateEmptyServiceProvider();
+                ?? CreateEmptyServiceProvider();
         }
 
         private IServiceProvider CreateFromHosting(string[] args)
@@ -68,6 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             {
                 Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", environment);
             }
+
             if (dotnetEnvironment == null)
             {
                 Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", environment);

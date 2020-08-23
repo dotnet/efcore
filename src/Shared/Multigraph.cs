@@ -19,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         private readonly Dictionary<TVertex, List<TVertex>> _predecessorMap =
             new Dictionary<TVertex, List<TVertex>>();
 
-        public IEnumerable<TEdge> Edges => _successorMap.Values.SelectMany(s => s.Values).SelectMany(e => e).Distinct();
+        public IEnumerable<TEdge> Edges
+            => _successorMap.Values.SelectMany(s => s.Values).SelectMany(e => e).Distinct();
 
         public IEnumerable<TEdge> GetEdges([NotNull] TVertex from, [NotNull] TVertex to)
         {
@@ -89,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             {
                 throw new InvalidOperationException(CoreStrings.GraphDoesNotContainVertex(to));
             }
- #endif
+#endif
 
             if (!_successorMap.TryGetValue(from, out var successorEdges))
             {
@@ -105,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
             edgeList.AddRange(edges);
 
-            if(!_predecessorMap.TryGetValue(to, out var predecessors))
+            if (!_predecessorMap.TryGetValue(to, out var predecessors))
             {
                 predecessors = new List<TVertex>();
                 _predecessorMap.Add(to, predecessors);
@@ -121,7 +122,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             _predecessorMap.Clear();
         }
 
-        public IReadOnlyList<TVertex> TopologicalSort() => TopologicalSort(null, null);
+        public IReadOnlyList<TVertex> TopologicalSort()
+            => TopologicalSort(null, null);
 
         public IReadOnlyList<TVertex> TopologicalSort(
             [CanBeNull] Func<TVertex, TVertex, IEnumerable<TEdge>, bool> canBreakEdge)
@@ -278,7 +280,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             throw new InvalidOperationException(CoreStrings.CircularDependency(cycleString));
         }
 
-        protected virtual string ToString(TVertex vertex) => vertex.ToString();
+        protected virtual string ToString(TVertex vertex)
+            => vertex.ToString();
 
         public IReadOnlyList<List<TVertex>> BatchingTopologicalSort()
             => BatchingTopologicalSort(null);
@@ -398,7 +401,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             return result;
         }
 
-        public override IEnumerable<TVertex> Vertices => _vertices;
+        public override IEnumerable<TVertex> Vertices
+            => _vertices;
 
         public override IEnumerable<TVertex> GetOutgoingNeighbors(TVertex from)
             => _successorMap.TryGetValue(from, out var successorSet)
@@ -407,7 +411,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
         public override IEnumerable<TVertex> GetIncomingNeighbors(TVertex to)
             => _predecessorMap.TryGetValue(to, out var predecessors)
-            ? predecessors
-            : Enumerable.Empty<TVertex>();
+                ? predecessors
+                : Enumerable.Empty<TVertex>();
     }
 }

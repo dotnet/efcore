@@ -210,7 +210,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual ModelBuilder VisitSequences(
-            [NotNull] ModelBuilder modelBuilder, [NotNull] ICollection<DatabaseSequence> sequences)
+            [NotNull] ModelBuilder modelBuilder,
+            [NotNull] ICollection<DatabaseSequence> sequences)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(sequences, nameof(sequences));
@@ -553,7 +554,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 var property = builder.Metadata.FindProperty(GetPropertyName(primaryKey.Columns[0]))?.AsProperty();
                 if (property != null)
                 {
-                    var conventionalValueGenerated = RelationalValueGenerationConvention.GetValueGenerated(property);
+                    var conventionalValueGenerated = ValueGenerationConvention.GetValueGenerated(property);
                     if (conventionalValueGenerated == ValueGenerated.OnAdd)
                     {
                         property.ValueGenerated = ValueGenerated.Never;
@@ -579,7 +580,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual EntityTypeBuilder VisitUniqueConstraints(
-            [NotNull] EntityTypeBuilder builder, [NotNull] ICollection<DatabaseUniqueConstraint> uniqueConstraints)
+            [NotNull] EntityTypeBuilder builder,
+            [NotNull] ICollection<DatabaseUniqueConstraint> uniqueConstraints)
         {
             Check.NotNull(builder, nameof(builder));
             Check.NotNull(uniqueConstraints, nameof(uniqueConstraints));
@@ -599,7 +601,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IndexBuilder VisitUniqueConstraint(
-            [NotNull] EntityTypeBuilder builder, [NotNull] DatabaseUniqueConstraint uniqueConstraint)
+            [NotNull] EntityTypeBuilder builder,
+            [NotNull] DatabaseUniqueConstraint uniqueConstraint)
         {
             Check.NotNull(builder, nameof(builder));
             Check.NotNull(uniqueConstraint, nameof(uniqueConstraint));
@@ -672,7 +675,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 index.Name == null
                     ? builder.HasIndex(propertyNames)
                     : builder.HasIndex(propertyNames, index.Name)
-                .IsUnique(index.IsUnique);
+                        .IsUnique(index.IsUnique);
 
             if (index.Filter != null)
             {
@@ -691,7 +694,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual ModelBuilder VisitForeignKeys(
-            [NotNull] ModelBuilder modelBuilder, [NotNull] IList<DatabaseForeignKey> foreignKeys)
+            [NotNull] ModelBuilder modelBuilder,
+            [NotNull] IList<DatabaseForeignKey> foreignKeys)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(foreignKeys, nameof(foreignKeys));
@@ -840,7 +844,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var dependentIndexes = dependentEntityType.GetIndexes()
                 .Where(i => i.Properties.SequenceEqual(dependentProperties));
             newForeignKey.IsUnique = dependentKey != null
-                                     || dependentIndexes.Any(i => i.IsUnique);
+                || dependentIndexes.Any(i => i.IsUnique);
 
             if (!string.IsNullOrEmpty(foreignKey.Name)
                 && foreignKey.Name != newForeignKey.GetDefaultName())
@@ -954,7 +958,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         private static void AssignOnDeleteAction(
-            [NotNull] DatabaseForeignKey databaseForeignKey, [NotNull] IMutableForeignKey foreignKey)
+            [NotNull] DatabaseForeignKey databaseForeignKey,
+            [NotNull] IMutableForeignKey foreignKey)
         {
             Check.NotNull(databaseForeignKey, nameof(databaseForeignKey));
             Check.NotNull(foreignKey, nameof(foreignKey));

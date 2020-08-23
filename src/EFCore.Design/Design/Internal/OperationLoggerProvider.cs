@@ -36,7 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ILogger CreateLogger(string categoryName) => new OperationLogger(categoryName, _reporter);
+        public virtual ILogger CreateLogger(string categoryName)
+            => new OperationLogger(categoryName, _reporter);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
