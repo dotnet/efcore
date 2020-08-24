@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Assert.False(ignoreLoops, "BCL doesn't support ignoring loops.");
 
-#if NETCOREAPP5_0
+#if NET5 || NET50 || NETCOREAPP5_0
             var options = new JsonSerializerOptions
             {
                 ReferenceHandler = ReferenceHandler.Preserve,
