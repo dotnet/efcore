@@ -79,11 +79,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void Generate(InternalEntityEntry entry)
+        public virtual void Generate(InternalEntityEntry entry, bool includePKs = true)
         {
             var entityEntry = new EntityEntry(entry);
 
-            foreach (var property in FindGeneratingProperties(entry))
+            foreach (var property in FindGeneratingProperties(entry, includePKs))
             {
                 var valueGenerator = GetValueGenerator(entry, property);
 
@@ -120,11 +120,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual async Task GenerateAsync(
             InternalEntityEntry entry,
+            bool includePKs = true,
             CancellationToken cancellationToken = default)
         {
             var entityEntry = new EntityEntry(entry);
 
-            foreach (var property in FindGeneratingProperties(entry))
+            foreach (var property in FindGeneratingProperties(entry, includePKs))
             {
                 var valueGenerator = GetValueGenerator(entry, property);
                 var generatedValue = await valueGenerator.NextAsync(entityEntry, cancellationToken)
@@ -153,12 +154,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private static IEnumerable<IProperty> FindGeneratingProperties(InternalEntityEntry entry)
+        private static IEnumerable<IProperty> FindGeneratingProperties(InternalEntityEntry entry, bool includePKs = true)
         {
             foreach (var property in ((EntityType)entry.EntityType).GetProperties())
             {
                 if (property.RequiresValueGenerator()
-                    && entry.HasDefaultValue(property))
+                    && entry.HasDefaultValue(property)
+                    && (includePKs
+                        || !property.IsPrimaryKey()))
                 {
                     yield return property;
                 }

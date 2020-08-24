@@ -131,9 +131,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             entityState = PropagateToUnknownKey(oldState, entityState, adding, forceStateWhenUnknownKey);
 
-            if (adding)
+            if (adding || oldState is EntityState.Detached)
             {
-                StateManager.ValueGenerationManager.Generate(this);
+                StateManager.ValueGenerationManager.Generate(this, includePKs: adding);
             }
 
             SetEntityState(oldState, entityState, acceptChanges, modifyProperties);
@@ -157,9 +157,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             entityState = PropagateToUnknownKey(oldState, entityState, adding, forceStateWhenUnknownKey);
 
-            if (adding)
+            if (adding || oldState is EntityState.Detached)
             {
-                await StateManager.ValueGenerationManager.GenerateAsync(this, cancellationToken)
+                await StateManager.ValueGenerationManager.GenerateAsync(this, includePKs: adding, cancellationToken)
                     .ConfigureAwait(false);
             }
 
