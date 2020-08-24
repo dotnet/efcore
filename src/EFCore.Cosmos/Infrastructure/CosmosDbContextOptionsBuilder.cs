@@ -4,8 +4,8 @@
 using System;
 using System.ComponentModel;
 using System.Net;
-using Azure.Cosmos;
 using JetBrains.Annotations;
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;

@@ -8,10 +8,12 @@ using System.Linq;
 using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
 
@@ -1082,6 +1084,103 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            protected virtual void Mapping_throws_for_non_ignored_array()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<OneDee>();
+
+                Assert.Equal(
+                    CoreStrings.PropertyNotAdded(
+                        typeof(OneDee).ShortDisplayName(), "One", typeof(int[]).ShortDisplayName()),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+            }
+
+            [ConditionalFact]
+            protected virtual void Mapping_ignores_ignored_array()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<OneDee>().Ignore(e => e.One);
+
+                var model = modelBuilder.FinalizeModel();
+
+                Assert.Null(model.FindEntityType(typeof(OneDee)).FindProperty("One"));
+            }
+
+            [ConditionalFact]
+            protected virtual void Mapping_throws_for_non_ignored_two_dimensional_array()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<TwoDee>();
+
+                Assert.Equal(
+                    CoreStrings.PropertyNotAdded(
+                        typeof(TwoDee).ShortDisplayName(), "Two", typeof(int[,]).ShortDisplayName()),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+            }
+
+            [ConditionalFact]
+            protected virtual void Mapping_ignores_ignored_two_dimensional_array()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<TwoDee>().Ignore(e => e.Two);
+
+                var model = modelBuilder.FinalizeModel();
+
+                Assert.Null(model.FindEntityType(typeof(TwoDee)).FindProperty("Two"));
+            }
+
+            [ConditionalFact]
+            protected virtual void Mapping_throws_for_non_ignored_three_dimensional_array()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<ThreeDee>();
+
+                Assert.Equal(
+                    CoreStrings.PropertyNotAdded(
+                        typeof(ThreeDee).ShortDisplayName(), "Three", typeof(int[,,]).ShortDisplayName()),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+            }
+
+            [ConditionalFact]
+            protected virtual void Mapping_ignores_ignored_three_dimensional_array()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<ThreeDee>().Ignore(e => e.Three);
+
+                var model = modelBuilder.FinalizeModel();
+
+                Assert.Null(model.FindEntityType(typeof(ThreeDee)).FindProperty("Three"));
+            }
+
+            protected class OneDee
+            {
+                public int Id { get; set; }
+
+                public int[] One { get; set; }
+            }
+
+            protected class TwoDee
+            {
+                public int Id { get; set; }
+
+                public int[,] Two { get; set; }
+            }
+
+            protected class ThreeDee
+            {
+                public int Id { get; set; }
+
+                public int[,,] Three { get; set; }
+            }
+
+
+            [ConditionalFact]
             public virtual void Can_set_unicode_for_properties()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1527,7 +1626,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Can_add_seed_data_anonymous_objects_indexed_property_dictionary()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
                 modelBuilder.Entity<IndexedClassByDictionary>(
                     b =>
                     {
@@ -1536,13 +1634,40 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.HasData(new { Id = -1, Required = 2 });
                     });
 
-                modelBuilder.FinalizeModel();
+                var model = modelBuilder.FinalizeModel();
 
                 var entityType = model.FindEntityType(typeof(IndexedClassByDictionary));
                 var data = Assert.Single(entityType.GetSeedData());
                 Assert.Equal(-1, data["Id"]);
                 Assert.Equal(2, data["Required"]);
                 Assert.False(data.ContainsKey("Optional"));
+            }
+
+            [ConditionalFact] //Issue#12617
+            [UseCulture("de-DE")]
+            public virtual void EntityType_name_is_stored_culture_invariantly()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<Entityß>();
+                modelBuilder.Entity<Entityss>();
+
+                var model = modelBuilder.FinalizeModel();
+
+                Assert.Equal(2, model.GetEntityTypes().Count());
+                Assert.Equal(2, model.FindEntityType(typeof(Entityss)).GetNavigations().Count());
+            }
+
+            protected class Entityß
+            {
+                public int Id { get; set; }
+            }
+
+            protected class Entityss
+            {
+                public int Id { get; set; }
+                public Entityß Navigationß { get; set; }
+                public Entityß Navigationss { get; set; }
             }
 
             [ConditionalFact]

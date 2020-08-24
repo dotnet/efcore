@@ -1354,6 +1354,27 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Detects_unmapped_foreign_keys_in_TPT()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>()
+                .Ignore(a => a.FavoritePerson)
+                .Property<int>("FavoritePersonId");
+            modelBuilder.Entity<Cat>().ToTable("Cat")
+                .HasOne<Person>().WithMany()
+                .HasForeignKey("FavoritePersonId");
+
+            var definition = RelationalResources.LogForeignKeyPropertiesMappedToUnrelatedTables(new TestLogger<TestRelationalLoggingDefinitions>());
+            VerifyWarning(definition.GenerateMessage(l => l.Log(
+                        definition.Level,
+                        definition.EventId,
+                        definition.MessageFormat,
+                        "{'FavoritePersonId'}", nameof(Cat), nameof(Person), "{'FavoritePersonId'}", nameof(Cat), "{'Id'}", nameof(Person))),
+                modelBuilder.Model,
+                LogLevel.Error);
+        }
+
+        [ConditionalFact]
         public virtual void Passes_for_valid_table_overrides()
         {
             var modelBuilder = CreateConventionalModelBuilder();

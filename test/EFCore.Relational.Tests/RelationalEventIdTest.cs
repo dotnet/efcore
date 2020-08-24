@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -40,10 +40,11 @@ namespace Microsoft.EntityFrameworkCore
             var constantExpression = Expression.Constant("A");
             var model = new Model();
             var entityType = new EntityType(typeof(object), model, ConfigurationSource.Convention);
-            var property = new Property(
-                "A", typeof(int), null, null, entityType, ConfigurationSource.Convention, ConfigurationSource.Convention);
+            var property = entityType.AddProperty("A", typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention);
+            var key = entityType.AddKey(property, ConfigurationSource.Convention);
+            var foreignKey = new ForeignKey(new List<Property> { property }, key, entityType, entityType, ConfigurationSource.Convention);
+            var index = new Metadata.Internal.Index(new List<Property> { property }, "IndexName", entityType, ConfigurationSource.Convention);
             var contextServices = RelationalTestHelpers.Instance.CreateContextServices(model.FinalizeModel());
-            var index = new Index(new List<Property> { property }, "IndexName", entityType, ConfigurationSource.Convention);
 
             var fakeFactories = new Dictionary<Type, Func<object>>
             {
@@ -71,6 +72,8 @@ namespace Microsoft.EntityFrameworkCore
                 { typeof(Expression), () => constantExpression },
                 { typeof(IEntityType), () => entityType },
                 { typeof(IProperty), () => property },
+                { typeof(IKey), () => key },
+                { typeof(IForeignKey), () => foreignKey },
                 { typeof(IIndex), () => index },
                 { typeof(TypeInfo), () => typeof(object).GetTypeInfo() },
                 { typeof(Type), () => typeof(object) },

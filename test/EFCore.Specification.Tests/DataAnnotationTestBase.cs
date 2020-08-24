@@ -2231,6 +2231,48 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public virtual void Attribute_set_shadow_FK_name_is_preserved_with_HasPrincipalKey()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<User13694>(
+                m =>
+                {
+                    m.Property("_email");
+
+                    m.HasMany<Profile13694>("_profiles")
+                        .WithOne("User")
+                        .HasPrincipalKey("_email");
+                });
+
+            modelBuilder.Entity<Profile13694>().Property<string>("Email");
+
+            var model = modelBuilder.FinalizeModel();
+
+            var fk = model.FindEntityType(typeof(Profile13694)).GetForeignKeys().Single();
+            Assert.Equal("_profiles", fk.PrincipalToDependent.Name);
+            Assert.Equal("User", fk.DependentToPrincipal.Name);
+            Assert.Equal("Email", fk.Properties[0].Name);
+            Assert.Equal(typeof(string), fk.Properties[0].ClrType);
+            Assert.Equal("_email", fk.PrincipalKey.Properties[0].Name);
+        }
+
+        protected class User13694
+        {
+            public Guid Id { get; set; }
+            private readonly string _email = string.Empty;
+            private readonly List<Profile13694> _profiles = new List<Profile13694>();
+        }
+
+        protected class Profile13694
+        {
+            public Guid Id { get; set; }
+
+            [ForeignKey("Email")]
+            public User13694 User { get; set; }
+        }
+
+        [ConditionalFact]
         public virtual void RequiredAttribute_for_navigation_throws_while_inserting_null_value()
         {
             ExecuteWithStrategyInTransaction(

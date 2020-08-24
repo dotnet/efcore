@@ -7,8 +7,8 @@ using System.Net;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure.Cosmos;
 using JetBrains.Annotations;
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public class CosmosDatabaseWrapper : Database
+    public class CosmosDatabaseWrapper : EntityFrameworkCore.Storage.Database
     {
         private readonly Dictionary<IEntityType, DocumentSource> _documentCollections
             = new Dictionary<IEntityType, DocumentSource>();
@@ -113,13 +113,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                         rowsAffected++;
                     }
                 }
-                catch (CosmosException cosmosException)
+                catch (CosmosException ex)
                 {
-                    throw ThrowUpdateException(cosmosException, entry);
-                }
-                catch (HttpException httpException)
-                {
-                    throw ThrowUpdateException(httpException, entry);
+                    throw ThrowUpdateException(ex, entry);
                 }
             }
 
@@ -181,13 +177,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                         rowsAffected++;
                     }
                 }
-                catch (CosmosException cosmosException)
+                catch (CosmosException ex)
                 {
-                    throw ThrowUpdateException(cosmosException, entry);
-                }
-                catch (HttpException httpException)
-                {
-                    throw ThrowUpdateException(httpException, entry);
+                    throw ThrowUpdateException(ex, entry);
                 }
             }
 
@@ -361,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         }
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
-        // #16707
+        // Issue #16707
         private IUpdateEntry GetRootDocument(InternalEntityEntry entry)
         {
             var stateManager = entry.StateManager;
@@ -392,26 +384,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             var documentSource = GetDocumentSource(entry.EntityType);
             var id = documentSource.GetId(entry.SharedIdentityEntry ?? entry);
-            throw exception.Status switch
+            throw exception.StatusCode switch
             {
-                (int)HttpStatusCode.PreconditionFailed =>
-                new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
-                (int)HttpStatusCode.Conflict =>
-                new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
-                _ => Rethrow(exception),
-            };
-        }
-
-        private Exception ThrowUpdateException(HttpException exception, IUpdateEntry entry)
-        {
-            var documentSource = GetDocumentSource(entry.EntityType);
-            var id = documentSource.GetId(entry.SharedIdentityEntry ?? entry);
-            throw exception.Response.Status switch
-            {
-                (int)HttpStatusCode.PreconditionFailed =>
-                new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
-                (int)HttpStatusCode.Conflict =>
-                new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
+                HttpStatusCode.PreconditionFailed =>
+                    new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
+                HttpStatusCode.Conflict =>
+                    new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
                 _ => Rethrow(exception),
             };
         }

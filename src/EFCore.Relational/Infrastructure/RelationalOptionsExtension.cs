@@ -389,6 +389,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
+        ///     Adds default <see cref="WarningBehavior"/> for relational events.
+        /// </summary>
+        /// <param name="coreOptionsExtension"> The core options extension. </param>
+        /// <returns> The new core options extension. </returns>
+        public static CoreOptionsExtension WithDefaultWarningConfiguration([NotNull] CoreOptionsExtension coreOptionsExtension)
+            => coreOptionsExtension.WithWarningsConfiguration(coreOptionsExtension.WarningsConfiguration
+                .TryWithExplicit(RelationalEventId.AmbientTransactionWarning, WarningBehavior.Throw)
+                .TryWithExplicit(RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable, WarningBehavior.Throw)
+                .TryWithExplicit(RelationalEventId.IndexPropertiesMappedToNonOverlappingTables, WarningBehavior.Throw)
+                .TryWithExplicit(RelationalEventId.ForeignKeyPropertiesMappedToUnrelatedTables, WarningBehavior.Throw));
+
+        /// <summary>
         ///     Information/metadata for a <see cref="RelationalOptionsExtension" />.
         /// </summary>
         protected abstract class RelationalExtensionInfo : DbContextOptionsExtensionInfo
@@ -396,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             private string _logFragment;
 
             /// <summary>
-            ///     Creates a new <see cref="RelationalOptionsExtension.RelationalExtensionInfo" /> instance containing
+            ///     Creates a new <see cref="RelationalExtensionInfo" /> instance containing
             ///     info/metadata for the given extension.
             /// </summary>
             /// <param name="extension"> The extension. </param>

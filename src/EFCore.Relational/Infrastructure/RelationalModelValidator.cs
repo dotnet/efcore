@@ -924,6 +924,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 var foreignKeyName = foreignKey.GetConstraintName(storeObject, principalTable.Value);
                 if (foreignKeyName == null)
                 {
+                    var derivedTables = foreignKey.DeclaringEntityType.GetDerivedTypes()
+                        .Select(t => StoreObjectIdentifier.Create(t, StoreObjectType.Table))
+                        .Where(t => t != null);
+                    if (foreignKey.GetConstraintName() != null
+                        && derivedTables.All(t => foreignKey.GetConstraintName(
+                            t.Value,
+                            principalTable.Value) == null))
+                    {
+                        logger.ForeignKeyPropertiesMappedToUnrelatedTables(foreignKey);
+                    }
+
                     continue;
                 }
 
@@ -1254,8 +1265,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                             if (firstPropertyTables != null)
                             {
-                                // Property is not mapped but we already found
-                                // a property that is mapped.
+                                // Property is not mapped but we already found a property that is mapped.
                                 break;
                             }
 
@@ -1264,21 +1274,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                         if (firstPropertyTables == null)
                         {
-                            // store off which tables the first member maps to
                             firstPropertyTables =
                                 new Tuple<string, List<(string Table, string Schema)>>(property.Name, tablesMappedToProperty);
                         }
                         else
                         {
-                            // store off which tables the last member we encountered maps to
                             lastPropertyTables =
                                 new Tuple<string, List<(string Table, string Schema)>>(property.Name, tablesMappedToProperty);
                         }
 
                         if (propertyNotMappedToAnyTable != null)
                         {
-                            // Property is mapped but we already found
-                            // a property that is not mapped.
+                            // Property is mapped but we already found a property that is not mapped.
                             overlappingTables = null;
                             break;
                         }

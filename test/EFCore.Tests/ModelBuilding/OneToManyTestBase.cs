@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -1880,6 +1881,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             modelBuilder.Entity<Nob>().HasMany(e => e.Hobs).WithOne(e => e.Nob)).Message);
+            }
+
+            [ConditionalFact]
+            public virtual void HasMany_with_a_collection_navigation_CLR_property_to_derived_type_throws()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                Assert.Equal(
+                    CoreStrings.NavigationCollectionWrongClrType(nameof(Dr.Jrs), nameof(Dr), "ICollection<DreJr>", nameof(Dre)),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Dr>().HasMany<Dre>(d => d.Jrs)).Message);
             }
 
             [ConditionalFact]
