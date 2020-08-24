@@ -8,6 +8,8 @@
   </PropertyGroup>
 
  <ItemGroup>
+    <ProjectReference Include="..\..\src\EFCore.Analyzers.CSharp\EFCore.Analyzers.CSharp.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.Analyzers.VisualBasic\EFCore.Analyzers.VisualBasic.csproj" />
     <ProjectReference Include="..\..\src\EFCore.Analyzers\EFCore.Analyzers.csproj" />
     <ProjectReference Include="..\..\src\EFCore.Relational\EFCore.Relational.csproj" />
     <ProjectReference Include="..\EFCore.Tests\EFCore.Tests.csproj" />

@@ -7,13 +7,10 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
-using CSharpSyntax = Microsoft.CodeAnalysis.CSharp.Syntax;
-using VBSyntax = Microsoft.CodeAnalysis.VisualBasic.Syntax;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    [DiagnosticAnalyzer(LanguageNames.CSharp, LanguageNames.VisualBasic)]
-    public class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
+    public abstract class AbstractInternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
     {
         public const string Id = "EF1001";
 
@@ -64,7 +61,17 @@ namespace Microsoft.EntityFrameworkCore
                 SymbolKind.Event);
         }
 
-        private static void AnalyzeNode(OperationAnalysisContext context)
+        protected abstract SyntaxNodeOrToken GetLocationForDiagnostic(SyntaxNode syntax);
+        protected abstract SyntaxNodeOrToken GetLocationForBaseTypeDiagnostic(SyntaxNode syntax);
+        protected abstract SyntaxNodeOrToken GetLocationForTypeDiagnostic(SyntaxNode syntax);
+
+        /// <summary>
+        ///     Given a syntax node, pattern matches some known types and returns a narrowed-down node for the type syntax which
+        ///     should be reported in diagnostics.
+        /// </summary>
+        protected abstract SyntaxNodeOrToken NarrowDownSyntax(SyntaxNode syntax);
+
+        private void AnalyzeNode(OperationAnalysisContext context)
         {
             switch (context.Operation.Kind)
             {
@@ -97,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private static void AnalyzeMember(OperationAnalysisContext context, ISymbol symbol)
+        private void AnalyzeMember(OperationAnalysisContext context, ISymbol symbol)
         {
             // ReSharper disable once RedundantCast
             if ((object)symbol.ContainingAssembly == context.Compilation.Assembly)
@@ -120,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private static void AnalyzeInvocation(OperationAnalysisContext context, IInvocationOperation invocation)
+        private void AnalyzeInvocation(OperationAnalysisContext context, IInvocationOperation invocation)
         {
             // First check for any internal type parameters
             foreach (var a in invocation.TargetMethod.TypeArguments)
@@ -135,24 +142,20 @@ namespace Microsoft.EntityFrameworkCore
             AnalyzeMember(context, invocation.TargetMethod);
         }
 
-        private static void AnalyzeVariableDeclaration(OperationAnalysisContext context, IVariableDeclarationOperation variableDeclaration)
+        private void AnalyzeVariableDeclaration(OperationAnalysisContext context, IVariableDeclarationOperation variableDeclaration)
         {
             foreach (var declarator in variableDeclaration.Declarators)
             {
                 if (IsInternal(context, declarator.Symbol.Type))
                 {
-                    var syntax = context.Operation.Syntax switch
-                    {
-                        CSharpSyntax.VariableDeclarationSyntax s => s.Type,
-                        _ => context.Operation.Syntax
-                    };
+                    var syntax = GetLocationForDiagnostic(context.Operation.Syntax);
                     context.ReportDiagnostic(Diagnostic.Create(_descriptor, syntax.GetLocation(), declarator.Symbol.Type));
                     return;
                 }
             }
         }
 
-        private static void AnalyzeTypeof(OperationAnalysisContext context, ITypeOfOperation typeOf)
+        private void AnalyzeTypeof(OperationAnalysisContext context, ITypeOfOperation typeOf)
         {
             if (IsInternal(context, typeOf.TypeOperand))
             {
@@ -160,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private static void AnalyzeSymbol(SymbolAnalysisContext context)
+        private void AnalyzeSymbol(SymbolAnalysisContext context)
         {
             switch (context.Symbol)
             {
@@ -189,21 +192,15 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private static void AnalyzeNamedTypeSymbol(SymbolAnalysisContext context, INamedTypeSymbol symbol)
+        private void AnalyzeNamedTypeSymbol(SymbolAnalysisContext context, INamedTypeSymbol symbol)
         {
             if (symbol.BaseType is ITypeSymbol baseSymbol
                 && IsInternal(context, baseSymbol))
             {
                 foreach (var declaringSyntax in symbol.DeclaringSyntaxReferences)
                 {
-                    var location = declaringSyntax.GetSyntax() switch
-                    {
-                        CSharpSyntax.ClassDeclarationSyntax s when s.BaseList?.Types.Count > 0
-                        => s.BaseList.Types[0].GetLocation(),
-                        { } otherSyntax => otherSyntax.GetLocation()
-                    };
-
-                    context.ReportDiagnostic(Diagnostic.Create(_descriptor, location, baseSymbol));
+                    var syntax = GetLocationForBaseTypeDiagnostic(declaringSyntax.GetSyntax());
+                    context.ReportDiagnostic(Diagnostic.Create(_descriptor, syntax.GetLocation(), baseSymbol));
                 }
             }
 
@@ -211,18 +208,13 @@ namespace Microsoft.EntityFrameworkCore
             {
                 foreach (var declaringSyntax in symbol.DeclaringSyntaxReferences)
                 {
-                    var location = declaringSyntax.GetSyntax() switch
-                    {
-                        CSharpSyntax.ClassDeclarationSyntax s => s.Identifier.GetLocation(),
-                        { } otherSyntax => otherSyntax.GetLocation()
-                    };
-
-                    context.ReportDiagnostic(Diagnostic.Create(_descriptor, location, iface));
+                    var syntax = GetLocationForDiagnostic(declaringSyntax.GetSyntax());
+                    context.ReportDiagnostic(Diagnostic.Create(_descriptor, syntax.GetLocation(), iface));
                 }
             }
         }
 
-        private static void AnalyzeMethodTypeSymbol(SymbolAnalysisContext context, IMethodSymbol symbol)
+        private void AnalyzeMethodTypeSymbol(SymbolAnalysisContext context, IMethodSymbol symbol)
         {
             if (symbol.MethodKind == MethodKind.PropertyGet
                 || symbol.MethodKind == MethodKind.PropertySet)
@@ -235,13 +227,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 foreach (var declaringSyntax in symbol.DeclaringSyntaxReferences)
                 {
-                    var location = declaringSyntax.GetSyntax() switch
-                    {
-                        CSharpSyntax.MethodDeclarationSyntax s => s.ReturnType.GetLocation(),
-                        { } otherSyntax => otherSyntax.GetLocation()
-                    };
-
-                    context.ReportDiagnostic(Diagnostic.Create(_descriptor, location, symbol.ReturnType));
+                    var syntax = GetLocationForTypeDiagnostic(declaringSyntax.GetSyntax());
+                    context.ReportDiagnostic(Diagnostic.Create(_descriptor, syntax.GetLocation(), symbol.ReturnType));
                 }
             }
 
@@ -249,18 +236,13 @@ namespace Microsoft.EntityFrameworkCore
             {
                 foreach (var declaringSyntax in paramSymbol.DeclaringSyntaxReferences)
                 {
-                    var location = declaringSyntax.GetSyntax() switch
-                    {
-                        CSharpSyntax.ParameterSyntax s when s.Type != null => s.Type.GetLocation(),
-                        { } otherSyntax => otherSyntax.GetLocation()
-                    };
-
-                    context.ReportDiagnostic(Diagnostic.Create(_descriptor, location, paramSymbol.Type));
+                    var syntax = GetLocationForTypeDiagnostic(declaringSyntax.GetSyntax());
+                    context.ReportDiagnostic(Diagnostic.Create(_descriptor, syntax.GetLocation(), paramSymbol.Type));
                 }
             }
         }
 
-        private static void AnalyzeMemberDeclarationTypeSymbol(
+        private void AnalyzeMemberDeclarationTypeSymbol(
             SymbolAnalysisContext context,
             ISymbol declarationSymbol,
             ITypeSymbol typeSymbol)
@@ -274,41 +256,12 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private static void ReportDiagnostic(OperationAnalysisContext context, object messageArg)
+        private void ReportDiagnostic(OperationAnalysisContext context, object messageArg)
             => context.ReportDiagnostic(
                 Diagnostic.Create(_descriptor, NarrowDownSyntax(context.Operation.Syntax).GetLocation(), messageArg));
 
-        private static void ReportDiagnostic(SymbolAnalysisContext context, SyntaxNode syntax, object messageArg)
+        private void ReportDiagnostic(SymbolAnalysisContext context, SyntaxNode syntax, object messageArg)
             => context.ReportDiagnostic(Diagnostic.Create(_descriptor, NarrowDownSyntax(syntax).GetLocation(), messageArg));
-
-        /// <summary>
-        ///     Given a syntax node, pattern matches some known types and returns a narrowed-down node for the type syntax which
-        ///     should be reported in diagnostics.
-        /// </summary>
-        private static SyntaxNode NarrowDownSyntax(SyntaxNode syntax)
-            => syntax switch
-            {
-                CSharpSyntax.InvocationExpressionSyntax s
-                when s.Expression is CSharpSyntax.MemberAccessExpressionSyntax memberAccessSyntax
-                => memberAccessSyntax.Name,
-                CSharpSyntax.MemberAccessExpressionSyntax s => s.Name,
-                CSharpSyntax.ObjectCreationExpressionSyntax s => s.Type,
-                CSharpSyntax.PropertyDeclarationSyntax s => s.Type,
-                CSharpSyntax.VariableDeclaratorSyntax declarator
-                => declarator.Parent is CSharpSyntax.VariableDeclarationSyntax declaration
-                    ? declaration.Type
-                    : (SyntaxNode)declarator,
-                CSharpSyntax.TypeOfExpressionSyntax s => s.Type,
-
-                VBSyntax.InvocationExpressionSyntax s
-                when s.Expression is VBSyntax.MemberAccessExpressionSyntax memberAccessSyntax
-                => memberAccessSyntax.Name,
-                VBSyntax.MemberAccessExpressionSyntax s => s.Name,
-                VBSyntax.ObjectCreationExpressionSyntax s => s.Type,
-                VBSyntax.TypeOfExpressionSyntax s => s.Type,
-
-                _ => syntax
-            };
 
         private static bool IsInternal(SymbolAnalysisContext context, ITypeSymbol symbol)
             // ReSharper disable once RedundantCast

@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore
     public class InternalUsageDiagnosticAnalyzerTest : DiagnosticAnalyzerTestBase
     {
         protected override DiagnosticAnalyzer CreateDiagnosticAnalyzer()
-            => new InternalUsageDiagnosticAnalyzer();
+            => new CSharpInternalUsageDiagnosticAnalyzer();
 
         [ConditionalFact]
         public Task Invocation_on_type_in_internal_namespace()
@@ -43,11 +43,11 @@ class MyClass : Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalPara
                 diagnostics,
                 diagnostic =>
                 {
-                    Assert.Equal(InternalUsageDiagnosticAnalyzer.Id, diagnostic.Id);
+                    Assert.Equal(AbstractInternalUsageDiagnosticAnalyzer.Id, diagnostic.Id);
                     Assert.Equal(DiagnosticSeverity.Warning, diagnostic.Severity);
                     Assert.Equal(
                         string.Format(
-                            InternalUsageDiagnosticAnalyzer.MessageFormat,
+                            AbstractInternalUsageDiagnosticAnalyzer.MessageFormat,
                             "Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalParameter"),
                         diagnostic.GetMessage());
 
@@ -58,11 +58,11 @@ class MyClass : Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalPara
                 },
                 diagnostic =>
                 {
-                    Assert.Equal(InternalUsageDiagnosticAnalyzer.Id, diagnostic.Id);
+                    Assert.Equal(AbstractInternalUsageDiagnosticAnalyzer.Id, diagnostic.Id);
                     Assert.Equal(DiagnosticSeverity.Warning, diagnostic.Severity);
                     Assert.Equal(
                         string.Format(
-                            InternalUsageDiagnosticAnalyzer.MessageFormat,
+                            AbstractInternalUsageDiagnosticAnalyzer.MessageFormat,
                             "Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalParameter"),
                         diagnostic.GetMessage());
 
@@ -206,10 +206,10 @@ namespace Bar
             var (diagnostics, fullSource) = await GetDiagnosticsAsync(source);
             var diagnostic = Assert.Single(diagnostics);
 
-            Assert.Equal(InternalUsageDiagnosticAnalyzer.Id, diagnostic.Id);
+            Assert.Equal(AbstractInternalUsageDiagnosticAnalyzer.Id, diagnostic.Id);
             Assert.Equal(DiagnosticSeverity.Warning, diagnostic.Severity);
             Assert.Equal(
-                string.Format(InternalUsageDiagnosticAnalyzer.MessageFormat, expectedInternalApi),
+                string.Format(AbstractInternalUsageDiagnosticAnalyzer.MessageFormat, expectedInternalApi),
                 diagnostic.GetMessage());
 
             var span = diagnostic.Location.SourceSpan;
@@ -224,10 +224,10 @@ namespace Bar
             var diagnostics = await GetDiagnosticsFullSourceAsync(fullSource);
             var diagnostic = Assert.Single(diagnostics);
 
-            Assert.Equal(InternalUsageDiagnosticAnalyzer.Id, diagnostic.Id);
+            Assert.Equal(AbstractInternalUsageDiagnosticAnalyzer.Id, diagnostic.Id);
             Assert.Equal(DiagnosticSeverity.Warning, diagnostic.Severity);
             Assert.Equal(
-                string.Format(InternalUsageDiagnosticAnalyzer.MessageFormat, expectedInternalApi),
+                string.Format(AbstractInternalUsageDiagnosticAnalyzer.MessageFormat, expectedInternalApi),
                 diagnostic.GetMessage());
 
             var span = diagnostic.Location.SourceSpan;

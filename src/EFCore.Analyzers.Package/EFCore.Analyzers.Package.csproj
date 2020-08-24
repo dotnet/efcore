@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Analyzers for Entity Framework Core.</Description>
+    <MinClientVersion>3.6</MinClientVersion>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Microsoft.EntityFrameworkCore.Analyzers.Package</AssemblyName>
+    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>Microsoft.EntityFrameworkCore.Analyzers</PackageId>
+
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_AddAnalyzersToOutput</TargetsForTfmSpecificContentInPackage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EFCore.Analyzers.CSharp\EFCore.Analyzers.CSharp.csproj" />
+    <ProjectReference Include="..\EFCore.Analyzers.VisualBasic\EFCore.Analyzers.VisualBasic.csproj" />
+    <ProjectReference Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" />
+  </ItemGroup>
+
+  <Target Name="_AddAnalyzersToOutput">
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="$(OutputPath)\Microsoft.EntityFrameworkCore.Analyzers.dll" PackagePath="analyzers/dotnet/cs" />
+      <TfmSpecificPackageFile Include="$(OutputPath)\Microsoft.EntityFrameworkCore.Analyzers.CSharp.dll" PackagePath="analyzers/dotnet/cs" />
+      <TfmSpecificPackageFile Include="$(OutputPath)\Microsoft.EntityFrameworkCore.Analyzers.dll" PackagePath="analyzers/dotnet/vb" />
+      <TfmSpecificPackageFile Include="$(OutputPath)\Microsoft.EntityFrameworkCore.Analyzers.VisualBasic.dll" PackagePath="analyzers/dotnet/vb" />
+    </ItemGroup>
+  </Target>
+
+</Project>

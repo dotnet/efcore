@@ -3,22 +3,23 @@
     <Description>CSharp Analyzers for Entity Framework Core.</Description>
     <MinClientVersion>3.6</MinClientVersion>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>Microsoft.EntityFrameworkCore.Analyzers</AssemblyName>
+    <AssemblyName>Microsoft.EntityFrameworkCore.Analyzers.VisualBasic</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <IsPackable>false</IsPackable>
-
-    <!-- Avoid ID conflicts with the package project. -->
-    <PackageId>*$(MSBuildProjectFullPath)*</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
     <!-- NB: Version affects the minimum required Visual Studio version -->
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="$(MicrosoftCodeAnalysisVersion)" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="$(MicrosoftCodeAnalysisVersion)" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
     <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
     <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" />
   </ItemGroup>
 
 </Project>
