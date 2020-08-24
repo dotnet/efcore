@@ -11,9 +11,8 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure;
-using Azure.Cosmos;
 using JetBrains.Annotations;
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -141,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var response = await Client.CreateDatabaseIfNotExistsAsync(_databaseId, cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
-            return response.GetRawResponse().Status == (int)HttpStatusCode.Created;
+            return response.StatusCode == HttpStatusCode.Created;
         }
 
         /// <summary>
@@ -188,13 +187,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             using var response = await Client.GetDatabase(_databaseId).DeleteStreamAsync(cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
-            if (response.Status == (int)HttpStatusCode.NotFound)
+            if (response.StatusCode == HttpStatusCode.NotFound)
             {
                 return false;
             }
 
-            EnsureSuccessStatusCode(response);
-            return response.Status == (int)HttpStatusCode.NoContent;
+            response.EnsureSuccessStatusCode();
+            return response.StatusCode == HttpStatusCode.NoContent;
         }
 
         /// <summary>
@@ -239,13 +238,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     },
                     cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
-            if (response.Status == (int)HttpStatusCode.Conflict)
+            if (response.StatusCode == HttpStatusCode.Conflict)
             {
                 return false;
             }
 
-            EnsureSuccessStatusCode(response);
-            return response.Status == (int)HttpStatusCode.Created;
+            response.EnsureSuccessStatusCode();
+            return response.StatusCode == HttpStatusCode.Created;
         }
 
         /// <summary>
@@ -300,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 .ConfigureAwait(false);
             ProcessResponse(response, entry);
 
-            return response.Status == (int)HttpStatusCode.Created;
+            return response.StatusCode == HttpStatusCode.Created;
         }
 
         /// <summary>
@@ -363,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 .ConfigureAwait(false);
             ProcessResponse(response, entry);
 
-            return response.Status == (int)HttpStatusCode.OK;
+            return response.StatusCode == HttpStatusCode.OK;
         }
 
         /// <summary>
@@ -425,7 +424,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 .ConfigureAwait(false);
             ProcessResponse(response, entry);
 
-            return response.Status == (int)HttpStatusCode.NoContent;
+            return response.StatusCode == HttpStatusCode.NoContent;
         }
 
         private static ItemRequestOptions CreateItemRequestOptions(IUpdateEntry entry)
@@ -443,7 +442,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 etag = converter.ConvertToProvider(etag);
             }
 
-            return new ItemRequestOptions { IfMatch = new ETag((string)etag) };
+            return new ItemRequestOptions { IfMatchEtag = (string)etag };
         }
 
         private static PartitionKey CreatePartitionKey(IUpdateEntry entry)
@@ -465,21 +464,21 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             return partitionKey == null ? PartitionKey.None : new PartitionKey((string)partitionKey);
         }
 
-        private static void ProcessResponse(Response response, IUpdateEntry entry)
+        private static void ProcessResponse(ResponseMessage response, IUpdateEntry entry)
         {
-            EnsureSuccessStatusCode(response);
+            response.EnsureSuccessStatusCode();
             var etagProperty = entry.EntityType.GetETagProperty();
             if (etagProperty != null && entry.EntityState != EntityState.Deleted)
             {
-                entry.SetStoreGeneratedValue(etagProperty, response.Headers.ETag?.ToString());
+                entry.SetStoreGeneratedValue(etagProperty, response.Headers.ETag);
             }
 
             var jObjectProperty = entry.EntityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
             if (jObjectProperty != null
                 && jObjectProperty.ValueGenerated == ValueGenerated.OnAddOrUpdate
-                && response.ContentStream != null)
+                && response.Content != null)
             {
-                using var responseStream = response.ContentStream;
+                using var responseStream = response.Content;
                 using var reader = new StreamReader(responseStream);
                 using var jsonReader = new JsonTextReader(reader);
 
@@ -561,11 +560,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             return JObjectFromReadItemResponseMessage(responseMessage);
         }
 
-        private static JObject JObjectFromReadItemResponseMessage(Response response)
+        private static JObject JObjectFromReadItemResponseMessage(ResponseMessage responseMessage)
         {
-            EnsureSuccessStatusCode(response);
+            responseMessage.EnsureSuccessStatusCode();
 
-            var responseStream = response.ContentStream;
+            var responseStream = responseMessage.Content;
             var reader = new StreamReader(responseStream);
             var jsonReader = new JsonTextReader(reader);
 
@@ -574,7 +573,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             return new JObject(new JProperty("c", jObject));
         }
 
-        private IAsyncEnumerable<Response> CreateQuery(
+        private FeedIterator CreateQuery(
             string containerId,
             string partitionKey,
             CosmosSqlQuery query)
@@ -597,7 +596,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             return container.GetItemQueryStreamIterator(queryDefinition, requestOptions: queryRequestOptions);
         }
 
-        private async Task<Response> CreateSingleItemQuery(
+        private async Task<ResponseMessage> CreateSingleItemQuery(
             string containerId,
             string partitionKey,
             string resourceId,
@@ -647,17 +646,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     return true;
                 }
             }
-
             return false;
-        }
-
-        private static void EnsureSuccessStatusCode(Response response)
-        {
-            var httpStatusCode = response.Status;
-            if (httpStatusCode < 200 || httpStatusCode > 299)
-            {
-                throw new HttpException(response);
-            }
         }
 
         private sealed class DocumentEnumerable : IEnumerable<JObject>
@@ -692,12 +681,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 private readonly string _partitionKey;
                 private readonly CosmosSqlQuery _cosmosSqlQuery;
 
-                private Response _response;
+                private ResponseMessage _responseMessage;
                 private Stream _responseStream;
                 private StreamReader _reader;
                 private JsonTextReader _jsonReader;
 
-                private IAsyncEnumerator<Response> _query;
+                private FeedIterator _query;
 
                 public Enumerator(DocumentEnumerable documentEnumerable)
                 {
@@ -717,18 +706,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 {
                     if (_jsonReader == null)
                     {
-                        _query ??= _cosmosClientWrapper.CreateQuery(_containerId, _partitionKey, _cosmosSqlQuery).GetAsyncEnumerator();
+                        _query ??= _cosmosClientWrapper.CreateQuery(_containerId, _partitionKey, _cosmosSqlQuery);
 
-                        if (!_query.MoveNextAsync().AsTask().GetAwaiter().GetResult())
+                        if (!_query.HasMoreResults)
                         {
                             Current = default;
                             return false;
                         }
 
-                        _response = _query.Current;
-                        EnsureSuccessStatusCode(_response);
+                        _responseMessage = _query.ReadNextAsync().GetAwaiter().GetResult();
+                        _responseMessage.EnsureSuccessStatusCode();
 
-                        _responseStream = _response.ContentStream;
+                        _responseStream = _responseMessage.Content;
                         _reader = new StreamReader(_responseStream);
                         _jsonReader = CreateJsonReader(_reader);
                     }
@@ -758,8 +747,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 {
                     ResetRead();
 
-                    _response?.Dispose();
-                    _response = null;
+                    _responseMessage?.Dispose();
+                    _responseMessage = null;
                 }
 
                 public void Reset()
@@ -797,12 +786,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 private readonly CosmosSqlQuery _cosmosSqlQuery;
                 private readonly CancellationToken _cancellationToken;
 
-                private Response _response;
+                private ResponseMessage _responseMessage;
                 private Stream _responseStream;
                 private StreamReader _reader;
                 private JsonTextReader _jsonReader;
 
-                private IAsyncEnumerator<Response> _query;
+                private FeedIterator _query;
 
                 public JObject Current { get; private set; }
 
@@ -822,19 +811,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
                     if (_jsonReader == null)
                     {
-                        _query ??= _cosmosClientWrapper.CreateQuery(_containerId, _partitionKey, _cosmosSqlQuery)
-                            .GetAsyncEnumerator(_cancellationToken);
+                        _query ??= _cosmosClientWrapper.CreateQuery(_containerId, _partitionKey, _cosmosSqlQuery);
 
-                        if (!await _query.MoveNextAsync().ConfigureAwait(false))
+                        if (!_query.HasMoreResults)
                         {
                             Current = default;
                             return false;
                         }
 
-                        _response = _query.Current;
-                        EnsureSuccessStatusCode(_response);
+                        _responseMessage = await _query.ReadNextAsync(_cancellationToken).ConfigureAwait(false);
+                        _responseMessage.EnsureSuccessStatusCode();
 
-                        _responseStream = _response.ContentStream;
+                        _responseStream = _responseMessage.Content;
                         _reader = new StreamReader(_responseStream);
                         _jsonReader = CreateJsonReader(_reader);
                     }
@@ -864,8 +852,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 {
                     await ResetReadAsync().ConfigureAwait(false);
 
-                    await _response.DisposeAsyncIfAvailable().ConfigureAwait(false);
-                    _response = null;
+                    await _responseMessage.DisposeAsyncIfAvailable().ConfigureAwait(false);
+                    _responseMessage = null;
                 }
             }
         }
