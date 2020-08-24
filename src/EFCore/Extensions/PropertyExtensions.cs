@@ -446,6 +446,11 @@ namespace Microsoft.EntityFrameworkCore
                 builder.Append(" Shadow");
             }
 
+            if (property.IsIndexerProperty())
+            {
+                builder.Append(" Indexer");
+            }
+
             if (!property.IsNullable)
             {
                 builder.Append(" Required");

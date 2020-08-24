@@ -420,7 +420,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var relatedToChunky2 = context.Entry(chunky2).Collection(e => e.Cherries);
 
             var joinEntity = context.ChangeTracker.Entries<Dictionary<string, object>>()
-                .Single(e => e.Property<int?>("CherryId").CurrentValue == 1 && e.Property<int?>("ChunkyId").CurrentValue == 2)
+                .Single(e => e.Property<int>("CherryId").CurrentValue == 1 && e.Property<int>("ChunkyId").CurrentValue == 2)
                 .Entity;
 
             joinEntity["CherryId"] = 2;
@@ -498,7 +498,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var relatedToChunky2 = context.Entry(chunky2).Collection(e => e.Cherries);
 
             var joinEntity = context.ChangeTracker.Entries<Dictionary<string, object>>()
-                .Single(e => e.Property<int?>("CherryId").CurrentValue == 1 && e.Property<int?>("ChunkyId").CurrentValue == 2)
+                .Single(e => e.Property<int>("CherryId").CurrentValue == 1 && e.Property<int>("ChunkyId").CurrentValue == 2)
                 .Entity;
 
             joinEntity["CherryId"] = 2;
