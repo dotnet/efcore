@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -830,9 +830,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             break;
                         }
 
+                        if (entityTypeMapping.IncludesDerivedTypes
+                            && foreignKey.DeclaringEntityType != entityType
+                            && foreignKey.Properties.SequenceEqual(entityType.FindPrimaryKey().Properties))
+                        {
+                            // The identifying FK constraint is needed to be created only on the table that corresponds
+                            // to the declaring entity type
+                            break;
+                        }
+
                         constraint = new ForeignKeyConstraint(
-                            name, table, principalTable, columns, principalColumns,
-                            ToReferentialAction(foreignKey.DeleteBehavior));
+                            name, table, principalTable, columns, principalColumns, ToReferentialAction(foreignKey.DeleteBehavior));
                         constraint.MappedForeignKeys.Add(foreignKey);
 
                         if (foreignKeyConstraints == null)

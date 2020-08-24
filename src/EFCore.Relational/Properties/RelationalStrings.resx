@@ -468,6 +468,10 @@
     <value>Enlisted in an explicit transaction with isolation level '{isolationLevel}'.</value>
     <comment>Debug RelationalEventId.ExplicitTransactionEnlisted string</comment>
   </data>
+  <data name="LogForeignKeyPropertiesMappedToUnrelatedTables" xml:space="preserve">
+    <value>The foreign key {foreignKeyProperties} on the entity type '{entityType}' targeting '{principalEntityType}' cannot be represented in the database. Either the properties {foreignKeyProperties} aren't mapped to table '{table}' or the principal properties {principalProperties} aren't mapped to table '{principalTable}'. All foreign key properties must map to the table that the dependent type is mapped to and all principal properties must map to a single table that the principal type is mapped to.</value>
+    <comment>Error RelationalEventId.ForeignKeyPropertiesMappedToUnrelatedTables string string string string string string string</comment>
+  </data>
   <data name="LogGeneratingDown" xml:space="preserve">
     <value>Generating down script for migration '{migration}'.</value>
     <comment>Debug RelationalEventId.MigrationGeneratingDownScript string</comment>

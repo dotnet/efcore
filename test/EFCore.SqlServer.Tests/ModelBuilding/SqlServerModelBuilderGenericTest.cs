@@ -149,6 +149,63 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Null(index.GetFilter());
             }
 
+            [ConditionalFact]
+            public virtual void TPT_identifying_FK_are_created_only_on_declaring_type()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<BigMak>()
+                    .Ignore(b => b.Bun)
+                    .Ignore(b => b.Pickles);
+                modelBuilder.Entity<Ingredient>(b =>
+                {
+                    b.ToTable("Ingredients");
+                    b.Ignore(i => i.BigMak);
+                });
+                modelBuilder.Entity<Bun>(b =>
+                {
+                    b.ToTable("Buns");
+                    b.HasOne(i => i.BigMak).WithOne().HasForeignKey<Bun>(i => i.Id);
+                });
+                modelBuilder.Entity<SesameBun>(b =>
+                {
+                    b.ToTable("SesameBuns");
+                });
+
+                var model = modelBuilder.FinalizeModel();
+
+                var principalType = model.FindEntityType(typeof(BigMak));
+                Assert.Empty(principalType.GetForeignKeys());
+                Assert.Empty(principalType.GetIndexes());
+
+                var ingredientType = model.FindEntityType(typeof(Ingredient));
+
+                var bunType = model.FindEntityType(typeof(Bun));
+                Assert.Empty(bunType.GetIndexes());
+                var bunFk = bunType.GetDeclaredForeignKeys().Single(fk => !fk.IsBaseLinking());
+                Assert.Equal("FK_Buns_BigMak_Id", bunFk.GetConstraintName());
+                Assert.Equal("FK_Buns_BigMak_Id", bunFk.GetConstraintName(
+                    StoreObjectIdentifier.Create(bunType, StoreObjectType.Table).Value,
+                    StoreObjectIdentifier.Create(principalType, StoreObjectType.Table).Value));
+                Assert.Single(bunFk.GetMappedConstraints());
+
+                var bunLinkingFk = bunType.GetDeclaredForeignKeys().Single(fk => fk.IsBaseLinking());
+                Assert.Equal("FK_Buns_Ingredients_Id", bunLinkingFk.GetConstraintName());
+                Assert.Equal("FK_Buns_Ingredients_Id", bunLinkingFk.GetConstraintName(
+                    StoreObjectIdentifier.Create(bunType, StoreObjectType.Table).Value,
+                    StoreObjectIdentifier.Create(ingredientType, StoreObjectType.Table).Value));
+                Assert.Single(bunLinkingFk.GetMappedConstraints());
+
+                var sesameBunType = model.FindEntityType(typeof(SesameBun));
+                Assert.Empty(sesameBunType.GetIndexes());
+                var sesameBunFk = sesameBunType.GetDeclaredForeignKeys().Single();
+                Assert.True(sesameBunFk.IsBaseLinking());
+                Assert.Equal("FK_SesameBuns_Buns_Id", sesameBunFk.GetConstraintName());
+                Assert.Equal("FK_SesameBuns_Buns_Id", sesameBunFk.GetConstraintName(
+                    StoreObjectIdentifier.Create(sesameBunType, StoreObjectType.Table).Value,
+                    StoreObjectIdentifier.Create(bunType, StoreObjectType.Table).Value));
+                Assert.Single(sesameBunFk.GetMappedConstraints());
+            }
+
             public class Parent
             {
                 public int Id { get; set; }
