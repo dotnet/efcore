@@ -743,7 +743,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(blog, blog.LazyPcsPosts.Skip(1).First().LazyPcsBlog);
         }
 
-#if NET5 || NET50 || NETCOREAPP5_0
+#if NET5_0
         [ConditionalFact]
         public virtual async Task Add_immutable_record()
         {
@@ -1581,7 +1581,7 @@ namespace Microsoft.EntityFrameworkCore
             public LazyAsyncBlog LazyAsyncBlog { get; set; }
         }
 
-#if NET5 || NET50 || NETCOREAPP5_0
+#if NET5_0
         protected record BlogAsImmutableRecord
         {
             public BlogAsImmutableRecord(
@@ -1679,7 +1679,7 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<LazyAsyncPsBlog>();
             modelBuilder.Entity<LazyPcsBlog>();
 
-#if NET5 || NET50 || NETCOREAPP5_0
+#if NET5_0
             modelBuilder.Entity<BlogAsImmutableRecord>();
 #endif
 

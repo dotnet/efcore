@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 new object[] { "1D-4E-55-D6-92-73-D6" },
                 new object[] { "24-80-B7-38-4A-68-D6" },
                 new object[] { "1B-AB-DF-C7-3D-6B" },
-#if NET5 || NET50 || NETCOREAPP5_0
+#if NET5_0
                 new object[] { "1D:4E:55:D6:92:73" },
                 new object[] { "24:80:B7:38:4A:68" },
                 new object[] { "1B:AB:DF:C7:3D:6B" },

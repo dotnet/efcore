@@ -2105,7 +2105,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.IsType<Blog>(blog);
             }
 
-#if NET5 || NET50 || NETCOREAPP5_0
+#if NET5_0
             var options = new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve, WriteIndented = true };
 
             serialized = System.Text.Json.JsonSerializer.Serialize(blogs, options);

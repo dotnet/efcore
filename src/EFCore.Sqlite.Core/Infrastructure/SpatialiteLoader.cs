@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             if (hasDependencyContext)
             {
                 var candidateAssets = new Dictionary<(string, string), int>();
-#if NET5 || NET50 || NETCOREAPP5_0
+#if NET5_0
 #error Update to use RuntimeEnvironment.RuntimeIdentifier instead
 #endif
                 var rid = AppContext.GetData("RUNTIME_IDENTIFIER") as string
