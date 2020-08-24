@@ -408,15 +408,27 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var shared1 = model.FindEntityType("Shared1");
                 Assert.NotNull(shared1);
                 Assert.Equal(2, shared1.GetForeignKeys().Count());
+                Assert.Equal(new[]
+                    {
+                        nameof(ManyToManyNavPrincipal.Dependents) + nameof(NavDependent.Id),
+                        nameof(NavDependent.ManyToManyPrincipals) + nameof(ManyToManyNavPrincipal.Id)
+                    },
+                    shared1.GetProperties().Select(p => p.Name));
                 Assert.True(shared1.HasSharedClrType);
                 Assert.Equal(typeof(Dictionary<string, object>), shared1.ClrType);
 
                 var shared2 = model.FindEntityType("Shared2");
                 Assert.NotNull(shared2);
                 Assert.Equal(2, shared2.GetForeignKeys().Count());
+                Assert.Equal(new[]
+                    {
+                        nameof(ManyToManyPrincipalWithField.Dependents) + nameof(DependentWithField.DependentWithFieldId),
+                        nameof(DependentWithField.ManyToManyPrincipals) + nameof(ManyToManyPrincipalWithField.Id),
+                        "Payload"
+                    },
+                    shared2.GetProperties().Select(p => p.Name));
                 Assert.True(shared2.HasSharedClrType);
                 Assert.Equal(typeof(Dictionary<string, object>), shared2.ClrType);
-                Assert.NotNull(shared2.FindProperty("Payload"));
 
                 Assert.Equal(
                     CoreStrings.ClashingSharedType(typeof(Dictionary<string, object>).DisplayName()),

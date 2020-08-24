@@ -187,9 +187,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.SkipNavigationRemovedConventions.Add(manyToManyJoinEntityTypeConvention);
 
             conventionSet.SkipNavigationInverseChangedConventions.Add(manyToManyJoinEntityTypeConvention);
+            conventionSet.SkipNavigationInverseChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
 
             conventionSet.SkipNavigationForeignKeyChangedConventions.Add(manyToManyJoinEntityTypeConvention);
             conventionSet.SkipNavigationForeignKeyChangedConventions.Add(keyDiscoveryConvention);
+            conventionSet.SkipNavigationForeignKeyChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
 
             conventionSet.NavigationRemovedConventions.Add(relationshipDiscoveryConvention);
 

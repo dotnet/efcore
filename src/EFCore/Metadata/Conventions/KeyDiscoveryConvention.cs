@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             if (keyProperties == null)
             {
                 var candidateProperties = entityType.GetProperties().Where(
-                    p => !p.IsShadowProperty()
+                    p => !p.IsImplicitlyCreated()
                         || !ConfigurationSource.Convention.Overrides(p.GetConfigurationSource()));
                 keyProperties = DiscoverKeyProperties(entityType, candidateProperties).ToList();
                 if (keyProperties.Count > 1)

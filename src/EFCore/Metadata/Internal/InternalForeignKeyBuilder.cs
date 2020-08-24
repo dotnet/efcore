@@ -1624,7 +1624,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalForeignKeyBuilder ReuniquifyTemporaryProperties(bool force)
+        public virtual InternalForeignKeyBuilder ReuniquifyImplicitProperties(bool force)
         {
             if (!force
                 && (Metadata.GetPropertiesConfigurationSource() != null
@@ -2091,7 +2091,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (Metadata.GetPropertiesConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)
                     && Metadata.Properties.All(
                         p => ConfigurationSource.Convention.Overrides(p.GetTypeConfigurationSource())
-                            && p.IsShadowProperty()))
+                            && (p.IsShadowProperty() || p.IsIndexerProperty())))
                 {
                     oldNameDependentProperties = Metadata.Properties;
                 }
@@ -2843,7 +2843,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             // Issue #15898
             var temporaryProperties = dependentProperties?.Where(
                 p => p.GetConfigurationSource() == ConfigurationSource.Convention
-                    && p.IsShadowProperty()).ToList();
+                    && ((IConventionProperty)p).IsImplicitlyCreated()).ToList();
             var tempIndex = temporaryProperties?.Count > 0
                 && dependentEntityType.FindIndex(temporaryProperties) == null
                     ? dependentEntityType.Builder.HasIndex(temporaryProperties, ConfigurationSource.Convention).Metadata
@@ -2851,7 +2851,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var temporaryKeyProperties = principalProperties?.Where(
                 p => p.GetConfigurationSource() == ConfigurationSource.Convention
-                    && p.IsShadowProperty()).ToList();
+                    && ((IConventionProperty)p).IsImplicitlyCreated()).ToList();
             var keyTempIndex = temporaryKeyProperties?.Count > 0
                 && principalEntityType.FindIndex(temporaryKeyProperties) == null
                     ? principalEntityType.Builder.HasIndex(temporaryKeyProperties, ConfigurationSource.Convention).Metadata
@@ -2963,7 +2963,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                 shouldThrow: false)
                             && dependentProperties.All(
                                 p => ConfigurationSource.Convention.Overrides(p.GetTypeConfigurationSource())
-                                    && p.IsShadowProperty())))
+                                    && (p.IsShadowProperty() || p.IsIndexerProperty()))))
                     {
                         dependentProperties = oldNameDependentProperties ?? dependentProperties;
                         if (principalKey.Properties.Count == dependentProperties.Count)

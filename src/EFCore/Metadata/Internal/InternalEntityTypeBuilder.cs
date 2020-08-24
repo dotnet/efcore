@@ -12,6 +12,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
@@ -445,8 +446,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource? configurationSource)
             => Property(
                 propertyType, propertyName, memberInfo: null,
-                typeConfigurationSource: typeConfigurationSource,
-                configurationSource: configurationSource);
+                typeConfigurationSource,
+                configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -527,7 +528,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return existingProperty.Builder;
                 }
 
-                if (!configurationSource.Overrides(existingProperty.GetConfigurationSource()))
+                if (memberInfo == null
+                    || (memberInfo is PropertyInfo propertyInfo && propertyInfo.IsIndexerProperty()))
+                {
+                    if (existingProperty.GetTypeConfigurationSource() is ConfigurationSource existingTypeConfigurationSource
+                        && !typeConfigurationSource.Overrides(existingTypeConfigurationSource))
+                    {
+                        return null;
+                    }
+
+                    memberInfo ??= existingProperty.GetIdentifyingMemberInfo();
+                }
+                else if (!configurationSource.Overrides(existingProperty.GetConfigurationSource()))
                 {
                     return null;
                 }
@@ -2173,8 +2185,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             foreach (var property in properties)
             {
                 if (property?.Builder != null
-                    && (property.IsShadowProperty()
-                        || property.DeclaringEntityType.IsPropertyBag))
+                    && property.IsImplicitlyCreated())
                 {
                     RemovePropertyIfUnused((Property)(object)property, ConfigurationSource.Convention);
                 }
@@ -2827,7 +2838,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             dependentProperties: null,
                             principalKey: null,
                             propertyBaseName: navigationProperty?.GetSimpleMemberName(),
-                            required: required,
+                            required,
                             configurationSource);
                     }
                     else
@@ -3572,6 +3583,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         oldKey.DeclaringEntityType.Builder.RemoveKeyIfUnused(oldKey);
                     }
+
+                    propertyBaseName ??= ForeignKeyPropertyDiscoveryConvention.GetPropertyBaseName(foreignKey);
                 }
 
                 var baseName = string.IsNullOrEmpty(propertyBaseName)
@@ -3968,7 +3981,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         var currentProperty = currentProperties?.SingleOrDefault(p => p.Name == propertyName);
                         if (currentProperty != null)
                         {
-                            if (currentProperty.IsShadowProperty()
+                            if (((IConventionProperty)currentProperty).IsImplicitlyCreated()
                                 && currentProperty.ClrType != clrType
                                 && isRequired)
                             {
@@ -4044,7 +4057,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 else if (configurationSource.HasValue)
                 {
                     if (ConfigurationSource.Convention.Overrides(property.GetTypeConfigurationSource())
-                        && property.IsShadowProperty()
+                        && (property.IsShadowProperty() || property.IsIndexerProperty())
                         && (!property.IsNullable || (required && property.GetIsNullableConfigurationSource() == null))
                         && property.ClrType.IsNullableType())
                     {
@@ -4376,7 +4389,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var conflictingProperty = Metadata.FindPropertiesInHierarchy(name).FirstOrDefault();
             if (conflictingProperty != null
-                && conflictingProperty.IsShadowProperty()
+                && (conflictingProperty.IsShadowProperty() || conflictingProperty.IsIndexerProperty())
                 && conflictingProperty.ClrType != propertyType
                 && typeConfigurationSource != null
                 && !typeConfigurationSource.Overrides(conflictingProperty.GetTypeConfigurationSource()))

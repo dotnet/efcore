@@ -1624,8 +1624,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.NotNull(replacedPropertyBuilder);
             Assert.NotSame(propertyBuilder, replacedPropertyBuilder);
-            Assert.False(replacedPropertyBuilder.Metadata.IsIndexerProperty());
-            Assert.True(replacedPropertyBuilder.Metadata.IsShadowProperty());
+            Assert.True(replacedPropertyBuilder.Metadata.IsIndexerProperty());
+            Assert.False(replacedPropertyBuilder.Metadata.IsShadowProperty());
         }
 
         [ConditionalFact]

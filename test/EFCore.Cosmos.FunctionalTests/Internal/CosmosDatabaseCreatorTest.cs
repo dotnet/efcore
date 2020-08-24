@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             Assert.False(async ? await creator.EnsureDeletedAsync() : creator.EnsureDeleted());
         }
 
-        public class BloggingContext : DbContext
+        private class BloggingContext : DbContext
         {
             private readonly string _connectionUri;
             private readonly string _authToken;
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             public DbSet<Blog> Blogs { get; set; }
         }
 
-        public class Blog
+        private class Blog
         {
             public int Id { get; set; }
         }
