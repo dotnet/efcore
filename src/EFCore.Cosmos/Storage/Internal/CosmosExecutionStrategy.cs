@@ -5,8 +5,8 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Net;
-using Azure.Cosmos;
 using JetBrains.Annotations;
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
@@ -101,24 +101,24 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             if (exception is CosmosException cosmosException)
             {
-                return IsTransient(cosmosException.Status);
+                return IsTransient(cosmosException.StatusCode);
             }
 
             if (exception is HttpException httpException)
             {
-                return IsTransient(httpException.Response.Status);
+                return IsTransient(httpException.Response.StatusCode);
             }
 
             if (exception is WebException webException)
             {
-                return IsTransient((int)((HttpWebResponse)webException.Response).StatusCode);
+                return IsTransient(((HttpWebResponse)webException.Response).StatusCode);
             }
 
             return false;
 
-            static bool IsTransient(int status)
-                => status == (int)HttpStatusCode.ServiceUnavailable
-                    || status == (int)HttpStatusCode.TooManyRequests;
+            static bool IsTransient(HttpStatusCode statusCode)
+                => statusCode == HttpStatusCode.ServiceUnavailable
+                    || statusCode == HttpStatusCode.TooManyRequests;
         }
 
         /// <summary>
@@ -133,24 +133,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             return baseDelay == null
                 ? null
                 : CallOnWrappedException(lastException, GetDelayFromException)
-                ?? baseDelay;
+                    ?? baseDelay;
         }
 
         private static TimeSpan? GetDelayFromException(Exception exception)
         {
             if (exception is CosmosException cosmosException)
             {
-                if (cosmosException.TryGetHeader("x-ms-retry-after-ms", out var delayString)
-                    && TryParseMsRetryAfter(delayString, out var delay))
-                {
-                    return delay;
-                }
-
-                if (cosmosException.TryGetHeader("Retry-After", out delayString)
-                    && TryParseRetryAfter(delayString, out delay))
-                {
-                    return delay;
-                }
+                return cosmosException.RetryAfter;
             }
 
             if (exception is HttpException httpException)
@@ -186,7 +176,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             }
 
             return null;
-
             static bool TryParseMsRetryAfter(string delayString, out TimeSpan delay)
             {
                 delay = default;

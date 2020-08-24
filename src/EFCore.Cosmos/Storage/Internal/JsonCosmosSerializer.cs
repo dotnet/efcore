@@ -3,7 +3,7 @@
 
 using System.IO;
 using System.Text;
-using Azure.Cosmos.Serialization;
+using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal

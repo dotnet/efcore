@@ -3,7 +3,7 @@
 
 using System;
 using System.Net;
-using Azure.Cosmos;
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Xunit;
 
