@@ -4179,7 +4179,13 @@ FROM [LevelOne] AS [l2]");
         {
             await base.Null_check_removal_applied_recursively(async);
 
-            AssertSql(" ");
+            AssertSql(
+                @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
+FROM [LevelOne] AS [l]
+LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
+LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Level2_Optional_Id]
+LEFT JOIN [LevelFour] AS [l2] ON [l1].[Id] = [l2].[Level3_Optional_Id]
+WHERE [l2].[Name] = N'L4 01'");
         }
 
         public override async Task Null_check_different_structure_does_not_remove_null_checks(bool async)
