@@ -510,8 +510,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     entityType = existingProperty.DeclaringEntityType;
                 }
 
-                var existingMember = existingProperty.GetIdentifyingMemberInfo();
-                if ((memberInfo == null || existingMember.IsOverridenBy(memberInfo))
+                if (IsCompatible(memberInfo, existingProperty)
                     && (propertyType == null || propertyType == existingProperty.ClrType))
                 {
                     if (configurationSource.HasValue)
@@ -697,6 +696,50 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return builder.Metadata.Builder == null
                 ? Metadata.FindProperty(propertyName)?.Builder
                 : builder;
+        }
+
+        private bool IsCompatible(MemberInfo newMemberInfo, Property existingProperty)
+        {
+            if (newMemberInfo == null)
+            {
+                return true;
+            }
+
+            var existingMemberInfo = existingProperty.GetIdentifyingMemberInfo();
+            if (existingMemberInfo == null)
+            {
+                return false;
+            }
+
+            if (newMemberInfo == existingMemberInfo)
+            {
+                return true;
+            }
+
+            var declaringType = (IMutableEntityType)existingProperty.DeclaringType;
+            if (!newMemberInfo.DeclaringType.IsAssignableFrom(declaringType.ClrType))
+            {
+                return existingMemberInfo.IsOverridenBy(newMemberInfo);
+            }
+
+            IMutableEntityType existingMemberDeclaringEntityType = null;
+            foreach (var baseType in declaringType.GetAllBaseTypes())
+            {
+                if (newMemberInfo.DeclaringType == baseType.ClrType)
+                {
+                    return existingMemberDeclaringEntityType != null
+                        && existingMemberInfo.IsOverridenBy(newMemberInfo);
+                }
+
+                if (existingMemberDeclaringEntityType == null
+                    && existingMemberInfo.DeclaringType == baseType.ClrType)
+                {
+                    existingMemberDeclaringEntityType = baseType;
+                }
+            }
+
+            // newMemberInfo is declared on an unmapped base type, existingMemberInfo should be kept
+            return newMemberInfo.IsOverridenBy(existingMemberInfo);
         }
 
         private bool CanRemoveProperty(

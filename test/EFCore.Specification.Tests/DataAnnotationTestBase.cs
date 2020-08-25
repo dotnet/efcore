@@ -2501,6 +2501,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             [Key]
             [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Column("Unique_No")]
             public override int UniqueNo { get; set; }
 
             [ConcurrencyCheck]
