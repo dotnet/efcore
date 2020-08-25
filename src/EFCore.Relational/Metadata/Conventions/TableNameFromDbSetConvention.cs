@@ -83,6 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             else if (oldBaseType != null
                 && newBaseType == null
                 && entityType.ClrType != null
+                && !entityType.HasSharedClrType
                 && _sets.TryGetValue(entityType.ClrType, out var setName))
             {
                 entityTypeBuilder.ToTable(setName);
@@ -101,6 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var entityType = entityTypeBuilder.Metadata;
             if (entityType.BaseType == null
                 && entityType.ClrType != null
+                && !entityType.HasSharedClrType
                 && _sets.TryGetValue(entityType.ClrType, out var setName))
             {
                 entityTypeBuilder.ToTable(setName);
