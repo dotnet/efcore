@@ -301,6 +301,9 @@
   <data name="FunctionOverrideMismatch" xml:space="preserve">
     <value>The property '{propertySpecification}' has specific configuration for the function '{function}', however it isn't mapped to a column on that function return. Remove the specific configuration or map an entity type that contains this property to '{function}'.</value>
   </data>
+  <data name="GetXMethodOnNullData" xml:space="preserve">
+    <value>Data is Null. This method or property cannot be called on Null values.</value>
+  </data>
   <data name="IncompatibleTableCommentMismatch" xml:space="preserve">
     <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the comment '{comment}' does not match the comment '{otherComment}'.</value>
   </data>

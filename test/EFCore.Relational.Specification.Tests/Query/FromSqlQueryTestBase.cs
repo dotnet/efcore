@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     () =>
                         context.Set<Product>().FromSqlRaw(
                                 NormalizeDelimitersInRawString(
-                                    @"SELECT [ProductID] AS [ProductName], [ProductName] AS [ProductID], [SupplierID], [UnitPrice], [UnitsInStock], [Discontinued]
+                                    @"SELECT [ProductName] AS [ProductID], [ProductID] AS [ProductName], [SupplierID], [UnitPrice], [UnitsInStock], [Discontinued]
                                FROM [Products]"))
                             .ToList()).Message);
         }
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using var context = CreateContext();
             Assert.Equal(
-                CoreStrings.ErrorMaterializingPropertyInvalidCast("Product", "UnitPrice", typeof(decimal?), typeof(int)),
+                CoreStrings.ErrorMaterializingValueInvalidCast(typeof(decimal?), typeof(int)),
                 Assert.Throws<InvalidOperationException>(
                     () =>
                         context.Set<Product>().FromSqlRaw(
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         context.Set<Product>()
                             .FromSqlRaw(
                                 NormalizeDelimitersInRawString(
-                                    @"SELECT [ProductID] AS [ProductName], [ProductName] AS [ProductID], [SupplierID], [UnitPrice], [UnitsInStock], [Discontinued]
+                                    @"SELECT [ProductName] AS [ProductID], [ProductID] AS [ProductName], [SupplierID], [UnitPrice], [UnitsInStock], [Discontinued]
                                FROM [Products]")).AsNoTracking()
                             .ToList()).Message);
         }

@@ -641,6 +641,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     collectionIdConstant,
                                     Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
                                     _executionStrategyParameter,
+                                    Expression.Constant(_detailedErrorsEnabled),
                                     _resultCoordinatorParameter,
                                     Expression.Constant(relationalCommandCache),
                                     Expression.Constant(childIdentifierLambda.Compile()),
@@ -845,6 +846,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     collectionIdConstant,
                                     Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
                                     _executionStrategyParameter,
+                                    Expression.Constant(_detailedErrorsEnabled),
                                     _resultCoordinatorParameter,
                                     Expression.Constant(relationalCommandCache),
                                     Expression.Constant(childIdentifierLambda.Compile()),
@@ -991,9 +993,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         getMethod,
                         indexExpression);
 
+                var buffering = false;
                 if (_readerColumns != null
                     && _readerColumns[index] == null)
                 {
+                    buffering = true;
                     var bufferedReaderLambdaExpression = valueExpression;
                     var columnType = bufferedReaderLambdaExpression.Type;
                     if (!columnType.IsValueType
@@ -1007,6 +1011,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         columnType,
                         nullable,
                         _indexMapParameter != null ? ((ColumnExpression)_selectExpression.Projection[index].Expression).Name : null,
+                        property,
                         Expression.Lambda(
                             bufferedReaderLambdaExpression,
                             dbDataReader,
@@ -1049,7 +1054,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         valueExpression);
                 }
 
-                if (_detailedErrorsEnabled)
+                if (_detailedErrorsEnabled
+                    && !buffering)
                 {
                     var exceptionParameter = Expression.Parameter(typeof(Exception), name: "e");
 
@@ -1341,6 +1347,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 int collectionId,
                 RelationalQueryContext queryContext,
                 IExecutionStrategy executionStrategy,
+                bool detailedErrorsEnabled,
                 SplitQueryResultCoordinator resultCoordinator,
                 RelationalCommandCache relationalCommandCache,
                 Func<QueryContext, DbDataReader, object[]> childIdentifier,
@@ -1364,14 +1371,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         var relationalCommand = relationalCommandCache.GetRelationalCommand(queryContext.ParameterValues);
 
-                        dataReader
-                            = relationalCommand.ExecuteReader(
-                                new RelationalCommandParameterObject(
-                                    queryContext.Connection,
-                                    queryContext.ParameterValues,
-                                    relationalCommandCache.ReaderColumns,
-                                    queryContext.Context,
-                                    queryContext.CommandLogger));
+                        dataReader = relationalCommand.ExecuteReader(
+                            new RelationalCommandParameterObject(
+                                queryContext.Connection,
+                                queryContext.ParameterValues,
+                                relationalCommandCache.ReaderColumns,
+                                queryContext.Context,
+                                queryContext.CommandLogger,
+                                detailedErrorsEnabled));
 
                         return result;
                     }
@@ -1421,6 +1428,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 int collectionId,
                 RelationalQueryContext queryContext,
                 IExecutionStrategy executionStrategy,
+                bool detailedErrorsEnabled,
                 SplitQueryResultCoordinator resultCoordinator,
                 RelationalCommandCache relationalCommandCache,
                 Func<QueryContext, DbDataReader, object[]> childIdentifier,
@@ -1445,16 +1453,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         var relationalCommand = relationalCommandCache.GetRelationalCommand(queryContext.ParameterValues);
 
-                        dataReader
-                            = await relationalCommand.ExecuteReaderAsync(
-                                    new RelationalCommandParameterObject(
-                                        queryContext.Connection,
-                                        queryContext.ParameterValues,
-                                        relationalCommandCache.ReaderColumns,
-                                        queryContext.Context,
-                                        queryContext.CommandLogger),
-                                    cancellationToken)
-                                .ConfigureAwait(false);
+                        dataReader = await relationalCommand.ExecuteReaderAsync(
+                            new RelationalCommandParameterObject(
+                                queryContext.Connection,
+                                queryContext.ParameterValues,
+                                relationalCommandCache.ReaderColumns,
+                                queryContext.Context,
+                                queryContext.CommandLogger,
+                                detailedErrorsEnabled),
+                            cancellationToken)
+                            .ConfigureAwait(false);
 
                         return result;
                     }
@@ -1661,6 +1669,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 int collectionId,
                 RelationalQueryContext queryContext,
                 IExecutionStrategy executionStrategy,
+                bool detailedErrorsEnabled,
                 SplitQueryResultCoordinator resultCoordinator,
                 RelationalCommandCache relationalCommandCache,
                 Func<QueryContext, DbDataReader, object[]> childIdentifier,
@@ -1681,14 +1690,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         var relationalCommand = relationalCommandCache.GetRelationalCommand(queryContext.ParameterValues);
 
-                        dataReader
-                            = relationalCommand.ExecuteReader(
-                                new RelationalCommandParameterObject(
-                                    queryContext.Connection,
-                                    queryContext.ParameterValues,
-                                    relationalCommandCache.ReaderColumns,
-                                    queryContext.Context,
-                                    queryContext.CommandLogger));
+                        dataReader = relationalCommand.ExecuteReader(
+                            new RelationalCommandParameterObject(
+                                queryContext.Connection,
+                                queryContext.ParameterValues,
+                                relationalCommandCache.ReaderColumns,
+                                queryContext.Context,
+                                queryContext.CommandLogger,
+                                detailedErrorsEnabled));
 
                         return result;
                     }
@@ -1733,6 +1742,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 int collectionId,
                 RelationalQueryContext queryContext,
                 IExecutionStrategy executionStrategy,
+                bool detailedErrorsEnabled,
                 SplitQueryResultCoordinator resultCoordinator,
                 RelationalCommandCache relationalCommandCache,
                 Func<QueryContext, DbDataReader, object[]> childIdentifier,
@@ -1754,16 +1764,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         var relationalCommand = relationalCommandCache.GetRelationalCommand(queryContext.ParameterValues);
 
-                        dataReader
-                            = await relationalCommand.ExecuteReaderAsync(
-                                    new RelationalCommandParameterObject(
-                                        queryContext.Connection,
-                                        queryContext.ParameterValues,
-                                        relationalCommandCache.ReaderColumns,
-                                        queryContext.Context,
-                                        queryContext.CommandLogger),
-                                    cancellationToken)
-                                .ConfigureAwait(false);
+                        dataReader = await relationalCommand.ExecuteReaderAsync(
+                            new RelationalCommandParameterObject(
+                                queryContext.Connection,
+                                queryContext.ParameterValues,
+                                relationalCommandCache.ReaderColumns,
+                                queryContext.Context,
+                                queryContext.CommandLogger,
+                                detailedErrorsEnabled),
+                            cancellationToken)
+                            .ConfigureAwait(false);
 
                         return result;
                     }
