@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         #region Bug9849
 
         [ConditionalFact]
-        public void Include_throw_when_empty_9849()
+        public virtual void Include_throw_when_empty_9849()
         {
             using (CreateScratch<DatabaseContext>(_ => { }, "9849"))
             {
@@ -32,43 +32,49 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public void Include_throw_when_empty_9849_2()
+        public virtual void Include_throw_when_empty_9849_2()
         {
             using (CreateScratch<DatabaseContext>(_ => { }, "9849"))
             {
                 using var context = new DatabaseContext();
+#pragma warning disable IDE1006 // Naming Styles
                 var results = context.VehicleInspections.Include(_foo => _foo.Motors).ToList();
+#pragma warning restore IDE1006 // Naming Styles
 
                 Assert.Empty(results);
             }
         }
 
         [ConditionalFact]
-        public void Include_throw_when_empty_9849_3()
+        public virtual void Include_throw_when_empty_9849_3()
         {
             using (CreateScratch<DatabaseContext>(_ => { }, "9849"))
             {
                 using var context = new DatabaseContext();
+#pragma warning disable IDE1006 // Naming Styles
                 var results = context.VehicleInspections.Include(__ => __.Motors).ToList();
+#pragma warning restore IDE1006 // Naming Styles
 
                 Assert.Empty(results);
             }
         }
 
         [ConditionalFact]
-        public void Include_throw_when_empty_9849_4()
+        public virtual void Include_throw_when_empty_9849_4()
         {
             using (CreateScratch<DatabaseContext>(_ => { }, "9849"))
             {
                 using var context = new DatabaseContext();
+#pragma warning disable IDE1006 // Naming Styles
                 var results = context.VehicleInspections.Include(___ => ___.Motors).ToList();
+#pragma warning restore IDE1006 // Naming Styles
 
                 Assert.Empty(results);
             }
         }
 
         [ConditionalFact]
-        public void Include_throw_when_empty_9849_5()
+        public virtual void Include_throw_when_empty_9849_5()
         {
             using (CreateScratch<DatabaseContext>(_ => { }, "9849"))
             {
@@ -84,14 +90,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public void Include_throw_when_empty_9849_6()
+        public virtual void Include_throw_when_empty_9849_6()
         {
             using (CreateScratch<DatabaseContext>(_ => { }, "9849"))
             {
                 using var context = new DatabaseContext();
+#pragma warning disable IDE1006 // Naming Styles
+                // Explicitly named variables these way. They verify parameter names generated in EF Core.
                 var _ = 0L;
                 var __ = 0L;
                 var _f = 0L;
+#pragma warning restore IDE1006 // Naming Styles
 
                 var results
                     = (from v in context.VehicleInspections
@@ -102,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        public class DatabaseContext : DbContext
+        private class DatabaseContext : DbContext
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
@@ -122,13 +131,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             public DbSet<Motor> Motors { get; set; }
         }
 
-        public class VehicleInspection
+        private class VehicleInspection
         {
             public long Id { get; set; }
             public ICollection<Motor> Motors { get; set; } = new HashSet<Motor>();
         }
 
-        public class Motor
+        private class Motor
         {
             public long Id { get; set; }
             public long VehicleInspectionId { get; set; }
@@ -140,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         #region Bug3595
 
         [ConditionalFact]
-        public void GroupBy_with_uninitialized_datetime_projection_3595()
+        public virtual void GroupBy_with_uninitialized_datetime_projection_3595()
         {
             using (CreateScratch<Context3595>(Seed3595, "3595"))
             {
@@ -171,22 +180,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             context.SaveChanges();
         }
 
-        public abstract class Base3595
+        private abstract class Base3595
         {
             public DateTime Modified { get; set; }
         }
 
-        public class Question3595 : Base3595
+        private class Question3595 : Base3595
         {
             public int Id { get; set; }
         }
 
-        public class Exam3595 : Base3595
+        private class Exam3595 : Base3595
         {
             public int Id { get; set; }
         }
 
-        public class ExamQuestion3595 : Base3595
+        private class ExamQuestion3595 : Base3595
         {
             public int Id { get; set; }
 
@@ -197,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public Exam3595 Exam { get; set; }
         }
 
-        public class Context3595 : DbContext
+        private class Context3595 : DbContext
         {
             public DbSet<Exam3595> Exams { get; set; }
             public DbSet<Question3595> Questions { get; set; }
@@ -412,7 +421,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             context.SaveChanges();
         }
 
-        public class MyContext3101 : DbContext
+        private class MyContext3101 : DbContext
         {
             public DbSet<Entity3101> Entities { get; set; }
 
@@ -431,7 +440,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        public class Entity3101
+        private class Entity3101
         {
             public Entity3101()
             {
@@ -447,7 +456,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public ICollection<Child3101> Children { get; set; }
         }
 
-        public class Child3101
+        private class Child3101
         {
             public int Id { get; set; }
             public string Name { get; set; }
@@ -575,7 +584,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             context.SaveChanges();
         }
 
-        public class MyContext5456 : DbContext
+        private class MyContext5456 : DbContext
         {
             public DbSet<Blog5456> Blogs { get; set; }
             public DbSet<Post5456> Posts { get; set; }
@@ -595,27 +604,27 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        public class Blog5456
+        private class Blog5456
         {
             public int Id { get; set; }
             public List<Post5456> Posts { get; set; }
             public Author5456 Author { get; set; }
         }
 
-        public class Author5456
+        private class Author5456
         {
             public int Id { get; set; }
             public List<Blog5456> Blogs { get; set; }
         }
 
-        public class Post5456
+        private class Post5456
         {
             public int Id { get; set; }
             public Blog5456 Blog { get; set; }
             public List<Comment5456> Comments { get; set; }
         }
 
-        public class Comment5456
+        private class Comment5456
         {
             public int Id { get; set; }
             public Post5456 Blog { get; set; }
@@ -650,12 +659,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        public class Entity8282
+        private class Entity8282
         {
             public int Id { get; set; }
         }
 
-        public class EntityDto8282
+        private class EntityDto8282
         {
             public EntityDto8282(Entity8282 entity)
             {
@@ -922,7 +931,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             context.SaveChanges();
         }
 
-        public class AppEntity21803
+        private class AppEntity21803
         {
             private readonly List<OtherEntity21803> _otherEntities = new List<OtherEntity21803>();
 
@@ -932,7 +941,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 => _otherEntities;
         }
 
-        public class OtherEntity21803
+        private class OtherEntity21803
         {
             public int Id { get; private set; }
             public AppEntity21803 AppEntity { get; set; }
@@ -947,6 +956,82 @@ namespace Microsoft.EntityFrameworkCore.Query
                 optionsBuilder
                     .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
                     .UseInMemoryDatabase("21803");
+            }
+        }
+
+        #endregion
+
+        #region Issue20729
+
+        [ConditionalFact]
+        public virtual void Multiple_owned_references_at_same_level_maintains_valueBuffer_positions()
+        {
+            using (CreateScratch<MyContext20729>(Seed20729, "20729"))
+            {
+                using var context = new MyContext20729();
+
+                var query = context.Set<Owner20729>()
+                    .Select(dtoOwner => new
+                    {
+                        dtoOwner.Id,
+                        Owned2 = dtoOwner.Owned2 == null ? null : new
+                        {
+                            Other = dtoOwner.Owned2.Other == null ? null : new { dtoOwner.Owned2.Other.Id }
+                        }
+                        ,
+                        Owned1 = dtoOwner.Owned1 == null ? null : new { dtoOwner.Owned1.Value }
+
+                    }
+                    ).ToList();
+
+                var owner = Assert.Single(query);
+                Assert.NotNull(owner.Owned1);
+                Assert.NotNull(owner.Owned2);
+            }
+        }
+
+        private static void Seed20729(MyContext20729 context)
+        {
+            context.Owners.Add(new Owner20729
+            {
+                Owned1 = new Owned120729(),
+                Owned2 = new Owned220729(),
+            });
+
+            context.SaveChanges();
+        }
+
+        private class Owner20729
+        {
+            public int Id { get; set; }
+            public Owned120729 Owned1 { get; set; }
+            public Owned220729 Owned2 { get; set; }
+        }
+
+        [Owned]
+        private class Owned120729
+        {
+            public int Value { get; set; }
+        }
+        [Owned]
+        private class Owned220729
+        {
+            public Other20729 Other { get; set; }
+        }
+        private class Other20729
+        {
+            public int Id { get; set; }
+        }
+
+        private class MyContext20729 : DbContext
+        {
+            public DbSet<Owner20729> Owners { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("20729");
             }
         }
 

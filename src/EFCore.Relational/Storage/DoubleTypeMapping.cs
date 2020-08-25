@@ -4,6 +4,7 @@
 using System;
 using System.Data;
 using System.Globalization;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -27,7 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public DoubleTypeMapping(
             [NotNull] string storeType,
             DbType? dbType = null)
-            : base(storeType, typeof(double), dbType)
+            : base(
+                new RelationalTypeMappingParameters(
+                    new CoreTypeMappingParameters(typeof(double), comparer: new DoubleValueComparer()),
+                    storeType, StoreTypePostfix.None, dbType, unicode: false, size: null, fixedLength: false, precision: null, scale: null))
         {
         }
 

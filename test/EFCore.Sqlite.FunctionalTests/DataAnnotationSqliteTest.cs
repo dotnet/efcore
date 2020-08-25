@@ -97,14 +97,14 @@ namespace Microsoft.EntityFrameworkCore
             base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
 
             AssertSql(
-                @"SELECT ""s"".""UniqueNo"", ""s"".""MaxLengthProperty"", ""s"".""Name"", ""s"".""RowVersion"", ""s"".""AdditionalDetails_Name"", ""s"".""Details_Name""
+                @"SELECT ""s"".""Unique_No"", ""s"".""MaxLengthProperty"", ""s"".""Name"", ""s"".""RowVersion"", ""s"".""AdditionalDetails_Name"", ""s"".""Details_Name""
 FROM ""Sample"" AS ""s""
-WHERE ""s"".""UniqueNo"" = 1
+WHERE ""s"".""Unique_No"" = 1
 LIMIT 1",
                 //
-                @"SELECT ""s"".""UniqueNo"", ""s"".""MaxLengthProperty"", ""s"".""Name"", ""s"".""RowVersion"", ""s"".""AdditionalDetails_Name"", ""s"".""Details_Name""
+                @"SELECT ""s"".""Unique_No"", ""s"".""MaxLengthProperty"", ""s"".""Name"", ""s"".""RowVersion"", ""s"".""AdditionalDetails_Name"", ""s"".""Details_Name""
 FROM ""Sample"" AS ""s""
-WHERE ""s"".""UniqueNo"" = 1
+WHERE ""s"".""Unique_No"" = 1
 LIMIT 1",
                 //
                 @"@p2='1' (DbType = String)
@@ -113,7 +113,7 @@ LIMIT 1",
 @p3='00000001-0000-0000-0000-000000000001' (DbType = String)
 
 UPDATE ""Sample"" SET ""Name"" = @p0, ""RowVersion"" = @p1
-WHERE ""UniqueNo"" = @p2 AND ""RowVersion"" = @p3;
+WHERE ""Unique_No"" = @p2 AND ""RowVersion"" = @p3;
 SELECT changes();",
                 //
                 @"@p2='1' (DbType = String)
@@ -122,7 +122,7 @@ SELECT changes();",
 @p3='00000001-0000-0000-0000-000000000001' (DbType = String)
 
 UPDATE ""Sample"" SET ""Name"" = @p0, ""RowVersion"" = @p1
-WHERE ""UniqueNo"" = @p2 AND ""RowVersion"" = @p3;
+WHERE ""Unique_No"" = @p2 AND ""RowVersion"" = @p3;
 SELECT changes();");
         }
 
@@ -139,7 +139,7 @@ SELECT changes();");
 
 INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""AdditionalDetails_Name"", ""Details_Name"")
 VALUES (@p0, @p1, @p2, @p3, @p4);
-SELECT ""UniqueNo""
+SELECT ""Unique_No""
 FROM ""Sample""
 WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();");
         }

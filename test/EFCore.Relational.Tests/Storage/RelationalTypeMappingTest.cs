@@ -532,6 +532,26 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         [ConditionalFact]
+        public virtual void Double_value_comparer_handles_NaN()
+        {
+            var typeMapping = new DoubleTypeMapping("double precision", DbType.Double);
+
+            Assert.True(typeMapping.Comparer.Equals(3.0, 3.0));
+            Assert.True(typeMapping.Comparer.Equals(double.NaN, double.NaN));
+            Assert.False(typeMapping.Comparer.Equals(3.0, double.NaN));
+        }
+
+        [ConditionalFact]
+        public virtual void Float_value_comparer_handles_NaN()
+        {
+            var typeMapping = new FloatTypeMapping("float", DbType.Single);
+
+            Assert.True(typeMapping.Comparer.Equals(3.0f, 3.0f));
+            Assert.True(typeMapping.Comparer.Equals(float.NaN, float.NaN));
+            Assert.False(typeMapping.Comparer.Equals(3.0f, float.NaN));
+        }
+
+        [ConditionalFact]
         public virtual void Primary_key_type_mapping_is_picked_up_by_FK_without_going_through_store_type()
         {
             using var context = new FruityContext(ContextOptions);
