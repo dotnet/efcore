@@ -264,14 +264,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     ClrType = operation.ClrType,
                     ColumnType = operation.ColumnType,
                     IsUnicode = operation.IsUnicode,
+                    IsFixedLength = operation.IsFixedLength,
                     MaxLength = operation.MaxLength,
+                    Precision = operation.Precision,
+                    Scale = operation.Scale,
                     IsRowVersion = operation.IsRowVersion,
                     IsNullable = operation.IsNullable,
                     DefaultValue = operation.DefaultValue,
                     DefaultValueSql = operation.DefaultValueSql,
                     ComputedColumnSql = operation.ComputedColumnSql,
                     IsStored = operation.IsStored,
-                    IsFixedLength = operation.IsFixedLength
+                    Comment = operation.Comment,
+                    Collation = operation.Collation
                 };
                 addColumnOperation.AddAnnotations(operation.GetAnnotations());
 
@@ -280,8 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 DropIndexes(indexesToRebuild, builder);
                 Generate(dropColumnOperation, model, builder, terminate: false);
                 builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
-                Generate(addColumnOperation, model, builder, terminate: false);
-                builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+                Generate(addColumnOperation, model, builder);
                 CreateIndexes(indexesToRebuild, builder);
                 builder.EndCommand(suppressTransaction: IsMemoryOptimized(operation, model, operation.Schema, operation.Table));
 
@@ -289,7 +292,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             }
 
             var narrowed = false;
-            if (IsOldColumnSupported(model))
+            var oldColumnSupported = IsOldColumnSupported(model);
+            if (oldColumnSupported)
             {
                 if (IsIdentity(operation) != IsIdentity(operation.OldColumn))
                 {
@@ -321,44 +325,68 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 DropIndexes(indexesToRebuild, builder);
             }
 
-            DropDefaultConstraint(operation.Schema, operation.Table, operation.Name, builder);
+            var alterStatementNeeded = narrowed
+                || !oldColumnSupported
+                || operation.ClrType != operation.OldColumn.ClrType
+                || operation.ColumnType != operation.OldColumn.ColumnType
+                || operation.IsUnicode != operation.OldColumn.IsUnicode
+                || operation.IsFixedLength != operation.OldColumn.IsFixedLength
+                || operation.MaxLength != operation.OldColumn.MaxLength
+                || operation.Precision != operation.OldColumn.Precision
+                || operation.Scale != operation.OldColumn.Scale
+                || operation.IsRowVersion != operation.OldColumn.IsRowVersion
+                || operation.IsNullable != operation.OldColumn.IsNullable
+                || operation.Collation != operation.OldColumn.Collation
+                || HasDifferences(operation.GetAnnotations(), operation.OldColumn.GetAnnotations());
 
-            builder
-                .Append("ALTER TABLE ")
-                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
-                .Append(" ALTER COLUMN ");
-
-            // NB: DefaultValue, DefaultValueSql, and identity are handled elsewhere. Don't copy them here.
-            var definitionOperation = new AlterColumnOperation
+            if (alterStatementNeeded
+                || !Equals(operation.DefaultValue, operation.OldColumn.DefaultValue)
+                || operation.DefaultValueSql != operation.OldColumn.DefaultValueSql)
             {
-                Schema = operation.Schema,
-                Table = operation.Table,
-                Name = operation.Name,
-                ClrType = operation.ClrType,
-                ColumnType = operation.ColumnType,
-                IsUnicode = operation.IsUnicode,
-                IsFixedLength = operation.IsFixedLength,
-                MaxLength = operation.MaxLength,
-                IsRowVersion = operation.IsRowVersion,
-                IsNullable = operation.IsNullable,
-                ComputedColumnSql = operation.ComputedColumnSql,
-                Collation = operation.Collation,
-                OldColumn = operation.OldColumn
-            };
-            definitionOperation.AddAnnotations(
-                operation.GetAnnotations().Where(
-                    a => a.Name != SqlServerAnnotationNames.ValueGenerationStrategy
-                        && a.Name != SqlServerAnnotationNames.Identity));
+                DropDefaultConstraint(operation.Schema, operation.Table, operation.Name, builder);
+            }
 
-            ColumnDefinition(
-                operation.Schema,
-                operation.Table,
-                operation.Name,
-                definitionOperation,
-                model,
-                builder);
+            if (alterStatementNeeded)
+            {
+                builder
+                    .Append("ALTER TABLE ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                    .Append(" ALTER COLUMN ");
 
-            builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+                // NB: ComputedColumnSql, IsStored, DefaultValue, DefaultValueSql, Comment, ValueGenerationStrategy, and Identity are
+                //     handled elsewhere. Don't copy them here.
+                var definitionOperation = new AlterColumnOperation
+                {
+                    Schema = operation.Schema,
+                    Table = operation.Table,
+                    Name = operation.Name,
+                    ClrType = operation.ClrType,
+                    ColumnType = operation.ColumnType,
+                    IsUnicode = operation.IsUnicode,
+                    IsFixedLength = operation.IsFixedLength,
+                    MaxLength = operation.MaxLength,
+                    Precision = operation.Precision,
+                    Scale = operation.Scale,
+                    IsRowVersion = operation.IsRowVersion,
+                    IsNullable = operation.IsNullable,
+                    Collation = operation.Collation,
+                    OldColumn = operation.OldColumn
+                };
+                definitionOperation.AddAnnotations(
+                    operation.GetAnnotations().Where(
+                        a => a.Name != SqlServerAnnotationNames.ValueGenerationStrategy
+                            && a.Name != SqlServerAnnotationNames.Identity));
+
+                ColumnDefinition(
+                    operation.Schema,
+                    operation.Table,
+                    operation.Name,
+                    definitionOperation,
+                    model,
+                    builder);
+
+                builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+            }
 
             if (operation.DefaultValue != null
                 || operation.DefaultValueSql != null)
@@ -2001,6 +2029,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             }
 
             generate(builder);
+        }
+
+        private static bool HasDifferences(IEnumerable<IAnnotation> source, IEnumerable<IAnnotation> target)
+        {
+            var targetAnnotations = target.ToDictionary(a => a.Name);
+
+            var count = 0;
+            foreach (var sourceAnnotation in source)
+            {
+                if (!targetAnnotations.TryGetValue(sourceAnnotation.Name, out var targetAnnotation)
+                    || !Equals(sourceAnnotation.Value, targetAnnotation.Value))
+                {
+                    return true;
+                }
+
+                count++;
+            }
+
+            return count != targetAnnotations.Count;
         }
     }
 }
