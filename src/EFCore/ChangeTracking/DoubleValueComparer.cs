@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Initializes a new instance of the <see cref="DoubleValueComparer" /> class.
         /// </summary>
         public DoubleValueComparer() : base(
-            (x, y) => double.IsNaN(x) ? double.IsNaN(y) : x.Equals(y),
+            (x, y) => x.Equals(y),
             d => d.GetHashCode())
         {
         }

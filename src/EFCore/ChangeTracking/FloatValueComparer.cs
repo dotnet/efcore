@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Initializes a new instance of the <see cref="FloatValueComparer" /> class.
         /// </summary>
         public FloatValueComparer() : base(
-            (x, y) => float.IsNaN(x) ? float.IsNaN(y) : x.Equals(y),
+            (x, y) => x.Equals(y),
             d => d.GetHashCode())
         {
         }
