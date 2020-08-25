@@ -229,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 // ReSharper disable once LoopCanBeConvertedToQuery
                 foreach (var property in entityType.GetProperties())
                 {
-                    if (HasTemporaryValue(property))
+                    if (!property.IsForeignKey() && HasTemporaryValue(property))
                     {
                         throw new InvalidOperationException(
                             CoreStrings.TempValuePersists(

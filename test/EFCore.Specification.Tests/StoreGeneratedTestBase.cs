@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -507,6 +508,59 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.False(entry.Property(e => e.Identity).IsTemporary);
                 },
                 context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).Identity));
+        }
+
+        protected class NonStoreGenDependent
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id { get; set; }
+            public int? StoreGenPrincipalId { get; set; }
+            public StoreGenPrincipal StoreGenPrincipal { get; set; }
+        }
+
+        protected class StoreGenPrincipal
+        {
+            public int Id { get; set; }
+        }
+
+        [ConditionalFact] // Issue #22027
+        public void Change_state_of_entity_with_temp_FK_does_not_throw()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var dependent = new NonStoreGenDependent
+                    {
+                        Id = 89,
+                    };
+
+                    context.Add(dependent);
+                    context.SaveChanges();
+                },
+                context =>
+                {
+                    var principal = new StoreGenPrincipal();
+                    var dependent = new NonStoreGenDependent
+                    {
+                        Id = 89,
+                        StoreGenPrincipal = principal
+                    };
+
+                    context.Add(dependent);
+
+                    context.Entry(dependent).State = EntityState.Modified;
+
+                    Assert.Equal(EntityState.Added, context.Entry(principal).State);
+                    Assert.True(context.Entry(principal).Property(e => e.Id).IsTemporary);
+                    Assert.True(context.Entry(dependent).Property(e => e.StoreGenPrincipalId).IsTemporary);
+
+                    context.SaveChanges();
+
+                    Assert.Equal(EntityState.Unchanged, context.Entry(principal).State);
+                    Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
+                    Assert.False(context.Entry(principal).Property(e => e.Id).IsTemporary);
+                    Assert.False(context.Entry(dependent).Property(e => e.StoreGenPrincipalId).IsTemporary);
+                });
         }
 
         [ConditionalFact] // Issue #19137
@@ -1856,6 +1910,8 @@ namespace Microsoft.EntityFrameworkCore
                     });
 
                 modelBuilder.Entity<OptionalProduct>();
+                modelBuilder.Entity<StoreGenPrincipal>();
+                modelBuilder.Entity<NonStoreGenDependent>();
             }
         }
     }
