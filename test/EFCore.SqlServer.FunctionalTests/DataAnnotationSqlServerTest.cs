@@ -129,11 +129,11 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void ColumnAttribute_configures_the_property_correctly()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<One>();
+            modelBuilder.Entity<One>().HasKey(o => o.UniqueNo);
 
             Assert.Equal(
-                "Name",
-                modelBuilder.Model.FindEntityType(typeof(One)).FindProperty(nameof(One.RequiredColumn)).GetColumnName());
+                "Unique_No",
+                modelBuilder.Model.FindEntityType(typeof(One)).FindProperty(nameof(One.UniqueNo)).GetColumnName());
         }
 
         public override ModelBuilder DatabaseGeneratedOption_Identity_does_not_throw_on_noninteger_properties()
@@ -159,13 +159,13 @@ namespace Microsoft.EntityFrameworkCore
             base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
 
             AssertSql(
-                @"SELECT TOP(1) [s].[UniqueNo], [s].[MaxLengthProperty], [s].[Name], [s].[RowVersion], [s].[AdditionalDetails_Name], [s].[Details_Name]
+                @"SELECT TOP(1) [s].[Unique_No], [s].[MaxLengthProperty], [s].[Name], [s].[RowVersion], [s].[AdditionalDetails_Name], [s].[Details_Name]
 FROM [Sample] AS [s]
-WHERE [s].[UniqueNo] = 1",
+WHERE [s].[Unique_No] = 1",
                 //
-                @"SELECT TOP(1) [s].[UniqueNo], [s].[MaxLengthProperty], [s].[Name], [s].[RowVersion], [s].[AdditionalDetails_Name], [s].[Details_Name]
+                @"SELECT TOP(1) [s].[Unique_No], [s].[MaxLengthProperty], [s].[Name], [s].[RowVersion], [s].[AdditionalDetails_Name], [s].[Details_Name]
 FROM [Sample] AS [s]
-WHERE [s].[UniqueNo] = 1",
+WHERE [s].[Unique_No] = 1",
                 //
                 @"@p2='1'
 @p0='ModifiedData' (Nullable = false) (Size = 4000)
@@ -174,7 +174,7 @@ WHERE [s].[UniqueNo] = 1",
 
 SET NOCOUNT ON;
 UPDATE [Sample] SET [Name] = @p0, [RowVersion] = @p1
-WHERE [UniqueNo] = @p2 AND [RowVersion] = @p3;
+WHERE [Unique_No] = @p2 AND [RowVersion] = @p3;
 SELECT @@ROWCOUNT;",
                 //
                 @"@p2='1'
@@ -184,7 +184,7 @@ SELECT @@ROWCOUNT;",
 
 SET NOCOUNT ON;
 UPDATE [Sample] SET [Name] = @p0, [RowVersion] = @p1
-WHERE [UniqueNo] = @p2 AND [RowVersion] = @p3;
+WHERE [Unique_No] = @p2 AND [RowVersion] = @p3;
 SELECT @@ROWCOUNT;");
         }
 
@@ -202,9 +202,9 @@ SELECT @@ROWCOUNT;");
 SET NOCOUNT ON;
 INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion], [AdditionalDetails_Name], [Details_Name])
 VALUES (@p0, @p1, @p2, @p3, @p4);
-SELECT [UniqueNo]
+SELECT [Unique_No]
 FROM [Sample]
-WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();");
+WHERE @@ROWCOUNT = 1 AND [Unique_No] = scope_identity();");
         }
 
         public override void MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length()
@@ -221,9 +221,9 @@ WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();");
 SET NOCOUNT ON;
 INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion], [AdditionalDetails_Name], [Details_Name])
 VALUES (@p0, @p1, @p2, @p3, @p4);
-SELECT [UniqueNo]
+SELECT [Unique_No]
 FROM [Sample]
-WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
+WHERE @@ROWCOUNT = 1 AND [Unique_No] = scope_identity();",
                 //
                 @"@p0='VeryVeryVeryVeryVeryVeryLongString' (Size = 4000)
 @p1='ValidString' (Nullable = false) (Size = 4000)
@@ -234,9 +234,9 @@ WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
 SET NOCOUNT ON;
 INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion], [AdditionalDetails_Name], [Details_Name])
 VALUES (@p0, @p1, @p2, @p3, @p4);
-SELECT [UniqueNo]
+SELECT [Unique_No]
 FROM [Sample]
-WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();");
+WHERE @@ROWCOUNT = 1 AND [Unique_No] = scope_identity();");
         }
 
         public override void StringLengthAttribute_throws_while_inserting_value_longer_than_max_length()
