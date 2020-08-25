@@ -393,7 +393,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var migrationFile = Path.Combine(migrationDirectory, migration.MigrationId + migration.FileExtension);
             var migrationMetadataFile = Path.Combine(migrationDirectory, migration.MigrationId + ".Designer" + migration.FileExtension);
             var modelSnapshotFileName = migration.SnapshotName + migration.FileExtension;
-            var modelSnapshotDirectory = outputDir ?? GetDirectory(projectDir, modelSnapshotFileName, migration.SnapshotSubnamespace);
+            var modelSnapshotDirectory = GetDirectory(projectDir, modelSnapshotFileName, migration.SnapshotSubnamespace);
             var modelSnapshotFile = Path.Combine(modelSnapshotDirectory, modelSnapshotFileName);
 
             Dependencies.OperationReporter.WriteVerbose(DesignStrings.WritingMigration(migrationFile));
