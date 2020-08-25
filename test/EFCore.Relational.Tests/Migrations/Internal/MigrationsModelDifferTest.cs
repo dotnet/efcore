@@ -6862,36 +6862,46 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Execute(
                 common =>
                 {
-                    common.Entity(
-                        "Animal", x =>
+                    common.Entity<Animal>(
+                        x =>
                         {
                             x.Property<int>("Id");
                             x.Property<string>("Name");
+                            x.Property<int>("Discriminator");
+
+                            x.HasDiscriminator<int>("Discriminator")
+                                .HasValue(1)
+                                .HasValue<Eagle>(2);
+
                             x.ToTable("Animal", "dbo");
                             x.HasData(
                                 new { Id = 42 });
                         });
 
-                    common.Entity(
-                        "Eagle", x =>
+                    common.Entity<Eagle>(
+                        x =>
                         {
-                            x.HasBaseType("Animal");
+                            x.HasBaseType<Animal>();
                             x.HasData(
                                 new { Id = 41 });
                         });
                 },
-                source => source.Entity(
-                    "Animal", x =>
+                source => source.Entity<Animal>(
+                    x =>
                     {
                         x.HasData(
-                            new { Id = 43, Name = "Bob" });
+                            new Animal { Id = 43, Name = "Bob" });
                     }),
-                target => target.Entity(
-                    "Shark", x =>
+                target => target.Entity<Shark>(
+                    x =>
                     {
-                        x.HasBaseType("Animal");
+                        x.HasBaseType<Animal>();
+
+                        x.HasDiscriminator<int>("Discriminator")
+                            .HasValue(3);
+
                         x.HasData(
-                            new { Id = 43, Name = "Bob" });
+                            new Shark { Id = 43, Name = "Bob" });
                     }),
                 upOps => Assert.Collection(
                     upOps,
@@ -6918,7 +6928,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         AssertMultidimensionalArray(
                             operation.Values,
                             v => Assert.Equal(43, v),
-                            v => Assert.Equal("Shark", v),
+                            v => Assert.Equal(3, v),
                             v => Assert.Equal("Bob", v));
                     }),
                 downOps => Assert.Collection(
@@ -6946,9 +6956,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         AssertMultidimensionalArray(
                             operation.Values,
                             v => Assert.Equal(43, v),
-                            v => Assert.Equal("Animal", v),
+                            v => Assert.Equal(1, v),
                             v => Assert.Equal("Bob", v));
                     }));
+        }
+
+        private class Animal
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+        private class Eagle : Animal
+        {
+        }
+        private class Shark : Animal
+        {
         }
 
         [ConditionalFact] // See #2802

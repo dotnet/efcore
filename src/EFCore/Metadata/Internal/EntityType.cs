@@ -2940,7 +2940,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 data.Add(seed);
                 var type = rawSeed.GetType();
 
-                if (type == ClrType)
+                if (ClrType?.IsAssignableFrom(type) == true)
                 {
                     // non-anonymous type
                     foreach (var propertyBase in properties.Values)
@@ -2981,6 +2981,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             case FieldInfo fieldInfo:
                                 value = fieldInfo.GetValue(rawSeed);
                                 break;
+                            case null:
+                                continue;
                         }
 
                         seed[propertyBase.Name] = valueConverter == null
