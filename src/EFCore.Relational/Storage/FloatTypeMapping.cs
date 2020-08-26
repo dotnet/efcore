@@ -28,10 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public FloatTypeMapping(
             [NotNull] string storeType,
             DbType? dbType = null)
-            : base(
-                new RelationalTypeMappingParameters(
-                    new CoreTypeMappingParameters(typeof(float), comparer: new FloatValueComparer()),
-                    storeType, StoreTypePostfix.None, dbType, unicode: false, size: null, fixedLength: false, precision: null, scale: null))
+            : base(storeType, typeof(float), dbType)
         {
         }
 

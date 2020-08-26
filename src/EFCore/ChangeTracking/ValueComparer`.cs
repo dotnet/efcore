@@ -113,8 +113,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 || unwrappedType == typeof(Guid)
                 || unwrappedType == typeof(bool)
                 || unwrappedType == typeof(decimal)
-                || unwrappedType == typeof(double)
-                || unwrappedType == typeof(float)
                 || unwrappedType == typeof(object)
             )
             {
