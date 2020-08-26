@@ -178,8 +178,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 if ((identifyingMemberInfo != null
                         && identifyingMemberInfo.IsSameAs(otherProperty.PropertyInfo ?? (MemberInfo)otherProperty.FieldInfo))
                     || (property.IsPrimaryKey() && otherProperty.IsPrimaryKey())
-                    || (property.IsConcurrencyToken && otherProperty.IsConcurrencyToken))
+                    || (property.IsConcurrencyToken && otherProperty.IsConcurrencyToken)
+                    || (!property.Builder.CanSetColumnName(null) && !otherProperty.Builder.CanSetColumnName(null)))
                 {
+                    if (property.GetAfterSaveBehavior() == PropertySaveBehavior.Save
+                        && otherProperty.GetAfterSaveBehavior() == PropertySaveBehavior.Save
+                        && property.ValueGenerated == ValueGenerated.Never
+                        && otherProperty.ValueGenerated == ValueGenerated.Never)
+                    {
+                        // Handle this with a default value convention #9329
+                        property.Builder.ValueGenerated(ValueGenerated.OnUpdateSometimes);
+                        otherProperty.Builder.ValueGenerated(ValueGenerated.OnUpdateSometimes);
+                    }
+
                     continue;
                 }
 
@@ -231,7 +242,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
 
                 columnName = Uniquifier.Uniquify(columnName, properties, maxLength);
-                property.Builder.HasColumnName(columnName);
+                if (property.Builder.HasColumnName(columnName) == null)
+                {
+                    return null;
+                }
+
                 properties[columnName] = property;
                 return columnName;
             }

@@ -53,8 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="entries"> Entries representing the changes to be persisted. </param>
         /// <returns> The number of state entries persisted to the database. </returns>
-        public override int SaveChanges(
-            IList<IUpdateEntry> entries)
+        public override int SaveChanges(IList<IUpdateEntry> entries)
         {
             Check.NotNull(entries, nameof(entries));
 

@@ -1056,14 +1056,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                     var equals = ValuesEqualFunc(property);
 
+                    if (_storeGeneratedValues.TryGetValue(storeGeneratedIndex, out var generatedValue)
+                        && !equals(generatedValue, defaultValue))
+                    {
+                        return generatedValue;
+                    }
+
                     if (equals(value, defaultValue))
                     {
-                        if (_storeGeneratedValues.TryGetValue(storeGeneratedIndex, out var generatedValue)
-                            && !equals(generatedValue, defaultValue))
-                        {
-                            return generatedValue;
-                        }
-
                         if (_temporaryValues.TryGetValue(storeGeneratedIndex, out generatedValue)
                             && !equals(generatedValue, defaultValue))
                         {
@@ -1100,7 +1100,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             bool isCascadeDelete,
             CurrentValueType valueType)
         {
-            var currentValue = this[propertyBase];
+            var currentValue = ReadPropertyValue(propertyBase);
 
             var asProperty = propertyBase as Property;
             int propertyIndex;
