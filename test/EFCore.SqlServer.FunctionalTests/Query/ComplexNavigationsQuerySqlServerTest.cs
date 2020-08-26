@@ -5860,6 +5860,43 @@ LEFT JOIN [LevelTwo] AS [l0] ON [t].[Id] = [l0].[OneToMany_Optional_Inverse2Id]
 ORDER BY [t].[Id], [l0].[Id]");
         }
 
+        public override async Task Distinct_skip_without_orderby(bool async)
+        {
+            await base.Distinct_skip_without_orderby(async);
+
+            AssertSql(
+                @"SELECT (
+    SELECT TOP(1) [t0].[Name]
+    FROM (
+        SELECT [t].[Id], [t].[Level2_Optional_Id], [t].[Level2_Required_Id], [t].[Name], [t].[OneToMany_Optional_Inverse3Id], [t].[OneToMany_Optional_Self_Inverse3Id], [t].[OneToMany_Required_Inverse3Id], [t].[OneToMany_Required_Self_Inverse3Id], [t].[OneToOne_Optional_PK_Inverse3Id], [t].[OneToOne_Optional_Self3Id]
+        FROM (
+            SELECT DISTINCT [l].[Id], [l].[Level2_Optional_Id], [l].[Level2_Required_Id], [l].[Name], [l].[OneToMany_Optional_Inverse3Id], [l].[OneToMany_Optional_Self_Inverse3Id], [l].[OneToMany_Required_Inverse3Id], [l].[OneToMany_Required_Self_Inverse3Id], [l].[OneToOne_Optional_PK_Inverse3Id], [l].[OneToOne_Optional_Self3Id]
+            FROM [LevelThree] AS [l]
+        ) AS [t]
+        ORDER BY (SELECT 1)
+        OFFSET 1 ROWS
+    ) AS [t0]
+    ORDER BY [t0].[Id])
+FROM [LevelOne] AS [l0]
+WHERE [l0].[Id] < 3");
+        }
+
+        public override async Task Distinct_take_without_orderby(bool async)
+        {
+            await base.Distinct_take_without_orderby(async);
+
+            AssertSql(
+                @"SELECT (
+    SELECT TOP(1) [t].[Name]
+    FROM (
+        SELECT DISTINCT TOP(1) [l].[Id], [l].[Level2_Optional_Id], [l].[Level2_Required_Id], [l].[Name], [l].[OneToMany_Optional_Inverse3Id], [l].[OneToMany_Optional_Self_Inverse3Id], [l].[OneToMany_Required_Inverse3Id], [l].[OneToMany_Required_Self_Inverse3Id], [l].[OneToOne_Optional_PK_Inverse3Id], [l].[OneToOne_Optional_Self3Id]
+        FROM [LevelThree] AS [l]
+    ) AS [t]
+    ORDER BY [t].[Id])
+FROM [LevelOne] AS [l0]
+WHERE [l0].[Id] < 3");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
