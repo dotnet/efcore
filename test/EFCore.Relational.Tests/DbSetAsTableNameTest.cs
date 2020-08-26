@@ -55,6 +55,28 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public virtual void DbSet_names_are_not_used_as_shared_entity_type_table_names()
+        {
+            using var context = CreateContext();
+
+            Assert.Equal("Bovril", GetTableName<BothEntity>(context, "Bovril"));
+            Assert.Equal("Beefy", GetTableName<BothEntity>(context, "Beefy"));
+            Assert.Equal("Imposter", GetTableName<VeggieEntity>(context, "Imposter"));
+            Assert.Equal("Veggies", GetTableName<VeggieEntity>(context, "Veggies"));
+        }
+
+        [ConditionalFact]
+        public virtual void Explicit_names_can_be_used_for_shared_type_entity_types()
+        {
+            using var context = CreateNamedTablesContext();
+
+            Assert.Equal("MyBovrils", GetTableName<BothEntity>(context, "Bovril"));
+            Assert.Equal("MyBeefies", GetTableName<BothEntity>(context, "Beefy"));
+            Assert.Equal("MyImposter", GetTableName<VeggieEntity>(context, "Imposter"));
+            Assert.Equal("MyVeggies", GetTableName<VeggieEntity>(context, "Veggies"));
+        }
+
+        [ConditionalFact]
         public virtual void Explicit_name_of_base_type_can_be_used_as_table_name_for_TPH()
         {
             using var context = CreateNamedTablesContext();
@@ -89,6 +111,8 @@ namespace Microsoft.EntityFrameworkCore
 
         protected abstract string GetTableName<TEntity>(DbContext context);
 
+        protected abstract string GetTableName<TEntity>(DbContext context, string entityTypeName);
+
         protected abstract SetsContext CreateContext();
 
         protected abstract class SetsContext : DbContext
@@ -103,10 +127,24 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<Marmite> Food { get; set; }
             public DbSet<Marmite> Beverage { get; set; }
 
+            public DbSet<BothEntity> Bovrils
+                => Set<BothEntity>("Bovril");
+
+            public DbSet<BothEntity> Beefs
+                => Set<BothEntity>("Beefy");
+
+            public DbSet<VeggieEntity> Imposters
+                => Set<VeggieEntity>("Imposter");
+
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<Fruit>();
                 modelBuilder.Entity<Banana>();
+
+                modelBuilder.SharedTypeEntity<BothEntity>("Bovril");
+                modelBuilder.SharedTypeEntity<BothEntity>("Beefy");
+                modelBuilder.SharedTypeEntity<VeggieEntity>("Imposter");
+                modelBuilder.SharedTypeEntity<VeggieEntity>("Veggies");
             }
         }
 
@@ -124,6 +162,11 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<Trisket>().ToTable("YummyTriskets");
                 modelBuilder.Entity<WheatThin>().ToTable("YummyWheatThins");
                 modelBuilder.Entity<Marmite>().ToTable("YummyMarmite");
+
+                modelBuilder.SharedTypeEntity<BothEntity>("Bovril").ToTable("MyBovrils");
+                modelBuilder.SharedTypeEntity<BothEntity>("Beefy").ToTable("MyBeefies");
+                modelBuilder.SharedTypeEntity<VeggieEntity>("Imposter").ToTable("MyImposter");
+                modelBuilder.SharedTypeEntity<VeggieEntity>("Veggies").ToTable("MyVeggies");
             }
         }
 
@@ -172,6 +215,16 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected class Marmite
+        {
+            public int Id { get; set; }
+        }
+
+        protected class BothEntity
+        {
+            public int Id { get; set; }
+        }
+
+        protected class VeggieEntity
         {
             public int Id { get; set; }
         }

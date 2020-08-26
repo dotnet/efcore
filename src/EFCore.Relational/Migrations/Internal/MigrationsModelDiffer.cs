@@ -1680,13 +1680,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 foreach (var sourceSeed in sourceEntityType.GetSeedData())
                 {
-                    var entry = _sourceUpdateAdapter
-                        .CreateEntry(sourceSeed, sourceEntityType);
-
-                    // Mark as added first to generate missing values
-                    // Issue #15289
-                    entry.EntityState = EntityState.Added;
-                    entry.EntityState = EntityState.Unchanged;
+                    _sourceUpdateAdapter
+                        .CreateEntry(sourceSeed, sourceEntityType)
+                        .EntityState = EntityState.Unchanged;
                 }
             }
         }

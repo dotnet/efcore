@@ -8,11 +8,10 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using CSharpSyntax = Microsoft.CodeAnalysis.CSharp.Syntax;
-using VBSyntax = Microsoft.CodeAnalysis.VisualBasic.Syntax;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    [DiagnosticAnalyzer(LanguageNames.CSharp, LanguageNames.VisualBasic)]
+    [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
     {
         public const string Id = "EF1001";
@@ -300,12 +299,7 @@ namespace Microsoft.EntityFrameworkCore
                     : (SyntaxNode)declarator,
                 CSharpSyntax.TypeOfExpressionSyntax s => s.Type,
 
-                VBSyntax.InvocationExpressionSyntax s
-                when s.Expression is VBSyntax.MemberAccessExpressionSyntax memberAccessSyntax
-                => memberAccessSyntax.Name,
-                VBSyntax.MemberAccessExpressionSyntax s => s.Name,
-                VBSyntax.ObjectCreationExpressionSyntax s => s.Type,
-                VBSyntax.TypeOfExpressionSyntax s => s.Type,
+                // TODO: VB syntax narrowing (#22085)
 
                 _ => syntax
             };
