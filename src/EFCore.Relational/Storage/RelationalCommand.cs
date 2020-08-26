@@ -385,6 +385,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var context = parameterObject.Context;
             var readerColumns = parameterObject.ReaderColumns;
             var logger = parameterObject.Logger;
+            var detailedErrorsEnabled = parameterObject.DetailedErrorsEnabled;
 
             var commandId = Guid.NewGuid();
             var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteReader);
@@ -425,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 if (readerColumns != null)
                 {
-                    reader = new BufferedDataReader(reader).Initialize(readerColumns);
+                    reader = new BufferedDataReader(reader, detailedErrorsEnabled).Initialize(readerColumns);
                 }
 
                 var result = CreateRelationalDataReader(
@@ -479,6 +480,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var context = parameterObject.Context;
             var readerColumns = parameterObject.ReaderColumns;
             var logger = parameterObject.Logger;
+            var detailedErrorsEnabled = parameterObject.DetailedErrorsEnabled;
 
             var commandId = Guid.NewGuid();
             var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteReader);
@@ -524,7 +526,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 if (readerColumns != null)
                 {
-                    reader = await new BufferedDataReader(reader).InitializeAsync(readerColumns, cancellationToken)
+                    reader = await new BufferedDataReader(reader, detailedErrorsEnabled).InitializeAsync(readerColumns, cancellationToken)
                         .ConfigureAwait(false);
                 }
 

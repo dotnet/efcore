@@ -498,6 +498,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 propertySpecification, function);
 
         /// <summary>
+        ///     Data is Null. This method or property cannot be called on Null values.
+        /// </summary>
+        public static string GetXMethodOnNullData
+            => GetString("GetXMethodOnNullData");
+
+        /// <summary>
         ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the comment '{comment}' does not match the comment '{otherComment}'.
         /// </summary>
         public static string IncompatibleTableCommentMismatch([CanBeNull] object table, [CanBeNull] object entityType, [CanBeNull] object otherEntityType, [CanBeNull] object comment, [CanBeNull] object otherComment)

@@ -444,7 +444,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
 
         #endregion
 
-        [ConditionalFact(Skip = "Issue#20364")]
+        [ConditionalFact]
         public void Query_when_null_key_in_database_should_throw()
         {
             using var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest");
@@ -452,7 +452,10 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
                 @"CREATE TABLE ZeroKey (Id int);
                       INSERT ZeroKey VALUES (NULL)");
 
-            using var context = new NullKeyContext(Fixture.CreateOptions(testStore));
+            var options = Fixture.CreateOptions(testStore);
+            options = new DbContextOptionsBuilder(options).EnableDetailedErrors().Options;
+
+            using var context = new NullKeyContext(options);
             Assert.Equal(
                 CoreStrings.ErrorMaterializingPropertyNullReference("ZeroKey", "Id", typeof(int)),
                 Assert.Throws<InvalidOperationException>(() => context.ZeroKeys.ToList()).Message);
