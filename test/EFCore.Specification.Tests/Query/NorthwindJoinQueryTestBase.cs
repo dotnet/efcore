@@ -878,5 +878,27 @@ namespace Microsoft.EntityFrameworkCore.Query
             public override int GetHashCode()
                 => HashCode.Combine(_orderID, _productID);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_with_selecting_outer_entity(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .SelectMany(c => c.Orders.Select(o => c)),
+                entryCount: 89);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_with_selecting_outer_element(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Select(e => new { e, Complex = e.CustomerID + e.City })
+                    .SelectMany(c => c.e.Orders.Select(o => c.Complex)));
+        }
     }
 }

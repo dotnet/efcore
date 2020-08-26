@@ -583,6 +583,34 @@ WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY [c].[CustomerID], [t0].[OrderID0], [t0].[OrderID1], [t0].[ProductID0]");
         }
 
+        public override async Task SelectMany_with_selecting_outer_entity(bool async)
+        {
+            await base.SelectMany_with_selecting_outer_entity(async);
+
+            AssertSql(
+                @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+FROM [Customers] AS [c]
+CROSS APPLY (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+) AS [t]");
+        }
+
+        public override async Task SelectMany_with_selecting_outer_element(bool async)
+        {
+            await base.SelectMany_with_selecting_outer_element(async);
+
+            AssertSql(
+                @"SELECT [t].[c]
+FROM [Customers] AS [c]
+CROSS APPLY (
+    SELECT [c].[CustomerID] + COALESCE([c].[City], N'') AS [c]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+) AS [t]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
