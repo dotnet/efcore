@@ -4,7 +4,7 @@ Following instructions are for current **main** branch only. For building releas
 
 ## Prerequisites
 
-EF Core does not generally need any prerequisites installed to build the code. However, the SQL Server tests require that SQL Server LocalDb be installed. For this, and for a rich developer experience, install a recent [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/) edition. This has been most recently tested with the 16.1.6 Community Edition, installing the "ASP.NET and web development" workload.
+EF Core does not generally need any prerequisites installed to build the code. However, the SQL Server tests require that SQL Server LocalDb be installed. For this, and for a rich developer experience, install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/) 16.8.0 preview2 or higher version with the "ASP.NET and web development" workload.
 
 ## Clone the repository
 
