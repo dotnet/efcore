@@ -25,9 +25,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         [ConditionalFact]
-        public void Adds_Autoincrement_for_OnAdd_integer_property()
+        public void Does_not_add_Autoincrement_for_OnAdd_integer_property_non_key()
         {
             var property = _modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedOnAdd().Metadata;
+            _modelBuilder.FinalizeModel();
+
+            Assert.DoesNotContain(
+                _provider.For(property.GetTableColumnMappings().Single().Column),
+                a => a.Name == _autoincrement.Name && (bool)a.Value);
+        }
+
+        [ConditionalFact]
+        public void Adds_Autoincrement_for_OnAdd_integer_property_primary_key()
+        {
+            var property = _modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedOnAdd().Metadata;
+            _modelBuilder.Entity<Entity>().HasKey(e => e.IntProp);
             _modelBuilder.FinalizeModel();
 
             Assert.Contains(
