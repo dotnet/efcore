@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -123,6 +124,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         + _nl
                         + @"    .HasComment(""My Comment"");"
                         + _nl)
+                },
+                {
+#pragma warning disable CS0612 // Type or member is obsolete
+                    CoreAnnotationNames.DefiningQuery,
+#pragma warning restore CS0612 // Type or member is obsolete
+                    (Expression.Lambda(Expression.Constant(null)) , "")
+                },
+                {
+                    RelationalAnnotationNames.ViewName,
+                    ("MyView", _nl + "modelBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToView) + @"(""MyView"");" + _nl)
+                },
+                {
+                    RelationalAnnotationNames.FunctionName,
+                    (null, "")
+                },
+                {
+                    RelationalAnnotationNames.SqlQuery,
+                    (null, "")
                 }
             };
 
@@ -246,8 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var sqlServerAnnotationCodeGenerator = new SqlServerAnnotationCodeGenerator(
                 new AnnotationCodeGeneratorDependencies(sqlServerTypeMappingSource));
 
-            var codeHelper = new CSharpHelper(
-                sqlServerTypeMappingSource);
+            var codeHelper = new CSharpHelper(sqlServerTypeMappingSource);
 
             var generator = new TestCSharpSnapshotGenerator(
                 new CSharpSnapshotGeneratorDependencies(codeHelper, sqlServerTypeMappingSource, sqlServerAnnotationCodeGenerator));
@@ -272,9 +290,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
                     var metadataItem = createMetadataItem(modelBuilder);
-                    metadataItem[annotationName] = validAnnotations.ContainsKey(annotationName)
+                    metadataItem.SetAnnotation(annotationName, validAnnotations.ContainsKey(annotationName)
                         ? validAnnotations[annotationName].Value
-                        : null;
+                        : null);
 
                     modelBuilder.FinalizeModel();
 
@@ -290,11 +308,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         Assert.False(true, $"Annotation '{annotationName}' was not handled by the code generator: {e.Message}");
                     }
 
-                    Assert.Equal(
+                    try
+                    {
+                        Assert.Equal(
                         validAnnotations.ContainsKey(annotationName)
                             ? validAnnotations[annotationName].Expected
                             : generationDefault,
                         sb.ToString());
+                    }
+                    catch (Exception e)
+                    {
+                        throw new Exception(annotationName, e);
+                    }
                 }
             }
         }
