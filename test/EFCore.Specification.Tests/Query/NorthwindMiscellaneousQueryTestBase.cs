@@ -794,7 +794,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     o => new
                     {
                         // ReSharper disable SimplifyConditionalTernaryExpression
-                        Data1 = param != null ? o.OrderDate == param.Value : true, Data2 = param == null ? true : o.OrderDate == param.Value
+                        Data1 = param != null ? o.OrderDate == param.Value : true,
+                        Data2 = param == null ? true : o.OrderDate == param.Value
                         // ReSharper restore SimplifyConditionalTernaryExpression
                     }));
         }
@@ -3441,7 +3442,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using var context = CreateContext();
             var orders
                 = (from o in context.Orders.OrderBy(o => o.OrderID).Take(1)
-                   // ReSharper disable once UseMethodAny.0
+                       // ReSharper disable once UseMethodAny.0
                    where (from od in context.OrderDetails.OrderBy(od => od.OrderID).Take(2)
                           where (from c in context.Set<Customer>()
                                  where c.CustomerID == o.CustomerID
@@ -6240,6 +6241,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Customer>()
                     .Select(c => new { c.CustomerID, Sum = c.Orders.Select(o => o.OrderID).DefaultIfEmpty().Sum() }),
                 elementSorter: c => c.CustomerID);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Entity_equality_on_subquery_with_null_check(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Select(c => new
+                    {
+                        c.CustomerID,
+                        Order = (c.Orders.Any() ? c.Orders.FirstOrDefault() : null) == null
+                            ? null
+                            : new { c.Orders.FirstOrDefault().OrderDate }
+                    }),
+                elementSorter: c => c.CustomerID,
+                elementAsserter: (e, a) => AssertEqual(e.Order, a.Order));
         }
     }
 }

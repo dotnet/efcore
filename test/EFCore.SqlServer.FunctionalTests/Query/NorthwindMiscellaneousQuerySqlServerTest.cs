@@ -5202,6 +5202,27 @@ END, [t].[City]");
 FROM [Customers] AS [c]");
         }
 
+        public override async Task Entity_equality_on_subquery_with_null_check(bool async)
+        {
+            await base.Entity_equality_on_subquery_with_null_check(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], CASE
+    WHEN NOT (EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID])) OR (
+        SELECT TOP(1) [o0].[OrderID]
+        FROM [Orders] AS [o0]
+        WHERE [c].[CustomerID] = [o0].[CustomerID]) IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, (
+    SELECT TOP(1) [o1].[OrderDate]
+    FROM [Orders] AS [o1]
+    WHERE [c].[CustomerID] = [o1].[CustomerID])
+FROM [Customers] AS [c]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
