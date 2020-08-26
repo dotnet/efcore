@@ -873,7 +873,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, navigationName, entityType.GetType().ShortDisplayName());
+                definition.Log(diagnostics, entityType.GetType().ShortDisplayName(), navigationName);
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -893,7 +893,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (LazyLoadingEventData)payload;
-            return d.GenerateMessage(p.NavigationPropertyName, p.Entity.GetType().ShortDisplayName());
+            return d.GenerateMessage(p.Entity.GetType().ShortDisplayName(), p.NavigationPropertyName);
         }
 
         /// <summary>
@@ -913,7 +913,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, navigationName, entityType.GetType().ShortDisplayName());
+                definition.Log(diagnostics, entityType.GetType().ShortDisplayName(), navigationName);
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -933,7 +933,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (LazyLoadingEventData)payload;
-            return d.GenerateMessage(p.NavigationPropertyName, p.Entity.GetType().ShortDisplayName());
+            return d.GenerateMessage(p.Entity.GetType().ShortDisplayName(), p.NavigationPropertyName);
         }
 
         /// <summary>
@@ -1016,7 +1016,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, property.Name, property.DeclaringEntityType.DisplayName());
+                definition.Log(diagnostics, property.DeclaringEntityType.DisplayName(), property.Name);
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -1034,7 +1034,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (PropertyEventData)payload;
-            return d.GenerateMessage(p.Property.Name, p.Property.DeclaringEntityType.DisplayName());
+            return d.GenerateMessage(p.Property.DeclaringEntityType.DisplayName(), p.Property.Name);
         }
 
         /// <summary>
@@ -1050,7 +1050,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, property.Name, property.DeclaringEntityType.DisplayName());
+                definition.Log(diagnostics, property.DeclaringEntityType.DisplayName(), property.Name);
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -1068,7 +1068,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (PropertyEventData)payload;
-            return d.GenerateMessage(p.Property.Name, p.Property.DeclaringEntityType.DisplayName());
+            return d.GenerateMessage(p.Property.DeclaringEntityType.DisplayName(), p.Property.Name);
         }
 
         /// <summary>
@@ -2815,8 +2815,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 definition.Log(
                     diagnostics,
                     internalEntityEntry.StateManager.Context.GetType().ShortDisplayName(),
-                    property.Name,
-                    internalEntityEntry.EntityType.ShortName());
+                    internalEntityEntry.EntityType.ShortName(),
+                    property.Name);
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2838,8 +2838,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var p = (PropertyValueEventData)payload;
             return d.GenerateMessage(
                 p.EntityEntry.Context.GetType().ShortDisplayName(),
-                p.Property.Name,
-                p.EntityEntry.Metadata.ShortName());
+                p.EntityEntry.Metadata.ShortName(),
+                p.Property.Name);
         }
 
         /// <summary>
@@ -2867,8 +2867,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     diagnostics,
                     internalEntityEntry.StateManager.Context.GetType().ShortDisplayName(),
                     value,
-                    property.Name,
-                    internalEntityEntry.EntityType.ShortName());
+                    internalEntityEntry.EntityType.ShortName(),
+                    property.Name);
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2891,8 +2891,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             return d.GenerateMessage(
                 p.EntityEntry.Context.GetType().ShortDisplayName(),
                 p.Value,
-                p.Property.Name,
-                p.EntityEntry.Metadata.ShortName());
+                p.EntityEntry.Metadata.ShortName(),
+                p.Property.Name);
         }
 
         /// <summary>

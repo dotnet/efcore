@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var intProperty = entityType.AddProperty("Name", typeof(int));
 
             Assert.Equal(
-                CoreStrings.CannotBeNullable("Name", "object", "int"),
+                CoreStrings.CannotBeNullable("object", "Name", "int"),
                 Assert.Throws<InvalidOperationException>(() => intProperty.IsNullable = true).Message);
         }
 
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             stringProperty.DeclaringEntityType.SetPrimaryKey(stringProperty);
 
             Assert.Equal(
-                CoreStrings.CannotBeNullablePK("Name", "object"),
+                CoreStrings.CannotBeNullablePK("object", "Name"),
                 Assert.Throws<InvalidOperationException>(() => stringProperty.IsNullable = true).Message);
         }
 

@@ -688,43 +688,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => CoreStrings.NoProperty(fieldName, typeof(TEntity).Name, nameof(PropertyAccessMode));
 
         private static string NoField<TEntity>()
-            => CoreStrings.NoBackingField(Property, typeof(TEntity).Name, nameof(PropertyAccessMode));
+            => CoreStrings.NoBackingField(typeof(TEntity).Name, Property, nameof(PropertyAccessMode));
 
         private static string NoSetter<TEntity>()
-            => CoreStrings.NoSetter(Property, typeof(TEntity).Name, nameof(PropertyAccessMode));
+            => CoreStrings.NoSetter(typeof(TEntity).Name, Property, nameof(PropertyAccessMode));
 
         private static string NoFieldOrSetter<TEntity>()
-            => CoreStrings.NoFieldOrSetter(Property, typeof(TEntity).Name);
+            => CoreStrings.NoFieldOrSetter(typeof(TEntity).Name, Property);
 
         private static string NoFieldOrGetter<TEntity>()
-            => CoreStrings.NoFieldOrGetter(Property, typeof(TEntity).Name);
+            => CoreStrings.NoFieldOrGetter(typeof(TEntity).Name, Property);
 
         private static string NoGetter<TEntity>()
-            => CoreStrings.NoGetter(Property, typeof(TEntity).Name, nameof(PropertyAccessMode));
+            => CoreStrings.NoGetter(typeof(TEntity).Name, Property, nameof(PropertyAccessMode));
 
         private static string NoFieldRef<TEntity>()
-            => CoreStrings.NoBackingField(Reference, typeof(TEntity).Name, nameof(PropertyAccessMode));
+            => CoreStrings.NoBackingField(typeof(TEntity).Name, Reference, nameof(PropertyAccessMode));
 
         private static string NoSetterRef<TEntity>()
-            => CoreStrings.NoSetter(Reference, typeof(TEntity).Name, nameof(PropertyAccessMode));
+            => CoreStrings.NoSetter(typeof(TEntity).Name, Reference, nameof(PropertyAccessMode));
 
         private static string NoFieldOrSetterRef<TEntity>()
-            => CoreStrings.NoFieldOrSetter(Reference, typeof(TEntity).Name);
+            => CoreStrings.NoFieldOrSetter(typeof(TEntity).Name, Reference);
 
         private static string NoFieldOrGetterRef<TEntity>()
-            => CoreStrings.NoFieldOrGetter(Reference, typeof(TEntity).Name);
+            => CoreStrings.NoFieldOrGetter(typeof(TEntity).Name, Reference);
 
         private static string NoGetterRef<TEntity>()
-            => CoreStrings.NoGetter(Reference, typeof(TEntity).Name, nameof(PropertyAccessMode));
+            => CoreStrings.NoGetter(typeof(TEntity).Name, Reference, nameof(PropertyAccessMode));
 
         private static string NoFieldColl<TEntity>()
-            => CoreStrings.NoBackingField(Collection, typeof(TEntity).Name, nameof(PropertyAccessMode));
+            => CoreStrings.NoBackingField(typeof(TEntity).Name, Collection, nameof(PropertyAccessMode));
 
         private static string NoFieldOrGetterColl<TEntity>()
-            => CoreStrings.NoFieldOrGetter(Collection, typeof(TEntity).Name);
+            => CoreStrings.NoFieldOrGetter(typeof(TEntity).Name, Collection);
 
         private static string NoGetterColl<TEntity>()
-            => CoreStrings.NoGetter(Collection, typeof(TEntity).Name, nameof(PropertyAccessMode));
+            => CoreStrings.NoGetter(typeof(TEntity).Name, Collection, nameof(PropertyAccessMode));
 
         private static IMutableProperty CreateProperty<TEntity>(string fieldName, string propertyName = Property)
             where TEntity : class

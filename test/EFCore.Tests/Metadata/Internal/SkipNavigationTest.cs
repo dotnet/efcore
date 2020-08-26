@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.SkipNavigationForeignKeyWrongDependentType(
-                    "{'" + nameof(OrderProduct.OrderId) + "'}", nameof(Order.Products), nameof(Order), nameof(OrderProduct)),
+                    "{'" + nameof(OrderProduct.OrderId) + "'}", nameof(Order), nameof(Order.Products), nameof(OrderProduct)),
                 Assert.Throws<InvalidOperationException>(() => navigation.SetForeignKey(orderProductForeignKey)).Message);
         }
 
@@ -105,8 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 nameof(OrderProduct.Order), null, orderEntity, false, false);
 
             Assert.Equal(
-                CoreStrings.SkipNavigationForeignKeyWrongPrincipalType(
-                    "{'" + nameof(OrderProduct.OrderId) + "'}", nameof(OrderProduct.Order), nameof(OrderProduct), nameof(Order)),
+                CoreStrings.SkipNavigationForeignKeyWrongPrincipalType(nameof(OrderProduct.Order), "{'" + nameof(OrderProduct.OrderId) + "'}", nameof(OrderProduct), nameof(Order)),
                 Assert.Throws<InvalidOperationException>(() => navigation.SetForeignKey(orderProductForeignKey)).Message);
         }
 

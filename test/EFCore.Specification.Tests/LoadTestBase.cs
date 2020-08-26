@@ -5326,7 +5326,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.True(referenceEntry.IsLoaded);
 
             Assert.Equal(
-                CoreStrings.ReferenceMustBeLoaded("Parent", typeof(Child).Name),
+                CoreStrings.ReferenceMustBeLoaded(typeof(Child).Name, "Parent"),
                 Assert.Throws<InvalidOperationException>(() => referenceEntry.IsLoaded = false).Message);
         }
 
@@ -5348,7 +5348,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.Equal(
-                CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
+                CoreStrings.CannotLoadDetached(nameof(Parent), nameof(Parent.Children)),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     async () =>
                     {
@@ -5381,7 +5381,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.Equal(
-                CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
+                CoreStrings.CannotLoadDetached(nameof(Parent), nameof(Parent.Children)),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     async () =>
                     {
@@ -5414,7 +5414,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.Equal(
-                CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
+                CoreStrings.CannotLoadDetached(nameof(Parent), nameof(Parent.Children)),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     async () =>
                     {
@@ -5447,7 +5447,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.Equal(
-                CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
+                CoreStrings.CannotLoadDetached(nameof(Child), nameof(Child.Parent)),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     async () =>
                     {
@@ -5480,7 +5480,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.Equal(
-                CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
+                CoreStrings.CannotLoadDetached(nameof(Child), nameof(Child.Parent)),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     async () =>
                     {
@@ -5513,7 +5513,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.Equal(
-                CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
+                CoreStrings.CannotLoadDetached(nameof(Child), nameof(Child.Parent)),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     async () =>
                     {
@@ -5546,7 +5546,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.Equal(
-                CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
+                CoreStrings.CannotLoadDetached(nameof(Parent), nameof(Parent.Single)),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     async () =>
                     {
@@ -5579,7 +5579,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.Equal(
-                CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
+                CoreStrings.CannotLoadDetached(nameof(Parent), nameof(Parent.Single)),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     async () =>
                     {
@@ -5612,7 +5612,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.Equal(
-                CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
+                CoreStrings.CannotLoadDetached(nameof(Parent), nameof(Parent.Single)),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     async () =>
                     {
@@ -5643,7 +5643,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.Equal(
-                CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
+                CoreStrings.CannotLoadDetached(nameof(Parent), nameof(Parent.Children)),
                 Assert.Throws<InvalidOperationException>(() => collectionEntry.Query()).Message);
         }
 
@@ -5663,7 +5663,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.Equal(
-                CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
+                CoreStrings.CannotLoadDetached(nameof(Parent), nameof(Parent.Children)),
                 Assert.Throws<InvalidOperationException>(() => collectionEntry.Query()).Message);
         }
 
@@ -5683,7 +5683,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.Equal(
-                CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
+                CoreStrings.CannotLoadDetached(nameof(Parent), nameof(Parent.Children)),
                 Assert.Throws<InvalidOperationException>(() => collectionEntry.Query()).Message);
         }
 
@@ -5703,7 +5703,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.Equal(
-                CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
+                CoreStrings.CannotLoadDetached(nameof(Child), nameof(Child.Parent)),
                 Assert.Throws<InvalidOperationException>(() => referenceEntry.Query()).Message);
         }
 
@@ -5723,7 +5723,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.Equal(
-                CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
+                CoreStrings.CannotLoadDetached(nameof(Child), nameof(Child.Parent)),
                 Assert.Throws<InvalidOperationException>(() => referenceEntry.Query()).Message);
         }
 
@@ -5743,7 +5743,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.Equal(
-                CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
+                CoreStrings.CannotLoadDetached(nameof(Child), nameof(Child.Parent)),
                 Assert.Throws<InvalidOperationException>(() => referenceEntry.Query()).Message);
         }
 
@@ -5763,7 +5763,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.Equal(
-                CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
+                CoreStrings.CannotLoadDetached(nameof(Parent), nameof(Parent.Single)),
                 Assert.Throws<InvalidOperationException>(() => referenceEntry.Query()).Message);
         }
 
@@ -5783,7 +5783,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.Equal(
-                CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
+                CoreStrings.CannotLoadDetached(nameof(Parent), nameof(Parent.Single)),
                 Assert.Throws<InvalidOperationException>(() => referenceEntry.Query()).Message);
         }
 
@@ -5803,7 +5803,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.Equal(
-                CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
+                CoreStrings.CannotLoadDetached(nameof(Parent), nameof(Parent.Single)),
                 Assert.Throws<InvalidOperationException>(() => referenceEntry.Query()).Message);
         }
 

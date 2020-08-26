@@ -2152,7 +2152,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateModelBuilder();
 
             Assert.Equal(
-                CoreStrings.InvalidRelationshipUsingDataAnnotations(nameof(A.B), nameof(A), nameof(B.A), nameof(B)),
+                CoreStrings.InvalidRelationshipUsingDataAnnotations(nameof(A), nameof(A.B), nameof(B), nameof(B.A)),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<A>()).Message);
         }
 
@@ -2163,7 +2163,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateModelBuilder();
 
             Assert.Equal(
-                CoreStrings.InvalidRelationshipUsingDataAnnotations("C", nameof(D), "D", nameof(C)),
+                CoreStrings.InvalidRelationshipUsingDataAnnotations(nameof(D), "C", nameof(C), "D"),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<D>()).Message);
         }
 

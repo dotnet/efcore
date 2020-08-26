@@ -844,7 +844,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.Entry(newRoot).State = useExistingRoot ? EntityState.Unchanged : EntityState.Added;
 
                     Assert.Equal(
-                        CoreStrings.KeyReadOnly("Id", typeof(RequiredSingle1).Name),
+                        CoreStrings.KeyReadOnly(typeof(RequiredSingle1).Name, "Id"),
                         Assert.Throws<InvalidOperationException>(
                             () =>
                             {

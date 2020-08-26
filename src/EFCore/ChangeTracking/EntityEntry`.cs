@@ -162,10 +162,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 throw new ArgumentException(
                     CoreStrings.WrongGenericPropertyType(
-                        property.Name,
                         property.DeclaringEntityType.DisplayName(),
-                        property.ClrType.ShortDisplayName(),
-                        typeof(TProperty).ShortDisplayName()));
+                        property.Name,
+                        property.ClrType.ShortDisplayName(), typeof(TProperty).ShortDisplayName()));
             }
         }
     }

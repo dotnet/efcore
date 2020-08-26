@@ -356,10 +356,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NavigationForWrongForeignKey(
-                    nameof(OneToManyDependent.Deception),
                     nameof(OneToManyDependent),
-                    foreignKey2.Properties.Format(),
-                    foreignKey1.Properties.Format()),
+                    nameof(OneToManyDependent.Deception),
+                    foreignKey2.Properties.Format(), foreignKey1.Properties.Format()),
                 Assert.Throws<InvalidOperationException>(
                     ()
                         => foreignKey2.SetDependentToPrincipal(OneToManyDependent.DeceptionProperty)).Message);
@@ -379,10 +378,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NavigationForWrongForeignKey(
-                    nameof(OneToManyDependent.Deception),
                     nameof(OneToManyDependent),
-                    foreignKey2.Properties.Format(),
-                    foreignKey1.Properties.Format()),
+                    nameof(OneToManyDependent.Deception),
+                    foreignKey2.Properties.Format(), foreignKey1.Properties.Format()),
                 Assert.Throws<InvalidOperationException>(
                     ()
                         => foreignKey2.SetDependentToPrincipal(OneToManyDependent.DeceptionProperty)).Message);
@@ -397,8 +395,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(
                 CoreStrings.UnableToSetIsUnique(
                     "True",
-                    nameof(OneToManyPrincipal.Deception),
-                    nameof(OneToManyPrincipal)),
+                    nameof(OneToManyPrincipal), nameof(OneToManyPrincipal.Deception)),
                 Assert.Throws<InvalidOperationException>(() => foreignKey.IsUnique = true).Message);
         }
 

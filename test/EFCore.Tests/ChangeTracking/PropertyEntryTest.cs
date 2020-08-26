@@ -918,11 +918,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var propertyEntry = new PropertyEntry(entry, "Primate");
 
             Assert.Equal(
-                CoreStrings.OriginalValueNotTracked("Primate", "FullyNotifyingWotty"),
+                CoreStrings.OriginalValueNotTracked("FullyNotifyingWotty", "Primate"),
                 Assert.Throws<InvalidOperationException>(() => propertyEntry.OriginalValue).Message);
 
             Assert.Equal(
-                CoreStrings.OriginalValueNotTracked("Primate", "FullyNotifyingWotty"),
+                CoreStrings.OriginalValueNotTracked("FullyNotifyingWotty", "Primate"),
                 Assert.Throws<InvalidOperationException>(() => propertyEntry.OriginalValue = "Chimp").Message);
         }
 
@@ -939,11 +939,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var propertyEntry = new PropertyEntry<FullyNotifyingWotty, string>(entry, "Primate");
 
             Assert.Equal(
-                CoreStrings.OriginalValueNotTracked("Primate", "FullyNotifyingWotty"),
+                CoreStrings.OriginalValueNotTracked("FullyNotifyingWotty", "Primate"),
                 Assert.Throws<InvalidOperationException>(() => propertyEntry.OriginalValue).Message);
 
             Assert.Equal(
-                CoreStrings.OriginalValueNotTracked("Primate", "FullyNotifyingWotty"),
+                CoreStrings.OriginalValueNotTracked("FullyNotifyingWotty", "Primate"),
                 Assert.Throws<InvalidOperationException>(() => propertyEntry.OriginalValue = "Chimp").Message);
         }
 

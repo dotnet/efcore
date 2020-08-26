@@ -408,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             entityType.AddForeignKey(new[] { fkProperty }, key, entityType);
 
             Assert.Equal(
-                CoreStrings.KeyPropertyInForeignKey("fk", typeof(BaseType).Name),
+                CoreStrings.KeyPropertyInForeignKey(typeof(BaseType).Name, "fk"),
                 Assert.Throws<InvalidOperationException>(() => baseType.AddKey(new[] { fkProperty })).Message);
         }
 
@@ -2177,11 +2177,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = model.AddEntityType(typeof(Order));
 
             Assert.Equal(
-                CoreStrings.NonIndexerEntityType("Nation", entityType.DisplayName(), typeof(string).ShortDisplayName()),
+                CoreStrings.NonIndexerEntityType(entityType.DisplayName(), "Nation", typeof(string).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(() => entityType.AddIndexerProperty("Nation", typeof(string))).Message);
 
             Assert.Equal(
-                CoreStrings.NonIndexerEntityType("Nation", entityType.DisplayName(), typeof(string).ShortDisplayName()),
+                CoreStrings.NonIndexerEntityType(entityType.DisplayName(), "Nation", typeof(string).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(
                     () => ((IConventionEntityType)entityType).AddIndexerProperty("Nation", typeof(string))).Message);
         }

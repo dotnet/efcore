@@ -734,7 +734,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             using var context = new NoFieldContext();
             Assert.Equal(
-                CoreStrings.NoBackingFieldLazyLoading("NoFieldRelated", "NoField"),
+                CoreStrings.NoBackingFieldLazyLoading("NoField", "NoFieldRelated"),
                 Assert.Throws<InvalidOperationException>(() => context.Model).Message);
         }
 

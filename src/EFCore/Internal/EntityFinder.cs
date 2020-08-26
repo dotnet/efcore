@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             if (entry.EntityState == EntityState.Detached)
             {
-                throw new InvalidOperationException(CoreStrings.CannotLoadDetached(navigation.Name, entry.EntityType.DisplayName()));
+                throw new InvalidOperationException(CoreStrings.CannotLoadDetached(entry.EntityType.DisplayName(), navigation.Name));
             }
 
             var keyValues = GetLoadValues(navigation, entry);
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             if (entry.EntityState == EntityState.Detached)
             {
-                throw new InvalidOperationException(CoreStrings.CannotLoadDetached(navigation.Name, entry.EntityType.DisplayName()));
+                throw new InvalidOperationException(CoreStrings.CannotLoadDetached(entry.EntityType.DisplayName(), navigation.Name));
             }
 
             // Short-circuit for any null key values for perf and because of #6129
@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             if (entry.EntityState == EntityState.Detached)
             {
-                throw new InvalidOperationException(CoreStrings.CannotLoadDetached(navigation.Name, entry.EntityType.DisplayName()));
+                throw new InvalidOperationException(CoreStrings.CannotLoadDetached(entry.EntityType.DisplayName(), navigation.Name));
             }
 
             var keyValues = GetLoadValues(navigation, entry);

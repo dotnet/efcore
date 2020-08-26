@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             VerifyWarning(
                 CoreResources.LogCollectionWithoutComparer(
-                    new TestLogger<TestLoggingDefinitions>()).GenerateMessage("SomeStrings", "WithCollectionConversion"),
+                    new TestLogger<TestLoggingDefinitions>()).GenerateMessage("WithCollectionConversion", "SomeStrings"),
                 convertedProperty.DeclaringEntityType.Model);
         }
 
@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ((IConventionEntityType)entityType).AddKey(keyProperty);
 
             VerifyWarning(
-                CoreResources.LogShadowPropertyCreated(new TestLogger<TestLoggingDefinitions>()).GenerateMessage("Key", "A"), model,
+                CoreResources.LogShadowPropertyCreated(new TestLogger<TestLoggingDefinitions>()).GenerateMessage("A", "Key"), model,
                 LogLevel.Debug);
         }
 
@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             VerifyWarning(
                 CoreResources.LogShadowPropertyCreated(new TestLogger<TestLoggingDefinitions>())
-                    .GenerateMessage("Key", "A"), (IMutableModel)model, LogLevel.Debug);
+                    .GenerateMessage("A", "Key"), (IMutableModel)model, LogLevel.Debug);
         }
 
         [ConditionalFact]
@@ -595,7 +595,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 nameof(Order.Products), null, productEntity, true, false);
 
             VerifyError(
-                CoreStrings.SkipNavigationNoForeignKey(nameof(Order.Products), nameof(Order)),
+                CoreStrings.SkipNavigationNoForeignKey(nameof(Order), nameof(Order.Products)),
                 model);
         }
 
@@ -620,7 +620,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             productsNavigation.SetForeignKey(orderProductForeignKey);
 
             VerifyError(
-                CoreStrings.SkipNavigationNoInverse(nameof(Order.Products), nameof(Order)),
+                CoreStrings.SkipNavigationNoInverse(nameof(Order), nameof(Order.Products)),
                 model);
         }
 

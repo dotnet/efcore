@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             }
 
             throw new NotSupportedException(
-                CoreStrings.NoValueGenerator(property.Name, property.DeclaringEntityType.DisplayName(), propertyType.ShortDisplayName()));
+                CoreStrings.NoValueGenerator(property.DeclaringEntityType.DisplayName(), property.Name, propertyType.ShortDisplayName()));
         }
     }
 }

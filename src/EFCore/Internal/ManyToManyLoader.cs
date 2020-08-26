@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             if (entry.EntityState == EntityState.Detached)
             {
-                throw new InvalidOperationException(CoreStrings.CannotLoadDetached(_skipNavigation.Name, entry.EntityType.DisplayName()));
+                throw new InvalidOperationException(CoreStrings.CannotLoadDetached(entry.EntityType.DisplayName(), _skipNavigation.Name));
             }
 
             var properties = _skipNavigation.ForeignKey.PrincipalKey.Properties;

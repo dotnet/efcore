@@ -279,8 +279,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(
                     CoreStrings.UnableToSetIsUnique(
                         false,
-                        nameof(Customer.Details),
-                        nameof(Customer)),
+                        nameof(Customer), nameof(Customer.Details)),
                     Assert.Throws<InvalidOperationException>(
                         () => modelBuilder
                             .Entity<Customer>()
@@ -1494,8 +1493,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(
                     CoreStrings.UnableToSetIsUnique(
                         false,
-                        "OwnedDependent",
-                        typeof(OneToOneNavPrincipalOwner).Name),
+                        typeof(OneToOneNavPrincipalOwner).Name, "OwnedDependent"),
                     Assert.Throws<InvalidOperationException>(
                         () => modelBuilder
                             .Entity<OneToOneNavPrincipalOwner>()
@@ -1511,8 +1509,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(
                     CoreStrings.UnableToSetIsUnique(
                         true,
-                        "OwnedDependents",
-                        typeof(OneToManyNavPrincipalOwner).Name),
+                        typeof(OneToManyNavPrincipalOwner).Name, "OwnedDependents"),
                     Assert.Throws<InvalidOperationException>(
                         () => modelBuilder
                             .Entity<OneToManyNavPrincipalOwner>()

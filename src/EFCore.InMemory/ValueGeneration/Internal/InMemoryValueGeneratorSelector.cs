@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal
 
             throw new ArgumentException(
                 CoreStrings.InvalidValueGeneratorFactoryProperty(
-                    "InMemoryIntegerValueGeneratorFactory", property.Name, property.DeclaringEntityType.DisplayName()));
+                    "InMemoryIntegerValueGeneratorFactory", property.DeclaringEntityType.DisplayName(), property.Name));
         }
     }
 }

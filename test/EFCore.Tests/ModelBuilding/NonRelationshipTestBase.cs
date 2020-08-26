@@ -525,7 +525,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Key_properties_cannot_be_made_optional()
             {
                 Assert.Equal(
-                    CoreStrings.KeyPropertyCannotBeNullable(nameof(Quarks.Down), nameof(Quarks), "{'" + nameof(Quarks.Down) + "'}"),
+                    CoreStrings.KeyPropertyCannotBeNullable(nameof(Quarks), nameof(Quarks.Down), "{'" + nameof(Quarks.Down) + "'}"),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             CreateModelBuilder().Entity<Quarks>(
@@ -547,15 +547,15 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     b =>
                     {
                         Assert.Equal(
-                            CoreStrings.CannotBeNullable("Up", "Quarks", "int"),
+                            CoreStrings.CannotBeNullable("Quarks", "Up", "int"),
                             Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Up).IsRequired(false)).Message);
 
                         Assert.Equal(
-                            CoreStrings.CannotBeNullable("Charm", "Quarks", "int"),
+                            CoreStrings.CannotBeNullable("Quarks", "Charm", "int"),
                             Assert.Throws<InvalidOperationException>(() => b.Property<int>("Charm").IsRequired(false)).Message);
 
                         Assert.Equal(
-                            CoreStrings.CannotBeNullable("Top", "Quarks", "int"),
+                            CoreStrings.CannotBeNullable("Quarks", "Top", "int"),
                             Assert.Throws<InvalidOperationException>(() => b.Property<int>("Top").IsRequired(false)).Message);
                     });
 
@@ -871,7 +871,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     b =>
                     {
                         Assert.Equal(
-                            CoreStrings.MissingBackingField("_notFound", nameof(Quarks.Down), nameof(Quarks)),
+                            CoreStrings.MissingBackingField("_notFound", nameof(Quarks), nameof(Quarks.Down)),
                             Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_notFound")).Message);
                     });
             }

@@ -546,7 +546,7 @@ namespace Microsoft.EntityFrameworkCore
             if (indexerPropertyInfo == null)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.NonIndexerEntityType(name, entityType.DisplayName(), typeof(string).ShortDisplayName()));
+                    CoreStrings.NonIndexerEntityType(entityType.DisplayName(), name, typeof(string).ShortDisplayName()));
             }
 
             return entityType.AddProperty(name, propertyType, indexerPropertyInfo, setTypeConfigurationSource, fromDataAnnotation);

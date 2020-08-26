@@ -436,9 +436,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Equal(
                     sensitive
                         ? CoreResources.LogTempValueGeneratedSensitive(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
-                            nameof(LikeAZooContextSensitive), 1, nameof(Hat.Id), nameof(Hat))
+                            nameof(LikeAZooContextSensitive), 1, nameof(Hat), nameof(Hat.Id))
                         : CoreResources.LogTempValueGenerated(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
-                            nameof(LikeAZooContext), nameof(Hat.Id), nameof(Hat)),
+                            nameof(LikeAZooContext), nameof(Hat), nameof(Hat.Id)),
                     message);
             }
             else
@@ -446,9 +446,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Equal(
                     sensitive
                         ? CoreResources.LogValueGeneratedSensitive(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
-                            nameof(LikeAZooContextSensitive), 1, nameof(Hat.Id), nameof(Hat))
+                            nameof(LikeAZooContextSensitive), 1, nameof(Hat), nameof(Hat.Id))
                         : CoreResources.LogValueGenerated(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
-                            nameof(LikeAZooContext), nameof(Hat.Id), nameof(Hat)),
+                            nameof(LikeAZooContext), nameof(Hat), nameof(Hat.Id)),
                     message);
             }
         }

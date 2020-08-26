@@ -1075,7 +1075,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(dependentEntityBuilder.HasKey(new[] { Order.IdProperty }, ConfigurationSource.DataAnnotation));
 
             Assert.Equal(
-                CoreStrings.KeyPropertyInForeignKey(Order.IdProperty.Name, nameof(Order)),
+                CoreStrings.KeyPropertyInForeignKey(nameof(Order), Order.IdProperty.Name),
                 Assert.Throws<InvalidOperationException>(
                     () => dependentEntityBuilder.HasKey(new[] { Order.IdProperty }, ConfigurationSource.Explicit)).Message);
         }
@@ -1656,7 +1656,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
             Assert.Equal(
-                CoreStrings.NonIndexerEntityType(IndexedClass.IndexerPropertyName, nameof(Order), typeof(string).ShortDisplayName()),
+                CoreStrings.NonIndexerEntityType(nameof(Order), IndexedClass.IndexerPropertyName, typeof(string).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(
                     () => entityBuilder.IndexerProperty(
                         typeof(string), IndexedClass.IndexerPropertyName, ConfigurationSource.Convention)).Message);

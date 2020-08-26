@@ -691,7 +691,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.Equal(
-                CoreStrings.CannotLoadDetached(nameof(left.TwoSkip), nameof(EntityOne)),
+                CoreStrings.CannotLoadDetached(nameof(EntityOne), nameof(left.TwoSkip)),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     async () =>
                     {
@@ -724,7 +724,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.Equal(
-                CoreStrings.CannotLoadDetached(nameof(left.TwoSkip), nameof(EntityOne)),
+                CoreStrings.CannotLoadDetached(nameof(EntityOne), nameof(left.TwoSkip)),
                 Assert.Throws<InvalidOperationException>(() => collectionEntry.Query()).Message);
         }
 

@@ -636,11 +636,11 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     throw new InvalidOperationException(
                         CoreStrings.PropertyIsNavigation(
-                            name, entityType.DisplayName(),
-                            nameof(EntityEntry.Property), nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)));
+                            entityType.DisplayName(),
+                            name, nameof(EntityEntry.Property), nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)));
                 }
 
-                throw new InvalidOperationException(CoreStrings.PropertyNotFound(name, entityType.DisplayName()));
+                throw new InvalidOperationException(CoreStrings.PropertyNotFound(entityType.DisplayName(), name));
             }
 
             return property;

@@ -617,7 +617,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var specialCustomerForeignKey = orderType.AddForeignKey(derivedForeignKeyProperty, customerKey, specialCustomerType);
 
             Assert.Equal(
-                CoreStrings.NavigationForWrongForeignKey(nameof(Customer.Orders), typeof(Customer).Name, "{'Id'}", "{'CustomerId'}"),
+                CoreStrings.NavigationForWrongForeignKey(typeof(Customer).Name, nameof(Customer.Orders), "{'Id'}", "{'CustomerId'}"),
                 Assert.Throws<InvalidOperationException>(
                     () =>
                         specialCustomerForeignKey.SetPrincipalToDependent(Customer.OrdersProperty)).Message);
@@ -646,7 +646,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var specialCustomerForeignKey = orderType.AddForeignKey(derivedForeignKeyProperty, customerKey, verySpecialCustomerType);
 
             Assert.Equal(
-                CoreStrings.NavigationForWrongForeignKey("Orders", typeof(Customer).Name, "{'Id'}", "{'CustomerId'}"),
+                CoreStrings.NavigationForWrongForeignKey(typeof(Customer).Name, "Orders", "{'Id'}", "{'CustomerId'}"),
                 Assert.Throws<InvalidOperationException>(
                     () => specialCustomerForeignKey.SetPrincipalToDependent("Orders")).Message);
 
@@ -673,7 +673,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             specialCustomerForeignKey.SetPrincipalToDependent(Customer.OrdersProperty);
 
             Assert.Equal(
-                CoreStrings.NavigationForWrongForeignKey("Orders", typeof(SpecialCustomer).Name, "{'CustomerId'}", "{'Id'}"),
+                CoreStrings.NavigationForWrongForeignKey(typeof(SpecialCustomer).Name, "Orders", "{'CustomerId'}", "{'Id'}"),
                 Assert.Throws<InvalidOperationException>(
                     () =>
                         customerForeignKey.SetPrincipalToDependent("Orders")).Message);
@@ -702,8 +702,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             specialCustomerForeignKey.SetPrincipalToDependent(Customer.OrdersProperty);
 
             Assert.Equal(
-                CoreStrings.NavigationForWrongForeignKey(
-                    nameof(Customer.Orders), typeof(VerySpecialCustomer).Name, "{'CustomerId'}", "{'Id'}"),
+                CoreStrings.NavigationForWrongForeignKey(typeof(VerySpecialCustomer).Name, nameof(Customer.Orders), "{'CustomerId'}", "{'Id'}"),
                 Assert.Throws<InvalidOperationException>(
                     () =>
                         customerForeignKey.SetPrincipalToDependent(Customer.OrdersProperty)).Message);

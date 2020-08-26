@@ -232,9 +232,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     if (!property.IsForeignKey() && HasTemporaryValue(property))
                     {
                         throw new InvalidOperationException(
-                            CoreStrings.TempValuePersists(
-                                property.Name,
-                                EntityType.DisplayName(), newState));
+                            CoreStrings.TempValuePersists(EntityType.DisplayName(), property.Name, newState));
                     }
                 }
             }
@@ -464,7 +462,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 && property.IsKey()
                 && property.GetAfterSaveBehavior() == PropertySaveBehavior.Throw)
             {
-                throw new InvalidOperationException(CoreStrings.KeyReadOnly(property.Name, EntityType.DisplayName()));
+                throw new InvalidOperationException(CoreStrings.KeyReadOnly(EntityType.DisplayName(), property.Name));
             }
 
             if (currentState == EntityState.Deleted)
@@ -605,7 +603,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (property.GetStoreGeneratedIndex() == -1)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.TempValue(property.Name, EntityType.DisplayName()));
+                    CoreStrings.TempValue(EntityType.DisplayName(), property.Name));
             }
 
             SetProperty(property, value, isMaterialization: false, setModified, isCascadeDelete: false, CurrentValueType.Temporary);
@@ -622,7 +620,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (property.GetStoreGeneratedIndex() == -1)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.StoreGenValue(property.Name, EntityType.DisplayName()));
+                    CoreStrings.StoreGenValue(EntityType.DisplayName(), property.Name));
             }
 
             SetProperty(
@@ -1306,9 +1304,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         && !HasDefaultValue(property))
                     {
                         throw new InvalidOperationException(
-                            CoreStrings.PropertyReadOnlyBeforeSave(
-                                property.Name,
-                                EntityType.DisplayName()));
+                            CoreStrings.PropertyReadOnlyBeforeSave(EntityType.DisplayName(), property.Name));
                     }
 
                     if (property.IsKey()
@@ -1327,9 +1323,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         && IsModified(property))
                     {
                         throw new InvalidOperationException(
-                            CoreStrings.PropertyReadOnlyAfterSave(
-                                property.Name,
-                                EntityType.DisplayName()));
+                            CoreStrings.PropertyReadOnlyAfterSave(EntityType.DisplayName(), property.Name));
                     }
                 }
             }
@@ -1444,9 +1438,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
 
                     throw new InvalidOperationException(
-                        CoreStrings.PropertyConceptualNull(
-                            property.Name,
-                            EntityType.DisplayName()));
+                        CoreStrings.PropertyConceptualNull(EntityType.DisplayName(), property.Name));
                 }
             }
         }
@@ -1683,7 +1675,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 && this[navigation] != null)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.ReferenceMustBeLoaded(navigation.Name, navigation.DeclaringEntityType.DisplayName()));
+                    CoreStrings.ReferenceMustBeLoaded(navigation.DeclaringEntityType.DisplayName(), navigation.Name));
             }
 
             _stateData.FlagProperty(navigation.GetIndex(), PropertyFlag.IsLoaded, isFlagged: loaded);

@@ -91,8 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (_createCollection == null)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.NavigationCannotCreateType(
-                        _propertyName, typeof(TEntity).ShortDisplayName(), typeof(TCollection).ShortDisplayName()));
+                    CoreStrings.NavigationCannotCreateType(typeof(TEntity).ShortDisplayName(), _propertyName, typeof(TCollection).ShortDisplayName()));
             }
 
             return _createCollection();
@@ -118,14 +117,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (setCollection == null)
                 {
-                    throw new InvalidOperationException(CoreStrings.NavigationNoSetter(_propertyName, typeof(TEntity).ShortDisplayName()));
+                    throw new InvalidOperationException(CoreStrings.NavigationNoSetter(typeof(TEntity).ShortDisplayName(), _propertyName));
                 }
 
                 if (_createAndSetCollection == null)
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.NavigationCannotCreateType(
-                            _propertyName, typeof(TEntity).ShortDisplayName(), typeof(TCollection).ShortDisplayName()));
+                        CoreStrings.NavigationCannotCreateType(typeof(TEntity).ShortDisplayName(), _propertyName, typeof(TCollection).ShortDisplayName()));
                 }
 
                 collection = (ICollection<TElement>)_createAndSetCollection((TEntity)instance, setCollection);
@@ -144,10 +142,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 throw new InvalidOperationException(
                     CoreStrings.NavigationBadType(
-                        _propertyName,
                         typeof(TEntity).ShortDisplayName(),
-                        enumerable.GetType().ShortDisplayName(),
-                        typeof(TElement).ShortDisplayName()));
+                        _propertyName,
+                        enumerable.GetType().ShortDisplayName(), typeof(TElement).ShortDisplayName()));
             }
 
             return collection;

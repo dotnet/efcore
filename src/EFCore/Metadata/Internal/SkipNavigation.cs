@@ -185,9 +185,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 var message = IsOnDependent
                     ? CoreStrings.SkipNavigationForeignKeyWrongDependentType(
-                        foreignKey.Properties.Format(), Name, DeclaringEntityType.DisplayName(), expectedEntityType.DisplayName())
-                    : CoreStrings.SkipNavigationForeignKeyWrongPrincipalType(
-                        foreignKey.Properties.Format(), Name, DeclaringEntityType.DisplayName(), expectedEntityType.DisplayName());
+                        foreignKey.Properties.Format(), DeclaringEntityType.DisplayName(), Name, expectedEntityType.DisplayName())
+                    : CoreStrings.SkipNavigationForeignKeyWrongPrincipalType(Name, foreignKey.Properties.Format(), DeclaringEntityType.DisplayName(), expectedEntityType.DisplayName());
                 throw new InvalidOperationException(message);
             }
 

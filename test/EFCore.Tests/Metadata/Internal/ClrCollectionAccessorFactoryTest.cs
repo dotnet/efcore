@@ -299,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var navigation = CreateNavigation("WriteOnlyPropNoField");
 
             Assert.Equal(
-                CoreStrings.NoFieldOrGetter("WriteOnlyPropNoField", typeof(MyEntity).Name),
+                CoreStrings.NoFieldOrGetter(typeof(MyEntity).Name, "WriteOnlyPropNoField"),
                 Assert.Throws<InvalidOperationException>(() => new ClrCollectionAccessorFactory().Create(navigation)).Message);
         }
 
@@ -335,8 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var value = new MyOtherEntity();
 
             Assert.Equal(
-                CoreStrings.NavigationBadType(
-                    "AsIEnumerableNotCollection", typeof(MyEntity).Name, typeof(MyEnumerable).Name, typeof(MyOtherEntity).Name),
+                CoreStrings.NavigationBadType(typeof(MyEntity).Name, "AsIEnumerableNotCollection", typeof(MyEnumerable).Name, typeof(MyOtherEntity).Name),
                 Assert.Throws<InvalidOperationException>(() => test(accessor, entity, value)).Message);
         }
 
@@ -346,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var navigation = CreateNavigation("AsArray");
 
             Assert.Equal(
-                CoreStrings.NavigationArray("AsArray", typeof(MyEntity).Name, typeof(MyOtherEntity[]).Name),
+                CoreStrings.NavigationArray(typeof(MyEntity).Name, "AsArray", typeof(MyOtherEntity[]).Name),
                 Assert.Throws<InvalidOperationException>(() => new ClrCollectionAccessorFactory().Create(navigation)).Message);
         }
 
@@ -356,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("NoBackingFound"));
 
             Assert.Equal(
-                CoreStrings.NavigationNoSetter("NoBackingFound", typeof(MyEntity).Name),
+                CoreStrings.NavigationNoSetter(typeof(MyEntity).Name, "NoBackingFound"),
                 Assert.Throws<InvalidOperationException>(
                     () => accessor.Add(new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
         }
@@ -367,7 +366,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("ReadOnlyPropNoField"));
 
             Assert.Equal(
-                CoreStrings.NavigationNoSetter("ReadOnlyPropNoField", typeof(MyEntity).Name),
+                CoreStrings.NavigationNoSetter(typeof(MyEntity).Name, "ReadOnlyPropNoField"),
                 Assert.Throws<InvalidOperationException>(
                     () => accessor.Add(new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
         }
@@ -390,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("AsMyPrivateCollection"));
 
             Assert.Equal(
-                CoreStrings.NavigationCannotCreateType("AsMyPrivateCollection", typeof(MyEntity).Name, typeof(MyPrivateCollection).Name),
+                CoreStrings.NavigationCannotCreateType(typeof(MyEntity).Name, "AsMyPrivateCollection", typeof(MyPrivateCollection).Name),
                 Assert.Throws<InvalidOperationException>(
                     () => accessor.Add(new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
         }
@@ -401,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("AsMyInternalCollection"));
 
             Assert.Equal(
-                CoreStrings.NavigationCannotCreateType("AsMyInternalCollection", typeof(MyEntity).Name, typeof(MyInternalCollection).Name),
+                CoreStrings.NavigationCannotCreateType(typeof(MyEntity).Name, "AsMyInternalCollection", typeof(MyInternalCollection).Name),
                 Assert.Throws<InvalidOperationException>(
                     () => accessor.Add(new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
         }
@@ -412,8 +411,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("AsMyUnavailableCollection"));
 
             Assert.Equal(
-                CoreStrings.NavigationCannotCreateType(
-                    "AsMyUnavailableCollection", typeof(MyEntity).Name, typeof(MyUnavailableCollection).Name),
+                CoreStrings.NavigationCannotCreateType(typeof(MyEntity).Name, "AsMyUnavailableCollection", typeof(MyUnavailableCollection).Name),
                 Assert.Throws<InvalidOperationException>(
                     () => accessor.Add(new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
         }

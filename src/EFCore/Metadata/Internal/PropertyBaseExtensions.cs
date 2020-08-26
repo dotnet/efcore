@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
 
                     errorMessage = hasGetter
-                        ? CoreStrings.NoSetter(propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode))
+                        ? CoreStrings.NoSetter(propertyBase.DeclaringType.DisplayName(), propertyBase.Name, nameof(PropertyAccessMode))
                         : CoreStrings.NoProperty(fieldInfo?.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode));
 
                     return false;
@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return true;
                 }
 
-                errorMessage = CoreStrings.NoFieldOrSetter(propertyBase.Name, propertyBase.DeclaringType.DisplayName());
+                errorMessage = CoreStrings.NoFieldOrSetter(propertyBase.DeclaringType.DisplayName(), propertyBase.Name);
                 return false;
             }
 
@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
 
                     errorMessage = hasGetter
-                        ? CoreStrings.NoSetter(propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode))
+                        ? CoreStrings.NoSetter(propertyBase.DeclaringType.DisplayName(), propertyBase.Name, nameof(PropertyAccessMode))
                         : CoreStrings.NoProperty(fieldInfo?.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode));
 
                     return false;
@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return true;
                 }
 
-                errorMessage = CoreStrings.NoFieldOrSetter(propertyBase.Name, propertyBase.DeclaringType.DisplayName());
+                errorMessage = CoreStrings.NoFieldOrSetter(propertyBase.DeclaringType.DisplayName(), propertyBase.Name);
                 return false;
             }
 
@@ -294,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 errorMessage = hasSetter
-                    ? CoreStrings.NoGetter(propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode))
+                    ? CoreStrings.NoGetter(propertyBase.DeclaringType.DisplayName(), propertyBase.Name, nameof(PropertyAccessMode))
                     : CoreStrings.NoProperty(fieldInfo?.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode));
 
                 return false;
@@ -332,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            errorMessage = CoreStrings.NoFieldOrGetter(propertyBase.Name, propertyBase.DeclaringType.DisplayName());
+            errorMessage = CoreStrings.NoFieldOrGetter(propertyBase.DeclaringType.DisplayName(), propertyBase.Name);
             return false;
         }
 
@@ -344,10 +344,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     .OfType<ServiceParameterBinding>()
                     .Any(b => b.ServiceType == typeof(ILazyLoader))
                 == true
-                    ? CoreStrings.NoBackingFieldLazyLoading(
-                        propertyBase.Name, propertyBase.DeclaringType.DisplayName())
-                    : CoreStrings.NoBackingField(
-                        propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode));
+                    ? CoreStrings.NoBackingFieldLazyLoading(propertyBase.DeclaringType.DisplayName(), propertyBase.Name)
+                    : CoreStrings.NoBackingField(propertyBase.DeclaringType.DisplayName(), propertyBase.Name, nameof(PropertyAccessMode));
         }
 
         /// <summary>

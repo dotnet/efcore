@@ -540,8 +540,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(
                         CoreStrings.UnableToSetIsUnique(
                             unique.Value,
-                            PrincipalToDependent.PropertyInfo.Name,
-                            PrincipalEntityType.DisplayName()));
+                            PrincipalEntityType.DisplayName(), PrincipalToDependent.PropertyInfo.Name));
                 }
             }
 

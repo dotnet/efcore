@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.Add(WithValue(propertyName));
 
                     Assert.Equal(
-                        CoreStrings.PropertyReadOnlyBeforeSave(propertyName, "Anais"),
+                        CoreStrings.PropertyReadOnlyBeforeSave("Anais", propertyName),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 });
         }
@@ -265,7 +265,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.Attach(WithValue(propertyName, 1)).Property(propertyName).IsModified = true;
 
                     Assert.Equal(
-                        CoreStrings.PropertyReadOnlyAfterSave(propertyName, "Anais"),
+                        CoreStrings.PropertyReadOnlyAfterSave("Anais", propertyName),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 });
         }
@@ -485,7 +485,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.Add(new Gumball { Id = 1 });
 
                     Assert.Equal(
-                        CoreStrings.PropertyReadOnlyBeforeSave("Id", "Gumball"),
+                        CoreStrings.PropertyReadOnlyBeforeSave("Gumball", "Id"),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 });
         }
@@ -745,7 +745,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.Add(new Gumball { IdentityReadOnlyBeforeSave = "Masami" });
 
                     Assert.Equal(
-                        CoreStrings.PropertyReadOnlyBeforeSave("IdentityReadOnlyBeforeSave", "Gumball"),
+                        CoreStrings.PropertyReadOnlyBeforeSave("Gumball", "IdentityReadOnlyBeforeSave"),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 });
         }
@@ -791,7 +791,7 @@ namespace Microsoft.EntityFrameworkCore
                     gumball.NotStoreGenerated = "Larry Needlemeye";
 
                     Assert.Equal(
-                        CoreStrings.PropertyReadOnlyAfterSave("IdentityReadOnlyAfterSave", "Gumball"),
+                        CoreStrings.PropertyReadOnlyAfterSave("Gumball", "IdentityReadOnlyAfterSave"),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 });
         }
@@ -903,7 +903,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.Add(new Gumball { AlwaysIdentityReadOnlyBeforeSave = "Masami" });
 
                     Assert.Equal(
-                        CoreStrings.PropertyReadOnlyBeforeSave("AlwaysIdentityReadOnlyBeforeSave", "Gumball"),
+                        CoreStrings.PropertyReadOnlyBeforeSave("Gumball", "AlwaysIdentityReadOnlyBeforeSave"),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 });
         }
@@ -931,7 +931,7 @@ namespace Microsoft.EntityFrameworkCore
                     gumball.NotStoreGenerated = "Larry Needlemeye";
 
                     Assert.Equal(
-                        CoreStrings.PropertyReadOnlyAfterSave("AlwaysIdentityReadOnlyAfterSave", "Gumball"),
+                        CoreStrings.PropertyReadOnlyAfterSave("Gumball", "AlwaysIdentityReadOnlyAfterSave"),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 });
         }
@@ -1013,7 +1013,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.Add(new Gumball { ComputedReadOnlyBeforeSave = "Masami" });
 
                     Assert.Equal(
-                        CoreStrings.PropertyReadOnlyBeforeSave("ComputedReadOnlyBeforeSave", "Gumball"),
+                        CoreStrings.PropertyReadOnlyBeforeSave("Gumball", "ComputedReadOnlyBeforeSave"),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 });
         }
@@ -1059,7 +1059,7 @@ namespace Microsoft.EntityFrameworkCore
                     gumball.NotStoreGenerated = "Larry Needlemeye";
 
                     Assert.Equal(
-                        CoreStrings.PropertyReadOnlyAfterSave("ComputedReadOnlyAfterSave", "Gumball"),
+                        CoreStrings.PropertyReadOnlyAfterSave("Gumball", "ComputedReadOnlyAfterSave"),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 });
         }
@@ -1171,7 +1171,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.Add(new Gumball { AlwaysComputedReadOnlyBeforeSave = "Masami" });
 
                     Assert.Equal(
-                        CoreStrings.PropertyReadOnlyBeforeSave("AlwaysComputedReadOnlyBeforeSave", "Gumball"),
+                        CoreStrings.PropertyReadOnlyBeforeSave("Gumball", "AlwaysComputedReadOnlyBeforeSave"),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 });
         }
@@ -1199,7 +1199,7 @@ namespace Microsoft.EntityFrameworkCore
                     gumball.NotStoreGenerated = "Larry Needlemeye";
 
                     Assert.Equal(
-                        CoreStrings.PropertyReadOnlyAfterSave("AlwaysComputedReadOnlyAfterSave", "Gumball"),
+                        CoreStrings.PropertyReadOnlyAfterSave("Gumball", "AlwaysComputedReadOnlyAfterSave"),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 });
         }

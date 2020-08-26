@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             var selector = contextServices.GetRequiredService<IValueGeneratorSelector>();
 
             Assert.Equal(
-                CoreStrings.NoValueGenerator("Random", "AnEntity", "char"),
+                CoreStrings.NoValueGenerator("AnEntity", "Random", "char"),
                 Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("Random"), entityType)).Message);
         }
 

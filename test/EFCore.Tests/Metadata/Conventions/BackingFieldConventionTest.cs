@@ -177,8 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention(property);
             Assert.Equal(
-                CoreStrings.ConflictingBackingFields(
-                    "OnTheRun", nameof(AlwaysLookOnTheBrightSideOfLife), "_onTheRun", "m_onTheRun"),
+                CoreStrings.ConflictingBackingFields(nameof(AlwaysLookOnTheBrightSideOfLife), "OnTheRun", "_onTheRun", "m_onTheRun"),
                 Assert.Throws<InvalidOperationException>(
                     () => Validate(property)).Message);
         }
@@ -191,8 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention(property);
             Assert.Equal(
-                CoreStrings.ConflictingBackingFields(
-                    "OnTheRun", nameof(HesNotTheMessiah), "_onTheRun", "m_onTheRun"),
+                CoreStrings.ConflictingBackingFields(nameof(HesNotTheMessiah), "OnTheRun", "_onTheRun", "m_onTheRun"),
                 Assert.Throws<InvalidOperationException>(
                     () => Validate(property)).Message);
         }
@@ -205,8 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention(property);
             Assert.Equal(
-                CoreStrings.ConflictingBackingFields(
-                    "OnTheRun", nameof(HesAVeryNaughtyBoy), "_onTheRun", "m_onTheRun"),
+                CoreStrings.ConflictingBackingFields(nameof(HesAVeryNaughtyBoy), "OnTheRun", "_onTheRun", "m_onTheRun"),
                 Assert.Throws<InvalidOperationException>(
                     () => Validate(property)).Message);
         }

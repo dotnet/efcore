@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 foreignKey, entityType);
 
         /// <summary>
-        ///     '{entityType}.{navigation}' cannot be configured as required since the dependent side of the underlying foreign key {foreignKey} cannot be determined. To identify the dependent side of the relationship, configure the foreign key property. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.
+        ///     The navigation '{entityType}.{navigation}' cannot be configured as required since the dependent side of the underlying foreign key {foreignKey} cannot be determined. To identify the dependent side of the relationship, configure the foreign key property. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.
         /// </summary>
         public static string AmbiguousEndRequiredDependentNavigation([CanBeNull] object entityType, [CanBeNull] object navigation, [CanBeNull] object foreignKey)
             => string.Format(
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 firstDependentToPrincipalNavigationSpecification, firstPrincipalToDependentNavigationSpecification, secondDependentToPrincipalNavigationSpecification, secondPrincipalToDependentNavigationSpecification, foreignKeyProperties);
 
         /// <summary>
-        ///     The dependent side could not be determined for the one-to-one relationship between '{dependentToPrincipalNavigationSpecification}' and '{principalToDependentNavigationSpecification}'. To identify the dependent side of the relationship, configure the foreign key property. If these navigations should not be part of the same relationship configure them without specifying the inverse. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.
+        ///     The dependent side could not be determined for the one-to-one relationship between '{dependentToPrincipalNavigationSpecification}' and '{principalToDependentNavigationSpecification}'. To identify the dependent side of the relationship, configure the foreign key property. If these navigations should not be part of the same relationship configure them independently via separate method chains in 'OnModelCreating'. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.
         /// </summary>
         public static string AmbiguousOneToOneRelationship([CanBeNull] object dependentToPrincipalNavigationSpecification, [CanBeNull] object principalToDependentNavigationSpecification)
             => string.Format(
@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 typeName);
 
         /// <summary>
-        ///     Cannot set backing field '{field}' for the indexer property '{entityType}.{property}'. Indexer properties are not allowed to use a backing field.
+        ///     Cannot set backing field '{field}' for the indexer property '{entityType}.{property}'. Ensure no backing fields are specified for indexer properties.
         /// </summary>
         public static string BackingFieldOnIndexer([CanBeNull] object field, [CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 field, entityType, property);
 
         /// <summary>
-        ///     The specified field '{field}' of type '{fieldType}' cannot be used for the property '{entityType}.{property}' of type '{propertyType}'. Only backing fields of types that are assignable from the property type can be used.
+        ///     The specified field '{field}' of type '{fieldType}' cannot be used for the property '{entityType}.{property}' of type '{propertyType}'. Only backing fields of types that are compatible with the property type can be used.
         /// </summary>
         public static string BadBackingFieldType([CanBeNull] object field, [CanBeNull] object fieldType, [CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object propertyType)
             => string.Format(
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 field, fieldType, entityType, property, propertyType);
 
         /// <summary>
-        ///     The service dependencies type '{dependenciesType}' has been registered inappropriately in the service collection. Service dependencies types must only be registered by Entity Framework, or in rare cases by database providers and then only to change the service lifetime.
+        ///     The service dependencies type '{dependenciesType}' has been registered incorrectly in the service collection. Service dependencies types must only be registered by Entity Framework or database providers.
         /// </summary>
         public static string BadDependencyRegistration([CanBeNull] object dependenciesType)
             => string.Format(
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 filter, entityType);
 
         /// <summary>
-        ///     The filter expression '{filter}' specified for entity type '{entityType}' is invalid. The expression must accept a single parameter of type '{clrType}', return bool, and may not contain references to navigation properties.
+        ///     The filter expression '{filter}' specified for entity type '{entityType}' is invalid. The expression must accept a single parameter of type '{clrType}' and return bool.
         /// </summary>
         public static string BadFilterExpression([CanBeNull] object filter, [CanBeNull] object entityType, [CanBeNull] object clrType)
             => string.Format(
@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 filter, entityType, clrType);
 
         /// <summary>
-        ///     The filter expression '{filter}' cannot be specified for entity type '{entityType}'. A filter may only be applied to the entity that is not owned.
+        ///     The filter expression '{filter}' cannot be specified for owned entity type '{entityType}'. A filter may only be applied to the entity that is not owned.
         /// </summary>
         public static string BadFilterOwnedType([CanBeNull] object filter, [CanBeNull] object entityType)
             => string.Format(
@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 filter, entityType);
 
         /// <summary>
-        ///     The type '{givenType}' cannot be used as a value generator because it does not inherit from '{expectedType}'.
+        ///     The type '{givenType}' cannot be used as a value generator because it does not inherit from '{expectedType}'. Make sure to inherit value generators from '{expectedType}'.
         /// </summary>
         public static string BadValueGeneratorType([CanBeNull] object givenType, [CanBeNull] object expectedType)
             => string.Format(
@@ -183,20 +183,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("CanConnectNotImplemented");
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' cannot be marked as nullable/optional because the type of the property is '{propertyType}' which is not a nullable type. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.
+        ///     The property '{entityType}.{property}' cannot be marked as nullable/optional because the type of the property is '{propertyType}' which is not a nullable type. Any property can be marked as non-nullable/required, but only properties of nullable types can be marked as nullable/optional.
         /// </summary>
-        public static string CannotBeNullable([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)
+        public static string CannotBeNullable([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object propertyType)
             => string.Format(
-                GetString("CannotBeNullable", nameof(property), nameof(entityType), nameof(propertyType)),
-                property, entityType, propertyType);
+                GetString("CannotBeNullable", nameof(entityType), nameof(property), nameof(propertyType)),
+                entityType, property, propertyType);
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' cannot be marked as nullable/optional because the property is a part of a key. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of a key can be marked as nullable/optional.
+        ///     The property '{entityType}.{property}' cannot be marked as nullable/optional because the property is a part of a key. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of a key can be marked as nullable/optional.
         /// </summary>
-        public static string CannotBeNullablePK([CanBeNull] object property, [CanBeNull] object entityType)
+        public static string CannotBeNullablePK([CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
-                GetString("CannotBeNullablePK", nameof(property), nameof(entityType)),
-                property, entityType);
+                GetString("CannotBeNullablePK", nameof(entityType), nameof(property)),
+                entityType, property);
 
         /// <summary>
         ///     Unable to convert queryable method to enumerable method.
@@ -213,15 +213,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 generatorType);
 
         /// <summary>
-        ///     Navigation property '{navigation}' on entity of type '{entityType}' cannot be loaded because the entity is not being tracked. Navigation properties can only be loaded for tracked entities.
+        ///     The navigation '{entityType}.{navigation}' cannot be loaded because the entity is not being tracked. Navigations can only be loaded for tracked entities.
         /// </summary>
-        public static string CannotLoadDetached([CanBeNull] object navigation, [CanBeNull] object entityType)
+        public static string CannotLoadDetached([CanBeNull] object entityType, [CanBeNull] object navigation)
             => string.Format(
-                GetString("CannotLoadDetached", nameof(navigation), nameof(entityType)),
-                navigation, entityType);
+                GetString("CannotLoadDetached", nameof(entityType), nameof(navigation)),
+                entityType, navigation);
 
         /// <summary>
-        ///     Type '{type}' cannot be marked as shared type since entity type with same CLR type exists in the model.
+        ///     The type '{type}' cannot be marked as a shared type since an entity type with the same CLR type already exists in the model.
         /// </summary>
         public static string CannotMarkShared([CanBeNull] object type)
             => string.Format(
@@ -229,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type);
 
         /// <summary>
-        ///     Unable to create an instance of type entity type '{entityType}' because it is abstract. Either make it non-abstract or consider mapping at least one derived type.
+        ///     Unable to create an instance of entity type '{entityType}' because it is abstract. Either make it non-abstract or consider mapping at least one derived type.
         /// </summary>
         public static string CannotMaterializeAbstractType([CanBeNull] object entityType)
             => string.Format(
@@ -237,15 +237,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     There is no navigation property with name '{navigationName}' on entity type '{entityType}'. Please add the navigation to the entity type before configuring it.
+        ///     There is no navigation '{entityType}.{navigationName}'. Please add the navigation to the entity type before configuring it.
         /// </summary>
-        public static string CanOnlyConfigureExistingNavigations([CanBeNull] object navigationName, [CanBeNull] object entityType)
+        public static string CanOnlyConfigureExistingNavigations([CanBeNull] object entityType, [CanBeNull] object navigationName)
             => string.Format(
-                GetString("CanOnlyConfigureExistingNavigations", nameof(navigationName), nameof(entityType)),
-                navigationName, entityType);
+                GetString("CanOnlyConfigureExistingNavigations", nameof(entityType), nameof(navigationName)),
+                entityType, navigationName);
 
         /// <summary>
-        ///     The entity type '{entityType}' is configured to use the '{changeTrackingStrategy}' change tracking strategy but does not implement the required '{notificationInterface}' interface.
+        ///     The entity type '{entityType}' is configured to use the '{changeTrackingStrategy}' change tracking strategy but does not implement the required '{notificationInterface}' interface. Implement '{notificationInterface}' on '{entityType}' or use a different change tracking strategy.
         /// </summary>
         public static string ChangeTrackingInterfaceMissing([CanBeNull] object entityType, [CanBeNull] object changeTrackingStrategy, [CanBeNull] object notificationInterface)
             => string.Format(
@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 cycle);
 
         /// <summary>
-        ///     The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{baseEntityType}' is a descendant of '{entityType}'.
+        ///     The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{baseEntityType}' is a descendant of '{entityType}'. Review your model configuration.
         /// </summary>
         public static string CircularInheritance([CanBeNull] object entityType, [CanBeNull] object baseEntityType)
             => string.Format(
@@ -269,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, baseEntityType);
 
         /// <summary>
-        ///     The shared type entity type '{entityType}' cannot be added to the model because a shared entity type with the same name but different clr type '{otherClrType}' already exists.
+        ///     The shared-type entity type '{entityType}' cannot be added because the model already contains an entity type with the same name but a different CLR type '{otherClrType}'. Ensure all entity type names are unique.
         /// </summary>
         public static string ClashingMismatchedSharedType([CanBeNull] object entityType, [CanBeNull] object otherClrType)
             => string.Format(
@@ -373,12 +373,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType);
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' is being accessed using the '{CollectionMethod}' method, but is defined in the model as a non-collection, reference navigation property. Use the '{ReferenceMethod}' method to access reference navigation properties.
+        ///     The property '{entityType}.{property}' is being accessed using the '{CollectionMethod}' method, but is defined in the model as a non-collection, reference navigation property. Use the '{ReferenceMethod}' method to access reference navigation properties.
         /// </summary>
-        public static string CollectionIsReference([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object CollectionMethod, [CanBeNull] object ReferenceMethod)
+        public static string CollectionIsReference([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object CollectionMethod, [CanBeNull] object ReferenceMethod)
             => string.Format(
-                GetString("CollectionIsReference", nameof(property), nameof(entityType), nameof(CollectionMethod), nameof(ReferenceMethod)),
-                property, entityType, CollectionMethod, ReferenceMethod);
+                GetString("CollectionIsReference", nameof(entityType), nameof(property), nameof(CollectionMethod), nameof(ReferenceMethod)),
+                entityType, property, CollectionMethod, ReferenceMethod);
 
         /// <summary>
         ///     Comparer for type '{type}' cannot be used for '{entityType}.{propertyName}' because its type is '{propertyType}'.
@@ -389,12 +389,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type, entityType, propertyName, propertyType);
 
         /// <summary>
-        ///     There are multiple properties pointing to navigation '{navigation}' in entity type '{entityType}'. To define composite foreign key using data annotations, use ForeignKeyAttribute on navigation.
+        ///     There are multiple properties pointing to navigation '{entityType}.{navigation}'. To define composite foreign key using data annotations, use ForeignKeyAttribute on navigation.
         /// </summary>
-        public static string CompositeFkOnProperty([CanBeNull] object navigation, [CanBeNull] object entityType)
+        public static string CompositeFkOnProperty([CanBeNull] object entityType, [CanBeNull] object navigation)
             => string.Format(
-                GetString("CompositeFkOnProperty", nameof(navigation), nameof(entityType)),
-                navigation, entityType);
+                GetString("CompositeFkOnProperty", nameof(entityType), nameof(navigation)),
+                entityType, navigation);
 
         /// <summary>
         ///     Entity type '{entityType}' has composite primary key defined with data annotations. To set composite primary key, use fluent API.
@@ -411,12 +411,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("ConcurrentMethodInvocation");
 
         /// <summary>
-        ///     Property '{property}' on entity type '{entityType}' matches both '{field1}' and '{field2}' by convention. Explicitly specify the backing field to use with '.HasField()' in 'OnModelCreating()'.
+        ///     Property '{entityType}.{property}' matches both '{field1}' and '{field2}' by convention. Explicitly specify the backing field to use with '.HasField()' in 'OnModelCreating()'.
         /// </summary>
-        public static string ConflictingBackingFields([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object field1, [CanBeNull] object field2)
+        public static string ConflictingBackingFields([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object field1, [CanBeNull] object field2)
             => string.Format(
-                GetString("ConflictingBackingFields", nameof(property), nameof(entityType), nameof(field1), nameof(field2)),
-                property, entityType, field1, field2);
+                GetString("ConflictingBackingFields", nameof(entityType), nameof(property), nameof(field1), nameof(field2)),
+                entityType, property, field1, field2);
 
         /// <summary>
         ///     There are multiple ForeignKeyAttributes which are pointing to same set of properties - '{propertyList}' on entity type '{entityType}'.
@@ -1212,12 +1212,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expression);
 
         /// <summary>
-        ///     The InversePropertyAttribute on property '{property}' on type '{entityType}' is not valid. The property '{referencedProperty}' is not a valid navigation property on the related type '{referencedEntityType}'. Ensure that the property exists and is a valid reference or collection navigation property.
+        ///     The InversePropertyAttribute on property '{entityType}.{property}' is not valid. The property '{referencedProperty}' is not a valid navigation property on the related type '{referencedEntityType}'. Ensure that the property exists and is a valid reference or collection navigation property.
         /// </summary>
-        public static string InvalidNavigationWithInverseProperty([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object referencedProperty, [CanBeNull] object referencedEntityType)
+        public static string InvalidNavigationWithInverseProperty([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object referencedProperty, [CanBeNull] object referencedEntityType)
             => string.Format(
-                GetString("InvalidNavigationWithInverseProperty", nameof(property), nameof(entityType), nameof(referencedProperty), nameof(referencedEntityType)),
-                property, entityType, referencedProperty, referencedEntityType);
+                GetString("InvalidNavigationWithInverseProperty", nameof(entityType), nameof(property), nameof(referencedProperty), nameof(referencedEntityType)),
+                entityType, property, referencedProperty, referencedEntityType);
 
         /// <summary>
         ///     The specified poolSize must be greater than 0.
@@ -1244,20 +1244,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expression);
 
         /// <summary>
-        ///     The property list specified using ForeignKeyAttribute on navigation '{navigation}' in entity type '{entityType}' is incorrect. The attribute value should be comma-separated list of property names.
+        ///     The property list specified using ForeignKeyAttribute on navigation '{entityType}.{navigation}' is incorrect. The attribute value should be comma-separated list of property names.
         /// </summary>
-        public static string InvalidPropertyListOnNavigation([CanBeNull] object navigation, [CanBeNull] object entityType)
+        public static string InvalidPropertyListOnNavigation([CanBeNull] object entityType, [CanBeNull] object navigation)
             => string.Format(
-                GetString("InvalidPropertyListOnNavigation", nameof(navigation), nameof(entityType)),
-                navigation, entityType);
+                GetString("InvalidPropertyListOnNavigation", nameof(entityType), nameof(navigation)),
+                entityType, navigation);
 
         /// <summary>
-        ///     Invalid relationship has been specified using InversePropertyAttribute and ForeignKeyAttribute. The navigation '{navigation}' in entity type '{entityType}' and the navigation '{referencedNavigation}' in entity type '{referencedEntityType}' are related by InversePropertyAttribute but the ForeignKeyAttribute specified for both navigations have different values.
+        ///     Invalid relationship has been specified using InversePropertyAttribute and ForeignKeyAttribute. The navigation '{entityType}.{navigation}' and the navigation '{referencedEntityType}.{referencedNavigation}' are related by InversePropertyAttribute but the ForeignKeyAttribute specified for both navigations have different values.
         /// </summary>
-        public static string InvalidRelationshipUsingDataAnnotations([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object referencedNavigation, [CanBeNull] object referencedEntityType)
+        public static string InvalidRelationshipUsingDataAnnotations([CanBeNull] object entityType, [CanBeNull] object navigation, [CanBeNull] object referencedEntityType, [CanBeNull] object referencedNavigation)
             => string.Format(
-                GetString("InvalidRelationshipUsingDataAnnotations", nameof(navigation), nameof(entityType), nameof(referencedNavigation), nameof(referencedEntityType)),
-                navigation, entityType, referencedNavigation, referencedEntityType);
+                GetString("InvalidRelationshipUsingDataAnnotations", nameof(entityType), nameof(navigation), nameof(referencedEntityType), nameof(referencedNavigation)),
+                entityType, navigation, referencedEntityType, referencedNavigation);
 
         /// <summary>
         ///     A call was made to '{replaceService}', but Entity Framework is not building its own internal service provider. Either allow EF to build the service provider by removing the call to '{useInternalServiceProvider}', or build replacement services into the service provider before passing it to '{useInternalServiceProvider}'.
@@ -1316,12 +1316,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 name, value);
 
         /// <summary>
-        ///     The value for property '{property}' of entity type '{entityType}' cannot be set to a value of type '{valueType}' because its type is '{propertyType}'.
+        ///     The value for property '{entityType}.{property}' cannot be set to a value of type '{valueType}' because its type is '{propertyType}'.
         /// </summary>
-        public static string InvalidType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object valueType, [CanBeNull] object propertyType)
+        public static string InvalidType([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object valueType, [CanBeNull] object propertyType)
             => string.Format(
-                GetString("InvalidType", nameof(property), nameof(entityType), nameof(valueType), nameof(propertyType)),
-                property, entityType, valueType, propertyType);
+                GetString("InvalidType", nameof(entityType), nameof(property), nameof(valueType), nameof(propertyType)),
+                entityType, property, valueType, propertyType);
 
         /// <summary>
         ///     Invalid type conversion when specifying include.
@@ -1338,20 +1338,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 useService, useInternalServiceProvider, service);
 
         /// <summary>
-        ///     The '{factory}' cannot create a value generator for property '{property}' on entity type '{entityType}'. Only integer properties are supported.
+        ///     The '{factory}' cannot create a value generator for property '{entityType}.{property}'. Only integer properties are supported.
         /// </summary>
-        public static string InvalidValueGeneratorFactoryProperty([CanBeNull] object factory, [CanBeNull] object property, [CanBeNull] object entityType)
+        public static string InvalidValueGeneratorFactoryProperty([CanBeNull] object factory, [CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
-                GetString("InvalidValueGeneratorFactoryProperty", nameof(factory), nameof(property), nameof(entityType)),
-                factory, property, entityType);
+                GetString("InvalidValueGeneratorFactoryProperty", nameof(factory), nameof(entityType), nameof(property)),
+                factory, entityType, property);
 
         /// <summary>
-        ///     InversePropertyAttributes on navigation '{navigation}' in entity type '{entityType}' and on navigation '{referencedNavigation}' in entity type '{referencedEntityType}' are not pointing to each other.
+        ///     InversePropertyAttributes on navigation '{entityType}.{navigation}' and on navigation '{referencedEntityType}.{referencedNavigation}' are not pointing to each other.
         /// </summary>
-        public static string InversePropertyMismatch([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object referencedNavigation, [CanBeNull] object referencedEntityType)
+        public static string InversePropertyMismatch([CanBeNull] object entityType, [CanBeNull] object navigation, [CanBeNull] object referencedEntityType, [CanBeNull] object referencedNavigation)
             => string.Format(
-                GetString("InversePropertyMismatch", nameof(navigation), nameof(entityType), nameof(referencedNavigation), nameof(referencedEntityType)),
-                navigation, entityType, referencedNavigation, referencedEntityType);
+                GetString("InversePropertyMismatch", nameof(entityType), nameof(navigation), nameof(referencedEntityType), nameof(referencedNavigation)),
+                entityType, navigation, referencedEntityType, referencedNavigation);
 
         /// <summary>
         ///     The navigation '{principalEntityType}.{navigation}' is not supported because it is pointing to an owned entity type '{ownedType}'. Only the ownership navigation from the entity type '{ownerType}' can point to the owned entity type.
@@ -1424,36 +1424,36 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 key, entityType);
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' cannot be marked as nullable/optional because it has been included in a key {key}.
+        ///     The property '{entityType}.{property}' cannot be marked as nullable/optional because it has been included in a key {key}.
         /// </summary>
-        public static string KeyPropertyCannotBeNullable([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object key)
+        public static string KeyPropertyCannotBeNullable([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object key)
             => string.Format(
-                GetString("KeyPropertyCannotBeNullable", nameof(property), nameof(entityType), nameof(key)),
-                property, entityType, key);
+                GetString("KeyPropertyCannotBeNullable", nameof(entityType), nameof(property), nameof(key)),
+                entityType, property, key);
 
         /// <summary>
-        ///     The property '{property}' cannot be part of a key on '{entityType}' because it has value generation enabled and is contained in a foreign key defined on a derived entity type.
+        ///     The property '{entityType}.{property}' cannot be part of a key because it has value generation enabled and is contained in a foreign key defined on a derived entity type.
         /// </summary>
-        public static string KeyPropertyInForeignKey([CanBeNull] object property, [CanBeNull] object entityType)
+        public static string KeyPropertyInForeignKey([CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
-                GetString("KeyPropertyInForeignKey", nameof(property), nameof(entityType)),
-                property, entityType);
+                GetString("KeyPropertyInForeignKey", nameof(entityType), nameof(property)),
+                entityType, property);
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' must be marked as read-only after it has been saved because it is part of a key. Key properties are always read-only once an entity has been saved for the first time.
+        ///     The property '{entityType}.{property}' must be marked as read-only after it has been saved because it is part of a key. Key properties are always read-only once an entity has been saved for the first time.
         /// </summary>
-        public static string KeyPropertyMustBeReadOnly([CanBeNull] object property, [CanBeNull] object entityType)
+        public static string KeyPropertyMustBeReadOnly([CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
-                GetString("KeyPropertyMustBeReadOnly", nameof(property), nameof(entityType)),
-                property, entityType);
+                GetString("KeyPropertyMustBeReadOnly", nameof(entityType), nameof(property)),
+                entityType, property);
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' is part of a key and so cannot be modified or marked as modified. To change the principal of an existing entity with an identifying foreign key first delete the dependent and invoke 'SaveChanges' then associate the dependent with the new principal.
+        ///     The property '{entityType}.{property}' is part of a key and so cannot be modified or marked as modified. To change the principal of an existing entity with an identifying foreign key first delete the dependent and invoke 'SaveChanges' then associate the dependent with the new principal.
         /// </summary>
-        public static string KeyReadOnly([CanBeNull] object property, [CanBeNull] object entityType)
+        public static string KeyReadOnly([CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
-                GetString("KeyReadOnly", nameof(property), nameof(entityType)),
-                property, entityType);
+                GetString("KeyReadOnly", nameof(entityType), nameof(property)),
+                entityType, property);
 
         /// <summary>
         ///     The key {key} cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.
@@ -1472,12 +1472,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type);
 
         /// <summary>
-        ///     The specified field '{field}' could not be found for property '{property}' on entity type '{entityType}'.
+        ///     The specified field '{field}' could not be found for property '{entityType}.{property}'.
         /// </summary>
-        public static string MissingBackingField([CanBeNull] object field, [CanBeNull] object property, [CanBeNull] object entityType)
+        public static string MissingBackingField([CanBeNull] object field, [CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
-                GetString("MissingBackingField", nameof(field), nameof(property), nameof(entityType)),
-                field, property, entityType);
+                GetString("MissingBackingField", nameof(field), nameof(entityType), nameof(property)),
+                field, entityType, property);
 
         /// <summary>
         ///     Unable to set up a many-to-many relationship between the entity types '{principalEntityType}' and '{declaringEntityType}' because one of the navigations was not specified. Please provide a navigation property in the HasMany() call.
@@ -1568,28 +1568,28 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 indexName, entityType);
 
         /// <summary>
-        ///     The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' which is an array type. Collection navigation properties cannot be arrays.
+        ///     The type of navigation property '{entityType}.{navigation}' is '{foundType}' which is an array type. Collection navigation properties cannot be arrays.
         /// </summary>
-        public static string NavigationArray([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object foundType)
+        public static string NavigationArray([CanBeNull] object entityType, [CanBeNull] object navigation, [CanBeNull] object foundType)
             => string.Format(
-                GetString("NavigationArray", nameof(navigation), nameof(entityType), nameof(foundType)),
-                navigation, entityType, foundType);
+                GetString("NavigationArray", nameof(entityType), nameof(navigation), nameof(foundType)),
+                entityType, navigation, foundType);
 
         /// <summary>
-        ///     The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' which does not implement ICollection&lt;{targetType}&gt;. Collection navigation properties must implement ICollection&lt;&gt; of the target type.
+        ///     The type of navigation property '{entityType}.{navigation}' is '{foundType}' which does not implement ICollection&lt;{targetType}&gt;. Collection navigation properties must implement ICollection&lt;&gt; of the target type.
         /// </summary>
-        public static string NavigationBadType([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object foundType, [CanBeNull] object targetType)
+        public static string NavigationBadType([CanBeNull] object entityType, [CanBeNull] object navigation, [CanBeNull] object foundType, [CanBeNull] object targetType)
             => string.Format(
-                GetString("NavigationBadType", nameof(navigation), nameof(entityType), nameof(foundType), nameof(targetType)),
-                navigation, entityType, foundType, targetType);
+                GetString("NavigationBadType", nameof(entityType), nameof(navigation), nameof(foundType), nameof(targetType)),
+                entityType, navigation, foundType, targetType);
 
         /// <summary>
-        ///     The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' for which it was not possible to create a concrete instance. Either initialize the property before use, add a public parameterless constructor to the type, or use a type which can be assigned a HashSet&lt;&gt; or List&lt;&gt;.
+        ///     The type of navigation property '{entityType}.{navigation}' is '{foundType}' for which it was not possible to create a concrete instance. Either initialize the property before use, add a public parameterless constructor to the type, or use a type which can be assigned a HashSet&lt;&gt; or List&lt;&gt;.
         /// </summary>
-        public static string NavigationCannotCreateType([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object foundType)
+        public static string NavigationCannotCreateType([CanBeNull] object entityType, [CanBeNull] object navigation, [CanBeNull] object foundType)
             => string.Format(
-                GetString("NavigationCannotCreateType", nameof(navigation), nameof(entityType), nameof(foundType)),
-                navigation, entityType, foundType);
+                GetString("NavigationCannotCreateType", nameof(entityType), nameof(navigation), nameof(foundType)),
+                entityType, navigation, foundType);
 
         /// <summary>
         ///     The collection navigation property '{navigation}' cannot be added to the entity type '{entityType}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection navigation properties must implement IEnumerable&lt;&gt; of the related entity.
@@ -1600,28 +1600,28 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigation, entityType, clrType, targetType);
 
         /// <summary>
-        ///     The navigation property '{navigation}' on entity type '{entityType}' cannot be associated with foreign key {targetFk} because it was created for foreign key {actualFk}.
+        ///     The navigation property '{entityType}.{navigation}' cannot be associated with foreign key {targetFk} because it was created for foreign key {actualFk}.
         /// </summary>
-        public static string NavigationForWrongForeignKey([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object targetFk, [CanBeNull] object actualFk)
+        public static string NavigationForWrongForeignKey([CanBeNull] object entityType, [CanBeNull] object navigation, [CanBeNull] object targetFk, [CanBeNull] object actualFk)
             => string.Format(
-                GetString("NavigationForWrongForeignKey", nameof(navigation), nameof(entityType), nameof(targetFk), nameof(actualFk)),
-                navigation, entityType, targetFk, actualFk);
+                GetString("NavigationForWrongForeignKey", nameof(entityType), nameof(navigation), nameof(targetFk), nameof(actualFk)),
+                entityType, navigation, targetFk, actualFk);
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' is being accessed using the '{ReferenceMethod}' or '{CollectionMethod}' method, but is defined in the model as a non-navigation property. Use the '{PropertyMethod}' method to access non-navigation properties.
+        ///     The property '{entityType}.{property}' is being accessed using the '{ReferenceMethod}' or '{CollectionMethod}' method, but is defined in the model as a non-navigation property. Use the '{PropertyMethod}' method to access non-navigation properties.
         /// </summary>
-        public static string NavigationIsProperty([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object ReferenceMethod, [CanBeNull] object CollectionMethod, [CanBeNull] object PropertyMethod)
+        public static string NavigationIsProperty([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object ReferenceMethod, [CanBeNull] object CollectionMethod, [CanBeNull] object PropertyMethod)
             => string.Format(
-                GetString("NavigationIsProperty", nameof(property), nameof(entityType), nameof(ReferenceMethod), nameof(CollectionMethod), nameof(PropertyMethod)),
-                property, entityType, ReferenceMethod, CollectionMethod, PropertyMethod);
+                GetString("NavigationIsProperty", nameof(entityType), nameof(property), nameof(ReferenceMethod), nameof(CollectionMethod), nameof(PropertyMethod)),
+                entityType, property, ReferenceMethod, CollectionMethod, PropertyMethod);
 
         /// <summary>
-        ///     The navigation property '{navigation}' on the entity type '{entityType}' does not have a setter and no writable backing field was found or specified. Read-only collection navigation properties must be initialized before use.
+        ///     The navigation property '{entityType}.{navigation}' does not have a setter and no writable backing field was found or specified. Read-only collection navigation properties must be initialized before use.
         /// </summary>
-        public static string NavigationNoSetter([CanBeNull] object navigation, [CanBeNull] object entityType)
+        public static string NavigationNoSetter([CanBeNull] object entityType, [CanBeNull] object navigation)
             => string.Format(
-                GetString("NavigationNoSetter", nameof(navigation), nameof(entityType)),
-                navigation, entityType);
+                GetString("NavigationNoSetter", nameof(entityType), nameof(navigation)),
+                entityType, navigation);
 
         /// <summary>
         ///     Unable to determine the relationship represented by navigation property '{entityType}.{navigation}' of type '{propertyType}'. Either manually configure the relationship, or ignore this property using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
@@ -1656,20 +1656,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigation, entityType, targetType);
 
         /// <summary>
-        ///     No field was found backing property '{property}' of entity type '{entity}'. Either name the backing field so that it is picked up by convention, configure the backing field to use, or use a different '{pam}'.
+        ///     No field was found backing property '{entityType}.{property}'. Either name the backing field so that it is picked up by convention, configure the backing field to use, or use a different '{pam}'.
         /// </summary>
-        public static string NoBackingField([CanBeNull] object property, [CanBeNull] object entity, [CanBeNull] object pam)
+        public static string NoBackingField([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object pam)
             => string.Format(
-                GetString("NoBackingField", nameof(property), nameof(entity), nameof(pam)),
-                property, entity, pam);
+                GetString("NoBackingField", nameof(entityType), nameof(property), nameof(pam)),
+                entityType, property, pam);
 
         /// <summary>
-        ///     No field was found backing property '{property}' of entity type '{entity}'. Lazy-loaded navigation properties must have backing fields. Either name the backing field so that it is picked up by convention or configure the backing field to use.
+        ///     No field was found backing property '{entityType}.{property}'. Lazy-loaded navigation properties must have backing fields. Either name the backing field so that it is picked up by convention or configure the backing field to use.
         /// </summary>
-        public static string NoBackingFieldLazyLoading([CanBeNull] object property, [CanBeNull] object entity)
+        public static string NoBackingFieldLazyLoading([CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
-                GetString("NoBackingFieldLazyLoading", nameof(property), nameof(entity)),
-                property, entity);
+                GetString("NoBackingFieldLazyLoading", nameof(entityType), nameof(property)),
+                entityType, property);
 
         /// <summary>
         ///     The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because there is no corresponding CLR property on the underlying type and navigations properties cannot be added in shadow state.
@@ -1726,28 +1726,28 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("NoEfServices");
 
         /// <summary>
-        ///     No backing field could be found for property '{property}' of entity type '{entity}' and the property does not have a getter.
+        ///     No backing field could be found for property '{entityType}.{property}' and the property does not have a getter.
         /// </summary>
-        public static string NoFieldOrGetter([CanBeNull] object property, [CanBeNull] object entity)
+        public static string NoFieldOrGetter([CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
-                GetString("NoFieldOrGetter", nameof(property), nameof(entity)),
-                property, entity);
+                GetString("NoFieldOrGetter", nameof(entityType), nameof(property)),
+                entityType, property);
 
         /// <summary>
-        ///     No backing field could be found for property '{property}' of entity type '{entity}' and the property does not have a setter.
+        ///     No backing field could be found for property '{entityType}.{property}' and the property does not have a setter.
         /// </summary>
-        public static string NoFieldOrSetter([CanBeNull] object property, [CanBeNull] object entity)
+        public static string NoFieldOrSetter([CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
-                GetString("NoFieldOrSetter", nameof(property), nameof(entity)),
-                property, entity);
+                GetString("NoFieldOrSetter", nameof(entityType), nameof(property)),
+                entityType, property);
 
         /// <summary>
-        ///     The property '{property}' of entity type '{entity}' does not have a getter. Either make the property readable or use a different '{pam}'.
+        ///     The property '{entityType}.{property}' does not have a getter. Either make the property readable or use a different '{pam}'.
         /// </summary>
-        public static string NoGetter([CanBeNull] object property, [CanBeNull] object entity, [CanBeNull] object pam)
+        public static string NoGetter([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object pam)
             => string.Format(
-                GetString("NoGetter", nameof(property), nameof(entity), nameof(pam)),
-                property, entity, pam);
+                GetString("NoGetter", nameof(entityType), nameof(property), nameof(pam)),
+                entityType, property, pam);
 
         /// <summary>
         ///     'InterceptionResult.Result' was called when 'InterceptionResult.HasResult' is false.
@@ -1788,12 +1788,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property, modelType, providerType);
 
         /// <summary>
-        ///     The navigation '{navigation}' on '{entityType}' must be configured using Fluent API with an explicit name for the target shared type entity type or excluded by calling 'EntityTypeBuilder.Ignore'.
+        ///     The navigation '{entityType}.{navigation}' must be configured using Fluent API with an explicit name for the target shared type entity type or excluded by calling 'EntityTypeBuilder.Ignore'.
         /// </summary>
-        public static string NonConfiguredNavigationToSharedType([CanBeNull] object navigation, [CanBeNull] object entityType)
+        public static string NonConfiguredNavigationToSharedType([CanBeNull] object entityType, [CanBeNull] object navigation)
             => string.Format(
-                GetString("NonConfiguredNavigationToSharedType", nameof(navigation), nameof(entityType)),
-                navigation, entityType);
+                GetString("NonConfiguredNavigationToSharedType", nameof(entityType), nameof(navigation)),
+                entityType, navigation);
 
         /// <summary>
         ///     The ownership by '{ownershipNavigation}' should use defining navigation '{definingNavigation}' for the owned type '{entityType}'
@@ -1812,20 +1812,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 contextType);
 
         /// <summary>
-        ///     Cannot add property '{property}' on entity type '{entity}' since there is no indexer on '{entity}' taking a single argument of type '{type}'.
+        ///     Cannot add property '{entityType}.{property}' since there is no indexer on '{entityType}' taking a single argument of type '{type}'.
         /// </summary>
-        public static string NonIndexerEntityType([CanBeNull] object property, [CanBeNull] object entity, [CanBeNull] object type)
+        public static string NonIndexerEntityType([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object type)
             => string.Format(
-                GetString("NonIndexerEntityType", nameof(property), nameof(entity), nameof(type)),
-                property, entity, type);
+                GetString("NonIndexerEntityType", nameof(entityType), nameof(property), nameof(type)),
+                entityType, property, type);
 
         /// <summary>
-        ///     The collection type being used for navigation property '{navigation}' on entity type '{entityType}' does not implement 'INotifyCollectionChanged'. Any entity type configured to use the '{changeTrackingStrategy}' change tracking strategy must use collections that implement 'INotifyCollectionChanged'. Consider using 'ObservableCollection&lt;T&gt;' for this.
+        ///     The collection type being used for navigation property '{entityType}.{navigation}' does not implement 'INotifyCollectionChanged'. Any entity type configured to use the '{changeTrackingStrategy}' change tracking strategy must use collections that implement 'INotifyCollectionChanged'. Consider using 'ObservableCollection&lt;T&gt;' for this.
         /// </summary>
-        public static string NonNotifyingCollection([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object changeTrackingStrategy)
+        public static string NonNotifyingCollection([CanBeNull] object entityType, [CanBeNull] object navigation, [CanBeNull] object changeTrackingStrategy)
             => string.Format(
-                GetString("NonNotifyingCollection", nameof(navigation), nameof(entityType), nameof(changeTrackingStrategy)),
-                navigation, entityType, changeTrackingStrategy);
+                GetString("NonNotifyingCollection", nameof(entityType), nameof(navigation), nameof(changeTrackingStrategy)),
+                entityType, navigation, changeTrackingStrategy);
 
         /// <summary>
         ///     The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{entityType}' is a shadow state entity type while '{baseEntityType}' is not.
@@ -1890,12 +1890,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 service);
 
         /// <summary>
-        ///     The property '{property}' of entity type '{entity}' does not have a setter. Either make the property writable or use a different '{pam}'.
+        ///     The property '{entityType}.{property}' does not have a setter. Either make the property writable or use a different '{pam}'.
         /// </summary>
-        public static string NoSetter([CanBeNull] object property, [CanBeNull] object entity, [CanBeNull] object pam)
+        public static string NoSetter([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object pam)
             => string.Format(
-                GetString("NoSetter", nameof(property), nameof(entity), nameof(pam)),
-                property, entity, pam);
+                GetString("NoSetter", nameof(entityType), nameof(property), nameof(pam)),
+                entityType, property, pam);
 
         /// <summary>
         ///     The database provider attempted to register an implementation of the '{service}' service. This is not a service defined by EF and as such must be registered as a provider-specific service using the 'TryAddProviderSpecificServices' method.
@@ -1920,12 +1920,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("NotQueryingEnumerable");
 
         /// <summary>
-        ///     The '{property}' on entity type '{entityType}' does not have a value set and no value generator is available for properties of type '{propertyType}'. Either set a value for the property before adding the entity or configure a value generator for properties of type '{propertyType}'.
+        ///     The '{entityType}.{property}' does not have a value set and no value generator is available for properties of type '{propertyType}'. Either set a value for the property before adding the entity or configure a value generator for properties of type '{propertyType}'.
         /// </summary>
-        public static string NoValueGenerator([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)
+        public static string NoValueGenerator([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object propertyType)
             => string.Format(
-                GetString("NoValueGenerator", nameof(property), nameof(entityType), nameof(propertyType)),
-                property, entityType, propertyType);
+                GetString("NoValueGenerator", nameof(entityType), nameof(property), nameof(propertyType)),
+                entityType, property, propertyType);
 
         /// <summary>
         ///     A key on entity type '{entityType}' cannot contain the property '{property}' because it is nullable/optional. All properties on which a key is declared must be marked as non-nullable/required.
@@ -1944,12 +1944,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 optionsExtension);
 
         /// <summary>
-        ///     The original value for property '{property}' of entity type '{entityType}' cannot be accessed because it is not being tracked. Original values are not recorded for most properties of entities when the 'ChangingAndChangedNotifications' strategy is used. To access all original values use a different change tracking strategy such as 'ChangingAndChangedNotificationsWithOriginalValues'.
+        ///     The original value for property '{entityType}.{property}' cannot be accessed because it is not being tracked. Original values are not recorded for most properties of entities when the 'ChangingAndChangedNotifications' strategy is used. To access all original values use a different change tracking strategy such as 'ChangingAndChangedNotificationsWithOriginalValues'.
         /// </summary>
-        public static string OriginalValueNotTracked([CanBeNull] object property, [CanBeNull] object entityType)
+        public static string OriginalValueNotTracked([CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
-                GetString("OriginalValueNotTracked", nameof(property), nameof(entityType)),
-                property, entityType);
+                GetString("OriginalValueNotTracked", nameof(entityType), nameof(property)),
+                entityType, property);
 
         /// <summary>
         ///     The owned entity type '{entityType}' cannot have a base type.
@@ -2028,15 +2028,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType);
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' is marked as null, but this cannot be saved because the property is marked as required.  Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
+        ///     The property '{entityType}.{property}' is marked as null, but this cannot be saved because the property is marked as required.  Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
         /// </summary>
-        public static string PropertyConceptualNull([CanBeNull] object property, [CanBeNull] object entityType)
+        public static string PropertyConceptualNull([CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
-                GetString("PropertyConceptualNull", nameof(property), nameof(entityType)),
-                property, entityType);
+                GetString("PropertyConceptualNull", nameof(entityType), nameof(property)),
+                entityType, property);
 
         /// <summary>
-        ///     The property '{property}'  is marked as null on entity '{entityType}' with the key value '{keyValue}', but this cannot be saved because the property is marked as required.
+        ///     The property '{property}' is marked as null on entity '{entityType}' with the key value '{keyValue}', but this cannot be saved because the property is marked as required.
         /// </summary>
         public static string PropertyConceptualNullSensitive([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object keyValue)
             => string.Format(
@@ -2076,12 +2076,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, key);
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' is being accessed using the '{PropertyMethod}' method, but is defined in the model as a navigation property. Use either the '{ReferenceMethod}' or '{CollectionMethod}' method to access navigation properties.
+        ///     The property '{entityType}.{property}' is being accessed using the '{PropertyMethod}' method, but is defined in the model as a navigation property. Use either the '{ReferenceMethod}' or '{CollectionMethod}' method to access navigation properties.
         /// </summary>
-        public static string PropertyIsNavigation([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object PropertyMethod, [CanBeNull] object ReferenceMethod, [CanBeNull] object CollectionMethod)
+        public static string PropertyIsNavigation([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object PropertyMethod, [CanBeNull] object ReferenceMethod, [CanBeNull] object CollectionMethod)
             => string.Format(
-                GetString("PropertyIsNavigation", nameof(property), nameof(entityType), nameof(PropertyMethod), nameof(ReferenceMethod), nameof(CollectionMethod)),
-                property, entityType, PropertyMethod, ReferenceMethod, CollectionMethod);
+                GetString("PropertyIsNavigation", nameof(entityType), nameof(property), nameof(PropertyMethod), nameof(ReferenceMethod), nameof(CollectionMethod)),
+                entityType, property, PropertyMethod, ReferenceMethod, CollectionMethod);
 
         /// <summary>
         ///     The EF.Property&lt;T&gt; method may only be used within LINQ queries.
@@ -2098,12 +2098,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property, propertyType);
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' could not be found. Ensure that the property exists and has been included in the model.
+        ///     The property '{entityType}.{property}' could not be found. Ensure that the property exists and has been included in the model.
         /// </summary>
-        public static string PropertyNotFound([CanBeNull] object property, [CanBeNull] object entityType)
+        public static string PropertyNotFound([CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
-                GetString("PropertyNotFound", nameof(property), nameof(entityType)),
-                property, entityType);
+                GetString("PropertyNotFound", nameof(entityType), nameof(property)),
+                entityType, property);
 
         /// <summary>
         ///     The property '{entityType}.{property}' is of type '{propertyType}' which is not supported by current database provider. Either change the property CLR type or ignore the property using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
@@ -2114,20 +2114,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property, propertyType);
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' is defined to be read-only after it has been saved, but its value has been modified or marked as modified.
+        ///     The property '{entityType}.{property}' is defined to be read-only after it has been saved, but its value has been modified or marked as modified.
         /// </summary>
-        public static string PropertyReadOnlyAfterSave([CanBeNull] object property, [CanBeNull] object entityType)
+        public static string PropertyReadOnlyAfterSave([CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
-                GetString("PropertyReadOnlyAfterSave", nameof(property), nameof(entityType)),
-                property, entityType);
+                GetString("PropertyReadOnlyAfterSave", nameof(entityType), nameof(property)),
+                entityType, property);
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' is defined to be read-only before it is saved, but its value has been set to something other than a temporary or default value.
+        ///     The property '{entityType}.{property}' is defined to be read-only before it is saved, but its value has been set to something other than a temporary or default value.
         /// </summary>
-        public static string PropertyReadOnlyBeforeSave([CanBeNull] object property, [CanBeNull] object entityType)
+        public static string PropertyReadOnlyBeforeSave([CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
-                GetString("PropertyReadOnlyBeforeSave", nameof(property), nameof(entityType)),
-                property, entityType);
+                GetString("PropertyReadOnlyBeforeSave", nameof(entityType), nameof(property)),
+                entityType, property);
 
         /// <summary>
         ///     The property '{property}' cannot be added to type '{entityType}' because the type of the corresponding CLR property or field '{clrType}' does not match the specified type '{propertyType}'.
@@ -2250,20 +2250,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 referencingEntityTypeOrNavigation, referencedEntityTypeOrNavigation, foreignKeyPropertiesWithTypes, primaryKeyPropertiesWithTypes);
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' is being accessed using the '{ReferenceMethod}' method, but is defined in the model as a collection navigation property. Use the '{CollectionMethod}' method to access collection navigation properties.
+        ///     The property '{entityType}.{property}' is being accessed using the '{ReferenceMethod}' method, but is defined in the model as a collection navigation property. Use the '{CollectionMethod}' method to access collection navigation properties.
         /// </summary>
-        public static string ReferenceIsCollection([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object ReferenceMethod, [CanBeNull] object CollectionMethod)
+        public static string ReferenceIsCollection([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object ReferenceMethod, [CanBeNull] object CollectionMethod)
             => string.Format(
-                GetString("ReferenceIsCollection", nameof(property), nameof(entityType), nameof(ReferenceMethod), nameof(CollectionMethod)),
-                property, entityType, ReferenceMethod, CollectionMethod);
+                GetString("ReferenceIsCollection", nameof(entityType), nameof(property), nameof(ReferenceMethod), nameof(CollectionMethod)),
+                entityType, property, ReferenceMethod, CollectionMethod);
 
         /// <summary>
-        ///     Navigation property '{navigation}' on entity type '{entityType}' cannot have 'IsLoaded' set to false because the referenced entity is non-null and therefore is loaded.
+        ///     Navigation property '{entityType}.{navigation}' cannot have 'IsLoaded' set to false because the referenced entity is non-null and therefore is loaded.
         /// </summary>
-        public static string ReferenceMustBeLoaded([CanBeNull] object navigation, [CanBeNull] object entityType)
+        public static string ReferenceMustBeLoaded([CanBeNull] object entityType, [CanBeNull] object navigation)
             => string.Format(
-                GetString("ReferenceMustBeLoaded", nameof(navigation), nameof(entityType)),
-                navigation, entityType);
+                GetString("ReferenceMustBeLoaded", nameof(entityType), nameof(navigation)),
+                entityType, navigation);
 
         /// <summary>
         ///     The principal and dependent ends of the relationship cannot be flipped once foreign key or principal key properties have been specified.
@@ -2396,12 +2396,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property);
 
         /// <summary>
-        ///     A relationship cannot be established from property '{property}' on type '{entityType}' to property '{referencedProperty}' on type '{referencedEntityType}'. Check the values in the InversePropertyAttribute to ensure relationship definitions are unique and reference from one navigation property to its corresponding inverse navigation property.
+        ///     A relationship cannot be established from property '{entityType}.{property}' to property '{referencedEntityType}.{referencedProperty}'. Check the values in the InversePropertyAttribute to ensure relationship definitions are unique and reference from one navigation property to its corresponding inverse navigation property.
         /// </summary>
-        public static string SelfReferencingNavigationWithInverseProperty([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object referencedProperty, [CanBeNull] object referencedEntityType)
+        public static string SelfReferencingNavigationWithInverseProperty([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object referencedEntityType, [CanBeNull] object referencedProperty)
             => string.Format(
-                GetString("SelfReferencingNavigationWithInverseProperty", nameof(property), nameof(entityType), nameof(referencedProperty), nameof(referencedEntityType)),
-                property, entityType, referencedProperty, referencedEntityType);
+                GetString("SelfReferencingNavigationWithInverseProperty", nameof(entityType), nameof(property), nameof(referencedEntityType), nameof(referencedProperty)),
+                entityType, property, referencedEntityType, referencedProperty);
 
         /// <summary>
         ///     Sequence contains more than one element.
@@ -2494,20 +2494,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 inverse, inverseJoinType, navigation, joinType);
 
         /// <summary>
-        ///     The foreign key {foreignKey} cannot be used for the skip navigation property '{navigation}' on the entity type '{entityType}' because it is expected to be on the dependent entity type '{dependentEntityType}'.
+        ///     The foreign key {foreignKey} cannot be used for the skip navigation property '{entityType}.{navigation}' because it is expected to be on the dependent entity type '{dependentEntityType}'.
         /// </summary>
-        public static string SkipNavigationForeignKeyWrongDependentType([CanBeNull] object foreignKey, [CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object dependentEntityType)
+        public static string SkipNavigationForeignKeyWrongDependentType([CanBeNull] object foreignKey, [CanBeNull] object entityType, [CanBeNull] object navigation, [CanBeNull] object dependentEntityType)
             => string.Format(
-                GetString("SkipNavigationForeignKeyWrongDependentType", nameof(foreignKey), nameof(navigation), nameof(entityType), nameof(dependentEntityType)),
-                foreignKey, navigation, entityType, dependentEntityType);
+                GetString("SkipNavigationForeignKeyWrongDependentType", nameof(foreignKey), nameof(entityType), nameof(navigation), nameof(dependentEntityType)),
+                foreignKey, entityType, navigation, dependentEntityType);
 
         /// <summary>
-        ///     The foreign key {foreignKey} cannot be used for the skip navigation property '{navigation}' on the entity type '{entityType}' because it is expected to be on the principal entity type '{principalEntityType}'.
+        ///     The foreign key {foreignKey} cannot be used for the skip navigation property '{entityType}.{navigation}' because it is expected to be on the principal entity type '{principalEntityType}'.
         /// </summary>
-        public static string SkipNavigationForeignKeyWrongPrincipalType([CanBeNull] object foreignKey, [CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object principalEntityType)
+        public static string SkipNavigationForeignKeyWrongPrincipalType([CanBeNull] object foreignKey, [CanBeNull] object entityType, [CanBeNull] object navigation, [CanBeNull] object principalEntityType)
             => string.Format(
-                GetString("SkipNavigationForeignKeyWrongPrincipalType", nameof(foreignKey), nameof(navigation), nameof(entityType), nameof(principalEntityType)),
-                foreignKey, navigation, entityType, principalEntityType);
+                GetString("SkipNavigationForeignKeyWrongPrincipalType", nameof(foreignKey), nameof(entityType), nameof(navigation), nameof(principalEntityType)),
+                foreignKey, entityType, navigation, principalEntityType);
 
         /// <summary>
         ///     The skip navigation '{skipNavigation}' cannot be removed because it is set as the inverse of the skip navigation '{inverseSkipNavigation}' on '{referencingEntityType}'. All referencing skip navigations must be removed before this skip navigation can be removed.
@@ -2518,28 +2518,28 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 skipNavigation, inverseSkipNavigation, referencingEntityType);
 
         /// <summary>
-        ///     The skip navigation '{navigation}' on entity type '{entityType}' doesn't have a foreign key associated with it. Every skip navigation should have a configured foreign key.
+        ///     The skip navigation '{entityType}.{navigation}' doesn't have a foreign key associated with it. Every skip navigation should have a configured foreign key.
         /// </summary>
-        public static string SkipNavigationNoForeignKey([CanBeNull] object navigation, [CanBeNull] object entityType)
+        public static string SkipNavigationNoForeignKey([CanBeNull] object entityType, [CanBeNull] object navigation)
             => string.Format(
-                GetString("SkipNavigationNoForeignKey", nameof(navigation), nameof(entityType)),
-                navigation, entityType);
+                GetString("SkipNavigationNoForeignKey", nameof(entityType), nameof(navigation)),
+                entityType, navigation);
 
         /// <summary>
-        ///     The skip navigation '{navigation}' on entity type '{entityType}' doesn't have an inverse configured. Every skip navigation should have an inverse skip navigation.
+        ///     The skip navigation '{entityType}.{navigation}' doesn't have an inverse configured. Every skip navigation should have an inverse skip navigation.
         /// </summary>
-        public static string SkipNavigationNoInverse([CanBeNull] object navigation, [CanBeNull] object entityType)
+        public static string SkipNavigationNoInverse([CanBeNull] object entityType, [CanBeNull] object navigation)
             => string.Format(
-                GetString("SkipNavigationNoInverse", nameof(navigation), nameof(entityType)),
-                navigation, entityType);
+                GetString("SkipNavigationNoInverse", nameof(entityType), nameof(navigation)),
+                entityType, navigation);
 
         /// <summary>
-        ///     The skip navigation '{navigation}' on entity type '{entityType}' is not a collection. Only collection skip navigation properties are currently supported.
+        ///     The skip navigation '{entityType}.{navigation}' is not a collection. Only collection skip navigation properties are currently supported.
         /// </summary>
-        public static string SkipNavigationNonCollection([CanBeNull] object navigation, [CanBeNull] object entityType)
+        public static string SkipNavigationNonCollection([CanBeNull] object entityType, [CanBeNull] object navigation)
             => string.Format(
-                GetString("SkipNavigationNonCollection", nameof(navigation), nameof(entityType)),
-                navigation, entityType);
+                GetString("SkipNavigationNonCollection", nameof(entityType), nameof(navigation)),
+                entityType, navigation);
 
         /// <summary>
         ///     The skip navigation '{inverse}' declared on the entity type '{inverseEntityType}' cannot be set as the inverse of '{navigation}' that targets '{targetEntityType}'. The inverse should be declared on the target entity type.
@@ -2558,28 +2558,28 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigation, entityType, otherEntityType);
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' cannot be assigned a value generated by the database. Store-generated values can only be assigned to properties configured to use store-generated values.
+        ///     The property '{entityType}.{property}' cannot be assigned a value generated by the database. Store-generated values can only be assigned to properties configured to use store-generated values.
         /// </summary>
-        public static string StoreGenValue([CanBeNull] object property, [CanBeNull] object entityType)
+        public static string StoreGenValue([CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
-                GetString("StoreGenValue", nameof(property), nameof(entityType)),
-                property, entityType);
+                GetString("StoreGenValue", nameof(entityType), nameof(property)),
+                entityType, property);
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' cannot be assigned a temporary value. Temporary values can only be assigned to properties configured to use store-generated values.
+        ///     The property '{entityType}.{property}' cannot be assigned a temporary value. Temporary values can only be assigned to properties configured to use store-generated values.
         /// </summary>
-        public static string TempValue([CanBeNull] object property, [CanBeNull] object entityType)
+        public static string TempValue([CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
-                GetString("TempValue", nameof(property), nameof(entityType)),
-                property, entityType);
+                GetString("TempValue", nameof(entityType), nameof(property)),
+                entityType, property);
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' has a temporary value while attempting to change the entity's state to '{state}'. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.
+        ///     The property '{entityType}.{property}' has a temporary value while attempting to change the entity's state to '{state}'. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.
         /// </summary>
-        public static string TempValuePersists([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object state)
+        public static string TempValuePersists([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object state)
             => string.Format(
-                GetString("TempValuePersists", nameof(property), nameof(entityType), nameof(state)),
-                property, entityType, state);
+                GetString("TempValuePersists", nameof(entityType), nameof(property), nameof(state)),
+                entityType, property, state);
 
         /// <summary>
         ///     The instance of entity type '{runtimeEntityType}' cannot be tracked as the entity type '{entityType}' because they are not in the same hierarchy.
@@ -2628,12 +2628,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, discriminator);
 
         /// <summary>
-        ///     Unable to set IsUnique to '{isUnique}' on the relationship underlying the navigation property '{navigationName}' on the entity type '{entityType}' because the navigation property has the opposite multiplicity.
+        ///     Unable to set IsUnique to '{isUnique}' on the relationship underlying the navigation property '{entityType}.{navigationName}' because the navigation property has the opposite multiplicity.
         /// </summary>
-        public static string UnableToSetIsUnique([CanBeNull] object isUnique, [CanBeNull] object navigationName, [CanBeNull] object entityType)
+        public static string UnableToSetIsUnique([CanBeNull] object isUnique, [CanBeNull] object entityType, [CanBeNull] object navigationName)
             => string.Format(
-                GetString("UnableToSetIsUnique", nameof(isUnique), nameof(navigationName), nameof(entityType)),
-                isUnique, navigationName, entityType);
+                GetString("UnableToSetIsUnique", nameof(isUnique), nameof(entityType), nameof(navigationName)),
+                isUnique, entityType, navigationName);
 
         /// <summary>
         ///     Unhandled expression node type '{nodeType}'.
@@ -2700,12 +2700,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, referenceCall, collectionCall);
 
         /// <summary>
-        ///     The value for property '{property}' of entity type '{entityType}' cannot be set to null because its type is '{propertyType}' which is not a nullable type.
+        ///     The value for property '{entityType}.{property}' cannot be set to null because its type is '{propertyType}' which is not a nullable type.
         /// </summary>
-        public static string ValueCannotBeNull([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)
+        public static string ValueCannotBeNull([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object propertyType)
             => string.Format(
-                GetString("ValueCannotBeNull", nameof(property), nameof(entityType), nameof(propertyType)),
-                property, entityType, propertyType);
+                GetString("ValueCannotBeNull", nameof(entityType), nameof(property), nameof(propertyType)),
+                entityType, property, propertyType);
 
         /// <summary>
         ///     Value generation is not supported for property '{entityType}.{property}' because it has a '{converter}' converter configured. Configure the property to not use value generation using 'ValueGenerated.Never' or 'DatabaseGeneratedOption.None' and specify explicit values instead.
@@ -2748,12 +2748,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     Property '{property}' on entity type '{entityType}' is of type '{actualType}' but the generic type provided is of type '{genericType}'.
+        ///     Property '{entityType}.{property}' is of type '{actualType}' but the generic type provided is of type '{genericType}'.
         /// </summary>
-        public static string WrongGenericPropertyType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object actualType, [CanBeNull] object genericType)
+        public static string WrongGenericPropertyType([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object actualType, [CanBeNull] object genericType)
             => string.Format(
-                GetString("WrongGenericPropertyType", nameof(property), nameof(entityType), nameof(actualType), nameof(genericType)),
-                property, entityType, actualType, genericType);
+                GetString("WrongGenericPropertyType", nameof(entityType), nameof(property), nameof(actualType), nameof(genericType)),
+                entityType, property, actualType, genericType);
 
         /// <summary>
         ///     Cannot start tracking InternalEntityEntry for entity type '{entityType}' because it was created by a different StateManager instance.
@@ -2958,7 +2958,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+        ///     The property '{entityType}.{property}' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
         /// </summary>
         public static EventDefinition<string, string> LogCollectionWithoutComparer([NotNull] IDiagnosticsLogger logger)
         {
@@ -3438,7 +3438,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     An attempt was made to lazy-load navigation property '{navigation}' on entity type '{entityType}' after the associated DbContext was disposed.
+        ///     An attempt was made to lazy-load navigation property '{entityType}.{navigation}' after the associated DbContext was disposed.
         /// </summary>
         public static EventDefinition<string, string> LogLazyLoadOnDisposedContext([NotNull] IDiagnosticsLogger logger)
         {
@@ -3582,7 +3582,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Navigation property '{navigation}' of entity type '{entityType}' is being lazy-loaded.
+        ///     Navigation property '{entityType}.{navigation}' is being lazy-loaded.
         /// </summary>
         public static EventDefinition<string, string> LogNavigationLazyLoading([NotNull] IDiagnosticsLogger logger)
         {
@@ -4308,7 +4308,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' was created in shadow state because there are no eligible CLR members with a matching name.
+        ///     The property '{entityType}.{property}' was created in shadow state because there are no eligible CLR members with a matching name.
         /// </summary>
         public static EventDefinition<string, string> LogShadowPropertyCreated([NotNull] IDiagnosticsLogger logger)
         {
@@ -4476,7 +4476,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     '{contextType}' generated a temporary value for the '{property}' property of new '{entityType}' entity. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
+        ///     '{contextType}' generated a temporary value for the property '{entityType}.{property}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
         /// </summary>
         public static EventDefinition<string, string, string> LogTempValueGenerated([NotNull] IDiagnosticsLogger logger)
         {
@@ -4500,7 +4500,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     '{contextType}' generated temporary value '{keyValue}' for the '{property}' property of new '{entityType}' entity.
+        ///     '{contextType}' generated temporary value '{keyValue}' for the property '{entityType}.{property}'.
         /// </summary>
         public static EventDefinition<string, object, string, string> LogTempValueGeneratedSensitive([NotNull] IDiagnosticsLogger logger)
         {
@@ -4524,7 +4524,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     '{contextType}' generated a value for the '{property}' property of new '{entityType}' entity. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
+        ///     '{contextType}' generated a value for the property '{entityType}.{property}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
         /// </summary>
         public static EventDefinition<string, string, string> LogValueGenerated([NotNull] IDiagnosticsLogger logger)
         {
@@ -4548,7 +4548,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     '{contextType}' generated value '{keyValue}' for the '{property}' property of new '{entityType}' entity.
+        ///     '{contextType}' generated value '{keyValue}' for the property '{entityType}.{property}'.
         /// </summary>
         public static EventDefinition<string, object, string, string> LogValueGeneratedSensitive([NotNull] IDiagnosticsLogger logger)
         {

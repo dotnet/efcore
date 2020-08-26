@@ -768,23 +768,23 @@ namespace Microsoft.EntityFrameworkCore
             var clonedBuildingValues = buildingValues.Clone();
 
             Assert.Equal(
-                CoreStrings.PropertyNotFound("Foo", nameof(Building)),
+                CoreStrings.PropertyNotFound(nameof(Building), "Foo"),
                 Assert.Throws<InvalidOperationException>(() => buildingValues["Foo"]).Message);
 
             Assert.Equal(
-                CoreStrings.PropertyNotFound("Foo", nameof(Building)),
+                CoreStrings.PropertyNotFound(nameof(Building), "Foo"),
                 Assert.Throws<InvalidOperationException>(() => clonedBuildingValues["Foo"]).Message);
 
             Assert.Equal(
-                CoreStrings.PropertyNotFound("Foo", nameof(Building)),
+                CoreStrings.PropertyNotFound(nameof(Building), "Foo"),
                 Assert.Throws<InvalidOperationException>(() => buildingValues["Foo"] = "foo").Message);
 
             Assert.Equal(
-                CoreStrings.PropertyNotFound("Foo", nameof(Building)),
+                CoreStrings.PropertyNotFound(nameof(Building), "Foo"),
                 Assert.Throws<InvalidOperationException>(() => clonedBuildingValues["Foo"] = "foo").Message);
 
             Assert.Equal(
-                CoreStrings.PropertyNotFound("Foo", nameof(Building)),
+                CoreStrings.PropertyNotFound(nameof(Building), "Foo"),
                 Assert.Throws<InvalidOperationException>(() => clonedBuildingValues.GetValue<string>("Foo")).Message);
         }
 
@@ -832,43 +832,43 @@ namespace Microsoft.EntityFrameworkCore
             var clonedValues = values.Clone();
 
             Assert.Equal(
-                CoreStrings.PropertyNotFound("Shadow4", nameof(CurrentEmployee)),
+                CoreStrings.PropertyNotFound(nameof(CurrentEmployee), "Shadow4"),
                 Assert.Throws<InvalidOperationException>(() => values["Shadow4"]).Message);
 
             Assert.Equal(
-                CoreStrings.PropertyNotFound("Shadow4", nameof(CurrentEmployee)),
+                CoreStrings.PropertyNotFound(nameof(CurrentEmployee), "Shadow4"),
                 Assert.Throws<InvalidOperationException>(() => clonedValues["Shadow4"]).Message);
 
             Assert.Equal(
-                CoreStrings.PropertyNotFound("Shadow4", nameof(CurrentEmployee)),
+                CoreStrings.PropertyNotFound(nameof(CurrentEmployee), "Shadow4"),
                 Assert.Throws<InvalidOperationException>(() => values["Shadow4"] = "foo").Message);
 
             Assert.Equal(
-                CoreStrings.PropertyNotFound("Shadow4", nameof(CurrentEmployee)),
+                CoreStrings.PropertyNotFound(nameof(CurrentEmployee), "Shadow4"),
                 Assert.Throws<InvalidOperationException>(() => clonedValues["Shadow4"] = "foo").Message);
 
             Assert.Equal(
-                CoreStrings.PropertyNotFound("TerminationDate", nameof(CurrentEmployee)),
+                CoreStrings.PropertyNotFound(nameof(CurrentEmployee), "TerminationDate"),
                 Assert.Throws<InvalidOperationException>(() => values["TerminationDate"]).Message);
 
             Assert.Equal(
-                CoreStrings.PropertyNotFound("TerminationDate", nameof(CurrentEmployee)),
+                CoreStrings.PropertyNotFound(nameof(CurrentEmployee), "TerminationDate"),
                 Assert.Throws<InvalidOperationException>(() => clonedValues["TerminationDate"]).Message);
 
             Assert.Equal(
-                CoreStrings.PropertyNotFound("TerminationDate", nameof(CurrentEmployee)),
+                CoreStrings.PropertyNotFound(nameof(CurrentEmployee), "TerminationDate"),
                 Assert.Throws<InvalidOperationException>(() => values["TerminationDate"] = "foo").Message);
 
             Assert.Equal(
-                CoreStrings.PropertyNotFound("TerminationDate", nameof(CurrentEmployee)),
+                CoreStrings.PropertyNotFound(nameof(CurrentEmployee), "TerminationDate"),
                 Assert.Throws<InvalidOperationException>(() => clonedValues["TerminationDate"] = "foo").Message);
 
             Assert.Equal(
-                CoreStrings.PropertyNotFound("Shadow4", nameof(CurrentEmployee)),
+                CoreStrings.PropertyNotFound(nameof(CurrentEmployee), "Shadow4"),
                 Assert.Throws<InvalidOperationException>(() => clonedValues.GetValue<string>("Shadow4")).Message);
 
             Assert.Equal(
-                CoreStrings.PropertyNotFound("TerminationDate", nameof(CurrentEmployee)),
+                CoreStrings.PropertyNotFound(nameof(CurrentEmployee), "TerminationDate"),
                 Assert.Throws<InvalidOperationException>(() => clonedValues.GetValue<string>("TerminationDate")).Message);
         }
 
@@ -1619,7 +1619,7 @@ namespace Microsoft.EntityFrameworkCore
             var values = getPropertyValues(context.Entry(building));
 
             Assert.Equal(
-                CoreStrings.KeyReadOnly(nameof(Building.BuildingId), nameof(Building)),
+                CoreStrings.KeyReadOnly(nameof(Building), nameof(Building.BuildingId)),
                 Assert.Throws<InvalidOperationException>(() => values["BuildingId"] = new Guid()).Message);
         }
 
@@ -1698,7 +1698,7 @@ namespace Microsoft.EntityFrameworkCore
             var values = context.Entry(building).OriginalValues;
 
             Assert.Equal(
-                CoreStrings.ValueCannotBeNull(nameof(Building.Value), nameof(Building), "decimal"),
+                CoreStrings.ValueCannotBeNull(nameof(Building), nameof(Building.Value), "decimal"),
                 Assert.Throws<InvalidOperationException>(() => values["Value"] = null).Message);
 
             Assert.Equal(1500000m, values["Value"]);
@@ -1712,7 +1712,7 @@ namespace Microsoft.EntityFrameworkCore
             var values = context.Entry(building).OriginalValues;
 
             Assert.Equal(
-                CoreStrings.ValueCannotBeNull("Shadow1", nameof(Building), "int"),
+                CoreStrings.ValueCannotBeNull(nameof(Building), "Shadow1", "int"),
                 Assert.Throws<InvalidOperationException>(() => values["Shadow1"] = null).Message);
 
             Assert.Equal(11, values["Shadow1"]);
@@ -1726,7 +1726,7 @@ namespace Microsoft.EntityFrameworkCore
             var values = context.Entry(building).CurrentValues.Clone();
 
             Assert.Equal(
-                CoreStrings.ValueCannotBeNull(nameof(Building.Value), nameof(Building), "decimal"),
+                CoreStrings.ValueCannotBeNull(nameof(Building), nameof(Building.Value), "decimal"),
                 Assert.Throws<InvalidOperationException>(() => values["Value"] = null).Message);
         }
 
@@ -1785,7 +1785,7 @@ namespace Microsoft.EntityFrameworkCore
             var values = context.Entry(building).CurrentValues.Clone();
 
             Assert.Equal(
-                CoreStrings.InvalidType(nameof(Building.Name), nameof(Building), "int", "string"),
+                CoreStrings.InvalidType(nameof(Building), nameof(Building.Name), "int", "string"),
                 Assert.Throws<InvalidCastException>(() => values["Name"] = 1).Message);
 
             Assert.Equal("Building One", values["Name"]);
@@ -1814,7 +1814,7 @@ namespace Microsoft.EntityFrameworkCore
             newBuilding.BuildingId = new Guid();
 
             Assert.Equal(
-                CoreStrings.KeyReadOnly(nameof(Building.BuildingId), nameof(Building)),
+                CoreStrings.KeyReadOnly(nameof(Building), nameof(Building.BuildingId)),
                 Assert.Throws<InvalidOperationException>(() => values.SetValues(newBuilding)).Message);
         }
 
@@ -1840,7 +1840,7 @@ namespace Microsoft.EntityFrameworkCore
             clone["BuildingId"] = new Guid();
 
             Assert.Equal(
-                CoreStrings.KeyReadOnly(nameof(Building.BuildingId), nameof(Building)),
+                CoreStrings.KeyReadOnly(nameof(Building), nameof(Building.BuildingId)),
                 Assert.Throws<InvalidOperationException>(() => values.SetValues(clone)).Message);
         }
 

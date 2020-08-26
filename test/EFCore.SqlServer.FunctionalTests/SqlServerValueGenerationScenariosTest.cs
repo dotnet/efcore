@@ -875,7 +875,7 @@ END");
             // The property 'Id' on entity type 'Blog' is defined to be read-only before it is
             // saved, but its value has been set to something other than a temporary or default value.
             Assert.Equal(
-                CoreStrings.PropertyReadOnlyBeforeSave("Id", "Blog"),
+                CoreStrings.PropertyReadOnlyBeforeSave("Blog", "Id"),
                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
         }
 
@@ -912,7 +912,7 @@ END");
             // The property 'CreatedOn' on entity type 'Blog' is defined to be read-only before it is
             // saved, but its value has been set to something other than a temporary or default value.
             Assert.Equal(
-                CoreStrings.PropertyReadOnlyBeforeSave("CreatedOn", "Blog"),
+                CoreStrings.PropertyReadOnlyBeforeSave("Blog", "CreatedOn"),
                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
         }
 
@@ -934,7 +934,7 @@ END");
             // The property 'FullName' on entity type 'FullNameBlog' is defined to be read-only before it is
             // saved, but its value has been set to something other than a temporary or default value.
             Assert.Equal(
-                CoreStrings.PropertyReadOnlyBeforeSave("FullName", "FullNameBlog"),
+                CoreStrings.PropertyReadOnlyBeforeSave("FullNameBlog", "FullName"),
                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
         }
 
@@ -961,7 +961,7 @@ END");
                 // The property 'FullName' on entity type 'FullNameBlog' is defined to be read-only after it has been saved,
                 // but its value has been modified or marked as modified.
                 Assert.Equal(
-                    CoreStrings.PropertyReadOnlyAfterSave("FullName", "FullNameBlog"),
+                    CoreStrings.PropertyReadOnlyAfterSave("FullNameBlog", "FullName"),
                     Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
             }
         }

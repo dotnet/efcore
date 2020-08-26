@@ -895,8 +895,8 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
 
                 Assert.Equal(
                     CoreStrings.NavigationCannotCreateType(
-                        "Orders4", typeof(Customer3758).Name,
-                        typeof(MyInvalidCollection3758<Order3758>).ShortDisplayName()),
+                        typeof(Customer3758).Name,
+                        "Orders4", typeof(MyInvalidCollection3758<Order3758>).ShortDisplayName()),
                     Assert.Throws<InvalidOperationException>(() => query4.ToList()).Message);
             }
         }

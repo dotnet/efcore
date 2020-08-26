@@ -272,10 +272,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 // Relationship is joined by InversePropertyAttribute
                 throw new InvalidOperationException(
                     CoreStrings.InvalidRelationshipUsingDataAnnotations(
-                        dependentToPrincipalNavigationName,
                         foreignKey.DeclaringEntityType.DisplayName(),
-                        principalToDependentNavigationName,
-                        foreignKey.PrincipalEntityType.DisplayName()));
+                        dependentToPrincipalNavigationName,
+                        foreignKey.PrincipalEntityType.DisplayName(), principalToDependentNavigationName));
             }
 
             relationshipBuilder = relationshipBuilder.HasNavigation(
@@ -352,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 if (candidateProperty != null)
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.CompositeFkOnProperty(navigationName, entityType.DisplayName()));
+                        CoreStrings.CompositeFkOnProperty(entityType.DisplayName(), navigationName));
                 }
 
                 candidateProperty = memberInfo;
@@ -400,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 if (properties.Any(string.IsNullOrWhiteSpace))
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.InvalidPropertyListOnNavigation(navigation.Name, navigation.DeclaringEntityType.DisplayName()));
+                        CoreStrings.InvalidPropertyListOnNavigation(navigation.DeclaringEntityType.DisplayName(), navigation.Name));
                 }
 
                 var navigationPropertyTargetType =

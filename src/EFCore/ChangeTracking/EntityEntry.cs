@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
 
             throw new InvalidOperationException(
-                CoreStrings.PropertyNotFound(propertyName, InternalEntry.EntityType.DisplayName()));
+                CoreStrings.PropertyNotFound(InternalEntry.EntityType.DisplayName(), propertyName));
         }
 
         /// <summary>
@@ -190,12 +190,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 throw new InvalidOperationException(
                     CoreStrings.NavigationIsProperty(
-                        propertyName, InternalEntry.EntityType.DisplayName(),
-                        nameof(Reference), nameof(Collection), nameof(Property)));
+                        InternalEntry.EntityType.DisplayName(),
+                        propertyName, nameof(Reference), nameof(Collection), nameof(Property)));
             }
 
             throw new InvalidOperationException(
-                CoreStrings.PropertyNotFound(propertyName, InternalEntry.EntityType.DisplayName()));
+                CoreStrings.PropertyNotFound(InternalEntry.EntityType.DisplayName(), propertyName));
         }
 
         /// <summary>

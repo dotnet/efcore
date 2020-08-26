@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 ?.GetOrCreate(entry.Entity, forMaterialization: false) is INotifyCollectionChanged notifyingCollection))
             {
                 throw new InvalidOperationException(
-                    CoreStrings.NonNotifyingCollection(navigation.Name, entityType.DisplayName(), changeTrackingStrategy));
+                    CoreStrings.NonNotifyingCollection(entityType.DisplayName(), navigation.Name, changeTrackingStrategy));
             }
 
             return notifyingCollection;

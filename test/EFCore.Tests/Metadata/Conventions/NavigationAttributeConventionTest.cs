@@ -430,8 +430,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<SelfReferencingEntity>();
 
             Assert.Equal(
-                CoreStrings.SelfReferencingNavigationWithInverseProperty(
-                    "AnotherEntity", nameof(SelfReferencingEntity), "AnotherEntity", nameof(SelfReferencingEntity)),
+                CoreStrings.SelfReferencingNavigationWithInverseProperty(nameof(SelfReferencingEntity), "AnotherEntity", nameof(SelfReferencingEntity), "AnotherEntity"),
                 Assert.Throws<InvalidOperationException>(
                     () => RunEntityTypeConventions(entityTypeBuilder)).Message);
         }
@@ -442,8 +441,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<NonExistentNavigation>();
 
             Assert.Equal(
-                CoreStrings.InvalidNavigationWithInverseProperty(
-                    "Principal", nameof(NonExistentNavigation), "WrongNavigation", nameof(Principal)),
+                CoreStrings.InvalidNavigationWithInverseProperty(nameof(NonExistentNavigation), "WrongNavigation", "Principal", nameof(Principal)),
                 Assert.Throws<InvalidOperationException>(
                     () => RunEntityTypeConventions(entityTypeBuilder)).Message);
         }
@@ -454,7 +452,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<WrongNavigationType>();
 
             Assert.Equal(
-                CoreStrings.InvalidNavigationWithInverseProperty("Principal", nameof(WrongNavigationType), "Dependent", nameof(Principal)),
+                CoreStrings.InvalidNavigationWithInverseProperty(nameof(WrongNavigationType), "Dependent", "Principal", nameof(Principal)),
                 Assert.Throws<InvalidOperationException>(
                     () => RunEntityTypeConventions(entityTypeBuilder)).Message);
         }
@@ -465,8 +463,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<MismatchedInverseProperty>();
 
             Assert.Equal(
-                CoreStrings.InversePropertyMismatch(
-                    "Principal", nameof(MismatchedInverseProperty), "MismatchedInverseProperty", nameof(Principal)),
+                CoreStrings.InversePropertyMismatch(nameof(MismatchedInverseProperty), "Principal", nameof(Principal), "MismatchedInverseProperty"),
                 Assert.Throws<InvalidOperationException>(
                     () => RunEntityTypeConventions(entityTypeBuilder)).Message);
         }
@@ -798,7 +795,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var navigation = relationshipBuilder.Metadata.DependentToPrincipal;
             Assert.Equal(
-                CoreStrings.CompositeFkOnProperty("Principal", nameof(CompositeFkOnProperty)),
+                CoreStrings.CompositeFkOnProperty(nameof(CompositeFkOnProperty), "Principal"),
                 Assert.Throws<InvalidOperationException>(
                     () => useNavigation
                         ? RunForeignKeyAttributeConvention(relationshipBuilder, navigation)
@@ -823,7 +820,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var navigation = relationshipBuilder.Metadata.DependentToPrincipal;
             Assert.Equal(
-                CoreStrings.InvalidPropertyListOnNavigation("Principal", nameof(InvalidPropertyListOnNavigation)),
+                CoreStrings.InvalidPropertyListOnNavigation(nameof(InvalidPropertyListOnNavigation), "Principal"),
                 Assert.Throws<InvalidOperationException>(
                     () => useNavigation
                         ? RunForeignKeyAttributeConvention(relationshipBuilder, navigation)

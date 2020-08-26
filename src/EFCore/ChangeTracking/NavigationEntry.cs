@@ -61,12 +61,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 {
                     throw new InvalidOperationException(
                         CoreStrings.NavigationIsProperty(
-                            name, internalEntry.EntityType.DisplayName(),
-                            nameof(ChangeTracking.EntityEntry.Reference), nameof(ChangeTracking.EntityEntry.Collection),
-                            nameof(ChangeTracking.EntityEntry.Property)));
+                            internalEntry.EntityType.DisplayName(),
+                            name, nameof(ChangeTracking.EntityEntry.Reference),
+                            nameof(ChangeTracking.EntityEntry.Collection), nameof(ChangeTracking.EntityEntry.Property)));
                 }
 
-                throw new InvalidOperationException(CoreStrings.PropertyNotFound(name, internalEntry.EntityType.DisplayName()));
+                throw new InvalidOperationException(CoreStrings.PropertyNotFound(internalEntry.EntityType.DisplayName(), name));
             }
 
             if (collection
@@ -74,8 +74,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 throw new InvalidOperationException(
                     CoreStrings.CollectionIsReference(
-                        name, internalEntry.EntityType.DisplayName(),
-                        nameof(ChangeTracking.EntityEntry.Collection), nameof(ChangeTracking.EntityEntry.Reference)));
+                        internalEntry.EntityType.DisplayName(),
+                        name, nameof(ChangeTracking.EntityEntry.Collection), nameof(ChangeTracking.EntityEntry.Reference)));
             }
 
             if (!collection
@@ -83,8 +83,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 throw new InvalidOperationException(
                     CoreStrings.ReferenceIsCollection(
-                        name, internalEntry.EntityType.DisplayName(),
-                        nameof(ChangeTracking.EntityEntry.Reference), nameof(ChangeTracking.EntityEntry.Collection)));
+                        internalEntry.EntityType.DisplayName(),
+                        name, nameof(ChangeTracking.EntityEntry.Reference), nameof(ChangeTracking.EntityEntry.Collection)));
             }
 
             return navigation;

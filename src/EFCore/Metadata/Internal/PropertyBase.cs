@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && shouldThrow)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.MissingBackingField(fieldName, propertyName, type.DisplayName()));
+                    CoreStrings.MissingBackingField(fieldName, type.DisplayName(), propertyName));
             }
 
             return fieldInfo;
@@ -254,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (shouldThrow)
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.MissingBackingField(fieldInfo.Name, propertyName, entityType?.ShortDisplayName()));
+                        CoreStrings.MissingBackingField(fieldInfo.Name, entityType?.ShortDisplayName(), propertyName));
                 }
 
                 return false;

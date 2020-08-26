@@ -148,7 +148,7 @@ OFFSET 0 LIMIT 1";
                 customerFromStore.PartitionKey = 2;
 
                 Assert.Equal(
-                    CoreStrings.KeyReadOnly(nameof(Customer.PartitionKey), nameof(Customer)),
+                    CoreStrings.KeyReadOnly(nameof(Customer), nameof(Customer.PartitionKey)),
                     Assert.Throws<InvalidOperationException>(() => innerContext.SaveChanges()).Message);
             }
 

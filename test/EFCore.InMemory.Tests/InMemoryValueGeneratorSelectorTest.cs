@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore
             var selector = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
             Assert.Equal(
-                CoreStrings.NoValueGenerator("Float", "AnEntity", "float"),
+                CoreStrings.NoValueGenerator("AnEntity", "Float", "float"),
                 Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("Float"), entityType)).Message);
         }
 

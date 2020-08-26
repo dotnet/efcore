@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
 
             throw new ArgumentException(
                 CoreStrings.InvalidValueGeneratorFactoryProperty(
-                    nameof(SqlServerSequenceValueGeneratorFactory), property.Name, property.DeclaringEntityType.DisplayName()));
+                    nameof(SqlServerSequenceValueGeneratorFactory), property.DeclaringEntityType.DisplayName(), property.Name));
         }
     }
 }

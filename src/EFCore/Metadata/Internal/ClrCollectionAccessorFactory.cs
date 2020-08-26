@@ -72,19 +72,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 throw new InvalidOperationException(
                     CoreStrings.NavigationBadType(
-                        navigation.Name,
                         navigation.DeclaringType.DisplayName(),
-                        propertyType.ShortDisplayName(),
-                        targetType.DisplayName()));
+                        navigation.Name,
+                        propertyType.ShortDisplayName(), targetType.DisplayName()));
             }
 
             if (propertyType.IsArray)
             {
                 throw new InvalidOperationException(
                     CoreStrings.NavigationArray(
-                        navigation.Name,
                         navigation.DeclaringType.DisplayName(),
-                        propertyType.ShortDisplayName()));
+                        navigation.Name, propertyType.ShortDisplayName()));
             }
 
             var boundMethod = _genericCreate.MakeGenericMethod(

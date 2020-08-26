@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
                     propertyEntry.CurrentValue = nameof(OptionalSingle1MoreDerived);
 
                     Assert.Equal(
-                        CoreStrings.PropertyReadOnlyAfterSave("Discriminator", nameof(OptionalSingle1Derived)),
+                        CoreStrings.PropertyReadOnlyAfterSave(nameof(OptionalSingle1Derived), "Discriminator"),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 });
         }

@@ -4078,7 +4078,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<ReferenceNavigationToSharedType>();
 
                 Assert.Equal(
-                    CoreStrings.NonConfiguredNavigationToSharedType("Navigation", nameof(ReferenceNavigationToSharedType)),
+                    CoreStrings.NonConfiguredNavigationToSharedType(nameof(ReferenceNavigationToSharedType), "Navigation"),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
         }

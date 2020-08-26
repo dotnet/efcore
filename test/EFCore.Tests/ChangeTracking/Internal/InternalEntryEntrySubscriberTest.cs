@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             ((FullNotificationEntity)entry.Entity).RelatedCollection = new List<ChangedOnlyNotificationEntity>();
 
             Assert.Equal(
-                CoreStrings.NonNotifyingCollection("RelatedCollection", "FullNotificationEntity", changeTrackingStrategy),
+                CoreStrings.NonNotifyingCollection("FullNotificationEntity", "RelatedCollection", changeTrackingStrategy),
                 Assert.Throws<InvalidOperationException>(
                     () => entry.SetEntityState(EntityState.Unchanged)).Message);
         }

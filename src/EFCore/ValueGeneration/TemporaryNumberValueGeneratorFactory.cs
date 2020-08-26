@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
             throw new ArgumentException(
                 CoreStrings.InvalidValueGeneratorFactoryProperty(
-                    nameof(TemporaryNumberValueGeneratorFactory), property.Name, property.DeclaringEntityType.DisplayName()));
+                    nameof(TemporaryNumberValueGeneratorFactory), property.DeclaringEntityType.DisplayName(), property.Name));
         }
     }
 }

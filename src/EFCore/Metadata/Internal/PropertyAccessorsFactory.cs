@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             Expression.Throw(
                                 Expression.Constant(
                                     new InvalidOperationException(
-                                        CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringEntityType.DisplayName())))),
+                                        CoreStrings.OriginalValueNotTracked(property.DeclaringEntityType.DisplayName(), property.Name)))),
 #pragma warning disable IDE0034 // Simplify 'default' expression - default infer to default(object) instead of default(TProperty)
                             Expression.Constant(default(TProperty), typeof(TProperty))),
 #pragma warning restore IDE0034 // Simplify 'default' expression

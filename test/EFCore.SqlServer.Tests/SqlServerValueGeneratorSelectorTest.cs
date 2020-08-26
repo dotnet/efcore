@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore
             var selector = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
             Assert.Equal(
-                CoreStrings.NoValueGenerator("Random", "AnEntity", "Something"),
+                CoreStrings.NoValueGenerator("AnEntity", "Random", "Something"),
                 Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("Random"), entityType)).Message);
         }
 

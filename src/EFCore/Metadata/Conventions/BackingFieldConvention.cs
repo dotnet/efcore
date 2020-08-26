@@ -225,8 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         {
                             propertyBase.SetOrRemoveAnnotation(
                                 CoreAnnotationNames.AmbiguousField,
-                                CoreStrings.ConflictingBackingFields(
-                                    propertyName, entityClrType.ShortDisplayName(), existingMatch.Name, newMatch.Name));
+                                CoreStrings.ConflictingBackingFields(entityClrType.ShortDisplayName(), propertyName, existingMatch.Name, newMatch.Name));
                             return null;
                         }
 

@@ -1928,7 +1928,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (entityState != EntityState.Added)
             {
                 Assert.Equal(
-                    CoreStrings.KeyReadOnly("ParentId", dependentEntry1.Metadata.DisplayName()),
+                    CoreStrings.KeyReadOnly(dependentEntry1.Metadata.DisplayName(), "ParentId"),
                     Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
             }
             else
@@ -2007,7 +2007,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (entityState != EntityState.Added)
             {
                 Assert.Equal(
-                    CoreStrings.KeyReadOnly("ParentId", dependentEntry1.Metadata.DisplayName()),
+                    CoreStrings.KeyReadOnly(dependentEntry1.Metadata.DisplayName(), "ParentId"),
                     Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
             }
             else
@@ -2117,7 +2117,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (entityState != EntityState.Added)
             {
                 Assert.Equal(
-                    CoreStrings.KeyReadOnly("ParentId", dependentEntry1.Metadata.DisplayName()),
+                    CoreStrings.KeyReadOnly(dependentEntry1.Metadata.DisplayName(), "ParentId"),
                     Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
             }
             else
@@ -2227,7 +2227,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (entityState != EntityState.Added)
             {
                 Assert.Equal(
-                    CoreStrings.KeyReadOnly("ParentId", dependentEntry1.Metadata.DisplayName()),
+                    CoreStrings.KeyReadOnly(dependentEntry1.Metadata.DisplayName(), "ParentId"),
                     Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
             }
             else
@@ -2315,9 +2315,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (entityState != EntityState.Added)
             {
                 Assert.Equal(
-                    CoreStrings.KeyReadOnly(
-                        "ParentId",
-                        "ParentPN.Child1#ChildPN"),
+                    CoreStrings.KeyReadOnly("ParentPN.Child1#ChildPN", "ParentId"),
                     Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
             }
             else
@@ -2411,9 +2409,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (entityState != EntityState.Added)
             {
                 Assert.Equal(
-                    CoreStrings.KeyReadOnly(
-                        "ParentId",
-                        "Parent.Child1#Child"),
+                    CoreStrings.KeyReadOnly("Parent.Child1#Child", "ParentId"),
                     Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
             }
             else
@@ -2545,9 +2541,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (entityState != EntityState.Added)
             {
                 Assert.Equal(
-                    CoreStrings.KeyReadOnly(
-                        "ParentId",
-                        "ParentPN.ChildCollection1#ChildPN"),
+                    CoreStrings.KeyReadOnly("ParentPN.ChildCollection1#ChildPN", "ParentId"),
                     Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
             }
             else
@@ -2677,9 +2671,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (entityState != EntityState.Added)
             {
                 Assert.Equal(
-                    CoreStrings.KeyReadOnly(
-                        "ParentId",
-                        "Parent.ChildCollection1#Child"),
+                    CoreStrings.KeyReadOnly("Parent.ChildCollection1#Child", "ParentId"),
                     Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
             }
             else

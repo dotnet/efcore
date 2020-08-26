@@ -60,8 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             && key.GetConfigurationSource() == ConfigurationSource.Explicit)
                         {
                             throw new InvalidOperationException(
-                                CoreStrings.KeyPropertyCannotBeNullable(
-                                    Metadata.Name, Metadata.DeclaringEntityType.DisplayName(), key.Properties.Format()));
+                                CoreStrings.KeyPropertyCannotBeNullable(Metadata.DeclaringEntityType.DisplayName(), Metadata.Name, key.Properties.Format()));
                         }
 
                         var removed = key.DeclaringEntityType.Builder.HasNoKey(key, configurationSource);

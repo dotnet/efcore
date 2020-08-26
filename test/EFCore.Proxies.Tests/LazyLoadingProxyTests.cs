@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using var context = new LazyContext<LazyHiddenFieldEntity>();
             Assert.Equal(
-                CoreStrings.NoBackingFieldLazyLoading(nameof(LazyHiddenFieldEntity.SelfRef), nameof(LazyHiddenFieldEntity)),
+                CoreStrings.NoBackingFieldLazyLoading(nameof(LazyHiddenFieldEntity), nameof(LazyHiddenFieldEntity.SelfRef)),
                 Assert.Throws<InvalidOperationException>(
                     () => context.Model).Message);
         }
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore
                 CoreStrings.WarningAsErrorTemplate(
                     CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
                     CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
-                        .GenerateMessage("Texts", "PhoneProxy"),
+                        .GenerateMessage("PhoneProxy", "Texts"),
                     "CoreEventId.LazyLoadOnDisposedContextWarning"),
                 Assert.Throws<InvalidOperationException>(
                     () => phone.Texts).Message);

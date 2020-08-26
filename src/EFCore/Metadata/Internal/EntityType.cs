@@ -794,7 +794,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (property.ValueGenerated != ValueGenerated.Never
                     && property.GetContainingForeignKeys().Any(k => k.DeclaringEntityType != this))
                 {
-                    throw new InvalidOperationException(CoreStrings.KeyPropertyInForeignKey(property.Name, this.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.KeyPropertyInForeignKey(this.DisplayName(), property.Name));
                 }
 
                 if (property.IsNullable)
@@ -1468,10 +1468,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     throw new InvalidOperationException(
                         CoreStrings.NavigationForWrongForeignKey(
-                            duplicateNavigation.Name,
                             duplicateNavigation.DeclaringEntityType.DisplayName(),
-                            foreignKey.Properties.Format(),
-                            duplicateNavigation.ForeignKey.Properties.Format()));
+                            duplicateNavigation.Name,
+                            foreignKey.Properties.Format(), duplicateNavigation.ForeignKey.Properties.Format()));
                 }
 
                 throw new InvalidOperationException(

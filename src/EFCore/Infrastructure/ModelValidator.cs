@@ -115,22 +115,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     if (!skipNavigation.IsCollection)
                     {
                         throw new InvalidOperationException(
-                            CoreStrings.SkipNavigationNonCollection(
-                                skipNavigation.Name, skipNavigation.DeclaringEntityType.DisplayName()));
+                            CoreStrings.SkipNavigationNonCollection(skipNavigation.DeclaringEntityType.DisplayName(), skipNavigation.Name));
                     }
 
                     if (skipNavigation.ForeignKey == null)
                     {
                         throw new InvalidOperationException(
-                            CoreStrings.SkipNavigationNoForeignKey(
-                                skipNavigation.Name, skipNavigation.DeclaringEntityType.DisplayName()));
+                            CoreStrings.SkipNavigationNoForeignKey(skipNavigation.DeclaringEntityType.DisplayName(), skipNavigation.Name));
                     }
 
                     if (skipNavigation.Inverse == null)
                     {
                         throw new InvalidOperationException(
-                            CoreStrings.SkipNavigationNoInverse(
-                                skipNavigation.Name, skipNavigation.DeclaringEntityType.DisplayName()));
+                            CoreStrings.SkipNavigationNoInverse(skipNavigation.DeclaringEntityType.DisplayName(), skipNavigation.Name));
                     }
                 }
             }
@@ -214,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         || (targetSequenceType != null && model.IsShared(targetSequenceType)))
                     {
                         throw new InvalidOperationException(
-                            CoreStrings.NonConfiguredNavigationToSharedType(actualProperty.Name, entityType.DisplayName()));
+                            CoreStrings.NonConfiguredNavigationToSharedType(entityType.DisplayName(), actualProperty.Name));
                     }
 
                     var targetType = FindCandidateNavigationPropertyType(actualProperty);

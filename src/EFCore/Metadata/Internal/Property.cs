@@ -155,12 +155,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (!ClrType.IsNullableType())
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.CannotBeNullable(Name, DeclaringEntityType.DisplayName(), ClrType.ShortDisplayName()));
+                        CoreStrings.CannotBeNullable(DeclaringEntityType.DisplayName(), Name, ClrType.ShortDisplayName()));
                 }
 
                 if (Keys != null)
                 {
-                    throw new InvalidOperationException(CoreStrings.CannotBeNullablePK(Name, DeclaringEntityType.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.CannotBeNullablePK(DeclaringEntityType.DisplayName(), Name));
                 }
             }
 
@@ -398,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual string CheckAfterSaveBehavior(PropertySaveBehavior behavior)
             => behavior != PropertySaveBehavior.Throw
                 && this.IsKey()
-                    ? CoreStrings.KeyPropertyMustBeReadOnly(Name, DeclaringEntityType.DisplayName())
+                    ? CoreStrings.KeyPropertyMustBeReadOnly(DeclaringEntityType.DisplayName(), Name)
                     : null;
 
         /// <summary>

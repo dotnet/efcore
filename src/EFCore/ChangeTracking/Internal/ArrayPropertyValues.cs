@@ -172,10 +172,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     throw new InvalidCastException(
                         CoreStrings.InvalidType(
-                            property.Name,
                             property.DeclaringEntityType.DisplayName(),
-                            value.GetType().DisplayName(),
-                            property.ClrType.DisplayName()));
+                            property.Name,
+                            value.GetType().DisplayName(), property.ClrType.DisplayName()));
                 }
             }
             else
@@ -184,9 +183,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     throw new InvalidOperationException(
                         CoreStrings.ValueCannotBeNull(
-                            property.Name,
                             property.DeclaringEntityType.DisplayName(),
-                            property.ClrType.DisplayName()));
+                            property.Name, property.ClrType.DisplayName()));
                 }
             }
 

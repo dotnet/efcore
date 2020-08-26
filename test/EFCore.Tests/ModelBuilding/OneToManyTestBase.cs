@@ -2537,7 +2537,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .WithMany(e => e.Dependents);
 
                 Assert.Equal(
-                    CoreStrings.CanOnlyConfigureExistingNavigations("Name", "NavDependent"),
+                    CoreStrings.CanOnlyConfigureExistingNavigations("NavDependent", "Name"),
                     Assert.Throws<InvalidOperationException>(
                         () => modelBuilder.Entity<NavDependent>()
                             .Navigation(e => e.Name)
@@ -2553,7 +2553,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<CollectionNavigationToSharedType>();
 
                 Assert.Equal(
-                    CoreStrings.NonConfiguredNavigationToSharedType("Navigation", nameof(CollectionNavigationToSharedType)),
+                    CoreStrings.NonConfiguredNavigationToSharedType(nameof(CollectionNavigationToSharedType), "Navigation"),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
         }

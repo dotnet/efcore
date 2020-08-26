@@ -389,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(builder.IsRequired(false, ConfigurationSource.DataAnnotation));
 
             Assert.Equal(
-                CoreStrings.CannotBeNullable(nameof(Customer.Id), typeof(Customer).Name, "int"),
+                CoreStrings.CannotBeNullable(typeof(Customer).Name, nameof(Customer.Id), "int"),
                 Assert.Throws<InvalidOperationException>(() => builder.IsRequired(false, ConfigurationSource.Explicit)).Message);
         }
 

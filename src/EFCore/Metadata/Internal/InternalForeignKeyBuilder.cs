@@ -1266,8 +1266,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new InvalidOperationException(
                     CoreStrings.UnableToSetIsUnique(
                         unique.Value,
-                        Metadata.PrincipalToDependent.PropertyInfo.Name,
-                        Metadata.PrincipalEntityType.DisplayName()));
+                        Metadata.PrincipalEntityType.DisplayName(), Metadata.PrincipalToDependent.PropertyInfo.Name));
             }
 
             using var batch = Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions();

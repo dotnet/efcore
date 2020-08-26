@@ -376,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             entry.SetEntityState(EntityState.Added);
 
             Assert.Equal(
-                CoreStrings.TempValue(nameof(FakeEntity.Value), nameof(FakeEntity)),
+                CoreStrings.TempValue(nameof(FakeEntity), nameof(FakeEntity.Value)),
                 Assert.Throws<InvalidOperationException>(
                     () => entry.SetTemporaryValue(entry.EntityType.FindProperty(nameof(FakeEntity.Value)), "Test")).Message);
         }

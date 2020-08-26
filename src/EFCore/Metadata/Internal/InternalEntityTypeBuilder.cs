@@ -482,7 +482,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (indexerPropertyInfo == null)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.NonIndexerEntityType(propertyName, Metadata.DisplayName(), typeof(string).ShortDisplayName()));
+                    CoreStrings.NonIndexerEntityType(Metadata.DisplayName(), propertyName, typeof(string).ShortDisplayName()));
             }
 
             return Property(propertyType, propertyName, indexerPropertyInfo, configurationSource, configurationSource);
@@ -825,7 +825,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && existingSkipNavigation == null)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.CanOnlyConfigureExistingNavigations(navigationName, Metadata.DisplayName()));
+                    CoreStrings.CanOnlyConfigureExistingNavigations(Metadata.DisplayName(), navigationName));
             }
 
             return ((IMutableNavigationBase)existingNavigation) ?? existingSkipNavigation;

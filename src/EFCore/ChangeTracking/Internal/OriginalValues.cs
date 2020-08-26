@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 if (index == -1)
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringEntityType.DisplayName()));
+                        CoreStrings.OriginalValueNotTracked(property.DeclaringEntityType.DisplayName(), property.Name));
                 }
 
                 return IsEmpty ? entry[property] : _values[index];
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 if (index == -1)
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringEntityType.DisplayName()));
+                        CoreStrings.OriginalValueNotTracked(property.DeclaringEntityType.DisplayName(), property.Name));
                 }
 
                 return IsEmpty ? entry.GetCurrentValue<T>(property) : _values.GetValue<T>(index);
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     if (index == -1)
                     {
                         throw new InvalidOperationException(
-                            CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringEntityType.DisplayName()));
+                            CoreStrings.OriginalValueNotTracked(property.DeclaringEntityType.DisplayName(), property.Name));
                     }
                 }
 
@@ -62,8 +62,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     && !property.ClrType.IsNullableType())
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.ValueCannotBeNull(
-                            property.Name, property.DeclaringEntityType.DisplayName(), property.ClrType.DisplayName()));
+                        CoreStrings.ValueCannotBeNull(property.DeclaringEntityType.DisplayName(), property.Name, property.ClrType.DisplayName()));
                 }
 
                 _values[index] = SnapshotValue(property, value);

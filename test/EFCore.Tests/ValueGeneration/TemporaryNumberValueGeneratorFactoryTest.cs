@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             var property = _model.FindEntityType(typeof(AnEntity)).FindProperty("BadCheese");
 
             Assert.Equal(
-                CoreStrings.InvalidValueGeneratorFactoryProperty(nameof(TemporaryNumberValueGeneratorFactory), "BadCheese", "AnEntity"),
+                CoreStrings.InvalidValueGeneratorFactoryProperty(nameof(TemporaryNumberValueGeneratorFactory), "AnEntity", "BadCheese"),
                 Assert.Throws<ArgumentException>(() => new TemporaryNumberValueGeneratorFactory().Create(property)).Message);
         }
 
