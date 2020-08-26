@@ -3037,6 +3037,52 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
+        [ConditionalFact]
+        public void Can_insert_update_delete_proxyable_shared_type_entity_type()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var entity = context.Set<ProxyableSharedType>("PST").CreateInstance(
+                        c =>
+                        {
+                            c["Id"] = 1;
+                            c["Payload"] = "NewlyAdded";
+                        });
+
+                    context.Set<ProxyableSharedType>("PST").Add(entity);
+
+                    context.SaveChanges();
+                },
+                context =>
+                {
+                    var entity = context.Set<ProxyableSharedType>("PST").Single(e => (int)e["Id"] == 1);
+
+                    Assert.Equal("NewlyAdded", (string)entity["Payload"]);
+
+                    entity["Payload"] = "AlreadyUpdated";
+
+                    if (RequiresDetectChanges)
+                    {
+                        context.ChangeTracker.DetectChanges();
+                    }
+
+                    context.SaveChanges();
+                },
+                context =>
+                {
+                    var entity = context.Set<ProxyableSharedType>("PST").Single(e => (int)e["Id"] == 1);
+
+                    Assert.Equal("AlreadyUpdated", (string)entity["Payload"]);
+
+                    context.Set<ProxyableSharedType>("PST").Remove(entity);
+
+                    context.SaveChanges();
+
+                    Assert.False(context.Set<ProxyableSharedType>("PST").Any(e => (int)e["Id"] == 1));
+                });
+        }
+
         protected ManyToManyTrackingTestBase(TFixture fixture)
             => Fixture = fixture;
 

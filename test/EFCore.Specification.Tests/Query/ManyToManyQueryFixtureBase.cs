@@ -320,6 +320,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                         e.CompositeId3,
                         e.LeafId
                     });
+
+            modelBuilder.SharedTypeEntity<ProxyableSharedType>(
+                "PST", b =>
+                {
+                    b.IndexerProperty<int?>("Id").ValueGeneratedNever(); // This is nullable due to #22009
+                    b.IndexerProperty<string>("Payload");
+                });
         }
 
         protected override void Seed(ManyToManyContext context)
