@@ -1280,6 +1280,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Check.NotNull(extensionExpression, nameof(extensionExpression));
 
                 return extensionExpression is EntityShaperExpression
+                    || extensionExpression is ShapedQueryExpression
                     ? extensionExpression
                     : base.VisitExtension(extensionExpression);
             }
