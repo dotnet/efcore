@@ -4586,6 +4586,22 @@ ORDER BY [p].[Id]");
             }
         }
 
+        [ConditionalFact(Skip = "Issue #22256")]
+        public virtual void Projecting_column_with_value_converter_of_ulong_byte_array()
+        {
+            using (CreateDatabase12518())
+            {
+                using var context = new MyContext12518(_options);
+                var result = context.Parents.OrderBy(e => e.Id).Select(p => (ulong?)p.Child.ULongRowVersion).FirstOrDefault();
+
+                AssertSql(
+                    @"SELECT TOP(1) [p].[Id], [p].[ChildId], [c].[Id], [c].[ParentId], [c].[ULongRowVersion]
+FROM [Parents] AS [p]
+LEFT JOIN [Children] AS [c] ON [p].[ChildId] = [c].[Id]
+ORDER BY [p].[Id]");
+            }
+        }
+
         private SqlServerTestStore CreateDatabase12518()
         {
             return CreateTestStore(
