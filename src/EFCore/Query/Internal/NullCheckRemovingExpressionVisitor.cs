@@ -24,6 +24,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        {
+            var visitedExpression = base.VisitBinary(binaryExpression);
+
+            return TryOptimizeConditionalEquality(visitedExpression) ?? visitedExpression;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
         {
             Check.NotNull(conditionalExpression, nameof(conditionalExpression));
@@ -58,6 +71,46 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             return base.VisitConditional(conditionalExpression);
+        }
+
+        private Expression TryOptimizeConditionalEquality(Expression expression)
+        {
+            // Simplify (a ? b : null) == null => !a || b == null
+            // Simplify (a ? null : b) == null => a || b == null
+            if (expression is BinaryExpression binaryExpression
+                && binaryExpression.NodeType == ExpressionType.Equal
+                && (binaryExpression.Left is ConditionalExpression
+                    || binaryExpression.Right is ConditionalExpression))
+            {
+                Expression comparedExpression;
+                if (binaryExpression.Left is ConditionalExpression conditionalExpression)
+                {
+                    comparedExpression = binaryExpression.Right;
+                }
+                else
+                {
+                    conditionalExpression = binaryExpression.Right as ConditionalExpression;
+                    comparedExpression = binaryExpression.Left;
+                }
+
+                if (conditionalExpression.IfFalse.IsNullConstantExpression()
+                    && comparedExpression.IsNullConstantExpression())
+                {
+                    return Expression.OrElse(
+                        Expression.Not(conditionalExpression.Test),
+                        Expression.Equal(conditionalExpression.IfTrue, comparedExpression));
+                }
+
+                if (conditionalExpression.IfTrue.IsNullConstantExpression()
+                    && comparedExpression.IsNullConstantExpression())
+                {
+                    return Expression.OrElse(
+                        conditionalExpression.Test,
+                        Expression.Equal(conditionalExpression.IfFalse, comparedExpression));
+                }
+            }
+
+            return null;
         }
 
         private sealed class NullSafeAccessVerifyingExpressionVisitor : ExpressionVisitor

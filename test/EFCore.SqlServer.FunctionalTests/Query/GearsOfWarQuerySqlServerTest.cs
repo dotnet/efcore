@@ -1119,6 +1119,38 @@ FROM [Gears] AS [g]
 ORDER BY [g].[Nickname]");
         }
 
+        public override async Task Where_conditional_equality_1(bool async)
+        {
+            await base.Where_conditional_equality_1(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname]
+FROM [Gears] AS [g]
+WHERE [g].[LeaderNickname] IS NULL
+ORDER BY [g].[Nickname]");
+        }
+
+        public override async Task Where_conditional_equality_2(bool async)
+        {
+            await base.Where_conditional_equality_2(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname]
+FROM [Gears] AS [g]
+WHERE [g].[LeaderNickname] IS NULL
+ORDER BY [g].[Nickname]");
+        }
+
+        public override async Task Where_conditional_equality_3(bool async)
+        {
+            await base.Where_conditional_equality_3(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname]
+FROM [Gears] AS [g]
+ORDER BY [g].[Nickname]");
+        }
+
         public override async Task Select_coalesce_with_anonymous_types(bool async)
         {
             await base.Select_coalesce_with_anonymous_types(async);

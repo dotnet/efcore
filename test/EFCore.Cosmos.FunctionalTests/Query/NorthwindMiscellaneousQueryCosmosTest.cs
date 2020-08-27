@@ -4178,6 +4178,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"
             return base.DefaultIfEmpty_Sum_over_collection_navigation(async);
         }
 
+        [ConditionalTheory(Skip = "Non embedded collection subquery Issue#17246")]
+        public override Task Entity_equality_on_subquery_with_null_check(bool async)
+        {
+            return base.Entity_equality_on_subquery_with_null_check(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

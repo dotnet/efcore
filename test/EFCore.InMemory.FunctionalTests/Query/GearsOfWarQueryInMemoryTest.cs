@@ -28,10 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             => base.Where_coalesce_with_anonymous_types(async);
 
         [ConditionalTheory(Skip = "issue #17386")]
-        public override Task Where_conditional_with_anonymous_type(bool async)
-            => base.Where_conditional_with_anonymous_type(async);
-
-        [ConditionalTheory(Skip = "issue #17386")]
         public override Task GetValueOrDefault_on_DateTimeOffset(bool async)
             => base.GetValueOrDefault_on_DateTimeOffset(async);
 

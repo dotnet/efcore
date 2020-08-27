@@ -1190,19 +1190,50 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Where_conditional_with_anonymous_type(bool async)
+        public virtual Task Where_conditional_equality_1(bool async)
         {
-            return AssertTranslationFailed(
-                () => AssertQuery(
-                    async,
-                    ss => from g in ss.Set<Gear>()
-                          orderby g.Nickname
-                          where (g.LeaderNickname != null
-                                  ? new { g.HasSoulPatch }
-                                  : null)
-                              == null
-                          select g.Nickname,
-                    assertOrder: true));
+            return AssertQuery(
+                async,
+                ss => from g in ss.Set<Gear>()
+                        orderby g.Nickname
+                        where (g.LeaderNickname != null
+                                ? g.HasSoulPatch
+                                : null)
+                            == null
+                        select g.Nickname,
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_conditional_equality_2(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from g in ss.Set<Gear>()
+                      orderby g.Nickname
+                      where (g.LeaderNickname == null
+                              ? null
+                              : g.HasSoulPatch)
+                          == null
+                      select g.Nickname,
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_conditional_equality_3(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from g in ss.Set<Gear>()
+                      orderby g.Nickname
+                      where (g.LeaderNickname != null
+                              ? (int?)null
+                              : null)
+                          == null
+                      select g.Nickname,
+                assertOrder: true);
         }
 
         [ConditionalTheory]
