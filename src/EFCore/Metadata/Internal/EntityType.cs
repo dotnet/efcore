@@ -3069,7 +3069,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (changeTrackingStrategy != null)
             {
-                var errorMessage = CheckChangeTrackingStrategy(changeTrackingStrategy.Value);
+                var requireFullNotifications = (string)Model[CoreAnnotationNames.SkipChangeTrackingStrategyValidationAnnotation] == "true";
+                var errorMessage = CheckChangeTrackingStrategy(changeTrackingStrategy.Value, requireFullNotifications);
                 if (errorMessage != null)
                 {
                     throw new InvalidOperationException(errorMessage);
@@ -3087,21 +3088,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string CheckChangeTrackingStrategy(ChangeTrackingStrategy value)
+        public virtual string CheckChangeTrackingStrategy(ChangeTrackingStrategy value, bool requireFullNotifications)
         {
             if (ClrType != null)
             {
-                if (value != ChangeTrackingStrategy.Snapshot
-                    && !typeof(INotifyPropertyChanged).IsAssignableFrom(ClrType))
+                if (requireFullNotifications)
                 {
-                    return CoreStrings.ChangeTrackingInterfaceMissing(this.DisplayName(), value, nameof(INotifyPropertyChanged));
+                    if (value != ChangeTrackingStrategy.ChangingAndChangedNotifications
+                        && value != ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
+                    {
+                        return CoreStrings.FullChangeTrackingRequired(
+                            this.DisplayName(), value, nameof(ChangeTrackingStrategy.ChangingAndChangedNotifications),
+                            nameof(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues));
+                    }
                 }
-
-                if ((value == ChangeTrackingStrategy.ChangingAndChangedNotifications
-                        || value == ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
-                    && !typeof(INotifyPropertyChanging).IsAssignableFrom(ClrType))
+                else
                 {
-                    return CoreStrings.ChangeTrackingInterfaceMissing(this.DisplayName(), value, nameof(INotifyPropertyChanging));
+                    if (value != ChangeTrackingStrategy.Snapshot
+                        && !typeof(INotifyPropertyChanged).IsAssignableFrom(ClrType))
+                    {
+                        return CoreStrings.ChangeTrackingInterfaceMissing(this.DisplayName(), value, nameof(INotifyPropertyChanged));
+                    }
+
+                    if ((value == ChangeTrackingStrategy.ChangingAndChangedNotifications
+                            || value == ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
+                        && !typeof(INotifyPropertyChanging).IsAssignableFrom(ClrType))
+                    {
+                        return CoreStrings.ChangeTrackingInterfaceMissing(this.DisplayName(), value, nameof(INotifyPropertyChanging));
+                    }
                 }
             }
 

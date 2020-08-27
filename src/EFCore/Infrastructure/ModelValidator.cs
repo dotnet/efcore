@@ -687,15 +687,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotNull(model, nameof(model));
 
-            if ((string)model[CoreAnnotationNames.SkipChangeTrackingStrategyValidationAnnotation] != "true")
+            var requireFullNotifications = (string)model[CoreAnnotationNames.SkipChangeTrackingStrategyValidationAnnotation] == "true";
+            foreach (var entityType in model.GetEntityTypes())
             {
-                foreach (var entityType in model.GetEntityTypes())
+                var errorMessage = entityType.AsEntityType().CheckChangeTrackingStrategy(
+                    entityType.GetChangeTrackingStrategy(), requireFullNotifications);
+
+                if (errorMessage != null)
                 {
-                    var errorMessage = entityType.AsEntityType().CheckChangeTrackingStrategy(entityType.GetChangeTrackingStrategy());
-                    if (errorMessage != null)
-                    {
-                        throw new InvalidOperationException(errorMessage);
-                    }
+                    throw new InvalidOperationException(errorMessage);
                 }
             }
         }
