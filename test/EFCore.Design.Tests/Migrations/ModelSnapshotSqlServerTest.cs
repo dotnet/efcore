@@ -2294,6 +2294,46 @@ namespace RootNamespace
         }
 
         [ConditionalFact]
+        public virtual void Property_ValueGenerated_non_identity()
+        {
+            Test(
+                modelBuilder => modelBuilder.Entity<EntityWithEnumType>(
+                    x =>
+                    {
+                        x.Property(e => e.Id).Metadata.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.None);
+                        x.Property(e => e.Day).ValueGeneratedOnAdd();
+                    }),
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithEnumType"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"")
+                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.None);
+
+                    b.Property<long>(""Day"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""bigint"")
+                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.None);
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""EntityWithEnumType"");
+                });"),
+                model =>
+                {
+                    var id = model.GetEntityTypes().Single().GetProperty(nameof(EntityWithEnumType.Id));
+                    Assert.Equal(ValueGenerated.OnAdd, id.ValueGenerated);
+                    Assert.Equal(SqlServerValueGenerationStrategy.None, id.GetValueGenerationStrategy());
+                    var day = model.GetEntityTypes().Single().GetProperty(nameof(EntityWithEnumType.Day));
+                    Assert.Equal(ValueGenerated.OnAdd, day.ValueGenerated);
+                    Assert.Equal(SqlServerValueGenerationStrategy.None, day.GetValueGenerationStrategy());
+                });
+        }
+
+        [ConditionalFact]
         public virtual void Property_maxLength_is_stored_in_snapshot()
         {
             Test(
