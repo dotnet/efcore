@@ -8519,6 +8519,178 @@ ORDER BY [u].[Id] DESC");
 
         #endregion
 
+        #region Issue14911
+
+        [ConditionalFact]
+        public virtual void Owned_entity_multiple_level_in_aggregate()
+        {
+            using (CreateDatabase14911())
+            {
+                using var context = new MyContext14911(_options);
+
+                var aggregate = context.Set<Aggregate14911>().OrderByDescending(e => e.Id).FirstOrDefault();
+
+                Assert.Equal(10, aggregate.FirstValueObject.SecondValueObjects[0].FourthValueObject.FifthValueObjects[0].AnyValue);
+                Assert.Equal(20, aggregate.FirstValueObject.SecondValueObjects[0].ThirdValueObjects[0].FourthValueObject.FifthValueObjects[0].AnyValue);
+
+                AssertSql(
+                    @"SELECT [t].[Id], [t3].[Id], [t3].[AggregateId], [t3].[Id0], [t3].[AnyValue], [t3].[SecondValueObjectId], [t3].[Id1], [t3].[SecondValueObjectId0], [t3].[Id00], [t3].[AnyValue0], [t3].[ThirdValueObjectId]
+FROM (
+    SELECT TOP(1) [a].[Id]
+    FROM [Aggregates] AS [a]
+    ORDER BY [a].[Id] DESC
+) AS [t]
+LEFT JOIN (
+    SELECT [s].[Id], [s].[AggregateId], [f].[Id] AS [Id0], [f].[AnyValue], [f].[SecondValueObjectId], [t2].[Id] AS [Id1], [t2].[SecondValueObjectId] AS [SecondValueObjectId0], [t2].[Id0] AS [Id00], [t2].[AnyValue] AS [AnyValue0], [t2].[ThirdValueObjectId]
+    FROM [SecondValueObjects] AS [s]
+    LEFT JOIN [FourthFifthValueObjects] AS [f] ON [s].[Id] = [f].[SecondValueObjectId]
+    LEFT JOIN (
+        SELECT [t0].[Id], [t0].[SecondValueObjectId], [t1].[Id] AS [Id0], [t1].[AnyValue], [t1].[ThirdValueObjectId]
+        FROM [ThirdValueObjects] AS [t0]
+        LEFT JOIN [ThirdFifthValueObjects] AS [t1] ON [t0].[Id] = [t1].[ThirdValueObjectId]
+    ) AS [t2] ON [s].[Id] = [t2].[SecondValueObjectId]
+) AS [t3] ON [t].[Id] = [t3].[AggregateId]
+ORDER BY [t].[Id] DESC, [t3].[Id], [t3].[Id0], [t3].[Id1], [t3].[Id00]");
+            }
+        }
+
+        private class Aggregate14911
+        {
+            public int Id { get; set; }
+            public FirstValueObject14911 FirstValueObject { get; set; }
+        }
+
+        private class FirstValueObject14911
+        {
+            public List<SecondValueObject14911> SecondValueObjects { get; set; }
+        }
+
+        private class SecondValueObject14911
+        {
+            public FourthValueObject14911 FourthValueObject { get; set; }
+            public List<ThirdValueObject14911> ThirdValueObjects { get; set; }
+        }
+
+        private class ThirdValueObject14911
+        {
+            public FourthValueObject14911 FourthValueObject { get; set; }
+        }
+
+        private class FourthValueObject14911
+        {
+            public List<FifthValueObject14911> FifthValueObjects { get; set; }
+        }
+
+        private class FifthValueObject14911
+        {
+            public int AnyValue { get; set; }
+        }
+
+        private class MyContext14911 : DbContext
+        {
+            public MyContext14911(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Aggregate14911>(builder =>
+                {
+                    builder.ToTable("Aggregates");
+                    builder.HasKey(e => e.Id);
+
+                    builder.OwnsOne(e => e.FirstValueObject, dr =>
+                    {
+                        dr.OwnsMany(d => d.SecondValueObjects, c =>
+                        {
+                            c.ToTable("SecondValueObjects");
+                            c.Property<int>("Id").IsRequired();
+                            c.HasKey("Id");
+                            c.OwnsOne(b => b.FourthValueObject, b =>
+                            {
+                                b.OwnsMany(t => t.FifthValueObjects, sp =>
+                                 {
+                                     sp.ToTable("FourthFifthValueObjects");
+                                     sp.Property<int>("Id").IsRequired();
+                                     sp.HasKey("Id");
+                                     sp.Property(e => e.AnyValue).IsRequired();
+                                     sp.WithOwner().HasForeignKey("SecondValueObjectId");
+                                 });
+                            });
+                            c.OwnsMany(b => b.ThirdValueObjects, b =>
+                            {
+                                b.ToTable("ThirdValueObjects");
+                                b.Property<int>("Id").IsRequired();
+                                b.HasKey("Id");
+
+                                b.OwnsOne(d => d.FourthValueObject, dpd =>
+                                {
+                                    dpd.OwnsMany(d => d.FifthValueObjects, sp =>
+                                    {
+                                        sp.ToTable("ThirdFifthValueObjects");
+                                        sp.Property<int>("Id").IsRequired();
+                                        sp.HasKey("Id");
+                                        sp.Property(e => e.AnyValue).IsRequired();
+                                        sp.WithOwner().HasForeignKey("ThirdValueObjectId");
+                                    });
+                                });
+                                b.WithOwner().HasForeignKey("SecondValueObjectId");
+                            });
+                            c.WithOwner().HasForeignKey("AggregateId");
+                        });
+                    });
+                });
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase14911()
+            => CreateTestStore(
+                () => new MyContext14911(_options),
+                context =>
+                {
+                    var aggregate = new Aggregate14911
+                    {
+                        FirstValueObject = new FirstValueObject14911
+                        {
+                            SecondValueObjects = new List<SecondValueObject14911>
+                            {
+                                new SecondValueObject14911
+                                {
+                                    FourthValueObject = new FourthValueObject14911
+                                    {
+                                        FifthValueObjects = new List<FifthValueObject14911>
+                                        {
+                                            new FifthValueObject14911 { AnyValue = 10 }
+                                        }
+                                    },
+                                    ThirdValueObjects = new List<ThirdValueObject14911>
+                                    {
+                                        new ThirdValueObject14911
+                                        {
+                                            FourthValueObject = new FourthValueObject14911
+                                            {
+                                                FifthValueObjects = new List<FifthValueObject14911>
+                                                {
+                                                    new FifthValueObject14911 { AnyValue = 20 }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    };
+
+                    context.Set<Aggregate14911>().Add(aggregate);
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
