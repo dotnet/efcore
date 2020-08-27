@@ -76,7 +76,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Expression.Constant(shaper.Compile()),
                     Expression.Constant(_contextType),
                     Expression.Constant(
-                        QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution));
+                        QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+                    Expression.Constant(_detailedErrorsEnabled));
             }
 
             if (splitQuery)
@@ -98,7 +99,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     relatedDataLoadersAsyncParameter,
                     Expression.Constant(_contextType),
                     Expression.Constant(
-                        QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution));
+                        QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+                    Expression.Constant(_detailedErrorsEnabled));
             }
 
             return Expression.New(
@@ -108,7 +110,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Expression.Constant(shaper.Compile()),
                 Expression.Constant(_contextType),
                 Expression.Constant(
-                    QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution));
+                    QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+                    Expression.Constant(_detailedErrorsEnabled));
         }
     }
 }

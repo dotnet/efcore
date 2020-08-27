@@ -656,7 +656,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Check.NotNull(sqlExpression, nameof(sqlExpression));
 
             if (Limit != null
-                || Offset != null)
+                || Offset != null
+                || (IsDistinct && Orderings.Count == 0))
             {
                 PushdownIntoSubquery();
             }

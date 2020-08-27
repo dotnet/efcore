@@ -444,7 +444,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
 
         #endregion
 
-        [ConditionalFact(Skip = "Issue#20364")]
+        [ConditionalFact]
         public void Query_when_null_key_in_database_should_throw()
         {
             using var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest");
@@ -452,7 +452,10 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
                 @"CREATE TABLE ZeroKey (Id int);
                       INSERT ZeroKey VALUES (NULL)");
 
-            using var context = new NullKeyContext(Fixture.CreateOptions(testStore));
+            var options = Fixture.CreateOptions(testStore);
+            options = new DbContextOptionsBuilder(options).EnableDetailedErrors().Options;
+
+            using var context = new NullKeyContext(options);
             Assert.Equal(
                 CoreStrings.ErrorMaterializingPropertyNullReference("ZeroKey", "Id", typeof(int)),
                 Assert.Throws<InvalidOperationException>(() => context.ZeroKeys.ToList()).Message);
@@ -4574,6 +4577,22 @@ FROM [InventoryPools] AS [i]");
             {
                 using var context = new MyContext12518(_options);
                 var result = context.Parents.Include(p => p.Child).OrderBy(e => e.Id).FirstOrDefault();
+
+                AssertSql(
+                    @"SELECT TOP(1) [p].[Id], [p].[ChildId], [c].[Id], [c].[ParentId], [c].[ULongRowVersion]
+FROM [Parents] AS [p]
+LEFT JOIN [Children] AS [c] ON [p].[ChildId] = [c].[Id]
+ORDER BY [p].[Id]");
+            }
+        }
+
+        [ConditionalFact(Skip = "Issue #22256")]
+        public virtual void Projecting_column_with_value_converter_of_ulong_byte_array()
+        {
+            using (CreateDatabase12518())
+            {
+                using var context = new MyContext12518(_options);
+                var result = context.Parents.OrderBy(e => e.Id).Select(p => (ulong?)p.Child.ULongRowVersion).FirstOrDefault();
 
                 AssertSql(
                     @"SELECT TOP(1) [p].[Id], [p].[ChildId], [c].[Id], [c].[ParentId], [c].[ULongRowVersion]

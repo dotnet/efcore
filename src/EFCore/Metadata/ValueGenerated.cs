@@ -37,6 +37,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         OnUpdate = 2,
 
         /// <summary>
+        ///     No value is generated when the entity is first added to the database, but a value will be read
+        ///     from the database under certain conditions when the entity is subsequently updated.
+        /// </summary>
+        OnUpdateSometimes = 4,
+
+        /// <summary>
         ///     A value is read from the database when the entity is first added and whenever the entity
         ///     is subsequently updated. This is typically used for computed columns and scenarios such as
         ///     rowversions, timestamps, etc.

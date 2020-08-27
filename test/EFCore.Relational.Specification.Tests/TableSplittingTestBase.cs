@@ -268,6 +268,17 @@ namespace Microsoft.EntityFrameworkCore
                     var scooter = context.Set<PoweredVehicle>().Include(v => v.Engine).Single(v => v.Name == "Electric scooter");
 
                     Assert.Equal(scooter.SeatingCapacity, context.Entry(scooter.Engine).Property<int>("SeatingCapacity").CurrentValue);
+
+                    scooter.SeatingCapacity = 2;
+                    context.SaveChanges();
+                }
+
+                using (var context = CreateContext())
+                {
+                    var scooter = context.Set<PoweredVehicle>().Include(v => v.Engine).Single(v => v.Name == "Electric scooter");
+
+                    Assert.Equal(2, scooter.SeatingCapacity);
+                    Assert.Equal(2, context.Entry(scooter.Engine).Property<int>("SeatingCapacity").CurrentValue);
                 }
             }
         }

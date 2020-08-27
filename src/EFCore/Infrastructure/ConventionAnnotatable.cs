@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public abstract class ConventionAnnotatable : Annotatable, IConventionAnnotatable
+    public abstract class ConventionAnnotatable : Annotatable, IConventionAnnotatable, IMutableAnnotatable
     {
         /// <summary>
         ///     Gets all annotations on the current object.
@@ -134,6 +134,30 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [DebuggerStepThrough]
         IConventionAnnotation IConventionAnnotatable.SetAnnotation(string name, object value, bool fromDataAnnotation)
             => SetAnnotation(name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        void IMutableAnnotatable.SetAnnotation(string name, object value)
+            => SetAnnotation(name, value, ConfigurationSource.Explicit);
+
+        /// <inheritdoc />
+        object IMutableAnnotatable.this[string name]
+        {
+            [DebuggerStepThrough]
+            get => this[name];
+            [DebuggerStepThrough]
+            set
+            {
+                if (value == null)
+                {
+                    RemoveAnnotation(name);
+                }
+                else
+                {
+                    SetAnnotation(name, value, ConfigurationSource.Explicit);
+                }
+            }
+        }
 
         /// <inheritdoc />
         [DebuggerStepThrough]

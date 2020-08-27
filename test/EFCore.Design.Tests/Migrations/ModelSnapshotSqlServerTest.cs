@@ -1458,6 +1458,85 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         [ConditionalFact]
+        public virtual void Shared_columns_are_stored_in_the_snapshot()
+        {
+            Test(
+                builder =>
+                {
+                    builder.Entity<EntityWithOneProperty>(b =>
+                    {
+                        b.ToTable("EntityWithProperties");
+                        b.Property<int>("AlternateId").HasColumnName("AlternateId");
+                    });
+                    builder.Entity<EntityWithTwoProperties>(b =>
+                    {
+                        b.ToTable("EntityWithProperties");
+                        b.Property<int>(e => e.AlternateId).HasColumnName("AlternateId");
+                        b.HasOne(e => e.EntityWithOneProperty).WithOne(e => e.EntityWithTwoProperties)
+                            .HasForeignKey<EntityWithTwoProperties>(e => e.Id);
+                    });
+                },
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"")
+                        .UseIdentityColumn();
+
+                    b.Property<int>(""AlternateId"")
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasColumnType(""int"")
+                        .HasColumnName(""AlternateId"");
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""EntityWithProperties"");
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"")
+                        .UseIdentityColumn();
+
+                    b.Property<int>(""AlternateId"")
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasColumnType(""int"")
+                        .HasColumnName(""AlternateId"");
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""EntityWithProperties"");
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
+                {
+                    b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
+                        .WithOne(""EntityWithTwoProperties"")
+                        .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""Id"")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation(""EntityWithOneProperty"");
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
+                {
+                    b.Navigation(""EntityWithTwoProperties"");
+                });", usingSystem: false),
+                model =>
+                {
+                    var entityType = model.FindEntityType(typeof(EntityWithOneProperty));
+
+                    Assert.Equal(ValueGenerated.OnUpdateSometimes, entityType.FindProperty("AlternateId").ValueGenerated);
+                });
+        }
+
+        [ConditionalFact]
         public virtual void PrimaryKey_name_preserved_when_generic()
         {
             IModel originalModel = null;

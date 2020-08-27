@@ -104,27 +104,13 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.NotNull(
                     context.Set<MaxLengthDataTypes>().Where(e => e.Id == 799 && e.String9000 == longString).ToList().SingleOrDefault());
 
-                if (context.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory")
-                {
-                    Assert.NotNull(
-                        context.Set<MaxLengthDataTypes>().Where(e => e.Id == 799 && e.ByteArray5.SequenceEqual(shortBinary)).ToList()
-                            .SingleOrDefault());
+                Assert.NotNull(
+                    context.Set<MaxLengthDataTypes>().Where(e => e.Id == 799 && e.ByteArray5 == shortBinary).ToList()
+                        .SingleOrDefault());
 
-                    Assert.NotNull(
-                        context.Set<MaxLengthDataTypes>().Where(e => e.Id == 799 && e.ByteArray9000.SequenceEqual(longBinary)).ToList()
-                            .SingleOrDefault());
-                }
-                else
-                {
-                    // Issue #10582
-                    Assert.NotNull(
-                        context.Set<MaxLengthDataTypes>().Where(e => e.Id == 799 && e.ByteArray5 == shortBinary).ToList()
-                            .SingleOrDefault());
-
-                    Assert.NotNull(
-                        context.Set<MaxLengthDataTypes>().Where(e => e.Id == 799 && e.ByteArray9000 == longBinary).ToList()
-                            .SingleOrDefault());
-                }
+                Assert.NotNull(
+                    context.Set<MaxLengthDataTypes>().Where(e => e.Id == 799 && e.ByteArray9000 == longBinary).ToList()
+                        .SingleOrDefault());
             }
         }
 

@@ -237,9 +237,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 EntityProjectionExpression entityProjectionExpression;
                 if (entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression)
                 {
-                    VerifyQueryExpression(projectionBindingExpression);
-                    entityProjectionExpression = (EntityProjectionExpression)_queryExpression.GetMappedProjection(
-                        projectionBindingExpression.ProjectionMember);
+                    entityProjectionExpression = (EntityProjectionExpression)((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
+                        .GetMappedProjection(projectionBindingExpression.ProjectionMember);
                 }
                 else
                 {
@@ -484,15 +483,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 && unaryExpression.Type == operand.Type
                     ? operand
                     : unaryExpression.Update(MatchTypes(operand, unaryExpression.Operand.Type));
-        }
-
-        // TODO: Debugging
-        private void VerifyQueryExpression(ProjectionBindingExpression projectionBindingExpression)
-        {
-            if (projectionBindingExpression.QueryExpression != _queryExpression)
-            {
-                throw new InvalidOperationException(CoreStrings.QueryFailed(projectionBindingExpression.Print(), GetType().Name));
-            }
         }
 
         private CollectionShaperExpression AddCollectionProjection(

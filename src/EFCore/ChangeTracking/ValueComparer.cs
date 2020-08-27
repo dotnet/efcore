@@ -9,6 +9,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
+using MethodInfoExtensions = Microsoft.EntityFrameworkCore.Internal.MethodInfoExtensions;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -28,6 +29,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     /// </summary>
     public abstract class ValueComparer : IEqualityComparer
     {
+        private protected static readonly MethodInfo _doubleEqualsMethodInfo
+            = typeof(double).GetRuntimeMethod(nameof(double.Equals), new[] { typeof(double) });
+
+        private protected static readonly MethodInfo _floatEqualsMethodInfo
+            = typeof(float).GetRuntimeMethod(nameof(float.Equals), new[] { typeof(float) });
+
         internal static readonly MethodInfo ArrayCopyMethod
             = typeof(Array).GetMethods()
                 .Single(
@@ -197,8 +204,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             var nonNullabletype = type.UnwrapNullableType();
 
-            var comparerType =
-                nonNullabletype.IsNumeric()
+            // The equality operator returns false for NaNs, but the Equals methods returns true
+            if (nonNullabletype == typeof(double))
+            {
+                return new DefaultDoubleValueComparer(favorStructuralComparisons);
+            }
+
+            if (nonNullabletype == typeof(float))
+            {
+                return new DefaultFloatValueComparer(favorStructuralComparisons);
+            }
+
+            var comparerType = nonNullabletype.IsInteger()
+                || nonNullabletype == typeof(decimal)
                 || nonNullabletype == typeof(bool)
                 || nonNullabletype == typeof(string)
                 || nonNullabletype == typeof(DateTime)
@@ -213,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 new object[] { favorStructuralComparisons });
         }
 
-        internal sealed class DefaultValueComparer<T> : ValueComparer<T>
+        internal class DefaultValueComparer<T> : ValueComparer<T>
         {
             public DefaultValueComparer(bool favorStructuralComparisons)
                 : base(favorStructuralComparisons)
@@ -231,6 +249,28 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             public override T Snapshot(T instance)
                 => instance;
+        }
+
+        internal sealed class DefaultDoubleValueComparer : DefaultValueComparer<double>
+        {
+            public DefaultDoubleValueComparer(bool favorStructuralComparisons)
+                : base(favorStructuralComparisons)
+            {
+            }
+
+            public override Expression ExtractEqualsBody(Expression leftExpression, Expression rightExpression)
+                => Expression.Call(leftExpression, _doubleEqualsMethodInfo, rightExpression);
+        }
+
+        internal sealed class DefaultFloatValueComparer : DefaultValueComparer<float>
+        {
+            public DefaultFloatValueComparer(bool favorStructuralComparisons)
+                : base(favorStructuralComparisons)
+            {
+            }
+
+            public override Expression ExtractEqualsBody(Expression leftExpression, Expression rightExpression)
+                => Expression.Call(leftExpression, _floatEqualsMethodInfo, rightExpression);
         }
     }
 }

@@ -5619,5 +5619,31 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 });
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Distinct_skip_without_orderby(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from l1 in ss.Set<Level1>()
+                      where l1.Id < 3
+                      select (from l3 in ss.Set<Level3>()
+                              orderby l3.Id
+                              select l3).Distinct().Skip(1).OrderBy(e => e.Id).FirstOrDefault().Name);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Distinct_take_without_orderby(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from l1 in ss.Set<Level1>()
+                      where l1.Id < 3
+                      select (from l3 in ss.Set<Level3>()
+                              orderby l3.Id
+                              select l3).Distinct().Take(1).OrderBy(e => e.Id).FirstOrDefault().Name);
+        }
     }
 }

@@ -2,8 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal;
@@ -857,6 +859,36 @@ FROM People;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
                 @"PRAGMA foreign_keys = 1;");
+        }
+
+        [ConditionalFact]
+        public virtual async Task ValueGeneratedOnAdd_on_properties()
+        {
+            await Test(
+                builder => { },
+                builder => { },
+                builder => builder.Entity(
+                    "Person", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.Property<string>("Name");
+                        e.Property<int>("Age").HasDefaultValue(18);
+                        e.HasKey("Id");
+                    }),
+                model =>
+                {
+                    var personTable = Assert.Single(model.Tables);
+                    Assert.Equal(ValueGenerated.OnAdd, personTable.Columns.Single(c => c.Name == "Id").ValueGenerated);
+                    Assert.Null(personTable.Columns.Single(c => c.Name == "Age").ValueGenerated);
+                    Assert.NotNull(personTable.Columns.Single(c => c.Name == "Age").DefaultValueSql);
+                });
+
+            AssertSql(
+                @"CREATE TABLE ""Person"" (
+    ""Id"" INTEGER NOT NULL CONSTRAINT ""PK_Person"" PRIMARY KEY AUTOINCREMENT,
+    ""Age"" INTEGER NOT NULL DEFAULT 18,
+    ""Name"" TEXT NULL
+);");
         }
 
         public override Task Create_sequence()
