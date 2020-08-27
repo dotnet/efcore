@@ -1337,6 +1337,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 Check.NotNull(extensionExpression, nameof(extensionExpression));
 
                 return extensionExpression is EntityShaperExpression
+                    || extensionExpression is ShapedQueryExpression
                     ? extensionExpression
                     : base.VisitExtension(extensionExpression);
             }

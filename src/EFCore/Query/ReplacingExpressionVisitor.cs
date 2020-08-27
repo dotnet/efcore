@@ -58,7 +58,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <inheritdoc />
         public override Expression Visit(Expression expression)
         {
-            if (expression == null)
+            if (expression == null
+                || expression is ShapedQueryExpression
+                || expression is EntityShaperExpression)
             {
                 return expression;
             }
