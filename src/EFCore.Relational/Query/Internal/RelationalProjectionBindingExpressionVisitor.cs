@@ -138,8 +138,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             if (projectionBindingExpression.ProjectionMember != null)
                             {
                                 // This would be SqlExpression. EntityProjectionExpression would be wrapped inside EntityShaperExpression.
-                                var mappedProjection = (SqlExpression)_selectExpression.GetMappedProjection(
-                                    projectionBindingExpression.ProjectionMember);
+                                var mappedProjection = (SqlExpression)((SelectExpression)projectionBindingExpression.QueryExpression)
+                                    .GetMappedProjection(projectionBindingExpression.ProjectionMember);
 
                                 return new ProjectionBindingExpression(
                                     _selectExpression, _selectExpression.AddToProjection(mappedProjection), expression.Type);
@@ -299,7 +299,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     EntityProjectionExpression entityProjectionExpression;
                     if (entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression)
                     {
-                        VerifySelectExpression(projectionBindingExpression);
                         // If projectionBinding is not mapped then SelectExpression has client projection
                         // Hence force client eval
                         if (projectionBindingExpression.ProjectionMember == null)
@@ -318,8 +317,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             return null;
                         }
 
-                        entityProjectionExpression = (EntityProjectionExpression)_selectExpression.GetMappedProjection(
-                            projectionBindingExpression.ProjectionMember);
+                        entityProjectionExpression = (EntityProjectionExpression)((SelectExpression)projectionBindingExpression.QueryExpression)
+                            .GetMappedProjection(projectionBindingExpression.ProjectionMember);
                     }
                     else
                     {
@@ -568,15 +567,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && unaryExpression.Type == operand.Type
                     ? operand
                     : unaryExpression.Update(MatchTypes(operand, unaryExpression.Operand.Type));
-        }
-
-        // TODO: Debugging
-        private void VerifySelectExpression(ProjectionBindingExpression projectionBindingExpression)
-        {
-            if (projectionBindingExpression.QueryExpression != _selectExpression)
-            {
-                throw new InvalidOperationException(CoreStrings.QueryFailed(projectionBindingExpression.Print(), GetType().Name));
-            }
         }
 
         private static Expression MatchTypes(Expression expression, Type targetType)

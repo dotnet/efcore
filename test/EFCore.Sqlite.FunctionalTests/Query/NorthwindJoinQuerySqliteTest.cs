@@ -36,5 +36,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqliteStrings.ApplyNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.SelectMany_with_client_eval_with_collection_shaper_ignored(async))).Message);
+
+        public override async Task SelectMany_with_selecting_outer_entity(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.SelectMany_with_selecting_outer_entity(async))).Message);
+
+        public override async Task SelectMany_with_selecting_outer_element(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.SelectMany_with_selecting_outer_element(async))).Message);
     }
 }
