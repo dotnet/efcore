@@ -993,7 +993,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (!_changeDetectorInitialized)
             {
                 _changeDetector = Context.ChangeTracker.AutoDetectChangesEnabled
-                    && (string)Context.Model[CoreAnnotationNames.SkipDetectChangesAnnotation] != "true"
+                    && !((Model)Context.Model).SkipDetectChanges
                         ? Context.GetDependencies().ChangeDetector
                         : null;
                 _changeDetectorInitialized = true;

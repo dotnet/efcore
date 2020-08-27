@@ -61,6 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly Dictionary<Type, ConfigurationSource> _sharedTypes =
             new Dictionary<Type, ConfigurationSource> { { DefaultPropertyBagType, ConfigurationSource.Convention } };
 
+        private bool? _skipDetectChanges;
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -988,6 +990,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual PropertyInfo FindIndexerPropertyInfo([NotNull] Type type)
             => _indexerPropertyInfoMap.GetOrAdd(type, type.FindIndexerProperty());
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool SkipDetectChanges
+        {
+            get => _skipDetectChanges ?? false;
+            set => SetSkipDetectChanges(value);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool? SetSkipDetectChanges(bool? skipDetectChanges)
+        {
+            _skipDetectChanges = skipDetectChanges;
+
+            return skipDetectChanges;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
