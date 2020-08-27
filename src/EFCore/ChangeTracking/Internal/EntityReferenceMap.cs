@@ -50,7 +50,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             EntityState state,
             EntityState? oldState)
         {
-            var mapKey = entry.Entity ?? entry;
             var entityType = entry.EntityType;
             if (_hasSubMap
                 && entityType.HasDefiningNavigation())
@@ -70,6 +69,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
             else
             {
+                var mapKey = entry.Entity ?? entry;
+
                 if (oldState.HasValue)
                 {
                     Remove(mapKey, entityType, oldState.Value);
