@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                 inValues.Add(value);
                             }
                         }
-                            break;
+                        break;
 
                         case SqlParameterExpression sqlParameter:
                         {
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                 inValues.Add(value);
                             }
                         }
-                            break;
+                        break;
                     }
 
                     var updatedInExpression = inValues.Count > 0

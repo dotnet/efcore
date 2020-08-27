@@ -27,7 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 ctx => ctx.Customers.Add(
                     new Customer
                     {
-                        Id = "1", Name = "CreatedTwice",
+                        Id = "1",
+                        Name = "CreatedTwice",
                     }));
         }
 
@@ -38,7 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 ctx => ctx.Customers.Add(
                     new Customer
                     {
-                        Id = "2", Name = "Added",
+                        Id = "2",
+                        Name = "Added",
                     }),
                 ctx => ctx.Customers.Single(c => c.Id == "2").Name = "Updated",
                 ctx => ctx.Customers.Remove(ctx.Customers.Single(c => c.Id == "2")));
@@ -51,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 ctx => ctx.Customers.Add(
                     new Customer
                     {
-                        Id = "3", Name = "Added",
+                        Id = "3",
+                        Name = "Added",
                     }),
                 ctx => ctx.Customers.Single(c => c.Id == "3").Name = "Updated",
                 ctx => ctx.Customers.Single(c => c.Id == "3").Name = "Updated");

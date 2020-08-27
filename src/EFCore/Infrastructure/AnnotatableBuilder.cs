@@ -197,13 +197,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <inheritdoc />
         IConventionModelBuilder IConventionAnnotatableBuilder.ModelBuilder
         {
-            [DebuggerStepThrough] get => ModelBuilder;
+            [DebuggerStepThrough]
+            get => ModelBuilder;
         }
 
         /// <inheritdoc />
         IConventionAnnotatable IConventionAnnotatableBuilder.Metadata
         {
-            [DebuggerStepThrough] get => Metadata;
+            [DebuggerStepThrough]
+            get => Metadata;
         }
 
         /// <inheritdoc />

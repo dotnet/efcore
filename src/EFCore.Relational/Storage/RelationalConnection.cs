@@ -208,7 +208,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 return _enlistedTransaction;
             }
-            [param: CanBeNull] protected set => _enlistedTransaction = value;
+            [param: CanBeNull]
+            protected set => _enlistedTransaction = value;
         }
 
         /// <summary>

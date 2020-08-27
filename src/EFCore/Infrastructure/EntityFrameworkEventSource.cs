@@ -111,7 +111,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 _queriesPerSecondCounter ??= new IncrementingPollingCounter(
                     "queries-per-second",
                     this,
-                    () => _totalQueries) { DisplayName = "Queries", DisplayRateTimeScale = TimeSpan.FromSeconds(1) };
+                    () => _totalQueries)
+                { DisplayName = "Queries", DisplayRateTimeScale = TimeSpan.FromSeconds(1) };
 
                 _totalSaveChangesCounter ??= new PollingCounter("total-save-changes", this, () => _totalSaveChanges)
                 {
@@ -121,37 +122,43 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 _saveChangesPerSecondCounter ??= new IncrementingPollingCounter(
                     "save-changes-per-second",
                     this,
-                    () => _totalSaveChanges) { DisplayName = "SaveChanges", DisplayRateTimeScale = TimeSpan.FromSeconds(1) };
+                    () => _totalSaveChanges)
+                { DisplayName = "SaveChanges", DisplayRateTimeScale = TimeSpan.FromSeconds(1) };
 
                 _compiledQueryCacheHitRateCounter ??= new PollingCounter(
                     "compiled-query-cache-hit-rate",
                     this,
-                    () => _compiledQueryCacheInfo.CalculateAndReset()) { DisplayName = "Query Cache Hit Rate", DisplayUnits = "%" };
+                    () => _compiledQueryCacheInfo.CalculateAndReset())
+                { DisplayName = "Query Cache Hit Rate", DisplayUnits = "%" };
 
                 _totalExecutionStrategyOperationFailuresCounter ??= new PollingCounter(
                     "total-execution-strategy-operation-failures",
                     this,
-                    () => _totalExecutionStrategyOperationFailures) { DisplayName = "Execution Strategy Operation Failures (Total)" };
+                    () => _totalExecutionStrategyOperationFailures)
+                { DisplayName = "Execution Strategy Operation Failures (Total)" };
 
                 _executionStrategyOperationFailuresPerSecondCounter ??= new IncrementingPollingCounter(
                     "execution-strategy-operation-failures-per-second",
                     this,
                     () => _totalExecutionStrategyOperationFailures)
                 {
-                    DisplayName = "Execution Strategy Operation Failures", DisplayRateTimeScale = TimeSpan.FromSeconds(1)
+                    DisplayName = "Execution Strategy Operation Failures",
+                    DisplayRateTimeScale = TimeSpan.FromSeconds(1)
                 };
 
                 _totalOptimisticConcurrencyFailuresCounter ??= new PollingCounter(
                     "total-optimistic-concurrency-failures",
                     this,
-                    () => _totalOptimisticConcurrencyFailures) { DisplayName = "Optimistic Concurrency Failures (Total)" };
+                    () => _totalOptimisticConcurrencyFailures)
+                { DisplayName = "Optimistic Concurrency Failures (Total)" };
 
                 _optimisticConcurrencyFailuresPerSecondCounter ??= new IncrementingPollingCounter(
                     "optimistic-concurrency-failures-per-second",
                     this,
                     () => _totalOptimisticConcurrencyFailures)
                 {
-                    DisplayName = "Optimistic Concurrency Failures", DisplayRateTimeScale = TimeSpan.FromSeconds(1)
+                    DisplayName = "Optimistic Concurrency Failures",
+                    DisplayRateTimeScale = TimeSpan.FromSeconds(1)
                 };
             }
         }

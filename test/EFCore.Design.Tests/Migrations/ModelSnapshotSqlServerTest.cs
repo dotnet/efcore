@@ -4303,7 +4303,8 @@ namespace RootNamespace
             };
 
             var multiPoint = new MultiPoint(
-                new[] { new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1) }) { SRID = 4326 };
+                new[] { new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1) })
+            { SRID = 4326 };
 
             var polygon1 = new Polygon(
                 new LinearRing(
@@ -4317,15 +4318,18 @@ namespace RootNamespace
                     new[]
                     {
                         new Coordinate(10.1, 20.2), new Coordinate(20.2, 20.2), new Coordinate(20.2, 10.1), new Coordinate(10.1, 20.2)
-                    })) { SRID = 4326 };
+                    }))
+            { SRID = 4326 };
 
             var point1 = new Point(1.1, 2.2, 3.3) { SRID = 4326 };
 
             var multiLineString = new MultiLineString(
-                new[] { lineString1, lineString2 }) { SRID = 4326 };
+                new[] { lineString1, lineString2 })
+            { SRID = 4326 };
 
             var multiPolygon = new MultiPolygon(
-                new[] { polygon2, polygon1 }) { SRID = 4326 };
+                new[] { polygon2, polygon1 })
+            { SRID = 4326 };
 
             var geometryCollection = new GeometryCollection(
                 new Geometry[] { lineString1, lineString2, multiPoint, polygon1, polygon2, point1, multiLineString, multiPolygon })

@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> A new query with the set partition key. </returns>
         public static IQueryable<TEntity> WithPartitionKey<TEntity>(
             [NotNull] this IQueryable<TEntity> source,
-            [NotNull] [NotParameterized] string partitionKey)
+            [NotNull][NotParameterized] string partitionKey)
             where TEntity : class
         {
             Check.NotNull(source, nameof(source));

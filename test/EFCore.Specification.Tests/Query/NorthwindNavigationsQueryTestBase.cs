@@ -993,7 +993,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using var context = CreateContext();
             var query = from o in context.Orders
-                        // ReSharper disable once UseMethodAny.0
+                            // ReSharper disable once UseMethodAny.0
                         where (from od in context.OrderDetails
                                where o.Customer.Country == od.Order.Customer.Country
                                select od).Count()

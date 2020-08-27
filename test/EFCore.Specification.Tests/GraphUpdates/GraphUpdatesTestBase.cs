@@ -520,17 +520,20 @@ namespace Microsoft.EntityFrameworkCore
                     OptionalSingleAkDerived =
                         new OptionalSingleAk1Derived
                         {
-                            AlternateId = Guid.NewGuid(), Single = new OptionalSingleAk2Derived { AlternateId = Guid.NewGuid() }
+                            AlternateId = Guid.NewGuid(),
+                            Single = new OptionalSingleAk2Derived { AlternateId = Guid.NewGuid() }
                         },
                     OptionalSingleAkMoreDerived =
                         new OptionalSingleAk1MoreDerived
                         {
-                            AlternateId = Guid.NewGuid(), Single = new OptionalSingleAk2MoreDerived { AlternateId = Guid.NewGuid() }
+                            AlternateId = Guid.NewGuid(),
+                            Single = new OptionalSingleAk2MoreDerived { AlternateId = Guid.NewGuid() }
                         },
                     RequiredNonPkSingleAk =
                         new RequiredNonPkSingleAk1
                         {
-                            AlternateId = Guid.NewGuid(), Single = new RequiredNonPkSingleAk2 { AlternateId = Guid.NewGuid() }
+                            AlternateId = Guid.NewGuid(),
+                            Single = new RequiredNonPkSingleAk2 { AlternateId = Guid.NewGuid() }
                         },
                     RequiredNonPkSingleAkDerived =
                         new RequiredNonPkSingleAk1Derived

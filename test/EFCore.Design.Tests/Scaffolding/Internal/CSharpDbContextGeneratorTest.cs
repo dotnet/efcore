@@ -249,7 +249,8 @@ namespace TestNamespace
         {
             var modelGenerationOptions = new ModelCodeGenerationOptions
             {
-                ContextNamespace = "TestNamespace", ModelNamespace = "AnotherNamespaceOfModel"
+                ContextNamespace = "TestNamespace",
+                ModelNamespace = "AnotherNamespaceOfModel"
             };
 
             const string entityInAnotherNamespaceTypeName = "EntityInAnotherNamespace";

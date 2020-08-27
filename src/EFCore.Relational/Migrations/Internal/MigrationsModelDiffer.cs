@@ -387,7 +387,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 {
                     var alterDatabaseOperation = new AlterDatabaseOperation
                     {
-                        Collation = target.Collation, OldDatabase = { Collation = source.Collation }
+                        Collation = target.Collation,
+                        OldDatabase = { Collation = source.Collation }
                     };
 
                     alterDatabaseOperation.AddAnnotations(targetMigrationsAnnotations);

@@ -299,7 +299,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <value> The current values. </value>
         public virtual PropertyValues CurrentValues
         {
-            [DebuggerStepThrough] get => new CurrentPropertyValues(InternalEntry);
+            [DebuggerStepThrough]
+            get => new CurrentPropertyValues(InternalEntry);
         }
 
         /// <summary>
@@ -315,7 +316,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <value> The original values. </value>
         public virtual PropertyValues OriginalValues
         {
-            [DebuggerStepThrough] get => new OriginalPropertyValues(InternalEntry);
+            [DebuggerStepThrough]
+            get => new OriginalPropertyValues(InternalEntry);
         }
 
         /// <summary>

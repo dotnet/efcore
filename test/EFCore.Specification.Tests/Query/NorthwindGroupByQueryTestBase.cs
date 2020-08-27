@@ -1288,9 +1288,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => from order in ss.Set<Order>()
                       group new
-                          {
-                              IsAlfki = order.CustomerID == "ALFKI", OrderId = order.OrderID > 1000 ? order.OrderID : -order.OrderID
-                          } by
+                      {
+                          IsAlfki = order.CustomerID == "ALFKI",
+                          OrderId = order.OrderID > 1000 ? order.OrderID : -order.OrderID
+                      } by
                           new { order.OrderID }
                       into g
                       select new { g.Key.OrderID, Aggregate = g.Sum(s => s.IsAlfki ? s.OrderId : -s.OrderId) });
@@ -2487,7 +2488,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         g =>
                             new
                             {
-                                g.Key, Max = g.Distinct().Select(e => e.OrderDate).Distinct().Max(),
+                                g.Key,
+                                Max = g.Distinct().Select(e => e.OrderDate).Distinct().Max(),
                             }),
                 elementSorter: e => e.Key);
         }
@@ -2504,7 +2506,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         g =>
                             new
                             {
-                                g.Key, Max = g.Where(e => e.OrderDate.HasValue).Select(e => e.OrderDate).Distinct().Max(),
+                                g.Key,
+                                Max = g.Where(e => e.OrderDate.HasValue).Select(e => e.OrderDate).Distinct().Max(),
                             }),
                 elementSorter: e => e.Key);
         }

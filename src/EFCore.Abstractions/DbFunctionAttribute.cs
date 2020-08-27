@@ -63,7 +63,8 @@ namespace Microsoft.EntityFrameworkCore
         public virtual string Schema
         {
             get => _schema;
-            [param: CanBeNull] set => _schema = value;
+            [param: CanBeNull]
+            set => _schema = value;
         }
 
         /// <summary>

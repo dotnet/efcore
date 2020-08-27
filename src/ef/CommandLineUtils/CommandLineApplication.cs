@@ -50,7 +50,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public List<string> RemainingArguments { get; }
         public List<string> ApplicationArguments { get; }
         public bool IsShowingInformation { get; protected set; } // Is showing help or version?
-        public Func<string[],  int> Invoke { get; set; }
+        public Func<string[], int> Invoke { get; set; }
         public Func<string> LongVersionGetter { get; set; }
         public Func<string> ShortVersionGetter { get; set; }
         public List<CommandLineApplication> Commands { get; }

@@ -237,7 +237,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var tableMapping = new TableMappingBase(entityType, defaultTable, includesDerivedTypes: true)
             {
-                IsSharedTablePrincipal = true, IsSplitEntityTypePrincipal = true
+                IsSharedTablePrincipal = true,
+                IsSplitEntityTypePrincipal = true
             };
 
             foreach (var property in entityType.GetProperties())

@@ -337,7 +337,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         IConventionPropertyBase IConventionPropertyBaseBuilder.Metadata
         {
-            [DebuggerStepThrough] get => Metadata;
+            [DebuggerStepThrough]
+            get => Metadata;
         }
 
         IConventionSkipNavigation IConventionSkipNavigationBuilder.Metadata

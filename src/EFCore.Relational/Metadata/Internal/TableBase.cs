@@ -95,7 +95,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual SortedDictionary<IEntityType, IEnumerable<IForeignKey>> ReferencingRowInternalForeignKeys
         {
             get;
-            [param: NotNull] set;
+            [param: NotNull]
+            set;
         }
 
         /// <summary>

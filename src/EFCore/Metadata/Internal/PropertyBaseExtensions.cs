@@ -358,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static PropertyBase AsPropertyBase(
             [NotNull] this IPropertyBase propertyBase,
-            [NotNull] [CallerMemberName] string methodName = "")
+            [NotNull][CallerMemberName] string methodName = "")
             => MetadataExtensions.AsConcreteMetadataType<IPropertyBase, PropertyBase>(propertyBase, methodName);
     }
 }

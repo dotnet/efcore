@@ -1075,7 +1075,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return value;
             }
 
-            [param: CanBeNull] set => SetProperty(propertyBase, value, isMaterialization: false);
+            [param: CanBeNull]
+            set => SetProperty(propertyBase, value, isMaterialization: false);
         }
 
         /// <summary>
@@ -1665,7 +1666,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         break;
                     case NotifyCollectionChangedAction.Reset:
                         throw new InvalidOperationException(CoreStrings.ResetNotSupported);
-                    // Note: ignoring Move since index not important
+                        // Note: ignoring Move since index not important
                 }
             }
         }

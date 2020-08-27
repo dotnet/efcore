@@ -65,7 +65,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public new virtual IEnumerable<TRelatedEntity> CurrentValue
         {
             get => this.GetInfrastructure().GetCurrentValue<IEnumerable<TRelatedEntity>>(Metadata);
-            [param: CanBeNull] set => base.CurrentValue = value;
+            [param: CanBeNull]
+            set => base.CurrentValue = value;
         }
 
         /// <summary>

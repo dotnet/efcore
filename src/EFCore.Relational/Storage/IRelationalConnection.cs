@@ -33,7 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         string ConnectionString
         {
             get => throw new NotImplementedException();
-            [param: CanBeNull] set => throw new NotImplementedException();
+            [param: CanBeNull]
+            set => throw new NotImplementedException();
         }
 
         /// <summary>
@@ -50,7 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         DbConnection DbConnection
         {
             get => throw new NotImplementedException();
-            [param: CanBeNull] set => throw new NotImplementedException();
+            [param: CanBeNull]
+            set => throw new NotImplementedException();
         }
 
         /// <summary>

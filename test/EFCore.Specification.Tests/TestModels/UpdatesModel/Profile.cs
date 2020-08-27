@@ -25,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.UpdatesModel
 
         public virtual
             LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectly
-            User { get; set; }
+            User
+        { get; set; }
     }
 }

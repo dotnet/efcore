@@ -21,7 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
             var startInfo = new ProcessStartInfo
             {
-                FileName = executable, Arguments = arguments, UseShellExecute = false, RedirectStandardOutput = interceptOutput
+                FileName = executable,
+                Arguments = arguments,
+                UseShellExecute = false,
+                RedirectStandardOutput = interceptOutput
             };
             if (workingDirectory != null)
             {

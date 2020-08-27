@@ -37,7 +37,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             ConnectionString = new SqliteConnectionStringBuilder
             {
-                DataSource = Name + ".db", Cache = sharedCache ? SqliteCacheMode.Shared : SqliteCacheMode.Private
+                DataSource = Name + ".db",
+                Cache = sharedCache ? SqliteCacheMode.Shared : SqliteCacheMode.Private
             }.ToString();
 
             var connection = new SqliteConnection(ConnectionString);

@@ -344,7 +344,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IForeignKey INavigation.ForeignKey
         {
-            [DebuggerStepThrough] get => ForeignKey;
+            [DebuggerStepThrough]
+            get => ForeignKey;
         }
 
         [DebuggerStepThrough]
@@ -365,7 +366,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         IConventionNavigationBuilder IConventionNavigation.Builder
         {
-            [DebuggerStepThrough] get => Builder;
+            [DebuggerStepThrough]
+            get => Builder;
         }
 
         /// <summary>
@@ -376,7 +378,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionAnnotatableBuilder IConventionAnnotatable.Builder
         {
-            [DebuggerStepThrough] get => Builder;
+            [DebuggerStepThrough]
+            get => Builder;
         }
     }
 }

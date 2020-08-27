@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static ServiceProperty AsServiceProperty(
             [NotNull] this IServiceProperty serviceProperty,
-            [NotNull] [CallerMemberName] string methodName = "")
+            [NotNull][CallerMemberName] string methodName = "")
             => MetadataExtensions.AsConcreteMetadataType<IServiceProperty, ServiceProperty>(serviceProperty, methodName);
     }
 }

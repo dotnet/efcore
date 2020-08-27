@@ -794,7 +794,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     o => new
                     {
                         // ReSharper disable SimplifyConditionalTernaryExpression
-                        Data1 = param != null ? o.OrderDate == param.Value : true, Data2 = param == null ? true : o.OrderDate == param.Value
+                        Data1 = param != null ? o.OrderDate == param.Value : true,
+                        Data2 = param == null ? true : o.OrderDate == param.Value
                         // ReSharper restore SimplifyConditionalTernaryExpression
                     }));
         }
@@ -3441,7 +3442,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using var context = CreateContext();
             var orders
                 = (from o in context.Orders.OrderBy(o => o.OrderID).Take(1)
-                   // ReSharper disable once UseMethodAny.0
+                       // ReSharper disable once UseMethodAny.0
                    where (from od in context.OrderDetails.OrderBy(od => od.OrderID).Take(2)
                           where (from c in context.Set<Customer>()
                                  where c.CustomerID == o.CustomerID

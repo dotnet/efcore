@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     resultType = typeof(bool);
                     resultTypeMapping = _boolTypeMapping;
                 }
-                    break;
+                break;
 
                 case ExpressionType.AndAlso:
                 case ExpressionType.OrElse:
@@ -184,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     resultType = typeof(bool);
                     resultTypeMapping = _boolTypeMapping;
                 }
-                    break;
+                break;
 
                 case ExpressionType.Add:
                 case ExpressionType.Subtract:
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     resultType = inferredTypeMapping?.ClrType ?? left.Type;
                     resultTypeMapping = inferredTypeMapping;
                 }
-                    break;
+                break;
 
                 default:
                     throw new InvalidOperationException(

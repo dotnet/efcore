@@ -61,7 +61,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public new virtual TProperty CurrentValue
         {
             get => InternalEntry.GetCurrentValue<TProperty>(Metadata);
-            [param: CanBeNull] set => base.CurrentValue = value;
+            [param: CanBeNull]
+            set => base.CurrentValue = value;
         }
 
         /// <summary>
@@ -73,7 +74,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public new virtual TProperty OriginalValue
         {
             get => InternalEntry.GetOriginalValue<TProperty>(Metadata);
-            [param: CanBeNull] set => base.OriginalValue = value;
+            [param: CanBeNull]
+            set => base.OriginalValue = value;
         }
     }
 }

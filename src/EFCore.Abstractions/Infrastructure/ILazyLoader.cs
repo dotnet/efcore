@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="loaded"> Determines whether the navigation is set as loaded or not. </param>
         void SetLoaded(
             [NotNull] object entity,
-            [NotNull] [CallerMemberName] string navigationName = "",
+            [NotNull][CallerMemberName] string navigationName = "",
             bool loaded = true);
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="entity"> The entity on which the navigation property is located. </param>
         /// <param name="navigationName"> The navigation property name. </param>
-        void Load([NotNull] object entity, [NotNull] [CallerMemberName] string navigationName = null);
+        void Load([NotNull] object entity, [NotNull][CallerMemberName] string navigationName = null);
 
         /// <summary>
         ///     Loads a navigation property if it has not already been loaded.
@@ -54,6 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 #pragma warning restore CA1068 // CancellationToken parameters must come last
             [NotNull] object entity,
             CancellationToken cancellationToken = default,
-            [NotNull] [CallerMemberName] string navigationName = null);
+            [NotNull][CallerMemberName] string navigationName = null);
     }
 }

@@ -351,7 +351,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IModel ITypeBase.Model
         {
-            [DebuggerStepThrough] get => Model;
+            [DebuggerStepThrough]
+            get => Model;
         }
 
         /// <summary>
@@ -362,7 +363,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IMutableModel IMutableTypeBase.Model
         {
-            [DebuggerStepThrough] get => Model;
+            [DebuggerStepThrough]
+            get => Model;
         }
 
         /// <summary>
@@ -373,7 +375,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionModel IConventionTypeBase.Model
         {
-            [DebuggerStepThrough] get => Model;
+            [DebuggerStepThrough]
+            get => Model;
         }
 
         /// <summary>
@@ -384,7 +387,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         Type ITypeBase.ClrType
         {
-            [DebuggerStepThrough] get => ClrType;
+            [DebuggerStepThrough]
+            get => ClrType;
         }
 
         /// <summary>

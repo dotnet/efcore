@@ -121,7 +121,8 @@ namespace Microsoft.EntityFrameworkCore
                 var principal = context.Add(
                         new NullablePrincipal
                         {
-                            Id = 1, Dependents = new List<NonNullableDependent> { new NonNullableDependent { Id = 1 } }
+                            Id = 1,
+                            Dependents = new List<NonNullableDependent> { new NonNullableDependent { Id = 1 } }
                         })
                     .Entity;
 

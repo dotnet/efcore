@@ -50,7 +50,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public override
                 List<(Type Type, Type ReadonlyExtensions, Type MutableExtensions, Type ConventionExtensions, Type
-                    ConventionBuilderExtensions)> MetadataExtensionTypes { get; }
+                    ConventionBuilderExtensions)> MetadataExtensionTypes
+            { get; }
                 = new List<(Type, Type, Type, Type, Type)>
                 {
                     (typeof(IModel), typeof(SqlServerModelExtensions), typeof(SqlServerModelExtensions),

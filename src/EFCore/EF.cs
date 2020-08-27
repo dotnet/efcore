@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The value assigned to the property. </returns>
         public static TProperty Property<TProperty>(
             [NotNull] object entity,
-            [NotNull] [NotParameterized] string propertyName)
+            [NotNull][NotParameterized] string propertyName)
             => throw new InvalidOperationException(CoreStrings.PropertyMethodInvoked);
 
         /// <summary>

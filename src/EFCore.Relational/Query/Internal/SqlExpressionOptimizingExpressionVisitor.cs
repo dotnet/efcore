@@ -214,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     binaryOperand.TypeMapping);
                             }
                         }
-                            break;
+                        break;
                     }
 
                     break;

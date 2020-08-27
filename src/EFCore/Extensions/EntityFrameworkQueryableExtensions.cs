@@ -2644,7 +2644,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         public static IQueryable<TEntity> Include<TEntity>(
             [NotNull] this IQueryable<TEntity> source,
-            [NotNull] [NotParameterized] string navigationPropertyPath)
+            [NotNull][NotParameterized] string navigationPropertyPath)
             where TEntity : class
         {
             Check.NotNull(source, nameof(source));
@@ -2932,7 +2932,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         public static IQueryable<T> TagWith<T>(
             [NotNull] this IQueryable<T> source,
-            [NotNull] [NotParameterized] string tag)
+            [NotNull][NotParameterized] string tag)
         {
             Check.NotNull(source, nameof(source));
             Check.NotEmpty(tag, nameof(tag));

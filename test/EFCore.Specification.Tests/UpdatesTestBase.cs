@@ -326,7 +326,8 @@ namespace Microsoft.EntityFrameworkCore
                     context.Products.Remove(
                         new Product
                         {
-                            Id = productId, Price = 3.49M // Not the same as the value stored in the database
+                            Id = productId,
+                            Price = 3.49M // Not the same as the value stored in the database
                         });
 
                     Assert.Equal(

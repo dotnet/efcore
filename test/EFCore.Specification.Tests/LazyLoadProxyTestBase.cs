@@ -3014,7 +3014,8 @@ namespace Microsoft.EntityFrameworkCore
                 context.Add(
                     new NonVirtualOneToOneOwner
                     {
-                        Id = 100, Address = new OwnedAddress { Street = "Paradise Alley", PostalCode = "WEEEEEE" }
+                        Id = 100,
+                        Address = new OwnedAddress { Street = "Paradise Alley", PostalCode = "WEEEEEE" }
                     });
 
                 context.Add(

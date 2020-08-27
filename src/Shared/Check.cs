@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
     internal static class Check
     {
         [ContractAnnotation("value:null => halt")]
-        public static T NotNull<T>([NoEnumeration] T value, [InvokerParameterName] [NotNull] string parameterName)
+        public static T NotNull<T>([NoEnumeration] T value, [InvokerParameterName][NotNull] string parameterName)
         {
 #pragma warning disable IDE0041 // Use 'is null' check
             if (ReferenceEquals(value, null))
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         [ContractAnnotation("value:null => halt")]
-        public static IReadOnlyList<T> NotEmpty<T>(IReadOnlyList<T> value, [InvokerParameterName] [NotNull] string parameterName)
+        public static IReadOnlyList<T> NotEmpty<T>(IReadOnlyList<T> value, [InvokerParameterName][NotNull] string parameterName)
         {
             NotNull(value, parameterName);
 
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         [ContractAnnotation("value:null => halt")]
-        public static string NotEmpty(string value, [InvokerParameterName] [NotNull] string parameterName)
+        public static string NotEmpty(string value, [InvokerParameterName][NotNull] string parameterName)
         {
             Exception e = null;
             if (value is null)
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             return value;
         }
 
-        public static string NullButNotEmpty(string value, [InvokerParameterName] [NotNull] string parameterName)
+        public static string NullButNotEmpty(string value, [InvokerParameterName][NotNull] string parameterName)
         {
             if (!(value is null)
                 && value.Length == 0)
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             return value;
         }
 
-        public static IReadOnlyList<T> HasNoNulls<T>(IReadOnlyList<T> value, [InvokerParameterName] [NotNull] string parameterName)
+        public static IReadOnlyList<T> HasNoNulls<T>(IReadOnlyList<T> value, [InvokerParameterName][NotNull] string parameterName)
             where T : class
         {
             NotNull(value, parameterName);
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
         public static IReadOnlyList<string> HasNoEmptyElements(
             IReadOnlyList<string> value,
-            [InvokerParameterName] [NotNull] string parameterName)
+            [InvokerParameterName][NotNull] string parameterName)
         {
             NotNull(value, parameterName);
 

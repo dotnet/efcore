@@ -83,7 +83,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public new virtual IEnumerable CurrentValue
         {
             get => (IEnumerable)base.CurrentValue;
-            [param: CanBeNull] set => base.CurrentValue = value;
+            [param: CanBeNull]
+            set => base.CurrentValue = value;
         }
 
         /// <summary>

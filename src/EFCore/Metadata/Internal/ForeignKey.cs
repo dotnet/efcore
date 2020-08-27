@@ -850,7 +850,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IReadOnlyList<IProperty> IForeignKey.Properties
         {
-            [DebuggerStepThrough] get => Properties;
+            [DebuggerStepThrough]
+            get => Properties;
         }
 
         /// <summary>
@@ -861,7 +862,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IKey IForeignKey.PrincipalKey
         {
-            [DebuggerStepThrough] get => PrincipalKey;
+            [DebuggerStepThrough]
+            get => PrincipalKey;
         }
 
         /// <summary>
@@ -872,7 +874,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IEntityType IForeignKey.DeclaringEntityType
         {
-            [DebuggerStepThrough] get => DeclaringEntityType;
+            [DebuggerStepThrough]
+            get => DeclaringEntityType;
         }
 
         /// <summary>
@@ -883,7 +886,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IEntityType IForeignKey.PrincipalEntityType
         {
-            [DebuggerStepThrough] get => PrincipalEntityType;
+            [DebuggerStepThrough]
+            get => PrincipalEntityType;
         }
 
         /// <summary>
@@ -894,7 +898,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         INavigation IForeignKey.DependentToPrincipal
         {
-            [DebuggerStepThrough] get => DependentToPrincipal;
+            [DebuggerStepThrough]
+            get => DependentToPrincipal;
         }
 
         /// <summary>
@@ -905,7 +910,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         INavigation IForeignKey.PrincipalToDependent
         {
-            [DebuggerStepThrough] get => PrincipalToDependent;
+            [DebuggerStepThrough]
+            get => PrincipalToDependent;
         }
 
         /// <summary>
@@ -916,7 +922,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IReadOnlyList<IMutableProperty> IMutableForeignKey.Properties
         {
-            [DebuggerStepThrough] get => Properties;
+            [DebuggerStepThrough]
+            get => Properties;
         }
 
         /// <summary>
@@ -927,7 +934,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IMutableKey IMutableForeignKey.PrincipalKey
         {
-            [DebuggerStepThrough] get => PrincipalKey;
+            [DebuggerStepThrough]
+            get => PrincipalKey;
         }
 
         /// <summary>
@@ -938,7 +946,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IMutableEntityType IMutableForeignKey.DeclaringEntityType
         {
-            [DebuggerStepThrough] get => DeclaringEntityType;
+            [DebuggerStepThrough]
+            get => DeclaringEntityType;
         }
 
         /// <summary>
@@ -949,7 +958,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IMutableEntityType IMutableForeignKey.PrincipalEntityType
         {
-            [DebuggerStepThrough] get => PrincipalEntityType;
+            [DebuggerStepThrough]
+            get => PrincipalEntityType;
         }
 
         /// <summary>
@@ -960,7 +970,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IMutableNavigation IMutableForeignKey.DependentToPrincipal
         {
-            [DebuggerStepThrough] get => DependentToPrincipal;
+            [DebuggerStepThrough]
+            get => DependentToPrincipal;
         }
 
         /// <summary>
@@ -971,7 +982,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IMutableNavigation IMutableForeignKey.PrincipalToDependent
         {
-            [DebuggerStepThrough] get => PrincipalToDependent;
+            [DebuggerStepThrough]
+            get => PrincipalToDependent;
         }
 
         /// <summary>
@@ -1031,7 +1043,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionEntityType IConventionForeignKey.DeclaringEntityType
         {
-            [DebuggerStepThrough] get => DeclaringEntityType;
+            [DebuggerStepThrough]
+            get => DeclaringEntityType;
         }
 
         /// <summary>
@@ -1042,7 +1055,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionEntityType IConventionForeignKey.PrincipalEntityType
         {
-            [DebuggerStepThrough] get => PrincipalEntityType;
+            [DebuggerStepThrough]
+            get => PrincipalEntityType;
         }
 
         /// <summary>
@@ -1053,7 +1067,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionKey IConventionForeignKey.PrincipalKey
         {
-            [DebuggerStepThrough] get => PrincipalKey;
+            [DebuggerStepThrough]
+            get => PrincipalKey;
         }
 
         /// <summary>
@@ -1064,7 +1079,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IReadOnlyList<IConventionProperty> IConventionForeignKey.Properties
         {
-            [DebuggerStepThrough] get => Properties;
+            [DebuggerStepThrough]
+            get => Properties;
         }
 
         /// <summary>
@@ -1075,7 +1091,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionNavigation IConventionForeignKey.DependentToPrincipal
         {
-            [DebuggerStepThrough] get => DependentToPrincipal;
+            [DebuggerStepThrough]
+            get => DependentToPrincipal;
         }
 
         /// <summary>
@@ -1086,7 +1103,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionNavigation IConventionForeignKey.PrincipalToDependent
         {
-            [DebuggerStepThrough] get => PrincipalToDependent;
+            [DebuggerStepThrough]
+            get => PrincipalToDependent;
         }
 
         /// <summary>
@@ -1097,7 +1115,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionForeignKeyBuilder IConventionForeignKey.Builder
         {
-            [DebuggerStepThrough] get => Builder;
+            [DebuggerStepThrough]
+            get => Builder;
         }
 
         /// <summary>
@@ -1108,7 +1127,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionAnnotatableBuilder IConventionAnnotatable.Builder
         {
-            [DebuggerStepThrough] get => Builder;
+            [DebuggerStepThrough]
+            get => Builder;
         }
 
         /// <inheritdoc />

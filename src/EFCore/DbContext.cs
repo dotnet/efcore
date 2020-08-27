@@ -138,7 +138,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         public virtual IModel Model
         {
-            [DebuggerStepThrough] get => DbContextDependencies.Model;
+            [DebuggerStepThrough]
+            get => DbContextDependencies.Model;
         }
 
         /// <summary>

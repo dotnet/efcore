@@ -457,7 +457,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static EntityType AsEntityType([NotNull] this IEntityType entityType, [NotNull] [CallerMemberName] string methodName = "")
+        public static EntityType AsEntityType([NotNull] this IEntityType entityType, [NotNull][CallerMemberName] string methodName = "")
             => MetadataExtensions.AsConcreteMetadataType<IEntityType, EntityType>(entityType, methodName);
     }
 }

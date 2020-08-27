@@ -2535,7 +2535,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         };
 
         private static readonly MultiPoint _multiPoint = new MultiPoint(
-            new[] { new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1) }) { SRID = 4326 };
+            new[] { new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1) })
+        { SRID = 4326 };
 
         private static readonly Polygon _polygon1 = new Polygon(
             new LinearRing(
@@ -2554,10 +2555,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         private static readonly Point _point1 = new Point(1.1, 2.2, 3.3) { SRID = 4326 };
 
         private static readonly MultiLineString _multiLineString = new MultiLineString(
-            new[] { _lineString1, _lineString2 }) { SRID = 4326 };
+            new[] { _lineString1, _lineString2 })
+        { SRID = 4326 };
 
         private static readonly MultiPolygon _multiPolygon = new MultiPolygon(
-            new[] { _polygon2, _polygon1 }) { SRID = 4326 };
+            new[] { _polygon2, _polygon1 })
+        { SRID = 4326 };
 
         private static readonly GeometryCollection _geometryCollection = new GeometryCollection(
             new Geometry[] { _lineString1, _lineString2, _multiPoint, _polygon1, _polygon2, _point1, _multiLineString, _multiPolygon })

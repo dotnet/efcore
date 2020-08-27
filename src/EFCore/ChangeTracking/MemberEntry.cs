@@ -80,7 +80,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public virtual object CurrentValue
         {
             get => InternalEntry[Metadata];
-            [param: CanBeNull] set => InternalEntry[Metadata] = value;
+            [param: CanBeNull]
+            set => InternalEntry[Metadata] = value;
         }
 
         /// <summary>

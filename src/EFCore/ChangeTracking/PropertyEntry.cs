@@ -90,7 +90,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public virtual object OriginalValue
         {
             get => InternalEntry.GetOriginalValue(Metadata);
-            [param: CanBeNull] set => InternalEntry.SetOriginalValue(Metadata, value);
+            [param: CanBeNull]
+            set => InternalEntry.SetOriginalValue(Metadata, value);
         }
     }
 }

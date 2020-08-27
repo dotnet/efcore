@@ -1086,12 +1086,14 @@ namespace Microsoft.EntityFrameworkCore
 
             public virtual
                 List<(Type Type, Type ReadonlyExtensions, Type MutableExtensions, Type ConventionExtensions, Type
-                    ConventionBuilderExtensions)> MetadataExtensionTypes { get; }
+                    ConventionBuilderExtensions)> MetadataExtensionTypes
+            { get; }
                 = new List<(Type, Type, Type, Type, Type)>();
 
             public List<(IReadOnlyList<MethodInfo> ReadOnly, IReadOnlyList<MethodInfo> Mutable, IReadOnlyList<MethodInfo> Convention,
                     IReadOnlyList<MethodInfo> ConventionBuilder)>
-                MetadataMethods { get; }
+                MetadataMethods
+            { get; }
                 = new List<(IReadOnlyList<MethodInfo>, IReadOnlyList<MethodInfo>, IReadOnlyList<MethodInfo>, IReadOnlyList<MethodInfo>)>();
 
             protected virtual void Initialize()

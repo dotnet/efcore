@@ -527,17 +527,20 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var suspiciousActivity1 = Add(
                 new TSuspiciousActivity
                 {
-                    Activity = "Pig prints on keyboard", Username = Entry(login3).Property(e => e.Username).CurrentValue
+                    Activity = "Pig prints on keyboard",
+                    Username = Entry(login3).Property(e => e.Username).CurrentValue
                 }).Entity;
             var suspiciousActivity2 = Add(
                 new TSuspiciousActivity
                 {
-                    Activity = "Crumbs in the cupboard", Username = Entry(login3).Property(e => e.Username).CurrentValue
+                    Activity = "Crumbs in the cupboard",
+                    Username = Entry(login3).Property(e => e.Username).CurrentValue
                 }).Entity;
             var suspiciousActivity3 = Add(
                 new TSuspiciousActivity
                 {
-                    Activity = "Donuts gone missing", Username = Entry(login3).Property(e => e.Username).CurrentValue
+                    Activity = "Donuts gone missing",
+                    Username = Entry(login3).Property(e => e.Username).CurrentValue
                 }).Entity;
 
             var rsaToken1 = Add(
@@ -748,24 +751,28 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var productDetail1 = Add(
                 new TProductDetail
                 {
-                    Details = "A Waffle Cart specialty!", ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue
+                    Details = "A Waffle Cart specialty!",
+                    ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue
                 }).Entity;
             var productDetail2 = Add(
                 new TProductDetail
                 {
-                    Details = "Eeky Bear's favorite!", ProductId = Entry(product2).Property(e => e.ProductId).CurrentValue
+                    Details = "Eeky Bear's favorite!",
+                    ProductId = Entry(product2).Property(e => e.ProductId).CurrentValue
                 }).Entity;
 
             var productReview1 = Add(
                     new TProductReview
                     {
-                        ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue, Review = "Better than Tarqies!"
+                        ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue,
+                        Review = "Better than Tarqies!"
                     })
                 .Entity;
             var productReview2 = Add(
                 new TProductReview
                 {
-                    ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue, Review = "Good with maple syrup."
+                    ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue,
+                    Review = "Good with maple syrup."
                 }).Entity;
             var productReview3 = Add(
                     new TProductReview { ProductId = Entry(product2).Property(e => e.ProductId).CurrentValue, Review = "Eeky says yes!" })
@@ -774,19 +781,22 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var productPhoto1 = Add(
                     new TProductPhoto
                     {
-                        ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue, Photo = new byte[] { 101, 102 }
+                        ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue,
+                        Photo = new byte[] { 101, 102 }
                     })
                 .Entity;
             var productPhoto2 = Add(
                     new TProductPhoto
                     {
-                        ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue, Photo = new byte[] { 103, 104 }
+                        ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue,
+                        Photo = new byte[] { 103, 104 }
                     })
                 .Entity;
             var productPhoto3 = Add(
                     new TProductPhoto
                     {
-                        ProductId = Entry(product3).Property(e => e.ProductId).CurrentValue, Photo = new byte[] { 105, 106 }
+                        ProductId = Entry(product3).Property(e => e.ProductId).CurrentValue,
+                        Photo = new byte[] { 105, 106 }
                     })
                 .Entity;
 
@@ -815,35 +825,41 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var supplierLogo1 = Add(
                 new TSupplierLogo
                 {
-                    SupplierId = Entry(supplier1).Property(e => e.SupplierId).CurrentValue, Logo = new byte[] { 201, 202 }
+                    SupplierId = Entry(supplier1).Property(e => e.SupplierId).CurrentValue,
+                    Logo = new byte[] { 201, 202 }
                 }).Entity;
 
             var supplierInfo1 = Add(
                 new TSupplierInfo
                 {
-                    SupplierId = Entry(supplier1).Property(e => e.SupplierId).CurrentValue, Information = "Seems a bit dodgy."
+                    SupplierId = Entry(supplier1).Property(e => e.SupplierId).CurrentValue,
+                    Information = "Seems a bit dodgy."
                 }).Entity;
             var supplierInfo2 = Add(
                     new TSupplierInfo
                     {
-                        SupplierId = Entry(supplier1).Property(e => e.SupplierId).CurrentValue, Information = "Orange fur?"
+                        SupplierId = Entry(supplier1).Property(e => e.SupplierId).CurrentValue,
+                        Information = "Orange fur?"
                     })
                 .Entity;
             var supplierInfo3 = Add(
                 new TSupplierInfo
                 {
-                    SupplierId = Entry(supplier2).Property(e => e.SupplierId).CurrentValue, Information = "Very expensive!"
+                    SupplierId = Entry(supplier2).Property(e => e.SupplierId).CurrentValue,
+                    Information = "Very expensive!"
                 }).Entity;
 
             var customerInfo1 = Add(
                 new TCustomerInfo
                 {
-                    CustomerInfoId = Entry(customer1).Property(e => e.CustomerId).CurrentValue, Information = "Really likes tea."
+                    CustomerInfoId = Entry(customer1).Property(e => e.CustomerId).CurrentValue,
+                    Information = "Really likes tea."
                 }).Entity;
             var customerInfo2 = Add(
                 new TCustomerInfo
                 {
-                    CustomerInfoId = Entry(customer2).Property(e => e.CustomerId).CurrentValue, Information = "Mrs Bossy Pants!"
+                    CustomerInfoId = Entry(customer2).Property(e => e.CustomerId).CurrentValue,
+                    Information = "Mrs Bossy Pants!"
                 }).Entity;
 
             var computer1 = Add(
@@ -1078,17 +1094,20 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var suspiciousActivity1 = Add(
                 new TSuspiciousActivity
                 {
-                    Activity = "Pig prints on keyboard", Username = Entry(login3).Property(e => e.Username).CurrentValue
+                    Activity = "Pig prints on keyboard",
+                    Username = Entry(login3).Property(e => e.Username).CurrentValue
                 }).Entity;
             var suspiciousActivity2 = Add(
                 new TSuspiciousActivity
                 {
-                    Activity = "Crumbs in the cupboard", Username = Entry(login3).Property(e => e.Username).CurrentValue
+                    Activity = "Crumbs in the cupboard",
+                    Username = Entry(login3).Property(e => e.Username).CurrentValue
                 }).Entity;
             var suspiciousActivity3 = Add(
                 new TSuspiciousActivity
                 {
-                    Activity = "Donuts gone missing", Username = Entry(login3).Property(e => e.Username).CurrentValue
+                    Activity = "Donuts gone missing",
+                    Username = Entry(login3).Property(e => e.Username).CurrentValue
                 }).Entity;
 
             var rsaToken1 = Add(
@@ -1381,19 +1400,22 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var productPhoto1 = Add(
                     new TProductPhoto
                     {
-                        ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue, Photo = new byte[] { 101, 102 }
+                        ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue,
+                        Photo = new byte[] { 101, 102 }
                     })
                 .Entity;
             var productPhoto2 = Add(
                     new TProductPhoto
                     {
-                        ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue, Photo = new byte[] { 103, 104 }
+                        ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue,
+                        Photo = new byte[] { 103, 104 }
                     })
                 .Entity;
             var productPhoto3 = Add(
                     new TProductPhoto
                     {
-                        ProductId = Entry(product3).Property(e => e.ProductId).CurrentValue, Photo = new byte[] { 105, 106 }
+                        ProductId = Entry(product3).Property(e => e.ProductId).CurrentValue,
+                        Photo = new byte[] { 105, 106 }
                     })
                 .Entity;
             if (principalNavs)
@@ -1458,12 +1480,14 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var customerInfo1 = Add(
                 new TCustomerInfo
                 {
-                    CustomerInfoId = Entry(customer1).Property(e => e.CustomerId).CurrentValue, Information = "Really likes tea."
+                    CustomerInfoId = Entry(customer1).Property(e => e.CustomerId).CurrentValue,
+                    Information = "Really likes tea."
                 }).Entity;
             var customerInfo2 = Add(
                 new TCustomerInfo
                 {
-                    CustomerInfoId = Entry(customer2).Property(e => e.CustomerId).CurrentValue, Information = "Mrs Bossy Pants!"
+                    CustomerInfoId = Entry(customer2).Property(e => e.CustomerId).CurrentValue,
+                    Information = "Mrs Bossy Pants!"
                 }).Entity;
             if (principalNavs)
             {
@@ -1669,17 +1693,20 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var suspiciousActivity1 = toAdd[2].AddEx(
                 new TSuspiciousActivity
                 {
-                    Activity = "Pig prints on keyboard", Username = Entry(login3).Property(e => e.Username).CurrentValue
+                    Activity = "Pig prints on keyboard",
+                    Username = Entry(login3).Property(e => e.Username).CurrentValue
                 });
             var suspiciousActivity2 = toAdd[2].AddEx(
                 new TSuspiciousActivity
                 {
-                    Activity = "Crumbs in the cupboard", Username = Entry(login3).Property(e => e.Username).CurrentValue
+                    Activity = "Crumbs in the cupboard",
+                    Username = Entry(login3).Property(e => e.Username).CurrentValue
                 });
             var suspiciousActivity3 = toAdd[2].AddEx(
                 new TSuspiciousActivity
                 {
-                    Activity = "Donuts gone missing", Username = Entry(login3).Property(e => e.Username).CurrentValue
+                    Activity = "Donuts gone missing",
+                    Username = Entry(login3).Property(e => e.Username).CurrentValue
                 });
 
             var rsaToken1 = toAdd[2].AddEx(

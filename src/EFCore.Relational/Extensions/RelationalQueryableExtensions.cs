@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore
         [StringFormatMethod("sql")]
         public static IQueryable<TEntity> FromSqlRaw<TEntity>(
             [NotNull] this DbSet<TEntity> source,
-            [NotNull] [NotParameterized] string sql,
+            [NotNull][NotParameterized] string sql,
             [NotNull] params object[] parameters)
             where TEntity : class
         {
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> An <see cref="IQueryable{T}" /> representing the interpolated string SQL query. </returns>
         public static IQueryable<TEntity> FromSqlInterpolated<TEntity>(
             [NotNull] this DbSet<TEntity> source,
-            [NotNull] [NotParameterized] FormattableString sql)
+            [NotNull][NotParameterized] FormattableString sql)
             where TEntity : class
         {
             Check.NotNull(source, nameof(source));

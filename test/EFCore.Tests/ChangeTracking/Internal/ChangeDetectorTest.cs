@@ -1054,7 +1054,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var product2 = new ProductWithChanged { Id = 2, DependentId = 77 };
             var category = new CategoryWithChanged
             {
-                Id = 77, Products = new ObservableCollection<ProductWithChanged> { product1, product2 }
+                Id = 77,
+                Products = new ObservableCollection<ProductWithChanged> { product1, product2 }
             };
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Unchanged);

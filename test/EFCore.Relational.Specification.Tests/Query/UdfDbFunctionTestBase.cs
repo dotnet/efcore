@@ -557,7 +557,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                        where c.Id == 1
                        select new
                        {
-                           c.FirstName, OrderCount = UDFSqlContext.CustomerOrderCountStatic(UDFSqlContext.AddFiveStatic(c.Id - 5))
+                           c.FirstName,
+                           OrderCount = UDFSqlContext.CustomerOrderCountStatic(UDFSqlContext.AddFiveStatic(c.Id - 5))
                        }).Single());
         }
 
@@ -1534,7 +1535,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var results = (from c in context.Customers
                                select new
                                {
-                                   c.Id, Prods = context.GetTopTwoSellingProducts().ToList(),
+                                   c.Id,
+                                   Prods = context.GetTopTwoSellingProducts().ToList(),
                                }).ToList();
 
                 Assert.Equal(4, results.Count);

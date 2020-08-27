@@ -524,7 +524,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<FunkyCustomer>().OrderBy(e => e.Id).Select(
                     e => new
                     {
-                        first = e.FirstName.MaybeScalar(x => x.FirstOrDefault()), last = e.FirstName.MaybeScalar(x => x.LastOrDefault())
+                        first = e.FirstName.MaybeScalar(x => x.FirstOrDefault()),
+                        last = e.FirstName.MaybeScalar(x => x.LastOrDefault())
                     }),
                 assertOrder: true,
                 elementAsserter: (e, a) =>

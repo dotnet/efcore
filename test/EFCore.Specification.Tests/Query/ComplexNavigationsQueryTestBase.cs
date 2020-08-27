@@ -5538,7 +5538,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 ? null
                                 : new Level2Dto
                                 {
-                                    Id = l1.OneToOne_Optional_FK1.Id, Name = l1.OneToOne_Optional_FK1.Name,
+                                    Id = l1.OneToOne_Optional_FK1.Id,
+                                    Name = l1.OneToOne_Optional_FK1.Name,
                                 }
                         })
                     .OrderBy(e => e.Level2.Name)

@@ -1274,7 +1274,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                                 on eVersion.RootEntityId equals eRoot.Id
                                 into RootEntities
                             from eRootJoined in RootEntities.DefaultIfEmpty()
-                            // ReSharper disable once ConstantNullCoalescingCondition
+                                // ReSharper disable once ConstantNullCoalescingCondition
                             select new { One = 1, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
 
                 var result = query.ToList();
@@ -1293,7 +1293,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                                 on eVersion.RootEntityId equals eRoot.Id
                                 into RootEntities
                             from eRootJoined in RootEntities.DefaultIfEmpty()
-                            // ReSharper disable once ConstantNullCoalescingCondition
+                                // ReSharper disable once ConstantNullCoalescingCondition
                             select new
                             {
                                 One = eRootJoined,
@@ -1317,7 +1317,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                                 on eVersion.RootEntityId equals eRoot.Id
                                 into RootEntities
                             from eRootJoined in RootEntities.DefaultIfEmpty()
-                            // ReSharper disable once MergeConditionalExpression
+                                // ReSharper disable once MergeConditionalExpression
 #pragma warning disable IDE0029 // Use coalesce expression
                             select eRootJoined != null ? eRootJoined : eVersion;
 #pragma warning restore IDE0029 // Use coalesce expression
@@ -4842,7 +4842,8 @@ LEFT JOIN [Categories] AS [c] ON [p].[CategoryId] = [c].[Id]");
                     context.Products.Add(
                         new Product15684
                         {
-                            Name = "Apple", Category = new Category15684 { Name = "Fruit", Status = CategoryStatus15684.Active }
+                            Name = "Apple",
+                            Category = new Category15684 { Name = "Fruit", Status = CategoryStatus15684.Active }
                         });
 
                     context.Products.Add(new Product15684 { Name = "Bike" });

@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
         public static TProperty Collate<TProperty>(
             [NotNull] this DbFunctions _,
             [NotNull] TProperty operand,
-            [NotNull] [NotParameterized] string collation)
+            [NotNull][NotParameterized] string collation)
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Collate)));
     }
 }

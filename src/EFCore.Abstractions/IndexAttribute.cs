@@ -41,7 +41,8 @@ namespace Microsoft.EntityFrameworkCore
         public string Name
         {
             get => _name;
-            [param: NotNull] set => _name = Check.NotNull(value, nameof(value));
+            [param: NotNull]
+            set => _name = Check.NotNull(value, nameof(value));
         }
 
         /// <summary>

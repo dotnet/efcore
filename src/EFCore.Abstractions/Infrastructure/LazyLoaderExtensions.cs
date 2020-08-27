@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             [NotNull] object entity,
             [CanBeNull] ref TRelated navigationField,
             // ReSharper disable once AssignNullToNotNullAttribute
-            [NotNull] [CallerMemberName] string navigationName = null)
+            [NotNull][CallerMemberName] string navigationName = null)
             where TRelated : class
         {
             // ReSharper disable once AssignNullToNotNullAttribute

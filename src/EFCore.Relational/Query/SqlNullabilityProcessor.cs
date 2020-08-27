@@ -1491,7 +1491,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             sqlBinaryOperand.TypeMapping);
                     }
                 }
-                    break;
+                break;
             }
 
             return sqlUnaryExpression;
@@ -1706,7 +1706,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         return result;
                     }
                 }
-                    break;
+                break;
             }
 
             return sqlUnaryExpression;
