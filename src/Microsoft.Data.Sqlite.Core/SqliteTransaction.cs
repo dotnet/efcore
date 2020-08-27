@@ -113,6 +113,74 @@ namespace Microsoft.Data.Sqlite
             RollbackInternal();
         }
 
+#if NET5_0
+        /// <inheritdoc />
+        public override bool SupportsSavepoints => true;
+
+        /// <inheritdoc />
+        public override void Save(string savepointName)
+        {
+            if (savepointName == null)
+            {
+                throw new ArgumentNullException(nameof(savepointName));
+            }
+
+            if (string.IsNullOrWhiteSpace(savepointName))
+            {
+                throw new ArgumentException($"{nameof(savepointName)} can't be empty", nameof(savepointName));
+            }
+
+            if (_completed || _connection.State != ConnectionState.Open)
+            {
+                throw new InvalidOperationException(Resources.TransactionCompleted);
+            }
+
+            _connection.ExecuteNonQuery("SAVEPOINT " + savepointName);
+        }
+
+        /// <inheritdoc />
+        public override void Rollback(string savepointName)
+        {
+            if (savepointName == null)
+            {
+                throw new ArgumentNullException(nameof(savepointName));
+            }
+
+            if (string.IsNullOrWhiteSpace(savepointName))
+            {
+                throw new ArgumentException($"{nameof(savepointName)} can't be empty", nameof(savepointName));
+            }
+
+            if (_completed || _connection.State != ConnectionState.Open)
+            {
+                throw new InvalidOperationException(Resources.TransactionCompleted);
+            }
+
+            _connection.ExecuteNonQuery("ROLLBACK TO " + savepointName);
+        }
+
+        /// <inheritdoc />
+        public override void Release(string savepointName)
+        {
+            if (savepointName == null)
+            {
+                throw new ArgumentNullException(nameof(savepointName));
+            }
+
+            if (string.IsNullOrWhiteSpace(savepointName))
+            {
+                throw new ArgumentException($"{nameof(savepointName)} can't be empty", nameof(savepointName));
+            }
+
+            if (_completed || _connection.State != ConnectionState.Open)
+            {
+                throw new InvalidOperationException(Resources.TransactionCompleted);
+            }
+
+            _connection.ExecuteNonQuery("RELEASE SAVEPOINT " + savepointName);
+        }
+#endif
+
         /// <summary>
         ///     Releases any resources used by the transaction and rolls it back.
         /// </summary>
