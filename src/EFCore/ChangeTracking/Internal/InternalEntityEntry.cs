@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (adding || oldState is EntityState.Detached)
             {
-                StateManager.ValueGenerationManager.Generate(this, includePKs: adding);
+                StateManager.ValueGenerationManager.Generate(this, includePrimaryKey: adding);
             }
 
             SetEntityState(oldState, entityState, acceptChanges, modifyProperties);
@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (adding || oldState is EntityState.Detached)
             {
-                await StateManager.ValueGenerationManager.GenerateAsync(this, includePKs: adding, cancellationToken)
+                await StateManager.ValueGenerationManager.GenerateAsync(this, includePrimaryKey: adding, cancellationToken)
                     .ConfigureAwait(false);
             }
 

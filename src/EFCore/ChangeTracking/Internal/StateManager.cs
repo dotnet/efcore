@@ -324,9 +324,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             EntityState? oldState)
         {
             var entityType = entry.EntityType;
-            var mapKey = entry.Entity ?? entry;
             if (entityType.HasDefiningNavigation())
             {
+                var mapKey = entry.Entity ?? entry;
                 foreach (var otherType in _model.GetEntityTypes(entityType.Name)
                     .Where(et => et != entityType && TryGetEntry(mapKey, et) != null))
                 {
