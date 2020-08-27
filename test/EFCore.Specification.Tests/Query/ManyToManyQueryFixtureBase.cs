@@ -324,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.SharedTypeEntity<ProxyableSharedType>(
                 "PST", b =>
                 {
-                    b.IndexerProperty<int?>("Id").ValueGeneratedNever(); // This is nullable due to #22009
+                    b.IndexerProperty<int>("Id").ValueGeneratedNever();
                     b.IndexerProperty<string>("Payload");
                 });
         }
