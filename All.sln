@@ -110,6 +110,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Sqlite.winsq
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Sqlite.sqlite3.Tests", "test\Microsoft.Data.Sqlite.Tests\Microsoft.Data.Sqlite.sqlite3.Tests.csproj", "{E0FF35C8-8038-4394-9C2A-AF34BE3CC61F}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.OData.FunctionalTests", "test\EFCore.OData.FunctionalTests\EFCore.OData.FunctionalTests.csproj", "{7C0E5443-FE44-4436-8A7D-CE64D1F889BD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -288,6 +290,10 @@ Global
 		{E0FF35C8-8038-4394-9C2A-AF34BE3CC61F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E0FF35C8-8038-4394-9C2A-AF34BE3CC61F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E0FF35C8-8038-4394-9C2A-AF34BE3CC61F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C0E5443-FE44-4436-8A7D-CE64D1F889BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C0E5443-FE44-4436-8A7D-CE64D1F889BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C0E5443-FE44-4436-8A7D-CE64D1F889BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C0E5443-FE44-4436-8A7D-CE64D1F889BD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -336,6 +342,7 @@ Global
 		{7B598E0C-B8E2-4F1F-B53C-ED84178E65BE} = {258D5057-81B9-40EC-A872-D21E27452749}
 		{B163761D-FB4A-4C80-BAB9-01905E1351EF} = {258D5057-81B9-40EC-A872-D21E27452749}
 		{E0FF35C8-8038-4394-9C2A-AF34BE3CC61F} = {258D5057-81B9-40EC-A872-D21E27452749}
+		{7C0E5443-FE44-4436-8A7D-CE64D1F889BD} = {258D5057-81B9-40EC-A872-D21E27452749}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {285A5EB4-BCF4-40EB-B9E1-DF6DBCB5E705}

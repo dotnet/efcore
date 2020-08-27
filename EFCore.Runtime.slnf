@@ -23,6 +23,7 @@
       "test\\EFCore.Design.Tests\\EFCore.Design.Tests.csproj",
       "test\\EFCore.InMemory.FunctionalTests\\EFCore.InMemory.FunctionalTests.csproj",
       "test\\EFCore.InMemory.Tests\\EFCore.InMemory.Tests.csproj",
+      "test\\EFCore.OData.FunctionalTests\\EFCore.OData.FunctionalTests.csproj",
       "test\\EFCore.Proxies.Tests\\EFCore.Proxies.Tests.csproj",
       "test\\EFCore.Relational.Specification.Tests\\EFCore.Relational.Specification.Tests.csproj",
       "test\\EFCore.Relational.Tests\\EFCore.Relational.Tests.csproj",
@@ -31,7 +32,7 @@
       "test\\EFCore.SqlServer.Tests\\EFCore.SqlServer.Tests.csproj",
       "test\\EFCore.Sqlite.FunctionalTests\\EFCore.Sqlite.FunctionalTests.csproj",
       "test\\EFCore.Sqlite.Tests\\EFCore.Sqlite.Tests.csproj",
-      "test\\EFCore.Tests\\EFCore.Tests.csproj"
+      "test\\EFCore.Tests\\EFCore.Tests.csproj",
     ]
   }
 }
