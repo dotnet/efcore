@@ -3069,7 +3069,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (changeTrackingStrategy != null)
             {
-                var requireFullNotifications = (string)Model[CoreAnnotationNames.SkipChangeTrackingStrategyValidationAnnotation] == "true";
+                var requireFullNotifications = (string)Model[CoreAnnotationNames.FullChangeTrackingNotificationsRequiredAnnotation] == "true";
                 var errorMessage = CheckChangeTrackingStrategy(changeTrackingStrategy.Value, requireFullNotifications);
                 if (errorMessage != null)
                 {

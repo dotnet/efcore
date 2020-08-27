@@ -981,7 +981,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 foreignKey, key, principalType, entityType, otherEntityType);
 
         /// <summary>
-        ///     The entity type '{entityType}' is configured to use the '{changeTrackingStrategy}' change tracking strategy when full change tracking notifications are required. Configure all entity types in the model to use the '{fullStrategy}' or '{fullPlusStrategy}' strategy.
+        ///     The entity type '{entityType}' is configured to use the '{changeTrackingStrategy}' change tracking strategy when full change tracking notifications are required. Use 'ModelBuilder.HasChangeTrackingStrategy' in 'OnModelCreating' to configure all entity types in the model to use the '{fullStrategy}' or '{fullPlusStrategy}' strategy.
         /// </summary>
         public static string FullChangeTrackingRequired([CanBeNull] object entityType, [CanBeNull] object changeTrackingStrategy, [CanBeNull] object fullStrategy, [CanBeNull] object fullPlusStrategy)
             => string.Format(

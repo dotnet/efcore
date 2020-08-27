@@ -687,7 +687,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotNull(model, nameof(model));
 
-            var requireFullNotifications = (string)model[CoreAnnotationNames.SkipChangeTrackingStrategyValidationAnnotation] == "true";
+            var requireFullNotifications = (string)model[CoreAnnotationNames.FullChangeTrackingNotificationsRequiredAnnotation] == "true";
             foreach (var entityType in model.GetEntityTypes())
             {
                 var errorMessage = entityType.AsEntityType().CheckChangeTrackingStrategy(
