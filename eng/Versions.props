@@ -27,6 +27,8 @@
     <MicrosoftExtensionsDependencyModelVersion>5.0.0-rc.1.20427.1</MicrosoftExtensionsDependencyModelVersion>
     <MicrosoftExtensionsHostFactoryResolverSourcesVersion>5.0.0-rc.1.20427.1</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
     <MicrosoftExtensionsLoggingVersion>5.0.0-rc.1.20427.1</MicrosoftExtensionsLoggingVersion>
+    <MicrosoftNETCoreAppRefPackageVersion>5.0.0-rc.1.20427.1</MicrosoftNETCoreAppRefPackageVersion>
+    <MicrosoftNETCoreAppRuntimewinx64PackageVersion>5.0.0-rc.1.20427.1</MicrosoftNETCoreAppRuntimewinx64PackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Other dependencies">
     <MicrosoftCodeAnalysisVersion>3.7.0</MicrosoftCodeAnalysisVersion>
