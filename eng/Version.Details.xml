@@ -37,6 +37,14 @@
       <Uri>https://github.com/dotnet/runtime</Uri>
       <Sha>4328059b4e2eafe1bc62d23147fa06e4431d9d5c</Sha>
     </Dependency>
+    <Dependency Name="Microsoft.NETCore.App.Ref" Version="5.0.0-rc.1.20431.5">
+      <Uri>https://github.com/dotnet/runtime</Uri>
+      <Sha>4328059b4e2eafe1bc62d23147fa06e4431d9d5c</Sha>
+    </Dependency>
+    <Dependency Name="Microsoft.NETCore.App.Runtime.win-x64" Version="5.0.0-rc.1.20431.5">
+      <Uri>https://github.com/dotnet/runtime</Uri>
+      <Sha>4328059b4e2eafe1bc62d23147fa06e4431d9d5c</Sha>
+    </Dependency>
     <Dependency Name="System.Collections.Immutable" Version="5.0.0-rc.1.20431.5">
       <Uri>https://github.com/dotnet/runtime</Uri>
       <Sha>4328059b4e2eafe1bc62d23147fa06e4431d9d5c</Sha>

@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -67,7 +68,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private static bool IsNotConfigured(Exception exception)
             => exception switch
             {
-                HttpRequestException re => re.InnerException is SocketException,
+                HttpRequestException re => re.InnerException is SocketException
+                    || (re.InnerException is NetworkException networkException
+                        && networkException.InnerException is SocketException),
                 _ => exception.Message.Contains(
                     "The input authorization token can't serve the request. Please check that the expected payload is built as per the protocol, and check the key being used.",
                     StringComparison.Ordinal),

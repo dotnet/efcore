@@ -226,12 +226,12 @@ namespace Microsoft.EntityFrameworkCore
             var stream = new MemoryStream();
             var formatter = new BinaryFormatter();
 
-#pragma warning disable MSLIB0003 // Issue https://github.com/dotnet/runtime/issues/39289 tracks finding an alternative to BinaryFormatter
+#pragma warning disable SYSLIB0011 // Issue https://github.com/dotnet/runtime/issues/39289 tracks finding an alternative to BinaryFormatter
             formatter.Serialize(stream, exception);
             stream.Seek(0, SeekOrigin.Begin);
 
             return (TException)formatter.Deserialize(stream);
-#pragma warning restore MSLIB0003
+#pragma warning restore SYSLIB0011
         }
     }
 }
