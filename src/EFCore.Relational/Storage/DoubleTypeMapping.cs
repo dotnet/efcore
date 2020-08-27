@@ -28,10 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public DoubleTypeMapping(
             [NotNull] string storeType,
             DbType? dbType = null)
-            : base(
-                new RelationalTypeMappingParameters(
-                    new CoreTypeMappingParameters(typeof(double), comparer: new DoubleValueComparer()),
-                    storeType, StoreTypePostfix.None, dbType, unicode: false, size: null, fixedLength: false, precision: null, scale: null))
+            : base(storeType, typeof(double), dbType)
         {
         }
 
