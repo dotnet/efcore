@@ -307,7 +307,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             AmbiguousNavigations,
             DuplicateServiceProperties,
             AmbiguousField,
-            SkipDetectChangesAnnotation,
             FullChangeTrackingNotificationsRequiredAnnotation
         };
     }
