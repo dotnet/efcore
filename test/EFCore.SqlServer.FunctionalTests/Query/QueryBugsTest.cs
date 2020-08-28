@@ -840,14 +840,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                 var firstName = details.FirstName;
                 ctx.Customers.Where(c => c.FirstName == firstName && c.LastName == details.LastName).ToList();
 
-                // issue #16057
-                //                    AssertSql(
-                //                        @"@__firstName_0='Foo' (Size = 450)
-                //@__8__locals1_details_LastName_1='Bar' (Size = 450)
-
-                //SELECT [c].[FirstName], [c].[LastName]
-                //FROM [Customer] AS [c]
-                //WHERE (([c].[FirstName] = @__firstName_0) AND @__firstName_0 IS NOT NULL) AND (([c].[LastName] = @__8__locals1_details_LastName_1) AND @__8__locals1_details_LastName_1 IS NOT NULL)");
+                // No AssertSQL since compiler generated variable names are different between local and CI
             }
         }
 
