@@ -842,7 +842,9 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
         private void GetIndexes(DbConnection connection, IReadOnlyList<DatabaseTable> tables, string tableFilter)
         {
             using var command = connection.CreateCommand();
-            var commandText = @"
+            var commandTextBuilder = new StringBuilder();
+            commandTextBuilder.Append(
+                @"
 SELECT
     SCHEMA_NAME([t].[schema_id]) AS [table_schema],
     [t].[name] AS [table_name],
@@ -862,12 +864,14 @@ JOIN [sys].[index_columns] AS [ic] ON [i].[object_id] = [ic].[object_id] AND [i]
 JOIN [sys].[columns] AS [c] ON [ic].[object_id] = [c].[object_id] AND [ic].[column_id] = [c].[column_id]
 WHERE [i].[is_hypothetical] = 0
 AND "
-                + tableFilter;
+              + tableFilter);
 
             if (SupportsTemporalTable())
             {
-                commandText += @"
-AND CAST([i].[object_id] AS nvarchar(12)) + '#' + CAST([i].[index_id] AS nvarchar(12)) NOT IN
+                commandTextBuilder.Insert(
+                    0, @"
+SELECT * INTO #TempIndexes
+FROM
 (
    SELECT CAST([i].[object_id] AS nvarchar(12)) + '#' + CAST([i].[index_id] AS nvarchar(12))
    FROM [sys].[indexes] i
@@ -875,18 +879,24 @@ AND CAST([i].[object_id] AS nvarchar(12)) + '#' + CAST([i].[index_id] AS nvarcha
    JOIN [sys].[index_columns] AS [ic] ON [i].[object_id] = [ic].[object_id] AND [i].[index_id] = [ic].[index_id]
    JOIN [sys].[columns] AS [c] ON [ic].[object_id] = [c].[object_id] AND [ic].[column_id] = [c].[column_id]
    WHERE "
-                    + tableFilter;
-
-                commandText += @"
-   AND [c].[is_hidden] = 1
-   AND [i].[is_hypothetical] = 0
-)";
+                  + tableFilter
+                  + @"
+AND[c].[is_hidden] = 1
+AND[i].[is_hypothetical] = 0
+) AS TempIndexes([name])");
             }
 
-            commandText += @"
-ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
+            commandTextBuilder.AppendLine().Append(
+                @"AND CAST([i].[object_id] AS nvarchar(12)) + '#' + CAST([i].[index_id] AS nvarchar(12)) NOT IN
+(
+	SELECT * FROM #TempIndexes ti
+)");
+            commandTextBuilder.AppendLine(
+                @"
+ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]");
 
-            command.CommandText = commandText;
+            commandTextBuilder.Append("DROP TABLE #TempIndexes");
+            command.CommandText = commandTextBuilder.ToString();
 
             using var reader = command.ExecuteReader();
             var tableIndexGroups = reader.Cast<DbDataRecord>()
