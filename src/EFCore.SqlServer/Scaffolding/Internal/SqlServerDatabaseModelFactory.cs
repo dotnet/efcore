@@ -887,7 +887,8 @@ AND[i].[is_hypothetical] = 0
             }
 
             commandTextBuilder.AppendLine().Append(
-                @"AND CAST([i].[object_id] AS nvarchar(12)) + '#' + CAST([i].[index_id] AS nvarchar(12)) NOT IN
+                @"
+AND CAST([i].[object_id] AS nvarchar(12)) + '#' + CAST([i].[index_id] AS nvarchar(12)) NOT IN
 (
 	SELECT * FROM #TempIndexes ti
 )");
