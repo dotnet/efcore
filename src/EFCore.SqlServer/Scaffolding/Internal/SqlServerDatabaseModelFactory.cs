@@ -884,7 +884,6 @@ FROM
 AND[c].[is_hidden] = 1
 AND[i].[is_hypothetical] = 0
 ) AS TempIndexes([name])");
-            }
 
             commandTextBuilder.AppendLine().Append(
                 @"
@@ -892,6 +891,8 @@ AND CAST([i].[object_id] AS nvarchar(12)) + '#' + CAST([i].[index_id] AS nvarcha
 (
 	SELECT * FROM #TempIndexes ti
 )");
+            }
+
             commandTextBuilder.AppendLine(
                 @"
 ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]");
