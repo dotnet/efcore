@@ -7145,6 +7145,19 @@ CROSS APPLY (
 ORDER BY [g].[Nickname], [t].[Id]");
         }
 
+        public override async Task FirstOrDefault_over_int_compared_to_zero(bool async)
+        {
+            await base.FirstOrDefault_over_int_compared_to_zero(async);
+
+            AssertSql(
+                @"SELECT [s].[Name]
+FROM [Squads] AS [s]
+WHERE ([s].[Name] = N'Kilo') AND (COALESCE((
+    SELECT TOP(1) [g].[SquadId]
+    FROM [Gears] AS [g]
+    WHERE ([s].[Id] = [g].[SquadId]) AND ([g].[HasSoulPatch] = CAST(1 AS bit))), 0) <> 0)");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

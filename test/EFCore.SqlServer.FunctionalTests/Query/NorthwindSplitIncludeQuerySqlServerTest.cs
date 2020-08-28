@@ -1779,6 +1779,13 @@ WHERE [c].[City] = N'Seattle'
 ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
+        public override async Task Include_in_let_followed_by_FirstOrDefault(bool async)
+        {
+            await base.Include_in_let_followed_by_FirstOrDefault(async);
+
+            AssertSql(" ");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

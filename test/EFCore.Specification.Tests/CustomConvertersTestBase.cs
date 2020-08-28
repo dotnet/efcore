@@ -694,6 +694,43 @@ namespace Microsoft.EntityFrameworkCore
             public int Value { get; set; }
         }
 
+        [ConditionalFact]
+        public virtual void Id_object_as_entity_key()
+        {
+            using var context = CreateContext();
+            var books = context.Set<Book>().Where(b => b.Id == new BookId(1)).ToList();
+
+            Assert.Equal("Book1", Assert.Single(books).Value);
+        }
+
+        public class Book
+        {
+            public BookId Id { get; set; }
+
+            public string Value { get; set; }
+
+            public Book(BookId id)
+            {
+                Id = id;
+            }
+        }
+
+        public class BookId
+        {
+            public readonly int Id;
+
+            public BookId(int id)
+            {
+                Id = id;
+            }
+
+            public override bool Equals(object obj)
+                => obj is BookId item && Id == item.Id;
+
+            public override int GetHashCode()
+                => Id.GetHashCode();
+        }
+
         public abstract class CustomConvertersFixtureBase : BuiltInDataTypesFixtureBase
         {
             protected override string StoreName { get; } = "CustomConverters";
@@ -1171,6 +1208,17 @@ namespace Microsoft.EntityFrameworkCore
                         b.HasData(
                             new Parent { Id = 1 },
                             new Parent { Id = 2 });
+                    });
+
+                modelBuilder.Entity<Book>(
+                    b =>
+                    {
+                        b.HasKey(e => e.Id);
+                        b.Property(e => e.Id).HasConversion(
+                            e => e.Id,
+                            e => new BookId(e));
+
+                        b.HasData(new Book(new BookId(1)) { Value = "Book1" });
                     });
             }
 

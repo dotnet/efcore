@@ -6260,5 +6260,51 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: c => c.CustomerID,
                 elementAsserter: (e, a) => AssertEqual(e.Order, a.Order));
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task DefaultIfEmpty_over_empty_collection_followed_by_projecting_constant(bool async)
+        {
+            return AssertFirstOrDefault(
+                async,
+                ss => ss.Set<Customer>().Where(c => false).DefaultIfEmpty().Select(c => "520"));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task FirstOrDefault_with_predicate_nested(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).OrderBy(c => c.CustomerID).Select(TestDto.Projection),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).OrderBy(c => c.CustomerID)
+                    .Select(x => new TestDto
+                    {
+                        CustomerID = x.CustomerID,
+                        OrderDate = x.Orders
+                            .FirstOrDefault(t => t.OrderID == t.OrderID)
+                            .MaybeScalar(e => e.OrderDate)
+                    }),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.CustomerID, a.CustomerID);
+                    Assert.Equal(e.OrderDate, a.OrderDate);
+                });
+        }
+
+        public class TestDto
+        {
+            public string CustomerID { get; set; }
+            public DateTime? OrderDate { get; set; }
+
+            public static readonly Expression<Func<Customer, TestDto>> Projection = x => new TestDto
+            {
+                CustomerID = x.CustomerID,
+                OrderDate = x.Orders
+                    .FirstOrDefault(t => t.OrderID == t.OrderID)
+                    .OrderDate
+            };
+        }
     }
 }
