@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (currentValueExpression.Type != typeof(TProperty))
                 {
                     currentValueExpression = Expression.Condition(
-                        currentValueExpression.MakeHasDefaultValue<TProperty>(propertyBase),
+                        currentValueExpression.MakeHasDefaultValue(propertyBase),
                         Expression.Constant(default(TProperty), typeof(TProperty)),
                         Expression.Convert(currentValueExpression, typeof(TProperty)));
                 }

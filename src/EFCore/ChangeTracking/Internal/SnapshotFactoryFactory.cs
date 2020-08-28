@@ -145,7 +145,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (memberAccess.Type != propertyBase.ClrType)
                 {
-                    memberAccess = Expression.Convert(memberAccess, propertyBase.ClrType);
+                    var hasDefaultValueExpression = memberAccess.MakeHasDefaultValue(propertyBase);
+
+                    memberAccess = Expression.Condition(
+                        hasDefaultValueExpression,
+                        propertyBase.ClrType.GetDefaultValueConstant(),
+                        Expression.Convert(memberAccess, propertyBase.ClrType));
                 }
 
                 arguments[i] = (propertyBase as INavigation)?.IsCollection ?? false

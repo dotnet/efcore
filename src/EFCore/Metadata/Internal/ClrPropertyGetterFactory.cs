@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     });
             }
 
-            var hasDefaultValueExpression = readExpression.MakeHasDefaultValue<TValue>(propertyBase);
+            var hasDefaultValueExpression = readExpression.MakeHasDefaultValue(propertyBase);
 
             if (readExpression.Type != typeof(TValue))
             {
