@@ -1151,7 +1151,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ForeignKey FindOwnership()
-            => GetForeignKeys().FirstOrDefault(fk => fk.IsOwnership);
+        {
+            foreach (var foreignKey in GetForeignKeys())
+            {
+                if (foreignKey.IsOwnership)
+                {
+                    return foreignKey;
+                }
+            }
+
+            return null;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1160,7 +1170,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ForeignKey FindDeclaredOwnership()
-            => GetDeclaredForeignKeys().FirstOrDefault(fk => fk.IsOwnership);
+        {
+            foreach (var foreignKey in _foreignKeys)
+            {
+                if (foreignKey.IsOwnership)
+                {
+                    return foreignKey;
+                }
+            }
+
+            return null;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1180,7 +1200,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IEnumerable<ForeignKey> GetDerivedForeignKeys()
             => _directlyDerivedTypes.Count == 0
                 ? Enumerable.Empty<ForeignKey>()
-                : GetDerivedTypes().SelectMany(et => et.GetDeclaredForeignKeys());
+                : GetDerivedTypes().SelectMany(et => et._foreignKeys);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

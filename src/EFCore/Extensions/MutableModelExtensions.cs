@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="type"> The type to find the corresponding entity type for. </param>
         /// <returns> The entity type, or <see langword="null" /> if none if found. </returns>
         public static IMutableEntityType FindEntityType([NotNull] this IMutableModel model, [NotNull] Type type)
-            => (IMutableEntityType)((IModel)model).FindEntityType(type);
+            => ((Model)model).FindEntityType(type);
 
         /// <summary>
         ///     Gets the entity type for the given name, defining navigation name

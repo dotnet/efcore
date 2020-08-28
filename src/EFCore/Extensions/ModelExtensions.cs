@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The entity type, or <see langword="null" /> if none if found. </returns>
         [DebuggerStepThrough]
         public static IEntityType FindEntityType([NotNull] this IModel model, [NotNull] Type type)
-            => ((Model)Check.NotNull(model, nameof(model))).FindEntityType(Check.NotNull(type, nameof(type)));
+            => ((Model)model).FindEntityType(Check.NotNull(type, nameof(type)));
 
         /// <summary>
         ///     Gets the entity that maps the given entity class, where the class may be a proxy derived from the
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The entity types found. </returns>
         [DebuggerStepThrough]
         public static IReadOnlyCollection<IEntityType> GetEntityTypes([NotNull] this IModel model, [NotNull] Type type)
-            => model.AsModel().GetEntityTypes(type);
+            => ((Model)model).GetEntityTypes(type);
 
         /// <summary>
         ///     Gets the entity types matching the given name.
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The entity types found. </returns>
         [DebuggerStepThrough]
         public static IReadOnlyCollection<IEntityType> GetEntityTypes([NotNull] this IModel model, [NotNull] string name)
-            => model.AsModel().GetEntityTypes(name);
+            => ((Model)model).GetEntityTypes(name);
 
         /// <summary>
         ///     Gets a value indicating whether the model contains a corresponding entity type with a defining navigation.
