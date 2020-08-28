@@ -4196,6 +4196,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"
             return base.FirstOrDefault_with_predicate_nested(async);
         }
 
+        [ConditionalTheory(Skip = "Non embedded collection subquery Issue#17246")]
+        public override Task First_on_collection_in_projection(bool async)
+        {
+            return base.First_on_collection_in_projection(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
