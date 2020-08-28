@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         /// </summary>
         public virtual void DetectChanges()
         {
-            if ((string)_stateManager.Model[CoreAnnotationNames.SkipDetectChangesAnnotation] != "true")
+            if (!((Model)_stateManager.Model).SkipDetectChanges)
             {
                 _changeDetector.DetectChanges(_stateManager);
             }

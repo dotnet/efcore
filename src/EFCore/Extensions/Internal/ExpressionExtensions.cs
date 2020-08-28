@@ -29,9 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static Expression MakeHasDefaultValue<TProperty>(
+        public static Expression MakeHasDefaultValue(
             [NotNull] this Expression currentValueExpression,
-            [NotNull] IPropertyBase propertyBase)
+            [CanBeNull] IPropertyBase propertyBase)
         {
             if (!currentValueExpression.Type.IsValueType)
             {
@@ -50,11 +50,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
 
             var property = propertyBase as IProperty;
+            var clrType = propertyBase?.ClrType ?? currentValueExpression.Type;
             var comparer = property?.GetValueComparer()
-                ?? ValueComparer.CreateDefault(typeof(TProperty), favorStructuralComparisons: false);
+                ?? ValueComparer.CreateDefault(clrType, favorStructuralComparisons: false);
 
             return comparer.ExtractEqualsBody(
-                comparer.Type != typeof(TProperty)
+                comparer.Type != clrType
                     ? Expression.Convert(currentValueExpression, comparer.Type)
                     : currentValueExpression,
                 Expression.Default(comparer.Type));

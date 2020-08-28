@@ -1119,6 +1119,38 @@ FROM [Gears] AS [g]
 ORDER BY [g].[Nickname]");
         }
 
+        public override async Task Where_conditional_equality_1(bool async)
+        {
+            await base.Where_conditional_equality_1(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname]
+FROM [Gears] AS [g]
+WHERE [g].[LeaderNickname] IS NULL
+ORDER BY [g].[Nickname]");
+        }
+
+        public override async Task Where_conditional_equality_2(bool async)
+        {
+            await base.Where_conditional_equality_2(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname]
+FROM [Gears] AS [g]
+WHERE [g].[LeaderNickname] IS NULL
+ORDER BY [g].[Nickname]");
+        }
+
+        public override async Task Where_conditional_equality_3(bool async)
+        {
+            await base.Where_conditional_equality_3(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname]
+FROM [Gears] AS [g]
+ORDER BY [g].[Nickname]");
+        }
+
         public override async Task Select_coalesce_with_anonymous_types(bool async)
         {
             await base.Select_coalesce_with_anonymous_types(async);
@@ -7111,6 +7143,19 @@ CROSS APPLY (
     ORDER BY [w].[Id]
 ) AS [t]
 ORDER BY [g].[Nickname], [t].[Id]");
+        }
+
+        public override async Task FirstOrDefault_over_int_compared_to_zero(bool async)
+        {
+            await base.FirstOrDefault_over_int_compared_to_zero(async);
+
+            AssertSql(
+                @"SELECT [s].[Name]
+FROM [Squads] AS [s]
+WHERE ([s].[Name] = N'Kilo') AND (COALESCE((
+    SELECT TOP(1) [g].[SquadId]
+    FROM [Gears] AS [g]
+    WHERE ([s].[Id] = [g].[SquadId]) AND ([g].[HasSoulPatch] = CAST(1 AS bit))), 0) <> 0)");
         }
 
         private void AssertSql(params string[] expected)

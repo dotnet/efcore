@@ -1646,6 +1646,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 55);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_in_let_followed_by_FirstOrDefault(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from c in ss.Set<Customer>()
+                      let order = ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID)
+                        .OrderBy(o => o.OrderDate)
+                        .Include(o => o.OrderDetails)
+                        .FirstOrDefault()
+                      where c.CustomerID.StartsWith("F")
+                      select new
+                      {
+                          c.CustomerID,
+                          Order = order
+                      },
+                elementSorter: e => e.CustomerID,
+                elementAsserter: (e, a) => AssertEqual(e.Order, a.Order),
+                entryCount: 26);
+        }
+
         protected virtual void ClearLog()
         {
         }

@@ -220,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public virtual void DetectChanges()
         {
-            if ((string)_model[CoreAnnotationNames.SkipDetectChangesAnnotation] != "true")
+            if (!((Model)_model).SkipDetectChanges)
             {
                 ChangeDetector.DetectChanges(StateManager);
             }

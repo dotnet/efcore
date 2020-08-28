@@ -611,6 +611,104 @@ CROSS APPLY (
 ) AS [t]");
         }
 
+        public override async Task SelectMany_with_selecting_outer_entity_column_and_inner_column(bool async)
+        {
+            await base.SelectMany_with_selecting_outer_entity_column_and_inner_column(async);
+
+            AssertSql(
+                @"SELECT [t].[City], [t].[OrderDate]
+FROM [Customers] AS [c]
+CROSS APPLY (
+    SELECT [c].[City], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID]
+    OFFSET 0 ROWS
+) AS [t]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override async Task SelectMany_correlated_subquery_take(bool async)
+        {
+            await base.SelectMany_correlated_subquery_take(async);
+
+            AssertSql(
+                @"SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+FROM [Customers] AS [c]
+INNER JOIN (
+    SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+    FROM (
+        SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], ROW_NUMBER() OVER(PARTITION BY [c0].[CustomerID] ORDER BY [c0].[CustomerID] + COALESCE([c0].[City], N'')) AS [row]
+        FROM [Customers] AS [c0]
+    ) AS [t]
+    WHERE [t].[row] <= 2
+) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]");
+        }
+
+        public override async Task Distinct_SelectMany_correlated_subquery_take(bool async)
+        {
+            await base.Distinct_SelectMany_correlated_subquery_take(async);
+
+            AssertSql(
+                @"SELECT [t1].[CustomerID], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
+FROM (
+    SELECT DISTINCT [c].[CustomerID]
+    FROM [Customers] AS [c]
+) AS [t]
+INNER JOIN (
+    SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+    FROM (
+        SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], ROW_NUMBER() OVER(PARTITION BY [c0].[CustomerID] ORDER BY [c0].[CustomerID] + COALESCE([c0].[City], N'')) AS [row]
+        FROM [Customers] AS [c0]
+    ) AS [t0]
+    WHERE [t0].[row] <= 2
+) AS [t1] ON [t].[CustomerID] = [t1].[CustomerID]");
+        }
+
+        public override async Task Distinct_SelectMany_correlated_subquery_take_2(bool async)
+        {
+            await base.Distinct_SelectMany_correlated_subquery_take_2(async);
+
+            AssertSql(
+                @"SELECT [t1].[CustomerID], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
+FROM (
+    SELECT DISTINCT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+) AS [t]
+INNER JOIN (
+    SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+    FROM (
+        SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], ROW_NUMBER() OVER(PARTITION BY [c0].[CustomerID] ORDER BY [c0].[CustomerID] + COALESCE([c0].[City], N'')) AS [row]
+        FROM [Customers] AS [c0]
+    ) AS [t0]
+    WHERE [t0].[row] <= 2
+) AS [t1] ON [t].[CustomerID] = [t1].[CustomerID]");
+        }
+
+        public override async Task Take_SelectMany_correlated_subquery_take(bool async)
+        {
+            await base.Take_SelectMany_correlated_subquery_take(async);
+
+            AssertSql(
+                @"@__p_0='2'
+
+SELECT [t1].[CustomerID], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
+FROM (
+    SELECT TOP(@__p_0) [c].[CustomerID]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
+) AS [t]
+INNER JOIN (
+    SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+    FROM (
+        SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], ROW_NUMBER() OVER(PARTITION BY [c0].[CustomerID] ORDER BY [c0].[CustomerID] + COALESCE([c0].[City], N'')) AS [row]
+        FROM [Customers] AS [c0]
+    ) AS [t0]
+    WHERE [t0].[row] <= 2
+) AS [t1] ON [t].[CustomerID] = [t1].[CustomerID]
+ORDER BY [t].[CustomerID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

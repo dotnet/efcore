@@ -317,7 +317,7 @@
     <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the name '{keyName}' of the primary key {primaryKey} does not match the name '{otherName}' of the primary key {otherPrimaryKey}.</value>
   </data>
   <data name="IncompatibleTableNoRelationship" xml:space="preserve">
-    <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and there is no relationship between their primary keys.</value>
+    <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and potentially other entity types, but there is no linking relationship. Add a foreign key to '{entityType}' on the primary key properties and pointing to the primary key on another entity typed mapped to '{table}'.</value>
   </data>
   <data name="IncompatibleViewDerivedRelationship" xml:space="preserve">
     <value>Cannot use view '{view}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}', there is a relationship between their primary keys in which '{entityType}' is the dependent and '{entityType}' has a base entity type mapped to a different view. Either map '{otherEntityType}' to a different view or invert the relationship between '{entityType}' and '{otherEntityType}'.</value>

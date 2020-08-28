@@ -42,6 +42,8 @@ Blog.IndexerVisible ---> [nvarchar] [MaxLength = 3]
 Blog.IsVisible ---> [nvarchar] [MaxLength = 1]
 Blog.RssUrl ---> [nullable nvarchar] [MaxLength = -1]
 Blog.Url ---> [nullable nvarchar] [MaxLength = -1]
+Book.Id ---> [int] [Precision = 10 Scale = 0]
+Book.Value ---> [nullable nvarchar] [MaxLength = -1]
 BuiltInDataTypes.Enum16 ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypes.Enum32 ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypes.Enum64 ---> [bigint] [Precision = 19 Scale = 0]
@@ -262,6 +264,16 @@ WHERE [b].[IndexerVisible] <> N'Aye'");
         public override void Object_to_string_conversion()
         {
             // Return values are not string
+        }
+
+        public override void Id_object_as_entity_key()
+        {
+            base.Id_object_as_entity_key();
+
+            AssertSql(
+                @"SELECT [b].[Id], [b].[Value]
+FROM [Book] AS [b]
+WHERE [b].[Id] = 1");
         }
 
         private void AssertSql(params string[] expected)
