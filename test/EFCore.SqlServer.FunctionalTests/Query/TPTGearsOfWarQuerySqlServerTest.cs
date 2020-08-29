@@ -2896,11 +2896,12 @@ WHERE [m].[Timeline] <> CAST(SYSUTCDATETIME() AS datetimeoffset)");
         {
             await base.Where_datetimeoffset_date_component(async);
 
-            // issue #16057
-            //            AssertSql(
-            //                @"SELECT [m].[Id], [m].[CodeName], [m].[Rating], [m].[Timeline]
-            //FROM [Missions] AS [m]
-            //WHERE CONVERT(date, [m].[Timeline]) > '0001-01-01T00:00:00.0000000-08:00'");
+            AssertSql(
+                @"@__Date_0='0001-01-01T00:00:00.0000000'
+
+SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE CONVERT(date, [m].[Timeline]) > @__Date_0");
         }
 
         public override async Task Where_datetimeoffset_year_component(bool async)
