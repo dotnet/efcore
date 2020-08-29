@@ -3,6 +3,7 @@
 
 using System;
 using System.ComponentModel;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -46,55 +47,64 @@ namespace Microsoft.EntityFrameworkCore
         public void Sets_default_change_tracking_strategy()
         {
             using var context = new ChangeContext<ChangeValueEntity>();
-            Assert.Equal(
-                ChangeTrackingStrategy.ChangingAndChangedNotifications,
-                context.Model.GetChangeTrackingStrategy());
+
+            Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications, context.Model.GetChangeTrackingStrategy());
         }
 
         [ConditionalFact]
         public void Default_change_tracking_strategy_doesnt_overwrite_entity_strategy()
         {
-            using var context = new ChangeContext<ChangeValueEntity>(
-                entityBuilderAction: b =>
-                {
-                    b.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
-                });
+            using var context = new ChangingAndChangedNotificationsWithOriginalValuesContext();
 
             var entityType = context.Model.FindEntityType(typeof(ChangeValueEntity));
-            Assert.Equal(
-                ChangeTrackingStrategy.Snapshot,
-                entityType.GetChangeTrackingStrategy());
+
+            Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues, entityType.GetChangeTrackingStrategy());
         }
 
         private static readonly Type changeInterface = typeof(INotifyPropertyChanged);
         private static readonly Type changingInterface = typeof(INotifyPropertyChanging);
 
         [ConditionalFact]
-        public void Proxies_correct_interfaces_for_Snapshot()
+        public void Throws_when_proxies_are_used_with_snapshot_tracking()
         {
-            using var context = new ProxyGenerationContext(ChangeTrackingStrategy.Snapshot);
-            var proxy = context.CreateProxy<ChangeValueEntity>();
-            var proxyType = proxy.GetType();
+            using var context = new SnapshotContext();
 
-            Assert.False(changeInterface.IsAssignableFrom(proxyType));
-            Assert.False(changingInterface.IsAssignableFrom(proxyType));
+            Assert.Equal(
+                CoreStrings.FullChangeTrackingRequired(
+                    nameof(ChangeValueEntity), nameof(ChangeTrackingStrategy.Snapshot),
+                    nameof(ChangeTrackingStrategy.ChangingAndChangedNotifications),
+                    nameof(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)),
+                Assert.Throws<InvalidOperationException>(() => _ = context.Model).Message);
         }
 
         [ConditionalFact]
-        public void Proxies_correct_interfaces_for_ChangedNotifications()
+        public void Throws_when_proxies_are_used_with_changed_only_tracking()
         {
-            using var context = new ProxyGenerationContext(ChangeTrackingStrategy.ChangedNotifications);
+            using var context = new ChangedNotificationsContext();
+
+            Assert.Equal(
+                CoreStrings.FullChangeTrackingRequired(
+                    nameof(ChangeValueEntity), nameof(ChangeTrackingStrategy.ChangedNotifications),
+                    nameof(ChangeTrackingStrategy.ChangingAndChangedNotifications),
+                    nameof(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)),
+                Assert.Throws<InvalidOperationException>(() => _ = context.Model).Message);
+        }
+
+        [ConditionalFact]
+        public void Proxies_correct_interfaces_for_default_strategy()
+        {
+            using var context = new DefaultContext();
             var proxy = context.CreateProxy<ChangeValueEntity>();
             var proxyType = proxy.GetType();
 
             Assert.True(changeInterface.IsAssignableFrom(proxyType));
-            Assert.False(changingInterface.IsAssignableFrom(proxyType));
+            Assert.True(changingInterface.IsAssignableFrom(proxyType));
         }
 
         [ConditionalFact]
         public void Proxies_correct_interfaces_for_ChangingAndChangedNotifications()
         {
-            using var context = new ProxyGenerationContext(ChangeTrackingStrategy.ChangingAndChangedNotifications);
+            using var context = new  ChangingAndChangedNotificationsContext();
             var proxy = context.CreateProxy<ChangeValueEntity>();
             var proxyType = proxy.GetType();
 
@@ -105,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Proxies_correct_interfaces_for_ChangingAndChangedNotificationsWithOriginalValues()
         {
-            using var context = new ProxyGenerationContext(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues);
+            using var context = new ChangingAndChangedNotificationsWithOriginalValuesContext();
             var proxy = context.CreateProxy<ChangeValueEntity>();
             var proxyType = proxy.GetType();
 
@@ -322,11 +332,44 @@ namespace Microsoft.EntityFrameworkCore
             public virtual ChangeSelfRefEntity SelfRef { get; set; }
         }
 
-        private class ProxyGenerationContext : TestContext<ChangeValueEntity>
+        private class DefaultContext : TestContext<ChangeValueEntity>
         {
-            public ProxyGenerationContext(
-                ChangeTrackingStrategy changeTrackingStrategy)
-                : base("ProxyGenerationContext", false, true, true, changeTrackingStrategy)
+            public DefaultContext()
+                : base(nameof(DefaultContext), false, true, true, null)
+            {
+            }
+        }
+
+        private class SnapshotContext : TestContext<ChangeValueEntity>
+        {
+            public SnapshotContext()
+                : base(nameof(SnapshotContext), false, true, true, ChangeTrackingStrategy.Snapshot)
+            {
+            }
+        }
+
+        private class ChangedNotificationsContext : TestContext<ChangeValueEntity>
+        {
+            public ChangedNotificationsContext()
+                : base(nameof(ChangedNotificationsContext), false, true, true, ChangeTrackingStrategy.ChangedNotifications)
+            {
+            }
+        }
+
+        private class ChangingAndChangedNotificationsContext : TestContext<ChangeValueEntity>
+        {
+            public ChangingAndChangedNotificationsContext()
+                : base(nameof(ChangingAndChangedNotificationsContext), false, true, true, ChangeTrackingStrategy.ChangingAndChangedNotifications)
+            {
+            }
+        }
+
+        private class ChangingAndChangedNotificationsWithOriginalValuesContext : TestContext<ChangeValueEntity>
+        {
+            public ChangingAndChangedNotificationsWithOriginalValuesContext()
+                : base(
+                    nameof(ChangingAndChangedNotificationsWithOriginalValuesContext), false, true, true,
+                    ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
             {
             }
         }

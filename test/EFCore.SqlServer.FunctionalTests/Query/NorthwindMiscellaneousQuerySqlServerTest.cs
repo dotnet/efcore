@@ -5253,6 +5253,26 @@ WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID]");
         }
 
+        public override async Task First_on_collection_in_projection(bool async)
+        {
+            await base.First_on_collection_in_projection(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]) THEN (
+        SELECT TOP(1) [o0].[OrderDate]
+        FROM [Orders] AS [o0]
+        WHERE [c].[CustomerID] = [o0].[CustomerID])
+    ELSE NULL
+END AS [OrderDate]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

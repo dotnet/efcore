@@ -5667,5 +5667,35 @@ namespace Microsoft.EntityFrameworkCore.Query
                     AssertEqual(e.level3, a.level3);
                 });
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Multiple_conditionals_in_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level2>()
+                    .Select(l2 => new Level1Dto
+                    {
+                        Id = l2.Id,
+                        Name = l2.OneToOne_Optional_FK2 == null ? null : l2.OneToOne_Optional_FK2.Name,
+                        Level2 = l2.OneToOne_Optional_FK_Inverse2 == null ? null : new Level2Dto()
+                    }),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Id, a.Id);
+                    AssertEqual(e.Name, a.Name);
+                    if (e.Level2 == null)
+                    {
+                        Assert.Null(a.Level2);
+                    }
+                    else
+                    {
+                        AssertEqual(e.Level2.Id, a.Level2.Id);
+                        AssertEqual(e.Level2.Name, a.Level2.Name);
+                    }
+                });
+        }
     }
 }

@@ -38,27 +38,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             if (clrType == null
                 || entityType.HasSharedClrType
                 || entityType.HasDefiningNavigation()
-                || entityType.FindDeclaredOwnership() != null
-                || entityType.Model.FindIsOwnedConfigurationSource(clrType) != null)
+                || entityType.Model.FindIsOwnedConfigurationSource(clrType) != null
+                || entityType.FindOwnership() != null)
             {
                 return;
             }
 
             var model = entityType.Model;
-            var directlyDerivedTypes = model.GetEntityTypes().Where(
-                    t => t != entityType
-                        && t.HasClrType()
-                        && !t.HasDefiningNavigation()
-                        && t.FindDeclaredOwnership() == null
-                        && model.FindIsOwnedConfigurationSource(t.ClrType) == null
-                        && ((t.BaseType == null && clrType.IsAssignableFrom(t.ClrType))
-                            || (t.BaseType == entityType.BaseType && FindClosestBaseType(t) == entityType))
-                        && !t.HasSharedClrType)
-                .ToList();
-
-            foreach (var directlyDerivedType in directlyDerivedTypes)
+            foreach (var directlyDerivedType in model.GetEntityTypes())
             {
-                directlyDerivedType.Builder.HasBaseType(entityType);
+                if (directlyDerivedType != entityType
+                        && directlyDerivedType.HasClrType()
+                        && !directlyDerivedType.HasSharedClrType
+                        && !directlyDerivedType.HasDefiningNavigation()
+                        && model.FindIsOwnedConfigurationSource(directlyDerivedType.ClrType) == null
+                        && directlyDerivedType.FindDeclaredOwnership() == null
+                        && ((directlyDerivedType.BaseType == null && clrType.IsAssignableFrom(directlyDerivedType.ClrType))
+                            || (directlyDerivedType.BaseType == entityType.BaseType && FindClosestBaseType(directlyDerivedType) == entityType)))
+                {
+                    directlyDerivedType.Builder.HasBaseType(entityType);
+                }
             }
         }
     }
