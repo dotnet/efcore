@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -13,6 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that finds derived entity types that are already part of the model based on the associated
     ///     CLR type hierarchy.
     /// </summary>
+    [Obsolete]
     public class DerivedTypeDiscoveryConvention : InheritanceDiscoveryConventionBase, IEntityTypeAddedConvention
     {
         /// <summary>
