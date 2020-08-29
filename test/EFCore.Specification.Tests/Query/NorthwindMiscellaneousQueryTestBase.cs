@@ -6306,5 +6306,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .OrderDate
             };
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task First_on_collection_in_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).OrderBy(c => c.CustomerID)
+                    .Select(c => new
+                    {
+                        c.CustomerID,
+                        OrderDate = c.Orders.Any() ? c.Orders.First().OrderDate : default
+                    }),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.CustomerID, a.CustomerID);
+                    Assert.Equal(e.OrderDate, a.OrderDate);
+                });
+        }
     }
 }
