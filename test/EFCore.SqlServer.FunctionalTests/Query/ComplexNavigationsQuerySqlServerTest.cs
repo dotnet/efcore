@@ -5916,6 +5916,20 @@ LEFT JOIN [LevelTwo] AS [l2] ON [l].[Id] = [l2].[OneToMany_Required_Inverse2Id]
 ORDER BY [l].[Id], [t].[Id], [l2].[Id]");
         }
 
+        public override async Task Multiple_conditionals_in_projection(bool async)
+        {
+            await base.Multiple_conditionals_in_projection(async);
+
+            AssertSql(
+                @"SELECT [l].[Id], [l0].[Name], CASE
+    WHEN [l1].[Id] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [LevelTwo] AS [l]
+LEFT JOIN [LevelThree] AS [l0] ON [l].[Id] = [l0].[Level2_Optional_Id]
+LEFT JOIN [LevelOne] AS [l1] ON [l].[Level1_Optional_Id] = [l1].[Id]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
