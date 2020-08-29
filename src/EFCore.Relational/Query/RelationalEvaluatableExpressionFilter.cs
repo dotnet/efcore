@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -21,6 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public class RelationalEvaluatableExpressionFilter : EvaluatableExpressionFilter
     {
+        private static readonly MethodInfo _collate
+            = typeof(RelationalDbFunctionsExtensions).GetMethod(nameof(RelationalDbFunctionsExtensions.Collate));
+
         /// <summary>
         ///     <para>
         ///         Creates a new <see cref="RelationalEvaluatableExpressionFilter" /> instance.
@@ -58,13 +62,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(expression, nameof(expression));
             Check.NotNull(model, nameof(model));
 
-            if (expression is MethodCallExpression methodCallExpression
-                && model.FindDbFunction(methodCallExpression.Method) != null)
+            if (expression is MethodCallExpression methodCallExpression)
             {
-                // Never evaluate DbFunction
-                // If it is inside lambda then we will have whole method call
-                // If it is outside of lambda then it will be evaluated for table valued function already.
-                return false;
+                var method = methodCallExpression.Method;
+
+                if (model.FindDbFunction(method) != null)
+                {
+                    // Never evaluate DbFunction
+                    // If it is inside lambda then we will have whole method call
+                    // If it is outside of lambda then it will be evaluated for table valued function already.
+                    return false;
+                }
+
+                if (method.IsGenericMethod && method.GetGenericMethodDefinition() == _collate)
+                {
+                    return false;
+                }
             }
 
             return base.IsEvaluatableExpression(expression, model);

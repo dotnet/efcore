@@ -53,6 +53,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         private static readonly MethodInfo _randomNextTwoArgs
             = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new[] { typeof(int), typeof(int) });
 
+        private static readonly MethodInfo _like
+            = typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string) });
+
+        private static readonly MethodInfo _likeWithEscape
+            = typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(string) });
+
         /// <summary>
         ///     <para>
         ///         Creates a new <see cref="EvaluatableExpressionFilter" /> instance.
@@ -108,7 +116,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     if (Equals(method, _guidNewGuid)
                         || Equals(method, _randomNextNoArgs)
                         || Equals(method, _randomNextOneArg)
-                        || Equals(method, _randomNextTwoArgs))
+                        || Equals(method, _randomNextTwoArgs)
+                        || Equals(method, _like)
+                        || Equals(method, _likeWithEscape))
                     {
                         return false;
                     }

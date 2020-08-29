@@ -56,6 +56,26 @@ FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE N'!%' ESCAPE N'!'");
         }
 
+        public override async Task Like_both_operands_literal(bool async)
+        {
+            await base.Like_both_operands_literal(async);
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Customers] AS [c]
+WHERE N'FOO' LIKE N'%O%'");
+        }
+
+        public override async Task Like_both_operands_literal_with_escape(bool async)
+        {
+            await base.Like_both_operands_literal_with_escape(async);
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Customers] AS [c]
+WHERE N'%' LIKE N'!%' ESCAPE N'!'");
+        }
+
         public override async Task Collate_case_insensitive(bool async)
         {
             await base.Collate_case_insensitive(async);
@@ -74,6 +94,16 @@ WHERE [c].[ContactName] COLLATE Latin1_General_CI_AI = N'maria anders'");
                 @"SELECT COUNT(*)
 FROM [Customers] AS [c]
 WHERE [c].[ContactName] COLLATE Latin1_General_CS_AS = N'maria anders'");
+        }
+
+        public override async Task Collate_case_sensitive_constant(bool async)
+        {
+            await base.Collate_case_sensitive_constant(async);
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Customers] AS [c]
+WHERE [c].[ContactName] = N'maria anders' COLLATE Latin1_General_CS_AS");
         }
 
         protected override string CaseInsensitiveCollation
