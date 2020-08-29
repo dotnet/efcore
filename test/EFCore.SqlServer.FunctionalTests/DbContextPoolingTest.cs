@@ -230,9 +230,11 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_pool_non_derived_context(bool useFactory)
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public async Task Can_pool_non_derived_context(bool useFactory, bool async)
         {
             var serviceProvider = useFactory
                 ? BuildServiceProviderWithFactory<DbContext>()
@@ -257,15 +259,15 @@ namespace Microsoft.EntityFrameworkCore
 
             if (useFactory)
             {
-                context1.Dispose();
+                await Dispose(context1, async);
             }
 
-            serviceScope1.Dispose();
-            serviceScope2.Dispose();
+            await Dispose(serviceScope1, async);
+            await Dispose(serviceScope2, async);
 
             if (useFactory)
             {
-                context2.Dispose();
+                await Dispose(context2, async);
             }
 
             var id1d = context1.ContextId;
@@ -304,8 +306,10 @@ namespace Microsoft.EntityFrameworkCore
                     : serviceScope.ServiceProvider.GetService<DbContext>();
         }
 
-        [ConditionalFact]
-        public void ContextIds_make_sense_when_not_pooling()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task ContextIds_make_sense_when_not_pooling(bool async)
         {
             var serviceProvider = new ServiceCollection()
                 .AddDbContext<DbContext>(
@@ -332,8 +336,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(0, id1.Lease);
             Assert.Equal(0, id2.Lease);
 
-            serviceScope1.Dispose();
-            serviceScope2.Dispose();
+            await Dispose(serviceScope1, async);
+            await Dispose(serviceScope2, async);
 
             var id1d = context1.ContextId;
             var id2d = context2.ContextId;
@@ -367,9 +371,11 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Contexts_are_pooled(bool useInterface)
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public async Task Contexts_are_pooled(bool useInterface, bool async)
         {
             var serviceProvider = useInterface
                 ? BuildServiceProvider<IPooledContext, PooledContext>()
@@ -400,8 +406,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.NotSame(context1, context2);
             Assert.NotSame(secondContext1, secondContext2);
 
-            serviceScope1.Dispose();
-            serviceScope2.Dispose();
+            await Dispose(serviceScope1, async);
+            await Dispose(serviceScope2, async);
 
             var serviceScope3 = serviceProvider.CreateScope();
             var scopedProvider3 = serviceScope3.ServiceProvider;
@@ -432,8 +438,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(secondContext2, secondContext4);
         }
 
-        [ConditionalFact]
-        public void Contexts_are_pooled_with_factory()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Contexts_are_pooled_with_factory(bool async)
         {
             var factory = BuildServiceProviderWithFactory<PooledContext>().GetService<IDbContextFactory<PooledContext>>();
 
@@ -446,10 +454,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.NotSame(context1, context2);
             Assert.NotSame(secondContext1, secondContext2);
 
-            context1.Dispose();
-            secondContext1.Dispose();
-            context2.Dispose();
-            secondContext2.Dispose();
+            await Dispose(context1, async);
+            await Dispose(secondContext1, async);
+            await Dispose(context2, async);
+            await Dispose(secondContext2, async);
 
             var context3 = factory.CreateDbContext();
             var secondContext3 = factory.CreateDbContext();
@@ -465,9 +473,11 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Context_configuration_is_reset(bool useInterface)
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public async Task Context_configuration_is_reset(bool useInterface, bool async)
         {
             var serviceProvider = useInterface
                 ? BuildServiceProvider<IPooledContext, PooledContext>()
@@ -487,7 +497,7 @@ namespace Microsoft.EntityFrameworkCore
             context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
             context1.Database.AutoTransactionsEnabled = true;
 
-            serviceScope.Dispose();
+            await Dispose(serviceScope, async);
 
             serviceScope = serviceProvider.CreateScope();
             scopedProvider = serviceScope.ServiceProvider;
@@ -506,8 +516,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(context2.Database.AutoTransactionsEnabled);
         }
 
-        [ConditionalFact]
-        public void Context_configuration_is_reset_with_factory()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Context_configuration_is_reset_with_factory(bool async)
         {
             var factory = BuildServiceProviderWithFactory<PooledContext>().GetService<IDbContextFactory<PooledContext>>();
 
@@ -520,7 +532,7 @@ namespace Microsoft.EntityFrameworkCore
             context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
             context1.Database.AutoTransactionsEnabled = true;
 
-            context1.Dispose();
+            await Dispose(context1, async);
 
             var context2 = factory.CreateDbContext();
 
@@ -579,8 +591,10 @@ namespace Microsoft.EntityFrameworkCore
         private void ChangeTracker_OnStateChanged(object sender, EntityStateChangedEventArgs e)
             => _changeTracker_OnStateChanged = true;
 
-        [ConditionalFact]
-        public void Default_Context_configuration_is_reset()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Default_Context_configuration_is_reset(bool async)
         {
             var serviceProvider = BuildServiceProvider<DefaultOptionsPooledContext>();
 
@@ -596,7 +610,7 @@ namespace Microsoft.EntityFrameworkCore
             context1.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
             context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
 
-            serviceScope.Dispose();
+            await Dispose(serviceScope, async);
 
             serviceScope = serviceProvider.CreateScope();
             scopedProvider = serviceScope.ServiceProvider;
@@ -613,8 +627,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.True(context2.Database.AutoTransactionsEnabled);
         }
 
-        [ConditionalFact]
-        public void Default_Context_configuration_is_reset_with_factory()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Default_Context_configuration_is_reset_with_factory(bool async)
         {
             var factory = BuildServiceProviderWithFactory<DefaultOptionsPooledContext>()
                 .GetService<IDbContextFactory<DefaultOptionsPooledContext>>();
@@ -628,7 +644,7 @@ namespace Microsoft.EntityFrameworkCore
             context1.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
             context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
 
-            context1.Dispose();
+            await Dispose(context1, async);
 
             var context2 = factory.CreateDbContext();
 
@@ -643,12 +659,14 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void State_manager_is_reset(bool useInterface)
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public async Task State_manager_is_reset(bool useInterface, bool async)
         {
-            var weakRef = Scoper(
-                () =>
+            var weakRef = await Scoper(
+                async () =>
                 {
                     var serviceProvider = useInterface
                         ? BuildServiceProvider<IPooledContext, PooledContext>()
@@ -665,7 +683,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Single(context1.ChangeTracker.Entries());
 
-                    serviceScope.Dispose();
+                    await Dispose(serviceScope, async);
 
                     serviceScope = serviceProvider.CreateScope();
                     scopedProvider = serviceScope.ServiceProvider;
@@ -685,14 +703,16 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(weakRef.IsAlive);
         }
 
-        private static T Scoper<T>(Func<T> getter)
-            => getter();
+        private static async Task<T> Scoper<T>(Func<Task<T>> getter)
+            => await getter();
 
-        [ConditionalFact]
-        public void State_manager_is_reset_with_factory()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task State_manager_is_reset_with_factory(bool async)
         {
-            var weakRef = Scoper(
-                () =>
+            var weakRef = await Scoper(
+                async () =>
                 {
                     var factory = BuildServiceProviderWithFactory<PooledContext>()
                         .GetService<IDbContextFactory<PooledContext>>();
@@ -703,7 +723,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Single(context1.ChangeTracker.Entries());
 
-                    context1.Dispose();
+                    await Dispose(context1, async);
 
                     var context2 = factory.CreateDbContext();
 
@@ -719,9 +739,11 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Pool_disposes_context_when_context_not_pooled(bool useInterface)
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public async Task Pool_disposes_context_when_context_not_pooled(bool useInterface, bool async)
         {
             var serviceProvider = useInterface
                 ? BuildServiceProvider<IPooledContext, PooledContext>()
@@ -746,16 +768,18 @@ namespace Microsoft.EntityFrameworkCore
                 ? (PooledContext)scopedProvider2.GetService<IPooledContext>()
                 : scopedProvider2.GetService<PooledContext>();
 
-            serviceScope1.Dispose();
-            serviceScope2.Dispose();
+            await Dispose(serviceScope1, async);
+            await Dispose(serviceScope2, async);
 
             Assert.Throws<ObjectDisposedException>(() => context.Customers.ToList());
         }
 
         [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Pool_disposes_contexts_when_disposed(bool useInterface)
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public async Task Pool_disposes_contexts_when_disposed(bool useInterface, bool async)
         {
             var serviceProvider = useInterface
                 ? BuildServiceProvider<IPooledContext, PooledContext>()
@@ -768,17 +792,19 @@ namespace Microsoft.EntityFrameworkCore
                 ? (PooledContext)scopedProvider.GetService<IPooledContext>()
                 : scopedProvider.GetService<PooledContext>();
 
-            serviceScope.Dispose();
+            await Dispose(serviceScope, async);
 
-            ((IDisposable)serviceProvider).Dispose();
+            await Dispose((IDisposable)serviceProvider, async);
 
             Assert.Throws<ObjectDisposedException>(() => context.Customers.ToList());
         }
 
         [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Object_in_pool_is_disposed(bool useInterface)
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public async Task Object_in_pool_is_disposed(bool useInterface, bool async)
         {
             var serviceProvider = useInterface
                 ? BuildServiceProvider<IPooledContext, PooledContext>()
@@ -791,15 +817,17 @@ namespace Microsoft.EntityFrameworkCore
                 ? (PooledContext)scopedProvider.GetService<IPooledContext>()
                 : scopedProvider.GetService<PooledContext>();
 
-            serviceScope.Dispose();
+            await Dispose(serviceScope, async);
 
             Assert.Throws<ObjectDisposedException>(() => context.Customers.ToList());
         }
 
         [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Double_dispose_does_not_enter_pool_twice(bool useInterface)
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public async Task Double_dispose_does_not_enter_pool_twice(bool useInterface, bool async)
         {
             var serviceProvider = useInterface
                 ? BuildServiceProvider<IPooledContext, PooledContext>()
@@ -809,8 +837,8 @@ namespace Microsoft.EntityFrameworkCore
             var lease = scope.ServiceProvider.GetRequiredService<IScopedDbContextLease<PooledContext>>();
             var context = lease.Context;
 
-            scope.Dispose();
-            scope.Dispose();
+            await Dispose(scope, async);
+            await Dispose(scope, async);
 
             using var scope1 = serviceProvider.CreateScope();
             var lease1 = scope1.ServiceProvider.GetRequiredService<IScopedDbContextLease<PooledContext>>();
@@ -823,9 +851,11 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Double_dispose_with_standalone_lease_does_not_enter_pool_twice(bool useInterface)
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public async Task Double_dispose_with_standalone_lease_does_not_enter_pool_twice(bool useInterface, bool async)
         {
             var serviceProvider = useInterface
                 ? BuildServiceProvider<IPooledContext, PooledContext>()
@@ -835,8 +865,8 @@ namespace Microsoft.EntityFrameworkCore
             var lease = new DbContextLease(pool, standalone: true);
             var context = lease.Context;
 
-            context.Dispose();
-            context.Dispose();
+            await Dispose(context, async);
+            await Dispose(context, async);
 
             using var context1 = new DbContextLease(pool, standalone: true).Context;
             using var context2 = new DbContextLease(pool, standalone: true).Context;
@@ -845,8 +875,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.NotSame(context1, context2);
         }
 
-        [ConditionalFact]
-        public void Can_double_dispose_with_factory()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Can_double_dispose_with_factory(bool async)
         {
             var factory = BuildServiceProviderWithFactory<PooledContext>()
                 .GetService<IDbContextFactory<PooledContext>>();
@@ -855,19 +887,21 @@ namespace Microsoft.EntityFrameworkCore
 
             context.Customers.Load();
 
-            context.Dispose();
+            await Dispose(context, async);
 
             Assert.Throws<ObjectDisposedException>(() => context.Customers.ToList());
 
-            context.Dispose();
+            await Dispose(context, async);
 
             Assert.Throws<ObjectDisposedException>(() => context.Customers.ToList());
         }
 
         [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Provider_services_are_reset(bool useInterface)
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public async Task Provider_services_are_reset(bool useInterface, bool async)
         {
             var serviceProvider = useInterface
                 ? BuildServiceProvider<IPooledContext, PooledContext>()
@@ -884,7 +918,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.NotNull(context1.Database.CurrentTransaction);
 
-            serviceScope.Dispose();
+            await Dispose(serviceScope, async);
 
             serviceScope = serviceProvider.CreateScope();
             scopedProvider = serviceScope.ServiceProvider;
@@ -900,7 +934,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.NotNull(context2.Database.CurrentTransaction);
 
-            serviceScope.Dispose();
+            await Dispose(serviceScope, async);
 
             serviceScope = serviceProvider.CreateScope();
             scopedProvider = serviceScope.ServiceProvider;
@@ -913,8 +947,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(context3.Database.CurrentTransaction);
         }
 
-        [ConditionalFact]
-        public void Provider_services_are_reset_with_factory()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Provider_services_are_reset_with_factory(bool async)
         {
             var factory = BuildServiceProviderWithFactory<PooledContext>()
                 .GetService<IDbContextFactory<PooledContext>>();
@@ -925,7 +961,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.NotNull(context1.Database.CurrentTransaction);
 
-            context1.Dispose();
+            await Dispose(context1, async);
 
             var context2 = factory.CreateDbContext();
 
@@ -936,7 +972,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.NotNull(context2.Database.CurrentTransaction);
 
-            context2.Dispose();
+            await Dispose(context2, async);
 
             var context3 = factory.CreateDbContext();
 
@@ -955,7 +991,7 @@ namespace Microsoft.EntityFrameworkCore
                 : BuildServiceProvider<PooledContext>();
 
             Parallel.For(
-                fromInclusive: 0, toExclusive: 100, body: s =>
+                fromInclusive: 0, toExclusive: 32, body: s =>
                 {
                     using var scope = serviceProvider.CreateScope();
                     var scopedProvider = scope.ServiceProvider;
@@ -971,10 +1007,12 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
         [PlatformSkipCondition(TestPlatform.Linux, SkipReason = "Test is flaky on CI.")]
-        public async Task Concurrency_test(bool useInterface)
+        public async Task Concurrency_test(bool useInterface, bool async)
         {
             PooledContext.InstanceCount = 0;
             PooledContext.DisposedCount = 0;
@@ -1057,6 +1095,18 @@ namespace Microsoft.EntityFrameworkCore
 
                     _stopwatch.Stop();
                 }
+            }
+        }
+
+        private async Task Dispose(IDisposable disposable, bool async)
+        {
+            if (async)
+            {
+                await ((IAsyncDisposable)disposable).DisposeAsync();
+            }
+            else
+            {
+                disposable.Dispose();
             }
         }
 
