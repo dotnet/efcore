@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         {
             ResetState();
 
-            return default;
+            return Task.CompletedTask;
         }
     }
 }
