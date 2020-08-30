@@ -697,7 +697,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             ResetState();
 
-            return default;
+            return Task.CompletedTask;
         }
 
         /// <summary>

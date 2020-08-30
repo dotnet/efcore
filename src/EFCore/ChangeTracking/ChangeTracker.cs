@@ -395,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             ((IResettableService)this).ResetState();
 
-            return default;
+            return Task.CompletedTask;
         }
 
         /// <summary>
