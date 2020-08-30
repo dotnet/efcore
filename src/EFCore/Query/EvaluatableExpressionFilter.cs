@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -52,14 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private static readonly MethodInfo _randomNextTwoArgs
             = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new[] { typeof(int), typeof(int) });
-
-        private static readonly MethodInfo _like
-            = typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string) });
-
-        private static readonly MethodInfo _likeWithEscape
-            = typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(string) });
 
         /// <summary>
         ///     <para>
@@ -117,8 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         || Equals(method, _randomNextNoArgs)
                         || Equals(method, _randomNextOneArg)
                         || Equals(method, _randomNextTwoArgs)
-                        || Equals(method, _like)
-                        || Equals(method, _likeWithEscape))
+                        || method.DeclaringType == typeof(DbFunctionsExtensions))
                     {
                         return false;
                     }

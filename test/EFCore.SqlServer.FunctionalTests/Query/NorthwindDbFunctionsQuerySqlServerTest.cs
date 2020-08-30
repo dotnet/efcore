@@ -56,9 +56,9 @@ FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE N'!%' ESCAPE N'!'");
         }
 
-        public override async Task Like_both_operands_literal(bool async)
+        public override async Task Like_all_literals(bool async)
         {
-            await base.Like_both_operands_literal(async);
+            await base.Like_all_literals(async);
 
             AssertSql(
                 @"SELECT COUNT(*)
@@ -66,9 +66,9 @@ FROM [Customers] AS [c]
 WHERE N'FOO' LIKE N'%O%'");
         }
 
-        public override async Task Like_both_operands_literal_with_escape(bool async)
+        public override async Task Like_all_literals_with_escape(bool async)
         {
-            await base.Like_both_operands_literal_with_escape(async);
+            await base.Like_all_literals_with_escape(async);
 
             AssertSql(
                 @"SELECT COUNT(*)
@@ -1129,6 +1129,23 @@ WHERE 100 < DATALENGTH([o].[OrderDate])");
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE @__lenght_0 < DATALENGTH([o].[OrderDate])");
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void DataLength_all_constants()
+        {
+            using (var context = CreateContext())
+            {
+                var count = context.Orders
+                    .Count(c => EF.Functions.DataLength("foo") == 3);
+
+                Assert.Equal(0, count);
+
+                AssertSql(
+                    @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE CAST(DATALENGTH(N'foo') AS int) = 3");
             }
         }
 

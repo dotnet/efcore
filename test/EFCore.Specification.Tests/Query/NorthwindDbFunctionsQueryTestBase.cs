@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Like_both_operands_literal(bool async)
+        public virtual Task Like_all_literals(bool async)
             => AssertCount(
                 async,
                 ss => ss.Set<Customer>(),
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Like_both_operands_literal_with_escape(bool async)
+        public virtual Task Like_all_literals_with_escape(bool async)
             => AssertCount(
                 async,
                 ss => ss.Set<Customer>(),
