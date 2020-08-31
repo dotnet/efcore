@@ -867,6 +867,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Type type,
             IConventionContext<string> context)
         {
+            if (type == null)
+            {
+                return;
+            }
+
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
                 var ambiguityRemoved = RemoveAmbiguous(entityType, type);

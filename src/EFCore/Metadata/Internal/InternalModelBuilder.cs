@@ -434,28 +434,44 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             using (Metadata.ConventionDispatcher.DelayConventions())
             {
+                var removed = false;
                 foreach (var entityType in Metadata.GetEntityTypes(name).ToList())
                 {
-                    HasNoEntityType(entityType, configurationSource);
-
                     if (entityType.HasClrType())
                     {
-                        Metadata.AddIgnored(entityType.ClrType, configurationSource);
+                        if (entityType.HasSharedClrType)
+                        {
+                            Metadata.AddIgnored(entityType.Name, entityType.ClrType, configurationSource);
+                        }
+                        else
+                        {
+                            Metadata.AddIgnored(entityType.ClrType, configurationSource);
+                        }
                     }
                     else
                     {
                         Metadata.AddIgnored(entityType.Name, configurationSource);
                     }
+
+                    removed = true;
+                    HasNoEntityType(entityType, configurationSource);
                 }
 
-                if (type.Type == null)
+                if (!removed)
                 {
-                    Metadata.AddIgnored(name, configurationSource);
+                    if (type.Type == null)
+                    {
+                        Metadata.AddIgnored(name, configurationSource);
+                    }
+                    else
+                    {
+                        Metadata.AddIgnored(type.Type, configurationSource);
+                    }
                 }
-                else
+
+                if (type.Type != null)
                 {
                     Metadata.RemoveOwned(type.Type);
-                    Metadata.AddIgnored(type.Type, configurationSource);
                 }
 
                 return this;

@@ -119,6 +119,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                             // Set the FK properties to reflect the change to the navigation.
                             SetForeignKeyProperties(entry, newTargetEntry, foreignKey, setModified: true, fromQuery: false);
+                            entry.SetRelationshipSnapshotValue(navigation, newValue);
                         }
                     }
                     else

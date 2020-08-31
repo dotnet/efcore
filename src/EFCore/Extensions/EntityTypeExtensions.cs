@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The derived types. </returns>
         public static IEnumerable<IEntityType> GetDirectlyDerivedTypes([NotNull] this IEntityType entityType)
-            => Check.NotNull(entityType, nameof(entityType)).AsEntityType().GetDirectlyDerivedTypes();
+            => ((EntityType)entityType).GetDirectlyDerivedTypes();
 
         /// <summary>
         ///     Determines if this entity type derives from (or is the same as) a given entity type.

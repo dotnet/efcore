@@ -63,24 +63,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             var servicePropertyDiscoveryConvention = new ServicePropertyDiscoveryConvention(Dependencies);
             var indexAttributeConvention = new IndexAttributeConvention(Dependencies);
 
+            var baseTypeDiscoveryConvention = new BaseTypeDiscoveryConvention(Dependencies);
             conventionSet.EntityTypeAddedConventions.Add(new NotMappedEntityTypeAttributeConvention(Dependencies));
             conventionSet.EntityTypeAddedConventions.Add(new OwnedEntityTypeAttributeConvention(Dependencies));
             conventionSet.EntityTypeAddedConventions.Add(new KeylessEntityTypeAttributeConvention(Dependencies));
             conventionSet.EntityTypeAddedConventions.Add(new NotMappedMemberAttributeConvention(Dependencies));
-            conventionSet.EntityTypeAddedConventions.Add(new BaseTypeDiscoveryConvention(Dependencies));
+            conventionSet.EntityTypeAddedConventions.Add(baseTypeDiscoveryConvention);
             conventionSet.EntityTypeAddedConventions.Add(propertyDiscoveryConvention);
             conventionSet.EntityTypeAddedConventions.Add(servicePropertyDiscoveryConvention);
             conventionSet.EntityTypeAddedConventions.Add(keyDiscoveryConvention);
             conventionSet.EntityTypeAddedConventions.Add(indexAttributeConvention);
             conventionSet.EntityTypeAddedConventions.Add(inversePropertyAttributeConvention);
             conventionSet.EntityTypeAddedConventions.Add(relationshipDiscoveryConvention);
-            conventionSet.EntityTypeAddedConventions.Add(new DerivedTypeDiscoveryConvention(Dependencies));
 
-            conventionSet.EntityTypeIgnoredConventions.Add(inversePropertyAttributeConvention);
             conventionSet.EntityTypeIgnoredConventions.Add(relationshipDiscoveryConvention);
 
             var discriminatorConvention = new DiscriminatorConvention(Dependencies);
             conventionSet.EntityTypeRemovedConventions.Add(new OwnedTypesConvention(Dependencies));
+            conventionSet.EntityTypeRemovedConventions.Add(inversePropertyAttributeConvention);
             conventionSet.EntityTypeRemovedConventions.Add(discriminatorConvention);
 
             var foreignKeyIndexConvention = new ForeignKeyIndexConvention(Dependencies);
@@ -164,6 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.ForeignKeyRequirednessChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
 
             conventionSet.ForeignKeyOwnershipChangedConventions.Add(new NavigationEagerLoadingConvention(Dependencies));
+            conventionSet.ForeignKeyOwnershipChangedConventions.Add(baseTypeDiscoveryConvention);
             conventionSet.ForeignKeyOwnershipChangedConventions.Add(keyDiscoveryConvention);
             conventionSet.ForeignKeyOwnershipChangedConventions.Add(relationshipDiscoveryConvention);
             conventionSet.ForeignKeyOwnershipChangedConventions.Add(valueGeneratorConvention);

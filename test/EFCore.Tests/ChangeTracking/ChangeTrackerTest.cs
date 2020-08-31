@@ -133,9 +133,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Detect_property_change_is_logged(bool sensitive)
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public void Detect_property_change_is_logged(bool sensitive, bool callDetectChangesTwice)
         {
             Seed(sensitive);
 
@@ -145,7 +147,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             _loggerFactory.Log.Clear();
 
             cat.Name = "Smoke-a-doke";
+
             context.ChangeTracker.DetectChanges();
+
+            if (callDetectChangesTwice)
+            {
+                context.ChangeTracker.DetectChanges();
+            }
 
             var (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id);
             Assert.Equal(LogLevel.Debug, level);
@@ -160,15 +168,64 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             _loggerFactory.Log.Clear();
 
             cat.Name = "Little Artichoke";
+
             context.ChangeTracker.DetectChanges();
+
+            if (callDetectChangesTwice)
+            {
+                context.ChangeTracker.DetectChanges();
+            }
+
+            Assert.Empty(_loggerFactory.Log.Where(e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id));
+        }
+
+        [ConditionalTheory] // Issue #21896
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public void Property_changes_on_Deleted_entities_are_not_continually_detected(bool sensitive, bool callDetectChangesTwice)
+        {
+            Seed(sensitive);
+
+            using var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext();
+            var cat = context.Cats.Find(1);
+
+            _loggerFactory.Log.Clear();
+
+            context.Entry(cat).State = EntityState.Deleted;
+
+            cat.Name = "Smoke-a-doke";
+
+            context.ChangeTracker.DetectChanges();
+
+            if (callDetectChangesTwice)
+            {
+                context.ChangeTracker.DetectChanges();
+            }
+
+            Assert.Empty(_loggerFactory.Log.Where(e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id));
+
+            _loggerFactory.Log.Clear();
+
+            cat.Name = "Little Artichoke";
+
+            context.ChangeTracker.DetectChanges();
+
+            if (callDetectChangesTwice)
+            {
+                context.ChangeTracker.DetectChanges();
+            }
 
             Assert.Empty(_loggerFactory.Log.Where(e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id));
         }
 
         [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Detect_foreign_key_property_change_is_logged(bool sensitive)
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public void Detect_foreign_key_property_change_is_logged(bool sensitive, bool callDetectChangesTwice)
         {
             Seed(sensitive);
 
@@ -179,7 +236,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             var hat = cat.Hats.Single(h => h.Id == 77);
             hat.CatId = 2;
+
             context.ChangeTracker.DetectChanges();
+
+            if (callDetectChangesTwice)
+            {
+                context.ChangeTracker.DetectChanges();
+            }
 
             var (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.ForeignKeyChangeDetected.Id);
             Assert.Equal(LogLevel.Debug, level);
@@ -194,7 +257,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             _loggerFactory.Log.Clear();
 
             hat.CatId = 1;
+
             context.ChangeTracker.DetectChanges();
+
+            if (callDetectChangesTwice)
+            {
+                context.ChangeTracker.DetectChanges();
+            }
 
             (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.ForeignKeyChangeDetected.Id);
             Assert.Equal(LogLevel.Debug, level);
@@ -208,9 +277,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Detect_collection_change_is_logged(bool sensitive)
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public void Detect_collection_change_is_logged(bool sensitive, bool callDetectChangesTwice)
         {
             Seed(sensitive);
 
@@ -221,7 +292,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             _loggerFactory.Log.Clear();
 
             cat.Hats.Clear();
+
             context.ChangeTracker.DetectChanges();
+
+            if (callDetectChangesTwice)
+            {
+                context.ChangeTracker.DetectChanges();
+            }
 
             var (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.CollectionChangeDetected.Id);
             Assert.Equal(LogLevel.Debug, level);
@@ -236,7 +313,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             _loggerFactory.Log.Clear();
 
             cat.Hats.Add(hat);
+
             context.ChangeTracker.DetectChanges();
+
+            if (callDetectChangesTwice)
+            {
+                context.ChangeTracker.DetectChanges();
+            }
 
             (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.CollectionChangeDetected.Id);
             Assert.Equal(LogLevel.Debug, level);
@@ -250,9 +333,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Detect_skip_collection_change_is_logged(bool sensitive)
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public void Detect_skip_collection_change_is_logged(bool sensitive, bool callDetectChangesTwice)
         {
             Seed(sensitive);
 
@@ -263,7 +348,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             _loggerFactory.Log.Clear();
 
             cat.Mats.Clear();
+
             context.ChangeTracker.DetectChanges();
+
+            if (callDetectChangesTwice)
+            {
+                context.ChangeTracker.DetectChanges();
+            }
 
             var (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.SkipCollectionChangeDetected.Id);
             Assert.Equal(LogLevel.Debug, level);
@@ -278,7 +369,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             _loggerFactory.Log.Clear();
 
             cat.Mats.Add(mat);
+
             context.ChangeTracker.DetectChanges();
+
+            if (callDetectChangesTwice)
+            {
+                context.ChangeTracker.DetectChanges();
+            }
 
             (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.SkipCollectionChangeDetected.Id);
             Assert.Equal(LogLevel.Debug, level);
@@ -292,9 +389,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Detect_reference_change_is_logged(bool sensitive)
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public void Detect_reference_change_is_logged(bool sensitive, bool callDetectChangesTwice)
         {
             Seed(sensitive);
 
@@ -305,7 +404,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             _loggerFactory.Log.Clear();
 
             hat.Cat = null;
+
             context.ChangeTracker.DetectChanges();
+
+            if (callDetectChangesTwice)
+            {
+                context.ChangeTracker.DetectChanges();
+            }
 
             var (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.ReferenceChangeDetected.Id);
             Assert.Equal(LogLevel.Debug, level);
@@ -320,7 +425,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             _loggerFactory.Log.Clear();
 
             hat.Cat = cat;
+
             context.ChangeTracker.DetectChanges();
+
+            if (callDetectChangesTwice)
+            {
+                context.ChangeTracker.DetectChanges();
+            }
 
             (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.ReferenceChangeDetected.Id);
             Assert.Equal(LogLevel.Debug, level);
@@ -978,8 +1089,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [ConditionalFact]
-        public void State_change_events_fire_when_saving_changes()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void State_change_events_fire_when_saving_changes(bool callDetectChangesTwice)
         {
             var tracked = new List<EntityTrackedEventArgs>();
             var changed = new List<EntityStateChangedEventArgs>();
@@ -1002,6 +1115,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             cat1.Name = "Clippy";
 
             context.ChangeTracker.DetectChanges();
+
+            if (callDetectChangesTwice)
+            {
+                context.ChangeTracker.DetectChanges();
+            }
 
             Assert.Equal(2, tracked.Count);
             Assert.Single(changed);
@@ -1441,9 +1559,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         [ConditionalTheory] // Issue #17828
-        [InlineData(false)]
-        [InlineData(true)]
-        public void DetectChanges_reparents_even_when_immediate_cascade_enabled(bool delayCascade)
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public void DetectChanges_reparents_even_when_immediate_cascade_enabled(bool delayCascade, bool callDetectChangesTwice)
         {
             using var context = new EarlyLearningCenter();
 
@@ -1468,6 +1588,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             child.Category = parent2;
 
             context.ChangeTracker.DetectChanges();
+
+            if (callDetectChangesTwice)
+            {
+                context.ChangeTracker.DetectChanges();
+            }
 
             context.Remove(parent1);
 
@@ -1873,8 +1998,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             AssertProductAndDetailsFixedUp(context, product1.Details.Tag.TagDetails, product2.Details.Tag.TagDetails);
         }
 
-        [ConditionalFact] // Issue #1207
-        public void Can_add_identifying_dependents_and_principal_with_post_nav_fixup_with_key_generation()
+        [ConditionalTheory] // Issue #1207
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Can_add_identifying_dependents_and_principal_with_post_nav_fixup_with_key_generation(bool callDetectChangesTwice)
         {
             using var context = new EarlyLearningCenter();
             var product1 = new Product();
@@ -1906,11 +2033,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             context.ChangeTracker.DetectChanges();
 
+            if (callDetectChangesTwice)
+            {
+                context.ChangeTracker.DetectChanges();
+            }
+
             AssertProductAndDetailsFixedUp(context, product1.Details.Tag.TagDetails, product2.Details.Tag.TagDetails);
         }
 
-        [ConditionalFact] // Issue #1207
-        public void Can_add_identifying_dependents_and_principal_with_reverse_post_nav_fixup_with_key_generation()
+        [ConditionalTheory] // Issue #1207
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Can_add_identifying_dependents_and_principal_with_reverse_post_nav_fixup_with_key_generation(bool callDetectChangesTwice)
         {
             using var context = new EarlyLearningCenter();
             var product1 = new Product();
@@ -1941,6 +2075,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             details2.Product = product2;
 
             context.ChangeTracker.DetectChanges();
+
+            if (callDetectChangesTwice)
+            {
+                context.ChangeTracker.DetectChanges();
+            }
 
             AssertProductAndDetailsFixedUp(context, product1.Details.Tag.TagDetails, product2.Details.Tag.TagDetails);
         }
@@ -2157,8 +2296,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Assert.Equal(EntityState.Unchanged, entry.State);
         }
 
-        [ConditionalFact]
-        public void Explicitly_calling_DetectChanges_works_even_if_auto_DetectChanges_is_switched_off()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Explicitly_calling_DetectChanges_works_even_if_auto_DetectChanges_is_switched_off(bool callDetectChangesTwice)
         {
             using var context = new EarlyLearningCenter();
             context.ChangeTracker.AutoDetectChangesEnabled = false;
@@ -2171,6 +2312,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Assert.Equal(EntityState.Unchanged, entry.State);
 
             context.ChangeTracker.DetectChanges();
+
+            if (callDetectChangesTwice)
+            {
+                context.ChangeTracker.DetectChanges();
+            }
 
             Assert.Equal(EntityState.Modified, entry.State);
         }

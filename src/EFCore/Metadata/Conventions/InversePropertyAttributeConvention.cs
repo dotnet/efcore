@@ -291,23 +291,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return newForeignKeyBuilder;
         }
 
-        /// <summary>
-        ///     Called for every navigation property that has an attribute after an entity type is ignored.
-        /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="type"> The ignored entity type. </param>
-        /// <param name="navigationMemberInfo"> The navigation member info. </param>
-        /// <param name="targetClrType"> The CLR type of the target entity type. </param>
-        /// <param name="attribute"> The attribute. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
-        public override void ProcessEntityTypeIgnored(
+        /// <inheritdoc />
+        public override void ProcessEntityTypeRemoved(
             IConventionModelBuilder modelBuilder,
             Type type,
             MemberInfo navigationMemberInfo,
             Type targetClrType,
             InversePropertyAttribute attribute,
-            IConventionContext<string> context)
+            IConventionContext<IConventionEntityType> context)
         {
+            var targetEntityType = modelBuilder.Metadata.FindEntityType(targetClrType);
+            if (targetEntityType != null)
+            {
+                RemoveInverseNavigation(type, navigationMemberInfo, targetEntityType, attribute.Property);
+            }
+
             var declaringType = navigationMemberInfo.DeclaringType;
             Check.DebugAssert(declaringType != null, "declaringType is null");
             if (modelBuilder.Metadata.FindEntityType(declaringType) != null)
@@ -359,16 +357,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             context.StopProcessingIfChanged(newNavigation?.Builder);
         }
 
-        /// <summary>
-        ///     Called for every navigation property that has an attribute after the base type for an entity type is changed.
-        /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="newBaseType"> The new base type. </param>
-        /// <param name="oldBaseType"> The old base type. </param>
-        /// <param name="navigationMemberInfo"> The navigation member info. </param>
-        /// <param name="targetClrType"> The CLR type of the target entity type. </param>
-        /// <param name="attribute"> The attribute. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         public override void ProcessEntityTypeBaseTypeChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
             IConventionEntityType newBaseType,
@@ -393,19 +382,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         return;
                     }
 
-                    RemoveInverseNavigation(entityTypeBuilder.Metadata, navigationMemberInfo, targetEntityType);
+                    RemoveInverseNavigation(entityClrType, navigationMemberInfo, targetEntityType, attribute.Property);
                 }
             }
         }
 
-        /// <summary>
-        ///     Called after a navigation property that has an attribute is ignored.
-        /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="navigationMemberInfo"> The navigation member info. </param>
-        /// <param name="targetClrType"> The CLR type of the target entity type. </param>
-        /// <param name="attribute"> The attribute. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         public override void ProcessEntityTypeMemberIgnored(
             IConventionEntityTypeBuilder entityTypeBuilder,
             MemberInfo navigationMemberInfo,
@@ -420,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return;
             }
 
-            RemoveInverseNavigation(entityTypeBuilder.Metadata, navigationMemberInfo, targetEntityType);
+            RemoveInverseNavigation(entityTypeBuilder.Metadata.ClrType, navigationMemberInfo, targetEntityType, attribute.Property);
         }
 
         /// <inheritdoc />
@@ -537,40 +519,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private static (MemberInfo, IConventionEntityType)? FindAmbiguousInverse(
             MemberInfo navigation,
             IConventionEntityType entityType,
-            List<(MemberInfo Inverse, IConventionEntityType TargetEntityType)> referencingNavigationsWithAttribute)
+            List<(MemberInfo Inverse, IConventionEntityType InverseEntityType)> referencingNavigationsWithAttribute)
         {
-            List<(MemberInfo, IConventionEntityType)> tuplesToRemove = null;
             (MemberInfo, IConventionEntityType)? ambiguousTuple = null;
             foreach (var referencingTuple in referencingNavigationsWithAttribute)
             {
-                var inverseTargetEntityType = FindActualEntityType(referencingTuple.TargetEntityType);
-                if (inverseTargetEntityType?.Builder.IsIgnored(
-                        referencingTuple.Inverse.GetSimpleMemberName(), fromDataAnnotation: true)
-                    != false)
+                var inverseEntityType = FindActualEntityType(referencingTuple.InverseEntityType);
+                if (inverseEntityType?.Builder.IsIgnored(
+                    referencingTuple.Inverse.GetSimpleMemberName(), fromDataAnnotation: true) != false)
                 {
-                    if (tuplesToRemove == null)
-                    {
-                        tuplesToRemove = new List<(MemberInfo, IConventionEntityType)>();
-                    }
-
-                    tuplesToRemove.Add(referencingTuple);
                     continue;
                 }
 
                 if (!referencingTuple.Inverse.IsSameAs(navigation)
-                    || (!entityType.IsAssignableFrom(inverseTargetEntityType)
-                        && !inverseTargetEntityType.IsAssignableFrom(entityType)))
+                    || (!entityType.IsAssignableFrom(inverseEntityType)
+                        && !inverseEntityType.IsAssignableFrom(entityType)))
                 {
                     ambiguousTuple = referencingTuple;
                     break;
-                }
-            }
-
-            if (tuplesToRemove != null)
-            {
-                foreach (var tuple in tuplesToRemove)
-                {
-                    referencingNavigationsWithAttribute.Remove(tuple);
                 }
             }
 
@@ -617,48 +583,46 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private static void RemoveInverseNavigation(
-            IConventionEntityType entityType,
+            Type declaringType,
             MemberInfo navigation,
-            IConventionEntityType targetEntityType)
+            IConventionEntityType targetEntityType,
+            string inverseNavigationName)
         {
             var inverseNavigations = GetInverseNavigations(targetEntityType);
-
-            if (inverseNavigations == null)
+            if (inverseNavigations == null
+                || !inverseNavigations.TryGetValue(inverseNavigationName, out var inverseNavigationPair))
             {
                 return;
             }
 
-            foreach (var inverseNavigationPair in inverseNavigations.Values)
+            var anyRemoved = false;
+            var (inverseNavigation, referencingNavigationsWithAttribute) = inverseNavigationPair;
+            for (var index = 0; index < referencingNavigationsWithAttribute.Count; index++)
             {
-                var (inverseNavigation, referencingNavigationsWithAttribute) = inverseNavigationPair;
-                for (var index = 0; index < referencingNavigationsWithAttribute.Count; index++)
+                var referencingTuple = referencingNavigationsWithAttribute[index];
+                if (referencingTuple.Item1.IsSameAs(navigation)
+                    && declaringType.IsAssignableFrom(referencingTuple.Item2.ClrType))
                 {
-                    var referencingTuple = referencingNavigationsWithAttribute[index];
-                    if (referencingTuple.Item1.IsSameAs(navigation)
-                        && referencingTuple.Item2.ClrType == entityType.ClrType
-                        && FindActualEntityType(referencingTuple.Item2) == entityType)
+                    anyRemoved = true;
+                    referencingNavigationsWithAttribute.RemoveAt(index--);
+                    if (referencingNavigationsWithAttribute.Count == 0)
                     {
-                        referencingNavigationsWithAttribute.RemoveAt(index);
-                        if (referencingNavigationsWithAttribute.Count == 0)
-                        {
-                            inverseNavigations.Remove(inverseNavigation.Name);
-                        }
-
-                        if (referencingNavigationsWithAttribute.Count == 1)
-                        {
-                            var otherEntityType = FindActualEntityType(referencingNavigationsWithAttribute[0].Item2);
-                            if (otherEntityType != null)
-                            {
-                                targetEntityType.Builder.HasRelationship(
-                                    otherEntityType,
-                                    inverseNavigation,
-                                    referencingNavigationsWithAttribute[0].Item1,
-                                    fromDataAnnotation: true);
-                            }
-                        }
-
-                        return;
+                        inverseNavigations.Remove(inverseNavigation.Name);
                     }
+                }
+            }
+
+            if (anyRemoved
+                && referencingNavigationsWithAttribute.Count == 1)
+            {
+                var otherEntityType = FindActualEntityType(referencingNavigationsWithAttribute[0].Item2);
+                if (otherEntityType != null)
+                {
+                    targetEntityType.Builder.HasRelationship(
+                        otherEntityType,
+                        inverseNavigation,
+                        referencingNavigationsWithAttribute[0].Item1,
+                        fromDataAnnotation: true);
                 }
             }
         }
