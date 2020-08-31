@@ -1484,7 +1484,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                     return baseNavigation != null
                                         && n.TargetEntityType == baseNavigation.TargetEntityType;
                                 },
-                                n => n.ForeignKey.DeclaringEntityType.RemoveForeignKey(n.ForeignKey))
+                                n => n.ForeignKey.DeclaringEntityType.Builder.HasNoRelationship(n.ForeignKey, ConfigurationSource.Explicit))
                             ?.Select(n => n.ForeignKey).ToHashSet();
 
                     foreach (var key in Metadata.GetDeclaredKeys().ToList())
@@ -3219,8 +3219,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
 
                     if (existingNavigation.ForeignKey.DeclaringEntityType.Builder
-                            .HasNoRelationship(existingNavigation.ForeignKey, configurationSource)
-                        == null)
+                            .HasNoRelationship(existingNavigation.ForeignKey, configurationSource) == null)
                     {
                         return null;
                     }

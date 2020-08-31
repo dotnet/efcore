@@ -954,20 +954,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var owner = model.FindEntityType(typeof(OrderCombination));
                 var owned = owner.FindNavigation(nameof(OrderCombination.Details)).ForeignKey.DeclaringEntityType;
-                Assert.NotEmpty(owned.GetDirectlyDerivedTypes());
-                var navigationsToDerived = model.GetEntityTypes().SelectMany(e => e.GetDeclaredNavigations()).Where(
-                    n =>
-                    {
-                        var targetType = n.TargetEntityType.ClrType;
-                        return targetType != typeof(DetailsBase) && typeof(DetailsBase).IsAssignableFrom(targetType);
-                    });
-                Assert.Empty(navigationsToDerived);
+                Assert.Empty(owned.GetDirectlyDerivedTypes());
+                Assert.NotEmpty(
+                    model.GetEntityTypes().SelectMany(e => e.GetDeclaredNavigations()).Where(
+                        n =>
+                        {
+                            var targetType = n.TargetEntityType.ClrType;
+                            return targetType != typeof(DetailsBase) && typeof(DetailsBase).IsAssignableFrom(targetType);
+                        }));
                 Assert.Single(owned.GetForeignKeys());
                 Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(DetailsBase)));
-                Assert.Same(owned, model.FindEntityType(typeof(CustomerDetails)).BaseType);
+                Assert.Null(model.FindEntityType(typeof(CustomerDetails)).BaseType);
 
                 modelBuilder.Entity<Customer>().Ignore(c => c.Details);
                 modelBuilder.Entity<Order>().Ignore(c => c.Details);
+
+                modelBuilder.FinalizeModel();
             }
 
             [ConditionalFact]
@@ -981,8 +983,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var owner = model.FindEntityType(typeof(OrderCombination));
                 var owned = owner.FindNavigation(nameof(OrderCombination.Details)).ForeignKey.DeclaringEntityType;
-                Assert.NotEmpty(owned.GetDirectlyDerivedTypes());
-                Assert.Empty(
+                Assert.Empty(owned.GetDirectlyDerivedTypes());
+                Assert.NotEmpty(
                     model.GetEntityTypes().SelectMany(e => e.GetDeclaredNavigations()).Where(
                         n =>
                         {
@@ -991,7 +993,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         }));
                 Assert.Single(owned.GetForeignKeys());
                 Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(DetailsBase)));
-                Assert.Same(owned, model.FindEntityType(typeof(CustomerDetails)).BaseType);
+                Assert.Null(model.FindEntityType(typeof(CustomerDetails)).BaseType);
 
                 modelBuilder.Entity<Customer>().Ignore(c => c.Details);
                 modelBuilder.Entity<Order>().Ignore(c => c.Details);
@@ -1335,9 +1337,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         });
 
                 Assert.Equal(
-                    CoreStrings.ClashingOwnedEntityType(nameof(AnotherBookLabel)),
+                    CoreStrings.ClashingOwnedEntityType(nameof(BookLabel)),
                     Assert.Throws<InvalidOperationException>(
-                        () => modelBuilder.Entity<AnotherBookLabel>()).Message);
+                        () => modelBuilder.Entity<AnotherBookLabel>().HasBaseType<BookLabel>()).Message);
             }
 
             [ConditionalFact]
