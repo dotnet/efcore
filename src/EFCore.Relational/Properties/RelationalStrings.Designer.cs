@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("CannotChangeWhenOpen");
 
         /// <summary>
-        ///     Client side GroupBy is not supported.
+        ///     The given GroupBy pattern is not translatable. Call AsEnumerable before GroupBy to evaluate it locally.
         /// </summary>
         public static string ClientGroupByNotSupported
             => GetString("ClientGroupByNotSupported");
@@ -1895,7 +1895,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     A MigrationAttribute isn't specified on the '{class}' class.
+        ///     A [Migration] attribute isn't specified on the '{class}' class.
         /// </summary>
         public static EventDefinition<string> LogMigrationAttributeMissingWarning([NotNull] IDiagnosticsLogger logger)
         {

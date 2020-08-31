@@ -33,6 +33,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
+        ///     Cannot add an entity type with type '{typeName}' to the model as it is a dynamically-generated proxy type.
+        /// </summary>
+        public static string AddingProxyTypeAsEntityType([CanBeNull] object typeName)
+            => string.Format(
+                GetString("AddingProxyTypeAsEntityType", nameof(typeName)),
+                typeName);
+
+        /// <summary>
         ///     The entity type '{entityType}' has a defining navigation and the supplied entity is currently referenced from several owner entities. To access the entry for a particular reference call '{targetEntryCall}' on the owner entry.
         /// </summary>
         public static string AmbiguousDependentEntity([CanBeNull] object entityType, [CanBeNull] object targetEntryCall)
@@ -89,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityTypeNavigationSpecification, otherEntityType);
 
         /// <summary>
-        ///     The service property '{property}' of type '{serviceType}' cannot be added to the entity type '{entityType}' because there is another property of the same type. Ignore one of the properties using the NotMappedAttribute or 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
+        ///     The service property '{property}' of type '{serviceType}' cannot be added to the entity type '{entityType}' because there is another property of the same type. Ignore one of the properties using the [NotMapped] attribute or 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
         /// </summary>
         public static string AmbiguousServiceProperty([CanBeNull] object property, [CanBeNull] object serviceType, [CanBeNull] object entityType)
             => string.Format(
@@ -111,14 +119,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ArgumentPropertyNull", nameof(property), nameof(argument)),
                 property, argument);
-
-        /// <summary>
-        ///     Cannot add an entity type with type '{typeName}'. That type is a dynamically-generated proxy type.
-        /// </summary>
-        public static string AttemptToCreateEntityTypeBasedOnProxyClass([CanBeNull] object typeName)
-            => string.Format(
-                GetString("AttemptToCreateEntityTypeBasedOnProxyClass", nameof(typeName)),
-                typeName);
 
         /// <summary>
         ///     Cannot set backing field '{field}' for the indexer property '{entityType}.{property}'. Ensure no backing fields are specified for indexer properties.
@@ -199,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType);
 
         /// <summary>
-        ///     Unable to convert queryable method to enumerable method.
+        ///     Unable to convert queryable method to enumerable method. This is likely an issue in EF Core, please report it.
         /// </summary>
         public static string CannotConvertQueryableToEnumerableMethod
             => GetString("CannotConvertQueryableToEnumerableMethod");
@@ -389,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type, entityType, propertyName, propertyType);
 
         /// <summary>
-        ///     There are multiple properties pointing to navigation '{1_entityType}.{0_navigation}'. To define composite foreign key using data annotations, use ForeignKeyAttribute on navigation.
+        ///     There are multiple properties pointing to navigation '{1_entityType}.{0_navigation}'. To define composite foreign key using data annotations, use [ForeignKey] attribute on navigation.
         /// </summary>
         public static string CompositeFkOnProperty([CanBeNull] object navigation, [CanBeNull] object entityType)
             => string.Format(
@@ -419,7 +419,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, field1, field2);
 
         /// <summary>
-        ///     There are multiple ForeignKeyAttributes which are pointing to same set of properties - '{propertyList}' on entity type '{entityType}'.
+        ///     There are multiple [ForeignKey] attributes which are pointing to same set of properties - '{propertyList}' on entity type '{entityType}'.
         /// </summary>
         public static string ConflictingForeignKeyAttributes([CanBeNull] object propertyList, [CanBeNull] object entityType)
             => string.Format(
@@ -579,7 +579,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 derivedType, rootType);
 
         /// <summary>
-        ///     The entity type '{entityType}' cannot have a defining query because it is derived from '{baseType}'. Only base keyless entity types can have a defining query.
+        ///     The entity type '{entityType}' cannot have a defining query because it is derived from '{baseType}'. Only base entity types can have a defining query.
         /// </summary>
         public static string DerivedTypeDefiningQuery([CanBeNull] object entityType, [CanBeNull] object baseType)
             => string.Format(
@@ -901,7 +901,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 index, entityType, valueType, propertyType);
 
         /// <summary>
-        ///     The ForeignKeyAttribute for the navigation '{navigation}' cannot be specified on the entity type '{principalType}' since it represents a one-to-many relationship. Move the ForeignKeyAttribute to a property on '{dependentType}'.
+        ///     The [ForeignKey] attribute for the navigation '{navigation}' cannot be specified on the entity type '{principalType}' since it represents a one-to-many relationship. Move the [ForeignKey] attribute to a property on '{dependentType}'.
         /// </summary>
         public static string FkAttributeOnNonUniquePrincipal([CanBeNull] object navigation, [CanBeNull] object principalType, [CanBeNull] object dependentType)
             => string.Format(
@@ -909,7 +909,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigation, principalType, dependentType);
 
         /// <summary>
-        ///     The ForeignKeyAttributes on property '{property}' and navigation '{navigation}' in entity type '{entityType}' do not point at each other. The value of ForeignKeyAttribute on property should be navigation name and the value of ForeignKeyAttribute on navigation should be the foreign key property name.
+        ///     The [ForeignKey] attributes on property '{property}' and navigation '{navigation}' in entity type '{entityType}' do not point at each other. The value of [ForeignKey] attribute on property should be navigation name and the value of [ForeignKey] attribute on navigation should be the foreign key property name.
         /// </summary>
         public static string FkAttributeOnPropertyNavigationMismatch([CanBeNull] object property, [CanBeNull] object navigation, [CanBeNull] object entityType)
             => string.Format(
@@ -1120,7 +1120,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 indexProperties, entityType, otherEntityType);
 
         /// <summary>
-        ///     The property '{property}' cannot be ignored on entity type '{entityType}', because it's declared on the base entity type '{baseEntityType}'. To exclude this property from your model, use NotMappedAttribute or Ignore method on the base type.
+        ///     The property '{property}' cannot be ignored on entity type '{entityType}', because it's declared on the base entity type '{baseEntityType}'. To exclude this property from your model, use [NotMapped] attribute or Ignore method on the base type.
         /// </summary>
         public static string InheritedPropertyCannotBeIgnored([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object baseEntityType)
             => string.Format(
@@ -1128,7 +1128,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, baseEntityType);
 
         /// <summary>
-        ///     The property '{entityType}.{navigation}' is of an interface type ('{propertyType}'). If it is a navigation property manually configure the relationship for this property by casting it to a mapped entity type, otherwise ignore the property using the NotMappedAttribute or 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
+        ///     The property '{entityType}.{navigation}' is of an interface type ('{propertyType}'). If it is a navigation property manually configure the relationship for this property by casting it to a mapped entity type, otherwise ignore the property using the [NotMapped] attribute or 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
         /// </summary>
         public static string InterfacePropertyNotAdded([CanBeNull] object entityType, [CanBeNull] object navigation, [CanBeNull] object propertyType)
             => string.Format(
@@ -1212,7 +1212,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expression);
 
         /// <summary>
-        ///     The InversePropertyAttribute on property '{1_entityType}.{0_property}' is not valid. The property '{referencedProperty}' is not a valid navigation property on the related type '{referencedEntityType}'. Ensure that the property exists and is a valid reference or collection navigation property.
+        ///     The [InverseProperty] attribute on property '{1_entityType}.{0_property}' is not valid. The property '{referencedProperty}' is not a valid navigation property on the related type '{referencedEntityType}'. Ensure that the property exists and is a valid reference or collection navigation property.
         /// </summary>
         public static string InvalidNavigationWithInverseProperty([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object referencedProperty, [CanBeNull] object referencedEntityType)
             => string.Format(
@@ -1244,7 +1244,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expression);
 
         /// <summary>
-        ///     The property list specified using ForeignKeyAttribute on navigation '{1_entityType}.{0_navigation}' is incorrect. The attribute value should be comma-separated list of property names.
+        ///     The property list specified using [ForeignKey] attribute on navigation '{1_entityType}.{0_navigation}' is incorrect. The attribute value should be comma-separated list of property names.
         /// </summary>
         public static string InvalidPropertyListOnNavigation([CanBeNull] object navigation, [CanBeNull] object entityType)
             => string.Format(
@@ -1252,7 +1252,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigation, entityType);
 
         /// <summary>
-        ///     Invalid relationship has been specified using InversePropertyAttribute and ForeignKeyAttribute. The navigation '{1_entityType}.{0_navigation}' and the navigation '{3_referencedEntityType}.{2_referencedNavigation}' are related by InversePropertyAttribute but the ForeignKeyAttribute specified for both navigations have different values.
+        ///     Invalid relationship has been specified using [InverseProperty] attribute and [ForeignKey] attribute. The navigation '{1_entityType}.{0_navigation}' and the navigation '{3_referencedEntityType}.{2_referencedNavigation}' are related by [InverseProperty] attribute but the [ForeignKey] attribute specified for both navigations have different values.
         /// </summary>
         public static string InvalidRelationshipUsingDataAnnotations([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object referencedNavigation, [CanBeNull] object referencedEntityType)
             => string.Format(
@@ -1346,7 +1346,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 factory, property, entityType);
 
         /// <summary>
-        ///     InversePropertyAttributes on navigation '{1_entityType}.{0_navigation}' and on navigation '{3_referencedEntityType}.{2_referencedNavigation}' are not pointing to each other.
+        ///     [InverseProperty] attributes on navigation '{1_entityType}.{0_navigation}' and on navigation '{3_referencedEntityType}.{2_referencedNavigation}' are not pointing to each other.
         /// </summary>
         public static string InversePropertyMismatch([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object referencedNavigation, [CanBeNull] object referencedEntityType)
             => string.Format(
@@ -1376,7 +1376,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("IQueryableProviderNotAsync");
 
         /// <summary>
-        ///     The derived type '{derivedType}' cannot have KeyAttribute on property '{property}' since primary key can only be declared on the root type.
+        ///     The derived type '{derivedType}' cannot have [Key] attribute on property '{property}' since primary key can only be declared on the root type.
         /// </summary>
         public static string KeyAttributeOnDerivedEntity([CanBeNull] object derivedType, [CanBeNull] object property)
             => string.Format(
@@ -1512,7 +1512,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 filter1, filter2);
 
         /// <summary>
-        ///     There are multiple navigations in entity type '{entityType}' which are pointing to same set of properties - '{propertyList}' using ForeignKeyAttribute.
+        ///     There are multiple navigations in entity type '{entityType}' which are pointing to same set of properties - '{propertyList}' using [ForeignKey] attribute.
         /// </summary>
         public static string MultipleNavigationsSameFk([CanBeNull] object entityType, [CanBeNull] object propertyList)
             => string.Format(
@@ -2396,7 +2396,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property);
 
         /// <summary>
-        ///     A relationship cannot be established from property '{1_entityType}.{0_property}' to property '{3_referencedEntityType}.{2_referencedProperty}'. Check the values in the InversePropertyAttribute to ensure relationship definitions are unique and reference from one navigation property to its corresponding inverse navigation property.
+        ///     A relationship cannot be established from property '{1_entityType}.{0_property}' to property '{3_referencedEntityType}.{2_referencedProperty}'. Check the values in the [InverseProperty] attribute to ensure relationship definitions are unique and reference from one navigation property to its corresponding inverse navigation property.
         /// </summary>
         public static string SelfReferencingNavigationWithInverseProperty([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object referencedProperty, [CanBeNull] object referencedEntityType)
             => string.Format(
@@ -2982,7 +2982,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The relationship was separated into two relationships because ForeignKeyAttribute specified on the navigation '{navigationEntityType}.{navigation}' doesn't match the ForeignKeyAttribute specified on the property '{propertyEntityType}.{property}'.
+        ///     The relationship was separated into two relationships because [ForeignKey] attribute specified on the navigation '{navigationEntityType}.{navigation}' doesn't match the [ForeignKey] attribute specified on the property '{propertyEntityType}.{property}'.
         /// </summary>
         public static EventDefinition<string, string, string, string> LogConflictingForeignKeyAttributesOnNavigationAndProperty([NotNull] IDiagnosticsLogger logger)
         {
@@ -3294,7 +3294,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Navigations '{dependentEntityType}.{dependentNavigation}' and '{principalEntityType}.{principalNavigation}' were separated into two relationships as ForeignKeyAttribute was specified on navigations on both sides.
+        ///     Navigations '{dependentEntityType}.{dependentNavigation}' and '{principalEntityType}.{principalNavigation}' were separated into two relationships as [ForeignKey] attribute was specified on navigations on both sides.
         /// </summary>
         public static EventDefinition<string, string, string, string> LogForeignKeyAttributesOnBothNavigations([NotNull] IDiagnosticsLogger logger)
         {
@@ -3318,7 +3318,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Navigations '{dependentEntityType}.{dependentNavigation}' and '{principalEntityType}.{principalNavigation}' were separated into two relationships as ForeignKeyAttribute was specified on properties '{dependentProperty}' and '{principalProperty}' on both sides.
+        ///     Navigations '{dependentEntityType}.{dependentNavigation}' and '{principalEntityType}.{principalNavigation}' were separated into two relationships as [ForeignKey] attribute was specified on properties '{dependentProperty}' and '{principalProperty}' on both sides.
         /// </summary>
         public static EventDefinition<string, string, string, string, string, string> LogForeignKeyAttributesOnBothProperties([NotNull] IDiagnosticsLogger logger)
         {
@@ -3486,7 +3486,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     There are multiple navigations ({navigations}) configured with InversePropertyAttribute that point to the same inverse navigation '{inverseNavigation}'.
+        ///     There are multiple navigations ({navigations}) configured with [InverseProperty] attribute that point to the same inverse navigation '{inverseNavigation}'.
         /// </summary>
         public static EventDefinition<string, string> LogMultipleInversePropertiesSameTarget([NotNull] IDiagnosticsLogger logger)
         {
@@ -4041,7 +4041,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The navigation property '{navigation}' has a RequiredAttribute causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.
+        ///     The navigation property '{navigation}' has a [Required] attribute causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.
         /// </summary>
         [Obsolete]
         public static EventDefinition<string, string> LogRequiredAttributeInverted([NotNull] IDiagnosticsLogger logger)
@@ -4066,7 +4066,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored because there is also a RequiredAttribute on '{dependentEntityType}.{dependentNavigation}'. RequiredAttribute should only be specified on the dependent side of the relationship.
+        ///     The [Required] attribute on '{principalEntityType}.{principalNavigation}' was ignored because there is also a [Required] attribute on '{dependentEntityType}.{dependentNavigation}'. [Required] attribute should only be specified on the dependent side of the relationship.
         /// </summary>
         [Obsolete]
         public static EventDefinition<string, string, string, string> LogRequiredAttributeOnBothNavigations([NotNull] IDiagnosticsLogger logger)
@@ -4091,7 +4091,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored because it is a collection. RequiredAttribute should only be specified on reference navigations pointing to the principal side of the relationship.
+        ///     The [Required] attribute on '{principalEntityType}.{principalNavigation}' was ignored because it is a collection. [Required] attribute should only be specified on reference navigations pointing to the principal side of the relationship.
         /// </summary>
         public static EventDefinition<string, string> LogRequiredAttributeOnCollection([NotNull] IDiagnosticsLogger logger)
         {
@@ -4115,7 +4115,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The RequiredAttribute on '{principalEntityType}.{principalNavigation}' is invalid. RequiredAttribute should only be specified on the navigation pointing to the principal side of the relationship. To change the dependent side configure the foreign key properties.
+        ///     The [Required] attribute on '{principalEntityType}.{principalNavigation}' is invalid. [Required] attribute should only be specified on the navigation pointing to the principal side of the relationship. To change the dependent side configure the foreign key properties.
         /// </summary>
         [Obsolete]
         public static EventDefinition<string, string> LogRequiredAttributeOnDependent([NotNull] IDiagnosticsLogger logger)
@@ -4140,7 +4140,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored because it is a skip navigation. Instead configure the underlying foreign keys.
+        ///     The [Required] attribute on '{principalEntityType}.{principalNavigation}' was ignored because it is a skip navigation. Instead configure the underlying foreign keys.
         /// </summary>
         public static EventDefinition<string, string> LogRequiredAttributeOnSkipNavigation([NotNull] IDiagnosticsLogger logger)
         {

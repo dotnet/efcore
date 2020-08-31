@@ -127,7 +127,7 @@
     <value>The 'DbConnection' is currently in use. The connection can only be changed when the existing connection is not being used.</value>
   </data>
   <data name="ClientGroupByNotSupported" xml:space="preserve">
-    <value>Client side GroupBy is not supported.</value>
+    <value>The given GroupBy pattern is not translatable. Call AsEnumerable before GroupBy to evaluate it locally.</value>
   </data>
   <data name="ComputedColumnSqlUnspecified" xml:space="preserve">
     <value>The column '{column}' on table {table} has unspecified computed column SQL. Specify the SQL before using EF Core to create the database schema.</value>
@@ -492,7 +492,7 @@
     <comment>Debug RelationalEventId.MigrateUsingConnection string string</comment>
   </data>
   <data name="LogMigrationAttributeMissingWarning" xml:space="preserve">
-    <value>A MigrationAttribute isn't specified on the '{class}' class.</value>
+    <value>A [Migration] attribute isn't specified on the '{class}' class.</value>
     <comment>Warning RelationalEventId.MigrationAttributeMissingWarning string</comment>
   </data>
   <data name="LogMultipleCollectionIncludeWarning" xml:space="preserve">
