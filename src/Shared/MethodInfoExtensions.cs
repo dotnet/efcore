@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace System.Reflection
 {
@@ -14,5 +15,10 @@ namespace System.Reflection
                 && method.DeclaringType.GetInterfaces().Append(method.DeclaringType).Any(
                     t => t == typeof(IList)
                         || (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ICollection<>)));
+
+
+        public static bool IsReallyVirtual([NotNull] this MethodInfo method)
+            => method.IsVirtual && !method.IsFinal;
+
     }
 }

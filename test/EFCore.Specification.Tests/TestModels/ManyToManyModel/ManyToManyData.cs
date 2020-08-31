@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
         private readonly JoinTwoToThree[] _joinTwoToThrees;
 
         private readonly Dictionary<string, object>[] _joinOneToTwoShareds;
-        private readonly Dictionary<string, object>[] _joinOneToThreePayloadFullShareds;
+        private readonly ProxyablePropertyBag[] _joinOneToThreePayloadFullShareds;
         private readonly Dictionary<string, object>[] _joinTwoSelfShareds;
         private readonly Dictionary<string, object>[] _joinTwoToCompositeKeyShareds;
         private readonly Dictionary<string, object>[] _joinThreeToRootShareds;
@@ -281,8 +281,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
             context.Set<JoinTwoToThree>().AddRange(CreateJoinTwoToThrees(context));
 
             context.Set<Dictionary<string, object>>("EntityOneEntityTwo").AddRange(CreateEntityOneEntityTwos(context));
-            context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared")
-                .AddRange(CreateJoinOneToThreePayloadFullShareds(context));
+            context.Set<ProxyablePropertyBag>("JoinOneToThreePayloadFullShared").AddRange(CreateJoinOneToThreePayloadFullShareds(context));
             context.Set<Dictionary<string, object>>("JoinTwoSelfShared").AddRange(CreateJoinTwoSelfShareds(context));
             context.Set<Dictionary<string, object>>("JoinTwoToCompositeKeyShared").AddRange(CreateJoinTwoToCompositeKeyShareds(context));
             context.Set<Dictionary<string, object>>("EntityRootEntityThree").AddRange(CreateEntityRootEntityThrees(context));
@@ -1124,7 +1123,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
                     e["EntityTwoId"] = twoId;
                 });
 
-        private static Dictionary<string, object>[] CreateJoinOneToThreePayloadFullShareds(ManyToManyContext context)
+        private static ProxyablePropertyBag[] CreateJoinOneToThreePayloadFullShareds(ManyToManyContext context)
             => new[]
             {
                 CreateJoinOneToThreePayloadFullShared(context, 3, 1, "Capbrough"),
@@ -1169,13 +1168,13 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
                 CreateJoinOneToThreePayloadFullShared(context, 20, 16, "Bayburgh Hills")
             };
 
-        private static Dictionary<string, object> CreateJoinOneToThreePayloadFullShared(
+        private static ProxyablePropertyBag CreateJoinOneToThreePayloadFullShared(
             ManyToManyContext context,
             int oneId,
             int threeId,
             string payload)
             => CreateInstance(
-                context?.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared"), e =>
+                context?.Set<ProxyablePropertyBag>("JoinOneToThreePayloadFullShared"), e =>
                 {
                     e["OneId"] = oneId;
                     e["ThreeId"] = threeId;

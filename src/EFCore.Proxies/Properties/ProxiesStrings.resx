@@ -117,14 +117,20 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="DictionaryCannotBeProxied" xml:space="preserve">
+    <value>'{dictionaryType}' is not suitable for use as a change-tracking proxy because its indexer property is not virtual. Consider using an implementation of '{interfaceType}' that allows overriding of the indexer.</value>
+  </data>
   <data name="FieldProperty" xml:space="preserve">
     <value>Property '{property}' on entity type '{entityType}' is mapped without a CLR property. UseChangeTrackingProxies requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. UseLazyLoadingProxies requires only the navigation properties be virtual.</value>
   </data>
   <data name="ItsASeal" xml:space="preserve">
     <value>Entity type '{entityType}' is sealed. UseChangeTrackingProxies requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. UseLazyLoadingProxies requires only the navigation properties be virtual.</value>
   </data>
+  <data name="NonVirtualIndexerProperty" xml:space="preserve">
+    <value>The mapped indexer property on entity type '{entityType}' is not virtual. UseChangeTrackingProxies requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. UseLazyLoadingProxies requires only the navigation properties be virtual.</value>
+  </data>
   <data name="NonVirtualProperty" xml:space="preserve">
-    <value>Property '{property}' on entity type '{entityType}' is not virtual. UseChangeTrackingProxies requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. UseLazyLoadingProxies requires only the navigation properties be virtual.</value>
+    <value>Property '{1_entityType}.{0_property}' is not virtual. UseChangeTrackingProxies requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. UseLazyLoadingProxies requires only the navigation properties be virtual.</value>
   </data>
   <data name="ProxiesNotEnabled" xml:space="preserve">
     <value>Unable to create proxy for '{entityType}' because proxies are not enabled. Call 'DbContextOptionsBuilder.UseChangeTrackingProxies' or 'DbContextOptionsBuilder.UseLazyLoadingProxies' to enable proxies.</value>

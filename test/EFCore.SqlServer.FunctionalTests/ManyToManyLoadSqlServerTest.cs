@@ -111,7 +111,7 @@ ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id], [t0].[OneId], [t0].[TwoId
                     .HasDefaultValueSql("GETUTCDATE()");
 
                 modelBuilder
-                    .SharedTypeEntity<Dictionary<string, object>>("JoinOneToThreePayloadFullShared")
+                    .SharedTypeEntity<ProxyablePropertyBag>("JoinOneToThreePayloadFullShared")
                     .IndexerProperty<string>("Payload")
                     .HasDefaultValue("Generated");
 

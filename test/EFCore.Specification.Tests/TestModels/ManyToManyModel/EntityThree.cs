@@ -28,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 
         public virtual ICollection<EntityOne> OneSkipPayloadFullShared { get; } = new ObservableCollection<EntityOne>(); // #21684
 
-        public virtual ICollection<Dictionary<string, object>> JoinOnePayloadFullShared { get; }
-            = new ObservableCollection<Dictionary<string, object>>(); // #21684
+        public virtual ICollection<ProxyablePropertyBag> JoinOnePayloadFullShared { get; }
+            = new ObservableCollection<ProxyablePropertyBag>(); // #21684
 
         public virtual ICollection<EntityCompositeKey> CompositeKeySkipFull { get; }
             = new ObservableCollection<EntityCompositeKey>(); // #21684

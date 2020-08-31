@@ -65,9 +65,10 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             {
                 foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
                 {
-                    if (entityType.ClrType?.IsAbstract == false)
+                    var clrType = entityType.ClrType;
+                    if (clrType?.IsAbstract == false)
                     {
-                        if (entityType.ClrType.IsSealed)
+                        if (clrType.IsSealed)
                         {
                             throw new InvalidOperationException(ProxiesStrings.ItsASeal(entityType.DisplayName()));
                         }
@@ -102,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                             }
 
                             if (_options.UseChangeTrackingProxies
-                                && navigationBase.PropertyInfo.SetMethod?.IsVirtual == false)
+                                && navigationBase.PropertyInfo.SetMethod?.IsReallyVirtual() == false)
                             {
                                 throw new InvalidOperationException(
                                     ProxiesStrings.NonVirtualProperty(navigationBase.Name, entityType.DisplayName()));
@@ -110,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 
                             if (_options.UseLazyLoadingProxies)
                             {
-                                if (!navigationBase.PropertyInfo.GetMethod.IsVirtual
+                                if (!navigationBase.PropertyInfo.GetMethod.IsReallyVirtual()
                                     && (!(navigationBase is INavigation navigation
                                         && navigation.ForeignKey.IsOwnership)))
                                 {
@@ -119,6 +120,59 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                                 }
 
                                 navigationBase.SetPropertyAccessMode(PropertyAccessMode.Field);
+                            }
+                        }
+
+                        if (_options.UseChangeTrackingProxies)
+                        {
+                            var indexerChecked = false;
+                            foreach (var property in entityType.GetDeclaredProperties()
+                                .Where(p => !p.IsShadowProperty()))
+                            {
+                                if (property.IsIndexerProperty())
+                                {
+                                    if (!indexerChecked)
+                                    {
+                                        indexerChecked = true;
+
+                                        if (!property.PropertyInfo.SetMethod.IsReallyVirtual())
+                                        {
+                                            if (clrType.IsGenericType
+                                                && clrType.GetGenericTypeDefinition() == typeof(Dictionary<,>)
+                                                && clrType.GenericTypeArguments[0] == typeof(string))
+                                            {
+                                                if (entityType.GetProperties().Any(p => !p.IsPrimaryKey()))
+                                                {
+                                                    throw new InvalidOperationException(
+                                                        ProxiesStrings.DictionaryCannotBeProxied(
+                                                            clrType.ShortDisplayName(),
+                                                            typeof(IDictionary<,>).MakeGenericType(clrType.GenericTypeArguments)
+                                                                .ShortDisplayName()));
+                                                }
+                                            }
+                                            else
+                                            {
+                                                throw new InvalidOperationException(
+                                                    ProxiesStrings.NonVirtualIndexerProperty(entityType.DisplayName()));
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (property.PropertyInfo == null)
+                                    {
+                                        throw new InvalidOperationException(
+                                            ProxiesStrings.FieldProperty(property.Name, entityType.DisplayName()));
+                                    }
+
+                                    if (property.PropertyInfo.SetMethod?.IsReallyVirtual() == false)
+                                    {
+                                        throw new InvalidOperationException(
+                                            ProxiesStrings.NonVirtualProperty(property.Name, entityType.DisplayName()));
+                                    }
+                                }
+
                             }
                         }
 
@@ -176,21 +230,6 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                                             new ObjectArrayParameterBinding(binding.ParameterBindings)
                                         },
                                         proxyType));
-
-                                foreach (var prop in entityType.GetDeclaredProperties().Where(p => !p.IsShadowProperty()))
-                                {
-                                    if (prop.PropertyInfo == null)
-                                    {
-                                        throw new InvalidOperationException(
-                                            ProxiesStrings.FieldProperty(prop.Name, entityType.DisplayName()));
-                                    }
-
-                                    if (prop.PropertyInfo.SetMethod?.IsVirtual == false)
-                                    {
-                                        throw new InvalidOperationException(
-                                            ProxiesStrings.NonVirtualProperty(prop.Name, entityType.DisplayName()));
-                                    }
-                                }
                             }
                         }
                     }

@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
                     .HasDefaultValueSql("GETUTCDATE()");
 
                 modelBuilder
-                    .SharedTypeEntity<Dictionary<string, object>>("JoinOneToThreePayloadFullShared")
+                    .SharedTypeEntity<ProxyablePropertyBag>("JoinOneToThreePayloadFullShared")
                     .IndexerProperty<string>("Payload")
                     .HasDefaultValue("Generated");
 

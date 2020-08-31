@@ -152,6 +152,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
+            modelBuilder.SharedTypeEntity<ProxyablePropertyBag>("JoinOneToThreePayloadFullShared");
+
             modelBuilder.Entity<EntityOne>().Property(e => e.Id).ValueGeneratedNever();
             modelBuilder.Entity<EntityTwo>().Property(e => e.Id).ValueGeneratedNever();
             modelBuilder.Entity<EntityThree>().Property(e => e.Id).ValueGeneratedNever();
@@ -205,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<EntityOne>()
                 .HasMany(e => e.ThreeSkipPayloadFullShared)
                 .WithMany(e => e.OneSkipPayloadFullShared)
-                .UsingEntity<Dictionary<string, object>>(
+                .UsingEntity<ProxyablePropertyBag>(
                     "JoinOneToThreePayloadFullShared",
                     r => r.HasOne<EntityThree>().WithMany(e => e.JoinOnePayloadFullShared).HasForeignKey("ThreeId"),
                     l => l.HasOne<EntityOne>().WithMany(e => e.JoinThreePayloadFullShared).HasForeignKey("OneId"))

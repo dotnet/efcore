@@ -1898,7 +1898,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(11, context.ChangeTracker.Entries().Count());
                 Assert.Equal(3, context.ChangeTracker.Entries<EntityOne>().Count());
                 Assert.Equal(3, context.ChangeTracker.Entries<EntityThree>().Count());
-                Assert.Equal(5, context.ChangeTracker.Entries<Dictionary<string, object>>().Count());
+                Assert.Equal(5, context.ChangeTracker.Entries<ProxyablePropertyBag>().Count());
 
                 Assert.Equal(3, leftEntities[0].ThreeSkipPayloadFullShared.Count);
                 Assert.Single(leftEntities[1].ThreeSkipPayloadFullShared);
@@ -1951,8 +1951,8 @@ namespace Microsoft.EntityFrameworkCore
                         context.ChangeTracker.DetectChanges();
                     }
 
-                    context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared").Find(7712, 1)["Payload"] = "Set!";
-                    context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared").Find(20, 16)["Payload"] = "Changed!";
+                    context.Set<ProxyablePropertyBag>("JoinOneToThreePayloadFullShared").Find(7712, 1)["Payload"] = "Set!";
+                    context.Set<ProxyablePropertyBag>("JoinOneToThreePayloadFullShared").Find(20, 16)["Payload"] = "Changed!";
 
                     ValidateFixup(context, leftEntities, rightEntities, 24, 24, 48, postSave: false);
 
@@ -1979,7 +1979,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Equal(leftCount, context.ChangeTracker.Entries<EntityOne>().Count());
                 Assert.Equal(rightCount, context.ChangeTracker.Entries<EntityThree>().Count());
-                Assert.Equal(joinCount, context.ChangeTracker.Entries<Dictionary<string, object>>().Count());
+                Assert.Equal(joinCount, context.ChangeTracker.Entries<ProxyablePropertyBag>().Count());
                 Assert.Equal(leftCount + rightCount + joinCount, context.ChangeTracker.Entries().Count());
 
                 Assert.Contains(leftEntities[0].ThreeSkipPayloadFullShared, e => e.Id == 7721);
@@ -2040,7 +2040,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 }
 
-                var deleted = context.ChangeTracker.Entries<Dictionary<string, object>>().Count(e => e.State == EntityState.Deleted);
+                var deleted = context.ChangeTracker.Entries<ProxyablePropertyBag>().Count(e => e.State == EntityState.Deleted);
                 Assert.Equal(joinCount, (count / 2) + deleted);
             }
         }
@@ -2996,43 +2996,46 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
-                    var entity = context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared").CreateInstance(
+                    var entity = context.Set<ProxyablePropertyBag>("JoinOneToThreePayloadFullShared").CreateInstance(
                         c =>
                         {
                             c["OneId"] = 1;
                             c["ThreeId"] = 1;
                             c["Payload"] = "NewlyAdded";
                         });
-                    context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared").Add(entity);
+                    context.Set<ProxyablePropertyBag>("JoinOneToThreePayloadFullShared").Add(entity);
 
                     context.SaveChanges();
                 },
                 context =>
                 {
-                    var entity = context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared")
+                    var entity = context.Set<ProxyablePropertyBag>("JoinOneToThreePayloadFullShared")
                         .Single(e => (int)e["OneId"] == 1 && (int)e["ThreeId"] == 1);
 
                     Assert.Equal("NewlyAdded", (string)entity["Payload"]);
 
                     entity["Payload"] = "AlreadyUpdated";
 
-                    context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared").Update(entity);
+                    if (RequiresDetectChanges)
+                    {
+                        context.ChangeTracker.DetectChanges();
+                    }
 
                     context.SaveChanges();
                 },
                 context =>
                 {
-                    var entity = context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared")
+                    var entity = context.Set<ProxyablePropertyBag>("JoinOneToThreePayloadFullShared")
                         .Single(e => (int)e["OneId"] == 1 && (int)e["ThreeId"] == 1);
 
                     Assert.Equal("AlreadyUpdated", (string)entity["Payload"]);
 
-                    context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared").Remove(entity);
+                    context.Set<ProxyablePropertyBag>("JoinOneToThreePayloadFullShared").Remove(entity);
 
                     context.SaveChanges();
 
                     Assert.False(
-                        context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared")
+                        context.Set<ProxyablePropertyBag>("JoinOneToThreePayloadFullShared")
                             .Any(e => (int)e["OneId"] == 1 && (int)e["ThreeId"] == 1));
                 });
         }

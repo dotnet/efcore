@@ -402,6 +402,9 @@
   <data name="EntityTypeNotFound" xml:space="preserve">
     <value>The entity type '{entityType}' was not found. Ensure that the entity type has been added to the model.</value>
   </data>
+  <data name="EntityTypeNotFoundSharedProxy" xml:space="preserve">
+    <value>The type '{clrType}' is configured as a shared-type entity type, but the entity type name is not known. Ensure that CreateProxy is called on a DbSet created specifically for the shared-type entity type through use of a `DbContext.Set` overload that accepts an entity type name.</value>
+  </data>
   <data name="EntityTypeNotInRelationship" xml:space="preserve">
     <value>The specified entity type '{entityType}' is invalid. It should be either the dependent entity type '{dependentType}' or the principal entity type '{principalType}' or an entity type derived from one of them.</value>
   </data>

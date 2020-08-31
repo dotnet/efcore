@@ -60,8 +60,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Name = model.GetDisplayName(type);
             ClrType = type;
-            HasSharedClrType = false;
-            IsPropertyBag = type.IsPropertyBagType();
+
+            var isPropertyBag = type.IsPropertyBagType();
+            IsPropertyBag = isPropertyBag;
+            HasSharedClrType = isPropertyBag;
         }
 
         /// <summary>

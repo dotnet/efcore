@@ -771,6 +771,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
+        ///     The type '{clrType}' is configured as a shared-type entity type, but the entity type name is not known. Ensure that CreateProxy is called on a DbSet created specifically for the shared-type entity type through use of a `DbContext.Set` overload that accepts an entity type name.
+        /// </summary>
+        public static string EntityTypeNotFoundSharedProxy([CanBeNull] object clrType)
+            => string.Format(
+                GetString("EntityTypeNotFoundSharedProxy", nameof(clrType)),
+                clrType);
+
+        /// <summary>
         ///     The specified entity type '{entityType}' is invalid. It should be either the dependent entity type '{dependentType}' or the principal entity type '{principalType}' or an entity type derived from one of them.
         /// </summary>
         public static string EntityTypeNotInRelationship([CanBeNull] object entityType, [CanBeNull] object dependentType, [CanBeNull] object principalType)

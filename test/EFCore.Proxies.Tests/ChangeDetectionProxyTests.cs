@@ -2,7 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
+using System.Reflection.Metadata;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -31,6 +34,24 @@ namespace Microsoft.EntityFrameworkCore
                 ProxiesStrings.NonVirtualProperty(nameof(ChangeNonVirtualPropEntity.Id), nameof(ChangeNonVirtualPropEntity)),
                 Assert.Throws<InvalidOperationException>(
                     () => context.Model).Message);
+        }
+
+        [ConditionalFact]
+        public void Throws_if_non_virtual_indexer_property()
+        {
+            using var context = new ChangeContext<ChangeNonVirtualIndexer>(entityBuilderAction: b => b.IndexerProperty<int>("Snoopy"));
+            Assert.Equal(
+                ProxiesStrings.NonVirtualIndexerProperty(nameof(ChangeNonVirtualIndexer)),
+                Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+        }
+
+        [ConditionalFact]
+        public void Does_not_throw_when_non_virtual_indexer_not_mapped()
+        {
+            using var context = new ChangeContext<ChangeNonVirtualIndexerNotUsed>();
+
+            Assert.False(
+                context.Model.FindEntityType(typeof(ChangeNonVirtualIndexerNotUsed)).GetProperties().Any(e => e.IsIndexerProperty()));
         }
 
         [ConditionalFact]
@@ -316,6 +337,32 @@ namespace Microsoft.EntityFrameworkCore
             public virtual int Id { get; set; }
 
             public ChangeNonVirtualNavEntity SelfRef { get; set; }
+        }
+
+        public class ChangeNonVirtualIndexer
+        {
+            private readonly Dictionary<string, object> _keyValuePairs = new Dictionary<string, object>();
+
+            public virtual int Id { get; set; }
+
+            public object this[string key]
+            {
+                get => _keyValuePairs[key];
+                set => _keyValuePairs[key] = value;
+            }
+        }
+
+        public class ChangeNonVirtualIndexerNotUsed
+        {
+            private readonly Dictionary<string, object> _keyValuePairs = new Dictionary<string, object>();
+
+            public virtual int Id { get; set; }
+
+            public object this[string key]
+            {
+                get => _keyValuePairs[key];
+                set => _keyValuePairs[key] = value;
+            }
         }
 
         public class ChangeValueEntity

@@ -41,6 +41,11 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             var entityType = context.Model.FindRuntimeEntityType(type);
             if (entityType == null)
             {
+                if (context.Model.IsShared(type))
+                {
+                    throw new InvalidOperationException(CoreStrings.EntityTypeNotFoundSharedProxy(type.ShortDisplayName()));
+                }
+
                 throw new InvalidOperationException(CoreStrings.EntityTypeNotFound(type.ShortDisplayName()));
             }
 

@@ -19,6 +19,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.ProxiesStrings", typeof(ProxiesStrings).Assembly);
 
         /// <summary>
+        ///     '{dictionaryType}' is not suitable for use as a change-tracking proxy because its indexer property is not virtual. Consider using an implementation of '{interfaceType}' that allows overriding of the indexer.
+        /// </summary>
+        public static string DictionaryCannotBeProxied([CanBeNull] object dictionaryType, [CanBeNull] object interfaceType)
+            => string.Format(
+                GetString("DictionaryCannotBeProxied", nameof(dictionaryType), nameof(interfaceType)),
+                dictionaryType, interfaceType);
+
+        /// <summary>
         ///     Property '{property}' on entity type '{entityType}' is mapped without a CLR property. UseChangeTrackingProxies requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. UseLazyLoadingProxies requires only the navigation properties be virtual.
         /// </summary>
         public static string FieldProperty([CanBeNull] object property, [CanBeNull] object entityType)
@@ -35,11 +43,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType);
 
         /// <summary>
-        ///     Property '{property}' on entity type '{entityType}' is not virtual. UseChangeTrackingProxies requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. UseLazyLoadingProxies requires only the navigation properties be virtual.
+        ///     The mapped indexer property on entity type '{entityType}' is not virtual. UseChangeTrackingProxies requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. UseLazyLoadingProxies requires only the navigation properties be virtual.
+        /// </summary>
+        public static string NonVirtualIndexerProperty([CanBeNull] object entityType)
+            => string.Format(
+                GetString("NonVirtualIndexerProperty", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     Property '{1_entityType}.{0_property}' is not virtual. UseChangeTrackingProxies requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. UseLazyLoadingProxies requires only the navigation properties be virtual.
         /// </summary>
         public static string NonVirtualProperty([CanBeNull] object property, [CanBeNull] object entityType)
             => string.Format(
-                GetString("NonVirtualProperty", nameof(property), nameof(entityType)),
+                GetString("NonVirtualProperty", "0_property", "1_entityType"),
                 property, entityType);
 
         /// <summary>

@@ -27,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 
         public virtual ICollection<EntityThree> ThreeSkipPayloadFullShared { get; } = new ObservableCollection<EntityThree>(); // #21684
 
-        public virtual ICollection<Dictionary<string, object>> JoinThreePayloadFullShared { get; }
-            = new ObservableCollection<Dictionary<string, object>>(); // #21684
+        public virtual ICollection<ProxyablePropertyBag> JoinThreePayloadFullShared { get; }
+            = new ObservableCollection<ProxyablePropertyBag>(); // #21684
 
         public virtual ICollection<EntityOne> SelfSkipPayloadLeft { get; } = new ObservableCollection<EntityOne>(); // #21684
 

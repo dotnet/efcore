@@ -72,6 +72,33 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public void CreateProxy_works_for_shared_type_entity_types()
+        {
+            using var context = new NeweyContext();
+
+            Assert.Same(typeof(SharedTypeEntityType), context.Set<SharedTypeEntityType>("STET1").CreateProxy().GetType().BaseType);
+            Assert.Same(typeof(SharedTypeEntityType), context.Set<SharedTypeEntityType>("STET1").CreateProxy(_ => { }).GetType().BaseType);
+        }
+
+        [ConditionalFact]
+        public void CreateProxy_throws_for_shared_type_entity_types_when_entity_type_name_not_known()
+        {
+            using var context = new NeweyContext();
+
+            Assert.Equal(
+                CoreStrings.EntityTypeNotFoundSharedProxy(nameof(SharedTypeEntityType)),
+                Assert.Throws<InvalidOperationException>(() => context.CreateProxy<SharedTypeEntityType>()).Message);
+
+            Assert.Equal(
+                CoreStrings.EntityTypeNotFoundSharedProxy(nameof(SharedTypeEntityType)),
+                Assert.Throws<InvalidOperationException>(() => context.CreateProxy<SharedTypeEntityType>(_ => { })).Message);
+
+            Assert.Equal(
+                CoreStrings.EntityTypeNotFoundSharedProxy(nameof(SharedTypeEntityType)),
+                Assert.Throws<InvalidOperationException>(() => context.CreateProxy(typeof(SharedTypeEntityType))).Message);
+        }
+
+        [ConditionalFact]
         public void CreateProxy_uses_parameterless_constructor()
         {
             using var context = new NeweyContext();
@@ -248,6 +275,11 @@ namespace Microsoft.EntityFrameworkCore
                     }).Message);
         }
 
+        public class SharedTypeEntityType
+        {
+            public virtual int Id { get; set; }
+        }
+
         public class March82GGtp
         {
             public virtual int Id { get; set; }
@@ -350,6 +382,9 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.Id);
                         b.Property(e => e.Sponsor);
                     });
+
+                modelBuilder.SharedTypeEntity<SharedTypeEntityType>("STET1");
+                modelBuilder.SharedTypeEntity<SharedTypeEntityType>("STET2");
             }
         }
 
