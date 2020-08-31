@@ -290,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         }
 
         /// <summary>
-        ///     For foreign key with identity {id} on table {tableName}, unable to find the column called {principalColumnName} on the foreign key's principal table, {principaltableName}. Skipping foreign key.
+        ///     For foreign key with identity '{id}' on table '{tableName}', unable to find the column called '{principalColumnName}' on the foreign key's principal table, '{principaltableName}'. Skipping foreign key.
         /// </summary>
         public static EventDefinition<string, string, string, string> LogPrincipalColumnNotFound([NotNull] IDiagnosticsLogger logger)
         {

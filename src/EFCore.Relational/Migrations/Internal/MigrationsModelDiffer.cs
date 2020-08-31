@@ -2577,7 +2577,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 = new Dictionary<ITable, DropTableOperation>();
 
             private readonly IDictionary<IColumn, DropColumnOperation> _dropColumnOperations
-                = new Dictionary<IColumn, DropColumnOperation>();            
+                = new Dictionary<IColumn, DropColumnOperation>();
 
             private readonly IDictionary<DropTableOperation, ITable> _removedTables
                 = new Dictionary<DropTableOperation, ITable>();

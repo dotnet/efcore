@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 resourceId, partitionKey);
 
         /// <summary>
-        ///     Null TypeMapping in Sql Tree.
+        ///     Null TypeMapping in SQL tree.
         /// </summary>
         public static string NullTypeMappingInSqlTree
             => GetString("NullTypeMappingInSqlTree");

@@ -164,12 +164,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Detects_filter_on_derived_type()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<A>();
+            var entityTypeA = modelBuilder.Entity<A>().Metadata;
             var entityTypeD = modelBuilder.Entity<D>().Metadata;
 
             entityTypeD.SetQueryFilter((Expression<Func<D, bool>>)(_ => true));
 
-            VerifyError(CoreStrings.BadFilterDerivedType(entityTypeD.GetQueryFilter(), entityTypeD.DisplayName()), modelBuilder.Model);
+            VerifyError(CoreStrings.BadFilterDerivedType(entityTypeD.GetQueryFilter(), entityTypeD.DisplayName(), entityTypeA.DisplayName()),
+                modelBuilder.Model);
         }
 
         [ConditionalFact]
@@ -1356,7 +1357,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.SharedTypeEntity<A>("Shared1");
             modelBuilder.SharedTypeEntity<C>("Shared2").HasBaseType("Shared1");
 
-            VerifyError(CoreStrings.SharedTypeDerivedType("Shared2"), modelBuilder.Model);
+            VerifyError(CoreStrings.SharedTypeDerivedType("Shared2 (C)"), modelBuilder.Model);
         }
 
         // INotify interfaces not really implemented; just marking the classes to test metadata construction

@@ -350,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
             Assert.Equal(
                 CoreStrings.CircularDependency(
-                    string.Join(" -> ", new[] { vertexOne, vertexTwo, vertexThree, vertexOne }.Select(v => v.ToString()))),
+                    string.Join(" ->" + Environment.NewLine, new[] { vertexOne, vertexTwo, vertexThree, vertexOne }.Select(v => v.ToString()))),
                 Assert.Throws<InvalidOperationException>(() => graph.TopologicalSort()).Message);
         }
 
@@ -656,7 +656,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             graph.Populate(entityTypeA);
 
             Assert.Equal(
-                CoreStrings.CircularDependency(nameof(A) + " -> " + nameof(A)),
+                CoreStrings.CircularDependency(nameof(A) + " ->" + Environment.NewLine + nameof(A)),
                 Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
         }
 
@@ -682,7 +682,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             graph.Populate(entityTypeC, entityTypeA, entityTypeB);
 
             Assert.Equal(
-                CoreStrings.CircularDependency(nameof(A) + " -> " + nameof(B) + " -> " + nameof(A)),
+                CoreStrings.CircularDependency(nameof(A) + " ->" + Environment.NewLine + nameof(B) + " ->" + Environment.NewLine + nameof(A)),
                 Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
         }
 
@@ -709,7 +709,10 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
 
             Assert.Equal(
-                CoreStrings.CircularDependency(nameof(A) + " -> " + nameof(C) + " -> " + nameof(B) + " -> " + nameof(A)),
+                CoreStrings.CircularDependency(nameof(A) + " ->" + Environment.NewLine
+                + nameof(C) + " ->" + Environment.NewLine
+                + nameof(B) + " ->" + Environment.NewLine
+                + nameof(A)),
                 Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
         }
 
@@ -747,7 +750,10 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             graph.Populate(entityTypeA, entityTypeB, entityTypeC, entityTypeD, entityTypeE);
 
             Assert.Equal(
-                CoreStrings.CircularDependency(nameof(A) + " -> " + nameof(C) + " -> " + nameof(B) + " -> " + nameof(A)),
+                CoreStrings.CircularDependency(nameof(A) + " ->" + Environment.NewLine
+                + nameof(C) + " ->" + Environment.NewLine
+                + nameof(B) + " ->" + Environment.NewLine
+                + nameof(A)),
                 Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
         }
 
@@ -774,7 +780,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
 
             Assert.Equal(
-                CoreStrings.CircularDependency(nameof(C) + " -> " + nameof(B) + " -> " + nameof(C)),
+                CoreStrings.CircularDependency(nameof(C) + " ->" + Environment.NewLine + nameof(B) + " ->" + Environment.NewLine + nameof(C)),
                 Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
         }
 

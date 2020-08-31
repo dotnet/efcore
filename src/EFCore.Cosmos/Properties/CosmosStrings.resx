@@ -175,7 +175,7 @@
     <value>There is no string-based representation of this query as it's executed using 'ReadItemQueryAsync({resourceId}, {partitionKey})'.</value>
   </data>
   <data name="NullTypeMappingInSqlTree" xml:space="preserve">
-    <value>Null TypeMapping in Sql Tree.</value>
+    <value>Null TypeMapping in SQL tree.</value>
   </data>
   <data name="OffsetRequiresLimit" xml:space="preserve">
     <value>Offset is not supported without Limit.</value>
