@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 type.Assembly.GetName().Name, StringComparison.Ordinal))
             {
                 throw new ArgumentException(
-                    CoreStrings.AttemptToCreateEntityTypeBasedOnProxyClass(type.FullName));
+                    CoreStrings.AddingProxyTypeAsEntityType(type.FullName));
             }
 
             _properties = new SortedDictionary<string, Property>(new PropertyNameComparer(this));
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 type.Assembly.GetName().Name, StringComparison.Ordinal))
             {
                 throw new ArgumentException(
-                    CoreStrings.AttemptToCreateEntityTypeBasedOnProxyClass(type.FullName));
+                    CoreStrings.AddingProxyTypeAsEntityType(type.FullName));
             }
 
             _properties = new SortedDictionary<string, Property>(new PropertyNameComparer(this));
