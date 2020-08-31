@@ -58,13 +58,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(expression, nameof(expression));
             Check.NotNull(model, nameof(model));
 
-            if (expression is MethodCallExpression methodCallExpression
-                && model.FindDbFunction(methodCallExpression.Method) != null)
+            if (expression is MethodCallExpression methodCallExpression)
             {
-                // Never evaluate DbFunction
-                // If it is inside lambda then we will have whole method call
-                // If it is outside of lambda then it will be evaluated for table valued function already.
-                return false;
+                var method = methodCallExpression.Method;
+
+                if (model.FindDbFunction(method) != null)
+                {
+                    // Never evaluate DbFunction
+                    // If it is inside lambda then we will have whole method call
+                    // If it is outside of lambda then it will be evaluated for table valued function already.
+                    return false;
+                }
+
+                if (method.DeclaringType == typeof(RelationalDbFunctionsExtensions))
+                {
+                    return false;
+                }
             }
 
             return base.IsEvaluatableExpression(expression, model);
