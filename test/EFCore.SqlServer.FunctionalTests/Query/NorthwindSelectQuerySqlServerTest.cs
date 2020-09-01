@@ -1,9 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -1424,23 +1426,12 @@ WHERE [c].[CustomerID] = N'ALFKI'
 ORDER BY [c].[CustomerID], [o].[OrderID], [o0].[OrderID]");
         }
 
-        public override async Task Projecting_after_navigation_and_distinct_works_correctly(bool async)
+        public override async Task Projecting_after_navigation_and_distinct_throws(bool async)
         {
-            await base.Projecting_after_navigation_and_distinct_works_correctly(async);
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Projecting_after_navigation_and_distinct_throws(async))).Message;
 
-            AssertSql(
-                @"SELECT [t].[CustomerID], [t0].[CustomerID], [t0].[OrderID], [t0].[OrderDate]
-FROM (
-    SELECT DISTINCT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-    FROM [Orders] AS [o]
-    LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-) AS [t]
-OUTER APPLY (
-    SELECT [t].[CustomerID], [o0].[OrderID], [o0].[OrderDate]
-    FROM [Orders] AS [o0]
-    WHERE [o0].[OrderID] IN (10248, 10249, 10250) AND (([t].[CustomerID] = [o0].[CustomerID]) OR ([t].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))
-) AS [t0]
-ORDER BY [t].[CustomerID], [t0].[OrderID]");
+            Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin, message);
         }
 
         public override Task Reverse_without_explicit_ordering_throws(bool async)

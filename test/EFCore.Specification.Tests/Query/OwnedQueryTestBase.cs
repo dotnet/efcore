@@ -858,6 +858,25 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_collection_correlated_with_keyless_entity_after_navigation_works_using_parent_identifiers(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Fink>().OrderBy(f => f.Id).Select(f => f.Barton.Throned.Value).Select(t => new
+                {
+                    t,
+                    Planets = ss.Set<Planet>().Where(p => p.Id != t).ToList()
+                }),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.t, a.t);
+                    AssertCollection(e.Planets, a.Planets);
+                });
+        }
+
         protected virtual DbContext CreateContext()
             => Fixture.CreateContext();
 

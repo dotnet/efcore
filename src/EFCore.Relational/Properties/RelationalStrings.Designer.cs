@@ -592,6 +592,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 valuesCount, columnsCount, table);
 
         /// <summary>
+        ///     Not enough information to uniquely identify outer element in correlated collection scenario. This can happen when trying to correlate on keyless entity or when using 'Distinct' or 'GroupBy' operations without projecting all of the key columns.
+        /// </summary>
+        public static string InsufficientInformationToIdentifyOuterElementOfCollectionJoin
+            => GetString("InsufficientInformationToIdentifyOuterElementOfCollectionJoin");
+
+        /// <summary>
         ///     The specified CommandTimeout value is not valid. It must be a positive number.
         /// </summary>
         public static string InvalidCommandTimeout
@@ -686,6 +692,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("MissingConcurrencyColumn", nameof(entityType), nameof(missingColumn), nameof(table)),
                 entityType, missingColumn, table);
+
+        /// <summary>
+        ///     Collection subquery that uses 'Distinct' or 'Group By' operations must project key columns of all of it's tables. Missing column: {column}. Either add column(s) to the projection or rewrite query to not use 'GroupBy'/'Distinct' operation.
+        /// </summary>
+        public static string MissingIdentifyingProjectionInDistinctGroupBySubquery([CanBeNull] object column)
+            => string.Format(GetString("MissingIdentifyingProjectionInDistinctGroupBySubquery", nameof(column)), column);
 
         /// <summary>
         ///     Reverse could not be translated to the server because there is no ordering on the server side.
@@ -816,12 +828,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string PendingAmbientTransaction
             => GetString("PendingAmbientTransaction");
-
-        /// <summary>
-        ///     Projecting collection correlated with keyless entity is not supported.
-        /// </summary>
-        public static string ProjectingCollectionOnKeylessEntityNotSupported
-            => GetString("ProjectingCollectionOnKeylessEntityNotSupported");
 
         /// <summary>
         ///     Different projection mapping count in set operation.
