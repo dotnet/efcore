@@ -58,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly Dictionary<string, ConfigurationSource> _ignoredTypeNames
             = new Dictionary<string, ConfigurationSource>(StringComparer.Ordinal);
 
-        private readonly Dictionary<Type, ConfigurationSource> _sharedTypes =
-            new Dictionary<Type, ConfigurationSource> { { DefaultPropertyBagType, ConfigurationSource.Convention } };
+        private readonly Dictionary<Type, ConfigurationSource> _sharedTypes
+            = new Dictionary<Type, ConfigurationSource>();
 
         private bool? _skipDetectChanges;
 
@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             CoreStrings.ClashingNonSharedType(entityType.Name, entityType.ClrType.DisplayName()));
                     }
 
-                    if (_sharedTypes.TryGetValue(entityType.ClrType, out var existingConfigurationSource))
+                    if (TryGetSharedConfigurationSource(entityType.ClrType, out var existingConfigurationSource))
                     {
                         _sharedTypes[entityType.ClrType] = entityType.GetConfigurationSource().Max(existingConfigurationSource);
                     }
@@ -267,6 +267,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return (EntityType)ConventionDispatcher.OnEntityTypeAdded(entityType.Builder)?.Metadata;
+        }
+
+        private bool TryGetSharedConfigurationSource(Type type, out ConfigurationSource configurationSource)
+        {
+            if (_sharedTypes.TryGetValue(type, out configurationSource))
+            {
+                return true;
+            }
+
+            if (type.IsPropertyBagType())
+            {
+                configurationSource = ConfigurationSource.Convention;
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -790,7 +806,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool IsShared([NotNull] Type type)
-            => _sharedTypes.ContainsKey(type);
+            => _sharedTypes.ContainsKey(type) || type.IsPropertyBagType();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -906,7 +922,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new InvalidOperationException(CoreStrings.CannotMarkShared(type.ShortDisplayName()));
             }
 
-            if (_sharedTypes.TryGetValue(type, out var existingConfigurationSource))
+            if (TryGetSharedConfigurationSource(type, out var existingConfigurationSource))
             {
                 _sharedTypes[type] = configurationSource.Max(existingConfigurationSource);
             }
