@@ -1511,6 +1511,43 @@ WHERE @_outer_CustomerID = [o1].[CustomerID]
 ORDER BY [o1].[OrderID]");
         }
 
+        public override async Task Select_uncorrelated_collection_with_groupby_works(bool async)
+        {
+            await base.Select_uncorrelated_collection_with_groupby_works(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [t].[OrderID]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT [o].[OrderID]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[OrderID]
+) AS [t]
+WHERE [c].[CustomerID] LIKE N'A%'
+ORDER BY [c].[CustomerID], [t].[OrderID]");
+        }
+
+        public override async Task Select_uncorrelated_collection_with_groupby_multiple_collections_work(bool async)
+        {
+            await base.Select_uncorrelated_collection_with_groupby_multiple_collections_work(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [t].[ProductID], [t0].[c], [t0].[ProductID]
+FROM [Orders] AS [o]
+OUTER APPLY (
+    SELECT [p].[ProductID]
+    FROM [Products] AS [p]
+    GROUP BY [p].[ProductID]
+) AS [t]
+OUTER APPLY (
+    SELECT COUNT(*) AS [c], [p0].[ProductID]
+    FROM [Products] AS [p0]
+    GROUP BY [p0].[ProductID]
+) AS [t0]
+WHERE [o].[CustomerID] IS NOT NULL AND ([o].[CustomerID] LIKE N'A%')
+ORDER BY [o].[OrderID], [t].[ProductID], [t0].[ProductID]");
+        }
+
         public override async Task Select_GroupBy_All(bool async)
         {
             await base.Select_GroupBy_All(async);
@@ -2397,14 +2434,6 @@ ORDER BY [o].[CustomerID]");
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[OrderID]");
-        }
-
-        public override async Task Complex_query_with_groupBy_in_subquery4(bool async)
-        {
-            await base.Complex_query_with_groupBy_in_subquery4(async);
-
-            AssertSql(
-                @"");
         }
 
         public override async Task Group_by_with_arithmetic_operation_inside_aggregate(bool async)

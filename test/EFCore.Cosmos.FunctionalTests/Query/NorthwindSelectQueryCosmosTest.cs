@@ -1143,9 +1143,11 @@ ORDER BY c[""CustomerID""]");
         }
 
         [ConditionalTheory(Skip = "Issue#17246")]
-        public override Task Projecting_after_navigation_and_distinct_works_correctly(bool async)
+        public override async Task Projecting_after_navigation_and_distinct_throws(bool isAsync)
         {
-            return base.Projecting_after_navigation_and_distinct_works_correctly(async);
+            await base.Projecting_after_navigation_and_distinct_throws(isAsync);
+
+            AssertSql(" ");
         }
 
         public override Task Reverse_without_explicit_ordering_throws(bool async)

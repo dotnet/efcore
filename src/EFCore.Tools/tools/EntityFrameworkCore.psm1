@@ -1019,8 +1019,16 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
         Write-Host 'Build succeeded.'
     }
 
+    $activeConfiguration = $startupProject.ConfigurationManager.ActiveConfiguration
+    if ($activeConfiguration -eq $null)
+    {
+        throw "Unable to read project configuration settings of project '$($startupProject.ProjectName)' for the " +
+            'active solution configuration. Try closing Package Manager Console and restarting Visual Studio. If the ' +
+            'problem persists, use Help > Send Feedback > Report a Problem.'
+    }
+
     $startupProjectDir = GetProperty $startupProject.Properties 'FullPath'
-    $outputPath = GetProperty $startupProject.ConfigurationManager.ActiveConfiguration.Properties 'OutputPath'
+    $outputPath = GetProperty $activeConfiguration.Properties 'OutputPath'
     $targetDir = [IO.Path]::GetFullPath([IO.Path]::Combine($startupProjectDir, $outputPath))
     $startupTargetFileName = GetProperty $startupProject.Properties 'OutputFileName'
     $startupTargetPath = Join-Path $targetDir $startupTargetFileName

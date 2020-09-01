@@ -1097,6 +1097,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             };
             operation.AddAnnotations(MigrationsAnnotations.ForRemove(source));
 
+            diffContext.AddDrop(source, operation);
+
             yield return operation;
         }
 
@@ -2260,11 +2262,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 break;
                             }
 
+                            var table = command.Entries.First().EntityType.GetTableMappings().Select(m => m.Table)
+                                .First(t => t.Name == command.TableName && t.Schema == command.Schema);
+                            var keyColumns = command.ColumnModifications.Where(col => col.IsKey)
+                                .Select(c => table.FindColumn(c.ColumnName));
+                            var anyKeyColumnDropped = keyColumns.Any(c => diffContext.FindDrop(c) != null);
+
                             yield return new DeleteDataOperation
                             {
                                 Schema = command.Schema,
                                 Table = command.TableName,
                                 KeyColumns = command.ColumnModifications.Where(col => col.IsKey).Select(col => col.ColumnName).ToArray(),
+                                KeyColumnTypes = anyKeyColumnDropped
+                                    ? keyColumns.Select(col => col.StoreType).ToArray()
+                                    : null,
                                 KeyValues = ToMultidimensionalArray(
                                     command.ColumnModifications.Where(col => col.IsKey).Select(GetValue).ToArray()),
                                 IsDestructiveChange = true
@@ -2565,6 +2576,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             private readonly IDictionary<ITable, DropTableOperation> _dropTableOperations
                 = new Dictionary<ITable, DropTableOperation>();
 
+            private readonly IDictionary<IColumn, DropColumnOperation> _dropColumnOperations
+                = new Dictionary<IColumn, DropColumnOperation>();            
+
             private readonly IDictionary<DropTableOperation, ITable> _removedTables
                 = new Dictionary<DropTableOperation, ITable>();
 
@@ -2599,6 +2613,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 _dropTableOperations.Add(source, operation);
                 _removedTables.Add(operation, source);
+            }
+
+            /// <summary>
+            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+            ///     any release. You should only use it directly in your code with extreme caution and knowing that
+            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+            /// </summary>
+            public virtual void AddDrop([NotNull] IColumn source, [NotNull] DropColumnOperation operation)
+            {
+                _dropColumnOperations.Add(source, operation);
             }
 
             /// <summary>
@@ -2657,6 +2682,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             /// </summary>
             public virtual DropTableOperation FindDrop([NotNull] ITable source)
                 => _dropTableOperations.TryGetValue(source, out var operation)
+                    ? operation
+                    : null;
+
+            /// <summary>
+            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+            ///     any release. You should only use it directly in your code with extreme caution and knowing that
+            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+            /// </summary>
+            public virtual DropColumnOperation FindDrop([NotNull] IColumn source)
+                => _dropColumnOperations.TryGetValue(source, out var operation)
                     ? operation
                     : null;
 

@@ -1795,7 +1795,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Projecting_after_navigation_and_distinct_works_correctly(bool async)
+        public virtual Task Projecting_after_navigation_and_distinct_throws(bool async)
         {
             var filteredOrderIds = new[] { 10248, 10249, 10250 };
 

@@ -1181,6 +1181,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => InsertData(table, new[] { Check.NotEmpty(column, nameof(column)) }, new[] { value }, schema);
 
         /// <summary>
+        ///     Builds an <see cref="InsertDataOperation" /> to insert a single seed data value for a single column.
+        /// </summary>
+        /// <param name="table"> The table into which the data will be inserted. </param>
+        /// <param name="column"> The name of the column into which the data will be inserted. </param>
+        /// <param name="columnType"> The store type for the column into which data will be inserted. </param>
+        /// <param name="value"> The value to insert. </param>
+        /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
+        /// <returns> A builder to allow annotations to be added to the operation. </returns>
+        public virtual OperationBuilder<InsertDataOperation> InsertData(
+            [NotNull] string table,
+            [NotNull] string column,
+            [NotNull] string columnType,
+            [CanBeNull] object value,
+            [CanBeNull] string schema = null)
+            => InsertData(
+                table,
+                new[] { Check.NotEmpty(column, nameof(column)) },
+                new[] { Check.NotEmpty(columnType, nameof(columnType)) },
+                new[] { value }, schema);
+
+        /// <summary>
         ///     Builds an <see cref="InsertDataOperation" /> to insert a single row of seed data values.
         /// </summary>
         /// <param name="table"> The table into which the data will be inserted. </param>
@@ -1196,6 +1217,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => InsertData(table, columns, ToMultidimensionalArray(Check.NotNull(values, nameof(values))), schema);
 
         /// <summary>
+        ///     Builds an <see cref="InsertDataOperation" /> to insert a single row of seed data values.
+        /// </summary>
+        /// <param name="table"> The table into which the data will be inserted. </param>
+        /// <param name="columns"> The names of the columns into which the data will be inserted. </param>
+        /// <param name="columnTypes"> A list of store types for the columns into which data will be inserted. </param>
+        /// <param name="values"> The values to insert, one value for each column in 'columns'. </param>
+        /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
+        /// <returns> A builder to allow annotations to be added to the operation. </returns>
+        public virtual OperationBuilder<InsertDataOperation> InsertData(
+            [NotNull] string table,
+            [NotNull] string[] columns,
+            [NotNull] string[] columnTypes,
+            [NotNull] object[] values,
+            [CanBeNull] string schema = null)
+            => InsertData(table, columns, columnTypes, ToMultidimensionalArray(Check.NotNull(values, nameof(values))), schema);
+
+        /// <summary>
         ///     Builds an <see cref="InsertDataOperation" /> to insert multiple rows of seed data values for a single column.
         /// </summary>
         /// <param name="table"> The table into which the data will be inserted. </param>
@@ -1208,9 +1246,32 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] string column,
             [NotNull] object[] values,
             [CanBeNull] string schema = null)
-            => InsertData(
+            => InsertDataInternal(
                 table,
                 new[] { Check.NotEmpty(column, nameof(column)) },
+                null,
+                ToMultidimensionalArray(Check.NotNull(values, nameof(values)), firstDimension: true),
+                schema);
+
+        /// <summary>
+        ///     Builds an <see cref="InsertDataOperation" /> to insert multiple rows of seed data values for a single column.
+        /// </summary>
+        /// <param name="table"> The table into which the data will be inserted. </param>
+        /// <param name="column"> The name of the column into which the data will be inserted. </param>
+        /// <param name="columnType"> The store type for the column into which data will be inserted. </param>
+        /// <param name="values"> The values to insert, one value for each row. </param>
+        /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
+        /// <returns> A builder to allow annotations to be added to the operation. </returns>
+        public virtual OperationBuilder<InsertDataOperation> InsertData(
+            [NotNull] string table,
+            [NotNull] string column,
+            [NotNull] string columnType,
+            [NotNull] object[] values,
+            [CanBeNull] string schema = null)
+            => InsertDataInternal(
+                table,
+                new[] { Check.NotEmpty(column, nameof(column)) },
+                new[] { Check.NotEmpty(columnType, nameof(columnType)) },
                 ToMultidimensionalArray(Check.NotNull(values, nameof(values)), firstDimension: true),
                 schema);
 
@@ -1230,6 +1291,38 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] string[] columns,
             [NotNull] object[,] values,
             [CanBeNull] string schema = null)
+            => InsertDataInternal(table, columns, null, values, schema);
+
+        /// <summary>
+        ///     Builds an <see cref="InsertDataOperation" /> to insert multiple rows of seed data values for multiple columns.
+        /// </summary>
+        /// <param name="table"> The table into which the data will be inserted. </param>
+        /// <param name="columns"> The names of the columns into which the data will be inserted. </param>
+        /// <param name="columnTypes"> A list of store types for the columns into which data will be inserted. </param>
+        /// <param name="values">
+        ///     The values to insert where each element of the outer array represents a row, and each inner array contains values for each of the
+        ///     columns in 'columns'.
+        /// </param>
+        /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
+        /// <returns> A builder to allow annotations to be added to the operation. </returns>
+        public virtual OperationBuilder<InsertDataOperation> InsertData(
+            [NotNull] string table,
+            [NotNull] string[] columns,
+            [NotNull] string[] columnTypes,
+            [NotNull] object[,] values,
+            [CanBeNull] string schema = null)
+        {
+            Check.NotEmpty(columnTypes, nameof(columnTypes));
+
+            return InsertDataInternal(table, columns, columnTypes, values, schema);
+        }
+
+        private OperationBuilder<InsertDataOperation> InsertDataInternal(
+            string table,
+            string[] columns,
+            string[] columnTypes,
+            object[,] values,
+            string schema)
         {
             Check.NotEmpty(table, nameof(table));
             Check.NotNull(columns, nameof(columns));
@@ -1263,6 +1356,30 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => DeleteData(table, new[] { Check.NotNull(keyColumn, nameof(keyValue)) }, new[] { keyValue }, schema);
 
         /// <summary>
+        ///     Builds an <see cref="DeleteDataOperation" /> to delete a single row of seed data.
+        /// </summary>
+        /// <param name="table"> The table from which the data will be deleted. </param>
+        /// <param name="keyColumn"> The name of the key column used to select the row to delete. </param>
+        /// <param name="keyColumnType">
+        ///     The store type for the column that will be used to identify the rows that should be deleted.
+        ///  </param>
+        /// <param name="keyValue"> The key value of the row to delete. </param>
+        /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
+        /// <returns> A builder to allow annotations to be added to the operation. </returns>
+        public virtual OperationBuilder<DeleteDataOperation> DeleteData(
+            [NotNull] string table,
+            [NotNull] string keyColumn,
+            [NotNull] string keyColumnType,
+            [CanBeNull] object keyValue,
+            [CanBeNull] string schema = null)
+            => DeleteData(
+                table,
+                new[] { Check.NotNull(keyColumn, nameof(keyValue)) },
+                new[] { Check.NotNull(keyColumnType, nameof(keyColumnType)) },
+                new[] { keyValue },
+                schema);
+
+        /// <summary>
         ///     Builds an <see cref="DeleteDataOperation" /> to delete a single row of seed data from
         ///     a table with a composite (multi-column) key.
         /// </summary>
@@ -1279,6 +1396,31 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => DeleteData(
                 table,
                 keyColumns,
+                ToMultidimensionalArray(Check.NotNull(keyValues, nameof(keyValues))),
+                schema);
+
+        /// <summary>
+        ///     Builds an <see cref="DeleteDataOperation" /> to delete a single row of seed data from
+        ///     a table with a composite (multi-column) key.
+        /// </summary>
+        /// <param name="table"> The table from which the data will be deleted. </param>
+        /// <param name="keyColumns"> The names of the key columns used to select the row to delete. </param>
+        /// <param name="keyColumnTypes">
+        ///     The store types for the columns that will be used to identify the rows that should be deleted.
+        ///  </param>
+        /// <param name="keyValues"> The key values of the row to delete, one value for each column in 'keyColumns'. </param>
+        /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
+        /// <returns> A builder to allow annotations to be added to the operation. </returns>
+        public virtual OperationBuilder<DeleteDataOperation> DeleteData(
+            [NotNull] string table,
+            [NotNull] string[] keyColumns,
+            [NotNull] string[] keyColumnTypes,
+            [NotNull] object[] keyValues,
+            [CanBeNull] string schema = null)
+            => DeleteDataInternal(
+                table,
+                keyColumns,
+                keyColumnTypes,
                 ToMultidimensionalArray(Check.NotNull(keyValues, nameof(keyValues))),
                 schema);
 
@@ -1302,6 +1444,30 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 schema);
 
         /// <summary>
+        ///     Builds an <see cref="DeleteDataOperation" /> to delete multiple rows of seed data.
+        /// </summary>
+        /// <param name="table"> The table from which the data will be deleted. </param>
+        /// <param name="keyColumn"> The name of the key column used to select the row to delete. </param>
+        /// <param name="keyColumnType">
+        ///     The store type for the column that will be used to identify the rows that should be deleted.
+        ///  </param>
+        /// <param name="keyValues"> The key values of the rows to delete, one value per row. </param>
+        /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
+        /// <returns> A builder to allow annotations to be added to the operation. </returns>
+        public virtual OperationBuilder<DeleteDataOperation> DeleteData(
+            [NotNull] string table,
+            [NotNull] string keyColumn,
+            [NotNull] string keyColumnType,
+            [NotNull] object[] keyValues,
+            [CanBeNull] string schema = null)
+            => DeleteData(
+                table,
+                new[] { Check.NotEmpty(keyColumn, nameof(keyColumn)) },
+                new[] { Check.NotEmpty(keyColumnType, nameof(keyColumnType)) },
+                ToMultidimensionalArray(Check.NotNull(keyValues, nameof(keyValues)), firstDimension: true),
+                schema);
+
+        /// <summary>
         ///     Builds an <see cref="DeleteDataOperation" /> to delete multiple rows of seed data from
         ///     a table with a composite (multi-column) key.
         /// </summary>
@@ -1318,6 +1484,41 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] string[] keyColumns,
             [NotNull] object[,] keyValues,
             [CanBeNull] string schema = null)
+            => DeleteDataInternal(table, keyColumns, null, keyValues, schema);
+
+        /// <summary>
+        ///     Builds an <see cref="DeleteDataOperation" /> to delete multiple rows of seed data from
+        ///     a table with a composite (multi-column) key.
+        /// </summary>
+        /// <param name="table"> The table from which the data will be deleted. </param>
+        /// <param name="keyColumns"> The names of the key columns used to select the rows to delete. </param>
+        /// <param name="keyColumnTypes">
+        ///     The store types for the columns that will be used to identify the rows that should be deleted.
+        ///  </param>
+        /// <param name="keyValues">
+        ///     The key values of the rows to delete, where each element of the outer array represents a row, and each inner array contains values for
+        ///     each of the key columns in 'keyColumns'.
+        /// </param>
+        /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
+        /// <returns> A builder to allow annotations to be added to the operation. </returns>
+        public virtual OperationBuilder<DeleteDataOperation> DeleteData(
+            [NotNull] string table,
+            [NotNull] string[] keyColumns,
+            [NotNull] string[] keyColumnTypes,
+            [NotNull] object[,] keyValues,
+            [CanBeNull] string schema = null)
+        {
+            Check.NotEmpty(keyColumnTypes, nameof(keyColumnTypes));
+
+            return DeleteDataInternal(table, keyColumns, keyColumnTypes, keyValues, schema);
+        }
+
+        private OperationBuilder<DeleteDataOperation> DeleteDataInternal(
+            string table,
+            string[] keyColumns,
+            string[] keyColumnTypes,
+            object[,] keyValues,
+            string schema)
         {
             Check.NotEmpty(table, nameof(table));
             Check.NotNull(keyColumns, nameof(keyColumns));
@@ -1328,6 +1529,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Table = table,
                 Schema = schema,
                 KeyColumns = keyColumns,
+                KeyColumnTypes = keyColumnTypes,
                 KeyValues = keyValues
             };
             Operations.Add(operation);
@@ -1438,6 +1640,40 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 schema);
 
         /// <summary>
+        ///     Builds an <see cref="UpdateDataOperation" /> to update a single row of seed data for a table with
+        ///     a composite (multi-column) key.
+        /// </summary>
+        /// <param name="table"> The table containing the data to be updated. </param>
+        /// <param name="keyColumns"> The names of the key columns used to select the row to update. </param>
+        /// <param name="keyColumnTypes">
+        ///     A list of store types for the columns that will be used to identify the rows that should be updated.
+        /// </param>
+        /// <param name="keyValues"> The key values of the row to update, one value for each column in 'keyColumns'. </param>
+        /// <param name="columns"> The columns to update. </param>
+        /// <param name="columnTypes"> A list of store types for the columns in which data will be updated. </param>
+        /// <param name="values"> The new values, one for each column in 'columns', for the selected row. </param>
+        /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
+        /// <returns> A builder to allow annotations to be added to the operation. </returns>
+        public virtual OperationBuilder<UpdateDataOperation> UpdateData(
+            [NotNull] string table,
+            [NotNull] string[] keyColumns,
+            [NotNull] string[] keyColumnTypes,
+            [NotNull] object[] keyValues,
+            [NotNull] string[] columns,
+            [NotNull] string[] columnTypes,
+            [NotNull] object[] values,
+            [CanBeNull] string schema = null)
+            => UpdateData(
+                table,
+                keyColumns,
+                keyColumnTypes,
+                ToMultidimensionalArray(Check.NotNull(keyValues, nameof(keyValues))),
+                columns,
+                columnTypes,
+                ToMultidimensionalArray(Check.NotNull(values, nameof(values))),
+                schema);
+
+        /// <summary>
         ///     Builds an <see cref="UpdateDataOperation" /> to update multiple rows of seed data.
         /// </summary>
         /// <param name="table"> The table containing the data to be updated. </param>
@@ -1543,6 +1779,54 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] string[] columns,
             [NotNull] object[,] values,
             [CanBeNull] string schema = null)
+            => UpdateDataInternal(table, keyColumns, null, keyValues, columns, null, values, schema);
+
+        /// <summary>
+        ///     Builds an <see cref="UpdateDataOperation" /> to update multiple rows of seed data for a table with
+        ///     a composite (multi-column) key.
+        /// </summary>
+        /// <param name="table"> The table containing the data to be updated. </param>
+        /// <param name="keyColumns"> The names of the key columns used to select the rows to update. </param>
+        /// <param name="keyColumnTypes">
+        ///     A list of store types for the columns that will be used to identify the rows that should be updated.
+        /// </param>
+        /// <param name="keyValues">
+        ///     The key values of the rows to update, where each element of the outer array represents a row, and each inner array contains values for
+        ///     each of the key columns in 'keyColumns'.
+        /// </param>
+        /// <param name="columns"> The columns to update. </param>
+        /// <param name="columnTypes"> A list of store types for the columns in which data will be updated. </param>
+        /// <param name="values">
+        ///     The values for each update, where each element of the outer array represents a row specified in
+        ///     'keyValues', and each inner array contains values for each of the columns in 'columns'.
+        /// </param>
+        /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
+        /// <returns> A builder to allow annotations to be added to the operation. </returns>
+        public virtual OperationBuilder<UpdateDataOperation> UpdateData(
+            [NotNull] string table,
+            [NotNull] string[] keyColumns,
+            [NotNull] string[] keyColumnTypes,
+            [NotNull] object[,] keyValues,
+            [NotNull] string[] columns,
+            [NotNull] string[] columnTypes,
+            [NotNull] object[,] values,
+            [CanBeNull] string schema = null)
+        {
+            Check.NotEmpty(keyColumnTypes, nameof(keyColumnTypes));
+            Check.NotEmpty(columnTypes, nameof(columnTypes));
+
+            return UpdateDataInternal(table, keyColumns, keyColumnTypes, keyValues, columns, columnTypes, values, schema);
+        }
+
+        private OperationBuilder<UpdateDataOperation> UpdateDataInternal(
+            string table,
+            string[] keyColumns,
+            string[] keyColumnTypes,
+            object[,] keyValues,
+            string[] columns,
+            string[] columnTypes,
+            object[,] values,
+            string schema)
         {
             Check.NotEmpty(table, nameof(table));
             Check.NotNull(keyColumns, nameof(keyColumns));
@@ -1555,8 +1839,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Table = table,
                 Schema = schema,
                 KeyColumns = keyColumns,
+                KeyColumnTypes = keyColumnTypes,
                 KeyValues = keyValues,
                 Columns = columns,
+                ColumnTypes = columnTypes,
                 Values = values
             };
             Operations.Add(operation);

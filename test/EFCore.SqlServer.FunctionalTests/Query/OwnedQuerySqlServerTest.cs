@@ -994,6 +994,18 @@ LEFT JOIN [Order] AS [o8] ON [o].[Id] = [o8].[ClientId]
 ORDER BY [o].[Id], [t].[Id], [t].[Id0], [t1].[Id], [t1].[Id0], [t3].[Id], [t3].[Id0], [t5].[Id], [t5].[Id0], [o8].[ClientId], [o8].[Id]");
         }
 
+        public override async Task Projecting_collection_correlated_with_keyless_entity_after_navigation_works_using_parent_identifiers(bool async)
+        {
+            await base.Projecting_collection_correlated_with_keyless_entity_after_navigation_works_using_parent_identifiers(async);
+
+            AssertSql(
+                @"SELECT [b].[Throned_Value], [f].[Id], [b].[Id], [p].[Id], [p].[StarId]
+FROM [Fink] AS [f]
+LEFT JOIN [Barton] AS [b] ON [f].[BartonId] = [b].[Id]
+LEFT JOIN [Planet] AS [p] ON ([b].[Throned_Value] <> [p].[Id]) OR [b].[Throned_Value] IS NULL
+ORDER BY [f].[Id], [b].[Id], [p].[Id]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

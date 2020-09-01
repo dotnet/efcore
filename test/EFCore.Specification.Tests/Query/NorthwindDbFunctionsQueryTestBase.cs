@@ -47,6 +47,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                 c => EF.Functions.Like(c.ContactName, "!%", "!"),
                 c => c.ContactName.Contains("%"));
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Like_all_literals(bool async)
+            => AssertCount(
+                async,
+                ss => ss.Set<Customer>(),
+                ss => ss.Set<Customer>(),
+                c => EF.Functions.Like("FOO", "%O%"),
+                c => "FOO".Contains("O") || "FOO".Contains("m"));
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Like_all_literals_with_escape(bool async)
+            => AssertCount(
+                async,
+                ss => ss.Set<Customer>(),
+                ss => ss.Set<Customer>(),
+                c => EF.Functions.Like("%", "!%", "!"),
+                c => "%".Contains("%"));
+
         protected NorthwindContext CreateContext()
             => Fixture.CreateContext();
     }

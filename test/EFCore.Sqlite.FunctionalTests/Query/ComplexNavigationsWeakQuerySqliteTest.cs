@@ -3,6 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Xunit;
 using Xunit.Abstractions;
@@ -15,6 +16,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         public ComplexNavigationsWeakQuerySqliteTest(ComplexNavigationsWeakQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
+        }
+
+        public override async Task SelectMany_with_navigation_and_Distinct(bool async)
+        {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.SelectMany_with_navigation_and_Distinct(async))).Message;
+
+            Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin, message);
         }
 
         public override async Task Filtered_include_after_different_filtered_include_different_level(bool async)

@@ -127,7 +127,7 @@
     <value>The 'DbConnection' is currently in use. The connection can only be changed when the existing connection is not being used.</value>
   </data>
   <data name="ClientGroupByNotSupported" xml:space="preserve">
-    <value>Client side GroupBy is not supported.</value>
+    <value>The given GroupBy pattern is not translatable. Call AsEnumerable before GroupBy to evaluate it locally.</value>
   </data>
   <data name="ComputedColumnSqlUnspecified" xml:space="preserve">
     <value>The column '{column}' on table {table} has unspecified computed column SQL. Specify the SQL before using EF Core to create the database schema.</value>
@@ -337,6 +337,9 @@
   <data name="InsertDataOperationValuesCountMismatch" xml:space="preserve">
     <value>The number of values ({valuesCount}) doesn't match the number of columns ({columnsCount}) for the data insertion operation on '{table}'. Provide the same number of values and columns.</value>
   </data>
+  <data name="InsufficientInformationToIdentifyOuterElementOfCollectionJoin" xml:space="preserve">
+    <value>Not enough information to uniquely identify outer element in correlated collection scenario. This can happen when trying to correlate on keyless entity or when using 'Distinct' or 'GroupBy' operations without projecting all of the key columns.</value>
+  </data>
   <data name="InvalidCommandTimeout" xml:space="preserve">
     <value>The specified CommandTimeout value is not valid. It must be a positive number.</value>
   </data>
@@ -492,7 +495,7 @@
     <comment>Debug RelationalEventId.MigrateUsingConnection string string</comment>
   </data>
   <data name="LogMigrationAttributeMissingWarning" xml:space="preserve">
-    <value>A MigrationAttribute isn't specified on the '{class}' class.</value>
+    <value>A [Migration] attribute isn't specified on the '{class}' class.</value>
     <comment>Warning RelationalEventId.MigrationAttributeMissingWarning string</comment>
   </data>
   <data name="LogMultipleCollectionIncludeWarning" xml:space="preserve">
@@ -592,6 +595,9 @@
   <data name="MissingConcurrencyColumn" xml:space="preserve">
     <value>Entity type '{entityType}' doesn't contain a property mapped to the store-generated concurrency token column '{missingColumn}' that is used by another entity type sharing the table '{table}'. Add a store-generated property mapped to the same column to '{entityType}'. It can be in shadow state.</value>
   </data>
+  <data name="MissingIdentifyingProjectionInDistinctGroupBySubquery" xml:space="preserve">
+    <value>Collection subquery that uses 'Distinct' or 'Group By' operations must project key columns of all of it's tables. Missing column: {column}. Either add column(s) to the projection or rewrite query to not use 'GroupBy'/'Distinct' operation.</value>
+  </data>
   <data name="MissingOrderingInSqlExpression" xml:space="preserve">
     <value>Reverse could not be translated to the server because there is no ordering on the server side.</value>
   </data>
@@ -648,9 +654,6 @@
   </data>
   <data name="PendingAmbientTransaction" xml:space="preserve">
     <value>This connection was used with an ambient transaction. The original ambient transaction needs to be completed before this connection can be used outside of it.</value>
-  </data>
-  <data name="ProjectingCollectionOnKeylessEntityNotSupported" xml:space="preserve">
-    <value>Projecting collection correlated with keyless entity is not supported.</value>
   </data>
   <data name="ProjectionMappingCountMismatch" xml:space="preserve">
     <value>Different projection mapping count in set operation.</value>
