@@ -254,7 +254,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             }
             catch (Exception ex)
             {
-                throw new DbUpdateException(RelationalStrings.UpdateStoreException, ex);
+                throw new DbUpdateException(
+                    RelationalStrings.UpdateStoreException,
+                    ex,
+                    ModificationCommands.SelectMany(c => c.Entries).ToList());
             }
         }
 
@@ -291,7 +294,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             }
             catch (Exception ex)
             {
-                throw new DbUpdateException(RelationalStrings.UpdateStoreException, ex);
+                throw new DbUpdateException(
+                    RelationalStrings.UpdateStoreException,
+                    ex,
+                    ModificationCommands.SelectMany(c => c.Entries).ToList());
             }
         }
 

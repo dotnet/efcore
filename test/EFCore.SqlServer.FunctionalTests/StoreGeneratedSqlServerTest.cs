@@ -66,7 +66,12 @@ namespace Microsoft.EntityFrameworkCore
                                     new object[] { context.Entry(entity).Property(p => p.Id).CurrentValue }).Entity);
                         }
 
-                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        // DbUpdateException : An error occurred while updating the entries. See the
+                        // inner exception for details.
+                        // SqlException : Cannot insert explicit value for identity column in table
+                        // 'Blog' when IDENTITY_INSERT is set to OFF.
+                        var updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Single(updateException.Entries);
 
                         foreach (var entity in entities.Take(100))
                         {
