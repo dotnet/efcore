@@ -708,7 +708,8 @@ END");
             Assert.Equal(default, blog.NotId);
 
             // No value set on a required column
-            Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+            var updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+            Assert.Single(updateException.Entries);
         }
 
         public class BlogContextClientGuidNonKey : ContextBase
@@ -794,8 +795,10 @@ END");
             // SqlException : Cannot insert explicit value for identity column in table
             // 'Blog' when IDENTITY_INSERT is set to OFF.
             context.Database.CreateExecutionStrategy().Execute(
-                context, c =>
-                    Assert.Throws<DbUpdateException>(() => c.SaveChanges()));
+                context, c => {
+                    var updateException = Assert.Throws<DbUpdateException>(() => c.SaveChanges());
+                    Assert.Single(updateException.Entries);
+                });
         }
 
         [ConditionalFact]
@@ -812,7 +815,8 @@ END");
             // inner exception for details.
             // SqlException : Cannot insert explicit value for identity column in table
             // 'Blog' when IDENTITY_INSERT is set to OFF.
-            Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+            var updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+            Assert.Single(updateException.Entries);
         }
 
         public class BlogContext : ContextBase
