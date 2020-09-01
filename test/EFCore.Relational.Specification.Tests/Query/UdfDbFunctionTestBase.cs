@@ -1409,17 +1409,22 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region TableValuedFunction
 
-        [ConditionalFact(Skip = "Issue#15873")]
+        [ConditionalFact]
         public virtual void QF_Anonymous_Collection_No_PK_Throws()
         {
             using (var context = CreateContext())
             {
                 var query = from c in context.Customers
-                            select new { c.Id, products = context.GetTopSellingProductsForCustomer(c.Id).ToList() };
+                            select new
+                            {
+                                c.Id,
+                                products = context.GetTopSellingProductsForCustomer(c.Id).ToList(),
+                                orders = context.Orders.Where(o => o.CustomerId == c.Id).ToList()
+                            };
 
-                //Assert.Contains(
-                //    RelationalStrings.DbFunctionProjectedCollectionMustHavePK("GetTopSellingProductsForCustomer"),
-                //    Assert.Throws<InvalidOperationException>(() => query.ToList()).Message);
+                Assert.Equal(
+                    RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin,
+                    Assert.Throws<InvalidOperationException>(() => query.ToList()).Message);
             }
         }
 
@@ -1526,22 +1531,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#20184")]
+        [ConditionalFact]
         public virtual void QF_Select_Direct_In_Anonymous()
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
-                               select new
-                               {
-                                   c.Id, Prods = context.GetTopTwoSellingProducts().ToList(),
-                               }).ToList();
+                var message = Assert.Throws<InvalidOperationException>(
+                    () => (from c in context.Customers
+                           select new
+                           {
+                               c.Id,
+                               Prods = context.GetTopTwoSellingProducts().ToList(),
+                           }).ToList()).Message;
 
-                Assert.Equal(4, results.Count);
-                Assert.Equal(2, results[0].Prods.Count);
-                Assert.Equal(2, results[1].Prods.Count);
-                Assert.Equal(2, results[2].Prods.Count);
-                Assert.Equal(2, results[3].Prods.Count);
+                Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin, message);
             }
         }
 
@@ -1618,36 +1621,24 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#20184")]
+        [ConditionalFact]
         public virtual void QF_Select_Correlated_Subquery_In_Anonymous_Nested()
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
-                               select new
+                var message = Assert.Throws<InvalidOperationException>(
+                    () => (from c in context.Customers
+                           select new
+                           {
+                               c.Id,
+                               OrderCountYear = context.GetOrdersWithMultipleProducts(c.Id).Where(o => o.OrderDate.Day == 21).Select(o => new
                                {
-                                   c.Id,
-                                   OrderCountYear = context.GetOrdersWithMultipleProducts(c.Id).Where(o => o.OrderDate.Day == 21).Select(
-                                       o => new
-                                       {
-                                           OrderCountYearNested = context.GetOrdersWithMultipleProducts(o.CustomerId).ToList(),
-                                           Prods = context.GetTopTwoSellingProducts().ToList(),
-                                       }).ToList()
-                               }).ToList();
+                                   OrderCountYearNested = context.GetOrdersWithMultipleProducts(o.CustomerId).ToList(),
+                                   Prods = context.GetTopTwoSellingProducts().ToList(),
+                               }).ToList()
+                           }).ToList()).Message;
 
-                Assert.Equal(4, results.Count);
-
-                Assert.Single(results[0].OrderCountYear);
-                Assert.Equal(2, results[0].OrderCountYear[0].Prods.Count);
-                Assert.Equal(2, results[0].OrderCountYear[0].OrderCountYearNested.Count);
-
-                Assert.Single(results[1].OrderCountYear);
-                Assert.Equal(2, results[1].OrderCountYear[0].Prods.Count);
-                Assert.Equal(2, results[1].OrderCountYear[0].OrderCountYearNested.Count);
-
-                Assert.Empty(results[2].OrderCountYear);
-
-                Assert.Empty(results[3].OrderCountYear);
+                Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin, message);
             }
         }
 
@@ -1656,25 +1647,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
-                               select new
-                               {
-                                   c.Id,
-                                   Prods = context.GetTopTwoSellingProducts().Where(p => p.AmountSold == 249).Select(p => p.ProductId)
-                                       .ToList(),
-                                   Addresses = c.Addresses.Where(a => a.State == "NY").ToList()
-                               }).ToList();
+                var message = Assert.Throws<InvalidOperationException>(
+                    () => (from c in context.Customers
+                           select new
+                           {
+                               c.Id,
+                               Addresses = c.Addresses.Where(a => a.State == "NY").ToList(),
+                               Prods = context.GetTopTwoSellingProducts().Where(p => p.AmountSold == 249).Select(p => p.ProductId).ToList()
+                           }).ToList()).Message;
 
-                Assert.Equal(4, results.Count);
-                Assert.Equal(3, results[0].Prods[0]);
-                Assert.Equal(3, results[1].Prods[0]);
-                Assert.Equal(3, results[2].Prods[0]);
-                Assert.Equal(3, results[3].Prods[0]);
-
-                Assert.Empty(results[0].Addresses);
-                Assert.Equal("Apartment 5A, 129 West 81st Street", results[1].Addresses[0].Street);
-                Assert.Equal("425 Grove Street, Apt 20", results[2].Addresses[0].Street);
-                Assert.Empty(results[3].Addresses);
+                Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin, message);
             }
         }
 
@@ -1683,19 +1665,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
-                               select new
-                               {
-                                   c.Id,
-                                   Prods = context.GetTopTwoSellingProducts().Where(p => p.AmountSold == 249).Select(p => p.ProductId)
-                                       .ToList(),
-                               }).ToList();
+                var message = Assert.Throws<InvalidOperationException>(
+                    () => (from c in context.Customers
+                           select new
+                           {
+                               c.Id,
+                               Prods = context.GetTopTwoSellingProducts().Select(p => p.ProductId).ToList(),
+                           }).ToList()).Message;
 
-                Assert.Equal(4, results.Count);
-                Assert.Equal(3, results[0].Prods[0]);
-                Assert.Equal(3, results[1].Prods[0]);
-                Assert.Equal(3, results[2].Prods[0]);
-                Assert.Equal(3, results[3].Prods[0]);
+                Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin, message);
             }
         }
 
@@ -1705,20 +1683,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var amount = 27;
+                var message = Assert.Throws<InvalidOperationException>(
+                    () => (from c in context.Customers
+                           select new
+                           {
+                               c.Id,
+                               Prods = context.GetTopTwoSellingProducts().Where(p => p.AmountSold == amount).Select(p => p.ProductId).ToList(),
+                           }).ToList()).Message;
 
-                var results = (from c in context.Customers
-                               select new
-                               {
-                                   c.Id,
-                                   Prods = context.GetTopTwoSellingProducts().Where(p => p.AmountSold == amount).Select(p => p.ProductId)
-                                       .ToList(),
-                               }).ToList();
-
-                Assert.Equal(4, results.Count);
-                Assert.Single(results[0].Prods);
-                Assert.Single(results[1].Prods);
-                Assert.Single(results[2].Prods);
-                Assert.Single(results[3].Prods);
+                Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin, message);
             }
         }
 

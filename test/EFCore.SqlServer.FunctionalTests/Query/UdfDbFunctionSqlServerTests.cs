@@ -533,17 +533,6 @@ CROSS APPLY [dbo].[GetCustomerOrderCountByYear]([c].[Id]) AS [g]
 ORDER BY [g].[Year]");
         }
 
-        public override void QF_Select_Direct_In_Anonymous()
-        {
-            base.QF_Select_Direct_In_Anonymous();
-
-            AssertSql(
-                @"SELECT [t].[AmountSold], [t].[ProductId]
-FROM [dbo].[GetTopTwoSellingProducts]() AS [t]",
-                @"SELECT [c].[Id]
-FROM [Customers] AS [c]");
-        }
-
         public override void QF_Select_Correlated_Direct_With_Function_Query_Parameter_Correlated_In_Anonymous()
         {
             base.QF_Select_Correlated_Direct_With_Function_Query_Parameter_Correlated_In_Anonymous();
@@ -583,76 +572,6 @@ INNER JOIN (
     FROM [Customers] AS [c]
     CROSS APPLY [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [g]
 ) AS [t] ON [o].[Id] = [t].[OrderId]");
-        }
-
-        public override void QF_Select_Correlated_Subquery_In_Anonymous_Nested()
-        {
-            base.QF_Select_Correlated_Subquery_In_Anonymous_Nested();
-
-            AssertSql(
-                @"SELECT [t].[AmountSold], [t].[ProductId]
-FROM [dbo].[GetTopTwoSellingProducts]() AS [t]",
-                @"SELECT [c].[Id], [t].[OrderId], [t].[OrderId0], [t].[CustomerId], [t].[OrderDate]
-FROM [Customers] AS [c]
-OUTER APPLY (
-    SELECT [m].[OrderId], [m0].[OrderId] AS [OrderId0], [m0].[CustomerId], [m0].[OrderDate]
-    FROM [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [m]
-    OUTER APPLY [dbo].[GetOrdersWithMultipleProducts]([m].[CustomerId]) AS [m0]
-    WHERE DATEPART(day, [m].[OrderDate]) = 21
-) AS [t]
-ORDER BY [c].[Id], [t].[OrderId], [t].[OrderId0]");
-        }
-
-        public override void QF_Select_Correlated_Subquery_In_Anonymous_MultipleCollections()
-        {
-            base.QF_Select_Correlated_Subquery_In_Anonymous_MultipleCollections();
-
-            AssertSql(
-                @"SELECT [c].[Id], [t].[ProductId], [t0].[Id], [t0].[City], [t0].[CustomerId], [t0].[State], [t0].[Street]
-FROM [Customers] AS [c]
-OUTER APPLY (
-    SELECT [g].[ProductId]
-    FROM [dbo].[GetTopTwoSellingProducts]() AS [g]
-    WHERE [g].[AmountSold] = 249
-) AS [t]
-LEFT JOIN (
-    SELECT [a].[Id], [a].[City], [a].[CustomerId], [a].[State], [a].[Street]
-    FROM [Addresses] AS [a]
-    WHERE [a].[State] = N'NY'
-) AS [t0] ON [c].[Id] = [t0].[CustomerId]
-ORDER BY [c].[Id], [t0].[Id]");
-        }
-
-        public override void QF_Select_NonCorrelated_Subquery_In_Anonymous()
-        {
-            base.QF_Select_NonCorrelated_Subquery_In_Anonymous();
-
-            AssertSql(
-                @"SELECT [c].[Id], [t].[ProductId]
-FROM [Customers] AS [c]
-OUTER APPLY (
-    SELECT [g].[ProductId]
-    FROM [dbo].[GetTopTwoSellingProducts]() AS [g]
-    WHERE [g].[AmountSold] = 249
-) AS [t]
-ORDER BY [c].[Id]");
-        }
-
-        public override void QF_Select_NonCorrelated_Subquery_In_Anonymous_Parameter()
-        {
-            base.QF_Select_NonCorrelated_Subquery_In_Anonymous_Parameter();
-
-            AssertSql(
-                @"@__amount_1='27' (Nullable = true)
-
-SELECT [c].[Id], [t].[ProductId]
-FROM [Customers] AS [c]
-OUTER APPLY (
-    SELECT [g].[ProductId]
-    FROM [dbo].[GetTopTwoSellingProducts]() AS [g]
-    WHERE [g].[AmountSold] = @__amount_1
-) AS [t]
-ORDER BY [c].[Id]");
         }
 
         public override void QF_Correlated_Select_In_Anonymous()
