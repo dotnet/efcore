@@ -8684,6 +8684,106 @@ ORDER BY [t].[Id] DESC, [t3].[Id], [t3].[Id0], [t3].[Id1], [t3].[Id00]");
 
         #endregion
 
+        #region Issue14911
+
+        [ConditionalFact]
+        public virtual void Repeated_parameters_in_generated_query_sql()
+        {
+            using (CreateDatabase15215())
+            {
+                using var context = new MyContext15215(_options);
+
+                var k = 1;
+                var a = context.Autos.Where(e => e.Id == k).First();
+                var b = context.Autos.Where(e => e.Id == k + 1).First();
+
+                var equalQuery = (from d in context.EqualAutos
+                                  where (d.Auto == a && d.AnotherAuto == b)
+                                    || (d.Auto == b && d.AnotherAuto == a)
+                                  select d).ToList();
+
+                Assert.Single(equalQuery);
+
+                AssertSql(
+                    @"@__k_0='1'
+
+SELECT TOP(1) [a].[Id], [a].[Name]
+FROM [Autos] AS [a]
+WHERE [a].[Id] = @__k_0",
+                    //
+                    @"@__p_0='2'
+
+SELECT TOP(1) [a].[Id], [a].[Name]
+FROM [Autos] AS [a]
+WHERE [a].[Id] = @__p_0",
+                    //
+                    @"@__entity_equality_a_0_Id='1' (Nullable = true)
+@__entity_equality_b_1_Id='2' (Nullable = true)
+
+SELECT [e].[Id], [e].[AnotherAutoId], [e].[AutoId]
+FROM [EqualAutos] AS [e]
+LEFT JOIN [Autos] AS [a] ON [e].[AutoId] = [a].[Id]
+LEFT JOIN [Autos] AS [a0] ON [e].[AnotherAutoId] = [a0].[Id]
+WHERE (([a].[Id] = @__entity_equality_a_0_Id) AND ([a0].[Id] = @__entity_equality_b_1_Id)) OR (([a].[Id] = @__entity_equality_b_1_Id) AND ([a0].[Id] = @__entity_equality_a_0_Id))");
+            }
+        }
+
+        private class Auto15215
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        private class EqualAuto15215
+        {
+            public int Id { get; set; }
+            public Auto15215 Auto { get; set; }
+            public Auto15215 AnotherAuto { get; set; }
+        }
+
+
+        private class MyContext15215 : DbContext
+        {
+            public MyContext15215(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Auto15215> Autos { get; set; }
+            public DbSet<EqualAuto15215> EqualAutos { get; set; }
+        }
+
+        private SqlServerTestStore CreateDatabase15215()
+            => CreateTestStore(
+                () => new MyContext15215(_options),
+                context =>
+                {
+                    for (var i = 0; i < 10; i++)
+                    {
+                        context.Add(new Auto15215 { Name = "Auto " + i.ToString() });
+                    }
+
+                    context.SaveChanges();
+
+                    context.AddRange(
+                        new EqualAuto15215
+                        {
+                            Auto = context.Autos.Find(1),
+                            AnotherAuto = context.Autos.Find(2)
+                        },
+                        new EqualAuto15215
+                        {
+                            Auto = context.Autos.Find(5),
+                            AnotherAuto = context.Autos.Find(4)
+                        });
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
