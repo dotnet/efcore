@@ -1101,7 +1101,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             var identifiers = _identifier.ToList();
             _identifier.Clear();
-            // TODO: See issue#15873
+
             foreach (var identifier in identifiers)
             {
                 if (projectionMap.TryGetValue(identifier.Column, out var outerColumn))
@@ -1109,16 +1109,24 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     _identifier.Add((outerColumn, identifier.Comparer));
                 }
                 else if (!IsDistinct
-                    && GroupBy.Count == 0)
+                    && GroupBy.Count == 0
+                    || (GroupBy.Contains(identifier.Column)))
                 {
                     outerColumn = subquery.GenerateOuterColumn(identifier.Column);
                     _identifier.Add((outerColumn, identifier.Comparer));
+                }
+                else
+                {
+                    // if we can't propagate any identifier - clear them all instead
+                    // when adding collection join we detect this and throw appropriate exception
+                    _identifier.Clear();
+                    break;
                 }
             }
 
             var childIdentifiers = _childIdentifiers.ToList();
             _childIdentifiers.Clear();
-            // TODO: See issue#15873
+
             foreach (var identifier in childIdentifiers)
             {
                 if (projectionMap.TryGetValue(identifier.Column, out var outerColumn))
@@ -1126,10 +1134,18 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     _childIdentifiers.Add((outerColumn, identifier.Comparer));
                 }
                 else if (!IsDistinct
-                    && GroupBy.Count == 0)
+                    && GroupBy.Count == 0
+                    || (GroupBy.Contains(identifier.Column)))
                 {
                     outerColumn = subquery.GenerateOuterColumn(identifier.Column);
                     _childIdentifiers.Add((outerColumn, identifier.Comparer));
+                }
+                else
+                {
+                    // if we can't propagate any identifier - clear them all instead
+                    // when adding collection join we detect this and throw appropriate exception
+                    _childIdentifiers.Clear();
+                    break;
                 }
             }
 
@@ -1361,6 +1377,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             var innerSelectExpression = _pendingCollections[collectionIndex];
             _pendingCollections[collectionIndex] = null;
 
+            if (_identifier.Count == 0
+                || innerSelectExpression._identifier.Count == 0)
+            {
+                throw new InvalidOperationException(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin);
+            }
+
             if (splitQuery)
             {
                 var containsReferenceToOuter = new SelectExpressionCorrelationFindingExpressionVisitor(this)
@@ -1388,6 +1410,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                 var parentIdentifier = GetIdentifierAccessor(identifierFromParent).Item1;
                 innerSelectExpression.ApplyProjection();
+
+                ValidateIdentifyingProjection(innerSelectExpression);
 
                 for (var i = 0; i < identifierFromParent.Count; i++)
                 {
@@ -1483,15 +1507,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             else
             {
                 var parentIdentifierList = _identifier.Except(_childIdentifiers).ToList();
-                if (parentIdentifierList.Count == 0)
-                {
-                    throw new InvalidOperationException(RelationalStrings.ProjectingCollectionOnKeylessEntityNotSupported);
-                }
 
                 var (parentIdentifier, parentIdentifierValueComparers) = GetIdentifierAccessor(parentIdentifierList);
                 var (outerIdentifier, outerIdentifierValueComparers) = GetIdentifierAccessor(_identifier);
                 var innerClientEval = innerSelectExpression.Projection.Count > 0;
                 innerSelectExpression.ApplyProjection();
+
+                ValidateIdentifyingProjection(innerSelectExpression);
 
                 if (collectionIndex == 0)
                 {
@@ -1613,6 +1635,24 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     innerShaper, navigation, elementType);
 
                 return result;
+            }
+
+            static void ValidateIdentifyingProjection(SelectExpression selectExpression)
+            {
+                if (selectExpression.IsDistinct
+                    || selectExpression.GroupBy.Count > 0)
+                {
+                    var innerSelectProjectionExpressions = selectExpression._projection.Select(p => p.Expression).ToList();
+                    foreach (var innerSelectIdentifier in selectExpression._identifier)
+                    {
+                        if (!innerSelectProjectionExpressions.Contains(innerSelectIdentifier.Column)
+                            && (selectExpression.GroupBy.Count == 0
+                                || !selectExpression.GroupBy.Contains(innerSelectIdentifier.Column)))
+
+                            throw new InvalidOperationException(RelationalStrings.MissingIdentifyingProjectionInDistinctGroupBySubquery(
+                                innerSelectIdentifier.Column.Table.Alias + "." + innerSelectIdentifier.Column.Name));
+                    }
+                }
             }
         }
 
@@ -2247,14 +2287,24 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     .Remap(joinPredicate);
             }
 
-            if (joinType == JoinType.LeftJoin
-                || joinType == JoinType.OuterApply)
+            if (_identifier.Count > 0
+                && innerSelectExpression._identifier.Count > 0)
             {
-                _identifier.AddRange(innerSelectExpression._identifier.Select(e => (e.Column.MakeNullable(), e.Comparer)));
+                if (joinType == JoinType.LeftJoin
+                    || joinType == JoinType.OuterApply)
+                {
+                    _identifier.AddRange(innerSelectExpression._identifier.Select(e => (e.Column.MakeNullable(), e.Comparer)));
+                }
+                else
+                {
+                    _identifier.AddRange(innerSelectExpression._identifier);
+                }
             }
-            else
+            else if (innerSelectExpression._identifier.Count == 0)
             {
-                _identifier.AddRange(innerSelectExpression._identifier);
+                // if the subquery that is joined to can't be uniquely identified
+                // then the entire join should also not be marked as non-identifiable
+                _identifier.Clear();
             }
 
             var innerTable = innerSelectExpression.Tables.Single();

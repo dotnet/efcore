@@ -134,10 +134,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(ee.OwnedCollectionOnBase?.Count, aa.OwnedCollectionOnBase?.Count);
                             if (ee.OwnedCollectionOnBase?.Count > 0)
                             {
-                                for (var i = 0; i < ee.OwnedCollectionOnBase.Count; i++)
+                                var orderedExpected = ee.OwnedCollectionOnBase.OrderBy(x => x.Id).ToList();
+                                var orderedActual = aa.OwnedCollectionOnBase.OrderBy(x => x.Id).ToList();
+                                for (var i = 0; i < orderedExpected.Count; i++)
                                 {
-                                    Assert.Equal(ee.OwnedCollectionOnBase[i].Id, aa.OwnedCollectionOnBase[i].Id);
-                                    Assert.Equal(ee.OwnedCollectionOnBase[i].Name, aa.OwnedCollectionOnBase[i].Name);
+                                    Assert.Equal(orderedExpected[i].Id, orderedActual[i].Id);
+                                    Assert.Equal(orderedExpected[i].Name, orderedActual[i].Name);
                                 }
                             }
                         }
@@ -166,20 +168,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(ee.OwnedCollectionOnBase?.Count, aa.OwnedCollectionOnBase?.Count);
                             if (ee.OwnedCollectionOnBase?.Count > 0)
                             {
-                                for (var i = 0; i < ee.OwnedCollectionOnBase.Count; i++)
+                                var orderedExpected = ee.OwnedCollectionOnBase.OrderBy(x => x.Id).ToList();
+                                var orderedActual = aa.OwnedCollectionOnBase.OrderBy(x => x.Id).ToList();
+                                for (var i = 0; i < orderedExpected.Count; i++)
                                 {
-                                    Assert.Equal(ee.OwnedCollectionOnBase[i].Id, aa.OwnedCollectionOnBase[i].Id);
-                                    Assert.Equal(ee.OwnedCollectionOnBase[i].Name, aa.OwnedCollectionOnBase[i].Name);
+                                    Assert.Equal(orderedExpected[i].Id, orderedActual[i].Id);
+                                    Assert.Equal(orderedExpected[i].Name, orderedActual[i].Name);
                                 }
                             }
 
                             Assert.Equal(ee.OwnedCollectionOnDerived?.Count, aa.OwnedCollectionOnDerived?.Count);
                             if (ee.OwnedCollectionOnDerived?.Count > 0)
                             {
-                                for (var i = 0; i < ee.OwnedCollectionOnDerived.Count; i++)
+                                var orderedExpected = ee.OwnedCollectionOnDerived.OrderBy(x => x.Id).ToList();
+                                var orderedActual = aa.OwnedCollectionOnDerived.OrderBy(x => x.Id).ToList();
+                                for (var i = 0; i < orderedExpected.Count; i++)
                                 {
-                                    Assert.Equal(ee.OwnedCollectionOnDerived[i].Id, aa.OwnedCollectionOnDerived[i].Id);
-                                    Assert.Equal(ee.OwnedCollectionOnDerived[i].Name, aa.OwnedCollectionOnDerived[i].Name);
+                                    Assert.Equal(orderedExpected[i].Id, orderedActual[i].Id);
+                                    Assert.Equal(orderedExpected[i].Name, orderedActual[i].Name);
                                 }
                             }
                         }
@@ -409,8 +415,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
                     }
                 },
-
-                //{ typeof(OwnedEntity), e => ((OwnedEntity)e)?.Id },
             }.ToDictionary(e => e.Key, e => (object)e.Value);
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)

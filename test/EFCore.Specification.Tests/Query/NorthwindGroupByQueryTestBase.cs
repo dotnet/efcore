@@ -1998,7 +1998,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue #15873")]
+        [ConditionalTheory(Skip = "Issue #21965")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_nested_collection_with_groupby(bool async)
         {
@@ -2009,6 +2009,42 @@ namespace Microsoft.EntityFrameworkCore.Query
                         c => c.Orders.Any()
                             ? c.Orders.GroupBy(o => o.OrderID).Select(g => g.Key).ToArray()
                             : Array.Empty<int>()));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_uncorrelated_collection_with_groupby_works(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c => ss.Set<Order>().GroupBy(o => o.OrderID).Select(g => g.Key).ToArray()),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_uncorrelated_collection_with_groupby_multiple_collections_work(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c => c.Customer.City)
+                    .Select(c => new
+                    {
+                        c1 = ss.Set<Product>().GroupBy(p => p.ProductID).Select(g => g.Key).ToArray(),
+                        c2 = ss.Set<Product>().GroupBy(p => p.ProductID).Select(g => g.Count()).ToArray()
+                    }),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    AssertCollection(e.c1, a.c1);
+                    AssertCollection(e.c2, a.c2);
+                });
         }
 
         [ConditionalTheory]
@@ -2885,31 +2921,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 .Select(o => new { First = o.CustomerID, Second = o.OrderID })
                                 .GroupBy(x => x.First)
                                 .Select(g => new { Max = g.Max(x => x.First.Length), Sum = g.Sum(x => x.Second) }).ToList()
-                        }),
-                elementSorter: e => e.Key,
-                elementAsserter: (e, a) =>
-                {
-                    Assert.Equal(e.Key, a.Key);
-                    AssertCollection(e.Subquery, a.Subquery);
-                });
-        }
-
-        // also 15279
-        [ConditionalTheory(Skip = "issue #15873")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Complex_query_with_groupBy_in_subquery4(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => ss.Set<Customer>()
-                    .Select(
-                        c => new
-                        {
-                            Key = c.CustomerID,
-                            Subquery = c.Orders
-                                .Select(o => new { First = o.OrderID, Second = o.Customer.City + o.CustomerID })
-                                .GroupBy(x => x.Second)
-                                .Select(g => new { Sum = g.Sum(x => x.First), Count = g.Count(x => x.Second.StartsWith("Lon")) }).ToList()
                         }),
                 elementSorter: e => e.Key,
                 elementAsserter: (e, a) =>

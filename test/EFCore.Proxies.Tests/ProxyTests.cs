@@ -229,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore
             var proxy = generator.CreateClassProxy<ClassToBeProxied>();
 
             Assert.Equal(
-                CoreStrings.AttemptToCreateEntityTypeBasedOnProxyClass("Castle.Proxies.ClassToBeProxiedProxy"),
+                CoreStrings.AddingProxyTypeAsEntityType("Castle.Proxies.ClassToBeProxiedProxy"),
                 Assert.Throws<ArgumentException>(
                     () => new EntityType(proxy.GetType(), model, ConfigurationSource.Explicit)).Message);
         }
@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Throws_if_attempt_to_add_proxy_type_to_model_builder()
         {
             Assert.Equal(
-                CoreStrings.AttemptToCreateEntityTypeBasedOnProxyClass("Castle.Proxies.ClassToBeProxiedProxy"),
+                CoreStrings.AddingProxyTypeAsEntityType("Castle.Proxies.ClassToBeProxiedProxy"),
                 Assert.Throws<ArgumentException>(
                     () =>
                     {

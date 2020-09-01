@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string[] KeyColumns { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     A list of column store types for the columns that will be used to identify
+        ///     A list of store types for the columns that will be used to identify
         ///     the rows that should be updated.
         /// </summary>
         public virtual string[] KeyColumnTypes { get; [param: NotNull] set; }
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string[] Columns { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     A list of column store types for the columns in which data will be updated.
+        ///     A list of store types for the columns in which data will be updated.
         /// </summary>
         public virtual string[] ColumnTypes { get; [param: NotNull] set; }
 
