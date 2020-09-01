@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 originalValue: null,
                 value: null,
                 property: property,
-                null,
+                column.StoreType,
                 typeMapping,
                 isRead: isRead,
                 isWrite: isWrite,

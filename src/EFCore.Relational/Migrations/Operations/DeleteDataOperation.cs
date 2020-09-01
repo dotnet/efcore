@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string[] KeyColumns { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     A list of column store types for the columns that will be used to identify
+        ///     A list of store types for the columns that will be used to identify
         ///     the rows that should be deleted.
         /// </summary>
         public virtual string[] KeyColumnTypes { get; [param: NotNull] set; }

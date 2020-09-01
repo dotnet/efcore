@@ -2836,6 +2836,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Schema = "dbo",
                     Table = "People",
                     KeyColumns = new[] { "First Name" },
+                    KeyColumnTypes = new[] { "string" },
                     KeyValues = new object[,] { { "Hodor" }, { "Daenerys" }, { "John" }, { "Arya" }, { "Harry" } }
                 },
                 "mb.DeleteData("
@@ -2845,6 +2846,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + "    table: \"People\","
                 + _eol
                 + "    keyColumn: \"First Name\","
+                + _eol
+                + "    keyColumnType: \"string\","
                 + _eol
                 + "    keyValues: new object[]"
                 + _eol
@@ -2880,6 +2883,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     Table = "People",
                     KeyColumns = new[] { "First Name", "Last Name" },
+                    KeyColumnTypes = new[] { "string", "string" },
                     KeyValues = new object[,]
                     {
                         { "Hodor", null }, { "Daenerys", "Targaryen" }, { "John", "Snow" }, { "Arya", "Stark" }, { "Harry", "Strickland" }
@@ -2890,6 +2894,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + "    table: \"People\","
                 + _eol
                 + "    keyColumns: new[] { \"First Name\", \"Last Name\" },"
+                + _eol
+                + "    keyColumnTypes: new[] { \"string\", \"string\" },"
                 + _eol
                 + "    keyValues: new object[,]"
                 + _eol

@@ -1012,9 +1012,8 @@ SELECT @@ROWCOUNT;
                     .DeleteData(
                         table: "Table1",
                         keyColumn: "Id",
-                        keyValue: 1)
-                    .GetInfrastructure()
-                    .KeyColumnTypes = new[] { "int" },
+                        keyColumnType: "int",
+                        keyValue: 1),
                 MigrationsSqlGenerationOptions.Idempotent);
 
             AssertSql(
