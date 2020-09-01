@@ -647,7 +647,7 @@
     <value>Nullability information should only be specified for scalar database functions.</value>
   </data>
   <data name="NullTypeMappingInSqlTree" xml:space="preserve">
-    <value>Null TypeMapping in SQL tree.</value>
+    <value>Expression '{sqlExpression}' in SQL tree does not have type mapping assigned.</value>
   </data>
   <data name="ParameterNotObjectArray" xml:space="preserve">
     <value>Cannot use the value provided for parameter '{parameter}' because it isn't assignable to type object[].</value>

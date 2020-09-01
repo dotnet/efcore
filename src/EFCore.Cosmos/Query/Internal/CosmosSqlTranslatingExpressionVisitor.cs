@@ -987,7 +987,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 if (extensionExpression is SqlExpression sqlExpression
                     && sqlExpression.TypeMapping == null)
                 {
-                    throw new InvalidOperationException(CosmosStrings.NullTypeMappingInSqlTree);
+                    throw new InvalidOperationException(CosmosStrings.NullTypeMappingInSqlTree(sqlExpression.Print()));
                 }
 
                 return base.VisitExtension(extensionExpression);
