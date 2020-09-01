@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 table, entityType, otherEntityType, memoryOptimizedEntityType, nonMemoryOptimizedEntityType);
 
         /// <summary>
-        ///     SQL Server requires the table name to be specified for rename index operations. Specify table name in the call to MigrationBuilder.RenameIndex.
+        ///     SQL Server requires the table name to be specified for rename index operations. Specify table name in the call to 'MigrationBuilder.RenameIndex'.
         /// </summary>
         public static string IndexTableRequired
             => GetString("IndexTableRequired");
@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Both the SqlServerValueGenerationStrategy {generationStrategy} and {otherGenerationStrategy} have been set on property '{propertyName}' on entity type '{entityName}'. Usually this is a mistake. Only use these at the same time if you are sure you understand the consequences.
+        ///     Both the SqlServerValueGenerationStrategy '{generationStrategy}' and '{otherGenerationStrategy}' have been set on property '{propertyName}' on entity type '{entityName}'. Usually this is a mistake. Only use these at the same time if you are sure you understand the consequences.
         /// </summary>
         public static EventDefinition<string, string, string, string> LogConflictingValueGenerationStrategies([NotNull] IDiagnosticsLogger logger)
         {
@@ -330,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     No type was specified for the decimal property '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values using 'HasColumnType()', specify precision and scale using 'HasPrecision()' or configure a value converter using 'HasConversion()'.
+        ///     No type was specified for the decimal property '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType()', specify precision and scale using 'HasPrecision()' or configure a value converter using 'HasConversion()'.
         /// </summary>
         public static EventDefinition<string, string> LogDefaultDecimalTypeColumn([NotNull] IDiagnosticsLogger logger)
         {
@@ -375,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Found default schema {defaultSchema}.
+        ///     Found default schema '{defaultSchema}'.
         /// </summary>
         public static EventDefinition<string> LogFoundDefaultSchema([NotNull] IDiagnosticsLogger logger)
         {
@@ -564,7 +564,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Unable to find a schema in the database matching the selected schema {schema}.
+        ///     Unable to find a schema in the database matching the selected schema '{schema}'.
         /// </summary>
         public static EventDefinition<string> LogMissingSchema([NotNull] IDiagnosticsLogger logger)
         {
@@ -588,7 +588,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Unable to find a table in the database matching the selected table {table}.
+        ///     Unable to find a table in the database matching the selected table '{table}'.
         /// </summary>
         public static EventDefinition<string> LogMissingTable([NotNull] IDiagnosticsLogger logger)
         {
@@ -612,7 +612,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     For foreign key {foreignKeyName} on table {tableName}, unable to find the column called {principalColumnName} on the foreign key's principal table, {principaltableName}. Skipping foreign key.
+        ///     For foreign key '{foreignKeyName}' on table '{tableName}', unable to find the column called '{principalColumnName}' on the foreign key's principal table, '{principalTableName}'. Skipping foreign key.
         /// </summary>
         public static EventDefinition<string, string, string, string> LogPrincipalColumnNotFound([NotNull] IDiagnosticsLogger logger)
         {
@@ -636,7 +636,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     For foreign key {fkName} on table {tableName}, unable to model the end of the foreign key on principal table {principaltableName}. This is usually because the principal table was not included in the selection set.
+        ///     For foreign key '{foreignKeyName}' on table '{tableName}', unable to model the end of the foreign key on principal table '{principalTableName}'. This is usually because the principal table was not included in the selection set.
         /// </summary>
         public static EventDefinition<string, string, string> LogPrincipalTableNotInSelectionSet([NotNull] IDiagnosticsLogger logger)
         {

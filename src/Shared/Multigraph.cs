@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             string cycleString;
             if (formatCycle == null)
             {
-                cycleString = cycle.Select(ToString).Join(" -> ");
+                cycleString = cycle.Select(ToString).Join(" ->" + Environment.NewLine);
             }
             else
             {

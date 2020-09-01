@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static string FormatTables([NotNull] this IEnumerable<(string Table, string Schema)> tables)
             => "{"
-                + string.Join(", ", tables.Select(FormatTable))
+                + string.Join(", ", tables.Select(t => "'" + FormatTable(t) + "'"))
                 + "}";
 
         /// <summary>
@@ -34,8 +34,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static string FormatTable(this (string Table, string Schema) table)
-            => "'"
-                + (table.Schema == null ? table.Table : table.Schema + "." + table.Table)
-                + "'";
+            => table.Schema == null ? table.Table : table.Schema + "." + table.Table;
     }
 }

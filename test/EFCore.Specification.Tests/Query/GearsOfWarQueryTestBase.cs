@@ -4937,7 +4937,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes)))).Message;
 
             Assert.Equal(
-                "When performing a set operation, both operands must have the same Include operations.",
+                CoreStrings.SetOperationWithDifferentIncludesInOperands,
                 message);
         }
 

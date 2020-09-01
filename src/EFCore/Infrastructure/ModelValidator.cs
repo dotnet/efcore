@@ -994,7 +994,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     if (entityType.BaseType != null)
                     {
                         throw new InvalidOperationException(
-                            CoreStrings.BadFilterDerivedType(entityType.GetQueryFilter(), entityType.DisplayName()));
+                            CoreStrings.BadFilterDerivedType(
+                                entityType.GetQueryFilter(),
+                                entityType.DisplayName(),
+                                entityType.GetRootType().DisplayName()));
                     }
 
                     if (entityType.IsOwned())

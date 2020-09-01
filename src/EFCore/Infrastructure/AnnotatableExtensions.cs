@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var annotation = annotatable.FindAnnotation(annotationName);
             if (annotation == null)
             {
-                throw new InvalidOperationException(CoreStrings.AnnotationNotFound(annotationName));
+                throw new InvalidOperationException(CoreStrings.AnnotationNotFound(annotationName, annotatable.ToString()));
             }
 
             return annotation;

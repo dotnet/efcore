@@ -331,7 +331,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The display name. </returns>
         [DebuggerStepThrough]
         public static string DisplayName([NotNull] this ITypeBase type)
-            => type.FullName();
+            => type.FullName() + (type is IEntityType entityType && entityType.HasSharedClrType
+            ? " (" + entityType.ClrType.ShortDisplayName() + ")"
+            : "");
 
         /// <summary>
         ///     Gets the unique name for the given <see cref="ITypeBase" />.

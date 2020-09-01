@@ -384,7 +384,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             Entry.BuildCurrentValuesString(Entry.EntityType.FindPrimaryKey().Properties),
                             Entry.BuildCurrentValuesString(new[] { Property }),
                             modification.Entry.BuildCurrentValuesString(new[] { modification.Property }),
-                            "{'" + ColumnName + "'}"));
+                            ColumnName));
                 }
 
                 throw new InvalidOperationException(
@@ -393,7 +393,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         modification.Entry.EntityType.DisplayName(),
                         new[] { Property }.Format(),
                         new[] { modification.Property }.Format(),
-                        "{'" + ColumnName + "'}"));
+                        ColumnName));
             }
 
             if (UseOriginalValueParameter
@@ -416,7 +416,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                                 Entry.BuildCurrentValuesString(Entry.EntityType.FindPrimaryKey().Properties),
                                 Entry.BuildOriginalValuesString(new[] { Property }),
                                 modification.Entry.BuildOriginalValuesString(new[] { modification.Property }),
-                                "{'" + ColumnName + "'}"));
+                                ColumnName));
                     }
 
                     throw new InvalidOperationException(
@@ -425,7 +425,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             modification.Entry.EntityType.DisplayName(),
                             new[] { Property }.Format(),
                             new[] { modification.Property }.Format(),
-                            "{'" + ColumnName + "'}"));
+                            ColumnName));
                 }
             }
 
