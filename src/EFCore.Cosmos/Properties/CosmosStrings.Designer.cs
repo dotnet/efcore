@@ -163,10 +163,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 resourceId, partitionKey);
 
         /// <summary>
-        ///     Null TypeMapping in SQL tree.
+        ///     Expression '{sqlExpression}' in SQL tree does not have type mapping assigned.
         /// </summary>
-        public static string NullTypeMappingInSqlTree
-            => GetString("NullTypeMappingInSqlTree");
+        public static string NullTypeMappingInSqlTree([CanBeNull] object sqlExpression)
+            => string.Format(
+                GetString("NullTypeMappingInSqlTree", nameof(sqlExpression)),
+                sqlExpression);
 
         /// <summary>
         ///     Offset is not supported without Limit.

@@ -697,7 +697,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Collection subquery that uses 'Distinct' or 'Group By' operations must project key columns of all of it's tables. Missing column: {column}. Either add column(s) to the projection or rewrite query to not use 'GroupBy'/'Distinct' operation.
         /// </summary>
         public static string MissingIdentifyingProjectionInDistinctGroupBySubquery([CanBeNull] object column)
-            => string.Format(GetString("MissingIdentifyingProjectionInDistinctGroupBySubquery", nameof(column)), column);
+            => string.Format(
+                GetString("MissingIdentifyingProjectionInDistinctGroupBySubquery", nameof(column)),
+                column);
 
         /// <summary>
         ///     Reverse could not be translated to the server because there is no ordering on the server side.
@@ -810,10 +812,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("NullabilityInfoOnlyAllowedOnScalarFunctions");
 
         /// <summary>
-        ///     Null TypeMapping in SQL tree.
+        ///     Expression '{sqlExpression}' in SQL tree does not have type mapping assigned.
         /// </summary>
-        public static string NullTypeMappingInSqlTree
-            => GetString("NullTypeMappingInSqlTree");
+        public static string NullTypeMappingInSqlTree([CanBeNull] object sqlExpression)
+            => string.Format(
+                GetString("NullTypeMappingInSqlTree", nameof(sqlExpression)),
+                sqlExpression);
 
         /// <summary>
         ///     Cannot use the value provided for parameter '{parameter}' because it isn't assignable to type object[].
