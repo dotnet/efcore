@@ -528,7 +528,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Empty(dependentEntityBuilder.Metadata.GetForeignKeys());
         }
 
-        [ConditionalFact] // TODO: Add test if the index is being used by another FK when support for multiple FK on same set of properties is added
+        [ConditionalFact]
+        // TODO: Add test if the index is being used by another FK when support for multiple FK on same set of properties is added
         public void Removing_relationship_does_not_remove_conventional_index_if_in_use()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1054,33 +1055,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void Key_throws_if_conflicting_with_derived_foreign_key()
-        {
-            var modelBuilder = CreateModelBuilder();
-            var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
-            principalEntityBuilder.PrimaryKey(new[] { Customer.IdProperty }, ConfigurationSource.Explicit);
-            var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
-            var derivedDependentEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
-            derivedDependentEntityBuilder.HasBaseType(dependentEntityBuilder.Metadata, ConfigurationSource.Explicit);
-            var idProperty = dependentEntityBuilder.Property(Order.IdProperty, ConfigurationSource.Convention).Metadata;
-            idProperty.ValueGenerated = ValueGenerated.OnAdd;
-
-            derivedDependentEntityBuilder.HasRelationship(
-                    principalEntityBuilder.Metadata,
-                    Order.CustomerProperty.Name,
-                    nameof(Customer.SpecialOrders),
-                    ConfigurationSource.Explicit)
-                .HasForeignKey(new[] { idProperty }, ConfigurationSource.Explicit);
-
-            Assert.Null(dependentEntityBuilder.HasKey(new[] { Order.IdProperty }, ConfigurationSource.DataAnnotation));
-
-            Assert.Equal(
-                CoreStrings.KeyPropertyInForeignKey(Order.IdProperty.Name, nameof(Order)),
-                Assert.Throws<InvalidOperationException>(
-                    () => dependentEntityBuilder.HasKey(new[] { Order.IdProperty }, ConfigurationSource.Explicit)).Message);
-        }
-
-        [ConditionalFact]
         public void Key_throws_for_property_names_for_shadow_entity_type_if_they_do_not_exist()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1280,8 +1254,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(
                 CoreStrings.KeylessTypeWithKey("{'CustomerId'}", nameof(Order)),
                 Assert.Throws<InvalidOperationException>(
-                    () =>
-                        entityBuilder.HasKey(new[] { Order.CustomerIdProperty.Name }, ConfigurationSource.Explicit)).Message);
+                    () => entityBuilder.HasKey(new[] { Order.CustomerIdProperty.Name }, ConfigurationSource.Explicit)).Message);
         }
 
         [ConditionalFact]

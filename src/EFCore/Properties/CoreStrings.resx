@@ -469,7 +469,7 @@
     <value>The specified foreign key properties {foreignKeyProperties} are not declared on the entity type '{entityType}'. Ensure foreign key properties are declared on the target entity type.</value>
   </data>
   <data name="ForeignKeyPropertyInKey" xml:space="preserve">
-    <value>The property '{property}' cannot be part of a foreign key on '{entityType}' because it has value generation enabled and is contained in the key {keyProperties} defined on a base entity type '{baseEntityType}'.</value>
+    <value>The property '{property}' cannot be part of a foreign key on '{entityType}' because it has a store-generated value and is contained in the key {keyProperties} defined on a base entity type '{baseEntityType}'.</value>
   </data>
   <data name="ForeignKeyReferencedEntityKeyMismatch" xml:space="preserve">
     <value>The provided principal entity key '{principalKey}' is not a key on the entity type '{principalEntityType}'.</value>
@@ -659,9 +659,6 @@
   </data>
   <data name="KeyPropertyCannotBeNullable" xml:space="preserve">
     <value>The property '{1_entityType}.{0_property}' cannot be marked as nullable/optional because it has been included in a key {keyProperties}.</value>
-  </data>
-  <data name="KeyPropertyInForeignKey" xml:space="preserve">
-    <value>The property '{1_entityType}.{0_property}' cannot be part of a key because it has value generation enabled and is contained in a foreign key defined on a derived entity type.</value>
   </data>
   <data name="KeyPropertyMustBeReadOnly" xml:space="preserve">
     <value>The property '{1_entityType}.{0_property}' must be marked as read-only after it has been saved because it is part of a key. Key properties are always read-only once an entity has been saved for the first time.</value>

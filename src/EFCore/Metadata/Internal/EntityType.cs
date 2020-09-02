@@ -791,12 +791,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(CoreStrings.KeyPropertiesWrongEntity(properties.Format(), this.DisplayName()));
                 }
 
-                if (property.ValueGenerated != ValueGenerated.Never
-                    && property.GetContainingForeignKeys().Any(k => k.DeclaringEntityType != this))
-                {
-                    throw new InvalidOperationException(CoreStrings.KeyPropertyInForeignKey(property.Name, this.DisplayName()));
-                }
-
                 if (property.IsNullable)
                 {
                     throw new InvalidOperationException(CoreStrings.NullableKey(this.DisplayName(), property.Name));
