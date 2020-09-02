@@ -941,7 +941,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 foreignKeyProperties, entityType);
 
         /// <summary>
-        ///     The property '{property}' cannot be part of a foreign key on '{entityType}' because it has value generation enabled and is contained in the key {keyProperties} defined on a base entity type '{baseEntityType}'.
+        ///     The property '{property}' cannot be part of a foreign key on '{entityType}' because it has a store-generated value and is contained in the key {keyProperties} defined on a base entity type '{baseEntityType}'.
         /// </summary>
         public static string ForeignKeyPropertyInKey([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object keyProperties, [CanBeNull] object baseEntityType)
             => string.Format(
@@ -1430,14 +1430,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("KeyPropertyCannotBeNullable", "0_property", "1_entityType", nameof(keyProperties)),
                 property, entityType, keyProperties);
-
-        /// <summary>
-        ///     The property '{1_entityType}.{0_property}' cannot be part of a key because it has value generation enabled and is contained in a foreign key defined on a derived entity type.
-        /// </summary>
-        public static string KeyPropertyInForeignKey([CanBeNull] object property, [CanBeNull] object entityType)
-            => string.Format(
-                GetString("KeyPropertyInForeignKey", "0_property", "1_entityType"),
-                property, entityType);
 
         /// <summary>
         ///     The property '{1_entityType}.{0_property}' must be marked as read-only after it has been saved because it is part of a key. Key properties are always read-only once an entity has been saved for the first time.

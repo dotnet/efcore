@@ -395,24 +395,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void Adding_a_key_with_value_generation_throws_if_any_properties_are_part_of_derived_foreign_key()
-        {
-            var model = CreateModel();
-            var baseType = model.AddEntityType(typeof(BaseType));
-            var idProperty = baseType.AddProperty(Customer.IdProperty);
-            var fkProperty = baseType.AddProperty("fk", typeof(int));
-            fkProperty.ValueGenerated = ValueGenerated.OnAdd;
-            var key = baseType.AddKey(new[] { idProperty });
-            var entityType = model.AddEntityType(typeof(Customer));
-            entityType.BaseType = baseType;
-            entityType.AddForeignKey(new[] { fkProperty }, key, entityType);
-
-            Assert.Equal(
-                CoreStrings.KeyPropertyInForeignKey("fk", typeof(BaseType).Name),
-                Assert.Throws<InvalidOperationException>(() => baseType.AddKey(new[] { fkProperty })).Message);
-        }
-
-        [ConditionalFact]
         public void Can_remove_keys()
         {
             var model = CreateModel();

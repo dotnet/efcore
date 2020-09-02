@@ -798,29 +798,36 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         continue;
                     }
 
-                    var inheritedKey = declaredForeignKey.Properties.Where(p => p.ValueGenerated != ValueGenerated.Never)
-                        .SelectMany(p => p.GetContainingKeys().Where(k => k.DeclaringEntityType != entityType)).FirstOrDefault();
-                    if (inheritedKey != null)
+                    foreach (var generatedProperty in declaredForeignKey.Properties)
                     {
-                        var generatedProperty = declaredForeignKey.Properties.First(
-                            p => p.ValueGenerated != ValueGenerated.Never && inheritedKey.Properties.Contains(p));
-
-                        if (entityType.BaseType.ClrType.IsAbstract
-                            && entityType.BaseType.GetDerivedTypes().All(
-                                d => d.GetDeclaredForeignKeys().Any(fk => fk.Properties.Contains(generatedProperty))))
+                        if (!generatedProperty.ValueGenerated.ForAdd())
                         {
                             continue;
                         }
 
-                        throw new InvalidOperationException(
-                            CoreStrings.ForeignKeyPropertyInKey(
-                                generatedProperty.Name,
-                                entityType.DisplayName(),
-                                inheritedKey.Properties.Format(),
-                                inheritedKey.DeclaringEntityType.DisplayName()));
+                        foreach (var inheritedKey in generatedProperty.GetContainingKeys())
+                        {
+                            if (inheritedKey.DeclaringEntityType != entityType
+                                && inheritedKey.Properties.All(p => declaredForeignKey.Properties.Contains(p))
+                                && !ContainedInForeignKeyForAllConcreteTypes(inheritedKey.DeclaringEntityType, generatedProperty))
+                            {
+                                throw new InvalidOperationException(
+                                    CoreStrings.ForeignKeyPropertyInKey(
+                                        generatedProperty.Name,
+                                        entityType.DisplayName(),
+                                        inheritedKey.Properties.Format(),
+                                        inheritedKey.DeclaringEntityType.DisplayName()));
+                            }
+                        }
                     }
                 }
             }
+
+            static bool ContainedInForeignKeyForAllConcreteTypes(IEntityType entityType, IProperty property)
+                => entityType.ClrType?.IsAbstract == true
+                    && entityType.GetDerivedTypes().Where(t => t.ClrType?.IsAbstract != true)
+                        .All(d => d.GetForeignKeys()
+                            .Any(fk => fk.Properties.Contains(property)));
         }
 
         /// <summary>
