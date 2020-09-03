@@ -199,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType);
 
         /// <summary>
-        ///     Unable to convert queryable method to enumerable method. This is likely an issue in EF Core, please report it.
+        ///     Unable to convert queryable method to enumerable method. This is likely an issue in EF Core, please file an issue at https://go.microsoft.com/fwlink/?linkid=2142044.
         /// </summary>
         public static string CannotConvertQueryableToEnumerableMethod
             => GetString("CannotConvertQueryableToEnumerableMethod");
@@ -473,7 +473,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("ContextDisposed");
 
         /// <summary>
-        ///     The convention invocations have reached the recursion limit. This is likely an issue in Entity Framework, please report it.
+        ///     The convention invocations have reached the recursion limit. This is likely an issue in EF Core, please file an issue at https://go.microsoft.com/fwlink/?linkid=2142044.
         /// </summary>
         public static string ConventionsInfiniteLoop
             => GetString("ConventionsInfiniteLoop");
@@ -699,31 +699,23 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, serviceType, entityType, duplicateName, duplicateEntityType);
 
         /// <summary>
-        ///     Cannot translate a 'Contains' operator on entity '{entityType}' because it has a composite key.
+        ///     Cannot translate the '{comparisonOperator}' on a subquery expression of entity type '{entityType}' because it has a composite primary key. See https://go.microsoft.com/fwlink/?linkid=2141942 for information on how to rewrite your query.
         /// </summary>
-        public static string EntityEqualityContainsWithCompositeKeyNotSupported([CanBeNull] object entityType)
+        public static string EntityEqualityOnCompositeKeyEntitySubqueryNotSupported([CanBeNull] object comparisonOperator, [CanBeNull] object entityType)
             => string.Format(
-                GetString("EntityEqualityContainsWithCompositeKeyNotSupported", nameof(entityType)),
-                entityType);
+                GetString("EntityEqualityOnCompositeKeyEntitySubqueryNotSupported", nameof(comparisonOperator), nameof(entityType)),
+                comparisonOperator, entityType);
 
         /// <summary>
-        ///     Comparison on entity type '{entityType}' is not supported because it is a keyless entity.
+        ///     Cannot translate the '{comparisonOperator}' on an expression of entity type '{entityType}' because it is a keyless entity. Consider using entity properties instead.
         /// </summary>
-        public static string EntityEqualityOnKeylessEntityNotSupported([CanBeNull] object entityType)
+        public static string EntityEqualityOnKeylessEntityNotSupported([CanBeNull] object comparisonOperator, [CanBeNull] object entityType)
             => string.Format(
-                GetString("EntityEqualityOnKeylessEntityNotSupported", nameof(entityType)),
-                entityType);
+                GetString("EntityEqualityOnKeylessEntityNotSupported", nameof(comparisonOperator), nameof(entityType)),
+                comparisonOperator, entityType);
 
         /// <summary>
-        ///     This query would cause multiple evaluation of a subquery because entity '{entityType}' has a composite key. Rewrite your query avoiding the subquery.
-        /// </summary>
-        public static string EntityEqualitySubqueryWithCompositeKeyNotSupported([CanBeNull] object entityType)
-            => string.Format(
-                GetString("EntityEqualitySubqueryWithCompositeKeyNotSupported", nameof(entityType)),
-                entityType);
-
-        /// <summary>
-        ///     The entity type '{entityType}' requires a primary key to be defined. If you intended to use a keyless entity type call 'HasNoKey' in 'OnModelCreating'.
+        ///     The entity type '{entityType}' requires a primary key to be defined. If you intended to use a keyless entity type call 'HasNoKey' in 'OnModelCreating'. For more information on keyless entity types, see https://go.microsoft.com/fwlink/?linkid=2141943.
         /// </summary>
         public static string EntityRequiresKey([CanBeNull] object entityType)
             => string.Format(
@@ -801,50 +793,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("ErrorInvalidQueryable");
 
         /// <summary>
-        ///     An error occurred while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.
-        /// </summary>
-        public static string ErrorMaterializingProperty([CanBeNull] object entityType, [CanBeNull] object property)
-            => string.Format(
-                GetString("ErrorMaterializingProperty", nameof(entityType), nameof(property)),
-                entityType, property);
-
-        /// <summary>
         ///     An error occurred while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.
         /// </summary>
         public static string ErrorMaterializingPropertyInvalidCast([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object expectedType, [CanBeNull] object actualType)
             => string.Format(
                 GetString("ErrorMaterializingPropertyInvalidCast", nameof(entityType), nameof(property), nameof(expectedType), nameof(actualType)),
                 entityType, property, expectedType, actualType);
-
-        /// <summary>
-        ///     An error occurred while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was null.
-        /// </summary>
-        public static string ErrorMaterializingPropertyNullReference([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object expectedType)
-            => string.Format(
-                GetString("ErrorMaterializingPropertyNullReference", nameof(entityType), nameof(property), nameof(expectedType)),
-                entityType, property, expectedType);
-
-        /// <summary>
-        ///     An error occurred while reading a database value. See the inner exception for more information.
-        /// </summary>
-        public static string ErrorMaterializingValue
-            => GetString("ErrorMaterializingValue");
-
-        /// <summary>
-        ///     An error occurred while reading a database value. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.
-        /// </summary>
-        public static string ErrorMaterializingValueInvalidCast([CanBeNull] object expectedType, [CanBeNull] object actualType)
-            => string.Format(
-                GetString("ErrorMaterializingValueInvalidCast", nameof(expectedType), nameof(actualType)),
-                expectedType, actualType);
-
-        /// <summary>
-        ///     An error occurred while reading a database value. The expected type was '{expectedType}' but the actual value was null.
-        /// </summary>
-        public static string ErrorMaterializingValueNullReference([CanBeNull] object expectedType)
-            => string.Format(
-                GetString("ErrorMaterializingValueNullReference", nameof(expectedType)),
-                expectedType);
 
         /// <summary>
         ///     The configured execution strategy '{strategy}' does not support user initiated transactions. Use the execution strategy returned by '{getExecutionStrategyMethod}' to execute all the operations in the transaction as a retriable unit.

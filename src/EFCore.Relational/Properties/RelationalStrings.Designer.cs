@@ -476,6 +476,44 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 param1, param2);
 
         /// <summary>
+        ///     An error occurred while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.
+        /// </summary>
+        public static string ErrorMaterializingProperty([CanBeNull] object entityType, [CanBeNull] object property)
+            => string.Format(
+                GetString("ErrorMaterializingProperty", nameof(entityType), nameof(property)),
+                entityType, property);
+
+        /// <summary>
+        ///     An error occurred while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was null.
+        /// </summary>
+        public static string ErrorMaterializingPropertyNullReference([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object expectedType)
+            => string.Format(
+                GetString("ErrorMaterializingPropertyNullReference", nameof(entityType), nameof(property), nameof(expectedType)),
+                entityType, property, expectedType);
+
+        /// <summary>
+        ///     An error occurred while reading a database value. See the inner exception for more information.
+        /// </summary>
+        public static string ErrorMaterializingValue
+            => GetString("ErrorMaterializingValue");
+
+        /// <summary>
+        ///     An error occurred while reading a database value. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.
+        /// </summary>
+        public static string ErrorMaterializingValueInvalidCast([CanBeNull] object expectedType, [CanBeNull] object actualType)
+            => string.Format(
+                GetString("ErrorMaterializingValueInvalidCast", nameof(expectedType), nameof(actualType)),
+                expectedType, actualType);
+
+        /// <summary>
+        ///     An error occurred while reading a database value. The expected type was '{expectedType}' but the actual value was null.
+        /// </summary>
+        public static string ErrorMaterializingValueNullReference([CanBeNull] object expectedType)
+            => string.Format(
+                GetString("ErrorMaterializingValueNullReference", nameof(expectedType)),
+                expectedType);
+
+        /// <summary>
         ///     The required column '{column}' was not present in the results of a 'FromSql' operation.
         /// </summary>
         public static string FromSqlMissingColumn([CanBeNull] object column)

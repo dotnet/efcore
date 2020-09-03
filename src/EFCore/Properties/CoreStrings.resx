@@ -184,7 +184,7 @@
     <value>The property '{1_entityType}.{0_property}' cannot be marked as nullable/optional because the property is a part of a key. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of a key can be marked as nullable/optional.</value>
   </data>
   <data name="CannotConvertQueryableToEnumerableMethod" xml:space="preserve">
-    <value>Unable to convert queryable method to enumerable method. This is likely an issue in EF Core, please report it.</value>
+    <value>Unable to convert queryable method to enumerable method. This is likely an issue in EF Core, please file an issue at https://go.microsoft.com/fwlink/?linkid=2142044.</value>
   </data>
   <data name="CannotCreateValueGenerator" xml:space="preserve">
     <value>Cannot create instance of value generator type '{generatorType}'. Ensure that the type is instantiable and has a parameterless constructor, or use the overload of HasValueGenerator that accepts a delegate.</value>
@@ -289,7 +289,7 @@
     <value>Cannot access a disposed context instance. A common cause of this error is disposing a context instance that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur if you are calling 'Dispose' on the context instance, or wrapping it in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.</value>
   </data>
   <data name="ConventionsInfiniteLoop" xml:space="preserve">
-    <value>The convention invocations have reached the recursion limit. This is likely an issue in Entity Framework, please report it.</value>
+    <value>The convention invocations have reached the recursion limit. This is likely an issue in EF Core, please file an issue at https://go.microsoft.com/fwlink/?linkid=2142044.</value>
   </data>
   <data name="ConverterBadType" xml:space="preserve">
     <value>The value converter '{converter}' cannot be used with type '{type}'. This converter can only be used with {allowed}.</value>
@@ -375,17 +375,14 @@
   <data name="DuplicateServicePropertyType" xml:space="preserve">
     <value>The service property '{property}' of type '{serviceType}' cannot be added to the entity type '{entityType}' because service property '{duplicateName}' of the same type already exists on entity type '{duplicateEntityType}'.</value>
   </data>
-  <data name="EntityEqualityContainsWithCompositeKeyNotSupported" xml:space="preserve">
-    <value>Cannot translate a 'Contains' operator on entity '{entityType}' because it has a composite key.</value>
+  <data name="EntityEqualityOnCompositeKeyEntitySubqueryNotSupported" xml:space="preserve">
+    <value>Cannot translate the '{comparisonOperator}' on a subquery expression of entity type '{entityType}' because it has a composite primary key. See https://go.microsoft.com/fwlink/?linkid=2141942 for information on how to rewrite your query.</value>
   </data>
   <data name="EntityEqualityOnKeylessEntityNotSupported" xml:space="preserve">
-    <value>Comparison on entity type '{entityType}' is not supported because it is a keyless entity.</value>
-  </data>
-  <data name="EntityEqualitySubqueryWithCompositeKeyNotSupported" xml:space="preserve">
-    <value>This query would cause multiple evaluation of a subquery because entity '{entityType}' has a composite key. Rewrite your query avoiding the subquery.</value>
+    <value>Cannot translate the '{comparisonOperator}' on an expression of entity type '{entityType}' because it is a keyless entity. Consider using entity properties instead.</value>
   </data>
   <data name="EntityRequiresKey" xml:space="preserve">
-    <value>The entity type '{entityType}' requires a primary key to be defined. If you intended to use a keyless entity type call 'HasNoKey' in 'OnModelCreating'.</value>
+    <value>The entity type '{entityType}' requires a primary key to be defined. If you intended to use a keyless entity type call 'HasNoKey' in 'OnModelCreating'. For more information on keyless entity types, see https://go.microsoft.com/fwlink/?linkid=2141943.</value>
   </data>
   <data name="EntityTypeInUseByDerived" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be removed because '{derivedEntityType}' is derived from it. Before the entity type can be removed, all derived entity types must be removed or configured to use a different base entity type.</value>
@@ -414,23 +411,8 @@
   <data name="ErrorInvalidQueryable" xml:space="preserve">
     <value>Cannot use multiple context instances within a single query execution. Ensure the query uses a single context instance.</value>
   </data>
-  <data name="ErrorMaterializingProperty" xml:space="preserve">
-    <value>An error occurred while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.</value>
-  </data>
   <data name="ErrorMaterializingPropertyInvalidCast" xml:space="preserve">
     <value>An error occurred while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.</value>
-  </data>
-  <data name="ErrorMaterializingPropertyNullReference" xml:space="preserve">
-    <value>An error occurred while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was null.</value>
-  </data>
-  <data name="ErrorMaterializingValue" xml:space="preserve">
-    <value>An error occurred while reading a database value. See the inner exception for more information.</value>
-  </data>
-  <data name="ErrorMaterializingValueInvalidCast" xml:space="preserve">
-    <value>An error occurred while reading a database value. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.</value>
-  </data>
-  <data name="ErrorMaterializingValueNullReference" xml:space="preserve">
-    <value>An error occurred while reading a database value. The expected type was '{expectedType}' but the actual value was null.</value>
   </data>
   <data name="ExecutionStrategyExistingTransaction" xml:space="preserve">
     <value>The configured execution strategy '{strategy}' does not support user initiated transactions. Use the execution strategy returned by '{getExecutionStrategyMethod}' to execute all the operations in the transaction as a retriable unit.</value>

@@ -457,7 +457,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
 
             using var context = new NullKeyContext(options);
             Assert.Equal(
-                CoreStrings.ErrorMaterializingPropertyNullReference("ZeroKey", "Id", typeof(int)),
+                RelationalStrings.ErrorMaterializingPropertyNullReference("ZeroKey", "Id", typeof(int)),
                 Assert.Throws<InvalidOperationException>(() => context.ZeroKeys.ToList()).Message);
         }
 

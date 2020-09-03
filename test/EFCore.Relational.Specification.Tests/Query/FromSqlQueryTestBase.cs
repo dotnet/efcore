@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using var context = CreateContext();
             Assert.Equal(
-                CoreStrings.ErrorMaterializingValueInvalidCast(typeof(decimal?), typeof(int)),
+                RelationalStrings.ErrorMaterializingValueInvalidCast(typeof(decimal?), typeof(int)),
                 Assert.Throws<InvalidOperationException>(
                     () =>
                         context.Set<Product>().FromSqlRaw(
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using var context = CreateContext();
             Assert.Equal(
-                CoreStrings.ErrorMaterializingPropertyNullReference("Product", "Discontinued", typeof(bool)),
+                RelationalStrings.ErrorMaterializingPropertyNullReference("Product", "Discontinued", typeof(bool)),
                 Assert.Throws<InvalidOperationException>(
                     () =>
                         context.Set<Product>().FromSqlRaw(
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using var context = CreateContext();
             Assert.Equal(
-                CoreStrings.ErrorMaterializingValueNullReference(typeof(bool)),
+                RelationalStrings.ErrorMaterializingValueNullReference(typeof(bool)),
                 Assert.Throws<InvalidOperationException>(
                     () =>
                         context.Set<Product>().FromSqlRaw(
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using var context = CreateContext();
             Assert.Equal(
-                CoreStrings.ErrorMaterializingPropertyNullReference("Product", "Discontinued", typeof(bool)),
+                RelationalStrings.ErrorMaterializingPropertyNullReference("Product", "Discontinued", typeof(bool)),
                 Assert.Throws<InvalidOperationException>(
                     () =>
                         context.Set<Product>()

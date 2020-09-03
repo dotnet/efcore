@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                     CoreStrings.ConverterBadType(
                         converterType.ShortDisplayName(),
                         type.ShortDisplayName(),
-                        string.Join(", ", supportedTypes.Select(t => t.ShortDisplayName()))));
+                        string.Join(", ", supportedTypes.Select(t => $"'{t.ShortDisplayName()}'"))));
             }
 
             return type;
