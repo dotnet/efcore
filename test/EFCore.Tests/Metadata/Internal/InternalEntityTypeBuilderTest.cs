@@ -511,28 +511,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [ConditionalFact]
         public void Removing_relationship_removes_unused_conventional_index()
         {
-            var modelBuilder = CreateModelBuilder();
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Ignore(typeof(SpecialOrder), ConfigurationSource.Explicit);
             var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            var derivedPrincipalEntityBuilder = modelBuilder.Entity(typeof(SpecialCustomer), ConfigurationSource.Explicit);
             var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
             var relationshipBuilder = dependentEntityBuilder.HasRelationship(
                 principalEntityBuilder.Metadata,
                 new[] { dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata },
-                ConfigurationSource.Convention);
+                ConfigurationSource.DataAnnotation);
             Assert.NotNull(relationshipBuilder);
+
+            var relationshipBuilder2 = dependentEntityBuilder.HasRelationship(
+                derivedPrincipalEntityBuilder.Metadata,
+                new[] { dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata },
+                ConfigurationSource.DataAnnotation);
+            Assert.NotNull(relationshipBuilder2);
+            Assert.NotSame(relationshipBuilder, relationshipBuilder2);
+            Assert.Single(dependentEntityBuilder.Metadata.GetIndexes());
 
             Assert.NotNull(
                 dependentEntityBuilder.HasNoRelationship(relationshipBuilder.Metadata, ConfigurationSource.DataAnnotation));
+
+            Assert.Single(dependentEntityBuilder.Metadata.GetIndexes());
+            Assert.Single(dependentEntityBuilder.Metadata.GetForeignKeys());
+
+            Assert.NotNull(
+                dependentEntityBuilder.HasNoRelationship(relationshipBuilder2.Metadata, ConfigurationSource.DataAnnotation));
 
             Assert.Empty(dependentEntityBuilder.Metadata.GetIndexes());
             Assert.Empty(dependentEntityBuilder.Metadata.GetForeignKeys());
         }
 
         [ConditionalFact]
-        // TODO: Add test if the index is being used by another FK when support for multiple FK on same set of properties is added
         public void Removing_relationship_does_not_remove_conventional_index_if_in_use()
         {
-            var modelBuilder = CreateModelBuilder();
+            var modelBuilder = CreateConventionalModelBuilder();
             var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
@@ -3204,12 +3219,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(
                 CoreStrings.DiscriminatorEntityTypeNotDerived("Splow", "Splot"),
                 Assert.Throws<InvalidOperationException>(
-                    ()
-                        => discriminatorBuilder.HasValue(nonDerivedTypeBuilder.Metadata, "1")).Message);
+                    () => discriminatorBuilder.HasValue(nonDerivedTypeBuilder.Metadata, "1")).Message);
         }
 
         private InternalModelBuilder CreateModelBuilder()
             => new InternalModelBuilder(new Model());
+
+        private InternalModelBuilder CreateConventionalModelBuilder()
+            => (InternalModelBuilder)InMemoryTestHelpers.Instance.CreateConventionBuilder().GetInfrastructure();
 
         public enum MemberType
         {
