@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("ClientGroupByNotSupported");
 
         /// <summary>
-        ///     The column '{column}' on table '{table}' has unspecified computed column SQL. Specify the SQL before using EF Core to create the database schema.
+        ///     The column '{column}' on table '{table}' has unspecified computed column SQL. Specify the SQL before using Entity Framework to create the database schema.
         /// </summary>
         public static string ComputedColumnSqlUnspecified([CanBeNull] object column, [CanBeNull] object table)
             => string.Format(
@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 function);
 
         /// <summary>
-        ///     The column '{column}' on table '{table}' has unspecified default value SQL. Specify the SQL before using EF Core to create the database schema.
+        ///     The column '{column}' on table '{table}' has unspecified default value SQL. Specify the SQL before using Entity Framework to create the database schema.
         /// </summary>
         public static string DefaultValueSqlUnspecified([CanBeNull] object column, [CanBeNull] object table)
             => string.Format(
@@ -243,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 column, table);
 
         /// <summary>
-        ///     The column '{column}' on table '{table}' has an unspecified default value. Specify a value before using EF Core to create the database schema.
+        ///     The column '{column}' on table '{table}' has an unspecified default value. Specify a value before using Entity Framework to create the database schema.
         /// </summary>
         public static string DefaultValueUnspecified([CanBeNull] object column, [CanBeNull] object table)
             => string.Format(
@@ -1967,7 +1967,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Compiling a query which loads related collections for more than one collection navigation either via 'Include' or through projection but no 'QuerySplittingBehavior' has been configured. By default EF Core will use 'QuerySplittingBehavior.SingleQuery' which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w =&gt; w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'
+        ///     Compiling a query which loads related collections for more than one collection navigation either via 'Include' or through projection but no 'QuerySplittingBehavior' has been configured. By default Entity Framework will use 'QuerySplittingBehavior.SingleQuery' which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w =&gt; w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'
         /// </summary>
         public static EventDefinition LogMultipleCollectionIncludeWarning([NotNull] IDiagnosticsLogger logger)
         {

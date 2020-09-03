@@ -619,7 +619,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 referencedAssembly);
 
         /// <summary>
-        ///     The EF Core tools version '{toolsVersion}' is older than that of the runtime '{runtimeVersion}'. Update the tools for the latest features and bug fixes.
+        ///     The Entity Framework tools version '{toolsVersion}' is older than that of the runtime '{runtimeVersion}'. Update the tools for the latest features and bug fixes.
         /// </summary>
         public static string VersionMismatch([CanBeNull] object toolsVersion, [CanBeNull] object runtimeVersion)
             => string.Format(
