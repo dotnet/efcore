@@ -217,55 +217,55 @@
     <value>There is already an entity type named '{ownedTypeName}'. Use a different name when configuring the ownership '{ownerEntityType}.{navigation}' in 'OnModelCreating'.</value>
   </data>
   <data name="ClashingNonOwnedDerivedEntityType" xml:space="preserve">
-    <value>The type '{entityType}' cannot be marked as owned because the derived entity type - '{derivedType}' has been configured as non-owned.</value>
+    <value>The type '{entityType}' cannot be marked as owned because the derived entity type - '{derivedType}' has been configured as non-owned. Either don't configure '{derivedType}' as non-owned or call 'HasBaseType(null)' for it in 'OnModelCreating'.</value>
   </data>
   <data name="ClashingNonOwnedEntityType" xml:space="preserve">
     <value>The type '{entityType}' cannot be marked as owned because a non-owned entity type with the same name already exists.</value>
   </data>
   <data name="ClashingNonSharedType" xml:space="preserve">
-    <value>The shared type entity type '{entityType}' with clr type '{type}' cannot be added to the model because a non shared entity type with the same CLR type already exists.</value>
+    <value>The shared type entity type '{entityType}' with CLR type '{type}' cannot be added to the model because a non-shared entity type with the same CLR type already exists.</value>
   </data>
   <data name="ClashingNonWeakEntityType" xml:space="preserve">
-    <value>The weak entity type '{entityType}' cannot be added to the model because an entity type with the same name already exists.</value>
+    <value>The entity type '{entityType}' with a defining navigation cannot be added to the model because an entity type with the same name already exists.</value>
   </data>
   <data name="ClashingOwnedEntityType" xml:space="preserve">
     <value>The type '{entityType}' cannot be configured as non-owned because an owned entity type with the same name already exists.</value>
   </data>
   <data name="ClashingSharedType" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot be added to the model because a shared entity type with the same CLR type already exists.</value>
+    <value>The entity type '{entityType}' cannot be added to the model because its CLR type has been configured as a shared type.</value>
   </data>
   <data name="ClashingWeakEntityType" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot be added to the model because a weak entity type with the same name already exists.</value>
+    <value>The entity type '{entityType}' cannot be added to the model because an entity type with a defining navigation with the same name already exists.</value>
   </data>
   <data name="ClientProjectionCapturingConstantInMethodArgument" xml:space="preserve">
-    <value>Client projection contains reference to constant expression of '{constantType}' which is being passed as argument to method '{methodName}'. This could potentially cause memory leak. Consider assigning this constant to local variable and using the variable in the query instead. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information.</value>
+    <value>The client projection contains a reference to a constant expression of '{constantType}' which is being passed as an argument to the method '{methodName}'. This could potentially cause a memory leak. Consider assigning this constant to a local variable and using the variable in the query instead. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information.</value>
   </data>
   <data name="ClientProjectionCapturingConstantInMethodInstance" xml:space="preserve">
-    <value>Client projection contains reference to constant expression of '{constantType}' through instance method '{methodName}'. This could potentially cause memory leak. Consider making the method static so that it does not capture constant in the instance. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information.</value>
+    <value>The client projection contains a reference to a constant expression of '{constantType}' through the instance method '{methodName}'. This could potentially cause a memory leak. Consider making the method static so that it does not capture constant in the instance. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information.</value>
   </data>
   <data name="ClientProjectionCapturingConstantInTree" xml:space="preserve">
-    <value>Client projection contains reference to constant expression of '{constantType}'. This could potentially cause memory leak. Consider assigning this constant to local variable and using the variable in the query instead. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information.</value>
+    <value>The client projection contains a reference to a constant expression of '{constantType}'. This could potentially cause a memory leak. Consider assigning this constant to a local variable and using the variable in the query instead. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information.</value>
   </data>
   <data name="ClrPropertyOnShadowEntity" xml:space="preserve">
     <value>The property '{property}' cannot exist on type '{entityType}' because the type is marked as shadow state while the property is not. Shadow state types can only contain shadow state properties.</value>
   </data>
   <data name="CollectionIsReference" xml:space="preserve">
-    <value>The property '{1_entityType}.{0_property}' is being accessed using the '{CollectionMethod}' method, but is defined in the model as a non-collection, reference navigation. Use the '{ReferenceMethod}' method to access reference navigation properties.</value>
+    <value>The property '{1_entityType}.{0_property}' is being accessed using '{collectionMethod}', but is defined in the model as a non-collection, reference navigation. Use '{referenceMethod}' to access reference navigation properties.</value>
   </data>
   <data name="ComparerPropertyMismatch" xml:space="preserve">
     <value>Comparer for type '{type}' cannot be used for '{entityType}.{propertyName}' because its type is '{propertyType}'.</value>
   </data>
   <data name="CompositeFkOnProperty" xml:space="preserve">
-    <value>There are multiple properties pointing to navigation '{1_entityType}.{0_navigation}'. To define composite foreign key using data annotations, use [ForeignKey] attribute on navigation.</value>
+    <value>There are multiple properties with [ForeignKey] attribute pointing to navigation '{1_entityType}.{0_navigation}'. To define a composite foreign key using data annotations, use [ForeignKey] attribute on navigation.</value>
   </data>
   <data name="CompositePKWithDataAnnotation" xml:space="preserve">
-    <value>Entity type '{entityType}' has composite primary key defined with data annotations. Composite primary keys can only be set in 'OnModelCreating'.</value>
+    <value>Entity type '{entityType}' has multiple properties with the [Key] attribute. Composite primary keys can only be set using 'HasKey' in 'OnModelCreating'.</value>
   </data>
   <data name="ConcurrentMethodInvocation" xml:space="preserve">
-    <value>A second operation started on this context before a previous operation completed. This is usually caused by different threads using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.</value>
+    <value>A second operation started on this context before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.</value>
   </data>
   <data name="ConflictingBackingFields" xml:space="preserve">
-    <value>Property '{1_entityType}.{0_property}' matches both '{field1}' and '{field2}' by convention. Explicitly specify the backing field to use with '.HasField()' in 'OnModelCreating'.</value>
+    <value>Property '{1_entityType}.{0_property}' matches both '{field1}' and '{field2}' by convention. Explicitly specify the backing field to use with 'HasField' in 'OnModelCreating'.</value>
   </data>
   <data name="ConflictingForeignKeyAttributes" xml:space="preserve">
     <value>There are multiple [ForeignKey] attributes which are pointing to same set of properties - '{propertyList}' on entity type '{entityType}'.</value>
@@ -274,22 +274,22 @@
     <value>The property or navigation '{member}' cannot be added to the entity type '{entityType}' because a property or navigation with the same name already exists on entity type '{conflictingEntityType}'.</value>
   </data>
   <data name="ConflictingRelationshipNavigation" xml:space="preserve">
-    <value>Cannot create a relationship between '{newPrincipalNavigationSpecification}' and '{newDependentNavigationSpecification}', because there already is a relationship between '{existingPrincipalNavigationSpecification}' and '{existingDependentNavigationSpecification}'. Navigation properties can only participate in a single relationship. If you want to override an existing relationship call Ignore on the navigation '{newDependentNavigationSpecification}' first in 'OnModelCreating'.</value>
+    <value>Cannot create a relationship between '{newPrincipalNavigationSpecification}' and '{newDependentNavigationSpecification}', because there already is a relationship between '{existingPrincipalNavigationSpecification}' and '{existingDependentNavigationSpecification}'. Navigation  can only participate in a single relationship. If you want to override an existing relationship call 'Ignore' on the navigation '{newDependentNavigationSpecification}' first in 'OnModelCreating'.</value>
   </data>
   <data name="ConstructorBindingFailed" xml:space="preserve">
     <value>cannot bind '{failedBinds}' in '{parameters}'</value>
   </data>
   <data name="ConstructorConflict" xml:space="preserve">
-    <value>Two constructors were found with the same number of parameters that could both be used by Entity Framework. The constructor to use must be configured explicitly. The two constructors are '{firstConstructor}' and '{secondConstructor}'.</value>
+    <value>The constructors '{firstConstructor}' and '{secondConstructor}' were found with the same number of parameters that could both be used by Entity Framework. The constructor to use must be configured in 'OnModelCreating'.</value>
   </data>
   <data name="ConstructorNotFound" xml:space="preserve">
-    <value>No suitable constructor found for entity type '{entityType}'. The following constructors had parameters that could not be bound to properties of the entity type: {constructors}.</value>
+    <value>No suitable constructor was found for entity type '{entityType}'. The following constructors had parameters that could not be bound to properties of the entity type: {constructors}.</value>
   </data>
   <data name="ContextDisposed" xml:space="preserve">
-    <value>Cannot access a disposed object. A common cause of this error is disposing a context that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur if you are calling Dispose() on the context, or wrapping the context in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.</value>
+    <value>Cannot access a disposed context instance. A common cause of this error is disposing a context instance that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur if you are calling 'Dispose' on the context instance, or wrapping it in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.</value>
   </data>
   <data name="ConventionsInfiniteLoop" xml:space="preserve">
-    <value>The convention invocations have reached the recursion limit. This is likely an issue in EF Core, please report it.</value>
+    <value>The convention invocations have reached the recursion limit. This is likely an issue in Entity Framework, please report it.</value>
   </data>
   <data name="ConverterBadType" xml:space="preserve">
     <value>The value converter '{converter}' cannot be used with type '{type}'. This converter can only be used with {allowed}.</value>
@@ -304,13 +304,13 @@
     <value>The extension method '{method}' is being used with a custom implementation of '{interfaceType}'. Use of custom implementations of the Entity Framework metadata interfaces is not supported. Consider deriving from '{concreteType}' instead. Please contact the Entity Framework team if you have a compelling case for a custom implementation of the metadata interfaces so that we can consider ways to achieve this.</value>
   </data>
   <data name="DataBindingToLocalWithIListSource" xml:space="preserve">
-    <value>Data binding directly to 'DbSet.Local' is not supported since it does not provide a stable ordering. For WPF bind to 'DbSet.Local.ToObservableCollection()'. For WinForms bind to 'DbSet.Local.ToBindingList()'. For ASP.NET WebForms bind to 'DbSet.ToList()' or use Model Binding.</value>
+    <value>Data binding directly to 'DbSet.Local' is not supported since it does not provide a stable ordering. For WPF bind to 'DbSet.Local.ToObservableCollection'. For WinForms bind to 'DbSet.Local.ToBindingList'. For ASP.NET WebForms bind to 'DbSet.ToList' or use Model Binding.</value>
   </data>
   <data name="DataBindingWithIListSource" xml:space="preserve">
-    <value>Data binding directly to a store query is not supported. Instead populate a DbSet with data, for example by calling Load on the DbSet, and then bind to local data to avoid sending a query to the database each time the databound control iterates the data. For WPF bind to 'DbSet.Local.ToObservableCollection()'. For WinForms bind to 'DbSet.Local.ToBindingList()'. For ASP.NET WebForms bind to 'DbSet.ToList()' or use Model Binding.</value>
+    <value>Data binding directly to a store query is not supported. Instead populate a DbSet with data, for example by calling 'Load' on the DbSet, and then bind to local data to avoid sending a query to the database each time the databound control iterates the data. For WPF bind to 'DbSet.Local.ToObservableCollection'. For WinForms bind to 'DbSet.Local.ToBindingList'. For ASP.NET WebForms bind to 'DbSet.ToList' or use Model Binding.</value>
   </data>
   <data name="DbContextMissingConstructor" xml:space="preserve">
-    <value>AddDbContext was called with configuration, but the context type '{contextType}' only declares a parameterless constructor. This means that the configuration passed to AddDbContext will never be used. If configuration is passed to AddDbContext, then '{contextType}' should declare a constructor that accepts a DbContextOptions&lt;{contextType}&gt; and must pass it to the base constructor for DbContext.</value>
+    <value>'AddDbContext' was called with configuration, but the context type '{contextType}' only declares a parameterless constructor. This means that the configuration passed to 'AddDbContext' will never be used. If configuration is passed to 'AddDbContext', then '{contextType}' should declare a constructor that accepts a DbContextOptions&lt;{contextType}&gt; and must pass it to the base constructor for DbContext.</value>
   </data>
   <data name="DbSetIncorrectGenericType" xml:space="preserve">
     <value>Cannot create DbSet for entity type '{entityType}' since it is of type '{entityClrType}' but the generic type provided is of type '{genericType}'.</value>
@@ -319,16 +319,16 @@
     <value>You are configuring a relationship between '{dependentEntityType}' and '{principalEntityType}' but have specified a foreign key on '{entityType}'. The foreign key must be defined on a type that is part of the relationship.</value>
   </data>
   <data name="DerivedEntityCannotBeKeyless" xml:space="preserve">
-    <value>Unable to set a base type for entity type '{entityType}' because it has been configured as having no keys.</value>
+    <value>Unable to set a base type for entity type '{entityType}' because it has been configured as keyless.</value>
   </data>
   <data name="DerivedEntityCannotHaveKeys" xml:space="preserve">
     <value>Unable to set a base type for entity type '{entityType}' because it has one or more keys defined. Only root types can have keys.</value>
   </data>
   <data name="DerivedEntityTypeHasNoKey" xml:space="preserve">
-    <value>A '{derivedType}' cannot be configured as keyless because it is a derived type. The root type '{rootType}' must be configured as keyless. If you did not intend for '{rootType}' to be included in the model, ensure that it is not included in a DbSet property on your context, referenced in a configuration call to ModelBuilder in 'OnModelCreating', or referenced from a navigation on a type that is included in the model.</value>
+    <value>A '{derivedType}' cannot be configured as keyless because it is a derived type. The root type '{rootType}' must be configured as keyless. If you did not intend for '{rootType}' to be included in the model, ensure that it is not referenced by a DbSet property on your context, referenced in a configuration call to ModelBuilder in 'OnModelCreating', or referenced from a navigation on a type that is included in the model.</value>
   </data>
   <data name="DerivedEntityTypeKey" xml:space="preserve">
-    <value>A key cannot be configured on '{derivedType}' because it is a derived type. The key must be configured on the root type '{rootType}'. If you did not intend for '{rootType}' to be included in the model, ensure that it is not included in a DbSet property on your context, referenced in a configuration call to ModelBuilder, or referenced from a navigation on a type that is included in the model.</value>
+    <value>A key cannot be configured on '{derivedType}' because it is a derived type. The key must be configured on the root type '{rootType}'. If you did not intend for '{rootType}' to be included in the model, ensure that it is not referenced by a DbSet property on your context, referenced in a configuration call to ModelBuilder, or referenced from a navigation on a type that is included in the model.</value>
   </data>
   <data name="DerivedTypeDefiningQuery" xml:space="preserve">
     <value>The entity type '{entityType}' cannot have a defining query because it is derived from '{baseType}'. Only base entity types can have a defining query.</value>
@@ -343,7 +343,7 @@
     <value>Unable to set property '{property}' as a discriminator for entity type '{entityType}' because it is not a property of '{entityType}'.</value>
   </data>
   <data name="DiscriminatorValueIncompatible" xml:space="preserve">
-    <value>Cannot set discriminator value '{value}' for discriminator property '{discriminator}' because it is not assignable to property of type '{discriminatorType}'.</value>
+    <value>Cannot set discriminator value '{value}' for discriminator property '{discriminator}' because it is not assignable to '{discriminatorType}'.</value>
   </data>
   <data name="DuplicateAnnotation" xml:space="preserve">
     <value>The annotation '{annotation}' cannot be added because an annotation with the same name already exists.</value>
@@ -358,7 +358,7 @@
     <value>The foreign key {foreignKeyProperties} cannot be added to the entity type '{entityType}' because a foreign key on the same properties already exists on entity type '{duplicateEntityType}' and also targets the key {keyProperties} on '{principalType}'.</value>
   </data>
   <data name="DuplicateIndex" xml:space="preserve">
-    <value>The index {indexProperties} cannot be added to the entity type '{entityType}' because an index on the same properties already exists on entity type '{duplicateEntityType}'.</value>
+    <value>The index {indexProperties} cannot be added to the entity type '{entityType}' because an unnamed index on the same properties already exists on entity type '{duplicateEntityType}'. Consider adding a name for one of the indexes in 'OnModelCreating'.</value>
   </data>
   <data name="DuplicateKey" xml:space="preserve">
     <value>The key {keyProperties} cannot be added to the entity type '{entityType}' because a key on the same properties already exists on entity type '{duplicateEntityType}'.</value>
@@ -370,13 +370,13 @@
     <value>The type '{entityType}' cannot have base type '{baseType}' because the properties '{derivedPropertyType}.{derivedProperty}' and '{basePropertyType}.{baseProperty}' are conflicting.</value>
   </data>
   <data name="DuplicatePropertyInList" xml:space="preserve">
-    <value>The property list {propertyList} cannot be used, because it contains a duplicate - '{property}'.</value>
+    <value>The properties {propertyList} cannot be used, because they contain a duplicate - '{property}'.</value>
   </data>
   <data name="DuplicateServicePropertyType" xml:space="preserve">
     <value>The service property '{property}' of type '{serviceType}' cannot be added to the entity type '{entityType}' because service property '{duplicateName}' of the same type already exists on entity type '{duplicateEntityType}'.</value>
   </data>
   <data name="EntityEqualityContainsWithCompositeKeyNotSupported" xml:space="preserve">
-    <value>Cannot translate a Contains() operator on entity '{entityType}' because it has a composite key.</value>
+    <value>Cannot translate a 'Contains' operator on entity '{entityType}' because it has a composite key.</value>
   </data>
   <data name="EntityEqualityOnKeylessEntityNotSupported" xml:space="preserve">
     <value>Comparison on entity type '{entityType}' is not supported because it is a keyless entity.</value>
@@ -385,16 +385,16 @@
     <value>This query would cause multiple evaluation of a subquery because entity '{entityType}' has a composite key. Rewrite your query avoiding the subquery.</value>
   </data>
   <data name="EntityRequiresKey" xml:space="preserve">
-    <value>The entity type '{entityType}' requires a primary key to be defined. If you intended to use a keyless entity type call 'HasNoKey()' in 'OnModelCreating'.</value>
+    <value>The entity type '{entityType}' requires a primary key to be defined. If you intended to use a keyless entity type call 'HasNoKey' in 'OnModelCreating'.</value>
   </data>
   <data name="EntityTypeInUseByDerived" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot be removed because '{derivedEntityType}' is derived from it. All derived entity types must be removed or redefined before the entity type can be removed.</value>
+    <value>The entity type '{entityType}' cannot be removed because '{derivedEntityType}' is derived from it. Before the entity type can be removed, all derived entity types must be removed or configured to use a different base entity type.</value>
   </data>
   <data name="EntityTypeInUseByReferencingForeignKey" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot be removed because it is being referenced by foreign key {foreignKeyProperties} on '{referencingEntityType}'. All referencing foreign keys must be removed or redefined before the entity type can be removed.</value>
+    <value>The entity type '{entityType}' cannot be removed because it is being referenced by foreign key {foreignKeyProperties} on '{referencingEntityType}'. Before the entity type can be removed, all referencing foreign keys must be removed.</value>
   </data>
   <data name="EntityTypeInUseByReferencingSkipNavigation" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot be removed because it is being referenced by the skip navigation '{skipNavigation}' on '{referencingEntityType}'. All referencing skip navigations must be removed before the entity type can be removed.</value>
+    <value>The entity type '{entityType}' cannot be removed because it is being referenced by the skip navigation '{skipNavigation}' on '{referencingEntityType}'. Before the entity type can be removed, all referencing skip navigations must be removed.</value>
   </data>
   <data name="EntityTypeModelMismatch" xml:space="preserve">
     <value>The entity types '{firstEntityType}' and '{secondEntityType}' do not belong to the same model.</value>
@@ -412,34 +412,34 @@
     <value>The specified entity types '{invalidDependentType}' and '{invalidPrincipalType}' are invalid. They should be '{dependentType}' and '{principalType}' or entity types in the same hierarchy.</value>
   </data>
   <data name="ErrorInvalidQueryable" xml:space="preserve">
-    <value>Cannot use multiple DbContext instances within a single query execution. Ensure the query uses a single context instance.</value>
+    <value>Cannot use multiple context instances within a single query execution. Ensure the query uses a single context instance.</value>
   </data>
   <data name="ErrorMaterializingProperty" xml:space="preserve">
-    <value>An exception occurred while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.</value>
+    <value>An error occurred while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.</value>
   </data>
   <data name="ErrorMaterializingPropertyInvalidCast" xml:space="preserve">
-    <value>An exception occurred while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.</value>
+    <value>An error occurred while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.</value>
   </data>
   <data name="ErrorMaterializingPropertyNullReference" xml:space="preserve">
-    <value>An exception occurred while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was null.</value>
+    <value>An error occurred while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was null.</value>
   </data>
   <data name="ErrorMaterializingValue" xml:space="preserve">
-    <value>An exception occurred while reading a database value. See the inner exception for more information.</value>
+    <value>An error occurred while reading a database value. See the inner exception for more information.</value>
   </data>
   <data name="ErrorMaterializingValueInvalidCast" xml:space="preserve">
-    <value>An exception occurred while reading a database value. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.</value>
+    <value>An error occurred while reading a database value. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.</value>
   </data>
   <data name="ErrorMaterializingValueNullReference" xml:space="preserve">
-    <value>An exception occurred while reading a database value. The expected type was '{expectedType}' but the actual value was null.</value>
+    <value>An error occurred while reading a database value. The expected type was '{expectedType}' but the actual value was null.</value>
   </data>
   <data name="ExecutionStrategyExistingTransaction" xml:space="preserve">
     <value>The configured execution strategy '{strategy}' does not support user initiated transactions. Use the execution strategy returned by '{getExecutionStrategyMethod}' to execute all the operations in the transaction as a retriable unit.</value>
   </data>
   <data name="ExpressionParameterizationException" xml:space="preserve">
-    <value>An exception was thrown while attempting to evaluate a LINQ query parameter expression. To show additional information call 'DbContextOptionsBuilder.EnableSensitiveDataLogging'.</value>
+    <value>An exception was thrown while attempting to evaluate a LINQ query parameter expression. See the inner exception for more information. To show additional information call 'DbContextOptionsBuilder.EnableSensitiveDataLogging'.</value>
   </data>
   <data name="ExpressionParameterizationExceptionSensitive" xml:space="preserve">
-    <value>An exception was thrown while attempting to evaluate the LINQ query parameter expression '{expression}'.</value>
+    <value>An exception was thrown while attempting to evaluate the LINQ query parameter expression '{expression}'. See the inner exception for more information.</value>
   </data>
   <data name="FieldNameMismatch" xml:space="preserve">
     <value>The specified field '{field}' cannot be used for the property '{entityType}.{property}' because it does not match the property name.</value>
