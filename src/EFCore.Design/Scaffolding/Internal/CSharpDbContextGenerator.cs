@@ -475,7 +475,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (explicitName)
             {
                 lines.Add(
-                    $".{nameof(RelationalKeyBuilderExtensions.HasName)}" + $"({_code.Literal(key.GetName())})");
+                    $".{nameof(RelationalKeyBuilderExtensions.HasName)}({_code.Literal(key.GetName())})");
             }
 
             lines.AddRange(
@@ -535,8 +535,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var lines = new List<string>
             {
-                $".{nameof(EntityTypeBuilder.HasIndex)}"
-                + $"({_code.Lambda(index.Properties, "e")}, "
+                $".{nameof(EntityTypeBuilder.HasIndex)}({_code.Lambda(index.Properties, "e")}, "
                 + $"{_code.Literal(index.GetDatabaseName())})"
             };
             annotations.Remove(RelationalAnnotationNames.Name);
@@ -587,7 +586,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 if (columnType != null)
                 {
                     lines.Add(
-                        $".{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}" + $"({_code.Literal(columnType)})");
+                        $".{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}({_code.Literal(columnType)})");
                 }
 
                 var maxLength = property.GetMaxLength();
@@ -595,7 +594,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 if (maxLength.HasValue)
                 {
                     lines.Add(
-                        $".{nameof(PropertyBuilder.HasMaxLength)}" + $"({_code.Literal(maxLength.Value)})");
+                        $".{nameof(PropertyBuilder.HasMaxLength)}({_code.Literal(maxLength.Value)})");
                 }
             }
 
@@ -604,18 +603,18 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (precision != null && scale != null && scale != 0)
             {
                 lines.Add(
-                    $".{nameof(PropertyBuilder.HasPrecision)}" + $"({_code.Literal(precision.Value)}, {_code.Literal(scale.Value)})");
+                    $".{nameof(PropertyBuilder.HasPrecision)}({_code.Literal(precision.Value)}, {_code.Literal(scale.Value)})");
             }
             else if (precision != null)
             {
                 lines.Add(
-                    $".{nameof(PropertyBuilder.HasPrecision)}" + $"({_code.Literal(precision.Value)})");
+                    $".{nameof(PropertyBuilder.HasPrecision)}({_code.Literal(precision.Value)})");
             }
 
             if (property.IsUnicode() != null)
             {
                 lines.Add(
-                    $".{nameof(PropertyBuilder.IsUnicode)}" + $"({(property.IsUnicode() == false ? "false" : "")})");
+                    $".{nameof(PropertyBuilder.IsUnicode)}({(property.IsUnicode() == false ? "false" : "")})");
             }
 
             var defaultValue = property.GetDefaultValue();
@@ -627,7 +626,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             else if (defaultValue != null)
             {
                 lines.Add(
-                    $".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}" + $"({_code.UnknownLiteral(defaultValue)})");
+                    $".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}({_code.UnknownLiteral(defaultValue)})");
                 annotations.Remove(RelationalAnnotationNames.DefaultValue);
             }
 
@@ -715,7 +714,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 canUseDataAnnotations = false;
                 lines.Add(
-                    $".{nameof(ReferenceReferenceBuilder.OnDelete)}" + $"({_code.Literal(foreignKey.DeleteBehavior)})");
+                    $".{nameof(ReferenceReferenceBuilder.OnDelete)}({_code.Literal(foreignKey.DeleteBehavior)})");
             }
 
             if (!string.IsNullOrEmpty((string)foreignKey[RelationalAnnotationNames.Name]))
@@ -800,7 +799,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private IList<string> GenerateAnnotations(IEnumerable<IAnnotation> annotations)
             => annotations.Select(
-                a =>
-                    $".HasAnnotation({_code.Literal(a.Name)}, " + $"{_code.UnknownLiteral(a.Value)})").ToList();
+                a => $".HasAnnotation({_code.Literal(a.Name)}, {_code.UnknownLiteral(a.Value)})").ToList();
     }
 }

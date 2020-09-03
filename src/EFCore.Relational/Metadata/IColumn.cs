@@ -26,27 +26,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     then this is the maximum number of characters.
         /// </summary>
         int? MaxLength
-            => PropertyMappings.First().Property.GetMaxLength();
+            => PropertyMappings.First().Property.GetMaxLength(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
 
         /// <summary>
         ///     Gets the precision of data that is allowed in this column. For example, if the property is a <see cref="decimal" /> '
         ///     then this is the maximum number of digits.
         /// </summary>
         int? Precision
-            => PropertyMappings.First().Property.GetPrecision();
+            => PropertyMappings.First().Property.GetPrecision(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
 
         /// <summary>
         ///     Gets the scale of data that is allowed in this column. For example, if the property is a <see cref="decimal" /> '
         ///     then this is the maximum number of decimal places.
         /// </summary>
         int? Scale
-            => PropertyMappings.First().Property.GetScale();
+            => PropertyMappings.First().Property.GetScale(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
 
         /// <summary>
         ///     Gets a value indicating whether or not the property can persist Unicode characters.
         /// </summary>
         bool? IsUnicode
-            => PropertyMappings.First().Property.IsUnicode();
+            => PropertyMappings.First().Property.IsUnicode(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
 
         /// <summary>
         ///     Returns a flag indicating if the property as capable of storing only fixed-length data, such as strings.

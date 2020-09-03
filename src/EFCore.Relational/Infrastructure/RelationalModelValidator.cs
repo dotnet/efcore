@@ -690,7 +690,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             in StoreObjectIdentifier storeObject,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            if (property.IsNullable != duplicateProperty.IsNullable)
+            if (property.IsColumnNullable(storeObject) != duplicateProperty.IsColumnNullable(storeObject))
             {
                 throw new InvalidOperationException(
                     RelationalStrings.DuplicateColumnNameNullabilityMismatch(
@@ -702,8 +702,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         storeObject.DisplayName()));
             }
 
-            var currentMaxLength = property.GetMaxLength();
-            var previousMaxLength = duplicateProperty.GetMaxLength();
+            var currentMaxLength = property.GetMaxLength(storeObject);
+            var previousMaxLength = duplicateProperty.GetMaxLength(storeObject);
             if (currentMaxLength != previousMaxLength)
             {
                 throw new InvalidOperationException(
@@ -718,7 +718,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         currentMaxLength));
             }
 
-            if (property.IsUnicode() != duplicateProperty.IsUnicode())
+            if (property.IsUnicode(storeObject) != duplicateProperty.IsUnicode(storeObject))
             {
                 throw new InvalidOperationException(
                     RelationalStrings.DuplicateColumnNameUnicodenessMismatch(
@@ -740,6 +740,38 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         property.Name,
                         columnName,
                         storeObject.DisplayName()));
+            }
+
+            var currentPrecision = property.GetPrecision(storeObject);
+            var previousPrecision = duplicateProperty.GetPrecision(storeObject);
+            if (currentPrecision != previousPrecision)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNamePrecisionMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        storeObject.DisplayName(),
+                        currentPrecision,
+                        previousPrecision));
+            }
+
+            var currentScale = property.GetScale(storeObject);
+            var previousScale = duplicateProperty.GetScale(storeObject);
+            if (currentScale != previousScale)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameScaleMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        storeObject.DisplayName(),
+                        currentScale,
+                        previousScale));
             }
 
             if (property.IsConcurrencyToken != duplicateProperty.IsConcurrencyToken)
