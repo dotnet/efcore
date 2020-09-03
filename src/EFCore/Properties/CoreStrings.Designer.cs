@@ -199,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType);
 
         /// <summary>
-        ///     Unable to convert queryable method to enumerable method. This is likely an issue in EF Core, please report it.
+        ///     Unable to convert queryable method to enumerable method. This is likely an issue in Entity Framework, please file an issue at https://go.microsoft.com/fwlink/?linkid=2142044.
         /// </summary>
         public static string CannotConvertQueryableToEnumerableMethod
             => GetString("CannotConvertQueryableToEnumerableMethod");
@@ -473,7 +473,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("ContextDisposed");
 
         /// <summary>
-        ///     The convention invocations have reached the recursion limit. This is likely an issue in Entity Framework, please report it.
+        ///     The convention invocations have reached the recursion limit. This is likely an issue in Entity Framework, please file an issue at https://go.microsoft.com/fwlink/?linkid=2142044.
         /// </summary>
         public static string ConventionsInfiniteLoop
             => GetString("ConventionsInfiniteLoop");
@@ -699,31 +699,23 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, serviceType, entityType, duplicateName, duplicateEntityType);
 
         /// <summary>
-        ///     Cannot translate a 'Contains' operator on entity '{entityType}' because it has a composite key.
+        ///     Cannot translate the '{comparisonOperator}' on a subquery expression of entity type '{entityType}' because it has a composite primary key. See https://go.microsoft.com/fwlink/?linkid=2141942 for information on how to rewrite your query.
         /// </summary>
-        public static string EntityEqualityContainsWithCompositeKeyNotSupported([CanBeNull] object entityType)
+        public static string EntityEqualityOnCompositeKeyEntitySubqueryNotSupported([CanBeNull] object comparisonOperator, [CanBeNull] object entityType)
             => string.Format(
-                GetString("EntityEqualityContainsWithCompositeKeyNotSupported", nameof(entityType)),
-                entityType);
+                GetString("EntityEqualityOnCompositeKeyEntitySubqueryNotSupported", nameof(comparisonOperator), nameof(entityType)),
+                comparisonOperator, entityType);
 
         /// <summary>
-        ///     Comparison on entity type '{entityType}' is not supported because it is a keyless entity.
+        ///     Cannot translate the '{comparisonOperator}' on an expression of entity type '{entityType}' because it is a keyless entity. Consider using entity properties instead.
         /// </summary>
-        public static string EntityEqualityOnKeylessEntityNotSupported([CanBeNull] object entityType)
+        public static string EntityEqualityOnKeylessEntityNotSupported([CanBeNull] object comparisonOperator, [CanBeNull] object entityType)
             => string.Format(
-                GetString("EntityEqualityOnKeylessEntityNotSupported", nameof(entityType)),
-                entityType);
+                GetString("EntityEqualityOnKeylessEntityNotSupported", nameof(comparisonOperator), nameof(entityType)),
+                comparisonOperator, entityType);
 
         /// <summary>
-        ///     This query would cause multiple evaluation of a subquery because entity '{entityType}' has a composite key. Rewrite your query avoiding the subquery.
-        /// </summary>
-        public static string EntityEqualitySubqueryWithCompositeKeyNotSupported([CanBeNull] object entityType)
-            => string.Format(
-                GetString("EntityEqualitySubqueryWithCompositeKeyNotSupported", nameof(entityType)),
-                entityType);
-
-        /// <summary>
-        ///     The entity type '{entityType}' requires a primary key to be defined. If you intended to use a keyless entity type call 'HasNoKey' in 'OnModelCreating'.
+        ///     The entity type '{entityType}' requires a primary key to be defined. If you intended to use a keyless entity type call 'HasNoKey' in 'OnModelCreating'. For more information on keyless entity types, see https://go.microsoft.com/fwlink/?linkid=2141943.
         /// </summary>
         public static string EntityRequiresKey([CanBeNull] object entityType)
             => string.Format(
@@ -801,50 +793,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("ErrorInvalidQueryable");
 
         /// <summary>
-        ///     An error occurred while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.
-        /// </summary>
-        public static string ErrorMaterializingProperty([CanBeNull] object entityType, [CanBeNull] object property)
-            => string.Format(
-                GetString("ErrorMaterializingProperty", nameof(entityType), nameof(property)),
-                entityType, property);
-
-        /// <summary>
         ///     An error occurred while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.
         /// </summary>
         public static string ErrorMaterializingPropertyInvalidCast([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object expectedType, [CanBeNull] object actualType)
             => string.Format(
                 GetString("ErrorMaterializingPropertyInvalidCast", nameof(entityType), nameof(property), nameof(expectedType), nameof(actualType)),
                 entityType, property, expectedType, actualType);
-
-        /// <summary>
-        ///     An error occurred while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was null.
-        /// </summary>
-        public static string ErrorMaterializingPropertyNullReference([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object expectedType)
-            => string.Format(
-                GetString("ErrorMaterializingPropertyNullReference", nameof(entityType), nameof(property), nameof(expectedType)),
-                entityType, property, expectedType);
-
-        /// <summary>
-        ///     An error occurred while reading a database value. See the inner exception for more information.
-        /// </summary>
-        public static string ErrorMaterializingValue
-            => GetString("ErrorMaterializingValue");
-
-        /// <summary>
-        ///     An error occurred while reading a database value. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.
-        /// </summary>
-        public static string ErrorMaterializingValueInvalidCast([CanBeNull] object expectedType, [CanBeNull] object actualType)
-            => string.Format(
-                GetString("ErrorMaterializingValueInvalidCast", nameof(expectedType), nameof(actualType)),
-                expectedType, actualType);
-
-        /// <summary>
-        ///     An error occurred while reading a database value. The expected type was '{expectedType}' but the actual value was null.
-        /// </summary>
-        public static string ErrorMaterializingValueNullReference([CanBeNull] object expectedType)
-            => string.Format(
-                GetString("ErrorMaterializingValueNullReference", nameof(expectedType)),
-                expectedType);
 
         /// <summary>
         ///     The configured execution strategy '{strategy}' does not support user initiated transactions. Use the execution strategy returned by '{getExecutionStrategyMethod}' to execute all the operations in the transaction as a retriable unit.
@@ -1260,7 +1214,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigation, entityType, referencedNavigation, referencedEntityType);
 
         /// <summary>
-        ///     A call was made to '{replaceService}', but Entity Framework is not building its own internal service provider. Either allow EF to build the service provider by removing the call to '{useInternalServiceProvider}', or build replacement services into the service provider before passing it to '{useInternalServiceProvider}'.
+        ///     A call was made to '{replaceService}', but Entity Framework is not building its own internal service provider. Either allow Entity Framework to build the service provider by removing the call to '{useInternalServiceProvider}', or build replacement services into the service provider before passing it to '{useInternalServiceProvider}'.
         /// </summary>
         public static string InvalidReplaceService([CanBeNull] object replaceService, [CanBeNull] object useInternalServiceProvider)
             => string.Format(
@@ -1330,7 +1284,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("InvalidTypeConversationWithInclude");
 
         /// <summary>
-        ///     A call was made to '{useService}', but Entity Framework is not building its own internal service provider. Either allow EF to build the service provider by removing the call to '{useInternalServiceProvider}', or build the '{service}' services to use into the service provider before passing it to '{useInternalServiceProvider}'.
+        ///     A call was made to '{useService}', but Entity Framework is not building its own internal service provider. Either allow Entity Framework to build the service provider by removing the call to '{useInternalServiceProvider}', or build the '{service}' services to use into the service provider before passing it to '{useInternalServiceProvider}'.
         /// </summary>
         public static string InvalidUseService([CanBeNull] object useService, [CanBeNull] object useInternalServiceProvider, [CanBeNull] object service)
             => string.Format(
@@ -1712,7 +1666,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     Entity Framework services have not been added to the internal service provider. Either remove the call to 'UseInternalServiceProvider' so that EF will manage its own internal services, or use the method from your database provider to add the required services to the service provider (e.g. 'AddEntityFrameworkSqlServer').
+        ///     Entity Framework services have not been added to the internal service provider. Either remove the call to 'UseInternalServiceProvider' so that Entity Framework will manage its own internal services, or use the method from your database provider to add the required services to the service provider (e.g. 'AddEntityFrameworkSqlServer').
         /// </summary>
         public static string NoEfServices
             => GetString("NoEfServices");
@@ -1844,7 +1798,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 principalEntityType, principalNavigation);
 
         /// <summary>
-        ///     A parameterless constructor was not found on entity type '{entityType}'. In order to create an instance of '{entityType}' EF requires that a parameterless constructor be declared.
+        ///     A parameterless constructor was not found on entity type '{entityType}'. In order to create an instance of '{entityType}' Entity Framework requires that a parameterless constructor be declared.
         /// </summary>
         public static string NoParameterlessConstructor([CanBeNull] object entityType)
             => string.Format(
@@ -1890,7 +1844,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, propertyAccessMode);
 
         /// <summary>
-        ///     The database provider attempted to register an implementation of the '{service}' service. This is not a service defined by EF and as such must be registered as a provider-specific service using the 'TryAddProviderSpecificServices' method.
+        ///     The database provider attempted to register an implementation of the '{service}' service. This is not a service defined by Entity Framework and as such must be registered as a provider-specific service using the 'TryAddProviderSpecificServices' method.
         /// </summary>
         public static string NotAnEFService([CanBeNull] object service)
             => string.Format(
@@ -2168,7 +2122,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     Processing of the LINQ expression '{expression}' by '{visitor}' failed. This may indicate either a bug or a limitation in EF Core. See https://go.microsoft.com/fwlink/?linkid=2101433 for more detailed information.
+        ///     Processing of the LINQ expression '{expression}' by '{visitor}' failed. This may indicate either a bug or a limitation in Entity Framework. See https://go.microsoft.com/fwlink/?linkid=2101433 for more detailed information.
         /// </summary>
         public static string QueryFailed([CanBeNull] object expression, [CanBeNull] object visitor)
             => string.Format(
@@ -2452,7 +2406,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     A call was made to '{optionCall}' that changed an option that must be constant within a service provider, but Entity Framework is not building its own internal service provider. Either allow EF to build the service provider by removing the call to '{useInternalServiceProvider}', or ensure that the configuration for '{optionCall}' does not change for all uses of a given service provider passed to '{useInternalServiceProvider}'.
+        ///     A call was made to '{optionCall}' that changed an option that must be constant within a service provider, but Entity Framework is not building its own internal service provider. Either allow Entity Framework to build the service provider by removing the call to '{useInternalServiceProvider}', or ensure that the configuration for '{optionCall}' does not change for all uses of a given service provider passed to '{useInternalServiceProvider}'.
         /// </summary>
         public static string SingletonOptionChanged([CanBeNull] object optionCall, [CanBeNull] object useInternalServiceProvider)
             => string.Format(
@@ -3020,7 +2974,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     There are multiple relationships between '{dependentEntityType}' and '{principalEntityType}' without configured foreign key properties causing EF to create shadow properties on '{dependentType}' with names dependent on the discovery order.
+        ///     There are multiple relationships between '{dependentEntityType}' and '{principalEntityType}' without configured foreign key properties causing Entity Framework to create shadow properties on '{dependentType}' with names dependent on the discovery order.
         /// </summary>
         public static EventDefinition<string, string, string> LogConflictingShadowForeignKeys([NotNull] IDiagnosticsLogger logger)
         {

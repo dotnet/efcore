@@ -330,7 +330,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             if ((binaryExpression.NodeType == ExpressionType.Equal
                     || binaryExpression.NodeType == ExpressionType.NotEqual)
                 // Visited expression could be null, We need to pass MemberInitExpression
-                && TryRewriteEntityEquality(binaryExpression.NodeType, visitedLeft ?? left, visitedRight ?? right, out var result))
+                && TryRewriteEntityEquality(
+                    binaryExpression.NodeType, visitedLeft ?? left, visitedRight ?? right, equalsMethod: false, out var result))
             {
                 return result;
             }
@@ -734,6 +735,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ExpressionType.Equal,
                     left ?? methodCallExpression.Object,
                     right ?? methodCallExpression.Arguments[0],
+                    equalsMethod: true,
                     out var result))
                 {
                     return result;
@@ -769,6 +771,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ExpressionType.Equal,
                     left ?? methodCallExpression.Arguments[0],
                     right ?? methodCallExpression.Arguments[1],
+                    equalsMethod: true,
                     out var result))
                 {
                     return result;
@@ -1183,13 +1186,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             var primaryKeyProperties = entityType.FindPrimaryKey()?.Properties;
             if (primaryKeyProperties == null)
             {
-                throw new InvalidOperationException(CoreStrings.EntityEqualityOnKeylessEntityNotSupported(entityType.DisplayName()));
+                throw new InvalidOperationException(CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
+                    nameof(Queryable.Contains), entityType.DisplayName()));
             }
 
             if (primaryKeyProperties.Count > 1)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.EntityEqualityContainsWithCompositeKeyNotSupported(entityType.DisplayName()));
+                    CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported(nameof(Queryable.Contains), entityType.DisplayName()));
             }
 
             var property = primaryKeyProperties[0];
@@ -1222,7 +1226,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     var newParameterName =
                         $"{RuntimeParameterPrefix}"
-                        + $"{sqlParameterExpression.Name.Substring(QueryCompilationContext.QueryParameterPrefix.Length)}_{property.Name}";
+                        + $"{sqlParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
 
                     rewrittenSource = _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
                     break;
@@ -1240,7 +1244,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return true;
         }
 
-        private bool TryRewriteEntityEquality(ExpressionType nodeType, Expression left, Expression right, out Expression result)
+        private bool TryRewriteEntityEquality(ExpressionType nodeType, Expression left, Expression right, bool equalsMethod, out Expression result)
         {
             var leftEntityReference = left as EntityReferenceExpression;
             var rightEntityReference = right as EntityReferenceExpression;
@@ -1310,7 +1314,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var primaryKeyProperties1 = entityType1.FindPrimaryKey()?.Properties;
                 if (primaryKeyProperties1 == null)
                 {
-                    throw new InvalidOperationException(CoreStrings.EntityEqualityOnKeylessEntityNotSupported(entityType1.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
+                        nodeType == ExpressionType.Equal
+                            ? equalsMethod ? nameof(object.Equals) : "=="
+                            : equalsMethod ? "!" + nameof(object.Equals) : "!=",
+                        entityType1.DisplayName()));
                 }
 
                 result = Visit(
@@ -1347,15 +1355,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             var primaryKeyProperties = entityType.FindPrimaryKey()?.Properties;
             if (primaryKeyProperties == null)
             {
-                throw new InvalidOperationException(CoreStrings.EntityEqualityOnKeylessEntityNotSupported(entityType.DisplayName()));
+                throw new InvalidOperationException(CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
+                    nodeType == ExpressionType.Equal
+                        ? equalsMethod ? nameof(object.Equals) : "=="
+                        : equalsMethod ? "!" + nameof(object.Equals) : "!=",
+                    entityType.DisplayName()));
             }
 
             if (primaryKeyProperties.Count > 1
                 && (leftEntityReference?.SubqueryEntity != null
                     || rightEntityReference?.SubqueryEntity != null))
             {
-                throw new InvalidOperationException(
-                    CoreStrings.EntityEqualitySubqueryWithCompositeKeyNotSupported(entityType.DisplayName()));
+                throw new InvalidOperationException(CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported(
+                    nodeType == ExpressionType.Equal
+                        ? equalsMethod ? nameof(object.Equals) : "=="
+                        : equalsMethod ? "!" + nameof(object.Equals) : "!=",
+                    entityType.DisplayName()));
             }
 
             result = Visit(

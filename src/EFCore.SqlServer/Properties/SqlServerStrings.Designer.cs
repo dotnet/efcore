@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("UnknownOperatorTypeInSqlUnaryExpression");
 
         /// <summary>
-        ///     Data type '{dataType}' is not supported in this form. Either specify the length explicitly in the type name, for example as '{dataType}(16)', or remove the data type and use APIs such as HasMaxLength to allow EF choose the data type.
+        ///     Data type '{dataType}' is not supported in this form. Either specify the length explicitly in the type name, for example as '{dataType}(16)', or remove the data type and use APIs such as HasMaxLength to allow Entity Framework choose the data type.
         /// </summary>
         public static string UnqualifiedDataType([CanBeNull] object dataType)
             => string.Format(
@@ -224,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 dataType);
 
         /// <summary>
-        ///     Data type '{dataType}' for property '{property}' is not supported in this form. Either specify the length explicitly in the type name, for example as '{dataType}(16)', or remove the data type and use APIs such as HasMaxLength to allow EF choose the data type.
+        ///     Data type '{dataType}' for property '{property}' is not supported in this form. Either specify the length explicitly in the type name, for example as '{dataType}(16)', or remove the data type and use APIs such as HasMaxLength to allow Entity Framework choose the data type.
         /// </summary>
         public static string UnqualifiedDataTypeOnProperty([CanBeNull] object dataType, [CanBeNull] object property)
             => string.Format(

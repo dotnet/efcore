@@ -184,7 +184,7 @@
     <value>The property '{1_entityType}.{0_property}' cannot be marked as nullable/optional because the property is a part of a key. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of a key can be marked as nullable/optional.</value>
   </data>
   <data name="CannotConvertQueryableToEnumerableMethod" xml:space="preserve">
-    <value>Unable to convert queryable method to enumerable method. This is likely an issue in EF Core, please report it.</value>
+    <value>Unable to convert queryable method to enumerable method. This is likely an issue in Entity Framework, please file an issue at https://go.microsoft.com/fwlink/?linkid=2142044.</value>
   </data>
   <data name="CannotCreateValueGenerator" xml:space="preserve">
     <value>Cannot create instance of value generator type '{generatorType}'. Ensure that the type is instantiable and has a parameterless constructor, or use the overload of HasValueGenerator that accepts a delegate.</value>
@@ -289,7 +289,7 @@
     <value>Cannot access a disposed context instance. A common cause of this error is disposing a context instance that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur if you are calling 'Dispose' on the context instance, or wrapping it in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.</value>
   </data>
   <data name="ConventionsInfiniteLoop" xml:space="preserve">
-    <value>The convention invocations have reached the recursion limit. This is likely an issue in Entity Framework, please report it.</value>
+    <value>The convention invocations have reached the recursion limit. This is likely an issue in Entity Framework, please file an issue at https://go.microsoft.com/fwlink/?linkid=2142044.</value>
   </data>
   <data name="ConverterBadType" xml:space="preserve">
     <value>The value converter '{converter}' cannot be used with type '{type}'. This converter can only be used with {allowed}.</value>
@@ -375,17 +375,14 @@
   <data name="DuplicateServicePropertyType" xml:space="preserve">
     <value>The service property '{property}' of type '{serviceType}' cannot be added to the entity type '{entityType}' because service property '{duplicateName}' of the same type already exists on entity type '{duplicateEntityType}'.</value>
   </data>
-  <data name="EntityEqualityContainsWithCompositeKeyNotSupported" xml:space="preserve">
-    <value>Cannot translate a 'Contains' operator on entity '{entityType}' because it has a composite key.</value>
+  <data name="EntityEqualityOnCompositeKeyEntitySubqueryNotSupported" xml:space="preserve">
+    <value>Cannot translate the '{comparisonOperator}' on a subquery expression of entity type '{entityType}' because it has a composite primary key. See https://go.microsoft.com/fwlink/?linkid=2141942 for information on how to rewrite your query.</value>
   </data>
   <data name="EntityEqualityOnKeylessEntityNotSupported" xml:space="preserve">
-    <value>Comparison on entity type '{entityType}' is not supported because it is a keyless entity.</value>
-  </data>
-  <data name="EntityEqualitySubqueryWithCompositeKeyNotSupported" xml:space="preserve">
-    <value>This query would cause multiple evaluation of a subquery because entity '{entityType}' has a composite key. Rewrite your query avoiding the subquery.</value>
+    <value>Cannot translate the '{comparisonOperator}' on an expression of entity type '{entityType}' because it is a keyless entity. Consider using entity properties instead.</value>
   </data>
   <data name="EntityRequiresKey" xml:space="preserve">
-    <value>The entity type '{entityType}' requires a primary key to be defined. If you intended to use a keyless entity type call 'HasNoKey' in 'OnModelCreating'.</value>
+    <value>The entity type '{entityType}' requires a primary key to be defined. If you intended to use a keyless entity type call 'HasNoKey' in 'OnModelCreating'. For more information on keyless entity types, see https://go.microsoft.com/fwlink/?linkid=2141943.</value>
   </data>
   <data name="EntityTypeInUseByDerived" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be removed because '{derivedEntityType}' is derived from it. Before the entity type can be removed, all derived entity types must be removed or configured to use a different base entity type.</value>
@@ -414,23 +411,8 @@
   <data name="ErrorInvalidQueryable" xml:space="preserve">
     <value>Cannot use multiple context instances within a single query execution. Ensure the query uses a single context instance.</value>
   </data>
-  <data name="ErrorMaterializingProperty" xml:space="preserve">
-    <value>An error occurred while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.</value>
-  </data>
   <data name="ErrorMaterializingPropertyInvalidCast" xml:space="preserve">
     <value>An error occurred while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.</value>
-  </data>
-  <data name="ErrorMaterializingPropertyNullReference" xml:space="preserve">
-    <value>An error occurred while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was null.</value>
-  </data>
-  <data name="ErrorMaterializingValue" xml:space="preserve">
-    <value>An error occurred while reading a database value. See the inner exception for more information.</value>
-  </data>
-  <data name="ErrorMaterializingValueInvalidCast" xml:space="preserve">
-    <value>An error occurred while reading a database value. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.</value>
-  </data>
-  <data name="ErrorMaterializingValueNullReference" xml:space="preserve">
-    <value>An error occurred while reading a database value. The expected type was '{expectedType}' but the actual value was null.</value>
   </data>
   <data name="ExecutionStrategyExistingTransaction" xml:space="preserve">
     <value>The configured execution strategy '{strategy}' does not support user initiated transactions. Use the execution strategy returned by '{getExecutionStrategyMethod}' to execute all the operations in the transaction as a retriable unit.</value>
@@ -595,7 +577,7 @@
     <value>Invalid relationship has been specified using [InverseProperty] attribute and [ForeignKey] attribute. The navigation '{1_entityType}.{0_navigation}' and the navigation '{3_referencedEntityType}.{2_referencedNavigation}' are related by [InverseProperty] attribute but the [ForeignKey] attribute specified for both navigations have different values.</value>
   </data>
   <data name="InvalidReplaceService" xml:space="preserve">
-    <value>A call was made to '{replaceService}', but Entity Framework is not building its own internal service provider. Either allow EF to build the service provider by removing the call to '{useInternalServiceProvider}', or build replacement services into the service provider before passing it to '{useInternalServiceProvider}'.</value>
+    <value>A call was made to '{replaceService}', but Entity Framework is not building its own internal service provider. Either allow Entity Framework to build the service provider by removing the call to '{useInternalServiceProvider}', or build replacement services into the service provider before passing it to '{useInternalServiceProvider}'.</value>
   </data>
   <data name="InvalidSetKeylessOperation" xml:space="preserve">
     <value>The invoked method cannot be used for the entity type '{entityType}' because it does not have a primary key.</value>
@@ -622,7 +604,7 @@
     <value>Invalid type conversion specified in 'Include' call.</value>
   </data>
   <data name="InvalidUseService" xml:space="preserve">
-    <value>A call was made to '{useService}', but Entity Framework is not building its own internal service provider. Either allow EF to build the service provider by removing the call to '{useInternalServiceProvider}', or build the '{service}' services to use into the service provider before passing it to '{useInternalServiceProvider}'.</value>
+    <value>A call was made to '{useService}', but Entity Framework is not building its own internal service provider. Either allow Entity Framework to build the service provider by removing the call to '{useInternalServiceProvider}', or build the '{service}' services to use into the service provider before passing it to '{useInternalServiceProvider}'.</value>
   </data>
   <data name="InvalidValueGeneratorFactoryProperty" xml:space="preserve">
     <value>The '{factory}' cannot create a value generator for property '{2_entityType}.{1_property}'. Only integer properties are supported.</value>
@@ -713,7 +695,7 @@
     <comment>Warning CoreEventId.ConflictingKeylessAndKeyAttributesWarning string string</comment>
   </data>
   <data name="LogConflictingShadowForeignKeys" xml:space="preserve">
-    <value>There are multiple relationships between '{dependentEntityType}' and '{principalEntityType}' without configured foreign key properties causing EF to create shadow properties on '{dependentType}' with names dependent on the discovery order.</value>
+    <value>There are multiple relationships between '{dependentEntityType}' and '{principalEntityType}' without configured foreign key properties causing Entity Framework to create shadow properties on '{dependentType}' with names dependent on the discovery order.</value>
     <comment>Warning CoreEventId.ConflictingShadowForeignKeysWarning string string string</comment>
   </data>
   <data name="LogContextDisposed" xml:space="preserve">
@@ -1062,7 +1044,7 @@
     <value>The entity type '{entityType}' is part of a hierarchy, but does not have a discriminator value configured.</value>
   </data>
   <data name="NoEfServices" xml:space="preserve">
-    <value>Entity Framework services have not been added to the internal service provider. Either remove the call to 'UseInternalServiceProvider' so that EF will manage its own internal services, or use the method from your database provider to add the required services to the service provider (e.g. 'AddEntityFrameworkSqlServer').</value>
+    <value>Entity Framework services have not been added to the internal service provider. Either remove the call to 'UseInternalServiceProvider' so that Entity Framework will manage its own internal services, or use the method from your database provider to add the required services to the service provider (e.g. 'AddEntityFrameworkSqlServer').</value>
   </data>
   <data name="NoFieldOrGetter" xml:space="preserve">
     <value>No backing field could be found for property '{1_entityType}.{0_property}' and the property does not have a getter.</value>
@@ -1113,7 +1095,7 @@
     <value>'{principalEntityType}.{principalNavigation}' cannot be configured as required since it contains a collection.</value>
   </data>
   <data name="NoParameterlessConstructor" xml:space="preserve">
-    <value>A parameterless constructor was not found on entity type '{entityType}'. In order to create an instance of '{entityType}' EF requires that a parameterless constructor be declared.</value>
+    <value>A parameterless constructor was not found on entity type '{entityType}'. In order to create an instance of '{entityType}' Entity Framework requires that a parameterless constructor be declared.</value>
   </data>
   <data name="NoProperty" xml:space="preserve">
     <value>No property was associated with field '{field}' of entity type '{entity}'. Either configure a property or use a different '{propertyAccessMode}'.</value>
@@ -1131,7 +1113,7 @@
     <value>The property '{1_entityType}.{0_property}' does not have a setter. Either make the property writable or use a different '{propertyAccessMode}'.</value>
   </data>
   <data name="NotAnEFService" xml:space="preserve">
-    <value>The database provider attempted to register an implementation of the '{service}' service. This is not a service defined by EF and as such must be registered as a provider-specific service using the 'TryAddProviderSpecificServices' method.</value>
+    <value>The database provider attempted to register an implementation of the '{service}' service. This is not a service defined by Entity Framework and as such must be registered as a provider-specific service using the 'TryAddProviderSpecificServices' method.</value>
   </data>
   <data name="NotAssignableClrBaseType" xml:space="preserve">
     <value>The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{clrType}' is not a descendant of '{baseClrType}'.</value>
@@ -1239,7 +1221,7 @@
     <value>Materialization condition passed for entity shaper of entity type '{entityType}' is not of correct shape. Materialization condition must be LambdaExpression of 'Func&lt;ValueBuffer, IEntityType&gt;'</value>
   </data>
   <data name="QueryFailed" xml:space="preserve">
-    <value>Processing of the LINQ expression '{expression}' by '{visitor}' failed. This may indicate either a bug or a limitation in EF Core. See https://go.microsoft.com/fwlink/?linkid=2101433 for more detailed information.</value>
+    <value>Processing of the LINQ expression '{expression}' by '{visitor}' failed. This may indicate either a bug or a limitation in Entity Framework. See https://go.microsoft.com/fwlink/?linkid=2101433 for more detailed information.</value>
   </data>
   <data name="QueryInvalidMaterializationType" xml:space="preserve">
     <value>The query contains a final projection '{projection}' to type '{queryableType}'. Collections in the final projection must be an 'IEnumerable&lt;T&gt;' type such as 'List&lt;T&gt;'. Consider using 'ToList()' or some other mechanism to convert the 'IQueryable&lt;T&gt;' or 'IOrderedEnumerable&lt;T&gt;' into an 'IEnumerable&lt;T&gt;'.</value>
@@ -1353,7 +1335,7 @@
     <value>The shared type entity type '{entityType}' cannot have a base type.</value>
   </data>
   <data name="SingletonOptionChanged" xml:space="preserve">
-    <value>A call was made to '{optionCall}' that changed an option that must be constant within a service provider, but Entity Framework is not building its own internal service provider. Either allow EF to build the service provider by removing the call to '{useInternalServiceProvider}', or ensure that the configuration for '{optionCall}' does not change for all uses of a given service provider passed to '{useInternalServiceProvider}'.</value>
+    <value>A call was made to '{optionCall}' that changed an option that must be constant within a service provider, but Entity Framework is not building its own internal service provider. Either allow Entity Framework to build the service provider by removing the call to '{useInternalServiceProvider}', or ensure that the configuration for '{optionCall}' does not change for all uses of a given service provider passed to '{useInternalServiceProvider}'.</value>
   </data>
   <data name="SingletonRequired" xml:space="preserve">
     <value>An attempt was made to register an instance for the '{scope}' service '{service}'. Instances can only be registered for 'Singleton' services.</value>

@@ -268,9 +268,9 @@
     <value>Unknown operator type encountered in SqlUnaryExpression.</value>
   </data>
   <data name="UnqualifiedDataType" xml:space="preserve">
-    <value>Data type '{dataType}' is not supported in this form. Either specify the length explicitly in the type name, for example as '{dataType}(16)', or remove the data type and use APIs such as HasMaxLength to allow EF choose the data type.</value>
+    <value>Data type '{dataType}' is not supported in this form. Either specify the length explicitly in the type name, for example as '{dataType}(16)', or remove the data type and use APIs such as HasMaxLength to allow Entity Framework choose the data type.</value>
   </data>
   <data name="UnqualifiedDataTypeOnProperty" xml:space="preserve">
-    <value>Data type '{dataType}' for property '{property}' is not supported in this form. Either specify the length explicitly in the type name, for example as '{dataType}(16)', or remove the data type and use APIs such as HasMaxLength to allow EF choose the data type.</value>
+    <value>Data type '{dataType}' for property '{property}' is not supported in this form. Either specify the length explicitly in the type name, for example as '{dataType}(16)', or remove the data type and use APIs such as HasMaxLength to allow Entity Framework choose the data type.</value>
   </data>
 </root>

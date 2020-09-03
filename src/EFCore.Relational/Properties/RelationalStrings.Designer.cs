@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("ClientGroupByNotSupported");
 
         /// <summary>
-        ///     The column '{column}' on table '{table}' has unspecified computed column SQL. Specify the SQL before using EF Core to create the database schema.
+        ///     The column '{column}' on table '{table}' has unspecified computed column SQL. Specify the SQL before using Entity Framework to create the database schema.
         /// </summary>
         public static string ComputedColumnSqlUnspecified([CanBeNull] object column, [CanBeNull] object table)
             => string.Format(
@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 function);
 
         /// <summary>
-        ///     The column '{column}' on table '{table}' has unspecified default value SQL. Specify the SQL before using EF Core to create the database schema.
+        ///     The column '{column}' on table '{table}' has unspecified default value SQL. Specify the SQL before using Entity Framework to create the database schema.
         /// </summary>
         public static string DefaultValueSqlUnspecified([CanBeNull] object column, [CanBeNull] object table)
             => string.Format(
@@ -243,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 column, table);
 
         /// <summary>
-        ///     The column '{column}' on table '{table}' has an unspecified default value. Specify a value before using EF Core to create the database schema.
+        ///     The column '{column}' on table '{table}' has an unspecified default value. Specify a value before using Entity Framework to create the database schema.
         /// </summary>
         public static string DefaultValueUnspecified([CanBeNull] object column, [CanBeNull] object table)
             => string.Format(
@@ -474,6 +474,44 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("EitherOfTwoValuesMustBeNull", nameof(param1), nameof(param2)),
                 param1, param2);
+
+        /// <summary>
+        ///     An error occurred while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.
+        /// </summary>
+        public static string ErrorMaterializingProperty([CanBeNull] object entityType, [CanBeNull] object property)
+            => string.Format(
+                GetString("ErrorMaterializingProperty", nameof(entityType), nameof(property)),
+                entityType, property);
+
+        /// <summary>
+        ///     An error occurred while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was null.
+        /// </summary>
+        public static string ErrorMaterializingPropertyNullReference([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object expectedType)
+            => string.Format(
+                GetString("ErrorMaterializingPropertyNullReference", nameof(entityType), nameof(property), nameof(expectedType)),
+                entityType, property, expectedType);
+
+        /// <summary>
+        ///     An error occurred while reading a database value. See the inner exception for more information.
+        /// </summary>
+        public static string ErrorMaterializingValue
+            => GetString("ErrorMaterializingValue");
+
+        /// <summary>
+        ///     An error occurred while reading a database value. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.
+        /// </summary>
+        public static string ErrorMaterializingValueInvalidCast([CanBeNull] object expectedType, [CanBeNull] object actualType)
+            => string.Format(
+                GetString("ErrorMaterializingValueInvalidCast", nameof(expectedType), nameof(actualType)),
+                expectedType, actualType);
+
+        /// <summary>
+        ///     An error occurred while reading a database value. The expected type was '{expectedType}' but the actual value was null.
+        /// </summary>
+        public static string ErrorMaterializingValueNullReference([CanBeNull] object expectedType)
+            => string.Format(
+                GetString("ErrorMaterializingValueNullReference", nameof(expectedType)),
+                expectedType);
 
         /// <summary>
         ///     The required column '{column}' was not present in the results of a 'FromSql' operation.
@@ -1929,7 +1967,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Compiling a query which loads related collections for more than one collection navigation either via 'Include' or through projection but no 'QuerySplittingBehavior' has been configured. By default EF Core will use 'QuerySplittingBehavior.SingleQuery' which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w =&gt; w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'
+        ///     Compiling a query which loads related collections for more than one collection navigation either via 'Include' or through projection but no 'QuerySplittingBehavior' has been configured. By default Entity Framework will use 'QuerySplittingBehavior.SingleQuery' which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w =&gt; w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'
         /// </summary>
         public static EventDefinition LogMultipleCollectionIncludeWarning([NotNull] IDiagnosticsLogger logger)
         {
