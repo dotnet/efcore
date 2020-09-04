@@ -309,8 +309,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 {
                     foreach (var cyclicAddForeignKeyOperation in cyclicAddForeignKeyOperations)
                     {
-                        createTableOperation.ForeignKeys.Remove(cyclicAddForeignKeyOperation);
-                        constraintOperations.Add(cyclicAddForeignKeyOperation);
+                        var removed = createTableOperation.ForeignKeys.Remove(cyclicAddForeignKeyOperation);
+                        if (removed)
+                        {
+                            constraintOperations.Add(cyclicAddForeignKeyOperation);
+                        }
+                        else
+                        {
+                            Check.DebugAssert(false, "Operation removed twice: " + cyclicAddForeignKeyOperation.ToString());
+                        }
                     }
 
                     return true;
