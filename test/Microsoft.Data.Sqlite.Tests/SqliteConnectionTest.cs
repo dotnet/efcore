@@ -1083,6 +1083,13 @@ namespace Microsoft.Data.Sqlite
             {
                 connection.Open();
 
+                var loadExtensionOmitted = connection.ExecuteScalar<long>(
+                    "SELECT COUNT(*) FROM pragma_compile_options WHERE compile_options = 'OMIT_LOAD_EXTENSION';");
+                if (loadExtensionOmitted != 0L)
+                {
+                    return;
+                }
+
                 var sql = "SELECT load_extension('unknown');";
 
                 var ex = Assert.Throws<SqliteException>(() => connection.ExecuteNonQuery(sql));
@@ -1110,6 +1117,13 @@ namespace Microsoft.Data.Sqlite
             {
                 connection.Open();
 
+                var loadExtensionOmitted = connection.ExecuteScalar<long>(
+                    "SELECT COUNT(*) FROM pragma_compile_options WHERE compile_options = 'OMIT_LOAD_EXTENSION';");
+                if (loadExtensionOmitted != 0L)
+                {
+                    return;
+                }
+
                 var sql = "SELECT load_extension('unknown');";
 
                 var ex = Assert.Throws<SqliteException>(() => connection.ExecuteNonQuery(sql));
@@ -1131,6 +1145,16 @@ namespace Microsoft.Data.Sqlite
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
+                connection.Open();
+
+                var loadExtensionOmitted = connection.ExecuteScalar<long>(
+                    "SELECT COUNT(*) FROM pragma_compile_options WHERE compile_options = 'OMIT_LOAD_EXTENSION';");
+                if (loadExtensionOmitted != 0L)
+                {
+                    return;
+                }
+
+                connection.Close();
                 connection.EnableExtensions(false);
                 connection.Open();
 
@@ -1149,6 +1173,16 @@ namespace Microsoft.Data.Sqlite
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
+                connection.Open();
+
+                var loadExtensionOmitted = connection.ExecuteScalar<long>(
+                    "SELECT COUNT(*) FROM pragma_compile_options WHERE compile_options = 'OMIT_LOAD_EXTENSION';");
+                if (loadExtensionOmitted != 0L)
+                {
+                    return;
+                }
+
+                connection.Close();
                 connection.EnableExtensions(false);
                 connection.Open();
 
