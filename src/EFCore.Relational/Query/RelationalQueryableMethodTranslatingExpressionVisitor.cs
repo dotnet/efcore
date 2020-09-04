@@ -1375,7 +1375,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     // Owned types don't support inheritance See https://github.com/dotnet/efcore/issues/9630
                     // So there is no handling for dependent having TPT
-
                     // If navigation is defined on derived type and entity type is part of TPT then we need to get ITableBase for derived type.
                     // TODO: The following code should also handle Function and SqlQuery mappings
                     var table = navigation.DeclaringEntityType.BaseType == null
@@ -1406,9 +1405,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
                     }
 
-                    // InnerShaper is still null if either it is not table sharing or we failed to find table to pick data from
                     if (innerShaper == null)
                     {
+                        // InnerShaper is still null if either it is not table sharing or we failed to find table to pick data from
+                        // So we find the table it is mapped to and generate join with it.
+                        // Owned types don't support inheritance See https://github.com/dotnet/efcore/issues/9630
+                        // So there is no handling for dependent having TPT
+                        table = targetEntityType.GetViewOrTableMappings().Single().Table;
                         var innerSelectExpression = _sqlExpressionFactory.Select(targetEntityType);
                         var innerShapedQuery = CreateShapedQueryExpression(targetEntityType, innerSelectExpression);
 
