@@ -15,18 +15,18 @@
     <UsingToolXliff>False</UsingToolXliff>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/runtime">
-    <SystemCollectionsImmutableVersion>5.0.0-rc.2.20453.23</SystemCollectionsImmutableVersion>
-    <SystemComponentModelAnnotationsVersion>5.0.0-rc.2.20453.23</SystemComponentModelAnnotationsVersion>
-    <SystemDiagnosticsDiagnosticSourceVersion>5.0.0-rc.2.20453.23</SystemDiagnosticsDiagnosticSourceVersion>
-    <MicrosoftExtensionsCachingMemoryVersion>5.0.0-rc.2.20453.23</MicrosoftExtensionsCachingMemoryVersion>
-    <MicrosoftExtensionsConfigurationVersion>5.0.0-rc.2.20453.23</MicrosoftExtensionsConfigurationVersion>
-    <MicrosoftExtensionsConfigurationAbstractionsVersion>5.0.0-rc.2.20453.23</MicrosoftExtensionsConfigurationAbstractionsVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>5.0.0-rc.2.20453.23</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
-    <MicrosoftExtensionsConfigurationJsonVersion>5.0.0-rc.2.20453.23</MicrosoftExtensionsConfigurationJsonVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion>5.0.0-rc.2.20453.23</MicrosoftExtensionsDependencyInjectionVersion>
-    <MicrosoftExtensionsDependencyModelVersion>5.0.0-rc.2.20453.23</MicrosoftExtensionsDependencyModelVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesVersion>5.0.0-rc.2.20453.23</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
-    <MicrosoftExtensionsLoggingVersion>5.0.0-rc.2.20453.23</MicrosoftExtensionsLoggingVersion>
+    <SystemCollectionsImmutableVersion>5.0.0-rc.2.20454.1</SystemCollectionsImmutableVersion>
+    <SystemComponentModelAnnotationsVersion>5.0.0-rc.2.20454.1</SystemComponentModelAnnotationsVersion>
+    <SystemDiagnosticsDiagnosticSourceVersion>5.0.0-rc.2.20454.1</SystemDiagnosticsDiagnosticSourceVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>5.0.0-rc.2.20454.1</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsConfigurationVersion>5.0.0-rc.2.20454.1</MicrosoftExtensionsConfigurationVersion>
+    <MicrosoftExtensionsConfigurationAbstractionsVersion>5.0.0-rc.2.20454.1</MicrosoftExtensionsConfigurationAbstractionsVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>5.0.0-rc.2.20454.1</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
+    <MicrosoftExtensionsConfigurationJsonVersion>5.0.0-rc.2.20454.1</MicrosoftExtensionsConfigurationJsonVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>5.0.0-rc.2.20454.1</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftExtensionsDependencyModelVersion>5.0.0-rc.2.20454.1</MicrosoftExtensionsDependencyModelVersion>
+    <MicrosoftExtensionsHostFactoryResolverSourcesVersion>5.0.0-rc.2.20454.1</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
+    <MicrosoftExtensionsLoggingVersion>5.0.0-rc.2.20454.1</MicrosoftExtensionsLoggingVersion>
   </PropertyGroup>
   <PropertyGroup Label="Other dependencies">
     <MicrosoftCodeAnalysisVersion>3.7.0</MicrosoftCodeAnalysisVersion>
