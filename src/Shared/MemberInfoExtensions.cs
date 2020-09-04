@@ -42,5 +42,8 @@ namespace System.Reflection
             var index = name.LastIndexOf('.');
             return index >= 0 ? name.Substring(index + 1) : name;
         }
+
+        public static bool IsReallyVirtual(this MethodInfo method)
+            => method.IsVirtual && !method.IsFinal;
     }
 }
