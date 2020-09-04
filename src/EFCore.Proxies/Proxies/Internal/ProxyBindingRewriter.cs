@@ -173,7 +173,6 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                                             ProxiesStrings.NonVirtualProperty(property.Name, entityType.DisplayName()));
                                     }
                                 }
-
                             }
                         }
 
