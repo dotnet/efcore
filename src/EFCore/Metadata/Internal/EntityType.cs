@@ -791,12 +791,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(CoreStrings.KeyPropertiesWrongEntity(properties.Format(), this.DisplayName()));
                 }
 
-                if (property.ValueGenerated != ValueGenerated.Never
-                    && property.GetContainingForeignKeys().Any(k => k.DeclaringEntityType != this))
-                {
-                    throw new InvalidOperationException(CoreStrings.KeyPropertyInForeignKey(property.Name, this.DisplayName()));
-                }
-
                 if (property.IsNullable)
                 {
                     throw new InvalidOperationException(CoreStrings.NullableKey(this.DisplayName(), property.Name));
@@ -2401,13 +2395,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (memberInfo.DeclaringType?.IsAssignableFrom(ClrType) != true)
                 {
-                    throw new InvalidOperationException(
-                        HasSharedClrType
-                            ? CoreStrings.PropertyWrongEntitySharedClrType(
-                                memberInfo.Name, this.DisplayName(), ClrType.ShortDisplayName(),
-                                memberInfo.DeclaringType?.ShortDisplayName())
-                            : CoreStrings.PropertyWrongEntityClrType(
-                                memberInfo.Name, this.DisplayName(), memberInfo.DeclaringType?.ShortDisplayName()));
+                    throw new InvalidOperationException(CoreStrings.PropertyWrongEntityClrType(
+                        memberInfo.Name, this.DisplayName(), memberInfo.DeclaringType?.ShortDisplayName()));
                 }
             }
             else if (IsPropertyBag)

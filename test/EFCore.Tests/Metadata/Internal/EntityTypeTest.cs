@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         [ConditionalFact]
         public void Display_name_is_entity_type_name_when_shared_entity_type()
-            => Assert.Equal("PostTag", CreateModel().AddEntityType("PostTag", typeof(Dictionary<string, object>)).DisplayName());
+            => Assert.Equal("PostTag (Dictionary<string, object>)", CreateModel().AddEntityType("PostTag", typeof(Dictionary<string, object>)).DisplayName());
 
         [ConditionalFact]
         public void Name_is_prettified_CLR_full_name()
@@ -392,24 +392,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             entityType.AddForeignKey(new[] { fkProperty }, key, entityType);
 
             Assert.NotNull(baseType.AddKey(new[] { fkProperty }));
-        }
-
-        [ConditionalFact]
-        public void Adding_a_key_with_value_generation_throws_if_any_properties_are_part_of_derived_foreign_key()
-        {
-            var model = CreateModel();
-            var baseType = model.AddEntityType(typeof(BaseType));
-            var idProperty = baseType.AddProperty(Customer.IdProperty);
-            var fkProperty = baseType.AddProperty("fk", typeof(int));
-            fkProperty.ValueGenerated = ValueGenerated.OnAdd;
-            var key = baseType.AddKey(new[] { idProperty });
-            var entityType = model.AddEntityType(typeof(Customer));
-            entityType.BaseType = baseType;
-            entityType.AddForeignKey(new[] { fkProperty }, key, entityType);
-
-            Assert.Equal(
-                CoreStrings.KeyPropertyInForeignKey("fk", typeof(BaseType).Name),
-                Assert.Throws<InvalidOperationException>(() => baseType.AddKey(new[] { fkProperty })).Message);
         }
 
         [ConditionalFact]

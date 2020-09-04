@@ -24,6 +24,15 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The name to use for the hi-lo sequence. </returns>
         public static string GetHiLoSequenceName([NotNull] this IProperty property)
+            => (string)property[SqlServerAnnotationNames.HiLoSequenceName];
+
+        /// <summary>
+        ///     Returns the name to use for the hi-lo sequence.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
+        /// <returns> The name to use for the hi-lo sequence. </returns>
+        public static string GetHiLoSequenceName([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
         {
             var annotation = property.FindAnnotation(SqlServerAnnotationNames.HiLoSequenceName);
             if (annotation != null)
@@ -31,10 +40,9 @@ namespace Microsoft.EntityFrameworkCore
                 return (string)annotation.Value;
             }
 
-            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(
-                StoreObjectIdentifier.Table(property.DeclaringEntityType.GetTableName(), property.DeclaringEntityType.GetSchema()));
+            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
             return sharedTableRootProperty != null
-                ? sharedTableRootProperty.GetHiLoSequenceSchema()
+                ? sharedTableRootProperty.GetHiLoSequenceName(storeObject)
                 : null;
         }
 
@@ -82,6 +90,15 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The schema to use for the hi-lo sequence. </returns>
         public static string GetHiLoSequenceSchema([NotNull] this IProperty property)
+            => (string)property[SqlServerAnnotationNames.HiLoSequenceSchema];
+
+        /// <summary>
+        ///     Returns the schema to use for the hi-lo sequence.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
+        /// <returns> The schema to use for the hi-lo sequence. </returns>
+        public static string GetHiLoSequenceSchema([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
         {
             var annotation = property.FindAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema);
             if (annotation != null)
@@ -89,10 +106,9 @@ namespace Microsoft.EntityFrameworkCore
                 return (string)annotation.Value;
             }
 
-            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(
-                StoreObjectIdentifier.Table(property.DeclaringEntityType.GetTableName(), property.DeclaringEntityType.GetSchema()));
+            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
             return sharedTableRootProperty != null
-                ? sharedTableRootProperty.GetHiLoSequenceSchema()
+                ? sharedTableRootProperty.GetHiLoSequenceSchema(storeObject)
                 : null;
         }
 
@@ -137,6 +153,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Finds the <see cref="ISequence" /> in the model to use for the hi-lo pattern.
         /// </summary>
+        /// <param name="property"> The property. </param>
         /// <returns> The sequence to use, or <see langword="null" /> if no sequence exists in the model. </returns>
         public static ISequence FindHiLoSequence([NotNull] this IProperty property)
         {
@@ -146,6 +163,25 @@ namespace Microsoft.EntityFrameworkCore
                 ?? model.GetHiLoSequenceName();
 
             var sequenceSchema = property.GetHiLoSequenceSchema()
+                ?? model.GetHiLoSequenceSchema();
+
+            return model.FindSequence(sequenceName, sequenceSchema);
+        }
+
+        /// <summary>
+        ///     Finds the <see cref="ISequence" /> in the model to use for the hi-lo pattern.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
+        /// <returns> The sequence to use, or <see langword="null" /> if no sequence exists in the model. </returns>
+        public static ISequence FindHiLoSequence([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
+        {
+            var model = property.DeclaringEntityType.Model;
+
+            var sequenceName = property.GetHiLoSequenceName(storeObject)
+                ?? model.GetHiLoSequenceName();
+
+            var sequenceSchema = property.GetHiLoSequenceSchema(storeObject)
                 ?? model.GetHiLoSequenceSchema();
 
             return model.FindSequence(sequenceName, sequenceSchema);

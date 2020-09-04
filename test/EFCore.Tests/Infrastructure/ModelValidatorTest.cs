@@ -164,12 +164,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Detects_filter_on_derived_type()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<A>();
+            var entityTypeA = modelBuilder.Entity<A>().Metadata;
             var entityTypeD = modelBuilder.Entity<D>().Metadata;
 
             entityTypeD.SetQueryFilter((Expression<Func<D, bool>>)(_ => true));
 
-            VerifyError(CoreStrings.BadFilterDerivedType(entityTypeD.GetQueryFilter(), entityTypeD.DisplayName()), modelBuilder.Model);
+            VerifyError(CoreStrings.BadFilterDerivedType(entityTypeD.GetQueryFilter(), entityTypeD.DisplayName(), entityTypeA.DisplayName()),
+                modelBuilder.Model);
         }
 
         [ConditionalFact]
@@ -912,11 +913,24 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
-        public virtual void Passes_ForeignKey_on_inherited_generated_key_property_abstract_base()
+        public virtual void Passes_for_ForeignKey_on_inherited_generated_key_property_abstract_base()
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Abstract>().Property(e => e.Id).ValueGeneratedOnAdd();
             modelBuilder.Entity<Generic<int>>().HasOne<Abstract>().WithOne().HasForeignKey<Generic<int>>(e => e.Id);
+
+            Validate(modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Passes_for_ForeignKey_on_inherited_generated_composite_key_property()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Abstract>().Property<int>("SomeId").ValueGeneratedOnAdd();
+            modelBuilder.Entity<Abstract>().Property<int>("SomeOtherId").ValueGeneratedOnAdd();
+            modelBuilder.Entity<Abstract>().HasAlternateKey("SomeId", "SomeOtherId");
+            modelBuilder.Entity<Generic<int>>().HasOne<Abstract>().WithOne().HasForeignKey<Generic<int>>("SomeId");
+            modelBuilder.Entity<Generic<string>>();
 
             Validate(modelBuilder.Model);
         }
@@ -1356,7 +1370,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.SharedTypeEntity<A>("Shared1");
             modelBuilder.SharedTypeEntity<C>("Shared2").HasBaseType("Shared1");
 
-            VerifyError(CoreStrings.SharedTypeDerivedType("Shared2"), modelBuilder.Model);
+            VerifyError(CoreStrings.SharedTypeDerivedType("Shared2 (C)"), modelBuilder.Model);
         }
 
         // INotify interfaces not really implemented; just marking the classes to test metadata construction

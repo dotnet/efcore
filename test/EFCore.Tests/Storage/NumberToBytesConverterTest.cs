@@ -505,7 +505,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 CoreStrings.ConverterBadType(
                     "NumberToBytesConverter<Guid>",
                     "Guid",
-                    "double, float, decimal, char, int, long, short, byte, uint, ulong, ushort, sbyte"),
+                    "'double', 'float', 'decimal', 'char', 'int', 'long', 'short', 'byte', 'uint', 'ulong', 'ushort', 'sbyte'"),
                 Assert.Throws<InvalidOperationException>(
                     () => new NumberToBytesConverter<Guid>()).Message);
         }

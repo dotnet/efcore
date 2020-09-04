@@ -162,7 +162,7 @@
     <comment>Warning SqliteEventId.MissingTableWarning string</comment>
   </data>
   <data name="LogPrincipalColumnNotFound" xml:space="preserve">
-    <value>For foreign key with identity {id} on table {tableName}, unable to find the column called {principalColumnName} on the foreign key's principal table, {principaltableName}. Skipping foreign key.</value>
+    <value>For foreign key with identity '{id}' on table '{tableName}', unable to find the column called '{principalColumnName}' on the foreign key's principal table, '{principaltableName}'. Skipping foreign key.</value>
     <comment>Warning SqliteEventId.ForeignKeyPrincipalColumnMissingWarning string string string string</comment>
   </data>
   <data name="LogSchemaConfigured" xml:space="preserve">

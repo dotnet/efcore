@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Empty(annotatable.GetAnnotations());
 
             Assert.Equal(
-                CoreStrings.AnnotationNotFound("Foo"),
+                CoreStrings.AnnotationNotFound("Foo", "Microsoft.EntityFrameworkCore.Infrastructure.Annotatable"),
                 Assert.Throws<InvalidOperationException>(() => annotatable.GetAnnotation("Foo")).Message);
         }
 

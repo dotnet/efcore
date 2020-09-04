@@ -213,12 +213,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 foreignKeyName);
 
         /// <summary>
-        ///     Could not scaffold the foreign key '{foreignKeyName}'. The referenced table '{principaltableName}' could not be scaffolded.
+        ///     Could not scaffold the foreign key '{foreignKeyName}'. The referenced table '{principalTableName}' could not be scaffolded.
         /// </summary>
-        public static string ForeignKeyScaffoldErrorPrincipalTableScaffoldingError([CanBeNull] object foreignKeyName, [CanBeNull] object principaltableName)
+        public static string ForeignKeyScaffoldErrorPrincipalTableScaffoldingError([CanBeNull] object foreignKeyName, [CanBeNull] object principalTableName)
             => string.Format(
-                GetString("ForeignKeyScaffoldErrorPrincipalTableScaffoldingError", nameof(foreignKeyName), nameof(principaltableName)),
-                foreignKeyName, principaltableName);
+                GetString("ForeignKeyScaffoldErrorPrincipalTableScaffoldingError", nameof(foreignKeyName), nameof(principalTableName)),
+                foreignKeyName, principalTableName);
 
         /// <summary>
         ///     Could not scaffold the foreign key '{foreignKeyName}'.  The following columns in the foreign key could not be scaffolded: {columnNames}.
@@ -619,7 +619,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 referencedAssembly);
 
         /// <summary>
-        ///     The EF Core tools version '{toolsVersion}' is older than that of the runtime '{runtimeVersion}'. Update the tools for the latest features and bug fixes.
+        ///     The Entity Framework tools version '{toolsVersion}' is older than that of the runtime '{runtimeVersion}'. Update the tools for the latest features and bug fixes.
         /// </summary>
         public static string VersionMismatch([CanBeNull] object toolsVersion, [CanBeNull] object runtimeVersion)
             => string.Format(

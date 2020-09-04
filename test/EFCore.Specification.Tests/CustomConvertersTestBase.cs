@@ -623,7 +623,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using var context = CreateContext();
             Assert.Contains(
-                @"Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
+                @"See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
                 Assert.Throws<InvalidOperationException>(
                         () => context.Set<CollectionScalar>().Where(e => e.Tags.Any()).ToList())
                     .Message.Replace("\r", "").Replace("\n", ""));
@@ -653,7 +653,7 @@ namespace Microsoft.EntityFrameworkCore
             using var context = CreateContext();
             var sameRole = Roles.Seller;
             Assert.Contains(
-                @"Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
+                @"See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
                 Assert.Throws<InvalidOperationException>(
                         () => context.Set<CollectionEnum>().Where(e => e.Roles.Contains(sameRole)).ToList())
                     .Message.Replace("\r", "").Replace("\n", ""));
