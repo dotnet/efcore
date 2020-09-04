@@ -759,6 +759,89 @@ namespace Microsoft.EntityFrameworkCore
             => property.FindAnnotation(RelationalAnnotationNames.DefaultValue)?.GetConfigurationSource();
 
         /// <summary>
+        ///     Gets the maximum length of data that is allowed in this property. For example, if the property is a <see cref="string" />
+        ///     then this is the maximum number of characters.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
+        /// <returns> The maximum length, or <see langword="null" /> if none if defined. </returns>
+        public static int? GetMaxLength([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
+        {
+            Check.NotNull(property, nameof(property));
+
+            var maxLength = property.GetMaxLength();
+            if (maxLength != null)
+            {
+                return maxLength.Value;
+            }
+
+            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
+            return sharedTableRootProperty != null ? GetMaxLength(sharedTableRootProperty, storeObject) : null;
+        }
+
+        /// <summary>
+        ///     Gets the precision of data that is allowed in this property.
+        ///     For example, if the property is a <see cref="decimal" /> then this is the maximum number of digits.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
+        /// <returns> The precision, or <see langword="null" /> if none is defined. </returns>
+        public static int? GetPrecision([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
+        {
+            Check.NotNull(property, nameof(property));
+
+            var precision = property.GetPrecision();
+            if (precision != null)
+            {
+                return precision;
+            }
+
+            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
+            return sharedTableRootProperty != null ? GetPrecision(sharedTableRootProperty, storeObject) : null;
+        }
+
+        /// <summary>
+        ///     Gets the scale of data that is allowed in this property.
+        ///     For example, if the property is a <see cref="decimal" /> then this is the maximum number of decimal places.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
+        /// <returns> The scale, or <see langword="null" /> if none is defined. </returns>
+        public static int? GetScale([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
+        {
+            Check.NotNull(property, nameof(property));
+
+            var scale = property.GetScale();
+            if (scale != null)
+            {
+                return scale.Value;
+            }
+
+            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
+            return sharedTableRootProperty != null ? GetScale(sharedTableRootProperty, storeObject) : null;
+        }
+
+        /// <summary>
+        ///     Gets a value indicating whether or not the property can persist Unicode characters.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
+        /// <returns> The Unicode setting, or <see langword="null" /> if none is defined. </returns>
+        public static bool? IsUnicode([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
+        {
+            Check.NotNull(property, nameof(property));
+
+            var unicode = property.IsUnicode();
+            if (unicode != null)
+            {
+                return unicode.Value;
+            }
+
+            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
+            return sharedTableRootProperty != null ? IsUnicode(sharedTableRootProperty, storeObject) : null;
+        }
+
+        /// <summary>
         ///     Returns a flag indicating if the property as capable of storing only fixed-length data, such as strings.
         /// </summary>
         /// <param name="property"> The property. </param>
