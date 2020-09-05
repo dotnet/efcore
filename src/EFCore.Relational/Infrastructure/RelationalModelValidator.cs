@@ -334,24 +334,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     continue;
                 }
 
-                if (mappedType.FindPrimaryKey() != null
-                    && mappedType.FindForeignKeys(mappedType.FindPrimaryKey().Properties)
-                        .Any(
-                            fk => fk.PrincipalKey.IsPrimaryKey()
-                                && unvalidatedTypes.Contains(fk.PrincipalEntityType)))
+                var primaryKey = mappedType.FindPrimaryKey();
+                if (primaryKey != null
+                    && (mappedType.FindForeignKeys(primaryKey.Properties)
+                        .FirstOrDefault(fk => fk.PrincipalKey.IsPrimaryKey()
+                                && unvalidatedTypes.Contains(fk.PrincipalEntityType)) is IForeignKey linkingFK))
                 {
                     if (mappedType.BaseType != null)
                     {
-                        var principalType = mappedType.FindForeignKeys(mappedType.FindPrimaryKey().Properties)
-                            .First(
-                                fk => fk.PrincipalKey.IsPrimaryKey()
-                                    && unvalidatedTypes.Contains(fk.PrincipalEntityType))
-                            .PrincipalEntityType;
                         throw new InvalidOperationException(
                             RelationalStrings.IncompatibleTableDerivedRelationship(
                                 storeObject.DisplayName(),
                                 mappedType.DisplayName(),
-                                principalType.DisplayName()));
+                                linkingFK.PrincipalEntityType.DisplayName()));
                     }
 
                     continue;
@@ -388,18 +383,21 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                 foreach (var nextEntityType in directlyConnectedTypes)
                 {
-                    var otherKey = nextEntityType.FindPrimaryKey();
-                    if (key?.GetName(storeObject) != otherKey?.GetName(storeObject))
+                    if (key != null)
                     {
-                        throw new InvalidOperationException(
-                            RelationalStrings.IncompatibleTableKeyNameMismatch(
-                                storeObject.DisplayName(),
-                                entityType.DisplayName(),
-                                nextEntityType.DisplayName(),
-                                key?.GetName(storeObject),
-                                key?.Properties.Format(),
-                                otherKey?.GetName(storeObject),
-                                otherKey?.Properties.Format()));
+                        var otherKey = nextEntityType.FindPrimaryKey();
+                        if (key.GetName(storeObject) != otherKey.GetName(storeObject))
+                        {
+                            throw new InvalidOperationException(
+                                RelationalStrings.IncompatibleTableKeyNameMismatch(
+                                    storeObject.DisplayName(),
+                                    entityType.DisplayName(),
+                                    nextEntityType.DisplayName(),
+                                    key.GetName(storeObject),
+                                    key.Properties.Format(),
+                                    otherKey.GetName(storeObject),
+                                    otherKey.Properties.Format()));
+                        }
                     }
 
                     var nextComment = nextEntityType.GetComment();
@@ -599,8 +597,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private static bool IsIdentifyingPrincipal(IEntityType dependentEntityType, IEntityType principalEntityType)
             => dependentEntityType.FindForeignKeys(dependentEntityType.FindPrimaryKey().Properties)
-                .Any(
-                    fk => fk.PrincipalKey.IsPrimaryKey()
+                .Any(fk => fk.PrincipalKey.IsPrimaryKey()
                         && fk.PrincipalEntityType == principalEntityType);
 
         /// <summary>
