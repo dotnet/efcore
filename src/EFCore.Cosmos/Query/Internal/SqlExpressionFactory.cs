@@ -533,10 +533,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             if (concreteEntityTypes.Count == 1)
             {
                 var concreteEntityType = concreteEntityTypes[0];
-                if (concreteEntityType.GetDiscriminatorProperty() != null)
+                var discriminatorProperty = concreteEntityType.GetDiscriminatorProperty();
+                if (discriminatorProperty != null)
                 {
                     var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
-                        .BindProperty(concreteEntityType.GetDiscriminatorProperty(), clientEval: false);
+                        .BindProperty(discriminatorProperty, clientEval: false);
 
                     selectExpression.ApplyPredicate(
                         Equal((SqlExpression)discriminatorColumn, Constant(concreteEntityType.GetDiscriminatorValue())));

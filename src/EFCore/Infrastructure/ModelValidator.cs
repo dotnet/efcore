@@ -638,18 +638,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="rootEntityType"> The entity type to validate. </param>
         protected virtual void ValidateDiscriminatorValues([NotNull] IEntityType rootEntityType)
         {
-            var discriminatorValues = new Dictionary<object, IEntityType>();
             var derivedTypes = rootEntityType.GetDerivedTypesInclusive().ToList();
             if (derivedTypes.Count == 1)
             {
                 return;
             }
 
-            if (rootEntityType.GetDiscriminatorProperty() == null)
+            var discriminatorProperty = rootEntityType.GetDiscriminatorProperty();
+            if (discriminatorProperty == null)
             {
                 throw new InvalidOperationException(
                     CoreStrings.NoDiscriminatorProperty(rootEntityType.DisplayName()));
             }
+
+            var discriminatorValues = new Dictionary<object, IEntityType>(discriminatorProperty.GetKeyValueComparer());
 
             foreach (var derivedType in derivedTypes)
             {
