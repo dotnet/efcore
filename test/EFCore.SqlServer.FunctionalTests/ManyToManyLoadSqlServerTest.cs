@@ -110,11 +110,10 @@ ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id], [t0].[OneId], [t0].[TwoId
                     .Property(e => e.Payload)
                     .HasDefaultValueSql("GETUTCDATE()");
 
-                // Disabled - see #22406
-                // modelBuilder
-                //     .SharedTypeEntity<Dictionary<string, object>>("JoinOneToThreePayloadFullShared")
-                //     .IndexerProperty<string>("Payload")
-                //     .HasDefaultValue("Generated");
+                modelBuilder
+                    .SharedTypeEntity<Dictionary<string, object>>("JoinOneToThreePayloadFullShared")
+                    .IndexerProperty<string>("Payload")
+                    .HasDefaultValue("Generated");
 
                 modelBuilder
                     .Entity<JoinOneToThreePayloadFull>()

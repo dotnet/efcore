@@ -208,9 +208,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .UsingEntity<Dictionary<string, object>>(
                     "JoinOneToThreePayloadFullShared",
                     r => r.HasOne<EntityThree>().WithMany(e => e.JoinOnePayloadFullShared).HasForeignKey("ThreeId"),
-                    l => l.HasOne<EntityOne>().WithMany(e => e.JoinThreePayloadFullShared).HasForeignKey("OneId"));
-                // Disabled - see #22406
-                //.IndexerProperty<string>("Payload");
+                    l => l.HasOne<EntityOne>().WithMany(e => e.JoinThreePayloadFullShared).HasForeignKey("OneId"))
+                .IndexerProperty<string>("Payload");
 
             // Nav:6 Payload:Yes Join:Concrete Extra:Self-Ref
             modelBuilder.Entity<EntityOne>()

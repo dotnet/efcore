@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 var result = builder.Entity(typeof(Order), ConfigurationSource.Convention);
 
-                Assert.Equal(!useScope, result == null);
+                Assert.NotNull(result);
             }
             else
             {
