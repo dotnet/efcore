@@ -2991,7 +2991,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Can_insert_update_delete_shared_type_entity_type()
+        public virtual void Can_insert_update_delete_shared_type_entity_type()
         {
             ExecuteWithStrategyInTransaction(
                 context =>
@@ -3038,7 +3038,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Can_insert_update_delete_proxyable_shared_type_entity_type()
+        public virtual void Can_insert_update_delete_proxyable_shared_type_entity_type()
         {
             ExecuteWithStrategyInTransaction(
                 context =>

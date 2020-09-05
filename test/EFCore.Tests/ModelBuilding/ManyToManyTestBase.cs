@@ -403,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<OneToOnePrincipalWithField>().HasKey(d => d.Id);
                 modelBuilder.Entity<DependentWithField>().HasKey(d => d.DependentWithFieldId);
 
-                var model = modelBuilder.FinalizeModel();
+                var model = modelBuilder.Model;
 
                 var shared1 = model.FindEntityType("Shared1");
                 Assert.NotNull(shared1);
@@ -433,6 +433,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(
                     CoreStrings.ClashingSharedType(typeof(Dictionary<string, object>).DisplayName()),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Dictionary<string, object>>()).Message);
+
+                modelBuilder.FinalizeModel();
             }
 
             [ConditionalFact]
