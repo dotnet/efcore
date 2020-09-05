@@ -38,21 +38,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     </para>
     /// </summary>
     public class ForeignKeyPropertyDiscoveryConvention :
-        IForeignKeyAddedConvention,
-        INavigationAddedConvention,
-        IPropertyAddedConvention,
         IEntityTypeMemberIgnoredConvention,
-        IPropertyNullabilityChangedConvention,
-        IPropertyFieldChangedConvention,
+        IEntityTypePrimaryKeyChangedConvention,
+        IForeignKeyAddedConvention,
         IForeignKeyPropertiesChangedConvention,
         IForeignKeyPrincipalEndChangedConvention,
         IForeignKeyUniquenessChangedConvention,
         IForeignKeyRequirednessChangedConvention,
-        ISkipNavigationForeignKeyChangedConvention,
-        ISkipNavigationInverseChangedConvention,
         IKeyAddedConvention,
         IKeyRemovedConvention,
-        IEntityTypePrimaryKeyChangedConvention,
+        INavigationAddedConvention,
+        ISkipNavigationForeignKeyChangedConvention,
+        ISkipNavigationInverseChangedConvention,
+        IPropertyAddedConvention,
+        IPropertyNullabilityChangedConvention,
+        IPropertyFieldChangedConvention,
         IModelFinalizingConvention
     {
         /// <summary>
