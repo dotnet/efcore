@@ -1846,7 +1846,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact(Skip = "Issue #22406")]
+        [ConditionalFact]
         public virtual void Can_insert_many_to_many_shared_with_payload()
         {
             ExecuteWithStrategyInTransaction(
@@ -1920,7 +1920,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact(Skip = "Issue #22406")]
+        [ConditionalFact]
         public virtual void Can_update_many_to_many_shared_with_payload()
         {
             ExecuteWithStrategyInTransaction(
@@ -2990,8 +2990,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(112, (joinCount / 2) + deleted);
         }
 
-        [ConditionalFact(Skip = "Issue #22406")]
-        public void Can_insert_update_delete_shared_type_entity_type()
+        [ConditionalFact]
+        public virtual void Can_insert_update_delete_shared_type_entity_type()
         {
             ExecuteWithStrategyInTransaction(
                 context =>
@@ -3038,7 +3038,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Can_insert_update_delete_proxyable_shared_type_entity_type()
+        public virtual void Can_insert_update_delete_proxyable_shared_type_entity_type()
         {
             ExecuteWithStrategyInTransaction(
                 context =>
