@@ -23,7 +23,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Type TryFindTypeToInstantiate([NotNull] Type entityType, [NotNull] Type collectionType)
+        public virtual Type TryFindTypeToInstantiate(
+            [NotNull] Type entityType,
+            [NotNull] Type collectionType,
+            bool requireFullNotifications)
         {
             // Code taken from EF6. The rules are:
             // If the collection is defined as a concrete type with a public parameterless constructor, then create an instance of that type
@@ -48,7 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            if (typeof(INotifyPropertyChanged).IsAssignableFrom(entityType))
+            if (requireFullNotifications
+                || typeof(INotifyPropertyChanged).IsAssignableFrom(entityType))
             {
                 var observableHashSetOfT = typeof(ObservableHashSet<>).MakeGenericType(elementType);
                 if (collectionType.IsAssignableFrom(observableHashSetOfT))

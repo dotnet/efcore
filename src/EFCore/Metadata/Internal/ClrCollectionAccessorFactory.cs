@@ -153,7 +153,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 setterDelegateForMaterialization = CreateSetterDelegate(entityParameter, memberInfoForMaterialization, valueParameter);
             }
 
-            var concreteType = new CollectionTypeFactory().TryFindTypeToInstantiate(typeof(TEntity), typeof(TCollection));
+            var concreteType = new CollectionTypeFactory().TryFindTypeToInstantiate(
+                typeof(TEntity),
+                typeof(TCollection),
+                navigation.DeclaringEntityType.Model[CoreAnnotationNames.FullChangeTrackingNotificationsRequiredAnnotation] != null);
+
             if (concreteType != null)
             {
                 var isHashSet = concreteType.IsGenericType && concreteType.GetGenericTypeDefinition() == typeof(HashSet<>);
