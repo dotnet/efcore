@@ -156,8 +156,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             foreach (var entry in stateManager.ToList()) // Might be too big, but usually _all_ entities are using Snapshot tracking
             {
-                if (entry.EntityType.GetChangeTrackingStrategy() == ChangeTrackingStrategy.Snapshot
-                    && entry.EntityState != EntityState.Detached)
+                if (entry.EntityState != EntityState.Detached)
                 {
                     LocalDetectChanges(entry);
                 }
@@ -198,6 +197,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private void LocalDetectChanges(InternalEntityEntry entry)
         {
             var entityType = entry.EntityType;
+
+            if (entry.EntityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot)
+            {
+                return;
+            }
 
             foreach (var property in entityType.GetProperties())
             {
