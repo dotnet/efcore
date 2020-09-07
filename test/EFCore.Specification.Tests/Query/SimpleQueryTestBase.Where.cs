@@ -1521,6 +1521,26 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_expression_invoke_3(bool async)
+        {
+            Expression<Func<Customer, bool>> lambda3 = c => c.CustomerID == "ALFKI";
+            var customerParameter2 = Expression.Parameter(typeof(Customer));
+            var lambda2 = Expression.Lambda<Func<Customer, bool>>(
+                Expression.Invoke(lambda3, customerParameter2),
+                customerParameter2);
+
+            var customerParameter = Expression.Parameter(typeof(Customer));
+            var lambda = Expression.Lambda<Func<Customer, bool>>(
+                Expression.Invoke(lambda2, customerParameter),
+                customerParameter);
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(lambda),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_concat_string_int_comparison1(bool isAsync)
         {
             var i = 10;
