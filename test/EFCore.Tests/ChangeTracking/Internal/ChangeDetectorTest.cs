@@ -391,6 +391,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         [ConditionalFact]
+        public void Skips_local_detection_of_scalar_property_change_for_notification_entities()
+        {
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildModelWithChanged());
+
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+
+            var category = new CategoryWithChanged { Id = 1, Name = "Oculus Rift" };
+            var entry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(category);
+            entry.SetEntityState(EntityState.Unchanged);
+
+            category.Name = "Gear VR";
+
+            changeDetector.DetectChanges(entry);
+
+            Assert.Equal(EntityState.Unchanged, entry.EntityState);
+            Assert.False(entry.IsModified(entry.EntityType.FindProperty("Name")));
+        }
+
+        [ConditionalFact]
         public void Detects_principal_key_change()
         {
             var contextServices = CreateContextServices();
