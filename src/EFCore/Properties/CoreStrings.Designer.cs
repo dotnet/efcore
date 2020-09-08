@@ -419,12 +419,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, field1, field2);
 
         /// <summary>
-        ///     There are multiple [ForeignKey] attributes which are pointing to same set of properties '{propertyList}' on entity type '{entityType}'.
+        ///     There are multiple [ForeignKey] attributes which are pointing to same set of properties '{propertyList}' on entity type '{entityType}' and targeting the principal entity type '{principalEntityType}'.
         /// </summary>
-        public static string ConflictingForeignKeyAttributes([CanBeNull] object propertyList, [CanBeNull] object entityType)
+        public static string ConflictingForeignKeyAttributes([CanBeNull] object propertyList, [CanBeNull] object entityType, [CanBeNull] object principalEntityType)
             => string.Format(
-                GetString("ConflictingForeignKeyAttributes", nameof(propertyList), nameof(entityType)),
-                propertyList, entityType);
+                GetString("ConflictingForeignKeyAttributes", nameof(propertyList), nameof(entityType), nameof(principalEntityType)),
+                propertyList, entityType, principalEntityType);
 
         /// <summary>
         ///     The property or navigation '{member}' cannot be added to the entity type '{entityType}' because a property or navigation with the same name already exists on entity type '{conflictingEntityType}'.
@@ -619,12 +619,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 value, discriminator, discriminatorType);
 
         /// <summary>
-        ///     The annotation '{annotation}' cannot be added because an annotation with the same name already exists.
+        ///     The annotation '{annotation}' cannot be added because an annotation with the same name already exists on the object {annotatable}
         /// </summary>
-        public static string DuplicateAnnotation([CanBeNull] object annotation)
+        public static string DuplicateAnnotation([CanBeNull] object annotation, [CanBeNull] object annotatable)
             => string.Format(
-                GetString("DuplicateAnnotation", nameof(annotation)),
-                annotation);
+                GetString("DuplicateAnnotation", nameof(annotation), nameof(annotatable)),
+                annotation, annotatable);
 
         /// <summary>
         ///     The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy must have a unique discriminator value.
@@ -683,11 +683,27 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, baseType, derivedPropertyType, derivedProperty, basePropertyType, baseProperty);
 
         /// <summary>
-        ///     The properties {propertyList} cannot be used, because they contain a duplicate: '{property}'.
+        ///     The properties {propertyList} cannot be used for a foreign key, because they contain a duplicate: '{property}'.
         /// </summary>
-        public static string DuplicatePropertyInList([CanBeNull] object propertyList, [CanBeNull] object property)
+        public static string DuplicatePropertyInForeignKey([CanBeNull] object propertyList, [CanBeNull] object property)
             => string.Format(
-                GetString("DuplicatePropertyInList", nameof(propertyList), nameof(property)),
+                GetString("DuplicatePropertyInForeignKey", nameof(propertyList), nameof(property)),
+                propertyList, property);
+
+        /// <summary>
+        ///     The properties {propertyList} cannot be used for an index, because they contain a duplicate: '{property}'.
+        /// </summary>
+        public static string DuplicatePropertyInIndex([CanBeNull] object propertyList, [CanBeNull] object property)
+            => string.Format(
+                GetString("DuplicatePropertyInIndex", nameof(propertyList), nameof(property)),
+                propertyList, property);
+
+        /// <summary>
+        ///     The properties {propertyList} cannot be used for a key, because they contain a duplicate: '{property}'.
+        /// </summary>
+        public static string DuplicatePropertyInKey([CanBeNull] object propertyList, [CanBeNull] object property)
+            => string.Format(
+                GetString("DuplicatePropertyInKey", nameof(propertyList), nameof(property)),
                 propertyList, property);
 
         /// <summary>
@@ -1920,7 +1936,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 ownedType);
 
         /// <summary>
-        ///     The DbContext of type '{contextType}' cannot be pooled because it does not have a single public constructor accepting a single parameter of type DbContextOptions.
+        ///     The DbContext of type '{contextType}' cannot be pooled because it does not have a public constructor accepting a single parameter of type DbContextOptions or has more than one constructor.
         /// </summary>
         public static string PoolingContextCtorError([CanBeNull] object contextType)
             => string.Format(

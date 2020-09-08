@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             if (FindAnnotation(name) != null)
             {
-                throw new InvalidOperationException(CoreStrings.DuplicateAnnotation(name));
+                throw new InvalidOperationException(CoreStrings.DuplicateAnnotation(name, ToString()));
             }
 
             SetAnnotation(name, annotation, oldAnnotation: null);

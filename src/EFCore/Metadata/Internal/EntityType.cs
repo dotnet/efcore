@@ -781,7 +781,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (property == properties[j])
                     {
-                        throw new InvalidOperationException(CoreStrings.DuplicatePropertyInList(properties.Format(), property.Name));
+                        throw new InvalidOperationException(CoreStrings.DuplicatePropertyInKey(properties.Format(), property.Name));
                     }
                 }
 
@@ -2059,7 +2059,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (property == properties[j])
                     {
-                        throw new InvalidOperationException(CoreStrings.DuplicatePropertyInList(properties.Format(), property.Name));
+                        throw new InvalidOperationException(CoreStrings.DuplicatePropertyInIndex(properties.Format(), property.Name));
                     }
                 }
 

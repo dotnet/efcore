@@ -1122,7 +1122,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var idProperty = entityType.AddProperty(Customer.IdProperty);
 
             Assert.Equal(
-                CoreStrings.DuplicatePropertyInList(
+                CoreStrings.DuplicatePropertyInIndex(
                     "{'" + Customer.IdProperty.Name + "', '" + Customer.IdProperty.Name + "'}", Customer.IdProperty.Name),
                 Assert.Throws<InvalidOperationException>(() => entityType.AddIndex(new[] { idProperty, idProperty })).Message);
         }

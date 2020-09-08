@@ -1204,7 +1204,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (property == properties[j])
                     {
-                        throw new InvalidOperationException(CoreStrings.DuplicatePropertyInList(properties.Format(), property.Name));
+                        throw new InvalidOperationException(CoreStrings.DuplicatePropertyInForeignKey(properties.Format(), property.Name));
                     }
                 }
 
