@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         public override ValueTask<TValue> NextAsync(
             EntityEntry entry,
             CancellationToken cancellationToken = default)
-            => _generatorState.NextAsync<TValue>(GetNewLowValueAsync);
+            => _generatorState.NextAsync<TValue>(GetNewLowValueAsync, cancellationToken);
 
         /// <summary>
         ///     Gets the low value for the next block of values to be used.
