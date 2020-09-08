@@ -68,6 +68,9 @@ namespace Microsoft.EntityFrameworkCore
                 ? (TContext)new DbContextLease(ContextPool, standalone: true).Context
                 : (TContext)ServiceProvider.GetRequiredService(ContextType);
 
+        public virtual IDbContextFactory<TContext> CreateContextFactory()
+            => new DbContextFactory(CreateContext);
+
         public DbContextOptions CreateOptions()
             => ConfigureOptions(ServiceProvider, new DbContextOptionsBuilder()).Options;
 
@@ -125,5 +128,16 @@ namespace Microsoft.EntityFrameworkCore
 
         public virtual Task DisposeAsync()
             => TestStore.DisposeAsync();
+
+        private class DbContextFactory : IDbContextFactory<TContext>
+        {
+            private readonly Func<TContext> _createDbContext;
+
+            public DbContextFactory(Func<TContext> createDbContext)
+                => _createDbContext = createDbContext ?? throw new ArgumentNullException(nameof(createDbContext));
+
+            public TContext CreateDbContext()
+                => _createDbContext();
+        }
     }
 }
