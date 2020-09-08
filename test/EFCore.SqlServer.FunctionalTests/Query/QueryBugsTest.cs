@@ -8684,7 +8684,7 @@ ORDER BY [t].[Id] DESC, [t3].[Id], [t3].[Id0], [t3].[Id1], [t3].[Id00]");
 
         #endregion
 
-        #region Issue14911
+        #region Issue15215
 
         [ConditionalFact]
         public virtual void Repeated_parameters_in_generated_query_sql()
@@ -8776,6 +8776,131 @@ WHERE (([a].[Id] = @__entity_equality_a_0_Id) AND ([a0].[Id] = @__entity_equalit
                             Auto = context.Autos.Find(5),
                             AnotherAuto = context.Autos.Find(4)
                         });
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        #endregion
+
+        #region Issue22340
+
+        [ConditionalFact]
+        public virtual void Owned_entity_mapped_to_separate_table()
+        {
+            using (CreateDatabase22340())
+            {
+                using var context = new MyContext22340(_options);
+
+                var masterTrunk = context.MasterTrunk.OrderBy(e => EF.Property<string>(e, "Id")).FirstOrDefault(); //exception Sequence contains no elements.
+
+                Assert.NotNull(masterTrunk);
+
+                AssertSql(
+                    @"SELECT [t].[Id], [t].[MasterTrunk22340Id], [t].[MasterTrunk22340Id0], [f0].[CurrencyBag22340MasterTrunk22340Id], [f0].[Id], [f0].[Amount], [f0].[Code], [s0].[CurrencyBag22340MasterTrunk22340Id], [s0].[Id], [s0].[Amount], [s0].[Code]
+FROM (
+    SELECT TOP(1) [m].[Id], [f].[MasterTrunk22340Id], [s].[MasterTrunk22340Id] AS [MasterTrunk22340Id0]
+    FROM [MasterTrunk] AS [m]
+    LEFT JOIN [FungibleBag] AS [f] ON [m].[Id] = [f].[MasterTrunk22340Id]
+    LEFT JOIN [StaticBag] AS [s] ON [m].[Id] = [s].[MasterTrunk22340Id]
+    ORDER BY [m].[Id]
+) AS [t]
+LEFT JOIN [FungibleBag_Currencies] AS [f0] ON [t].[MasterTrunk22340Id] = [f0].[CurrencyBag22340MasterTrunk22340Id]
+LEFT JOIN [StaticBag_Currencies] AS [s0] ON [t].[MasterTrunk22340Id0] = [s0].[CurrencyBag22340MasterTrunk22340Id]
+ORDER BY [t].[Id], [t].[MasterTrunk22340Id], [t].[MasterTrunk22340Id0], [f0].[CurrencyBag22340MasterTrunk22340Id], [f0].[Id], [s0].[CurrencyBag22340MasterTrunk22340Id], [s0].[Id]");
+            }
+        }
+
+        private class MasterTrunk22340
+        {
+            public CurrencyBag22340 FungibleBag { get; set; }
+            public CurrencyBag22340 StaticBag { get; set; }
+        }
+
+        private class CurrencyBag22340
+        {
+            public IEnumerable<Currency22340> Currencies { get; set; }
+        }
+
+        private class Currency22340
+        {
+            [Column(TypeName = "decimal(18,2)")]
+            public decimal Amount { get; set; }
+            [Column(TypeName = "decimal(18,2)")]
+            public decimal Code { get; set; }
+        }
+
+        private class MyContext22340 : DbContext
+        {
+            public MyContext22340(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<MasterTrunk22340> MasterTrunk { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                var builder = modelBuilder.Entity<MasterTrunk22340>();
+                builder.Property<string>("Id").ValueGeneratedOnAdd();
+                builder.HasKey("Id");
+
+                builder.OwnsOne(p => p.FungibleBag, p =>
+                {
+                    p.OwnsMany(p => p.Currencies, p =>
+                    {
+                        p.Property(p => p.Amount).IsConcurrencyToken();
+                    });
+
+                    p.ToTable("FungibleBag");
+                });
+
+
+                builder.OwnsOne(p => p.StaticBag, p =>
+                {
+                    p.OwnsMany(p => p.Currencies, p =>
+                    {
+                        p.Property(p => p.Amount).IsConcurrencyToken();
+                    });
+                    p.ToTable("StaticBag");
+                });
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase22340()
+            => CreateTestStore(
+                () => new MyContext22340(_options),
+                context =>
+                {
+                    var masterTrunk = new MasterTrunk22340()
+                    {
+                        FungibleBag = new CurrencyBag22340()
+                        {
+                            Currencies = new Currency22340[]
+                            {
+                                new Currency22340()
+                                {
+                                    Amount = 10,
+                                    Code = 999
+                                }
+
+                            }
+                        },
+                        StaticBag = new CurrencyBag22340()
+                        {
+                            Currencies = new Currency22340[]
+                            {
+                                new Currency22340()
+                                {
+                                    Amount = 555,
+                                    Code = 111
+                                }
+
+                            }
+                        }
+                    };
+                    context.Add(masterTrunk);
 
                     context.SaveChanges();
 

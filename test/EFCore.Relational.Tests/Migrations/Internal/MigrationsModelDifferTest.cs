@@ -271,6 +271,79 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
+        public void Model_differ_breaks_double_foreign_key_cycles_in_create_table_operations()
+        {
+            Execute(
+                _ => { },
+                modelBuilder =>
+                {
+                    modelBuilder
+                        .Entity("Banks")
+                        .Property<string>("Id");
+
+                    modelBuilder
+                        .Entity("BankRegistrations")
+                        .Property<string>("Id");
+
+                    modelBuilder
+                        .Entity("BankProfiles")
+                        .Property<string>("Id");
+
+                    modelBuilder
+                        .Entity("Banks")
+                        .HasOne("BankRegistrations")
+                        .WithOne()
+                        .HasForeignKey("Banks", "DefaultBankRegistrationId");
+
+                    modelBuilder
+                        .Entity("Banks")
+                        .HasOne("BankRegistrations")
+                        .WithOne()
+                        .HasForeignKey("Banks", "StagingBankRegistrationId");
+
+                    modelBuilder
+                        .Entity("Banks")
+                        .HasOne("BankProfiles")
+                        .WithOne()
+                        .HasForeignKey("Banks", "DefaultBankProfileId");
+
+                    modelBuilder
+                        .Entity("Banks")
+                        .HasOne("BankProfiles")
+                        .WithOne()
+                        .HasForeignKey("Banks", "StagingBankProfileId");
+
+                    modelBuilder
+                        .Entity("BankRegistrations")
+                        .HasOne("Banks")
+                        .WithMany()
+                        .HasForeignKey("BankId");
+
+                    modelBuilder
+                        .Entity("BankProfiles")
+                        .HasOne("Banks")
+                        .WithMany()
+                        .HasForeignKey("BankId");
+
+                    modelBuilder
+                        .Entity("BankProfiles")
+                        .HasOne("BankRegistrations")
+                        .WithMany()
+                        .HasForeignKey("BankRegistrationId");
+                },
+                result =>
+                {
+                    Assert.Equal(14, result.Count);
+
+                    var createBankTableOperation = Assert.IsType<CreateTableOperation>(result[0]);
+                    Assert.Equal("Banks", createBankTableOperation.Name);
+                    Assert.Equal(0, createBankTableOperation.ForeignKeys.Count);
+
+                    Assert.Equal(4, result.OfType<AddForeignKeyOperation>().Count());
+                });
+        }
+
+        [ConditionalFact]
         public void Create_table()
         {
             Execute(

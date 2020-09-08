@@ -650,6 +650,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Passes_for_shared_columns()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>().Property(a => a.Id).HasMaxLength(20).HasPrecision(15, 10).IsUnicode();
+            modelBuilder.Entity<Cat>().OwnsOne(a => a.FavoritePerson);
+            modelBuilder.Entity<Dog>();
+
+            Validate(modelBuilder.Model);
+        }
+
+        [ConditionalFact]
         public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_with_different_principal_tables()
         {
             var modelBuilder = CreateConventionalModelBuilder();

@@ -16,8 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         private readonly Dictionary<TVertex, Dictionary<TVertex, List<TEdge>>> _successorMap =
             new Dictionary<TVertex, Dictionary<TVertex, List<TEdge>>>();
 
-        private readonly Dictionary<TVertex, List<TVertex>> _predecessorMap =
-            new Dictionary<TVertex, List<TVertex>>();
+        private readonly Dictionary<TVertex, HashSet<TVertex>> _predecessorMap =
+            new Dictionary<TVertex, HashSet<TVertex>>();
 
         public IEnumerable<TEdge> Edges
             => _successorMap.Values.SelectMany(s => s.Values).SelectMany(e => e).Distinct();
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
             if (!_predecessorMap.TryGetValue(to, out var predecessors))
             {
-                predecessors = new List<TVertex>();
+                predecessors = new HashSet<TVertex>();
                 _predecessorMap.Add(to, predecessors);
             }
 
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
             if (!_predecessorMap.TryGetValue(to, out var predecessors))
             {
-                predecessors = new List<TVertex>();
+                predecessors = new HashSet<TVertex>();
                 _predecessorMap.Add(to, predecessors);
             }
 
@@ -126,15 +126,15 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             => TopologicalSort(null, null);
 
         public IReadOnlyList<TVertex> TopologicalSort(
-            [CanBeNull] Func<TVertex, TVertex, IEnumerable<TEdge>, bool> canBreakEdge)
-            => TopologicalSort(canBreakEdge, null);
+            [CanBeNull] Func<TVertex, TVertex, IEnumerable<TEdge>, bool> tryBreakEdge)
+            => TopologicalSort(tryBreakEdge, null);
 
         public IReadOnlyList<TVertex> TopologicalSort(
             [CanBeNull] Func<IEnumerable<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
             => TopologicalSort(null, formatCycle);
 
         public IReadOnlyList<TVertex> TopologicalSort(
-            [CanBeNull] Func<TVertex, TVertex, IEnumerable<TEdge>, bool> canBreakEdge,
+            [CanBeNull] Func<TVertex, TVertex, IEnumerable<TEdge>, bool> tryBreakEdge,
             [CanBeNull] Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
         {
             var sortedQueue = new List<TVertex>();
@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                     // Iterate over the unsorted vertices
                     while ((candidateIndex < candidateVertices.Count)
                         && !broken
-                        && (canBreakEdge != null))
+                        && tryBreakEdge != null)
                     {
                         var candidateVertex = candidateVertices[candidateIndex];
 
@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                         foreach (var incomingNeighbor in incomingNeighbors)
                         {
                             // Check to see if the edge can be broken
-                            if (canBreakEdge(incomingNeighbor, candidateVertex, _successorMap[incomingNeighbor][candidateVertex]))
+                            if (tryBreakEdge(incomingNeighbor, candidateVertex, _successorMap[incomingNeighbor][candidateVertex]))
                             {
                                 predecessorCounts[candidateVertex]--;
                                 if (predecessorCounts[candidateVertex] == 0)

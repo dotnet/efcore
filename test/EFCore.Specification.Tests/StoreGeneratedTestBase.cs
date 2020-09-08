@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -515,6 +516,7 @@ namespace Microsoft.EntityFrameworkCore
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
             public int? StoreGenPrincipalId { get; set; }
+            public int HasTemp { get; set; }
             public StoreGenPrincipal StoreGenPrincipal { get; set; }
         }
 
@@ -523,8 +525,10 @@ namespace Microsoft.EntityFrameworkCore
             public int Id { get; set; }
         }
 
-        [ConditionalFact] // Issue #22027
-        public void Change_state_of_entity_with_temp_FK_does_not_throw()
+        [ConditionalTheory] // Issue #22027 #14192
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Deleted)]
+        public void Change_state_of_entity_with_temp_non_key_does_not_throw(EntityState targetState)
         {
             ExecuteWithStrategyInTransaction(
                 context =>
@@ -535,7 +539,13 @@ namespace Microsoft.EntityFrameworkCore
                     };
 
                     context.Add(dependent);
+
+                    Assert.True(context.Entry(dependent).Property(e => e.HasTemp).IsTemporary);
+
                     context.SaveChanges();
+
+                    Assert.False(context.Entry(dependent).Property(e => e.HasTemp).IsTemporary);
+                    Assert.Equal(777, dependent.HasTemp);
                 },
                 context =>
                 {
@@ -548,17 +558,23 @@ namespace Microsoft.EntityFrameworkCore
 
                     context.Add(dependent);
 
-                    context.Entry(dependent).State = EntityState.Modified;
+                    context.Entry(dependent).State = targetState;
 
                     Assert.Equal(EntityState.Added, context.Entry(principal).State);
                     Assert.True(context.Entry(principal).Property(e => e.Id).IsTemporary);
+                    Assert.True(context.Entry(dependent).Property(e => e.HasTemp).IsTemporary);
                     Assert.True(context.Entry(dependent).Property(e => e.StoreGenPrincipalId).IsTemporary);
 
                     context.SaveChanges();
 
                     Assert.Equal(EntityState.Unchanged, context.Entry(principal).State);
-                    Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
+
+                    Assert.Equal(
+                        targetState == EntityState.Modified ? EntityState.Unchanged : EntityState.Detached,
+                        context.Entry(dependent).State);
+
                     Assert.False(context.Entry(principal).Property(e => e.Id).IsTemporary);
+                    Assert.False(context.Entry(dependent).Property(e => e.HasTemp).IsTemporary);
                     Assert.False(context.Entry(dependent).Property(e => e.StoreGenPrincipalId).IsTemporary);
                 });
         }
@@ -1911,7 +1927,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 modelBuilder.Entity<OptionalProduct>();
                 modelBuilder.Entity<StoreGenPrincipal>();
-                modelBuilder.Entity<NonStoreGenDependent>();
+
+                modelBuilder.Entity<NonStoreGenDependent>()
+                    .Property(e => e.HasTemp)
+                    .ValueGeneratedOnAddOrUpdate()
+                    .HasValueGenerator<TemporaryIntValueGenerator>();
             }
         }
     }

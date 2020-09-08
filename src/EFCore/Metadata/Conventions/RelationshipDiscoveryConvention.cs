@@ -24,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         IEntityTypeAddedConvention,
         IEntityTypeIgnoredConvention,
         IEntityTypeBaseTypeChangedConvention,
-        INavigationRemovedConvention,
         IEntityTypeMemberIgnoredConvention,
+        INavigationRemovedConvention,
         INavigationAddedConvention,
         IForeignKeyOwnershipChangedConvention
     {

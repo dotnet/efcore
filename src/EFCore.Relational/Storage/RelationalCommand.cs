@@ -396,6 +396,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var stopwatch = Stopwatch.StartNew();
 
             var readerOpen = false;
+            DbDataReader reader;
             try
             {
                 var interceptionResult = logger?.CommandReaderExecuting(
@@ -407,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         startTime)
                     ?? default;
 
-                var reader = interceptionResult.HasResult
+                reader = interceptionResult.HasResult
                     ? interceptionResult.Result
                     : command.ExecuteReader();
 
@@ -423,7 +424,27 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         startTime,
                         stopwatch.Elapsed);
                 }
+            }
+            catch (Exception exception)
+            {
+                logger?.CommandError(
+                    connection,
+                    command,
+                    context,
+                    DbCommandMethod.ExecuteReader,
+                    commandId,
+                    connection.ConnectionId,
+                    exception,
+                    startTime,
+                    stopwatch.Elapsed);
 
+                CleanupCommand(command, connection);
+
+                throw;
+            }
+
+            try
+            {
                 if (readerColumns != null)
                 {
                     reader = new BufferedDataReader(reader, detailedErrorsEnabled).Initialize(readerColumns);
@@ -439,21 +460,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 readerOpen = true;
 
                 return result;
-            }
-            catch (Exception exception)
-            {
-                logger?.CommandError(
-                    connection,
-                    command,
-                    context,
-                    DbCommandMethod.ExecuteReader,
-                    commandId,
-                    connection.ConnectionId,
-                    exception,
-                    startTime,
-                    stopwatch.Elapsed);
-
-                throw;
             }
             finally
             {
@@ -491,6 +497,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var stopwatch = Stopwatch.StartNew();
 
             var readerOpen = false;
+            DbDataReader reader;
             try
             {
                 var interceptionResult = logger == null
@@ -505,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             cancellationToken)
                         .ConfigureAwait(false);
 
-                var reader = interceptionResult.HasResult
+                reader = interceptionResult.HasResult
                     ? interceptionResult.Result
                     : await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
 
@@ -523,23 +530,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             cancellationToken)
                         .ConfigureAwait(false);
                 }
-
-                if (readerColumns != null)
-                {
-                    reader = await new BufferedDataReader(reader, detailedErrorsEnabled).InitializeAsync(readerColumns, cancellationToken)
-                        .ConfigureAwait(false);
-                }
-
-                var result = CreateRelationalDataReader(
-                    connection,
-                    command,
-                    reader,
-                    commandId,
-                    logger);
-
-                readerOpen = true;
-
-                return result;
             }
             catch (Exception exception)
             {
@@ -559,7 +549,30 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         .ConfigureAwait(false);
                 }
 
+                await CleanupCommandAsync(command, connection).ConfigureAwait(false);
+
                 throw;
+            }
+
+            try
+            {
+                if (readerColumns != null)
+                {
+                    reader = await new BufferedDataReader(reader, detailedErrorsEnabled).InitializeAsync(readerColumns, cancellationToken)
+                        .ConfigureAwait(false);
+                }
+
+                var result = CreateRelationalDataReader(
+                    connection,
+                    command,
+                    reader,
+                    commandId,
+                    logger);
+
+                readerOpen = true;
+
+                return result;
+
             }
             finally
             {

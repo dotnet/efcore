@@ -356,7 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType1, property1, entityType2, property2, columnName, table, value1, value2);
 
         /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different max lengths ('{maxLength1}' and '{maxLength2}').
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different max lengths ('{maxLength1}' and '{maxLength2}').
         /// </summary>
         public static string DuplicateColumnNameMaxLengthMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table, [CanBeNull] object maxLength1, [CanBeNull] object maxLength2)
             => string.Format(
@@ -370,6 +370,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("DuplicateColumnNameNullabilityMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
                 entityType1, property1, entityType2, property2, columnName, table);
+
+        /// <summary>
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different precision ('{precision1}' and '{precision2}').
+        /// </summary>
+        public static string DuplicateColumnNamePrecisionMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table, [CanBeNull] object precision1, [CanBeNull] object precision2)
+            => string.Format(
+                GetString("DuplicateColumnNamePrecisionMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table), nameof(precision1), nameof(precision2)),
+                entityType1, property1, entityType2, property2, columnName, table, precision1, precision2);
+
+        /// <summary>
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different scale ('{scale1}' and '{scale2}').
+        /// </summary>
+        public static string DuplicateColumnNameScaleMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table, [CanBeNull] object scale1, [CanBeNull] object scale2)
+            => string.Format(
+                GetString("DuplicateColumnNameScaleMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table), nameof(scale1), nameof(scale2)),
+                entityType1, property1, entityType2, property2, columnName, table, scale1, scale2);
 
         /// <summary>
         ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different unicode configuration

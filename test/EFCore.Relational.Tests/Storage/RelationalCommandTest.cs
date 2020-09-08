@@ -822,6 +822,68 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
         }
 
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Disposes_command_on_exception_in_reader(bool async)
+        {
+            var fakeDbConnection = new FakeDbConnection(
+                ConnectionString,
+                new FakeCommandExecutor());
+
+            var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
+
+            var options = CreateOptions(optionsExtension);
+
+            var fakeConnection = new FakeRelationalConnection(options);
+
+            var relationalCommand = ReaderThrowingRelationalCommand.Create();
+
+            if (async)
+            {
+                await Assert.ThrowsAsync<InvalidOperationException>(
+                    async () => await relationalCommand.ExecuteReaderAsync(
+                        new RelationalCommandParameterObject(fakeConnection, null, null, null, null)));
+            }
+            else
+            {
+                Assert.Throws<InvalidOperationException>(
+                    () => relationalCommand.ExecuteReader(
+                        new RelationalCommandParameterObject(fakeConnection, null, null, null, null)));
+            }
+
+            Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
+        }
+
+        private class ReaderThrowingRelationalCommand : RelationalCommand
+        {
+            public ReaderThrowingRelationalCommand(
+                RelationalCommandBuilderDependencies dependencies,
+                string commandText,
+                IReadOnlyList<IRelationalParameter> parameters)
+                : base(dependencies, commandText, parameters)
+            {
+            }
+
+            protected override RelationalDataReader CreateRelationalDataReader(
+                IRelationalConnection connection,
+                DbCommand command,
+                DbDataReader reader,
+                Guid commandId,
+                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+                => throw new InvalidOperationException("Bang!");
+
+            public static IRelationalCommand Create(string commandText = "Command Text")
+                => new ReaderThrowingRelationalCommand(
+                    new RelationalCommandBuilderDependencies(
+                        new TestRelationalTypeMappingSource(
+                            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())),
+                    commandText,
+                    Array.Empty<IRelationalParameter>());
+        }
+
         [ConditionalTheory]
         [MemberData(nameof(CommandActions))]
         public async Task Closes_managed_connections_on_exception(

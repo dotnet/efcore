@@ -244,30 +244,14 @@ FROM Persons;",
 
         public override async Task Add_column_with_defaultValueSql()
         {
-            if (new Version(new SqliteConnection().ServerVersion) < new Version(3, 32, 0))
-            {
-                var ex = await Assert.ThrowsAsync<SqliteException>(base.Add_column_with_defaultValueSql);
-                Assert.Contains("Cannot add a column with non-constant default", ex.Message);
-
-                return;
-            }
-
             await base.Add_column_with_defaultValueSql();
 
             AssertSql(
-                @"ALTER TABLE ""People"" ADD ""Sum"" INTEGER NULL DEFAULT (1 + 2);");
+                @"ALTER TABLE ""People"" ADD ""Sum"" INTEGER NOT NULL DEFAULT (1 + 2);");
         }
 
         public override async Task Add_column_with_computedSql(bool? stored)
         {
-            if (stored == true && new Version(new SqliteConnection().ServerVersion) < new Version(3, 32, 0))
-            {
-                var ex = await Assert.ThrowsAsync<SqliteException>
-                    (() => base.Add_column_with_computedSql(stored));
-                Assert.Contains("cannot add a STORED column", ex.Message);
-                return;
-            }
-
             await base.Add_column_with_computedSql(stored);
 
             var storedSql = stored == true ? " STORED" : "";

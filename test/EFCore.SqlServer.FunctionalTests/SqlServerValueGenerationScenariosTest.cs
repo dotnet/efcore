@@ -4,11 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using NetTopologySuite;
+using NetTopologySuite.Geometries;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -85,6 +88,8 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
+                base.OnModelCreating(modelBuilder);
+
                 modelBuilder.UseHiLo();
 
                 modelBuilder.Entity<Blog>(
@@ -147,6 +152,8 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
+                base.OnModelCreating(modelBuilder);
+
                 modelBuilder
                     .HasSequence("MySequence")
                     .StartsAt(0);
@@ -167,6 +174,8 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
+                base.OnModelCreating(modelBuilder);
+
                 modelBuilder
                     .Entity<Blog>()
                     .Property(e => e.Id)
@@ -259,6 +268,8 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
+                base.OnModelCreating(modelBuilder);
+
                 modelBuilder
                     .HasSequence("MySequence")
                     .StartsAt(77);
@@ -303,6 +314,8 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
+                base.OnModelCreating(modelBuilder);
+
                 modelBuilder
                     .Entity<Blog>()
                     .Property(e => e.Id)
@@ -343,6 +356,8 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
+                base.OnModelCreating(modelBuilder);
+
                 modelBuilder
                     .Entity<NullableKeyBlog>()
                     .Property(e => e.Id)
@@ -354,6 +369,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Insert_with_non_key_default_value()
         {
             using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+
             using (var context = new BlogContextNonKeyDefaultValue(testStore.Name))
             {
                 context.Database.EnsureCreatedResiliently();
@@ -361,7 +377,14 @@ namespace Microsoft.EntityFrameworkCore
                 var blogs = new List<Blog>
                 {
                     new Blog { Name = "One Unicorn" },
-                    new Blog { Name = "Two Unicorns", CreatedOn = new DateTime(1969, 8, 3, 0, 10, 0) }
+                    new Blog
+                    {
+                        Name = "Two Unicorns",
+                        CreatedOn = new DateTime(1969, 8, 3, 0, 10, 0),
+                        NeedsConverter = new NeedsConverter(111),
+                        GeometryCollection = GeometryFactory.CreateGeometryCollection(
+                            new Geometry[] { GeometryFactory.CreatePoint(new Coordinate(1, 3)) })
+                    }
                 };
 
                 context.AddRange(blogs);
@@ -370,17 +393,39 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.NotEqual(new DateTime(), blogs[0].CreatedOn);
                 Assert.NotEqual(new DateTime(), blogs[1].CreatedOn);
+                Assert.Equal(111, blogs[1].NeedsConverter.Value);
+
+                var point = ((Point)blogs[1].GeometryCollection.Geometries[0]);
+                Assert.Equal(1, point.X);
+                Assert.Equal(3, point.Y);
             }
 
             using (var context = new BlogContextNonKeyDefaultValue(testStore.Name))
             {
                 var blogs = context.Blogs.OrderBy(e => e.Name).ToList();
+                Assert.Equal(3, blogs.Count);
 
                 Assert.NotEqual(new DateTime(), blogs[0].CreatedOn);
                 Assert.Equal(new DateTime(1969, 8, 3, 0, 10, 0), blogs[1].CreatedOn);
+                Assert.Equal(new DateTime(1974, 8, 3, 0, 10, 0), blogs[2].CreatedOn);
+
+                var point1 = ((Point)blogs[1].GeometryCollection.Geometries[0]);
+                Assert.Equal(1, point1.X);
+                Assert.Equal(3, point1.Y);
+
+                var point2 = ((Point)blogs[2].GeometryCollection.Geometries[0]);
+                Assert.Equal(1, point2.X);
+                Assert.Equal(2, point2.Y);
 
                 blogs[0].CreatedOn = new DateTime(1973, 9, 3, 0, 10, 0);
-                blogs[1].Name = "Zwo Unicorns";
+
+                blogs[1].Name = "X Unicorns";
+                blogs[1].NeedsConverter = new NeedsConverter(222);
+                blogs[1].GeometryCollection.Geometries[0] = GeometryFactory.CreatePoint(new Coordinate(1, 11));
+
+                blogs[2].Name = "Y Unicorns";
+                blogs[2].NeedsConverter = new NeedsConverter(333);
+                blogs[2].GeometryCollection.Geometries[0] = GeometryFactory.CreatePoint(new Coordinate(1, 22));
 
                 context.SaveChanges();
             }
@@ -388,11 +433,25 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new BlogContextNonKeyDefaultValue(testStore.Name))
             {
                 var blogs = context.Blogs.OrderBy(e => e.Name).ToList();
+                Assert.Equal(3, blogs.Count);
 
-                Assert.Equal(new DateTime(1969, 8, 3, 0, 10, 0), blogs[1].CreatedOn);
                 Assert.Equal(new DateTime(1973, 9, 3, 0, 10, 0), blogs[0].CreatedOn);
+                Assert.Equal(new DateTime(1969, 8, 3, 0, 10, 0), blogs[1].CreatedOn);
+                Assert.Equal(222, blogs[1].NeedsConverter.Value);
+                Assert.Equal(new DateTime(1974, 8, 3, 0, 10, 0), blogs[2].CreatedOn);
+                Assert.Equal(333, blogs[2].NeedsConverter.Value);
+
+                var point1 = ((Point)blogs[1].GeometryCollection.Geometries[0]);
+                Assert.Equal(1, point1.X);
+                Assert.Equal(11, point1.Y);
+
+                var point2 = ((Point)blogs[2].GeometryCollection.Geometries[0]);
+                Assert.Equal(1, point2.X);
+                Assert.Equal(22, point2.Y);
             }
         }
+
+        private static readonly GeometryFactory GeometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
         public class BlogContextNonKeyDefaultValue : ContextBase
         {
@@ -403,11 +462,24 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
+                base.OnModelCreating(modelBuilder);
+
                 modelBuilder.Entity<Blog>(
                     b =>
                     {
-                        b.Property(e => e.CreatedOn)
-                            .HasDefaultValueSql("getdate()");
+                        b.Property(e => e.CreatedOn).HasDefaultValueSql("getdate()");
+                        b.Property(e => e.GeometryCollection).HasDefaultValue(GeometryFactory.CreateGeometryCollection());
+
+                        b.HasData(
+                            new Blog
+                            {
+                                Id = 9979,
+                                Name = "W Unicorns",
+                                CreatedOn = new DateTime(1974, 8, 3, 0, 10, 0),
+                                NeedsConverter = new NeedsConverter(111),
+                                GeometryCollection = GeometryFactory.CreateGeometryCollection(
+                                    new Geometry[] { GeometryFactory.CreatePoint(new Coordinate(1, 2)) })
+                            });
                     });
             }
         }
@@ -464,6 +536,8 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
+                base.OnModelCreating(modelBuilder);
+
                 modelBuilder.Entity<Blog>()
                     .Property(e => e.CreatedOn)
                     .HasDefaultValueSql("getdate()")
@@ -510,6 +584,8 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
+                base.OnModelCreating(modelBuilder);
+
                 var property = modelBuilder.Entity<FullNameBlog>()
                     .Property(e => e.FullName)
                     .HasComputedColumnSql("FirstName + ' ' + LastName")
@@ -569,6 +645,8 @@ RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
+                base.OnModelCreating(modelBuilder);
+
                 modelBuilder.Entity<FullNameBlog>()
                     .Property(e => e.FullName)
                     .HasComputedColumnSql("[dbo].[GetFullName]([FirstName], [LastName])")
@@ -686,12 +764,16 @@ END");
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<GuidBlog>(
+            {
+                base.OnModelCreating(modelBuilder);
+
+                modelBuilder.Entity<GuidBlog>(
                     eb =>
                     {
                         eb.HasAlternateKey(e => e.NotId);
                         eb.Property(e => e.NotId).ValueGeneratedOnAdd();
                     });
+            }
         }
 
         [ConditionalFact]
@@ -720,7 +802,11 @@ END");
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<GuidBlog>().Property(e => e.NotId).ValueGeneratedOnAdd();
+            {
+                base.OnModelCreating(modelBuilder);
+
+                modelBuilder.Entity<GuidBlog>().Property(e => e.NotId).ValueGeneratedOnAdd();
+            }
         }
 
         [ConditionalFact]
@@ -767,6 +853,8 @@ END");
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
+                base.OnModelCreating(modelBuilder);
+
                 modelBuilder
                     .Entity<GuidBlog>(
                         eb =>
@@ -859,6 +947,8 @@ END");
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
+                base.OnModelCreating(modelBuilder);
+
                 modelBuilder
                     .Entity<Blog>()
                     .Property(e => e.Id)
@@ -892,6 +982,8 @@ END");
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
+                base.OnModelCreating(modelBuilder);
+
                 modelBuilder.HasSequence("MySequence");
 
                 modelBuilder
@@ -1017,6 +1109,8 @@ END");
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
+                base.OnModelCreating(modelBuilder);
+
                 modelBuilder.Entity<ConcurrentBlog>()
                     .Property(e => e.Timestamp)
                     .ValueGeneratedOnAddOrUpdate()
@@ -1029,7 +1123,23 @@ END");
             public int Id { get; set; }
             public string Name { get; set; }
             public DateTime CreatedOn { get; set; }
+            public NeedsConverter NeedsConverter { get; set; }
+            public GeometryCollection GeometryCollection { get; set; }
             public int? OtherId { get; set; }
+        }
+
+        public class NeedsConverter
+        {
+            public NeedsConverter(int value)
+                => Value = value;
+
+            public int Value { get; }
+
+            public override bool Equals(object obj)
+                => throw new InvalidOperationException();
+
+            public override int GetHashCode()
+                => throw new InvalidOperationException();
         }
 
         public class NullableKeyBlog
@@ -1076,12 +1186,26 @@ END");
             public DbSet<GuidBlog> GuidBlogs { get; set; }
             public DbSet<ConcurrentBlog> ConcurrentBlogs { get; set; }
 
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Blog>()
+                    .Property(e => e.NeedsConverter)
+                    .HasConversion(
+                        v => v.Value,
+                        v => new NeedsConverter(v),
+                        new ValueComparer<NeedsConverter>(
+                            (l, r) => l.Value == r.Value,
+                            v => v.Value.GetHashCode(),
+                            v => new NeedsConverter(v.Value)))
+                    .HasDefaultValue(new NeedsConverter(999));
+            }
+
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
                     .EnableServiceProviderCaching(false)
                     .UseSqlServer(
                         SqlServerTestStore.CreateConnectionString(_databaseName),
-                        b => b.ApplyConfiguration());
+                        b => b.UseNetTopologySuite().ApplyConfiguration());
         }
     }
 }

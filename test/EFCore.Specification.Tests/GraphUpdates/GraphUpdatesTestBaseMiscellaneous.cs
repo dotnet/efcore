@@ -45,23 +45,23 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var instance = context.Set<OptionalSingle2Derived>().First();
-                    var propertyEntry = context.Entry(instance).Property("Discriminator");
+                    var propertyEntry = context.Entry(instance).Property(e => e.Disc);
                     id = instance.Id;
 
                     Assert.IsType<OptionalSingle2Derived>(instance);
-                    Assert.Equal(nameof(OptionalSingle2Derived), propertyEntry.CurrentValue);
+                    Assert.Equal(2, propertyEntry.CurrentValue.Value);
 
-                    propertyEntry.CurrentValue = nameof(OptionalSingle2);
+                    propertyEntry.CurrentValue = new MyDiscriminator(1);
 
                     context.SaveChanges();
                 },
                 context =>
                 {
                     var instance = context.Set<OptionalSingle2>().First(e => e.Id == id);
-                    var propertyEntry = context.Entry(instance).Property("Discriminator");
+                    var propertyEntry = context.Entry(instance).Property(e => e.Disc);
 
                     Assert.IsType<OptionalSingle2>(instance);
-                    Assert.Equal(nameof(OptionalSingle2), propertyEntry.CurrentValue);
+                    Assert.Equal(1, propertyEntry.CurrentValue.Value);
                 });
         }
 

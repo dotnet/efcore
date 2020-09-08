@@ -88,6 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
+            using var batch = Metadata.ConventionDispatcher.DelayConventions();
             var clrType = type.Type;
             EntityType entityType;
             if (type.IsNamed)

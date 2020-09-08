@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore
             await context.SaveChangesAsync();
         }
 
-        [ConditionalFact(Skip = "Issue #17672")]
+        [ConditionalFact]
         public async Task Can_use_sequence_end_to_end_from_multiple_contexts_concurrently_async()
         {
             var serviceProvider = new ServiceCollection()

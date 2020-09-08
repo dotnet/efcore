@@ -194,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore
             => Check.NotNull((Property)property, nameof(property)).GetContainingKeys();
 
         /// <summary>
-        ///     Gets the maximum length of data that is allowed in this property. For example, if the property is a <see cref="string" /> '
+        ///     Gets the maximum length of data that is allowed in this property. For example, if the property is a <see cref="string" />
         ///     then this is the maximum number of characters.
         /// </summary>
         /// <param name="property"> The property to get the maximum length of. </param>
@@ -208,8 +208,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Gets the precision of data that is allowed in this property.
-        ///     For example, if the property is a <see cref="decimal" />
-        ///     then this is the maximum number of digits.
+        ///     For example, if the property is a <see cref="decimal" /> then this is the maximum number of digits.
         /// </summary>
         /// <param name="property"> The property to get the precision of. </param>
         /// <returns> The precision, or <see langword="null" /> if none is defined. </returns>
@@ -222,8 +221,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Gets the scale of data that is allowed in this property.
-        ///     For example, if the property is a <see cref="decimal" />
-        ///     then this is the maximum number of decimal places.
+        ///     For example, if the property is a <see cref="decimal" /> then this is the maximum number of decimal places.
         /// </summary>
         /// <param name="property"> The property to get the scale of. </param>
         /// <returns> The scale, or <see langword="null" /> if none is defined. </returns>
