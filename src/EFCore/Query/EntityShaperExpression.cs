@@ -7,9 +7,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -123,7 +125,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Convert(discriminatorValueVariable, typeof(object)))),
                     Constant(null, typeof(IEntityType)));
 
-                expressions.Add(Switch(discriminatorValueVariable, exception, switchCases));
+
+                var discriminatorComparer = discriminatorProperty.GetKeyValueComparer();
+                if (discriminatorComparer.IsDefault())
+                {
+                    expressions.Add(Switch(discriminatorValueVariable, exception, switchCases));
+                }
+                else
+                {
+                    var staticComparer = typeof(StaticDiscriminatorComparer<,,>).MakeGenericType(
+                        discriminatorProperty.DeclaringEntityType.ClrType,
+                        discriminatorProperty.ClrType,
+                        discriminatorProperty.GetTypeMapping().Converter.ProviderClrType);
+
+                    var comparerField = staticComparer.GetField(nameof(StaticDiscriminatorComparer<int, int, int>.Comparer));
+                    comparerField.SetValue(null, discriminatorComparer);
+
+                    var equalsMethod = staticComparer.GetMethod(nameof(StaticDiscriminatorComparer<int, int, int>.DiscriminatorEquals));
+                    expressions.Add(Switch(discriminatorValueVariable, exception, equalsMethod, switchCases));
+                }
+
                 body = Block(new[] { discriminatorValueVariable }, expressions);
             }
             else

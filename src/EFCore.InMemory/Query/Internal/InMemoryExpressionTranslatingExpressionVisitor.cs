@@ -965,8 +965,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 {
                     var discriminatorProperty = entityType.GetDiscriminatorProperty();
                     var boundProperty = BindProperty(entityReferenceExpression, discriminatorProperty, discriminatorProperty.ClrType);
+                    var valueComparer = discriminatorProperty.GetKeyValueComparer();
 
-                    var equals = Expression.Equal(
+                    var equals = valueComparer.ExtractEqualsBody(
                         boundProperty,
                         Expression.Constant(derivedType.GetDiscriminatorValue(), discriminatorProperty.ClrType));
 
@@ -974,7 +975,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     {
                         equals = Expression.OrElse(
                             equals,
-                            Expression.Equal(
+                            valueComparer.ExtractEqualsBody(
                                 boundProperty,
                                 Expression.Constant(derivedDerivedType.GetDiscriminatorValue(), discriminatorProperty.ClrType)));
                     }
