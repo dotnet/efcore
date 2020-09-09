@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             = new ResourceManager("Microsoft.EntityFrameworkCore.Tools.Properties.Resources", typeof(Resources).Assembly);
 
         /// <summary>
-        ///     The assembly to use.
+        ///     The assembly to use. Required.
         /// </summary>
         public static string AssemblyDescription
             => GetString("AssemblyDescription");
@@ -37,19 +37,19 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("ContextDescription");
 
         /// <summary>
-        ///     The directory to put DbContext file in. Paths are relative to the project directory.
+        ///     The directory to put the DbContext file in. Paths are relative to the project directory.
         /// </summary>
         public static string ContextDirDescription
             => GetString("ContextDirDescription");
 
         /// <summary>
-        ///     The name of the DbContext.
+        ///     The name of the DbContext. Defaults to the database name.
         /// </summary>
         public static string ContextNameDescription
             => GetString("ContextNameDescription");
 
         /// <summary>
-        ///     Specify to override the namespace for the DbContext class.
+        ///     The namespace of the DbContext class. Defaults to match the directory.
         /// </summary>
         public static string ContextNamespaceDescription
             => GetString("ContextNamespaceDescription");
@@ -165,6 +165,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("DbContextScaffoldForceDescription");
 
         /// <summary>
+        ///     Generates a SQL script from the DbContext. Bypasses any migrations.
+        /// </summary>
+        public static string DbContextScriptDescription
+            => GetString("DbContextScriptDescription");
+
+        /// <summary>
         ///     Your startup project '{startupProject}' doesn't reference Microsoft.EntityFrameworkCore.Design. This package is required for the Entity Framework Core Tools to work. Ensure your startup project is correct, install the package, and try again.
         /// </summary>
         public static string DesignNotFound([CanBeNull] object startupProject)
@@ -193,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 template);
 
         /// <summary>
-        ///     Show JSON output.
+        ///     Show JSON output. Use with --prefix-output to parse programatically.
         /// </summary>
         public static string JsonDescription
             => GetString("JsonDescription");
@@ -255,13 +261,13 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MigrationsListDescription");
 
         /// <summary>
-        ///     Specify to override the namespace for the migration.
+        ///     The namespace to use. Defaults to match the directory.
         /// </summary>
         public static string MigrationsNamespaceDescription
             => GetString("MigrationsNamespaceDescription");
 
         /// <summary>
-        ///     The directory (and sub-namespace) to use. Paths are relative to the project directory. Defaults to "Migrations".
+        ///     The directory to put files in. Paths are relative to the project directory. Defaults to "Migrations".
         /// </summary>
         public static string MigrationsOutputDirDescription
             => GetString("MigrationsOutputDirDescription");
@@ -285,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MigrationsScriptDescription");
 
         /// <summary>
-        ///     The ending migration. Defaults to the last migration.
+        ///     The target migration. Defaults to the last migration.
         /// </summary>
         public static string MigrationToDescription
             => GetString("MigrationToDescription");
@@ -307,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 option);
 
         /// <summary>
-        ///     Specify to override the namespace for the generated entity types.
+        ///     The namespace to use. Defaults to match the directory.
         /// </summary>
         public static string NamespaceDescription
             => GetString("NamespaceDescription");
@@ -381,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("PrefixDescription");
 
         /// <summary>
-        ///     The project directory. Defaults to the current directory.
+        ///     The project directory. Defaults to the current working directory.
         /// </summary>
         public static string ProjectDirDescription
             => GetString("ProjectDirDescription");
@@ -435,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("StartupAssemblyDescription");
 
         /// <summary>
-        ///     Suppress generation of the DbContext.OnConfiguring() method.
+        ///     Don't generate DbContext.OnConfiguring.
         /// </summary>
         public static string SuppressOnConfiguringDescription
             => GetString("SuppressOnConfiguringDescription");
