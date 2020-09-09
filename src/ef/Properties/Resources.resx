@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AssemblyDescription" xml:space="preserve">
-    <value>The assembly to use.</value>
+    <value>The assembly to use. Required.</value>
   </data>
   <data name="ConnectionDescription" xml:space="preserve">
     <value>The connection string to the database.</value>
@@ -127,13 +127,13 @@
     <value>The DbContext to use.</value>
   </data>
   <data name="ContextDirDescription" xml:space="preserve">
-    <value>The directory to put DbContext file in. Paths are relative to the project directory.</value>
+    <value>The directory to put the DbContext file in. Paths are relative to the project directory.</value>
   </data>
   <data name="ContextNameDescription" xml:space="preserve">
-    <value>The name of the DbContext.</value>
+    <value>The name of the DbContext. Defaults to the database name.</value>
   </data>
   <data name="ContextNamespaceDescription" xml:space="preserve">
-    <value>Specify to override the namespace for the DbContext class.</value>
+    <value>The namespace of the DbContext class. Defaults to match the directory.</value>
   </data>
   <data name="DataAnnotationsDescription" xml:space="preserve">
     <value>Use attributes to configure the model (where possible). If omitted, only the fluent API is used.</value>
@@ -186,6 +186,9 @@
   <data name="DbContextScaffoldForceDescription" xml:space="preserve">
     <value>Overwrite existing files.</value>
   </data>
+  <data name="DbContextScriptDescription" xml:space="preserve">
+    <value>Generates a SQL script from the DbContext. Bypasses any migrations.</value>
+  </data>
   <data name="DesignNotFound" xml:space="preserve">
     <value>Your startup project '{startupProject}' doesn't reference Microsoft.EntityFrameworkCore.Design. This package is required for the Entity Framework Core Tools to work. Ensure your startup project is correct, install the package, and try again.</value>
   </data>
@@ -199,7 +202,7 @@
     <value>Invalid template pattern '{template}'.</value>
   </data>
   <data name="JsonDescription" xml:space="preserve">
-    <value>Show JSON output.</value>
+    <value>Show JSON output. Use with --prefix-output to parse programatically.</value>
   </data>
   <data name="LanguageDescription" xml:space="preserve">
     <value>The language. Defaults to 'C#'.</value>
@@ -229,10 +232,10 @@
     <value>Lists available migrations.</value>
   </data>
   <data name="MigrationsNamespaceDescription" xml:space="preserve">
-    <value>Specify to override the namespace for the migration.</value>
+    <value>The namespace to use. Defaults to match the directory.</value>
   </data>
   <data name="MigrationsOutputDirDescription" xml:space="preserve">
-    <value>The directory (and sub-namespace) to use. Paths are relative to the project directory. Defaults to "Migrations".</value>
+    <value>The directory to put files in. Paths are relative to the project directory. Defaults to "Migrations".</value>
   </data>
   <data name="MigrationsRemoveDescription" xml:space="preserve">
     <value>Removes the last migration.</value>
@@ -244,7 +247,7 @@
     <value>Generates a SQL script from migrations.</value>
   </data>
   <data name="MigrationToDescription" xml:space="preserve">
-    <value>The ending migration. Defaults to the last migration.</value>
+    <value>The target migration. Defaults to the last migration.</value>
   </data>
   <data name="MissingArgument" xml:space="preserve">
     <value>Missing required argument '{arg}'.</value>
@@ -253,7 +256,7 @@
     <value>Missing required option '--{option}'.</value>
   </data>
   <data name="NamespaceDescription" xml:space="preserve">
-    <value>Specify to override the namespace for the generated entity types.</value>
+    <value>The namespace to use. Defaults to match the directory.</value>
   </data>
   <data name="NoColorDescription" xml:space="preserve">
     <value>Don't colorize output.</value>
@@ -289,7 +292,7 @@
     <value>Prefix output with level.</value>
   </data>
   <data name="ProjectDirDescription" xml:space="preserve">
-    <value>The project directory. Defaults to the current directory.</value>
+    <value>The project directory. Defaults to the current working directory.</value>
   </data>
   <data name="ProviderDescription" xml:space="preserve">
     <value>The provider to use. (E.g. Microsoft.EntityFrameworkCore.SqlServer)</value>
@@ -313,7 +316,7 @@
     <value>The startup assembly to use. Defaults to the target assembly.</value>
   </data>
   <data name="SuppressOnConfiguringDescription" xml:space="preserve">
-    <value>Suppress generation of the DbContext.OnConfiguring() method.</value>
+    <value>Don't generate DbContext.OnConfiguring.</value>
   </data>
   <data name="TablesDescription" xml:space="preserve">
     <value>The tables to generate entity types for.</value>
