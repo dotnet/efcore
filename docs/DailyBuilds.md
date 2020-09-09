@@ -8,7 +8,7 @@ Daily builds are created automatically whenever a new commit is merged to the `m
 
 ## Using daily builds
 
-The daily builds are not published to NuGet because there are way too many of them! Instead they can be pulled from a custom NuGet feed used by the build system. To access this feed, create a `NuGet.config` file in the same directory as your .NET solution or projects. The file should contain the following content:
+The daily builds are not published to NuGet.org because there are way too many of them! Instead they can be pulled from a custom NuGet feed. To access this feed, create a `NuGet.config` file in the same directory as your .NET solution or projects. The file should contain the following content:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -44,10 +44,10 @@ It may be more convenient to use wildcards in project references. For example:
 
 ```xml
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.0*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.0*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.0*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" Version="6.0.0*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.0-*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.0-*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.0-*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" Version="6.0.0-*" />
   </ItemGroup>
 ```
 

@@ -29,7 +29,7 @@ Use the `--version` option to specify a [preview version](https://www.nuget.org/
 
 ### Daily builds
 
-We recommend using the [daily builds](DailyBuilds.md) to get the latest code and provide feedback on EF Core. These builds contain latest features and bug fixes; previews and official releases lag significantly behind.
+We recommend using the [daily builds](docs/DailyBuilds.md) to get the latest code and provide feedback on EF Core. These builds contain latest features and bug fixes; previews and official releases lag significantly behind.
 
 ### Usage
 
@@ -82,7 +82,7 @@ Use the `--version` option to specify a [preview version](https://www.nuget.org/
 
 ### Daily builds
 
-We recommend using the [daily builds](DailyBuilds.md) to get the latest code and provide feedback on Microsoft.Data.Sqlite. These builds contain latest features and bug fixes; previews and official releases lag significantly behind.
+We recommend using the [daily builds](docs/DailyBuilds.md) to get the latest code and provide feedback on Microsoft.Data.Sqlite. These builds contain latest features and bug fixes; previews and official releases lag significantly behind.
 
 ### Usage
 
