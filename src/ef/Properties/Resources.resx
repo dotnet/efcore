@@ -133,7 +133,7 @@
     <value>The name of the DbContext. Defaults to the database name.</value>
   </data>
   <data name="ContextNamespaceDescription" xml:space="preserve">
-    <value>The namespace of the DbContext class. Defaults to match the directory.</value>
+    <value>The namespace of the DbContext class. Matches the directory by default.</value>
   </data>
   <data name="DataAnnotationsDescription" xml:space="preserve">
     <value>Use attributes to configure the model (where possible). If omitted, only the fluent API is used.</value>
@@ -232,7 +232,7 @@
     <value>Lists available migrations.</value>
   </data>
   <data name="MigrationsNamespaceDescription" xml:space="preserve">
-    <value>The namespace to use. Defaults to match the directory.</value>
+    <value>The namespace to use. Matches the directory by default.</value>
   </data>
   <data name="MigrationsOutputDirDescription" xml:space="preserve">
     <value>The directory to put files in. Paths are relative to the project directory. Defaults to "Migrations".</value>
@@ -256,7 +256,7 @@
     <value>Missing required option '--{option}'.</value>
   </data>
   <data name="NamespaceDescription" xml:space="preserve">
-    <value>The namespace to use. Defaults to match the directory.</value>
+    <value>The namespace to use. Matches the directory by default.</value>
   </data>
   <data name="NoColorDescription" xml:space="preserve">
     <value>Don't colorize output.</value>

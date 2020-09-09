@@ -26,7 +26,7 @@ $versionErrorMessage = 'The Entity Framework Core Package Manager Console Tools 
     The startup project to use. Defaults to the solution's startup project.
 
 .PARAMETER Namespace
-    The namespace to use. Defaults to match the directory.
+    The namespace to use. Matches the directory by default.
 
 .PARAMETER Args
     Arguments passed to the application.
@@ -244,10 +244,10 @@ function Remove-Migration(
     The startup project to use. Defaults to the solution's startup project.
 
 .PARAMETER Namespace
-    The namespace to use. Defaults to match the directory.
+    The namespace to use. Matches the directory by default.
 
 .PARAMETER ContextNamespace
-    The namespace of the DbContext class. Defaults to match the directory.
+    The namespace of the DbContext class. Matches the directory by default.
 
 .PARAMETER NoPluralize
     Don't use the pluralizer.

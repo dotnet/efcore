@@ -142,7 +142,7 @@
     <value>The name of the DbContext. Defaults to the database name.</value>
   </data>
   <data name="ContextNamespaceDescription" xml:space="preserve">
-    <value>The namespace of the DbContext class. Defaults to match the directory.</value>
+    <value>The namespace of the DbContext class. Matches the directory by default.</value>
   </data>
   <data name="DataAnnotationsDescription" xml:space="preserve">
     <value>Use attributes to configure the model (where possible). If omitted, only the fluent API is used.</value>
@@ -226,7 +226,7 @@
     <value>Lists available migrations.</value>
   </data>
   <data name="MigrationsNamespaceDescription" xml:space="preserve">
-    <value>The namespace to use. Defaults to match the directory.</value>
+    <value>The namespace to use. Matches the directory by default.</value>
   </data>
   <data name="MigrationsOutputDirDescription" xml:space="preserve">
     <value>The directory to put files in. Paths are relative to the project directory. Defaults to "Migrations".</value>
@@ -253,7 +253,7 @@
     <value>More than one project was found in the current working directory. Use the --startup-project option.</value>
   </data>
   <data name="NamespaceDescription" xml:space="preserve">
-    <value>The namespace to use. Defaults to match the directory.</value>
+    <value>The namespace to use. Matches the directory by default.</value>
   </data>
   <data name="NETCoreApp1StartupProject" xml:space="preserve">
     <value>Startup project '{startupProject}' targets framework '.NETCoreApp' version '{targetFrameworkVersion}'. This version of the Entity Framework Core .NET Command-line Tools only supports version 2.0 or higher. For information on using older versions of the tools, see https://go.microsoft.com/fwlink/?linkid=871254</value>
@@ -262,7 +262,7 @@
     <value>Startup project '{startupProject}' targets framework '.NETStandard'. There is no runtime associated with this framework, and projects targeting it cannot be executed directly. To use the Entity Framework Core .NET Command-line Tools with this project, add an executable project targeting .NET Core or .NET Framework that references this project, and set it as the startup project using --startup-project; or, update this project to cross-target .NET Core or .NET Framework. For more information on using the Entity Framework Tools with .NET Standard projects, see https://go.microsoft.com/fwlink/?linkid=2034781</value>
   </data>
   <data name="NoBuildDescription" xml:space="preserve">
-    <value>Don't build the project. Only use when the build is up-to-date.</value>
+    <value>Don't build the project. Intended to be used when the build is up-to-date.</value>
   </data>
   <data name="NoColorDescription" xml:space="preserve">
     <value>Don't colorize output.</value>
