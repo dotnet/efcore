@@ -27,7 +27,9 @@ dotnet add package Microsoft.EntityFrameworkCore.Cosmos
 
 Use the `--version` option to specify a [preview version](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore/absoluteLatest) to install.
 
-Use the [daily builds](https://github.com/dotnet/aspnetcore/blob/master/docs/DailyBuilds.md) to verify bug fixes and provide early feedback.
+### Daily builds
+
+We recommend using the [daily builds](DailyBuilds.md) to get the latest code and provide feedback on EF Core. These builds contain latest features and bug fixes; previews and official releases lag significantly behind.
 
 ### Usage
 
@@ -78,7 +80,9 @@ dotnet add package Microsoft.Data.Sqlite
 
 Use the `--version` option to specify a [preview version](https://www.nuget.org/packages/Microsoft.Data.Sqlite/absoluteLatest) to install.
 
-Use the [daily builds](https://github.com/dotnet/aspnetcore/blob/master/docs/DailyBuilds.md) to verify bug fixes and provide early feedback.
+### Daily builds
+
+We recommend using the [daily builds](DailyBuilds.md) to get the latest code and provide feedback on Microsoft.Data.Sqlite. These builds contain latest features and bug fixes; previews and official releases lag significantly behind.
 
 ### Usage
 
