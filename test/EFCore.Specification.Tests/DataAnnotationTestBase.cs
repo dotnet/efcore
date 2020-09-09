@@ -2175,7 +2175,7 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Ignore<B>();
 
             Assert.Equal(
-                CoreStrings.ConflictingForeignKeyAttributes("{'AId'}", nameof(ConflictingFKAttributes)),
+                CoreStrings.ConflictingForeignKeyAttributes("{'AId'}", nameof(ConflictingFKAttributes), nameof(A)),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<ConflictingFKAttributes>()).Message);
         }
 

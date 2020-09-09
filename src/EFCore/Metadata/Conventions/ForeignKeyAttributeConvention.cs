@@ -251,7 +251,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         throw new InvalidOperationException(
                             CoreStrings.ConflictingForeignKeyAttributes(
                                 existingProperties.Format(),
-                                foreignKey.DeclaringEntityType.DisplayName()));
+                                foreignKey.DeclaringEntityType.DisplayName(),
+                                foreignKey.PrincipalEntityType.DisplayName()));
                     }
                 }
             }

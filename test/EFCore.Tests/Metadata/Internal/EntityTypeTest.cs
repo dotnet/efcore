@@ -344,7 +344,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var idProperty = entityType.AddProperty(Customer.IdProperty);
 
             Assert.Equal(
-                CoreStrings.DuplicatePropertyInList(
+                CoreStrings.DuplicatePropertyInKey(
                     "{'" + Customer.IdProperty.Name + "', '" + Customer.IdProperty.Name + "'}", Customer.IdProperty.Name),
                 Assert.Throws<InvalidOperationException>(() => entityType.AddKey(new[] { idProperty, idProperty })).Message);
         }
@@ -632,7 +632,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var customerFk1 = orderType.AddProperty(Order.CustomerIdProperty);
 
             Assert.Equal(
-                CoreStrings.DuplicatePropertyInList(
+                CoreStrings.DuplicatePropertyInForeignKey(
                     "{'" + Order.CustomerIdProperty.Name + "', '" + Order.CustomerIdProperty.Name + "'}",
                     Order.CustomerIdProperty.Name),
                 Assert.Throws<InvalidOperationException>(
