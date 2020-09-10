@@ -18,8 +18,15 @@ namespace SQLitePCL
         };
 
         public static bool? EncryptionSupported()
-            => _knownLibraries.TryGetValue(raw.GetNativeLibraryName(), out var supported)
+            => EncryptionSupported(out _);
+
+        public static bool? EncryptionSupported(out string libraryName)
+        {
+            libraryName = raw.GetNativeLibraryName();
+
+            return _knownLibraries.TryGetValue(libraryName, out var supported)
                 ? supported
                 : default(bool?);
+        }
     }
 }
