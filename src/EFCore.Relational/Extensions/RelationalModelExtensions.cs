@@ -41,7 +41,12 @@ namespace Microsoft.EntityFrameworkCore
             var builder = new StringBuilder();
             var indentString = new string(' ', indent);
 
-            builder.Append(indentString).Append("DatabaseModel: ");
+            builder.Append(indentString).Append("RelationalModel: ");
+
+            if (model.Collation != null)
+            {
+                builder.AppendLine().Append(indentString).Append("Collation: " + model.Collation);
+            }
 
             foreach (var table in model.Tables)
             {
@@ -51,6 +56,21 @@ namespace Microsoft.EntityFrameworkCore
             foreach (var view in model.Views)
             {
                 builder.AppendLine().Append(view.ToDebugString(options, indent + 2));
+            }
+
+            foreach (var function in model.Functions)
+            {
+                builder.AppendLine().Append(function.ToDebugString(options, indent + 2));
+            }
+
+            foreach (var query in model.Queries)
+            {
+                builder.AppendLine().Append(query.ToDebugString(options, indent + 2));
+            }
+
+            foreach (var sequence in model.Sequences)
+            {
+                builder.AppendLine().Append(sequence.ToDebugString(options, indent + 2));
             }
 
             if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)

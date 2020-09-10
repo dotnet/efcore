@@ -52,6 +52,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 builder.Append(" ExcludedFromMigrations");
             }
 
+            if (table.PrimaryKey == null)
+            {
+                builder.Append(" Keyless");
+            }
+            else
+            {
+                if ((options & MetadataDebugStringOptions.SingleLine) == 0)
+                {
+                    builder.AppendLine();
+                }
+
+                builder.Append(table.PrimaryKey.ToDebugString(options, indent + 2));
+            }
+
+            if ((options & MetadataDebugStringOptions.SingleLine) == 0 && table.Comment != null)
+            {
+                builder
+                    .AppendLine()
+                    .Append(indentString)
+                    .AppendLine(" Comment:")
+                    .Append(indentString)
+                    .Append(table.Comment);
+            }
+
             if ((options & MetadataDebugStringOptions.SingleLine) == 0)
             {
                 var mappings = table.EntityTypeMappings.ToList();
@@ -71,6 +95,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     foreach (var column in columns)
                     {
                         builder.AppendLine().Append(column.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                var foreignKeyConstraints = table.ForeignKeyConstraints.ToList();
+                if (foreignKeyConstraints.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  ForeignKeyConstraints: ");
+                    foreach (var foreignKeyConstraint in foreignKeyConstraints)
+                    {
+                        builder.AppendLine().Append(foreignKeyConstraint.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                var indexes = table.Indexes.ToList();
+                if (indexes.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Indexes: ");
+                    foreach (var index in indexes)
+                    {
+                        builder.AppendLine().Append(index.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                var uniqueConstraints = table.UniqueConstraints.Where(uc => !uc.GetIsPrimaryKey()).ToList();
+                if (uniqueConstraints.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  UniqueConstraints: ");
+                    foreach (var uniqueConstraint in uniqueConstraints)
+                    {
+                        builder.AppendLine().Append(uniqueConstraint.ToDebugString(options, indent + 4));
                     }
                 }
 
