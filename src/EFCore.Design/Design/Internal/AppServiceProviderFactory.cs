@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public virtual IServiceProvider Create([NotNull] string[] args)
         {
-            _reporter.WriteVerbose(DesignStrings.FindingServiceProvider);
+            _reporter.WriteVerbose(DesignStrings.FindingServiceProvider(_startupAssembly.GetName().Name));
 
             return CreateFromHosting(args)
                 ?? CreateEmptyServiceProvider();

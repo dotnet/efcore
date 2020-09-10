@@ -109,6 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private void ConfigureReferencedServices(IServiceCollection services, string provider)
         {
             _reporter.WriteVerbose(DesignStrings.FindingReferencedServices(_startupAssembly.GetName().Name));
+            _reporter.WriteVerbose(DesignStrings.FindingReferencedServices(_assembly.GetName().Name));
 
             var references = _startupAssembly.GetCustomAttributes<DesignTimeServicesReferenceAttribute>()
                 .Concat(_assembly.GetCustomAttributes<DesignTimeServicesReferenceAttribute>())
@@ -166,7 +167,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             if (providerServicesAttribute == null)
             {
                 var message = DesignStrings.CannotFindDesignTimeProviderAssemblyAttribute(
-                    nameof(DesignTimeProviderServicesAttribute),
                     provider);
 
                 if (!throwOnError)
