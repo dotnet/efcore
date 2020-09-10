@@ -22,10 +22,10 @@ Register-TabExpansion Add-Migration @{
     The name of the migration.
 
 .PARAMETER OutputDir
-    The directory (and sub-namespace) to use. Paths are relative to the project directory. Defaults to "Migrations".
+    The directory to put files in. Paths are relative to the project directory. Defaults to "Migrations".
 
 .PARAMETER Context
-    The DbContext type to use.
+    The DbContext to use.
 
 .PARAMETER Project
     The project to use.
@@ -34,7 +34,7 @@ Register-TabExpansion Add-Migration @{
     The startup project to use. Defaults to the solution's startup project.
 
 .PARAMETER Namespace
-    Specify to override the namespace for the migration.
+    The namespace to use. Matches the directory by default.
 
 .PARAMETER Args
     Arguments passed to the application.
@@ -167,10 +167,10 @@ Register-TabExpansion Get-DbContext @{
 
 <#
 .SYNOPSIS
-    Gets information about DbContext types.
+    Lists and gets information about available DbContext types.
 
 .DESCRIPTION
-    Gets information about DbContext types.
+    Lists and gets information about available DbContext types.
 
 .PARAMETER Context
     The DbContext to use.
@@ -237,6 +237,7 @@ Register-TabExpansion Get-Migration @{
     The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
 
 .PARAMETER NoConnect
+    Don't connect to the database.
 
 .PARAMETER Context
     The DbContext to use.
@@ -393,10 +394,10 @@ Register-TabExpansion Scaffold-DbContext @{
     The directory to put files in. Paths are relative to the project directory.
 
 .PARAMETER ContextDir
-    The directory to put DbContext file in. Paths are relative to the project directory.
+    The directory to put the DbContext file in. Paths are relative to the project directory.
 
 .PARAMETER Context
-    The name of the DbContext to generate.
+    The name of the DbContext. Defaults to the database name.
 
 .PARAMETER Schemas
     The schemas of tables to generate entity types for.
@@ -414,7 +415,7 @@ Register-TabExpansion Scaffold-DbContext @{
     Overwrite existing files.
 
 .PARAMETER NoOnConfiguring
-    Suppress generation of the DbContext.OnConfiguring() method.
+    Don't generate DbContext.OnConfiguring.
 
 .PARAMETER Project
     The project to use.
@@ -423,10 +424,10 @@ Register-TabExpansion Scaffold-DbContext @{
     The startup project to use. Defaults to the solution's startup project.
 
 .PARAMETER Namespace
-    Specify to override the namespace for the generated entity types.
+    The namespace to use. Matches the directory by default.
 
 .PARAMETER ContextNamespace
-    Specify to override the namespace for the DbContext class.
+    The namespace of the DbContext class. Matches the directory by default.
 
 .PARAMETER NoPluralize
     Don't use the pluralizer.
@@ -540,10 +541,10 @@ Register-TabExpansion Script-DbContext @{
 
 <#
 .SYNOPSIS
-    Generates a SQL script from current DbContext.
+    Generates a SQL script from the DbContext. Bypasses any migrations.
 
 .DESCRIPTION
-    Generates a SQL script from current DbContext.
+    Generates a SQL script from the DbContext. Bypasses any migrations.
 
 .PARAMETER Output
     The file to write the result to.
@@ -625,7 +626,7 @@ Register-TabExpansion Script-Migration @{
     The starting migration. Defaults to '0' (the initial database).
 
 .PARAMETER To
-    The ending migration. Defaults to the last migration.
+    The target migration. Defaults to the last migration.
 
 .PARAMETER Idempotent
     Generate a script that can be used on a database at any migration.
