@@ -294,7 +294,7 @@ Change your target project to the migrations project by using the Package Manage
     <value>Metadata model returned should not be null. Provider: {providerTypeName}.</value>
   </data>
   <data name="ReadOnlyFiles" xml:space="preserve">
-    <value>No files were generated in directory '{outputDirectoryName}'. The following file(s) already exist and must be made writeable to continue: {readOnlyFiles}.</value>
+    <value>No files were generated in directory '{outputDirectoryName}'. The following file(s) already exist(s) and must be made writeable to continue: {readOnlyFiles}.</value>
   </data>
   <data name="RemovingMigration" xml:space="preserve">
     <value>Removing migration '{name}'.</value>
