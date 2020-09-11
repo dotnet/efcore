@@ -287,6 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             GenerateRequiredAttribute(property);
             GenerateColumnAttribute(property);
             GenerateMaxLengthAttribute(property);
+            GenerateUnicodeAttribute(property);
 
             var annotations = _annotationCodeGenerator
                 .FilterIgnoredAnnotations(property.GetAnnotations())
@@ -362,6 +363,29 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 lengthAttribute.AddParameter(_code.Literal(maxLength.Value));
 
                 _sb.AppendLine(lengthAttribute.ToString());
+            }
+        }
+
+        private void GenerateUnicodeAttribute(IProperty property)
+        {
+            if (property.ClrType != typeof(string))
+            {
+                return;
+            }
+
+            var isUnicode = property.IsUnicode();
+
+            if (isUnicode.HasValue)
+            {
+                if (!isUnicode.Value)
+                {
+                    var unicodeAttribute = new AttributeWriter(nameof(UnicodeAttribute));
+
+                    unicodeAttribute.AddParameter(_code.Literal(false));
+
+                    _sb.AppendLine(unicodeAttribute.ToString());
+                }
+                else _sb.AppendLine(new AttributeWriter(nameof(UnicodeAttribute)).ToString());
             }
         }
 

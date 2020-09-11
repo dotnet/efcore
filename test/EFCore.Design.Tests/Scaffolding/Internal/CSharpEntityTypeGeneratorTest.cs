@@ -847,6 +847,56 @@ namespace TestNamespace
         }
 
         [ConditionalFact]
+        public void UnicodeAttribute_is_generated_for_property()
+        {
+            Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "Entity",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("A").HasMaxLength(34).IsUnicode();
+                            x.Property<string>("B").HasMaxLength(34).IsUnicode(false);
+                        }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = true },
+                code =>
+                {
+                    AssertFileContents(
+                        @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+#nullable disable
+
+namespace TestNamespace
+{
+    public partial class Entity
+    {
+        [Key]
+        public int Id { get; set; }
+        [StringLength(34)]
+        [Unicode]
+        public string A { get; set; }
+        [StringLength(34)]
+        [Unicode(false)]
+        public string B { get; set; }
+    }
+}
+",
+                        code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
+                },
+                model =>
+                {
+                    var entitType = model.FindEntityType("TestNamespace.Entity");
+                    Assert.True(entitType.GetProperty("A").IsUnicode());
+                    Assert.False(entitType.GetProperty("B").IsUnicode());
+                });
+        }
+
+        [ConditionalFact]
         public void Properties_are_sorted_in_order_of_definition_in_table()
         {
             Test(
