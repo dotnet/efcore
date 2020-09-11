@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -1583,6 +1584,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .OrderByDescending(r => r.A)
                     .ThenBy(r => r.A),
                 assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Regex_IsMatch_MethodCall(bool async)
+        {
+            return AssertQuery(async,
+                ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, @"^T")),
+                entryCount: 6);
         }
     }
 }
