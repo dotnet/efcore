@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             using var context = CreateContext(contextType);
             var connection = context.Database.GetDbConnection();
-            _reporter.WriteInformation(DesignStrings.DroppingDatabase(connection.Database));
+            _reporter.WriteInformation(DesignStrings.DroppingDatabase(connection.Database, connection.DataSource));
             if (context.Database.EnsureDeleted())
             {
                 _reporter.WriteInformation(DesignStrings.DatabaseDropped(connection.Database));

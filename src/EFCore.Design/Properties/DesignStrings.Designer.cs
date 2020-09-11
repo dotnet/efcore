@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 exceptionMessage);
 
         /// <summary>
-        ///     For sequence '{sequenceName}'. Unable to scaffold because it uses an unsupported type: '{typeName}'.
+        ///     Cannot scaffold sequence '{sequenceName}' because it uses type '{typeName}' which is unsupported.
         /// </summary>
         public static string BadSequenceType([CanBeNull] object sequenceName, [CanBeNull] object typeName)
             => string.Format(
@@ -35,15 +35,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 sequenceName, typeName);
 
         /// <summary>
-        ///     Unable to find expected assembly attribute named {attributeName} in provider assembly {runtimeProviderAssemblyName}. This attribute is required to identify the class which acts as the design-time service provider factory.
+        ///     Unable to find expected assembly attribute [DesignTimeProviderServices] in provider assembly '{runtimeProviderAssemblyName}'. This attribute is required to identify the class which acts as the design-time service provider factory for the provider.
         /// </summary>
-        public static string CannotFindDesignTimeProviderAssemblyAttribute([CanBeNull] object attributeName, [CanBeNull] object runtimeProviderAssemblyName)
+        public static string CannotFindDesignTimeProviderAssemblyAttribute([CanBeNull] object runtimeProviderAssemblyName)
             => string.Format(
-                GetString("CannotFindDesignTimeProviderAssemblyAttribute", nameof(attributeName), nameof(runtimeProviderAssemblyName)),
-                attributeName, runtimeProviderAssemblyName);
+                GetString("CannotFindDesignTimeProviderAssemblyAttribute", nameof(runtimeProviderAssemblyName)),
+                runtimeProviderAssemblyName);
 
         /// <summary>
-        ///     Unable to find provider assembly with name {assemblyName}. Ensure the specified name is correct and is referenced by the project.
+        ///     Unable to find provider assembly '{assemblyName}'. Ensure the name is correct and it's referenced by the project.
         /// </summary>
         public static string CannotFindRuntimeProviderAssembly([CanBeNull] object assemblyName)
             => string.Format(
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 name);
 
         /// <summary>
-        ///     The context class name passed in, {contextClassName}, is not a valid C# identifier.
+        ///     The context class name '{contextClassName}' is not a valid C# identifier.
         /// </summary>
         public static string ContextClassNotValidCSharpIdentifier([CanBeNull] object contextClassName)
             => string.Format(
@@ -95,12 +95,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("Done");
 
         /// <summary>
-        ///     Dropping database '{name}'.
+        ///     Dropping database '{database}' on server '{dataSource}'.
         /// </summary>
-        public static string DroppingDatabase([CanBeNull] object name)
+        public static string DroppingDatabase([CanBeNull] object database, [CanBeNull] object dataSource)
             => string.Format(
-                GetString("DroppingDatabase", nameof(name)),
-                name);
+                GetString("DroppingDatabase", nameof(database), nameof(dataSource)),
+                database, dataSource);
 
         /// <summary>
         ///     The name '{migrationName}' is used by an existing migration.
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 message);
 
         /// <summary>
-        ///     The following file(s) already exist in directory {outputDirectoryName}: {existingFiles}. Use the Force flag to overwrite these files.
+        ///     The following file(s) already exist in directory '{outputDirectoryName}': {existingFiles}. Use the Force flag to overwrite these files.
         /// </summary>
         public static string ExistingFiles([CanBeNull] object outputDirectoryName, [CanBeNull] object existingFiles)
             => string.Format(
@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("FindingReferencedContexts");
 
         /// <summary>
-        ///     Finding design-time services referenced by assembly '{startupAssembly}'.
+        ///     Finding design-time services referenced by assembly '{startupAssembly}'...
         /// </summary>
         public static string FindingReferencedServices([CanBeNull] object startupAssembly)
             => string.Format(
@@ -175,13 +175,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 startupAssembly);
 
         /// <summary>
-        ///     Finding application service provider...
+        ///     Finding application service provider in assembly '{startupAssembly}'...
         /// </summary>
-        public static string FindingServiceProvider
-            => GetString("FindingServiceProvider");
+        public static string FindingServiceProvider([CanBeNull] object startupAssembly)
+            => string.Format(
+                GetString("FindingServiceProvider", nameof(startupAssembly)),
+                startupAssembly);
 
         /// <summary>
-        ///     Unable to check if the migration '{name}' has been applied to the database. If it has, you will need to manually reverse the changes it made. Error encountered while checking: {error}
+        ///     Unable to check if the migration '{name}' has been applied to the database. If it has, you will need to manually revert its changes. Error encountered while checking: {error}
         /// </summary>
         public static string ForceRemoveMigration([CanBeNull] object name, [CanBeNull] object error)
             => string.Format(
@@ -275,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("MalformedCreateHostBuilder");
 
         /// <summary>
-        ///     A manual migration deletion was detected.
+        ///     The model snapshot and the backing model of the last migration are different. Continuing under the assumption that the last migration was deleted manually.
         /// </summary>
         public static string ManuallyDeleted
             => GetString("ManuallyDeleted");
@@ -349,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("NoDesignTimeServices");
 
         /// <summary>
-        ///     The project language '{language}' isn't supported by the built-in {service} service. You can try looking for an additional NuGet package which supports this language; moving your DbContext type to a C# class library referenced by this project; or manually implementing and registering the design-time service for programming language.
+        ///     The project language '{language}' isn't supported by the built-in {service} service. You can try looking for an additional NuGet package which supports this language; moving your DbContext type to a C# class library referenced by this project; or manually implementing and registering the design-time service for the programming language.
         /// </summary>
         public static string NoLanguageService([CanBeNull] object language, [CanBeNull] object service)
             => string.Format(
@@ -381,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 columnName);
 
         /// <summary>
-        ///     {provider} is not a Relational provider and therefore cannot be use with Migrations.
+        ///     The provider '{provider}' is not a Relational provider and therefore cannot be use with Migrations.
         /// </summary>
         public static string NonRelationalProvider([CanBeNull] object provider)
             => string.Format(
@@ -453,7 +455,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 providerTypeName);
 
         /// <summary>
-        ///     No files generated in directory {outputDirectoryName}. The following file(s) already exist and must be made writeable to continue: {readOnlyFiles}.
+        ///     No files were generated in directory '{outputDirectoryName}'. The following file(s) already exist and must be made writeable to continue: {readOnlyFiles}.
         /// </summary>
         public static string ReadOnlyFiles([CanBeNull] object outputDirectoryName, [CanBeNull] object readOnlyFiles)
             => string.Format(
@@ -491,13 +493,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 name);
 
         /// <summary>
-        ///     Reverting model snapshot.
+        ///     Reverting the model snapshot.
         /// </summary>
         public static string RevertingSnapshot
             => GetString("RevertingSnapshot");
 
         /// <summary>
-        ///     The migration '{name}' has already been applied to the database. Revert it and try again. If the migration has been applied to other databases, consider reverting its changes using a new migration.
+        ///     The migration '{name}' has already been applied to the database. Revert it and try again. If the migration has been applied to other databases, consider reverting its changes using a new migration instead.
         /// </summary>
         public static string RevertMigration([CanBeNull] object name)
             => string.Format(
@@ -517,7 +519,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("SequencesRequireName");
 
         /// <summary>
-        ///     Unable to generate entity type for table '{tableName}'.
+        ///     Unable to generate entity type for table '{tableName}' since its primary key could not be scaffolded.
         /// </summary>
         public static string UnableToGenerateEntityType([CanBeNull] object tableName)
             => string.Format(
@@ -541,7 +543,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 enumValue);
 
         /// <summary>
-        ///     The current CSharpHelper cannot scaffold literals of type '{literalType}'. Configure your services to use one that can.
+        ///     Cannot scaffold C# literals of type '{literalType}'. The provider should implement CoreTypeMapping.GenerateCodeLiteral to support using it at design time.
         /// </summary>
         public static string UnknownLiteral([CanBeNull] object literalType)
             => string.Format(
@@ -549,7 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 literalType);
 
         /// <summary>
-        ///     The current CSharpMigrationOperationGenerator cannot scaffold operations of type '{operationType}'. Configure your services to use one that can.
+        ///     The current CSharpMigrationOperationGenerator cannot scaffold operations of type '{operationType}'. Configure your design-time services to use one that can.
         /// </summary>
         public static string UnknownOperation([CanBeNull] object operationType)
             => string.Format(
