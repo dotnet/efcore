@@ -17,6 +17,40 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         public abstract class ManyToManyTestBase : ModelBuilderTestBase
         {
             [ConditionalFact]
+            public virtual void Discovers_navigations()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<Category>().Ignore(c => c.ProductCategories);
+                modelBuilder.Entity<Product>();
+                modelBuilder.Entity<CategoryBase>();
+
+                var model = modelBuilder.FinalizeModel();
+
+                var productType = model.FindEntityType(typeof(Product));
+                var categoryType = model.FindEntityType(typeof(Category));
+
+                var categoriesNavigation = productType.GetSkipNavigations().Single();
+                var productsNavigation = categoryType.GetSkipNavigations().Single();
+
+                var categoriesFk = categoriesNavigation.ForeignKey;
+                var productsFk = productsNavigation.ForeignKey;
+                var productCategoryType = categoriesFk.DeclaringEntityType;
+
+                Assert.Equal(typeof(Dictionary<string, object>), productCategoryType.ClrType);
+                Assert.Equal(nameof(Category) + nameof(Product), productCategoryType.Name);
+                Assert.Same(categoriesFk, productCategoryType.GetForeignKeys().Last());
+                Assert.Same(productsFk, productCategoryType.GetForeignKeys().First());
+                Assert.Equal(2, productCategoryType.GetForeignKeys().Count());
+
+                Assert.Same(categoriesNavigation, productType.GetSkipNavigations().Single());
+                Assert.Same(productsNavigation, categoryType.GetSkipNavigations().Single());
+                Assert.Same(categoriesFk, productCategoryType.GetForeignKeys().Last());
+                Assert.Same(productsFk, productCategoryType.GetForeignKeys().First());
+                Assert.Equal(2, productCategoryType.GetForeignKeys().Count());
+            }
+
+            [ConditionalFact]
             public virtual void Finds_existing_navigations_and_uses_associated_FK()
             {
                 var modelBuilder = CreateModelBuilder();

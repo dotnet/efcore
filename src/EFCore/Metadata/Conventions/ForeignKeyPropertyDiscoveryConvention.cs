@@ -765,7 +765,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionForeignKey oldForeignKey,
             IConventionContext<IConventionForeignKey> context)
         {
-            if (foreignKey != null
+            if (foreignKey?.Builder != null
                 && foreignKey.GetPropertiesConfigurationSource() == null
                 && skipNavigationBuilder.Metadata.Inverse?.Builder != null)
             {
