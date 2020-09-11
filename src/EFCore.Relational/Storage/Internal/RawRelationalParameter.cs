@@ -1,7 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -62,6 +64,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         public override void AddDbParameter(DbCommand command, object value)
         {
+            if (value is DbParameter dbParameter
+                && dbParameter.Direction == ParameterDirection.Input
+                && value is ICloneable cloneable)
+            {
+                value = cloneable.Clone();
+            }
+
             command.Parameters.Add(value);
         }
     }
