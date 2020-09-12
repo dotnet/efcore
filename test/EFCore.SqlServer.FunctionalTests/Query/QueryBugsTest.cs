@@ -457,7 +457,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
 
             using var context = new NullKeyContext(options);
             Assert.Equal(
-                CoreStrings.ErrorMaterializingPropertyNullReference("ZeroKey", "Id", typeof(int)),
+                RelationalStrings.ErrorMaterializingPropertyNullReference("ZeroKey", "Id", typeof(int)),
                 Assert.Throws<InvalidOperationException>(() => context.ZeroKeys.ToList()).Message);
         }
 
@@ -840,14 +840,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                 var firstName = details.FirstName;
                 ctx.Customers.Where(c => c.FirstName == firstName && c.LastName == details.LastName).ToList();
 
-                // issue #16057
-                //                    AssertSql(
-                //                        @"@__firstName_0='Foo' (Size = 450)
-                //@__8__locals1_details_LastName_1='Bar' (Size = 450)
-
-                //SELECT [c].[FirstName], [c].[LastName]
-                //FROM [Customer] AS [c]
-                //WHERE (([c].[FirstName] = @__firstName_0) AND @__firstName_0 IS NOT NULL) AND (([c].[LastName] = @__8__locals1_details_LastName_1) AND @__8__locals1_details_LastName_1 IS NOT NULL)");
+                // No AssertSQL since compiler generated variable names are different between local and CI
             }
         }
 
@@ -8511,6 +8504,403 @@ ORDER BY [u].[Id] DESC");
                             }
                         },
                         new User22054 { Contact = null, Data = null });
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        #endregion
+
+        #region Issue14911
+
+        [ConditionalFact]
+        public virtual void Owned_entity_multiple_level_in_aggregate()
+        {
+            using (CreateDatabase14911())
+            {
+                using var context = new MyContext14911(_options);
+
+                var aggregate = context.Set<Aggregate14911>().OrderByDescending(e => e.Id).FirstOrDefault();
+
+                Assert.Equal(10, aggregate.FirstValueObject.SecondValueObjects[0].FourthValueObject.FifthValueObjects[0].AnyValue);
+                Assert.Equal(20, aggregate.FirstValueObject.SecondValueObjects[0].ThirdValueObjects[0].FourthValueObject.FifthValueObjects[0].AnyValue);
+
+                AssertSql(
+                    @"SELECT [t].[Id], [t3].[Id], [t3].[AggregateId], [t3].[Id0], [t3].[AnyValue], [t3].[SecondValueObjectId], [t3].[Id1], [t3].[SecondValueObjectId0], [t3].[Id00], [t3].[AnyValue0], [t3].[ThirdValueObjectId]
+FROM (
+    SELECT TOP(1) [a].[Id]
+    FROM [Aggregates] AS [a]
+    ORDER BY [a].[Id] DESC
+) AS [t]
+LEFT JOIN (
+    SELECT [s].[Id], [s].[AggregateId], [f].[Id] AS [Id0], [f].[AnyValue], [f].[SecondValueObjectId], [t2].[Id] AS [Id1], [t2].[SecondValueObjectId] AS [SecondValueObjectId0], [t2].[Id0] AS [Id00], [t2].[AnyValue] AS [AnyValue0], [t2].[ThirdValueObjectId]
+    FROM [SecondValueObjects] AS [s]
+    LEFT JOIN [FourthFifthValueObjects] AS [f] ON [s].[Id] = [f].[SecondValueObjectId]
+    LEFT JOIN (
+        SELECT [t0].[Id], [t0].[SecondValueObjectId], [t1].[Id] AS [Id0], [t1].[AnyValue], [t1].[ThirdValueObjectId]
+        FROM [ThirdValueObjects] AS [t0]
+        LEFT JOIN [ThirdFifthValueObjects] AS [t1] ON [t0].[Id] = [t1].[ThirdValueObjectId]
+    ) AS [t2] ON [s].[Id] = [t2].[SecondValueObjectId]
+) AS [t3] ON [t].[Id] = [t3].[AggregateId]
+ORDER BY [t].[Id] DESC, [t3].[Id], [t3].[Id0], [t3].[Id1], [t3].[Id00]");
+            }
+        }
+
+        private class Aggregate14911
+        {
+            public int Id { get; set; }
+            public FirstValueObject14911 FirstValueObject { get; set; }
+        }
+
+        private class FirstValueObject14911
+        {
+            public List<SecondValueObject14911> SecondValueObjects { get; set; }
+        }
+
+        private class SecondValueObject14911
+        {
+            public FourthValueObject14911 FourthValueObject { get; set; }
+            public List<ThirdValueObject14911> ThirdValueObjects { get; set; }
+        }
+
+        private class ThirdValueObject14911
+        {
+            public FourthValueObject14911 FourthValueObject { get; set; }
+        }
+
+        private class FourthValueObject14911
+        {
+            public List<FifthValueObject14911> FifthValueObjects { get; set; }
+        }
+
+        private class FifthValueObject14911
+        {
+            public int AnyValue { get; set; }
+        }
+
+        private class MyContext14911 : DbContext
+        {
+            public MyContext14911(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Aggregate14911>(builder =>
+                {
+                    builder.ToTable("Aggregates");
+                    builder.HasKey(e => e.Id);
+
+                    builder.OwnsOne(e => e.FirstValueObject, dr =>
+                    {
+                        dr.OwnsMany(d => d.SecondValueObjects, c =>
+                        {
+                            c.ToTable("SecondValueObjects");
+                            c.Property<int>("Id").IsRequired();
+                            c.HasKey("Id");
+                            c.OwnsOne(b => b.FourthValueObject, b =>
+                            {
+                                b.OwnsMany(t => t.FifthValueObjects, sp =>
+                                 {
+                                     sp.ToTable("FourthFifthValueObjects");
+                                     sp.Property<int>("Id").IsRequired();
+                                     sp.HasKey("Id");
+                                     sp.Property(e => e.AnyValue).IsRequired();
+                                     sp.WithOwner().HasForeignKey("SecondValueObjectId");
+                                 });
+                            });
+                            c.OwnsMany(b => b.ThirdValueObjects, b =>
+                            {
+                                b.ToTable("ThirdValueObjects");
+                                b.Property<int>("Id").IsRequired();
+                                b.HasKey("Id");
+
+                                b.OwnsOne(d => d.FourthValueObject, dpd =>
+                                {
+                                    dpd.OwnsMany(d => d.FifthValueObjects, sp =>
+                                    {
+                                        sp.ToTable("ThirdFifthValueObjects");
+                                        sp.Property<int>("Id").IsRequired();
+                                        sp.HasKey("Id");
+                                        sp.Property(e => e.AnyValue).IsRequired();
+                                        sp.WithOwner().HasForeignKey("ThirdValueObjectId");
+                                    });
+                                });
+                                b.WithOwner().HasForeignKey("SecondValueObjectId");
+                            });
+                            c.WithOwner().HasForeignKey("AggregateId");
+                        });
+                    });
+                });
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase14911()
+            => CreateTestStore(
+                () => new MyContext14911(_options),
+                context =>
+                {
+                    var aggregate = new Aggregate14911
+                    {
+                        FirstValueObject = new FirstValueObject14911
+                        {
+                            SecondValueObjects = new List<SecondValueObject14911>
+                            {
+                                new SecondValueObject14911
+                                {
+                                    FourthValueObject = new FourthValueObject14911
+                                    {
+                                        FifthValueObjects = new List<FifthValueObject14911>
+                                        {
+                                            new FifthValueObject14911 { AnyValue = 10 }
+                                        }
+                                    },
+                                    ThirdValueObjects = new List<ThirdValueObject14911>
+                                    {
+                                        new ThirdValueObject14911
+                                        {
+                                            FourthValueObject = new FourthValueObject14911
+                                            {
+                                                FifthValueObjects = new List<FifthValueObject14911>
+                                                {
+                                                    new FifthValueObject14911 { AnyValue = 20 }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    };
+
+                    context.Set<Aggregate14911>().Add(aggregate);
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        #endregion
+
+        #region Issue15215
+
+        [ConditionalFact]
+        public virtual void Repeated_parameters_in_generated_query_sql()
+        {
+            using (CreateDatabase15215())
+            {
+                using var context = new MyContext15215(_options);
+
+                var k = 1;
+                var a = context.Autos.Where(e => e.Id == k).First();
+                var b = context.Autos.Where(e => e.Id == k + 1).First();
+
+                var equalQuery = (from d in context.EqualAutos
+                                  where (d.Auto == a && d.AnotherAuto == b)
+                                    || (d.Auto == b && d.AnotherAuto == a)
+                                  select d).ToList();
+
+                Assert.Single(equalQuery);
+
+                AssertSql(
+                    @"@__k_0='1'
+
+SELECT TOP(1) [a].[Id], [a].[Name]
+FROM [Autos] AS [a]
+WHERE [a].[Id] = @__k_0",
+                    //
+                    @"@__p_0='2'
+
+SELECT TOP(1) [a].[Id], [a].[Name]
+FROM [Autos] AS [a]
+WHERE [a].[Id] = @__p_0",
+                    //
+                    @"@__entity_equality_a_0_Id='1' (Nullable = true)
+@__entity_equality_b_1_Id='2' (Nullable = true)
+
+SELECT [e].[Id], [e].[AnotherAutoId], [e].[AutoId]
+FROM [EqualAutos] AS [e]
+LEFT JOIN [Autos] AS [a] ON [e].[AutoId] = [a].[Id]
+LEFT JOIN [Autos] AS [a0] ON [e].[AnotherAutoId] = [a0].[Id]
+WHERE (([a].[Id] = @__entity_equality_a_0_Id) AND ([a0].[Id] = @__entity_equality_b_1_Id)) OR (([a].[Id] = @__entity_equality_b_1_Id) AND ([a0].[Id] = @__entity_equality_a_0_Id))");
+            }
+        }
+
+        private class Auto15215
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        private class EqualAuto15215
+        {
+            public int Id { get; set; }
+            public Auto15215 Auto { get; set; }
+            public Auto15215 AnotherAuto { get; set; }
+        }
+
+
+        private class MyContext15215 : DbContext
+        {
+            public MyContext15215(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Auto15215> Autos { get; set; }
+            public DbSet<EqualAuto15215> EqualAutos { get; set; }
+        }
+
+        private SqlServerTestStore CreateDatabase15215()
+            => CreateTestStore(
+                () => new MyContext15215(_options),
+                context =>
+                {
+                    for (var i = 0; i < 10; i++)
+                    {
+                        context.Add(new Auto15215 { Name = "Auto " + i.ToString() });
+                    }
+
+                    context.SaveChanges();
+
+                    context.AddRange(
+                        new EqualAuto15215
+                        {
+                            Auto = context.Autos.Find(1),
+                            AnotherAuto = context.Autos.Find(2)
+                        },
+                        new EqualAuto15215
+                        {
+                            Auto = context.Autos.Find(5),
+                            AnotherAuto = context.Autos.Find(4)
+                        });
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        #endregion
+
+        #region Issue22340
+
+        [ConditionalFact]
+        public virtual void Owned_entity_mapped_to_separate_table()
+        {
+            using (CreateDatabase22340())
+            {
+                using var context = new MyContext22340(_options);
+
+                var masterTrunk = context.MasterTrunk.OrderBy(e => EF.Property<string>(e, "Id")).FirstOrDefault(); //exception Sequence contains no elements.
+
+                Assert.NotNull(masterTrunk);
+
+                AssertSql(
+                    @"SELECT [t].[Id], [t].[MasterTrunk22340Id], [t].[MasterTrunk22340Id0], [f0].[CurrencyBag22340MasterTrunk22340Id], [f0].[Id], [f0].[Amount], [f0].[Code], [s0].[CurrencyBag22340MasterTrunk22340Id], [s0].[Id], [s0].[Amount], [s0].[Code]
+FROM (
+    SELECT TOP(1) [m].[Id], [f].[MasterTrunk22340Id], [s].[MasterTrunk22340Id] AS [MasterTrunk22340Id0]
+    FROM [MasterTrunk] AS [m]
+    LEFT JOIN [FungibleBag] AS [f] ON [m].[Id] = [f].[MasterTrunk22340Id]
+    LEFT JOIN [StaticBag] AS [s] ON [m].[Id] = [s].[MasterTrunk22340Id]
+    ORDER BY [m].[Id]
+) AS [t]
+LEFT JOIN [FungibleBag_Currencies] AS [f0] ON [t].[MasterTrunk22340Id] = [f0].[CurrencyBag22340MasterTrunk22340Id]
+LEFT JOIN [StaticBag_Currencies] AS [s0] ON [t].[MasterTrunk22340Id0] = [s0].[CurrencyBag22340MasterTrunk22340Id]
+ORDER BY [t].[Id], [t].[MasterTrunk22340Id], [t].[MasterTrunk22340Id0], [f0].[CurrencyBag22340MasterTrunk22340Id], [f0].[Id], [s0].[CurrencyBag22340MasterTrunk22340Id], [s0].[Id]");
+            }
+        }
+
+        private class MasterTrunk22340
+        {
+            public CurrencyBag22340 FungibleBag { get; set; }
+            public CurrencyBag22340 StaticBag { get; set; }
+        }
+
+        private class CurrencyBag22340
+        {
+            public IEnumerable<Currency22340> Currencies { get; set; }
+        }
+
+        private class Currency22340
+        {
+            [Column(TypeName = "decimal(18,2)")]
+            public decimal Amount { get; set; }
+            [Column(TypeName = "decimal(18,2)")]
+            public decimal Code { get; set; }
+        }
+
+        private class MyContext22340 : DbContext
+        {
+            public MyContext22340(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<MasterTrunk22340> MasterTrunk { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                var builder = modelBuilder.Entity<MasterTrunk22340>();
+                builder.Property<string>("Id").ValueGeneratedOnAdd();
+                builder.HasKey("Id");
+
+                builder.OwnsOne(p => p.FungibleBag, p =>
+                {
+                    p.OwnsMany(p => p.Currencies, p =>
+                    {
+                        p.Property(p => p.Amount).IsConcurrencyToken();
+                    });
+
+                    p.ToTable("FungibleBag");
+                });
+
+
+                builder.OwnsOne(p => p.StaticBag, p =>
+                {
+                    p.OwnsMany(p => p.Currencies, p =>
+                    {
+                        p.Property(p => p.Amount).IsConcurrencyToken();
+                    });
+                    p.ToTable("StaticBag");
+                });
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase22340()
+            => CreateTestStore(
+                () => new MyContext22340(_options),
+                context =>
+                {
+                    var masterTrunk = new MasterTrunk22340()
+                    {
+                        FungibleBag = new CurrencyBag22340()
+                        {
+                            Currencies = new Currency22340[]
+                            {
+                                new Currency22340()
+                                {
+                                    Amount = 10,
+                                    Code = 999
+                                }
+
+                            }
+                        },
+                        StaticBag = new CurrencyBag22340()
+                        {
+                            Currencies = new Currency22340[]
+                            {
+                                new Currency22340()
+                                {
+                                    Amount = 555,
+                                    Code = 111
+                                }
+
+                            }
+                        }
+                    };
+                    context.Add(masterTrunk);
 
                     context.SaveChanges();
 

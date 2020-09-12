@@ -1,15 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
-using System;
 
-#if WINSQLITE3
-using System.Runtime.InteropServices;
-#endif
+using static SQLitePCL.raw;
 
 [assembly: TestFramework(
     "Microsoft.Data.Sqlite.Tests.TestUtilities.SqliteTestFramework",
@@ -19,6 +17,8 @@ using System.Runtime.InteropServices;
     "Microsoft.Data.Sqlite.e_sqlcipher.Tests")]
 #elif WINSQLITE3
     "Microsoft.Data.Sqlite.winsqlite3.Tests")]
+#elif SQLITE3
+    "Microsoft.Data.Sqlite.sqlite3.Tests")]
 #else
 #error Unexpected native library
 #endif
@@ -80,14 +80,16 @@ namespace Microsoft.Data.Sqlite.Tests.TestUtilities
             IEnumerable<IXunitTestCase> testCases,
             CancellationTokenSource cancellationTokenSource)
         {
-#if WINSQLITE3
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            try
             {
-                return SkipAll("winsqlite3 isn't supported on " + RuntimeInformation.OSDescription);
+                SQLitePCL.Batteries_V2.Init();
+            }
+            catch (DllNotFoundException ex)
+            {
+                return SkipAll(ex.Message);
             }
 
-#endif
-            var version = new SqliteConnection().ServerVersion;
+            var version = sqlite3_libversion().utf8_to_string();
             if (new Version(version) < new Version(3, 16, 0))
             {
                 return SkipAll("SQLite " + version + " isn't supported. Upgrade to 3.16.0 or higher");

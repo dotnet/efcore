@@ -410,20 +410,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Expression expression = Expression.MakeIndex(
                     instanceExpression, (PropertyInfo)memberInfo, new List<Expression> { Expression.Constant(property.Name) });
 
-                if (expression.Type != property.ClrType)
-                {
-                    expression = Expression.Convert(expression, property.ClrType);
-                }
-
                 if (property.DeclaringType.IsPropertyBag)
                 {
-                    var defaultValueConstant = property.ClrType.GetDefaultValueConstant();
-
                     expression = Expression.Condition(
                         Expression.Call(
                             instanceExpression, _containsKeyMethod, new List<Expression> { Expression.Constant(property.Name) }),
                         expression,
-                        defaultValueConstant);
+                        expression.Type.GetDefaultValueConstant());
                 }
 
                 return expression;

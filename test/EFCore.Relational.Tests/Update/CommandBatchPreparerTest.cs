@@ -401,11 +401,15 @@ namespace Microsoft.EntityFrameworkCore.Update
             var modelData = new UpdateAdapter(stateManager);
 
             var expectedCycle = sensitiveLogging
-                ? "FakeEntity { 'Id': 42 } [Added] <- ForeignKey { 'RelatedId': 42 } RelatedFakeEntity { 'Id': 1 } [Added] <- ForeignKey { 'RelatedId': 1 } FakeEntity { 'Id': 42 } [Added]"
-                : "FakeEntity [Added] <- ForeignKey { 'RelatedId' } RelatedFakeEntity [Added] <- ForeignKey { 'RelatedId' } FakeEntity [Added]";
-
+                ? @"FakeEntity { 'Id': 42 } [Added] <-
+ForeignKey { 'RelatedId': 42 } RelatedFakeEntity { 'Id': 1 } [Added] <-
+ForeignKey { 'RelatedId': 1 } FakeEntity { 'Id': 42 } [Added]"
+                : @"FakeEntity [Added] <-
+ForeignKey { 'RelatedId' } RelatedFakeEntity [Added] <-
+ForeignKey { 'RelatedId' } FakeEntity [Added]" + CoreStrings.SensitiveDataDisabled;
+ 
             Assert.Equal(
-                CoreStrings.CircularDependency(expectedCycle),
+                CoreStrings.CircularDependency(ListLoggerFactory.NormalizeLineEndings(expectedCycle)),
                 Assert.Throws<InvalidOperationException>(
                     () => CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: sensitiveLogging)
                         .BatchCommands(new[] { fakeEntry, relatedFakeEntry }, modelData).ToArray()).Message);
@@ -441,11 +445,17 @@ namespace Microsoft.EntityFrameworkCore.Update
             var modelData = new UpdateAdapter(stateManager);
 
             var expectedCycle = sensitiveLogging
-                ? "FakeEntity { 'Id': 42 } [Added] <- ForeignKey { 'RelatedId': 42 } RelatedFakeEntity { 'Id': 1 } [Added] <- ForeignKey { 'RelatedId': 1 } FakeEntity { 'Id': 2 } [Modified] <- Index { 'UniqueValue': Test } FakeEntity { 'Id': 42 } [Added]"
-                : "FakeEntity [Added] <- ForeignKey { 'RelatedId' } RelatedFakeEntity [Added] <- ForeignKey { 'RelatedId' } FakeEntity [Modified] <- Index { 'UniqueValue' } FakeEntity [Added]";
+                ? @"FakeEntity { 'Id': 42 } [Added] <-
+ForeignKey { 'RelatedId': 42 } RelatedFakeEntity { 'Id': 1 } [Added] <-
+ForeignKey { 'RelatedId': 1 } FakeEntity { 'Id': 2 } [Modified] <-
+Index { 'UniqueValue': Test } FakeEntity { 'Id': 42 } [Added]"
+                : @"FakeEntity [Added] <-
+ForeignKey { 'RelatedId' } RelatedFakeEntity [Added] <-
+ForeignKey { 'RelatedId' } FakeEntity [Modified] <-
+Index { 'UniqueValue' } FakeEntity [Added]" + CoreStrings.SensitiveDataDisabled;
 
             Assert.Equal(
-                CoreStrings.CircularDependency(expectedCycle),
+                CoreStrings.CircularDependency(ListLoggerFactory.NormalizeLineEndings(expectedCycle)),
                 Assert.Throws<InvalidOperationException>(
                     () => CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: sensitiveLogging)
                         .BatchCommands(new[] { fakeEntry, relatedFakeEntry, fakeEntry2 }, modelData).ToArray()).Message);
@@ -475,11 +485,15 @@ namespace Microsoft.EntityFrameworkCore.Update
             var modelData = new UpdateAdapter(stateManager);
 
             var expectedCycle = sensitiveLogging
-                ? "FakeEntity { 'Id': 1 } [Deleted] ForeignKey { 'RelatedId': 2 } <- RelatedFakeEntity { 'Id': 2 } [Deleted] ForeignKey { 'RelatedId': 1 } <- FakeEntity { 'Id': 1 } [Deleted]"
-                : "FakeEntity [Deleted] ForeignKey { 'RelatedId' } <- RelatedFakeEntity [Deleted] ForeignKey { 'RelatedId' } <- FakeEntity [Deleted]";
+                ? @"FakeEntity { 'Id': 1 } [Deleted] ForeignKey { 'RelatedId': 2 } <-
+RelatedFakeEntity { 'Id': 2 } [Deleted] ForeignKey { 'RelatedId': 1 } <-
+FakeEntity { 'Id': 1 } [Deleted]"
+                : @"FakeEntity [Deleted] ForeignKey { 'RelatedId' } <-
+RelatedFakeEntity [Deleted] ForeignKey { 'RelatedId' } <-
+FakeEntity [Deleted]" + CoreStrings.SensitiveDataDisabled;
 
             Assert.Equal(
-                CoreStrings.CircularDependency(expectedCycle),
+                CoreStrings.CircularDependency(ListLoggerFactory.NormalizeLineEndings(expectedCycle)),
                 Assert.Throws<InvalidOperationException>(
                     () => CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: sensitiveLogging).BatchCommands(
                         // Order is important for this test. Entry which is not part of cycle but tail should come first.
@@ -744,7 +758,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     Assert.Equal(
                         RelationalStrings.ConflictingRowValuesSensitive(
                             nameof(FakeEntity), nameof(RelatedFakeEntity),
-                            "{Id: 42}", "{RelatedId: 1}", "{RelatedId: 2}", "{'RelatedId'}"),
+                            "{Id: 42}", "{RelatedId: 1}", "{RelatedId: 2}", "RelatedId"),
                         Assert.Throws<InvalidOperationException>(
                             () => CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: true)
                                 .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray()).Message);
@@ -754,7 +768,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     Assert.Equal(
                         RelationalStrings.ConflictingRowValues(
                             nameof(FakeEntity), nameof(RelatedFakeEntity),
-                            "{'RelatedId'}", "{'RelatedId'}", "{'RelatedId'}"),
+                            "{'RelatedId'}", "{'RelatedId'}", "RelatedId"),
                         Assert.Throws<InvalidOperationException>(
                             () => CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: false)
                                 .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray()).Message);
@@ -767,7 +781,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     Assert.Equal(
                         RelationalStrings.ConflictingOriginalRowValuesSensitive(
                             nameof(FakeEntity), nameof(RelatedFakeEntity),
-                            "{Id: 42}", "{RelatedId: 1}", "{RelatedId: 2}", "{'RelatedId'}"),
+                            "{Id: 42}", "{RelatedId: 1}", "{RelatedId: 2}", "RelatedId"),
                         Assert.Throws<InvalidOperationException>(
                             () => CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: true)
                                 .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray()).Message);
@@ -777,7 +791,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     Assert.Equal(
                         RelationalStrings.ConflictingOriginalRowValues(
                             nameof(FakeEntity), nameof(RelatedFakeEntity),
-                            "{'RelatedId'}", "{'RelatedId'}", "{'RelatedId'}"),
+                            "{'RelatedId'}", "{'RelatedId'}", "RelatedId"),
                         Assert.Throws<InvalidOperationException>(
                             () => CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: false)
                                 .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray()).Message);

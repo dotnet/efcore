@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
@@ -25,21 +26,21 @@ namespace Microsoft.EntityFrameworkCore
                     var leftEntities = new[]
                     {
                         context.EntityCompositeKeys.CreateInstance(
-                            e =>
+                            (e, p) =>
                             {
                                 e.Key1 = 7711;
                                 e.Key2 = "7711";
                                 e.Key3 = new DateTime(7711, 1, 1);
                             }),
                         context.EntityCompositeKeys.CreateInstance(
-                            e =>
+                            (e, p) =>
                             {
                                 e.Key1 = 7712;
                                 e.Key2 = "7712";
                                 e.Key3 = new DateTime(7712, 1, 1);
                             }),
                         context.EntityCompositeKeys.CreateInstance(
-                            e =>
+                            (e, p) =>
                             {
                                 e.Key1 = 7713;
                                 e.Key2 = "7713";
@@ -48,14 +49,18 @@ namespace Microsoft.EntityFrameworkCore
                     };
                     var rightEntities = new[]
                     {
-                        context.Set<EntityLeaf>().CreateInstance(e => e.Id = 7721),
-                        context.Set<EntityLeaf>().CreateInstance(e => e.Id = 7722),
-                        context.Set<EntityLeaf>().CreateInstance(e => e.Id = 7723)
+                        context.Set<EntityLeaf>().CreateInstance((e, p) => e.Id = 7721),
+                        context.Set<EntityLeaf>().CreateInstance((e, p) => e.Id = 7722),
+                        context.Set<EntityLeaf>().CreateInstance((e, p) => e.Id = 7723)
                     };
+
+                    leftEntities[0].LeafSkipFull = CreateCollection<EntityLeaf>();
 
                     leftEntities[0].LeafSkipFull.Add(rightEntities[0]); // 11 - 21
                     leftEntities[0].LeafSkipFull.Add(rightEntities[1]); // 11 - 22
                     leftEntities[0].LeafSkipFull.Add(rightEntities[2]); // 11 - 23
+
+                    rightEntities[0].CompositeKeySkipFull = CreateCollection<EntityCompositeKey>();
 
                     rightEntities[0].CompositeKeySkipFull.Add(leftEntities[0]); // 21 - 11 (Dupe)
                     rightEntities[0].CompositeKeySkipFull.Add(leftEntities[1]); // 21 - 12
@@ -121,13 +126,13 @@ namespace Microsoft.EntityFrameworkCore
                     var leftEntities = context.Set<EntityCompositeKey>().Include(e => e.LeafSkipFull).OrderBy(e => e.Key1).ToList();
                     var rightEntities = context.Set<EntityLeaf>().Include(e => e.CompositeKeySkipFull).ToList();
 
-                    leftEntities[0].LeafSkipFull.Add(context.Set<EntityLeaf>().CreateInstance(e => e.Id = 7721));
-                    leftEntities[0].LeafSkipFull.Add(context.Set<EntityLeaf>().CreateInstance(e => e.Id = 7722));
-                    leftEntities[0].LeafSkipFull.Add(context.Set<EntityLeaf>().CreateInstance(e => e.Id = 7723));
+                    leftEntities[0].LeafSkipFull.Add(context.Set<EntityLeaf>().CreateInstance((e, p) => e.Id = 7721));
+                    leftEntities[0].LeafSkipFull.Add(context.Set<EntityLeaf>().CreateInstance((e, p) => e.Id = 7722));
+                    leftEntities[0].LeafSkipFull.Add(context.Set<EntityLeaf>().CreateInstance((e, p) => e.Id = 7723));
 
                     rightEntities[0].CompositeKeySkipFull.Add(
                         context.EntityCompositeKeys.CreateInstance(
-                            e =>
+                            (e, p) =>
                             {
                                 e.Key1 = 7711;
                                 e.Key2 = "7711";
@@ -135,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore
                             }));
                     rightEntities[0].CompositeKeySkipFull.Add(
                         context.EntityCompositeKeys.CreateInstance(
-                            e =>
+                            (e, p) =>
                             {
                                 e.Key1 = 7712;
                                 e.Key2 = "7712";
@@ -143,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore
                             }));
                     rightEntities[0].CompositeKeySkipFull.Add(
                         context.EntityCompositeKeys.CreateInstance(
-                            e =>
+                            (e, p) =>
                             {
                                 e.Key1 = 7713;
                                 e.Key2 = "7713";
@@ -154,12 +159,12 @@ namespace Microsoft.EntityFrameworkCore
                     rightEntities[1].CompositeKeySkipFull.Remove(rightEntities[1].CompositeKeySkipFull.Single(e => e.Key2 == "3_1"));
 
                     leftEntities[2].LeafSkipFull.Remove(leftEntities[2].LeafSkipFull.Single(e => e.Id == 23));
-                    leftEntities[2].LeafSkipFull.Add(context.Set<EntityLeaf>().CreateInstance(e => e.Id = 7724));
+                    leftEntities[2].LeafSkipFull.Add(context.Set<EntityLeaf>().CreateInstance((e, p) => e.Id = 7724));
 
                     rightEntities[2].CompositeKeySkipFull.Remove(rightEntities[2].CompositeKeySkipFull.Single(e => e.Key2 == "8_3"));
                     rightEntities[2].CompositeKeySkipFull.Add(
                         context.EntityCompositeKeys.CreateInstance(
-                            e =>
+                            (e, p) =>
                             {
                                 e.Key1 = 7714;
                                 e.Key2 = "7714";
@@ -414,21 +419,21 @@ namespace Microsoft.EntityFrameworkCore
                     var leftEntities = new[]
                     {
                         context.EntityCompositeKeys.CreateInstance(
-                            e =>
+                            (e, p) =>
                             {
                                 e.Key1 = 7711;
                                 e.Key2 = "7711";
                                 e.Key3 = new DateTime(7711, 1, 1);
                             }),
                         context.EntityCompositeKeys.CreateInstance(
-                            e =>
+                            (e, p) =>
                             {
                                 e.Key1 = 7712;
                                 e.Key2 = "7712";
                                 e.Key3 = new DateTime(7712, 1, 1);
                             }),
                         context.EntityCompositeKeys.CreateInstance(
-                            e =>
+                            (e, p) =>
                             {
                                 e.Key1 = 7713;
                                 e.Key2 = "7713";
@@ -437,14 +442,18 @@ namespace Microsoft.EntityFrameworkCore
                     };
                     var rightEntities = new[]
                     {
-                        context.Set<EntityRoot>().CreateInstance(e => e.Id = 7721),
-                        context.Set<EntityRoot>().CreateInstance(e => e.Id = 7722),
-                        context.Set<EntityRoot>().CreateInstance(e => e.Id = 7723)
+                        context.Set<EntityRoot>().CreateInstance((e, p) => e.Id = 7721),
+                        context.Set<EntityRoot>().CreateInstance((e, p) => e.Id = 7722),
+                        context.Set<EntityRoot>().CreateInstance((e, p) => e.Id = 7723)
                     };
+
+                    leftEntities[0].RootSkipShared = CreateCollection<EntityRoot>();
 
                     leftEntities[0].RootSkipShared.Add(rightEntities[0]); // 11 - 21
                     leftEntities[0].RootSkipShared.Add(rightEntities[1]); // 11 - 22
                     leftEntities[0].RootSkipShared.Add(rightEntities[2]); // 11 - 23
+
+                    rightEntities[0].CompositeKeySkipShared = CreateCollection<EntityCompositeKey>();
 
                     rightEntities[0].CompositeKeySkipShared.Add(leftEntities[0]); // 21 - 11 (Dupe)
                     rightEntities[0].CompositeKeySkipShared.Add(leftEntities[1]); // 21 - 12
@@ -499,13 +508,13 @@ namespace Microsoft.EntityFrameworkCore
                     var leftEntities = context.Set<EntityCompositeKey>().Include(e => e.RootSkipShared).OrderBy(e => e.Key1).ToList();
                     var rightEntities = context.Set<EntityRoot>().Include(e => e.CompositeKeySkipShared).ToList();
 
-                    leftEntities[0].RootSkipShared.Add(context.Set<EntityRoot>().CreateInstance(e => e.Id = 7721));
-                    leftEntities[0].RootSkipShared.Add(context.Set<EntityRoot>().CreateInstance(e => e.Id = 7722));
-                    leftEntities[0].RootSkipShared.Add(context.Set<EntityRoot>().CreateInstance(e => e.Id = 7723));
+                    leftEntities[0].RootSkipShared.Add(context.Set<EntityRoot>().CreateInstance((e, p) => e.Id = 7721));
+                    leftEntities[0].RootSkipShared.Add(context.Set<EntityRoot>().CreateInstance((e, p) => e.Id = 7722));
+                    leftEntities[0].RootSkipShared.Add(context.Set<EntityRoot>().CreateInstance((e, p) => e.Id = 7723));
 
                     rightEntities[0].CompositeKeySkipShared.Add(
                         context.EntityCompositeKeys.CreateInstance(
-                            e =>
+                            (e, p) =>
                             {
                                 e.Key1 = 7711;
                                 e.Key2 = "7711";
@@ -513,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore
                             }));
                     rightEntities[0].CompositeKeySkipShared.Add(
                         context.EntityCompositeKeys.CreateInstance(
-                            e =>
+                            (e, p) =>
                             {
                                 e.Key1 = 7712;
                                 e.Key2 = "7712";
@@ -521,7 +530,7 @@ namespace Microsoft.EntityFrameworkCore
                             }));
                     rightEntities[0].CompositeKeySkipShared.Add(
                         context.EntityCompositeKeys.CreateInstance(
-                            e =>
+                            (e, p) =>
                             {
                                 e.Key1 = 7713;
                                 e.Key2 = "7713";
@@ -532,12 +541,12 @@ namespace Microsoft.EntityFrameworkCore
                     rightEntities[1].CompositeKeySkipShared.Remove(rightEntities[1].CompositeKeySkipShared.Single(e => e.Key2 == "8_3"));
 
                     leftEntities[2].RootSkipShared.Remove(leftEntities[2].RootSkipShared.Single(e => e.Id == 16));
-                    leftEntities[2].RootSkipShared.Add(context.Set<EntityRoot>().CreateInstance(e => e.Id = 7724));
+                    leftEntities[2].RootSkipShared.Add(context.Set<EntityRoot>().CreateInstance((e, p) => e.Id = 7724));
 
                     rightEntities[2].CompositeKeySkipShared.Remove(rightEntities[2].CompositeKeySkipShared.Single(e => e.Key2 == "8_2"));
                     rightEntities[2].CompositeKeySkipShared.Add(
                         context.EntityCompositeKeys.CreateInstance(
-                            e =>
+                            (e, p) =>
                             {
                                 e.Key1 = 7714;
                                 e.Key2 = "7714";
@@ -727,21 +736,21 @@ namespace Microsoft.EntityFrameworkCore
                     var leftEntities = new[]
                     {
                         context.EntityCompositeKeys.CreateInstance(
-                            e =>
+                            (e, p) =>
                             {
                                 e.Key1 = 7711;
                                 e.Key2 = "7711";
                                 e.Key3 = new DateTime(7711, 1, 1);
                             }),
                         context.EntityCompositeKeys.CreateInstance(
-                            e =>
+                            (e, p) =>
                             {
                                 e.Key1 = 7712;
                                 e.Key2 = "7712";
                                 e.Key3 = new DateTime(7712, 1, 1);
                             }),
                         context.EntityCompositeKeys.CreateInstance(
-                            e =>
+                            (e, p) =>
                             {
                                 e.Key1 = 7713;
                                 e.Key2 = "7713";
@@ -750,14 +759,18 @@ namespace Microsoft.EntityFrameworkCore
                     };
                     var rightEntities = new[]
                     {
-                        context.Set<EntityThree>().CreateInstance(e => e.Id = 7721),
-                        context.Set<EntityThree>().CreateInstance(e => e.Id = 7722),
-                        context.Set<EntityThree>().CreateInstance(e => e.Id = 7723)
+                        context.Set<EntityThree>().CreateInstance((e, p) => e.Id = 7721),
+                        context.Set<EntityThree>().CreateInstance((e, p) => e.Id = 7722),
+                        context.Set<EntityThree>().CreateInstance((e, p) => e.Id = 7723)
                     };
+
+                    leftEntities[0].ThreeSkipFull = CreateCollection<EntityThree>();
 
                     leftEntities[0].ThreeSkipFull.Add(rightEntities[0]); // 11 - 21
                     leftEntities[0].ThreeSkipFull.Add(rightEntities[1]); // 11 - 22
                     leftEntities[0].ThreeSkipFull.Add(rightEntities[2]); // 11 - 23
+
+                    rightEntities[0].CompositeKeySkipFull = CreateCollection<EntityCompositeKey>();
 
                     rightEntities[0].CompositeKeySkipFull.Add(leftEntities[0]); // 21 - 11 (Dupe)
                     rightEntities[0].CompositeKeySkipFull.Add(leftEntities[1]); // 21 - 12
@@ -824,13 +837,13 @@ namespace Microsoft.EntityFrameworkCore
                     var leftEntities = context.Set<EntityCompositeKey>().Include(e => e.ThreeSkipFull).OrderBy(e => e.Key1).ToList();
                     var rightEntities = context.Set<EntityThree>().Include(e => e.CompositeKeySkipFull).ToList();
 
-                    leftEntities[0].ThreeSkipFull.Add(context.Set<EntityThree>().CreateInstance(e => e.Id = 7721));
-                    leftEntities[0].ThreeSkipFull.Add(context.Set<EntityThree>().CreateInstance(e => e.Id = 7722));
-                    leftEntities[0].ThreeSkipFull.Add(context.Set<EntityThree>().CreateInstance(e => e.Id = 7723));
+                    leftEntities[0].ThreeSkipFull.Add(context.Set<EntityThree>().CreateInstance((e, p) => e.Id = 7721));
+                    leftEntities[0].ThreeSkipFull.Add(context.Set<EntityThree>().CreateInstance((e, p) => e.Id = 7722));
+                    leftEntities[0].ThreeSkipFull.Add(context.Set<EntityThree>().CreateInstance((e, p) => e.Id = 7723));
 
                     rightEntities[0].CompositeKeySkipFull.Add(
                         context.EntityCompositeKeys.CreateInstance(
-                            e =>
+                            (e, p) =>
                             {
                                 e.Key1 = 7711;
                                 e.Key2 = "7711";
@@ -838,7 +851,7 @@ namespace Microsoft.EntityFrameworkCore
                             }));
                     rightEntities[0].CompositeKeySkipFull.Add(
                         context.EntityCompositeKeys.CreateInstance(
-                            e =>
+                            (e, p) =>
                             {
                                 e.Key1 = 7712;
                                 e.Key2 = "7712";
@@ -846,7 +859,7 @@ namespace Microsoft.EntityFrameworkCore
                             }));
                     rightEntities[0].CompositeKeySkipFull.Add(
                         context.EntityCompositeKeys.CreateInstance(
-                            e =>
+                            (e, p) =>
                             {
                                 e.Key1 = 7713;
                                 e.Key2 = "7713";
@@ -857,12 +870,12 @@ namespace Microsoft.EntityFrameworkCore
                     rightEntities[1].CompositeKeySkipFull.Remove(rightEntities[1].CompositeKeySkipFull.Single(e => e.Key2 == "9_2"));
 
                     leftEntities[3].ThreeSkipFull.Remove(leftEntities[3].ThreeSkipFull.Single(e => e.Id == 7));
-                    leftEntities[3].ThreeSkipFull.Add(context.Set<EntityThree>().CreateInstance(e => e.Id = 7724));
+                    leftEntities[3].ThreeSkipFull.Add(context.Set<EntityThree>().CreateInstance((e, p) => e.Id = 7724));
 
                     rightEntities[2].CompositeKeySkipFull.Remove(rightEntities[2].CompositeKeySkipFull.Single(e => e.Key2 == "6_1"));
                     rightEntities[2].CompositeKeySkipFull.Add(
                         context.EntityCompositeKeys.CreateInstance(
-                            e =>
+                            (e, p) =>
                             {
                                 e.Key1 = 7714;
                                 e.Key2 = "7714";
@@ -1116,20 +1129,24 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var leftEntities = new[]
                     {
-                        context.EntityTwos.CreateInstance(e => e.Id = 7711),
-                        context.EntityTwos.CreateInstance(e => e.Id = 7712),
-                        context.EntityTwos.CreateInstance(e => e.Id = 7713)
+                        context.EntityTwos.CreateInstance((e, p) => e.Id = 7711),
+                        context.EntityTwos.CreateInstance((e, p) => e.Id = 7712),
+                        context.EntityTwos.CreateInstance((e, p) => e.Id = 7713)
                     };
                     var rightEntities = new[]
                     {
-                        context.EntityTwos.CreateInstance(e => e.Id = 7721),
-                        context.EntityTwos.CreateInstance(e => e.Id = 7722),
-                        context.EntityTwos.CreateInstance(e => e.Id = 7723)
+                        context.EntityTwos.CreateInstance((e, p) => e.Id = 7721),
+                        context.EntityTwos.CreateInstance((e, p) => e.Id = 7722),
+                        context.EntityTwos.CreateInstance((e, p) => e.Id = 7723)
                     };
+
+                    leftEntities[0].SelfSkipSharedLeft = CreateCollection<EntityTwo>();
 
                     leftEntities[0].SelfSkipSharedLeft.Add(rightEntities[0]); // 11 - 21
                     leftEntities[0].SelfSkipSharedLeft.Add(rightEntities[1]); // 11 - 22
                     leftEntities[0].SelfSkipSharedLeft.Add(rightEntities[2]); // 11 - 23
+
+                    rightEntities[0].SelfSkipSharedRight = CreateCollection<EntityTwo>();
 
                     rightEntities[0].SelfSkipSharedRight.Add(leftEntities[0]); // 21 - 11 (Dupe)
                     rightEntities[0].SelfSkipSharedRight.Add(leftEntities[1]); // 21 - 12
@@ -1189,22 +1206,22 @@ namespace Microsoft.EntityFrameworkCore
                     var leftEntities = context.Set<EntityTwo>().Include(e => e.SelfSkipSharedRight).OrderBy(e => e.Id).ToList();
                     var rightEntities = context.Set<EntityTwo>().Include(e => e.SelfSkipSharedLeft).ToList();
 
-                    leftEntities[0].SelfSkipSharedRight.Add(context.EntityTwos.CreateInstance(e => e.Id = 7721));
-                    leftEntities[0].SelfSkipSharedRight.Add(context.EntityTwos.CreateInstance(e => e.Id = 7722));
-                    leftEntities[0].SelfSkipSharedRight.Add(context.EntityTwos.CreateInstance(e => e.Id = 7723));
+                    leftEntities[0].SelfSkipSharedRight.Add(context.EntityTwos.CreateInstance((e, p) => e.Id = 7721));
+                    leftEntities[0].SelfSkipSharedRight.Add(context.EntityTwos.CreateInstance((e, p) => e.Id = 7722));
+                    leftEntities[0].SelfSkipSharedRight.Add(context.EntityTwos.CreateInstance((e, p) => e.Id = 7723));
 
-                    rightEntities[0].SelfSkipSharedLeft.Add(context.EntityTwos.CreateInstance(e => e.Id = 7711));
-                    rightEntities[0].SelfSkipSharedLeft.Add(context.EntityTwos.CreateInstance(e => e.Id = 7712));
-                    rightEntities[0].SelfSkipSharedLeft.Add(context.EntityTwos.CreateInstance(e => e.Id = 7713));
+                    rightEntities[0].SelfSkipSharedLeft.Add(context.EntityTwos.CreateInstance((e, p) => e.Id = 7711));
+                    rightEntities[0].SelfSkipSharedLeft.Add(context.EntityTwos.CreateInstance((e, p) => e.Id = 7712));
+                    rightEntities[0].SelfSkipSharedLeft.Add(context.EntityTwos.CreateInstance((e, p) => e.Id = 7713));
 
                     leftEntities[2].SelfSkipSharedRight.Remove(leftEntities[2].SelfSkipSharedRight.Single(e => e.Id == 5));
                     rightEntities[1].SelfSkipSharedLeft.Remove(rightEntities[1].SelfSkipSharedLeft.Single(e => e.Id == 8));
 
                     leftEntities[4].SelfSkipSharedRight.Remove(leftEntities[4].SelfSkipSharedRight.Single(e => e.Id == 8));
-                    leftEntities[4].SelfSkipSharedRight.Add(context.EntityTwos.CreateInstance(e => e.Id = 7724));
+                    leftEntities[4].SelfSkipSharedRight.Add(context.EntityTwos.CreateInstance((e, p) => e.Id = 7724));
 
                     rightEntities[3].SelfSkipSharedLeft.Remove(rightEntities[3].SelfSkipSharedLeft.Single(e => e.Id == 9));
-                    rightEntities[3].SelfSkipSharedLeft.Add(context.EntityTwos.CreateInstance(e => e.Id = 7714));
+                    rightEntities[3].SelfSkipSharedLeft.Add(context.EntityTwos.CreateInstance((e, p) => e.Id = 7714));
 
                     if (RequiresDetectChanges)
                     {
@@ -1288,20 +1305,24 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var leftEntities = new[]
                     {
-                        context.EntityTwos.CreateInstance(e => e.Id = 7711),
-                        context.EntityTwos.CreateInstance(e => e.Id = 7712),
-                        context.EntityTwos.CreateInstance(e => e.Id = 7713)
+                        context.EntityTwos.CreateInstance((e, p) => e.Id = 7711),
+                        context.EntityTwos.CreateInstance((e, p) => e.Id = 7712),
+                        context.EntityTwos.CreateInstance((e, p) => e.Id = 7713)
                     };
                     var rightEntities = new[]
                     {
-                        context.EntityThrees.CreateInstance(e => e.Id = 7721),
-                        context.EntityThrees.CreateInstance(e => e.Id = 7722),
-                        context.EntityThrees.CreateInstance(e => e.Id = 7723)
+                        context.EntityThrees.CreateInstance((e, p) => e.Id = 7721),
+                        context.EntityThrees.CreateInstance((e, p) => e.Id = 7722),
+                        context.EntityThrees.CreateInstance((e, p) => e.Id = 7723)
                     };
+
+                    leftEntities[0].ThreeSkipFull = CreateCollection<EntityThree>();
 
                     leftEntities[0].ThreeSkipFull.Add(rightEntities[0]); // 11 - 21
                     leftEntities[0].ThreeSkipFull.Add(rightEntities[1]); // 11 - 22
                     leftEntities[0].ThreeSkipFull.Add(rightEntities[2]); // 11 - 23
+
+                    rightEntities[0].TwoSkipFull = CreateCollection<EntityTwo>();
 
                     rightEntities[0].TwoSkipFull.Add(leftEntities[0]); // 21 - 11 (Dupe)
                     rightEntities[0].TwoSkipFull.Add(leftEntities[1]); // 21 - 12
@@ -1361,22 +1382,22 @@ namespace Microsoft.EntityFrameworkCore
                     var leftEntities = context.Set<EntityTwo>().Include(e => e.ThreeSkipFull).OrderBy(e => e.Id).ToList();
                     var rightEntities = context.Set<EntityThree>().Include(e => e.TwoSkipFull).ToList();
 
-                    leftEntities[0].ThreeSkipFull.Add(context.EntityThrees.CreateInstance(e => e.Id = 7721));
-                    leftEntities[0].ThreeSkipFull.Add(context.EntityThrees.CreateInstance(e => e.Id = 7722));
-                    leftEntities[0].ThreeSkipFull.Add(context.EntityThrees.CreateInstance(e => e.Id = 7723));
+                    leftEntities[0].ThreeSkipFull.Add(context.EntityThrees.CreateInstance((e, p) => e.Id = 7721));
+                    leftEntities[0].ThreeSkipFull.Add(context.EntityThrees.CreateInstance((e, p) => e.Id = 7722));
+                    leftEntities[0].ThreeSkipFull.Add(context.EntityThrees.CreateInstance((e, p) => e.Id = 7723));
 
-                    rightEntities[0].TwoSkipFull.Add(context.EntityTwos.CreateInstance(e => e.Id = 7711));
-                    rightEntities[0].TwoSkipFull.Add(context.EntityTwos.CreateInstance(e => e.Id = 7712));
-                    rightEntities[0].TwoSkipFull.Add(context.EntityTwos.CreateInstance(e => e.Id = 7713));
+                    rightEntities[0].TwoSkipFull.Add(context.EntityTwos.CreateInstance((e, p) => e.Id = 7711));
+                    rightEntities[0].TwoSkipFull.Add(context.EntityTwos.CreateInstance((e, p) => e.Id = 7712));
+                    rightEntities[0].TwoSkipFull.Add(context.EntityTwos.CreateInstance((e, p) => e.Id = 7713));
 
                     leftEntities[1].ThreeSkipFull.Remove(leftEntities[1].ThreeSkipFull.Single(e => e.Id == 9));
                     rightEntities[1].TwoSkipFull.Remove(rightEntities[1].TwoSkipFull.Single(e => e.Id == 4));
 
                     leftEntities[2].ThreeSkipFull.Remove(leftEntities[2].ThreeSkipFull.Single(e => e.Id == 11));
-                    leftEntities[2].ThreeSkipFull.Add(context.EntityThrees.CreateInstance(e => e.Id = 7724));
+                    leftEntities[2].ThreeSkipFull.Add(context.EntityThrees.CreateInstance((e, p) => e.Id = 7724));
 
                     rightEntities[2].TwoSkipFull.Remove(rightEntities[2].TwoSkipFull.Single(e => e.Id == 6));
-                    rightEntities[2].TwoSkipFull.Add(context.EntityTwos.CreateInstance(e => e.Id = 7714));
+                    rightEntities[2].TwoSkipFull.Add(context.EntityTwos.CreateInstance((e, p) => e.Id = 7714));
 
                     if (RequiresDetectChanges)
                     {
@@ -1471,20 +1492,24 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var leftEntities = new[]
                     {
-                        context.EntityOnes.CreateInstance(e => e.Id = 7711),
-                        context.EntityOnes.CreateInstance(e => e.Id = 7712),
-                        context.EntityOnes.CreateInstance(e => e.Id = 7713),
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = 7711),
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = 7712),
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = 7713),
                     };
                     var rightEntities = new[]
                     {
-                        context.Set<EntityBranch>().CreateInstance(e => e.Id = 7721),
-                        context.Set<EntityBranch>().CreateInstance(e => e.Id = 7722),
-                        context.Set<EntityBranch>().CreateInstance(e => e.Id = 7723)
+                        context.Set<EntityBranch>().CreateInstance((e, p) => e.Id = 7721),
+                        context.Set<EntityBranch>().CreateInstance((e, p) => e.Id = 7722),
+                        context.Set<EntityBranch>().CreateInstance((e, p) => e.Id = 7723)
                     };
+
+                    leftEntities[0].BranchSkip = CreateCollection<EntityBranch>();
 
                     leftEntities[0].BranchSkip.Add(rightEntities[0]); // 11 - 21
                     leftEntities[0].BranchSkip.Add(rightEntities[1]); // 11 - 22
                     leftEntities[0].BranchSkip.Add(rightEntities[2]); // 11 - 23
+
+                    rightEntities[0].OneSkip = CreateCollection<EntityOne>();
 
                     rightEntities[0].OneSkip.Add(leftEntities[0]); // 21 - 11 (Dupe)
                     rightEntities[0].OneSkip.Add(leftEntities[1]); // 21 - 12
@@ -1536,22 +1561,22 @@ namespace Microsoft.EntityFrameworkCore
                     var leftEntities = context.Set<EntityOne>().Include(e => e.BranchSkip).OrderBy(e => e.Id).ToList();
                     var rightEntities = context.Set<EntityBranch>().Include(e => e.OneSkip).ToList();
 
-                    leftEntities[0].BranchSkip.Add(context.Set<EntityBranch>().CreateInstance(e => e.Id = 7721));
-                    leftEntities[0].BranchSkip.Add(context.Set<EntityBranch>().CreateInstance(e => e.Id = 7722));
-                    leftEntities[0].BranchSkip.Add(context.Set<EntityBranch>().CreateInstance(e => e.Id = 7723));
+                    leftEntities[0].BranchSkip.Add(context.Set<EntityBranch>().CreateInstance((e, p) => e.Id = 7721));
+                    leftEntities[0].BranchSkip.Add(context.Set<EntityBranch>().CreateInstance((e, p) => e.Id = 7722));
+                    leftEntities[0].BranchSkip.Add(context.Set<EntityBranch>().CreateInstance((e, p) => e.Id = 7723));
 
-                    rightEntities[0].OneSkip.Add(context.EntityOnes.CreateInstance(e => e.Id = 7711));
-                    rightEntities[0].OneSkip.Add(context.EntityOnes.CreateInstance(e => e.Id = 7712));
-                    rightEntities[0].OneSkip.Add(context.EntityOnes.CreateInstance(e => e.Id = 7713));
+                    rightEntities[0].OneSkip.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7711));
+                    rightEntities[0].OneSkip.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7712));
+                    rightEntities[0].OneSkip.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7713));
 
                     leftEntities[1].BranchSkip.Remove(leftEntities[1].BranchSkip.Single(e => e.Id == 16));
                     rightEntities[1].OneSkip.Remove(rightEntities[1].OneSkip.Single(e => e.Id == 9));
 
                     leftEntities[2].BranchSkip.Remove(leftEntities[2].BranchSkip.Single(e => e.Id == 14));
-                    leftEntities[2].BranchSkip.Add(context.Set<EntityBranch>().CreateInstance(e => e.Id = 7724));
+                    leftEntities[2].BranchSkip.Add(context.Set<EntityBranch>().CreateInstance((e, p) => e.Id = 7724));
 
                     rightEntities[2].OneSkip.Remove(rightEntities[2].OneSkip.Single(e => e.Id == 8));
-                    rightEntities[2].OneSkip.Add(context.EntityOnes.CreateInstance(e => e.Id = 7714));
+                    rightEntities[2].OneSkip.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7714));
 
                     if (RequiresDetectChanges)
                     {
@@ -1637,20 +1662,24 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var leftEntities = new[]
                     {
-                        context.EntityOnes.CreateInstance(e => e.Id = 7711),
-                        context.EntityOnes.CreateInstance(e => e.Id = 7712),
-                        context.EntityOnes.CreateInstance(e => e.Id = 7713)
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = 7711),
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = 7712),
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = 7713)
                     };
                     var rightEntities = new[]
                     {
-                        context.EntityOnes.CreateInstance(e => e.Id = 7721),
-                        context.EntityOnes.CreateInstance(e => e.Id = 7722),
-                        context.EntityOnes.CreateInstance(e => e.Id = 7723)
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = 7721),
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = 7722),
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = 7723)
                     };
+
+                    leftEntities[0].SelfSkipPayloadLeft = CreateCollection<EntityOne>();
 
                     leftEntities[0].SelfSkipPayloadLeft.Add(rightEntities[0]); // 11 - 21
                     leftEntities[0].SelfSkipPayloadLeft.Add(rightEntities[1]); // 11 - 22
                     leftEntities[0].SelfSkipPayloadLeft.Add(rightEntities[2]); // 11 - 23
+
+                    rightEntities[0].SelfSkipPayloadRight = CreateCollection<EntityOne>();
 
                     rightEntities[0].SelfSkipPayloadRight.Add(leftEntities[0]); // 21 - 11 (Dupe)
                     rightEntities[0].SelfSkipPayloadRight.Add(leftEntities[1]); // 21 - 12
@@ -1728,22 +1757,22 @@ namespace Microsoft.EntityFrameworkCore
                     var leftEntities = context.Set<EntityOne>().Include(e => e.SelfSkipPayloadRight).OrderBy(e => e.Id).ToList();
                     var rightEntities = context.Set<EntityOne>().Include(e => e.SelfSkipPayloadLeft).ToList();
 
-                    leftEntities[0].SelfSkipPayloadRight.Add(context.EntityOnes.CreateInstance(e => e.Id = 7721));
-                    leftEntities[0].SelfSkipPayloadRight.Add(context.EntityOnes.CreateInstance(e => e.Id = 7722));
-                    leftEntities[0].SelfSkipPayloadRight.Add(context.EntityOnes.CreateInstance(e => e.Id = 7723));
+                    leftEntities[0].SelfSkipPayloadRight.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7721));
+                    leftEntities[0].SelfSkipPayloadRight.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7722));
+                    leftEntities[0].SelfSkipPayloadRight.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7723));
 
-                    rightEntities[0].SelfSkipPayloadLeft.Add(context.EntityOnes.CreateInstance(e => e.Id = 7711));
-                    rightEntities[0].SelfSkipPayloadLeft.Add(context.EntityOnes.CreateInstance(e => e.Id = 7712));
-                    rightEntities[0].SelfSkipPayloadLeft.Add(context.EntityOnes.CreateInstance(e => e.Id = 7713));
+                    rightEntities[0].SelfSkipPayloadLeft.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7711));
+                    rightEntities[0].SelfSkipPayloadLeft.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7712));
+                    rightEntities[0].SelfSkipPayloadLeft.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7713));
 
                     leftEntities[2].SelfSkipPayloadRight.Remove(leftEntities[2].SelfSkipPayloadRight.Single(e => e.Id == 6));
                     rightEntities[1].SelfSkipPayloadLeft.Remove(rightEntities[1].SelfSkipPayloadLeft.Single(e => e.Id == 13));
 
                     leftEntities[4].SelfSkipPayloadRight.Remove(leftEntities[4].SelfSkipPayloadRight.Single(e => e.Id == 3));
-                    leftEntities[4].SelfSkipPayloadRight.Add(context.EntityOnes.CreateInstance(e => e.Id = 7724));
+                    leftEntities[4].SelfSkipPayloadRight.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7724));
 
                     rightEntities[4].SelfSkipPayloadLeft.Remove(rightEntities[4].SelfSkipPayloadLeft.Single(e => e.Id == 6));
-                    rightEntities[4].SelfSkipPayloadLeft.Add(context.EntityOnes.CreateInstance(e => e.Id = 7714));
+                    rightEntities[4].SelfSkipPayloadLeft.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7714));
 
                     if (RequiresDetectChanges)
                     {
@@ -1854,20 +1883,24 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var leftEntities = new[]
                     {
-                        context.EntityOnes.CreateInstance(e => e.Id = 7711),
-                        context.EntityOnes.CreateInstance(e => e.Id = 7712),
-                        context.EntityOnes.CreateInstance(e => e.Id = 7713)
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = 7711),
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = 7712),
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = 7713)
                     };
                     var rightEntities = new[]
                     {
-                        context.EntityThrees.CreateInstance(e => e.Id = 7721),
-                        context.EntityThrees.CreateInstance(e => e.Id = 7722),
-                        context.EntityThrees.CreateInstance(e => e.Id = 7723)
+                        context.EntityThrees.CreateInstance((e, p) => e.Id = 7721),
+                        context.EntityThrees.CreateInstance((e, p) => e.Id = 7722),
+                        context.EntityThrees.CreateInstance((e, p) => e.Id = 7723)
                     };
+
+                    leftEntities[0].ThreeSkipPayloadFullShared = CreateCollection<EntityThree>();
 
                     leftEntities[0].ThreeSkipPayloadFullShared.Add(rightEntities[0]); // 11 - 21
                     leftEntities[0].ThreeSkipPayloadFullShared.Add(rightEntities[1]); // 11 - 22
                     leftEntities[0].ThreeSkipPayloadFullShared.Add(rightEntities[2]); // 11 - 23
+
+                    rightEntities[0].OneSkipPayloadFullShared = CreateCollection<EntityOne>();
 
                     rightEntities[0].OneSkipPayloadFullShared.Add(leftEntities[0]); // 21 - 11 (Dupe)
                     rightEntities[0].OneSkipPayloadFullShared.Add(leftEntities[1]); // 21 - 12
@@ -1929,22 +1962,22 @@ namespace Microsoft.EntityFrameworkCore
                     var leftEntities = context.Set<EntityOne>().Include(e => e.ThreeSkipPayloadFullShared).OrderBy(e => e.Id).ToList();
                     var rightEntities = context.Set<EntityThree>().Include(e => e.OneSkipPayloadFullShared).ToList();
 
-                    leftEntities[0].ThreeSkipPayloadFullShared.Add(context.EntityThrees.CreateInstance(e => e.Id = 7721));
-                    leftEntities[0].ThreeSkipPayloadFullShared.Add(context.EntityThrees.CreateInstance(e => e.Id = 7722));
-                    leftEntities[0].ThreeSkipPayloadFullShared.Add(context.EntityThrees.CreateInstance(e => e.Id = 7723));
+                    leftEntities[0].ThreeSkipPayloadFullShared.Add(context.EntityThrees.CreateInstance((e, p) => e.Id = 7721));
+                    leftEntities[0].ThreeSkipPayloadFullShared.Add(context.EntityThrees.CreateInstance((e, p) => e.Id = 7722));
+                    leftEntities[0].ThreeSkipPayloadFullShared.Add(context.EntityThrees.CreateInstance((e, p) => e.Id = 7723));
 
-                    rightEntities[0].OneSkipPayloadFullShared.Add(context.EntityOnes.CreateInstance(e => e.Id = 7711));
-                    rightEntities[0].OneSkipPayloadFullShared.Add(context.EntityOnes.CreateInstance(e => e.Id = 7712));
-                    rightEntities[0].OneSkipPayloadFullShared.Add(context.EntityOnes.CreateInstance(e => e.Id = 7713));
+                    rightEntities[0].OneSkipPayloadFullShared.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7711));
+                    rightEntities[0].OneSkipPayloadFullShared.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7712));
+                    rightEntities[0].OneSkipPayloadFullShared.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7713));
 
                     leftEntities[2].ThreeSkipPayloadFullShared.Remove(leftEntities[2].ThreeSkipPayloadFullShared.Single(e => e.Id == 2));
                     rightEntities[4].OneSkipPayloadFullShared.Remove(rightEntities[4].OneSkipPayloadFullShared.Single(e => e.Id == 4));
 
                     leftEntities[3].ThreeSkipPayloadFullShared.Remove(leftEntities[3].ThreeSkipPayloadFullShared.Single(e => e.Id == 18));
-                    leftEntities[3].ThreeSkipPayloadFullShared.Add(context.EntityThrees.CreateInstance(e => e.Id = 7724));
+                    leftEntities[3].ThreeSkipPayloadFullShared.Add(context.EntityThrees.CreateInstance((e, p) => e.Id = 7724));
 
                     rightEntities[2].OneSkipPayloadFullShared.Remove(rightEntities[2].OneSkipPayloadFullShared.Single(e => e.Id == 13));
-                    rightEntities[2].OneSkipPayloadFullShared.Add(context.EntityOnes.CreateInstance(e => e.Id = 7714));
+                    rightEntities[2].OneSkipPayloadFullShared.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7714));
 
                     if (RequiresDetectChanges)
                     {
@@ -2053,20 +2086,24 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var leftEntities = new[]
                     {
-                        context.EntityOnes.CreateInstance(e => e.Id = 7711),
-                        context.EntityOnes.CreateInstance(e => e.Id = 7712),
-                        context.EntityOnes.CreateInstance(e => e.Id = 7713)
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = 7711),
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = 7712),
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = 7713)
                     };
                     var rightEntities = new[]
                     {
-                        context.EntityTwos.CreateInstance(e => e.Id = 7721),
-                        context.EntityTwos.CreateInstance(e => e.Id = 7722),
-                        context.EntityTwos.CreateInstance(e => e.Id = 7723)
+                        context.EntityTwos.CreateInstance((e, p) => e.Id = 7721),
+                        context.EntityTwos.CreateInstance((e, p) => e.Id = 7722),
+                        context.EntityTwos.CreateInstance((e, p) => e.Id = 7723)
                     };
+
+                    leftEntities[0].TwoSkipShared = CreateCollection<EntityTwo>();
 
                     leftEntities[0].TwoSkipShared.Add(rightEntities[0]); // 11 - 21
                     leftEntities[0].TwoSkipShared.Add(rightEntities[1]); // 11 - 22
                     leftEntities[0].TwoSkipShared.Add(rightEntities[2]); // 11 - 23
+
+                    rightEntities[0].OneSkipShared = CreateCollection<EntityOne>();
 
                     rightEntities[0].OneSkipShared.Add(leftEntities[0]); // 21 - 11 (Dupe)
                     rightEntities[0].OneSkipShared.Add(leftEntities[1]); // 21 - 12
@@ -2118,22 +2155,22 @@ namespace Microsoft.EntityFrameworkCore
                     var leftEntities = context.Set<EntityOne>().Include(e => e.TwoSkipShared).OrderBy(e => e.Id).ToList();
                     var rightEntities = context.Set<EntityTwo>().Include(e => e.OneSkipShared).ToList();
 
-                    leftEntities[0].TwoSkipShared.Add(context.EntityTwos.CreateInstance(e => e.Id = 7721));
-                    leftEntities[0].TwoSkipShared.Add(context.EntityTwos.CreateInstance(e => e.Id = 7722));
-                    leftEntities[0].TwoSkipShared.Add(context.EntityTwos.CreateInstance(e => e.Id = 7723));
+                    leftEntities[0].TwoSkipShared.Add(context.EntityTwos.CreateInstance((e, p) => e.Id = 7721));
+                    leftEntities[0].TwoSkipShared.Add(context.EntityTwos.CreateInstance((e, p) => e.Id = 7722));
+                    leftEntities[0].TwoSkipShared.Add(context.EntityTwos.CreateInstance((e, p) => e.Id = 7723));
 
-                    rightEntities[0].OneSkipShared.Add(context.EntityOnes.CreateInstance(e => e.Id = 7711));
-                    rightEntities[0].OneSkipShared.Add(context.EntityOnes.CreateInstance(e => e.Id = 7712));
-                    rightEntities[0].OneSkipShared.Add(context.EntityOnes.CreateInstance(e => e.Id = 7713));
+                    rightEntities[0].OneSkipShared.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7711));
+                    rightEntities[0].OneSkipShared.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7712));
+                    rightEntities[0].OneSkipShared.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7713));
 
                     leftEntities[1].TwoSkipShared.Remove(leftEntities[1].TwoSkipShared.Single(e => e.Id == 3));
                     rightEntities[1].OneSkipShared.Remove(rightEntities[1].OneSkipShared.Single(e => e.Id == 5));
 
                     leftEntities[2].TwoSkipShared.Remove(leftEntities[2].TwoSkipShared.Single(e => e.Id == 10));
-                    leftEntities[2].TwoSkipShared.Add(context.EntityTwos.CreateInstance(e => e.Id = 7724));
+                    leftEntities[2].TwoSkipShared.Add(context.EntityTwos.CreateInstance((e, p) => e.Id = 7724));
 
                     rightEntities[2].OneSkipShared.Remove(rightEntities[2].OneSkipShared.Single(e => e.Id == 7));
-                    rightEntities[2].OneSkipShared.Add(context.EntityOnes.CreateInstance(e => e.Id = 7714));
+                    rightEntities[2].OneSkipShared.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7714));
 
                     if (RequiresDetectChanges)
                     {
@@ -2219,20 +2256,24 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var leftEntities = new[]
                     {
-                        context.EntityOnes.CreateInstance(e => e.Id = 7711),
-                        context.EntityOnes.CreateInstance(e => e.Id = 7712),
-                        context.EntityOnes.CreateInstance(e => e.Id = 7713)
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = 7711),
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = 7712),
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = 7713)
                     };
                     var rightEntities = new[]
                     {
-                        context.EntityThrees.CreateInstance(e => e.Id = 7721),
-                        context.EntityThrees.CreateInstance(e => e.Id = 7722),
-                        context.EntityThrees.CreateInstance(e => e.Id = 7723)
+                        context.EntityThrees.CreateInstance((e, p) => e.Id = 7721),
+                        context.EntityThrees.CreateInstance((e, p) => e.Id = 7722),
+                        context.EntityThrees.CreateInstance((e, p) => e.Id = 7723)
                     };
+
+                    leftEntities[0].ThreeSkipPayloadFull = CreateCollection<EntityThree>();
 
                     leftEntities[0].ThreeSkipPayloadFull.Add(rightEntities[0]); // 11 - 21
                     leftEntities[0].ThreeSkipPayloadFull.Add(rightEntities[1]); // 11 - 22
                     leftEntities[0].ThreeSkipPayloadFull.Add(rightEntities[2]); // 11 - 23
+
+                    rightEntities[0].OneSkipPayloadFull = CreateCollection<EntityOne>();
 
                     rightEntities[0].OneSkipPayloadFull.Add(leftEntities[0]); // 21 - 11 (Dupe)
                     rightEntities[0].OneSkipPayloadFull.Add(leftEntities[1]); // 21 - 12
@@ -2297,22 +2338,22 @@ namespace Microsoft.EntityFrameworkCore
                     var leftEntities = context.Set<EntityOne>().Include(e => e.ThreeSkipPayloadFull).OrderBy(e => e.Id).ToList();
                     var rightEntities = context.Set<EntityThree>().Include(e => e.OneSkipPayloadFull).ToList();
 
-                    leftEntities[0].ThreeSkipPayloadFull.Add(context.EntityThrees.CreateInstance(e => e.Id = 7721));
-                    leftEntities[0].ThreeSkipPayloadFull.Add(context.EntityThrees.CreateInstance(e => e.Id = 7722));
-                    leftEntities[0].ThreeSkipPayloadFull.Add(context.EntityThrees.CreateInstance(e => e.Id = 7723));
+                    leftEntities[0].ThreeSkipPayloadFull.Add(context.EntityThrees.CreateInstance((e, p) => e.Id = 7721));
+                    leftEntities[0].ThreeSkipPayloadFull.Add(context.EntityThrees.CreateInstance((e, p) => e.Id = 7722));
+                    leftEntities[0].ThreeSkipPayloadFull.Add(context.EntityThrees.CreateInstance((e, p) => e.Id = 7723));
 
-                    rightEntities[0].OneSkipPayloadFull.Add(context.EntityOnes.CreateInstance(e => e.Id = 7711));
-                    rightEntities[0].OneSkipPayloadFull.Add(context.EntityOnes.CreateInstance(e => e.Id = 7712));
-                    rightEntities[0].OneSkipPayloadFull.Add(context.EntityOnes.CreateInstance(e => e.Id = 7713));
+                    rightEntities[0].OneSkipPayloadFull.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7711));
+                    rightEntities[0].OneSkipPayloadFull.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7712));
+                    rightEntities[0].OneSkipPayloadFull.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7713));
 
                     leftEntities[1].ThreeSkipPayloadFull.Remove(leftEntities[1].ThreeSkipPayloadFull.Single(e => e.Id == 9));
                     rightEntities[1].OneSkipPayloadFull.Remove(rightEntities[1].OneSkipPayloadFull.Single(e => e.Id == 4));
 
                     leftEntities[2].ThreeSkipPayloadFull.Remove(leftEntities[2].ThreeSkipPayloadFull.Single(e => e.Id == 5));
-                    leftEntities[2].ThreeSkipPayloadFull.Add(context.EntityThrees.CreateInstance(e => e.Id = 7724));
+                    leftEntities[2].ThreeSkipPayloadFull.Add(context.EntityThrees.CreateInstance((e, p) => e.Id = 7724));
 
                     rightEntities[2].OneSkipPayloadFull.Remove(rightEntities[2].OneSkipPayloadFull.Single(e => e.Id == 8));
-                    rightEntities[2].OneSkipPayloadFull.Add(context.EntityOnes.CreateInstance(e => e.Id = 7714));
+                    rightEntities[2].OneSkipPayloadFull.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7714));
 
                     if (RequiresDetectChanges)
                     {
@@ -2555,20 +2596,24 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var leftEntities = new[]
                     {
-                        context.EntityOnes.CreateInstance(e => e.Id = 7711),
-                        context.EntityOnes.CreateInstance(e => e.Id = 7712),
-                        context.EntityOnes.CreateInstance(e => e.Id = 7713)
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = 7711),
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = 7712),
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = 7713)
                     };
                     var rightEntities = new[]
                     {
-                        context.EntityTwos.CreateInstance(e => e.Id = 7721),
-                        context.EntityTwos.CreateInstance(e => e.Id = 7722),
-                        context.EntityTwos.CreateInstance(e => e.Id = 7723)
+                        context.EntityTwos.CreateInstance((e, p) => e.Id = 7721),
+                        context.EntityTwos.CreateInstance((e, p) => e.Id = 7722),
+                        context.EntityTwos.CreateInstance((e, p) => e.Id = 7723)
                     };
+
+                    leftEntities[0].TwoSkip = CreateCollection<EntityTwo>();
 
                     leftEntities[0].TwoSkip.Add(rightEntities[0]); // 11 - 21
                     leftEntities[0].TwoSkip.Add(rightEntities[1]); // 11 - 22
                     leftEntities[0].TwoSkip.Add(rightEntities[2]); // 11 - 23
+
+                    rightEntities[0].OneSkip = CreateCollection<EntityOne>();
 
                     rightEntities[0].OneSkip.Add(leftEntities[0]); // 21 - 11 (Dupe)
                     rightEntities[0].OneSkip.Add(leftEntities[1]); // 21 - 12
@@ -2620,22 +2665,22 @@ namespace Microsoft.EntityFrameworkCore
                     var leftEntities = context.Set<EntityOne>().Include(e => e.TwoSkip).OrderBy(e => e.Id).ToList();
                     var rightEntities = context.Set<EntityTwo>().Include(e => e.OneSkip).ToList();
 
-                    leftEntities[0].TwoSkip.Add(context.EntityTwos.CreateInstance(e => e.Id = 7721));
-                    leftEntities[0].TwoSkip.Add(context.EntityTwos.CreateInstance(e => e.Id = 7722));
-                    leftEntities[0].TwoSkip.Add(context.EntityTwos.CreateInstance(e => e.Id = 7723));
+                    leftEntities[0].TwoSkip.Add(context.EntityTwos.CreateInstance((e, p) => e.Id = 7721));
+                    leftEntities[0].TwoSkip.Add(context.EntityTwos.CreateInstance((e, p) => e.Id = 7722));
+                    leftEntities[0].TwoSkip.Add(context.EntityTwos.CreateInstance((e, p) => e.Id = 7723));
 
-                    rightEntities[0].OneSkip.Add(context.EntityOnes.CreateInstance(e => e.Id = 7711));
-                    rightEntities[0].OneSkip.Add(context.EntityOnes.CreateInstance(e => e.Id = 7712));
-                    rightEntities[0].OneSkip.Add(context.EntityOnes.CreateInstance(e => e.Id = 7713));
+                    rightEntities[0].OneSkip.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7711));
+                    rightEntities[0].OneSkip.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7712));
+                    rightEntities[0].OneSkip.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7713));
 
                     leftEntities[1].TwoSkip.Remove(leftEntities[1].TwoSkip.Single(e => e.Id == 1));
                     rightEntities[1].OneSkip.Remove(rightEntities[1].OneSkip.Single(e => e.Id == 1));
 
                     leftEntities[2].TwoSkip.Remove(leftEntities[2].TwoSkip.Single(e => e.Id == 1));
-                    leftEntities[2].TwoSkip.Add(context.EntityTwos.CreateInstance(e => e.Id = 7724));
+                    leftEntities[2].TwoSkip.Add(context.EntityTwos.CreateInstance((e, p) => e.Id = 7724));
 
                     rightEntities[2].OneSkip.Remove(rightEntities[2].OneSkip.Single(e => e.Id == 1));
-                    rightEntities[2].OneSkip.Add(context.EntityOnes.CreateInstance(e => e.Id = 7714));
+                    rightEntities[2].OneSkip.Add(context.EntityOnes.CreateInstance((e, p) => e.Id = 7714));
 
                     if (RequiresDetectChanges)
                     {
@@ -2806,15 +2851,15 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var leftEntities = new[]
                     {
-                        context.Set<ImplicitManyToManyA>().CreateInstance(e => e.Id = 7711),
-                        context.Set<ImplicitManyToManyA>().CreateInstance(e => e.Id = 7712),
-                        context.Set<ImplicitManyToManyA>().CreateInstance(e => e.Id = 7713)
+                        context.Set<ImplicitManyToManyA>().CreateInstance((e, p) => e.Id = 7711),
+                        context.Set<ImplicitManyToManyA>().CreateInstance((e, p) => e.Id = 7712),
+                        context.Set<ImplicitManyToManyA>().CreateInstance((e, p) => e.Id = 7713)
                     };
                     var rightEntities = new[]
                     {
-                        context.Set<ImplicitManyToManyB>().CreateInstance(e => e.Id = 7721),
-                        context.Set<ImplicitManyToManyB>().CreateInstance(e => e.Id = 7722),
-                        context.Set<ImplicitManyToManyB>().CreateInstance(e => e.Id = 7723)
+                        context.Set<ImplicitManyToManyB>().CreateInstance((e, p) => e.Id = 7721),
+                        context.Set<ImplicitManyToManyB>().CreateInstance((e, p) => e.Id = 7722),
+                        context.Set<ImplicitManyToManyB>().CreateInstance((e, p) => e.Id = 7723)
                     };
 
                     leftEntities[0].Bs.Add(rightEntities[0]); // 11 - 21
@@ -2883,15 +2928,15 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var leftEntities = new[]
                     {
-                        context.Set<ImplicitManyToManyA>().CreateInstance(e => e.Id = 7711),
-                        context.Set<ImplicitManyToManyA>().CreateInstance(e => e.Id = 7712),
-                        context.Set<ImplicitManyToManyA>().CreateInstance(e => e.Id = 7713)
+                        context.Set<ImplicitManyToManyA>().CreateInstance((e, p) => e.Id = 7711),
+                        context.Set<ImplicitManyToManyA>().CreateInstance((e, p) => e.Id = 7712),
+                        context.Set<ImplicitManyToManyA>().CreateInstance((e, p) => e.Id = 7713)
                     };
                     var rightEntities = new[]
                     {
-                        context.Set<ImplicitManyToManyB>().CreateInstance(e => e.Id = 7721),
-                        context.Set<ImplicitManyToManyB>().CreateInstance(e => e.Id = 7722),
-                        context.Set<ImplicitManyToManyB>().CreateInstance(e => e.Id = 7723)
+                        context.Set<ImplicitManyToManyB>().CreateInstance((e, p) => e.Id = 7721),
+                        context.Set<ImplicitManyToManyB>().CreateInstance((e, p) => e.Id = 7722),
+                        context.Set<ImplicitManyToManyB>().CreateInstance((e, p) => e.Id = 7723)
                     };
 
                     leftEntities[0].Bs.Add(rightEntities[0]); // 11 - 21
@@ -2991,17 +3036,17 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Can_insert_update_delete_shared_type_entity_type()
+        public virtual void Can_insert_update_delete_shared_type_entity_type()
         {
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var entity = context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared").CreateInstance(
-                        c =>
+                        (e, p) =>
                         {
-                            c["OneId"] = 1;
-                            c["ThreeId"] = 1;
-                            c["Payload"] = "NewlyAdded";
+                            e["OneId"] = 1;
+                            e["ThreeId"] = 1;
+                            e["Payload"] = "NewlyAdded";
                         });
                     context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared").Add(entity);
 
@@ -3036,6 +3081,55 @@ namespace Microsoft.EntityFrameworkCore
                             .Any(e => (int)e["OneId"] == 1 && (int)e["ThreeId"] == 1));
                 });
         }
+
+        [ConditionalFact]
+        public virtual void Can_insert_update_delete_proxyable_shared_type_entity_type()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var entity = context.Set<ProxyableSharedType>("PST").CreateInstance(
+                        (e, p) =>
+                        {
+                            e["Id"] = 1;
+                            e["Payload"] = "NewlyAdded";
+                        });
+
+                    context.Set<ProxyableSharedType>("PST").Add(entity);
+
+                    context.SaveChanges();
+                },
+                context =>
+                {
+                    var entity = context.Set<ProxyableSharedType>("PST").Single(e => (int)e["Id"] == 1);
+
+                    Assert.Equal("NewlyAdded", (string)entity["Payload"]);
+
+                    entity["Payload"] = "AlreadyUpdated";
+
+                    if (RequiresDetectChanges)
+                    {
+                        context.ChangeTracker.DetectChanges();
+                    }
+
+                    context.SaveChanges();
+                },
+                context =>
+                {
+                    var entity = context.Set<ProxyableSharedType>("PST").Single(e => (int)e["Id"] == 1);
+
+                    Assert.Equal("AlreadyUpdated", (string)entity["Payload"]);
+
+                    context.Set<ProxyableSharedType>("PST").Remove(entity);
+
+                    context.SaveChanges();
+
+                    Assert.False(context.Set<ProxyableSharedType>("PST").Any(e => (int)e["Id"] == 1));
+                });
+        }
+
+        private ICollection<TEntity> CreateCollection<TEntity>()
+            => RequiresDetectChanges ? (ICollection<TEntity>)new List<TEntity>() : new ObservableCollection<TEntity>();
 
         protected ManyToManyTrackingTestBase(TFixture fixture)
             => Fixture = fixture;

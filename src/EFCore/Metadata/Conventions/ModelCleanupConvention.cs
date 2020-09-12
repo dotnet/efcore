@@ -89,6 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private void RemoveModelBuildingAnnotations(IConventionModelBuilder modelBuilder)
         {
+            modelBuilder.Metadata.RemoveAnnotation(CoreAnnotationNames.DerivedTypes);
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
                 entityType.RemoveAnnotation(CoreAnnotationNames.AmbiguousNavigations);

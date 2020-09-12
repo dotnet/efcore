@@ -29,14 +29,14 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 
     public static class ManyToManyContextExtensions
     {
-        public static TEntity CreateInstance<TEntity>(this DbSet<TEntity> set, Action<TEntity> configureEntity)
+        public static TEntity CreateInstance<TEntity>(this DbSet<TEntity> set, Action<TEntity, bool> configureEntity)
             where TEntity : class, new()
         {
-            var entity = set.GetService<IDbContextOptions>().FindExtension<ProxiesOptionsExtension>()?.UseChangeTrackingProxies == true
-                ? set.CreateProxy()
-                : new TEntity();
+            var isProxy = set.GetService<IDbContextOptions>().FindExtension<ProxiesOptionsExtension>()?.UseChangeTrackingProxies == true;
 
-            configureEntity(entity);
+            var entity = isProxy ? set.CreateProxy() : new TEntity();
+
+            configureEntity(entity, isProxy);
 
             return entity;
         }

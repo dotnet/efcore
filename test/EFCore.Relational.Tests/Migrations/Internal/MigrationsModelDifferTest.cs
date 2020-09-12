@@ -271,6 +271,79 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
+        public void Model_differ_breaks_double_foreign_key_cycles_in_create_table_operations()
+        {
+            Execute(
+                _ => { },
+                modelBuilder =>
+                {
+                    modelBuilder
+                        .Entity("Banks")
+                        .Property<string>("Id");
+
+                    modelBuilder
+                        .Entity("BankRegistrations")
+                        .Property<string>("Id");
+
+                    modelBuilder
+                        .Entity("BankProfiles")
+                        .Property<string>("Id");
+
+                    modelBuilder
+                        .Entity("Banks")
+                        .HasOne("BankRegistrations")
+                        .WithOne()
+                        .HasForeignKey("Banks", "DefaultBankRegistrationId");
+
+                    modelBuilder
+                        .Entity("Banks")
+                        .HasOne("BankRegistrations")
+                        .WithOne()
+                        .HasForeignKey("Banks", "StagingBankRegistrationId");
+
+                    modelBuilder
+                        .Entity("Banks")
+                        .HasOne("BankProfiles")
+                        .WithOne()
+                        .HasForeignKey("Banks", "DefaultBankProfileId");
+
+                    modelBuilder
+                        .Entity("Banks")
+                        .HasOne("BankProfiles")
+                        .WithOne()
+                        .HasForeignKey("Banks", "StagingBankProfileId");
+
+                    modelBuilder
+                        .Entity("BankRegistrations")
+                        .HasOne("Banks")
+                        .WithMany()
+                        .HasForeignKey("BankId");
+
+                    modelBuilder
+                        .Entity("BankProfiles")
+                        .HasOne("Banks")
+                        .WithMany()
+                        .HasForeignKey("BankId");
+
+                    modelBuilder
+                        .Entity("BankProfiles")
+                        .HasOne("BankRegistrations")
+                        .WithMany()
+                        .HasForeignKey("BankRegistrationId");
+                },
+                result =>
+                {
+                    Assert.Equal(14, result.Count);
+
+                    var createBankTableOperation = Assert.IsType<CreateTableOperation>(result[0]);
+                    Assert.Equal("Banks", createBankTableOperation.Name);
+                    Assert.Equal(0, createBankTableOperation.ForeignKeys.Count);
+
+                    Assert.Equal(4, result.OfType<AddForeignKeyOperation>().Count());
+                });
+        }
+
+        [ConditionalFact]
         public void Create_table()
         {
             Execute(
@@ -1416,6 +1489,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var m = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Null(m.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             m.KeyValues,
                             v => Assert.Equal(43, v));
@@ -1487,6 +1561,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var m = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Null(m.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             m.KeyValues,
                             v => Assert.Equal(42, v));
@@ -1494,6 +1569,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var m = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Null(m.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             m.KeyValues,
                             v => Assert.Equal(43, v));
@@ -1501,6 +1577,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var m = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Null(m.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             m.KeyValues,
                             v => Assert.Equal(44, v));
@@ -1508,6 +1585,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var m = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Null(m.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             m.KeyValues,
                             v => Assert.Equal(45, v));
@@ -2139,6 +2217,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var m = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Null(m.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             m.KeyValues,
                             v => Assert.Equal(42, v));
@@ -2146,6 +2225,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var m = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Null(m.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             m.KeyValues,
                             v => Assert.Equal(43, v));
@@ -5232,6 +5312,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var m = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Null(m.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             m.KeyValues,
                             v => Assert.Equal(43, v));
@@ -5684,6 +5765,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("Dogs", operation.Table);
 
                         Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                        Assert.Null(operation.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             operation.KeyValues,
                             v => Assert.Equal(21, v));
@@ -5694,6 +5776,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("Dogs", operation.Table);
 
                         Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                        Assert.Null(operation.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             operation.KeyValues,
                             v => Assert.Equal(22, v));
@@ -5704,6 +5787,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("Dogs", operation.Table);
 
                         Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                        Assert.Null(operation.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             operation.KeyValues,
                             v => Assert.Equal(23, v));
@@ -5724,6 +5808,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("Animal", operation.Table);
 
                         Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                        Assert.Null(operation.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             operation.KeyValues,
                             v => Assert.Equal(33, v));
@@ -6321,6 +6406,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("Dogs", operation.Table);
 
                         Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                        Assert.Null(operation.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             operation.KeyValues,
                             v => Assert.Equal(21, v));
@@ -6331,6 +6417,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("Dogs", operation.Table);
 
                         Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                        Assert.Null(operation.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             operation.KeyValues,
                             v => Assert.Equal(22, v));
@@ -6341,6 +6428,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("Dogs", operation.Table);
 
                         Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                        Assert.Null(operation.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             operation.KeyValues,
                             v => Assert.Equal(23, v));
@@ -6411,6 +6499,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("Animal", operation.Table);
 
                         Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                        Assert.Null(operation.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             operation.KeyValues,
                             v => Assert.Equal(33, v));
@@ -6909,6 +6998,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         var operation = Assert.IsType<DeleteDataOperation>(o);
                         Assert.Equal("Animal", operation.Table);
+                        Assert.Null(operation.KeyColumnTypes);
                         Assert.Collection(
                             operation.KeyColumns,
                             v => Assert.Equal("Id", v));
@@ -6940,6 +7030,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Collection(
                             operation.KeyColumns,
                             v => Assert.Equal("Id", v));
+                        Assert.Null(operation.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             operation.KeyValues,
                             v => Assert.Equal(43, v));
@@ -7238,6 +7329,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Collection(
                             operation.KeyColumns,
                             v => Assert.Equal("ReferencedTableId", v));
+                        Assert.Null(operation.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             operation.KeyValues,
                             v => Assert.Equal(42, v));
@@ -7972,6 +8064,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         var operation = Assert.IsType<DeleteDataOperation>(o);
                         Assert.Equal("Table", operation.Table);
+                        Assert.Null(operation.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             operation.KeyValues,
                             v => Assert.Equal(42, v));
@@ -8021,6 +8114,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         var operation = Assert.IsType<DeleteDataOperation>(o);
                         Assert.Equal("ReferencedTable", operation.Table);
+                        Assert.Null(operation.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             operation.KeyValues,
                             v => Assert.Equal(42, v));
@@ -8040,6 +8134,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         var operation = Assert.IsType<DeleteDataOperation>(o);
                         Assert.Equal("ReferencedTable", operation.Table);
+                        Assert.Null(operation.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             operation.KeyValues,
                             v => Assert.Equal(42, v));
@@ -8048,6 +8143,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         var operation = Assert.IsType<InsertDataOperation>(o);
                         Assert.Equal("ReferencedTable", operation.Table);
+                        Assert.Null(operation.ColumnTypes);
                         AssertMultidimensionalArray(
                             operation.Values,
                             v => Assert.Equal(42, v),
@@ -8056,7 +8152,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
-        public void SeedData_add_on_existing_table()
+        public void SeedData_and_PK_rename()
         {
             Execute(
                 _ => { },
@@ -8064,9 +8160,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     "EntityWithTwoProperties",
                     x =>
                     {
-                        x.Property<int>("Id");
+                        x.Property<int>("Key");
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
+                        x.HasKey("Key");
                     }),
                 target => target.Entity(
                     "EntityWithTwoProperties",
@@ -8080,6 +8177,95 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }),
                 upOps => Assert.Collection(
                     upOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<RenameColumnOperation>(o);
+                        Assert.Equal("EntityWithTwoProperties", operation.Table);
+                        Assert.Equal("Key", operation.Name);
+                        Assert.Equal("Id", operation.NewName);
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Equal(new[] { "Id", "Value1", "Value2" }, m.Columns);
+                        Assert.Null(m.ColumnTypes);
+                        AssertMultidimensionalArray(
+                            m.Values,
+                            v => Assert.Equal(42, v),
+                            v => Assert.Equal(32, v),
+                            Assert.Null);
+                    }),
+                downOps => Assert.Collection(
+                    downOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Equal(new[] { "Id" }, m.KeyColumns);
+                        Assert.Null(m.KeyColumnTypes);
+                        AssertMultidimensionalArray(
+                            m.KeyValues,
+                            v => Assert.Equal(42, v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<RenameColumnOperation>(o);
+                        Assert.Equal("EntityWithTwoProperties", operation.Table);
+                        Assert.Equal("Id", operation.Name);
+                        Assert.Equal("Key", operation.NewName);
+                    }));
+        }
+
+        [ConditionalFact]
+        public void SeedData_and_change_PK_type()
+        {
+            Execute(
+                _ => { },
+                source => source.Entity(
+                    "EntityWithTwoProperties",
+                    x =>
+                    {
+                        x.Property<string>("Key");
+                        x.Property<int>("Value1");
+                        x.Property<string>("Value2");
+                        x.HasKey("Key");
+                    }),
+                target => target.Entity(
+                    "EntityWithTwoProperties",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<int>("Value1");
+                        x.Property<string>("Value2");
+                        x.HasData(
+                            new { Id = 42, Value1 = 32 });
+                    }),
+                upOps => Assert.Collection(
+                    upOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<DropPrimaryKeyOperation>(o);
+                        Assert.Equal("EntityWithTwoProperties", operation.Table);
+                        Assert.Equal("PK_EntityWithTwoProperties", operation.Name);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<DropColumnOperation>(o);
+                        Assert.Equal("EntityWithTwoProperties", operation.Table);
+                        Assert.Equal("Key", operation.Name);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<AddColumnOperation>(o);
+                        Assert.Equal("EntityWithTwoProperties", operation.Table);
+                        Assert.Equal("Id", operation.Name);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<AddPrimaryKeyOperation>(o);
+                        Assert.Equal("EntityWithTwoProperties", operation.Table);
+                        Assert.Equal("PK_EntityWithTwoProperties", operation.Name);
+                        Assert.Equal(new[] { "Id" }, operation.Columns);
+                    },
                     o =>
                     {
                         var m = Assert.IsType<InsertDataOperation>(o);
@@ -8093,55 +8279,37 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     downOps,
                     o =>
                     {
-                        var m = Assert.IsType<DeleteDataOperation>(o);
-                        AssertMultidimensionalArray(
-                            m.KeyValues,
-                            v => Assert.Equal(42, v));
-                    }));
-        }
-
-        [ConditionalFact]
-        public void SeedData_remove()
-        {
-            Execute(
-                _ => { },
-                source => source.Entity(
-                    "EntityWithTwoProperties",
-                    x =>
-                    {
-                        x.Property<int>("Id");
-                        x.Property<int>("Value1");
-                        x.Property<string>("Value2");
-                        x.HasData(
-                            new { Id = 42, Value1 = 32 });
-                    }),
-                target => target.Entity(
-                    "EntityWithTwoProperties",
-                    x =>
-                    {
-                        x.Property<int>("Id");
-                        x.Property<int>("Value1");
-                        x.Property<string>("Value2");
-                    }),
-                upOps => Assert.Collection(
-                    upOps,
+                        var operation = Assert.IsType<DropPrimaryKeyOperation>(o);
+                        Assert.Equal("EntityWithTwoProperties", operation.Table);
+                        Assert.Equal("PK_EntityWithTwoProperties", operation.Name);
+                    },
                     o =>
                     {
                         var m = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Equal(new[] { "Id" }, m.KeyColumns);
+                        Assert.Equal(new[] { "default_int_mapping" }, m.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             m.KeyValues,
                             v => Assert.Equal(42, v));
-                    }),
-                downOps => Assert.Collection(
-                    downOps,
+                    },
                     o =>
                     {
-                        var m = Assert.IsType<InsertDataOperation>(o);
-                        AssertMultidimensionalArray(
-                            m.Values,
-                            v => Assert.Equal(42, v),
-                            v => Assert.Equal(32, v),
-                            v => Assert.Null(v));
+                        var operation = Assert.IsType<DropColumnOperation>(o);
+                        Assert.Equal("EntityWithTwoProperties", operation.Table);
+                        Assert.Equal("Id", operation.Name);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<AddColumnOperation>(o);
+                        Assert.Equal("EntityWithTwoProperties", operation.Table);
+                        Assert.Equal("Key", operation.Name);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<AddPrimaryKeyOperation>(o);
+                        Assert.Equal("EntityWithTwoProperties", operation.Table);
+                        Assert.Equal("PK_EntityWithTwoProperties", operation.Name);
+                        Assert.Equal(new[] { "Key" }, operation.Columns);
                     }));
         }
 
@@ -8677,6 +8845,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var m = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Null(m.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             m.KeyValues,
                             v => Assert.Equal(99999, v));
@@ -8684,6 +8853,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var m = Assert.IsType<UpdateDataOperation>(o);
+                        Assert.Null(m.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             m.KeyValues,
                             v => Assert.Equal(24, v));
@@ -8695,6 +8865,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var m = Assert.IsType<UpdateDataOperation>(o);
+                        Assert.Null(m.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             m.KeyValues,
                             v => Assert.Equal(42, v));
@@ -8705,6 +8876,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var m = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Null(m.ColumnTypes);
                         AssertMultidimensionalArray(
                             m.Values,
                             v => Assert.Equal(11111, v),
@@ -8714,6 +8886,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var m = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Null(m.ColumnTypes);
                         AssertMultidimensionalArray(
                             m.Values,
                             v => Assert.Equal(11112, v),
@@ -8725,6 +8898,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var m = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Null(m.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             m.KeyValues,
                             v => Assert.Equal(11111, v));
@@ -8732,6 +8906,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var m = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Null(m.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             m.KeyValues,
                             v => Assert.Equal(11112, v));
@@ -8739,6 +8914,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var m = Assert.IsType<UpdateDataOperation>(o);
+                        Assert.Null(m.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             m.KeyValues,
                             v => Assert.Equal(24, v));
@@ -8750,6 +8926,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var m = Assert.IsType<UpdateDataOperation>(o);
+                        Assert.Null(m.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             m.KeyValues,
                             v => Assert.Equal(42, v));
@@ -8760,6 +8937,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var m = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Null(m.ColumnTypes);
                         AssertMultidimensionalArray(
                             m.Values,
                             v => Assert.Equal(99999, v),
@@ -8832,6 +9010,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         o =>
                         {
                             var m = Assert.IsType<DeleteDataOperation>(o);
+                            Assert.Null(m.KeyColumnTypes);
                             AssertMultidimensionalArray(
                                 m.KeyValues,
                                 v => Assert.Equal(21, v));
@@ -8839,6 +9018,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         o =>
                         {
                             var m = Assert.IsType<UpdateDataOperation>(o);
+                            Assert.Null(m.KeyColumnTypes);
                             AssertMultidimensionalArray(
                                 m.KeyValues,
                                 v => Assert.Equal(11, v));
@@ -8849,6 +9029,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         o =>
                         {
                             var m = Assert.IsType<UpdateDataOperation>(o);
+                            Assert.Null(m.KeyColumnTypes);
                             AssertMultidimensionalArray(
                                 m.KeyValues,
                                 v => Assert.Equal(12, v));
@@ -8861,6 +9042,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         o =>
                         {
                             var m = Assert.IsType<InsertDataOperation>(o);
+                            Assert.Null(m.ColumnTypes);
                             AssertMultidimensionalArray(
                                 m.Values,
                                 v => Assert.Equal(31, v),
@@ -8869,6 +9051,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         o =>
                         {
                             var m = Assert.IsType<InsertDataOperation>(o);
+                            Assert.Null(m.ColumnTypes);
                             AssertMultidimensionalArray(
                                 m.Values,
                                 v => Assert.Equal(32, v),
@@ -8884,6 +9067,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         o =>
                         {
                             var m = Assert.IsType<DeleteDataOperation>(o);
+                            Assert.Null(m.KeyColumnTypes);
                             AssertMultidimensionalArray(
                                 m.KeyValues,
                                 v => Assert.Equal(31, v));
@@ -8891,6 +9075,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         o =>
                         {
                             var m = Assert.IsType<DeleteDataOperation>(o);
+                            Assert.Null(m.KeyColumnTypes);
                             AssertMultidimensionalArray(
                                 m.KeyValues,
                                 v => Assert.Equal(32, v));
@@ -9079,6 +9264,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         var m = Assert.IsType<DeleteDataOperation>(o);
                         Assert.Equal("Post", m.Table);
+                        Assert.Null(m.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             m.KeyValues,
                             v => Assert.Equal(390, v));
@@ -9087,6 +9273,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         var m = Assert.IsType<UpdateDataOperation>(o);
                         Assert.Equal("Blog", m.Table);
+                        Assert.Null(m.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             m.KeyValues,
                             v => Assert.Equal(32, v));
@@ -9140,6 +9327,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         var m = Assert.IsType<DeleteDataOperation>(o);
                         Assert.Equal("Blog", m.Table);
+                        Assert.Null(m.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             m.KeyValues,
                             v => Assert.Equal(38, v));
@@ -9156,6 +9344,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         var m = Assert.IsType<DeleteDataOperation>(o);
                         Assert.Equal("Post", m.Table);
+                        Assert.Null(m.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             m.KeyValues,
                             v => Assert.Equal(546, v));
@@ -9164,6 +9353,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         var m = Assert.IsType<UpdateDataOperation>(o);
                         Assert.Equal("Blog", m.Table);
+                        Assert.Null(m.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             m.KeyValues,
                             v => Assert.Equal(32, v));
@@ -9175,6 +9365,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         var m = Assert.IsType<UpdateDataOperation>(o);
                         Assert.Equal("Post", m.Table);
+                        Assert.Null(m.KeyColumnTypes);
                         AssertMultidimensionalArray(
                             m.KeyValues,
                             v => Assert.Equal(545, v));
@@ -9187,6 +9378,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         var m = Assert.IsType<InsertDataOperation>(o);
                         Assert.Equal("Post", m.Table);
+                        Assert.Null(m.ColumnTypes);
                         AssertMultidimensionalArray(
                             m.Values,
                             v => Assert.Equal(390, v),

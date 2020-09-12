@@ -6,6 +6,7 @@ using System.Linq;
 using Castle.DynamicProxy;
 using Castle.DynamicProxy.Generators;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -69,6 +70,61 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(6, proxy.Id);
                 Assert.Equal("Canon", proxy.Sponsor);
             }
+        }
+
+        [ConditionalFact]
+        public void CreateProxy_works_for_shared_type_entity_types()
+        {
+            using var context = new NeweyContext();
+
+            Assert.Same(typeof(SharedTypeEntityType), context.Set<SharedTypeEntityType>("STET1").CreateProxy().GetType().BaseType);
+            Assert.Same(typeof(SharedTypeEntityType), context.Set<SharedTypeEntityType>("STET1").CreateProxy(_ => { }).GetType().BaseType);
+        }
+
+        [ConditionalFact]
+        public void CreateProxy_throws_for_shared_type_entity_types_when_entity_type_name_not_known()
+        {
+            using var context = new NeweyContext();
+
+            Assert.Equal(
+                ProxiesStrings.EntityTypeNotFoundShared(nameof(SharedTypeEntityType)),
+                Assert.Throws<InvalidOperationException>(() => context.CreateProxy<SharedTypeEntityType>()).Message);
+
+            Assert.Equal(
+                ProxiesStrings.EntityTypeNotFoundShared(nameof(SharedTypeEntityType)),
+                Assert.Throws<InvalidOperationException>(() => context.CreateProxy<SharedTypeEntityType>(_ => { })).Message);
+
+            Assert.Equal(
+                ProxiesStrings.EntityTypeNotFoundShared(nameof(SharedTypeEntityType)),
+                Assert.Throws<InvalidOperationException>(() => context.CreateProxy(typeof(SharedTypeEntityType))).Message);
+        }
+
+        [ConditionalFact]
+        public void CreateProxy_works_for_owned_but_not_weak_entity_types()
+        {
+            using var context = new NeweyContext();
+
+            Assert.Same(typeof(IsOwnedButNotWeak), context.CreateProxy<IsOwnedButNotWeak>().GetType().BaseType);
+            Assert.Same(typeof(IsOwnedButNotWeak), context.CreateProxy<IsOwnedButNotWeak>(_ => { }).GetType().BaseType);
+            Assert.Same(typeof(IsOwnedButNotWeak), context.CreateProxy(typeof(IsOwnedButNotWeak)).GetType().BaseType);
+        }
+
+        [ConditionalFact] // Issue #22407
+        public void CreateProxy_throws_for_weak_entity_types()
+        {
+            using var context = new NeweyContext();
+
+            Assert.Equal(
+                ProxiesStrings.EntityTypeNotFoundWeak(nameof(IsWeak)),
+                Assert.Throws<InvalidOperationException>(() => context.CreateProxy<IsWeak>()).Message);
+
+            Assert.Equal(
+                ProxiesStrings.EntityTypeNotFoundWeak(nameof(IsWeak)),
+                Assert.Throws<InvalidOperationException>(() => context.CreateProxy<IsWeak>(_ => { })).Message);
+
+            Assert.Equal(
+                ProxiesStrings.EntityTypeNotFoundWeak(nameof(IsWeak)),
+                Assert.Throws<InvalidOperationException>(() => context.CreateProxy(typeof(IsWeak))).Message);
         }
 
         [ConditionalFact]
@@ -229,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore
             var proxy = generator.CreateClassProxy<ClassToBeProxied>();
 
             Assert.Equal(
-                CoreStrings.AttemptToCreateEntityTypeBasedOnProxyClass("Castle.Proxies.ClassToBeProxiedProxy"),
+                CoreStrings.AddingProxyTypeAsEntityType("Castle.Proxies.ClassToBeProxiedProxy"),
                 Assert.Throws<ArgumentException>(
                     () => new EntityType(proxy.GetType(), model, ConfigurationSource.Explicit)).Message);
         }
@@ -239,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Throws_if_attempt_to_add_proxy_type_to_model_builder()
         {
             Assert.Equal(
-                CoreStrings.AttemptToCreateEntityTypeBasedOnProxyClass("Castle.Proxies.ClassToBeProxiedProxy"),
+                CoreStrings.AddingProxyTypeAsEntityType("Castle.Proxies.ClassToBeProxiedProxy"),
                 Assert.Throws<ArgumentException>(
                     () =>
                     {
@@ -280,6 +336,31 @@ namespace Microsoft.EntityFrameworkCore
             public virtual int Id { get; set; }
 
             public virtual string Sponsor { get; set; }
+        }
+
+        public class SharedTypeEntityType
+        {
+            public virtual int Id { get; set; }
+        }
+
+        public class WithWeak
+        {
+            public virtual int Id { get; set; }
+
+            public virtual IsOwnedButNotWeak Owned { get; set; }
+
+            public virtual IsWeak Weak1 { get; set; }
+            public virtual IsWeak Weak2 { get; set; }
+        }
+
+        [Owned]
+        public class IsWeak
+        {
+        }
+
+        [Owned]
+        public class IsOwnedButNotWeak
+        {
         }
 
         private class NeweyContext : DbContext
@@ -350,6 +431,11 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.Id);
                         b.Property(e => e.Sponsor);
                     });
+
+                modelBuilder.SharedTypeEntity<SharedTypeEntityType>("STET1");
+                modelBuilder.SharedTypeEntity<SharedTypeEntityType>("STET2");
+
+                modelBuilder.Entity<WithWeak>();
             }
         }
 

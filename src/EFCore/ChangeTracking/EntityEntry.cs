@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public virtual void DetectChanges()
         {
-            if ((string)Context.Model[CoreAnnotationNames.SkipDetectChangesAnnotation] != "true")
+            if (!((Model)Context.Model).SkipDetectChanges)
             {
                 Context.GetDependencies().ChangeDetector.DetectChanges(InternalEntry);
             }

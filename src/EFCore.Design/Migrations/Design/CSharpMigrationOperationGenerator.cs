@@ -2020,6 +2020,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                 builder.AppendLine(",");
 
+                if (operation.KeyColumnTypes != null)
+                {
+                    if (operation.KeyColumnTypes.Length == 1)
+                    {
+                        builder
+                            .Append("keyColumnType: ")
+                            .Append(Code.Literal(operation.KeyColumnTypes[0]));
+                    }
+                    else
+                    {
+                        builder
+                            .Append("keyColumnTypes: ")
+                            .Append(Code.Literal(operation.KeyColumnTypes));
+                    }
+
+                    builder.AppendLine(",");
+                }
+
                 if (operation.KeyValues.GetLength(0) == 1
                     && operation.KeyValues.GetLength(1) == 1)
                 {

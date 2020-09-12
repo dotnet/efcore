@@ -41,7 +41,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
             }
 
-            modelBuilder.HasAnnotation(CoreAnnotationNames.SkipDetectChangesAnnotation, "true");
+            if (modelBuilder.Metadata is Model model)
+            {
+                model.SetSkipDetectChanges(true);
+            }
         }
     }
 }

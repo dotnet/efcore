@@ -334,24 +334,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     continue;
                 }
 
-                if (mappedType.FindPrimaryKey() != null
-                    && mappedType.FindForeignKeys(mappedType.FindPrimaryKey().Properties)
-                        .Any(
-                            fk => fk.PrincipalKey.IsPrimaryKey()
-                                && unvalidatedTypes.Contains(fk.PrincipalEntityType)))
+                var primaryKey = mappedType.FindPrimaryKey();
+                if (primaryKey != null
+                    && (mappedType.FindForeignKeys(primaryKey.Properties)
+                        .FirstOrDefault(fk => fk.PrincipalKey.IsPrimaryKey()
+                                && unvalidatedTypes.Contains(fk.PrincipalEntityType)) is IForeignKey linkingFK))
                 {
                     if (mappedType.BaseType != null)
                     {
-                        var principalType = mappedType.FindForeignKeys(mappedType.FindPrimaryKey().Properties)
-                            .First(
-                                fk => fk.PrincipalKey.IsPrimaryKey()
-                                    && unvalidatedTypes.Contains(fk.PrincipalEntityType))
-                            .PrincipalEntityType;
                         throw new InvalidOperationException(
                             RelationalStrings.IncompatibleTableDerivedRelationship(
                                 storeObject.DisplayName(),
                                 mappedType.DisplayName(),
-                                principalType.DisplayName()));
+                                linkingFK.PrincipalEntityType.DisplayName()));
                     }
 
                     continue;
@@ -388,18 +383,21 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                 foreach (var nextEntityType in directlyConnectedTypes)
                 {
-                    var otherKey = nextEntityType.FindPrimaryKey();
-                    if (key?.GetName(storeObject) != otherKey?.GetName(storeObject))
+                    if (key != null)
                     {
-                        throw new InvalidOperationException(
-                            RelationalStrings.IncompatibleTableKeyNameMismatch(
-                                storeObject.DisplayName(),
-                                entityType.DisplayName(),
-                                nextEntityType.DisplayName(),
-                                key?.GetName(storeObject),
-                                key?.Properties.Format(),
-                                otherKey?.GetName(storeObject),
-                                otherKey?.Properties.Format()));
+                        var otherKey = nextEntityType.FindPrimaryKey();
+                        if (key.GetName(storeObject) != otherKey.GetName(storeObject))
+                        {
+                            throw new InvalidOperationException(
+                                RelationalStrings.IncompatibleTableKeyNameMismatch(
+                                    storeObject.DisplayName(),
+                                    entityType.DisplayName(),
+                                    nextEntityType.DisplayName(),
+                                    key.GetName(storeObject),
+                                    key.Properties.Format(),
+                                    otherKey.GetName(storeObject),
+                                    otherKey.Properties.Format()));
+                        }
                     }
 
                     var nextComment = nextEntityType.GetComment();
@@ -599,8 +597,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private static bool IsIdentifyingPrincipal(IEntityType dependentEntityType, IEntityType principalEntityType)
             => dependentEntityType.FindForeignKeys(dependentEntityType.FindPrimaryKey().Properties)
-                .Any(
-                    fk => fk.PrincipalKey.IsPrimaryKey()
+                .Any(fk => fk.PrincipalKey.IsPrimaryKey()
                         && fk.PrincipalEntityType == principalEntityType);
 
         /// <summary>
@@ -690,7 +687,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             in StoreObjectIdentifier storeObject,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            if (property.IsNullable != duplicateProperty.IsNullable)
+            if (property.IsColumnNullable(storeObject) != duplicateProperty.IsColumnNullable(storeObject))
             {
                 throw new InvalidOperationException(
                     RelationalStrings.DuplicateColumnNameNullabilityMismatch(
@@ -702,8 +699,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         storeObject.DisplayName()));
             }
 
-            var currentMaxLength = property.GetMaxLength();
-            var previousMaxLength = duplicateProperty.GetMaxLength();
+            var currentMaxLength = property.GetMaxLength(storeObject);
+            var previousMaxLength = duplicateProperty.GetMaxLength(storeObject);
             if (currentMaxLength != previousMaxLength)
             {
                 throw new InvalidOperationException(
@@ -718,7 +715,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         currentMaxLength));
             }
 
-            if (property.IsUnicode() != duplicateProperty.IsUnicode())
+            if (property.IsUnicode(storeObject) != duplicateProperty.IsUnicode(storeObject))
             {
                 throw new InvalidOperationException(
                     RelationalStrings.DuplicateColumnNameUnicodenessMismatch(
@@ -740,6 +737,38 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         property.Name,
                         columnName,
                         storeObject.DisplayName()));
+            }
+
+            var currentPrecision = property.GetPrecision(storeObject);
+            var previousPrecision = duplicateProperty.GetPrecision(storeObject);
+            if (currentPrecision != previousPrecision)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNamePrecisionMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        storeObject.DisplayName(),
+                        currentPrecision,
+                        previousPrecision));
+            }
+
+            var currentScale = property.GetScale(storeObject);
+            var previousScale = duplicateProperty.GetScale(storeObject);
+            if (currentScale != previousScale)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameScaleMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        storeObject.DisplayName(),
+                        currentScale,
+                        previousScale));
             }
 
             if (property.IsConcurrencyToken != duplicateProperty.IsConcurrencyToken)

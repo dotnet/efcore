@@ -900,5 +900,80 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(e => new { e, Complex = e.CustomerID + e.City })
                     .SelectMany(c => c.e.Orders.Select(o => c.Complex)));
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_with_selecting_outer_entity_column_and_inner_column(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .SelectMany(c => c.Orders.OrderBy(o => o.OrderID).Skip(0).Select(o => new { c.City, o.OrderDate })),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_correlated_subquery_take(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Select(c => new { c.CustomerID })
+                    .SelectMany(c => ss.Set<Customer>()
+                        .Where(i => i.CustomerID == c.CustomerID)
+                        .OrderBy(i => i.CustomerID + i.City)
+                        .Take(2)),
+                entryCount: 91);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Distinct_SelectMany_correlated_subquery_take(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Select(c => new { c.CustomerID })
+                    .Distinct()
+                    .SelectMany(c => ss.Set<Customer>()
+                        .Where(i => i.CustomerID == c.CustomerID)
+                        .OrderBy(i => i.CustomerID + i.City)
+                        .Take(2)),
+                entryCount: 91);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Distinct_SelectMany_correlated_subquery_take_2(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Distinct()
+                    .SelectMany(c => ss.Set<Customer>()
+                        .Where(i => i.CustomerID == c.CustomerID)
+                        .OrderBy(i => i.CustomerID + i.City)
+                        .Take(2)),
+                entryCount: 91);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Take_SelectMany_correlated_subquery_take(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Select(c => new { c.CustomerID })
+                    .OrderBy(c => c.CustomerID)
+                    .Take(2)
+                    .SelectMany(c => ss.Set<Customer>()
+                        .Where(i => i.CustomerID == c.CustomerID)
+                        .OrderBy(i => i.CustomerID + i.City)
+                        .Take(2)),
+                entryCount: 2);
+        }
     }
 }

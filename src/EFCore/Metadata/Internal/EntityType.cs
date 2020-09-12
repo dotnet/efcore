@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 type.Assembly.GetName().Name, StringComparison.Ordinal))
             {
                 throw new ArgumentException(
-                    CoreStrings.AttemptToCreateEntityTypeBasedOnProxyClass(type.FullName));
+                    CoreStrings.AddingProxyTypeAsEntityType(type.FullName));
             }
 
             _properties = new SortedDictionary<string, Property>(new PropertyNameComparer(this));
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 type.Assembly.GetName().Name, StringComparison.Ordinal))
             {
                 throw new ArgumentException(
-                    CoreStrings.AttemptToCreateEntityTypeBasedOnProxyClass(type.FullName));
+                    CoreStrings.AddingProxyTypeAsEntityType(type.FullName));
             }
 
             _properties = new SortedDictionary<string, Property>(new PropertyNameComparer(this));
@@ -781,7 +781,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (property == properties[j])
                     {
-                        throw new InvalidOperationException(CoreStrings.DuplicatePropertyInList(properties.Format(), property.Name));
+                        throw new InvalidOperationException(CoreStrings.DuplicatePropertyInKey(properties.Format(), property.Name));
                     }
                 }
 
@@ -789,12 +789,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     || property.Builder == null)
                 {
                     throw new InvalidOperationException(CoreStrings.KeyPropertiesWrongEntity(properties.Format(), this.DisplayName()));
-                }
-
-                if (property.ValueGenerated != ValueGenerated.Never
-                    && property.GetContainingForeignKeys().Any(k => k.DeclaringEntityType != this))
-                {
-                    throw new InvalidOperationException(CoreStrings.KeyPropertyInForeignKey(property.Name, this.DisplayName()));
                 }
 
                 if (property.IsNullable)
@@ -1151,7 +1145,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ForeignKey FindOwnership()
-            => GetForeignKeys().FirstOrDefault(fk => fk.IsOwnership);
+        {
+            foreach (var foreignKey in GetForeignKeys())
+            {
+                if (foreignKey.IsOwnership)
+                {
+                    return foreignKey;
+                }
+            }
+
+            return null;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1160,7 +1164,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ForeignKey FindDeclaredOwnership()
-            => GetDeclaredForeignKeys().FirstOrDefault(fk => fk.IsOwnership);
+        {
+            foreach (var foreignKey in _foreignKeys)
+            {
+                if (foreignKey.IsOwnership)
+                {
+                    return foreignKey;
+                }
+            }
+
+            return null;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1180,7 +1194,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IEnumerable<ForeignKey> GetDerivedForeignKeys()
             => _directlyDerivedTypes.Count == 0
                 ? Enumerable.Empty<ForeignKey>()
-                : GetDerivedTypes().SelectMany(et => et.GetDeclaredForeignKeys());
+                : GetDerivedTypes().SelectMany(et => et._foreignKeys);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2045,7 +2059,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (property == properties[j])
                     {
-                        throw new InvalidOperationException(CoreStrings.DuplicatePropertyInList(properties.Format(), property.Name));
+                        throw new InvalidOperationException(CoreStrings.DuplicatePropertyInIndex(properties.Format(), property.Name));
                     }
                 }
 
@@ -2381,13 +2395,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (memberInfo.DeclaringType?.IsAssignableFrom(ClrType) != true)
                 {
-                    throw new InvalidOperationException(
-                        HasSharedClrType
-                            ? CoreStrings.PropertyWrongEntitySharedClrType(
-                                memberInfo.Name, this.DisplayName(), ClrType.ShortDisplayName(),
-                                memberInfo.DeclaringType?.ShortDisplayName())
-                            : CoreStrings.PropertyWrongEntityClrType(
-                                memberInfo.Name, this.DisplayName(), memberInfo.DeclaringType?.ShortDisplayName()));
+                    throw new InvalidOperationException(CoreStrings.PropertyWrongEntityClrType(
+                        memberInfo.Name, this.DisplayName(), memberInfo.DeclaringType?.ShortDisplayName()));
                 }
             }
             else if (IsPropertyBag)
@@ -3069,7 +3078,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (changeTrackingStrategy != null)
             {
-                var errorMessage = CheckChangeTrackingStrategy(changeTrackingStrategy.Value);
+                var requireFullNotifications = (string)Model[CoreAnnotationNames.FullChangeTrackingNotificationsRequiredAnnotation] == "true";
+                var errorMessage = CheckChangeTrackingStrategy(changeTrackingStrategy.Value, requireFullNotifications);
                 if (errorMessage != null)
                 {
                     throw new InvalidOperationException(errorMessage);
@@ -3087,21 +3097,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string CheckChangeTrackingStrategy(ChangeTrackingStrategy value)
+        public virtual string CheckChangeTrackingStrategy(ChangeTrackingStrategy value, bool requireFullNotifications)
         {
             if (ClrType != null)
             {
-                if (value != ChangeTrackingStrategy.Snapshot
-                    && !typeof(INotifyPropertyChanged).IsAssignableFrom(ClrType))
+                if (requireFullNotifications)
                 {
-                    return CoreStrings.ChangeTrackingInterfaceMissing(this.DisplayName(), value, nameof(INotifyPropertyChanged));
+                    if (value != ChangeTrackingStrategy.ChangingAndChangedNotifications
+                        && value != ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
+                    {
+                        return CoreStrings.FullChangeTrackingRequired(
+                            this.DisplayName(), value, nameof(ChangeTrackingStrategy.ChangingAndChangedNotifications),
+                            nameof(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues));
+                    }
                 }
-
-                if ((value == ChangeTrackingStrategy.ChangingAndChangedNotifications
-                        || value == ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
-                    && !typeof(INotifyPropertyChanging).IsAssignableFrom(ClrType))
+                else
                 {
-                    return CoreStrings.ChangeTrackingInterfaceMissing(this.DisplayName(), value, nameof(INotifyPropertyChanging));
+                    if (value != ChangeTrackingStrategy.Snapshot
+                        && !typeof(INotifyPropertyChanged).IsAssignableFrom(ClrType))
+                    {
+                        return CoreStrings.ChangeTrackingInterfaceMissing(this.DisplayName(), value, nameof(INotifyPropertyChanged));
+                    }
+
+                    if ((value == ChangeTrackingStrategy.ChangingAndChangedNotifications
+                            || value == ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
+                        && !typeof(INotifyPropertyChanging).IsAssignableFrom(ClrType))
+                    {
+                        return CoreStrings.ChangeTrackingInterfaceMissing(this.DisplayName(), value, nameof(INotifyPropertyChanging));
+                    }
                 }
             }
 

@@ -5202,6 +5202,104 @@ END, [t].[City]");
 FROM [Customers] AS [c]");
         }
 
+        public override async Task Entity_equality_on_subquery_with_null_check(bool async)
+        {
+            await base.Entity_equality_on_subquery_with_null_check(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], CASE
+    WHEN NOT (EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID])) OR (
+        SELECT TOP(1) [o0].[OrderID]
+        FROM [Orders] AS [o0]
+        WHERE [c].[CustomerID] = [o0].[CustomerID]) IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, (
+    SELECT TOP(1) [o1].[OrderDate]
+    FROM [Orders] AS [o1]
+    WHERE [c].[CustomerID] = [o1].[CustomerID])
+FROM [Customers] AS [c]");
+        }
+
+        public override async Task DefaultIfEmpty_over_empty_collection_followed_by_projecting_constant(bool async)
+        {
+            await base.DefaultIfEmpty_over_empty_collection_followed_by_projecting_constant(async);
+
+            AssertSql(
+                @"SELECT TOP(1) N'520'
+FROM (
+    SELECT NULL AS [empty]
+) AS [empty]
+LEFT JOIN (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    WHERE 0 = 1
+) AS [t] ON 1 = 1");
+        }
+
+        public override async Task FirstOrDefault_with_predicate_nested(bool async)
+        {
+            await base.FirstOrDefault_with_predicate_nested(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], (
+    SELECT TOP(1) [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]) AS [OrderDate]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override async Task First_on_collection_in_projection(bool async)
+        {
+            await base.First_on_collection_in_projection(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]) THEN (
+        SELECT TOP(1) [o0].[OrderDate]
+        FROM [Orders] AS [o0]
+        WHERE [c].[CustomerID] = [o0].[CustomerID])
+    ELSE NULL
+END AS [OrderDate]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override async Task SelectMany_correlated_subquery_hard(bool async)
+        {
+            await base.SelectMany_correlated_subquery_hard(async);
+
+            AssertSql(
+                @"@__p_0='91'
+
+SELECT [t0].[City] AS [c1], [t1].[City], [t1].[City0] AS [c1]
+FROM (
+    SELECT DISTINCT [t].[City]
+    FROM (
+        SELECT TOP(@__p_0) [c].[City]
+        FROM [Customers] AS [c]
+    ) AS [t]
+) AS [t0]
+CROSS APPLY (
+    SELECT TOP(9) [e].[City], [t0].[City] AS [City0]
+    FROM [Employees] AS [e]
+    WHERE ([t0].[City] = [e].[City]) OR ([t0].[City] IS NULL AND [e].[City] IS NULL)
+) AS [t1]
+CROSS APPLY (
+    SELECT TOP(9) [t0].[City], [e0].[EmployeeID]
+    FROM [Employees] AS [e0]
+    WHERE ([t1].[City] = [e0].[City]) OR ([t1].[City] IS NULL AND [e0].[City] IS NULL)
+) AS [t2]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

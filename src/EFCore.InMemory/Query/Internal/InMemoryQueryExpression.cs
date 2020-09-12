@@ -105,7 +105,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             foreach (var derivedEntityType in entityType.GetDerivedTypes())
             {
                 var entityCheck = derivedEntityType.GetConcreteDerivedTypesInclusive()
-                    .Select(e => Equal(readExpressionMap[discriminatorProperty], Constant(e.GetDiscriminatorValue())))
+                    .Select(
+                        e => discriminatorProperty.GetKeyValueComparer().ExtractEqualsBody(
+                            readExpressionMap[discriminatorProperty],
+                            Constant(e.GetDiscriminatorValue(), discriminatorProperty.ClrType)))
                     .Aggregate((l, r) => OrElse(l, r));
 
                 foreach (var property in derivedEntityType.GetDeclaredProperties())

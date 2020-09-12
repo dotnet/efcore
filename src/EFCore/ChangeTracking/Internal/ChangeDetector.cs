@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -83,7 +84,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (propertyBase is IProperty property)
             {
-                entry.SetPropertyModified(property, setModified);
+                if (entry.EntityState != EntityState.Deleted)
+                {
+                    entry.SetPropertyModified(property, setModified);
+                }
+                else
+                {
+                    ThrowIfKeyChanged(entry, property);
+                }
 
                 if (property.GetRelationshipIndex() != -1)
                 {
@@ -94,6 +102,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 && propertyBase is INavigationBase navigation)
             {
                 DetectNavigationChange(entry, navigation);
+            }
+        }
+
+        private static void ThrowIfKeyChanged(InternalEntityEntry entry, IProperty property)
+        {
+            if (property.IsKey()
+                && property.GetAfterSaveBehavior() == PropertySaveBehavior.Throw)
+            {
+                throw new InvalidOperationException(CoreStrings.KeyReadOnly(property.Name, entry.EntityType.DisplayName()));
             }
         }
 
@@ -139,8 +156,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             foreach (var entry in stateManager.ToList()) // Might be too big, but usually _all_ entities are using Snapshot tracking
             {
-                if (entry.EntityType.GetChangeTrackingStrategy() == ChangeTrackingStrategy.Snapshot
-                    && entry.EntityState != EntityState.Detached)
+                if (entry.EntityState != EntityState.Detached)
                 {
                     LocalDetectChanges(entry);
                 }
@@ -182,6 +198,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var entityType = entry.EntityType;
 
+            if (entry.EntityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot)
+            {
+                return;
+            }
+
             foreach (var property in entityType.GetProperties())
             {
                 if (property.GetOriginalValueIndex() >= 0
@@ -197,13 +218,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         if (!Equals(current, original))
                         {
-                            LogChangeDetected(entry, property, original, current);
-                            entry.SetPropertyModified(property);
+                            SetPropertyModified();
                         }
                     }
-                    else
+                    else if (!comparer.Equals(current, original))
                     {
-                        if (!comparer.Equals(current, original))
+                        SetPropertyModified();
+                    }
+
+                    void SetPropertyModified()
+                    {
+                        if (entry.EntityState == EntityState.Deleted)
+                        {
+                            ThrowIfKeyChanged(entry, property);
+                        }
+                        else
                         {
                             LogChangeDetected(entry, property, original, current);
                             entry.SetPropertyModified(property);

@@ -5538,7 +5538,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 ? null
                                 : new Level2Dto
                                 {
-                                    Id = l1.OneToOne_Optional_FK1.Id, Name = l1.OneToOne_Optional_FK1.Name,
+                                    Id = l1.OneToOne_Optional_FK1.Id,
+                                    Name = l1.OneToOne_Optional_FK1.Name,
                                 }
                         })
                     .OrderBy(e => e.Level2.Name)
@@ -5644,6 +5645,57 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select (from l3 in ss.Set<Level3>()
                               orderby l3.Id
                               select l3).Distinct().Take(1).OrderBy(e => e.Id).FirstOrDefault().Name);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Let_let_contains_from_outer_let(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from l1 in ss.Set<Level1>().Include(l => l.OneToMany_Required1)
+                      let level2Ids = from level2 in l1.OneToMany_Required1 select level2.Id
+                      let level3s = (from level3 in ss.Set<Level3>()
+                                     where level2Ids.Contains(level3.Level2_Required_Id)
+                                     select level3).AsEnumerable()
+                      from level3 in level3s.DefaultIfEmpty()
+                      select new { l1, level3 },
+                elementSorter: e => (e.l1.Id, e.level3?.Id),
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.l1, a.l1);
+                    AssertEqual(e.level3, a.level3);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Multiple_conditionals_in_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level2>()
+                    .Select(l2 => new Level1Dto
+                    {
+                        Id = l2.Id,
+                        Name = l2.OneToOne_Optional_FK2 == null ? null : l2.OneToOne_Optional_FK2.Name,
+                        Level2 = l2.OneToOne_Optional_FK_Inverse2 == null ? null : new Level2Dto()
+                    }),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Id, a.Id);
+                    AssertEqual(e.Name, a.Name);
+                    if (e.Level2 == null)
+                    {
+                        Assert.Null(a.Level2);
+                    }
+                    else
+                    {
+                        AssertEqual(e.Level2.Id, a.Level2.Id);
+                        AssertEqual(e.Level2.Name, a.Level2.Name);
+                    }
+                });
         }
     }
 }

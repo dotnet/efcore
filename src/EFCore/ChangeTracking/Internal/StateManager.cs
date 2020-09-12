@@ -44,6 +44,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private IIdentityMap _identityMap1;
         private Dictionary<IKey, IIdentityMap> _identityMaps;
         private bool _needsUnsubscribe;
+        private IChangeDetector _changeDetector;
+        private bool _changeDetectorInitialized;
 
         private readonly IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> _changeTrackingLogger;
         private readonly IInternalEntityEntryFactory _internalEntityEntryFactory;
@@ -81,6 +83,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             UpdateLogger = dependencies.UpdateLogger;
             _changeTrackingLogger = dependencies.ChangeTrackingLogger;
+            _changeDetectorInitialized = false;
         }
 
         /// <summary>
@@ -321,9 +324,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             EntityState? oldState)
         {
             var entityType = entry.EntityType;
-            var mapKey = entry.Entity ?? entry;
             if (entityType.HasDefiningNavigation())
             {
+                var mapKey = entry.Entity ?? entry;
                 foreach (var otherType in _model.GetEntityTypes(entityType.Name)
                     .Where(et => et != entityType && TryGetEntry(mapKey, et) != null))
                 {
@@ -694,7 +697,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             ResetState();
 
-            return default;
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -987,10 +990,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var doCascadeDelete = force || CascadeDeleteTiming != CascadeTiming.Never;
             var principalIsDetached = entry.EntityState == EntityState.Detached;
-            var changeDetector = Context.ChangeTracker.AutoDetectChangesEnabled
-                && (string)Context.Model[CoreAnnotationNames.SkipDetectChangesAnnotation] != "true"
-                    ? Context.GetDependencies().ChangeDetector
-                    : null;
+            if (!_changeDetectorInitialized)
+            {
+                _changeDetector = Context.ChangeTracker.AutoDetectChangesEnabled
+                    && !((Model)Context.Model).SkipDetectChanges
+                        ? Context.GetDependencies().ChangeDetector
+                        : null;
+                _changeDetectorInitialized = true;
+            }
 
             foreignKeys ??= entry.EntityType.GetReferencingForeignKeys();
             foreach (var fk in foreignKeys)
@@ -1008,7 +1015,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         continue;
                     }
 
-                    changeDetector?.DetectChanges(dependent);
+                    _changeDetector?.DetectChanges(dependent);
 
                     if (dependent.EntityState != EntityState.Deleted
                         && dependent.EntityState != EntityState.Detached

@@ -124,19 +124,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (propertyBase is IProperty property)
                 {
-                    var storeGeneratedIndex = property.GetStoreGeneratedIndex();
-                    if (storeGeneratedIndex != -1)
-                    {
-                        arguments[i] = CreateReadValueExpression(parameter, property);
-                        continue;
-                    }
+                    arguments[i] = CreateSnapshotValueExpression(CreateReadValueExpression(parameter, property), property);
+                    continue;
                 }
 
                 if (propertyBase.IsShadowProperty())
                 {
-                    arguments[i] = CreateSnapshotValueExpression(
-                        CreateReadShadowValueExpression(parameter, propertyBase),
-                        propertyBase);
+                    arguments[i] = CreateSnapshotValueExpression(CreateReadShadowValueExpression(parameter, propertyBase), propertyBase);
                     continue;
                 }
 
@@ -145,7 +139,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (memberAccess.Type != propertyBase.ClrType)
                 {
-                    memberAccess = Expression.Convert(memberAccess, propertyBase.ClrType);
+                    var hasDefaultValueExpression = memberAccess.MakeHasDefaultValue(propertyBase);
+
+                    memberAccess = Expression.Condition(
+                        hasDefaultValueExpression,
+                        propertyBase.ClrType.GetDefaultValueConstant(),
+                        Expression.Convert(memberAccess, propertyBase.ClrType));
                 }
 
                 arguments[i] = (propertyBase as INavigation)?.IsCollection ?? false

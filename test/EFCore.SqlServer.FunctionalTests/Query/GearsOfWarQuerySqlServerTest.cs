@@ -1119,6 +1119,38 @@ FROM [Gears] AS [g]
 ORDER BY [g].[Nickname]");
         }
 
+        public override async Task Where_conditional_equality_1(bool async)
+        {
+            await base.Where_conditional_equality_1(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname]
+FROM [Gears] AS [g]
+WHERE [g].[LeaderNickname] IS NULL
+ORDER BY [g].[Nickname]");
+        }
+
+        public override async Task Where_conditional_equality_2(bool async)
+        {
+            await base.Where_conditional_equality_2(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname]
+FROM [Gears] AS [g]
+WHERE [g].[LeaderNickname] IS NULL
+ORDER BY [g].[Nickname]");
+        }
+
+        public override async Task Where_conditional_equality_3(bool async)
+        {
+            await base.Where_conditional_equality_3(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname]
+FROM [Gears] AS [g]
+ORDER BY [g].[Nickname]");
+        }
+
         public override async Task Select_coalesce_with_anonymous_types(bool async)
         {
             await base.Select_coalesce_with_anonymous_types(async);
@@ -2390,11 +2422,12 @@ WHERE [m].[Timeline] <> CAST(SYSUTCDATETIME() AS datetimeoffset)");
         {
             await base.Where_datetimeoffset_date_component(async);
 
-            // issue #16057
-            //            AssertSql(
-            //                @"SELECT [m].[Id], [m].[CodeName], [m].[Rating], [m].[Timeline]
-            //FROM [Missions] AS [m]
-            //WHERE CONVERT(date, [m].[Timeline]) > '0001-01-01T00:00:00.0000000-08:00'");
+            AssertSql(
+                @"@__Date_0='0001-01-01T00:00:00.0000000'
+
+SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE CONVERT(date, [m].[Timeline]) > @__Date_0");
         }
 
         public override async Task Where_datetimeoffset_year_component(bool async)
@@ -7111,6 +7144,19 @@ CROSS APPLY (
     ORDER BY [w].[Id]
 ) AS [t]
 ORDER BY [g].[Nickname], [t].[Id]");
+        }
+
+        public override async Task FirstOrDefault_over_int_compared_to_zero(bool async)
+        {
+            await base.FirstOrDefault_over_int_compared_to_zero(async);
+
+            AssertSql(
+                @"SELECT [s].[Name]
+FROM [Squads] AS [s]
+WHERE ([s].[Name] = N'Kilo') AND (COALESCE((
+    SELECT TOP(1) [g].[SquadId]
+    FROM [Gears] AS [g]
+    WHERE ([s].[Id] = [g].[SquadId]) AND ([g].[HasSoulPatch] = CAST(1 AS bit))), 0) <> 0)");
         }
 
         private void AssertSql(params string[] expected)

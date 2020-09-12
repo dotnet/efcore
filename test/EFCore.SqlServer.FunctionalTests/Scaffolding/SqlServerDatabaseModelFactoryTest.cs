@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -634,10 +635,10 @@ CREATE TABLE [dbo].[Blogs] (
 );
 EXECUTE sys.sp_addextendedproperty @name = N'MS_Description', @value = N'Blog table comment.
 On multiple lines.',
-    @level0type = N'SCHEMA', @level0name = 'dbo', 
+    @level0type = N'SCHEMA', @level0name = 'dbo',
     @level1type = N'TABLE', @level1name = 'Blogs';
 EXECUTE sys.sp_addextendedproperty @name = N'MS_Description', @value = N'Blog.Id column comment.',
-    @level0type = N'SCHEMA', @level0name = 'dbo', 
+    @level0type = N'SCHEMA', @level0name = 'dbo',
     @level1type = N'TABLE', @level1name = 'Blogs',
     @level2type = N'COLUMN', @level2name = 'Id';
 ",
@@ -2303,10 +2304,11 @@ DROP TABLE PrincipalTable;");
             public new SqlServerTestStore TestStore
                 => (SqlServerTestStore)base.TestStore;
 
-            public SqlServerDatabaseModelFixture()
+            public override async Task InitializeAsync()
             {
-                TestStore.ExecuteNonQuery("CREATE SCHEMA db2");
-                TestStore.ExecuteNonQuery("CREATE SCHEMA [db.2]");
+                await base.InitializeAsync();
+                await TestStore.ExecuteNonQueryAsync("CREATE SCHEMA db2");
+                await TestStore.ExecuteNonQueryAsync("CREATE SCHEMA [db.2]");
             }
 
             protected override bool ShouldLogCategory(string logCategory)

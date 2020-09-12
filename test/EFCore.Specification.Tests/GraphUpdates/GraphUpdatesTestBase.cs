@@ -185,8 +185,25 @@ namespace Microsoft.EntityFrameworkCore
                     .HasForeignKey<OptionalSingle2>(e => e.BackId)
                     .OnDelete(DeleteBehavior.SetNull);
 
-                modelBuilder.Entity<OptionalSingle2Derived>();
-                modelBuilder.Entity<OptionalSingle2MoreDerived>();
+                modelBuilder.Entity<OptionalSingle2>(
+                    b =>
+                    {
+                        b.HasDiscriminator(e => e.Disc)
+                            .HasValue<OptionalSingle2>(new MyDiscriminator(1))
+                            .HasValue<OptionalSingle2Derived>(new MyDiscriminator(2))
+                            .HasValue<OptionalSingle2MoreDerived>(new MyDiscriminator(3));
+
+                        b.Property(e => e.Disc)
+                            .HasConversion(
+                                v => v.Value,
+                                v => new MyDiscriminator(v),
+                                new ValueComparer<MyDiscriminator>(
+                                    (l, r) => l.Value == r.Value,
+                                    v => v.Value.GetHashCode(),
+                                    v => new MyDiscriminator(v.Value)))
+                            .Metadata
+                            .SetAfterSaveBehavior(PropertySaveBehavior.Save);
+                    });
 
                 modelBuilder.Entity<RequiredNonPkSingle1>()
                     .HasOne(e => e.Single)
@@ -379,10 +396,6 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<Produce>()
                     .HasIndex(e => e.BarCode)
                     .IsUnique();
-
-                modelBuilder.Entity<OptionalSingle2Derived>()
-                    .Property<string>("Discriminator")
-                    .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Save);
             }
 
             protected virtual object CreateFullGraph()
@@ -1692,6 +1705,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             private int _id;
             private int? _backId;
+            private MyDiscriminator _disc;
             private OptionalSingle1 _back;
 
             public int Id
@@ -1704,6 +1718,12 @@ namespace Microsoft.EntityFrameworkCore
             {
                 get => _backId;
                 set => SetWithNotify(value, ref _backId);
+            }
+
+            public MyDiscriminator Disc
+            {
+                get => _disc;
+                set => SetWithNotify(value, ref _disc);
             }
 
             public OptionalSingle1 Back
@@ -1720,6 +1740,20 @@ namespace Microsoft.EntityFrameworkCore
 
             public override int GetHashCode()
                 => _id;
+        }
+
+        protected class MyDiscriminator
+        {
+            public MyDiscriminator(int value)
+                => Value = value;
+
+            public int Value { get; }
+
+            public override bool Equals(object obj)
+                => throw new InvalidOperationException();
+
+            public override int GetHashCode()
+                => throw new InvalidOperationException();
         }
 
         protected class OptionalSingle2Derived : OptionalSingle2

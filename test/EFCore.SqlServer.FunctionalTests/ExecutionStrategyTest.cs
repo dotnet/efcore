@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore
                 context.ChangeTracker.AcceptAllChanges();
 
                 var retryMessage =
-                    "A transient exception has been encountered during execution and the operation will be retried after 0ms."
+                    "A transient exception occurred during execution. The operation will be retried after 0ms."
                     + Environment.NewLine
                     + "Microsoft.Data.SqlClient.SqlException (0x80131904): Bang!";
                 if (realFailure)
@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore
                 context.ChangeTracker.AcceptAllChanges();
 
                 var retryMessage =
-                    "A transient exception has been encountered during execution and the operation will be retried after 0ms."
+                    "A transient exception occurred during execution. The operation will be retried after 0ms."
                     + Environment.NewLine
                     + "Microsoft.Data.SqlClient.SqlException (0x80131904): Bang!";
                 if (realFailure)

@@ -72,6 +72,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             _disposed = true;
         }
 
+        public static string NormalizeLineEndings(string expectedString)
+            => expectedString.Replace("\r", string.Empty).Replace("\n", Environment.NewLine);
+
         protected class ListLogger : ILogger
         {
             private readonly object _sync = new object();

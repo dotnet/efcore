@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -144,24 +146,24 @@ namespace Microsoft.EntityFrameworkCore
                     b =>
                     {
                         b.Id = 7776;
-                        b.TwoSkip.Add(new EntityTwo { Id = 7777 });
-                        b.TwoSkipShared.Add(new EntityTwo { Id = 7778 });
-                        b.SelfSkipPayloadLeft.Add(new EntityOne { Id = 7779 });
-                        b.SelfSkipPayloadRight.Add(new EntityOne { Id = 7780 });
-                        b.BranchSkip.Add(new EntityBranch { Id = 7781 });
-                        b.ThreeSkipPayloadFull.Add(new EntityThree { Id = 7782 });
-                        b.ThreeSkipPayloadFullShared.Add(new EntityThree { Id = 7783 });
+                        b.TwoSkip = new ObservableCollection<EntityTwo> { new EntityTwo { Id = 7777 } };
+                        b.TwoSkipShared = new ObservableCollection<EntityTwo> { new EntityTwo { Id = 7778 } };
+                        b.SelfSkipPayloadLeft = new ObservableCollection<EntityOne> { new EntityOne { Id = 7779 } };
+                        b.SelfSkipPayloadRight = new ObservableCollection<EntityOne> { new EntityOne { Id = 7780 } };
+                        b.BranchSkip = new ObservableCollection<EntityBranch> { new EntityBranch { Id = 7781 } };
+                        b.ThreeSkipPayloadFull = new ObservableCollection<EntityThree> { new EntityThree { Id = 7782 } };
+                        b.ThreeSkipPayloadFullShared = new ObservableCollection<EntityThree> { new EntityThree { Id = 7783 } };
                     })
                 : new EntityOne
                 {
                     Id = 7776,
-                    TwoSkip = { new EntityTwo { Id = 7777 } },
-                    TwoSkipShared = { new EntityTwo { Id = 7778 } },
-                    SelfSkipPayloadLeft = { new EntityOne { Id = 7779 } },
-                    SelfSkipPayloadRight = { new EntityOne { Id = 7780 } },
-                    BranchSkip = { new EntityBranch { Id = 7781 } },
-                    ThreeSkipPayloadFull = { new EntityThree { Id = 7782 } },
-                    ThreeSkipPayloadFullShared = { new EntityThree { Id = 7783 } },
+                    TwoSkip = new List<EntityTwo> { new EntityTwo { Id = 7777 } },
+                    TwoSkipShared = new List<EntityTwo> { new EntityTwo { Id = 7778 } },
+                    SelfSkipPayloadLeft = new List<EntityOne> { new EntityOne { Id = 7779 } },
+                    SelfSkipPayloadRight = new List<EntityOne> { new EntityOne { Id = 7780 } },
+                    BranchSkip = new List<EntityBranch> { new EntityBranch { Id = 7781 } },
+                    ThreeSkipPayloadFull = new List<EntityThree> { new EntityThree { Id = 7782 } },
+                    ThreeSkipPayloadFullShared = new List<EntityThree> { new EntityThree { Id = 7783 } }
                 };
 
             context.Attach(left);

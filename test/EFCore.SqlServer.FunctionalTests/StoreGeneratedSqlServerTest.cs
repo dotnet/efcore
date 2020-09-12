@@ -66,7 +66,12 @@ namespace Microsoft.EntityFrameworkCore
                                     new object[] { context.Entry(entity).Property(p => p.Id).CurrentValue }).Entity);
                         }
 
-                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        // DbUpdateException : An error occurred while updating the entries. See the
+                        // inner exception for details.
+                        // SqlException : Cannot insert explicit value for identity column in table
+                        // 'Blog' when IDENTITY_INSERT is set to OFF.
+                        var updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Single(updateException.Entries);
 
                         foreach (var entity in entities.Take(100))
                         {
@@ -189,6 +194,8 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.NullableBackedBoolFalseDefault).HasDefaultValue(false);
                         b.Property(e => e.NullableBackedIntZeroDefault).HasDefaultValue(0);
                     });
+
+                modelBuilder.Entity<NonStoreGenDependent>().Property(e => e.HasTemp).HasDefaultValue(777);
 
                 base.OnModelCreating(modelBuilder, context);
             }

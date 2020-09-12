@@ -117,7 +117,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
             IDictionary<string, IAnnotation> annotations,
             bool onModel)
         {
-            var strategy = GetAndRemove<SqlServerValueGenerationStrategy>(SqlServerAnnotationNames.ValueGenerationStrategy);
+            SqlServerValueGenerationStrategy strategy;
+            if (annotations.TryGetValue(SqlServerAnnotationNames.ValueGenerationStrategy, out var strategyAnnotation)
+                && strategyAnnotation.Value != null)
+            {
+                annotations.Remove(SqlServerAnnotationNames.ValueGenerationStrategy);
+                strategy = (SqlServerValueGenerationStrategy)strategyAnnotation.Value;
+            }
+            else
+            {
+                return Array.Empty<MethodCallCodeFragment>();
+            }
 
             switch (strategy)
             {
@@ -154,7 +164,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
                     };
 
                 case SqlServerValueGenerationStrategy.None:
-                    return Array.Empty<MethodCallCodeFragment>();
+                    return new List<MethodCallCodeFragment>
+                    {
+                        new MethodCallCodeFragment(
+                            nameof(ModelBuilder.HasAnnotation),
+                            SqlServerAnnotationNames.ValueGenerationStrategy,
+                            SqlServerValueGenerationStrategy.None)
+                    };
 
                 default:
                     throw new ArgumentOutOfRangeException();

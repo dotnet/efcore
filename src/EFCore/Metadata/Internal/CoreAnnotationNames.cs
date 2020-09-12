@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public const string AmbiguousNavigations = "RelationshipDiscoveryConvention:AmbiguousNavigations";
+        public const string DerivedTypes = "BaseTypeDiscoveryConvention:DerivedTypes";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public const string DuplicateServiceProperties = "ServicePropertyDiscoveryConvention:DuplicateServiceProperties";
+        public const string AmbiguousNavigations = "RelationshipDiscoveryConvention:AmbiguousNavigations";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public const string SkipDetectChangesAnnotation = "ChangeDetector.SkipDetectChanges";
+        public const string DuplicateServiceProperties = "ServicePropertyDiscoveryConvention:DuplicateServiceProperties";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -271,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public const string SkipChangeTrackingStrategyValidationAnnotation = "ModelValidator.SkipChangeTrackingStrategyValidation";
+        public const string FullChangeTrackingNotificationsRequiredAnnotation = "ModelValidator.FullChangeTrackingNotificationsRequired";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -311,12 +311,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             EagerLoaded,
             ProviderClrType,
             InverseNavigations,
+            DerivedTypes,
             NavigationCandidates,
             AmbiguousNavigations,
-            DuplicateServiceProperties,
             AmbiguousField,
-            SkipDetectChangesAnnotation,
-            SkipChangeTrackingStrategyValidationAnnotation
+            DuplicateServiceProperties,
+            FullChangeTrackingNotificationsRequiredAnnotation
         };
     }
 }

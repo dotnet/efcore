@@ -7,9 +7,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -109,13 +111,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                             discriminatorProperty.ClrType, discriminatorProperty.GetIndex(), discriminatorProperty))
                 };
 
-                var switchCases = new SwitchCase[concreteEntityTypes.Length];
-                for (var i = 0; i < concreteEntityTypes.Length; i++)
-                {
-                    var discriminatorValue = Constant(concreteEntityTypes[i].GetDiscriminatorValue(), discriminatorProperty.ClrType);
-                    switchCases[i] = SwitchCase(Constant(concreteEntityTypes[i], typeof(IEntityType)), discriminatorValue);
-                }
-
                 var exception = Block(
                     Throw(
                         Call(
@@ -123,7 +118,35 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Convert(discriminatorValueVariable, typeof(object)))),
                     Constant(null, typeof(IEntityType)));
 
-                expressions.Add(Switch(discriminatorValueVariable, exception, switchCases));
+                var discriminatorComparer = discriminatorProperty.GetKeyValueComparer();
+                if (discriminatorComparer.IsDefault())
+                {
+                    var switchCases = new SwitchCase[concreteEntityTypes.Length];
+                    for (var i = 0; i < concreteEntityTypes.Length; i++)
+                    {
+                        var discriminatorValue = Constant(concreteEntityTypes[i].GetDiscriminatorValue(), discriminatorProperty.ClrType);
+                        switchCases[i] = SwitchCase(Constant(concreteEntityTypes[i], typeof(IEntityType)), discriminatorValue);
+                    }
+
+                    expressions.Add(Switch(discriminatorValueVariable, exception, switchCases));
+                }
+                else
+                {
+                    Expression conditions = exception;
+                    for (var i = concreteEntityTypes.Length - 1; i >= 0; i--)
+                    {
+                        conditions = Condition(
+                            discriminatorComparer.ExtractEqualsBody(
+                                discriminatorValueVariable,
+                                Constant(
+                                    concreteEntityTypes[i].GetDiscriminatorValue(),
+                                    discriminatorProperty.ClrType)),
+                            Constant(concreteEntityTypes[i], typeof(IEntityType)),
+                            conditions);
+                    }
+
+                    expressions.Add(conditions);
+                }
                 body = Block(new[] { discriminatorValueVariable }, expressions);
             }
             else

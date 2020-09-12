@@ -41,6 +41,16 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             var entityType = context.Model.FindRuntimeEntityType(type);
             if (entityType == null)
             {
+                if (context.Model.IsShared(type))
+                {
+                    throw new InvalidOperationException(ProxiesStrings.EntityTypeNotFoundShared(type.ShortDisplayName()));
+                }
+
+                if (context.Model.HasEntityTypeWithDefiningNavigation(type))
+                {
+                    throw new InvalidOperationException(ProxiesStrings.EntityTypeNotFoundWeak(type.ShortDisplayName()));
+                }
+
                 throw new InvalidOperationException(CoreStrings.EntityTypeNotFound(type.ShortDisplayName()));
             }
 
@@ -154,31 +164,14 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 
             if (options.UseChangeTrackingProxies)
             {
-                var changeTrackingStrategy = entityType.GetChangeTrackingStrategy();
-                switch (changeTrackingStrategy)
+                if (!_notifyPropertyChangedInterface.IsAssignableFrom(entityType.ClrType))
                 {
-                    case ChangeTrackingStrategy.ChangedNotifications:
+                    interfacesToProxy.Add(_notifyPropertyChangedInterface);
+                }
 
-                        if (!_notifyPropertyChangedInterface.IsAssignableFrom(entityType.ClrType))
-                        {
-                            interfacesToProxy.Add(_notifyPropertyChangedInterface);
-                        }
-
-                        break;
-                    case ChangeTrackingStrategy.ChangingAndChangedNotifications:
-                    case ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues:
-
-                        if (!_notifyPropertyChangedInterface.IsAssignableFrom(entityType.ClrType))
-                        {
-                            interfacesToProxy.Add(_notifyPropertyChangedInterface);
-                        }
-
-                        if (!_notifyPropertyChangingInterface.IsAssignableFrom(entityType.ClrType))
-                        {
-                            interfacesToProxy.Add(_notifyPropertyChangingInterface);
-                        }
-
-                        break;
+                if (!_notifyPropertyChangingInterface.IsAssignableFrom(entityType.ClrType))
+                {
+                    interfacesToProxy.Add(_notifyPropertyChangingInterface);
                 }
             }
 
@@ -199,31 +192,14 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 
             if (options.UseChangeTrackingProxies)
             {
-                var changeTrackingStrategy = entityType.GetChangeTrackingStrategy();
-                switch (changeTrackingStrategy)
+                if (!_notifyPropertyChangedInterface.IsAssignableFrom(entityType.ClrType))
                 {
-                    case ChangeTrackingStrategy.ChangedNotifications:
+                    interceptors.Add(new PropertyChangedInterceptor(entityType, options.CheckEquality));
+                }
 
-                        if (!_notifyPropertyChangedInterface.IsAssignableFrom(entityType.ClrType))
-                        {
-                            interceptors.Add(new PropertyChangedInterceptor(entityType, options.CheckEquality));
-                        }
-
-                        break;
-                    case ChangeTrackingStrategy.ChangingAndChangedNotifications:
-                    case ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues:
-
-                        if (!_notifyPropertyChangedInterface.IsAssignableFrom(entityType.ClrType))
-                        {
-                            interceptors.Add(new PropertyChangedInterceptor(entityType, options.CheckEquality));
-                        }
-
-                        if (!_notifyPropertyChangingInterface.IsAssignableFrom(entityType.ClrType))
-                        {
-                            interceptors.Add(new PropertyChangingInterceptor(entityType, options.CheckEquality));
-                        }
-
-                        break;
+                if (!_notifyPropertyChangingInterface.IsAssignableFrom(entityType.ClrType))
+                {
+                    interceptors.Add(new PropertyChangingInterceptor(entityType, options.CheckEquality));
                 }
             }
 

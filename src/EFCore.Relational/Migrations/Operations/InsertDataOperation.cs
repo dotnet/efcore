@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string[] Columns { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     A list of column store types for the columns into which data will be inserted.
+        ///     A list of store types for the columns into which data will be inserted.
         /// </summary>
         public virtual string[] ColumnTypes { get; [param: NotNull] set; }
 

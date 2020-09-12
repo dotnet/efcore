@@ -750,7 +750,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(
                         b => new
                         {
-                            hasFlagTrue = b.Rank.HasFlag(MilitaryRank.Corporal), hasFlagFalse = b.Rank.HasFlag(MilitaryRank.Sergeant)
+                            hasFlagTrue = b.Rank.HasFlag(MilitaryRank.Corporal),
+                            hasFlagFalse = b.Rank.HasFlag(MilitaryRank.Sergeant)
                         }));
         }
 
@@ -1190,19 +1191,50 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Where_conditional_with_anonymous_type(bool async)
+        public virtual Task Where_conditional_equality_1(bool async)
         {
-            return AssertTranslationFailed(
-                () => AssertQuery(
-                    async,
-                    ss => from g in ss.Set<Gear>()
-                          orderby g.Nickname
-                          where (g.LeaderNickname != null
-                                  ? new { g.HasSoulPatch }
-                                  : null)
-                              == null
-                          select g.Nickname,
-                    assertOrder: true));
+            return AssertQuery(
+                async,
+                ss => from g in ss.Set<Gear>()
+                      orderby g.Nickname
+                      where (g.LeaderNickname != null
+                              ? g.HasSoulPatch
+                              : null)
+                          == null
+                      select g.Nickname,
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_conditional_equality_2(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from g in ss.Set<Gear>()
+                      orderby g.Nickname
+                      where (g.LeaderNickname == null
+                              ? null
+                              : g.HasSoulPatch)
+                          == null
+                      select g.Nickname,
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_conditional_equality_3(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from g in ss.Set<Gear>()
+                      orderby g.Nickname
+                      where (g.LeaderNickname != null
+                              ? (int?)null
+                              : null)
+                          == null
+                      select g.Nickname,
+                assertOrder: true);
         }
 
         [ConditionalTheory]
@@ -1238,11 +1270,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => from g in ss.Set<Gear>()
                       from o in ss.Set<Gear>().OfType<Officer>()
                       where new
-                          {
-                              Name = g.LeaderNickname,
-                              Squad = g.LeaderSquadId,
-                              Five = 5
-                          }
+                      {
+                          Name = g.LeaderNickname,
+                          Squad = g.LeaderSquadId,
+                          Five = 5
+                      }
                           == new
                           {
                               Name = o.Nickname,
@@ -3120,7 +3152,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                       orderby f.Name
                       select new
                       {
-                          Name = EF.Property<string>(horde, "Name"), Eradicated = EF.Property<bool>((LocustHorde)f, "Eradicated")
+                          Name = EF.Property<string>(horde, "Name"),
+                          Eradicated = EF.Property<bool>((LocustHorde)f, "Eradicated")
                       },
                 assertOrder: true);
         }
@@ -3402,7 +3435,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(
                         f => new
                         {
-                            f.Id, Gears = EF.Property<ICollection<Gear>>((Officer)((LocustHorde)f).Commander.DefeatedBy, "Reports")
+                            f.Id,
+                            Gears = EF.Property<ICollection<Gear>>((Officer)((LocustHorde)f).Commander.DefeatedBy, "Reports")
                         }),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
@@ -4903,7 +4937,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes)))).Message;
 
             Assert.Equal(
-                "When performing a set operation, both operands must have the same Include operations.",
+                CoreStrings.SetOperationWithDifferentIncludesInOperands,
                 message);
         }
 
@@ -6603,7 +6637,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Include_after_select_with_cast_throws(bool async)
         {
             Assert.Equal(
-                "Include has been used on non entity queryable.",
+                CoreStrings.IncludeOnNonEntity,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
                         async,
@@ -6616,7 +6650,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Include_after_select_with_entity_projection_throws(bool async)
         {
             Assert.Equal(
-                "Include has been used on non entity queryable.",
+                CoreStrings.IncludeOnNonEntity,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
                         async,
@@ -6628,7 +6662,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Include_after_select_anonymous_projection_throws(bool async)
         {
             Assert.Equal(
-                "Include has been used on non entity queryable.",
+                CoreStrings.IncludeOnNonEntity,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
                         async,
@@ -6640,7 +6674,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Include_after_Select_throws(bool async)
         {
             Assert.Equal(
-                "Include has been used on non entity queryable.",
+                CoreStrings.IncludeOnNonEntity,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
                         async,
@@ -6652,7 +6686,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Include_after_SelectMany_throws(bool async)
         {
             Assert.Equal(
-                "Include has been used on non entity queryable.",
+                CoreStrings.IncludeOnNonEntity,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
                         async,
@@ -7812,6 +7846,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                     AssertEqual(e.g, a.g);
                     AssertEqual(e.w, a.w);
                 });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task FirstOrDefault_over_int_compared_to_zero(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Squad>().Where(s => s.Name == "Kilo")
+                    .Where(s => s.Members.Where(m => m.HasSoulPatch).Select(m => m.SquadId).FirstOrDefault() != 0)
+                    .Select(s => s.Name),
+                elementSorter: e => e);
         }
 
         protected GearsOfWarContext CreateContext()

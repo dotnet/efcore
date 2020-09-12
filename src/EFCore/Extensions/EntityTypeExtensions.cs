@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The derived types. </returns>
         public static IEnumerable<IEntityType> GetDirectlyDerivedTypes([NotNull] this IEntityType entityType)
-            => Check.NotNull(entityType, nameof(entityType)).AsEntityType().GetDirectlyDerivedTypes();
+            => ((EntityType)entityType).GetDirectlyDerivedTypes();
 
         /// <summary>
         ///     Determines if this entity type derives from (or is the same as) a given entity type.
@@ -331,7 +331,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The display name. </returns>
         [DebuggerStepThrough]
         public static string DisplayName([NotNull] this ITypeBase type)
-            => type.FullName();
+            => type.FullName() + (type is IEntityType entityType && entityType.HasSharedClrType
+            ? " (" + entityType.ClrType.ShortDisplayName() + ")"
+            : "");
 
         /// <summary>
         ///     Gets the unique name for the given <see cref="ITypeBase" />.

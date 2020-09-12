@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             ResetState();
 
-            return default;
+            return Task.CompletedTask;
         }
     }
 }

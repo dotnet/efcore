@@ -4178,6 +4178,30 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"
             return base.DefaultIfEmpty_Sum_over_collection_navigation(async);
         }
 
+        [ConditionalTheory(Skip = "Non embedded collection subquery Issue#17246")]
+        public override Task Entity_equality_on_subquery_with_null_check(bool async)
+        {
+            return base.Entity_equality_on_subquery_with_null_check(async);
+        }
+
+        [ConditionalTheory(Skip = "DefaultIfEmpty Issue#17246")]
+        public override Task DefaultIfEmpty_over_empty_collection_followed_by_projecting_constant(bool async)
+        {
+            return base.DefaultIfEmpty_over_empty_collection_followed_by_projecting_constant(async);
+        }
+
+        [ConditionalTheory(Skip = "Non embedded collection subquery Issue#17246")]
+        public override Task FirstOrDefault_with_predicate_nested(bool async)
+        {
+            return base.FirstOrDefault_with_predicate_nested(async);
+        }
+
+        [ConditionalTheory(Skip = "Non embedded collection subquery Issue#17246")]
+        public override Task First_on_collection_in_projection(bool async)
+        {
+            return base.First_on_collection_in_projection(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

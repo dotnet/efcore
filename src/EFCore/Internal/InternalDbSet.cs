@@ -522,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             ((IResettableService)this).ResetState();
 
-            return default;
+            return Task.CompletedTask;
         }
 
         private EntityEntry<TEntity> EntryWithoutDetectChanges(TEntity entity)

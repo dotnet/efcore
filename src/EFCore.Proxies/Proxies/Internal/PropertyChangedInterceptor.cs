@@ -17,11 +17,10 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class PropertyChangedInterceptor : IInterceptor
+    public class PropertyChangedInterceptor : PropertyChangeInterceptorBase, IInterceptor
     {
         private static readonly Type _notifyChangedInterface = typeof(INotifyPropertyChanged);
 
-        private readonly IEntityType _entityType;
         private readonly bool _checkEquality;
         private PropertyChangedEventHandler _handler;
 
@@ -34,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         public PropertyChangedInterceptor(
             [NotNull] IEntityType entityType,
             bool checkEquality)
+            : base(entityType)
         {
-            _entityType = entityType;
             _checkEquality = checkEquality;
         }
 
@@ -64,22 +63,17 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             }
             else if (methodName.StartsWith("set_", StringComparison.Ordinal))
             {
-                var propertyName = methodName.Substring(4);
+                var propertyName = FindPropertyName(invocation);
 
-                var property = _entityType.FindProperty(propertyName);
+                var property = EntityType.FindProperty(propertyName);
                 if (property != null)
                 {
-                    var comparer = property.IsKey()
-                        || property.IsForeignKey()
-                            ? property.GetKeyValueComparer()
-                            : property.GetValueComparer();
-
-                    HandleChanged(invocation, property, comparer);
+                    HandleChanged(invocation, property, GetValueComparer(property));
                 }
                 else
                 {
-                    var navigation = _entityType.FindNavigation(propertyName)
-                        ?? (INavigationBase)_entityType.FindSkipNavigation(propertyName);
+                    var navigation = EntityType.FindNavigation(propertyName)
+                        ?? (INavigationBase)EntityType.FindSkipNavigation(propertyName);
 
                     if (navigation != null)
                     {
