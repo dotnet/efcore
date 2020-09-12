@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -2047,9 +2046,9 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.IsNotType<Blog>(blog);
             }
 
-            var serialized = JsonConvert.SerializeObject(
+            var serialized = Newtonsoft.Json.JsonConvert.SerializeObject(
                 blogs,
-                new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore, Formatting = Formatting.Indented });
+                new Newtonsoft.Json.JsonSerializerSettings { ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore, Formatting = Newtonsoft.Json.Formatting.Indented });
 
             Assert.Equal(
                 @"[
@@ -2097,7 +2096,7 @@ namespace Microsoft.EntityFrameworkCore
   }
 ]", serialized, ignoreLineEndingDifferences: true);
 
-            var newBlogs = JsonConvert.DeserializeObject<List<Blog>>(serialized);
+            var newBlogs = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Blog>>(serialized);
 
             VerifyBlogs(newBlogs);
             foreach (var blog in newBlogs)
