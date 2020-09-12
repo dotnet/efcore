@@ -3,6 +3,7 @@
 
 using System;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNet.OData.Builder;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -47,16 +48,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public IHttpClientFactory ClientFactory { get; private set; }
 
-        public override void Dispose()
+        public override async Task DisposeAsync()
         {
             if (_selfHostServer != null)
             {
-                //issue: dotnet/runtime #35990
-                _selfHostServer.StopAsync();
-                System.Threading.Thread.Sleep(5000);
+                await _selfHostServer.StopAsync();
+                var shutdownTask = _selfHostServer.WaitForShutdownAsync();
                 _selfHostServer.Dispose();
-                //_selfHostServer.WaitForShutdown();
-
+                await shutdownTask;
                 _selfHostServer = null;
             }
         }
