@@ -121,7 +121,7 @@
     <value>SQLite cannot apply aggregate operator '{aggregateOperator}' on expression of type '{type}'. Convert the values to a supported type or use LINQ to Objects to aggregate the results.</value>
   </data>
   <data name="ApplyNotSupported" xml:space="preserve">
-    <value>Translating this query requires APPLY operation which is not supported on SQLite.</value>
+    <value>Translating this query requires APPLY operation in SQL which is not supported on SQLite.</value>
   </data>
   <data name="DuplicateColumnNameSridMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different SRIDs.</value>
@@ -130,11 +130,11 @@
     <value>SQLite does not support this migration operation ('{operation}'). For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.</value>
   </data>
   <data name="LogForeignKeyScaffoldErrorPrincipalTableNotFound" xml:space="preserve">
-    <value>Could not scaffold the foreign key '{foreignKeyName}'. The referenced table could not be found. This most likely occurred because the referenced table was excluded from scaffolding.</value>
-    <comment>Warning SqliteEventId.ForeignKeyReferencesMissingTableWarning string</comment>
+    <value>Skipping foreign key with identity '{id}' on table '{tableName}' since principal table '{principalTableName}' was not found in the model. This usually happens if the principal table was not included in the selection set.</value>
+    <comment>Warning SqliteEventId.ForeignKeyReferencesMissingTableWarning string string string</comment>
   </data>
   <data name="LogFoundColumn" xml:space="preserve">
-    <value>Found column on table: {tableName}, column name: {columnName}, data type: {dataType}, not nullable: {isNotNullable}, default value: {defaultValue}.</value>
+    <value>Found column on table: {tableName}, column name: {columnName}, data type: {dataType}, not nullable: {notNullable}, default value: {defaultValue}.</value>
     <comment>Debug SqliteEventId.ColumnFound string string string bool string</comment>
   </data>
   <data name="LogFoundForeignKey" xml:space="preserve">
@@ -142,7 +142,7 @@
     <comment>Debug SqliteEventId.ForeignKeyFound string long string string</comment>
   </data>
   <data name="LogFoundIndex" xml:space="preserve">
-    <value>Found index with name: {indexName}, table: {tableName}, is unique: {isUnique}.</value>
+    <value>Found index with name: {indexName}, table: {tableName}, is unique: {unique}.</value>
     <comment>Debug SqliteEventId.IndexFound string string bool?</comment>
   </data>
   <data name="LogFoundPrimaryKey" xml:space="preserve">
@@ -162,7 +162,7 @@
     <comment>Warning SqliteEventId.MissingTableWarning string</comment>
   </data>
   <data name="LogPrincipalColumnNotFound" xml:space="preserve">
-    <value>For foreign key with identity '{id}' on table '{tableName}', unable to find the column called '{principalColumnName}' on the foreign key's principal table, '{principaltableName}'. Skipping foreign key.</value>
+    <value>Skipping foreign key with identity '{id}' on table '{tableName}' since the principal column called '{principalColumnName}' on the foreign key's principal table, '{principalTableName}' was not found in the model.</value>
     <comment>Warning SqliteEventId.ForeignKeyPrincipalColumnMissingWarning string string string string</comment>
   </data>
   <data name="LogSchemaConfigured" xml:space="preserve">

@@ -255,7 +255,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     if (!(includeExpression.Navigation is INavigation includableNavigation
                         && includableNavigation.IsEmbedded()))
                     {
-                        throw new InvalidOperationException(CosmosStrings.NonEmbeddedIncludeNotSupported(includeExpression.Print()));
+                        throw new InvalidOperationException(
+                            CosmosStrings.NonEmbeddedIncludeNotSupported(includeExpression.Navigation));
                     }
 
                     _includedNavigations.Push(includableNavigation);

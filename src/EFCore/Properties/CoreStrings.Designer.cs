@@ -959,7 +959,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, changeTrackingStrategy, fullStrategy, fullPlusStrategy);
 
         /// <summary>
-        ///     The '{methodName}' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.
+        ///     The '{methodName}' method is not supported because the query has switched to client-evaluation. This usually happens when the arguments to the method cannot be translated to server. Rewrite the query to avoid client evaluation of arguments so that method can be translated to server.
         /// </summary>
         public static string FunctionOnClient([CanBeNull] object methodName)
             => string.Format(
@@ -1035,19 +1035,21 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 service);
 
         /// <summary>
-        ///     'Include' is not supported on entity type '{entityType}' because it has a defining query.
+        ///     The 'Include' operation with argument '{expression}' is not supported on entity type '{entityType}' because it has a defining query.
         /// </summary>
         [Obsolete]
-        public static string IncludeOnEntityWithDefiningQueryNotSupported([CanBeNull] object entityType)
+        public static string IncludeOnEntityWithDefiningQueryNotSupported([CanBeNull] object expression, [CanBeNull] object entityType)
             => string.Format(
-                GetString("IncludeOnEntityWithDefiningQueryNotSupported", nameof(entityType)),
-                entityType);
+                GetString("IncludeOnEntityWithDefiningQueryNotSupported", nameof(expression), nameof(entityType)),
+                expression, entityType);
 
         /// <summary>
-        ///     Include has been used on a non-entity queryable.
+        ///     Cannot apply the 'Include' operation with argument '{expression}'. Either the source is not a queryable of a known entity type or 'Include' has been applied after 'Select' method which projects a different entity type through navigation. Consider applying 'Include' before 'Select' method call.
         /// </summary>
-        public static string IncludeOnNonEntity
-            => GetString("IncludeOnNonEntity");
+        public static string IncludeOnNonEntity([CanBeNull] object expression)
+            => string.Format(
+                GetString("IncludeOnNonEntity", nameof(expression)),
+                expression);
 
         /// <summary>
         ///     The Include path '{navigationName}-&gt;{inverseNavigationName}' results in a cycle. Cycles are not allowed in no-tracking queries; either use a tracking query or remove the cycle.
@@ -1138,7 +1140,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 argumentName, enumType);
 
         /// <summary>
-        ///     The expression '{expression}' is invalid inside an Include operation, since it does not represent a property access: 't =&gt; t.MyProperty'. To target navigations declared on derived types, use casting ('t =&gt; ((Derived)t).MyProperty') or the 'as' operator ('t =&gt; (t as Derived).MyProperty'). Collection navigation access can be filtered by composing Where, OrderBy(Descending), ThenBy(Descending), Skip or Take operations. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.
+        ///     The expression '{expression}' is invalid inside an 'Include' operation, since it does not represent a property access: 't =&gt; t.MyProperty'. To target navigations declared on derived types, use casting ('t =&gt; ((Derived)t).MyProperty') or the 'as' operator ('t =&gt; (t as Derived).MyProperty'). Collection navigation access can be filtered by composing Where, OrderBy(Descending), ThenBy(Descending), Skip or Take operations. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.
         /// </summary>
         public static string InvalidIncludeExpression([CanBeNull] object expression)
             => string.Format(
@@ -1154,24 +1156,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, keyProperty);
 
         /// <summary>
-        ///     The lambda expression used inside 'Include' is not valid.
-        /// </summary>
-        public static string InvalidLambdaExpressionInsideInclude
-            => GetString("InvalidLambdaExpressionInsideInclude");
-
-        /// <summary>
         ///     The expression '{expression}' is not a valid member access expression. The expression should represent a simple property or field access: 't =&gt; t.MyProperty'.
         /// </summary>
         public static string InvalidMemberExpression([CanBeNull] object expression)
             => string.Format(
                 GetString("InvalidMemberExpression", nameof(expression)),
                 expression);
-
-        /// <summary>
-        ///     Unhandled operation: MemberInitExpression binding is not a MemberAssignment
-        /// </summary>
-        public static string InvalidMemberInitBinding
-            => GetString("InvalidMemberInitBinding");
 
         /// <summary>
         ///     The expression '{expression}' is not a valid member access expression. The expression should represent a simple property or field access: 't =&gt; t.MyProperty'. When specifying multiple properties or fields, use an anonymous type: 't =&gt; new {{ t.MyProperty, t.MyField }}'.
@@ -1294,10 +1284,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, valueType, propertyType);
 
         /// <summary>
-        ///     Invalid type conversion specified in an 'Include' operation.
+        ///     Unable to include navigation chain '{includeExpression}' specified by 'Include' operation as the converted type '{type}' is not part of model.
         /// </summary>
-        public static string InvalidTypeConversationWithInclude
-            => GetString("InvalidTypeConversationWithInclude");
+        public static string InvalidTypeConversationWithInclude([CanBeNull] object includeExpression, [CanBeNull] object type)
+            => string.Format(
+                GetString("InvalidTypeConversationWithInclude", nameof(includeExpression), nameof(type)),
+                includeExpression, type);
 
         /// <summary>
         ///     A call was made to '{useService}', but Entity Framework is not building its own internal service provider. Either allow Entity Framework to build the service provider by removing the call to '{useInternalServiceProvider}', or build the '{service}' services to use into the service provider before passing it to '{useInternalServiceProvider}'.
@@ -1332,7 +1324,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 principalEntityType, navigation, ownedType, ownerType);
 
         /// <summary>
-        ///     The source IQueryable doesn't implement IAsyncEnumerable&lt;{genericParameter}&gt;. Only sources that implement IAsyncEnumerable can be used for Entity Framework asynchronous operations.
+        ///     The source 'IQueryable' doesn't implement 'IAsyncEnumerable&lt;{genericParameter}&gt;'. Only sources that implement 'IAsyncEnumerable' can be used for Entity Framework asynchronous operations.
         /// </summary>
         public static string IQueryableNotAsync([CanBeNull] object genericParameter)
             => string.Format(
@@ -1340,7 +1332,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 genericParameter);
 
         /// <summary>
-        ///     The provider for the source IQueryable doesn't implement IAsyncQueryProvider. Only providers that implement IAsyncQueryProvider can be used for Entity Framework asynchronous operations.
+        ///     The provider for the source 'IQueryable' doesn't implement 'IAsyncQueryProvider'. Only providers that implement 'IAsyncQueryProvider' can be used for Entity Framework asynchronous operations.
         /// </summary>
         public static string IQueryableProviderNotAsync
             => GetString("IQueryableProviderNotAsync");
@@ -2130,7 +2122,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("QueryContextAlreadyInitializedStateManager");
 
         /// <summary>
-        ///     The materialization condition passed for entity shaper of entity type '{entityType}' is not of the correct shape. A materialization condition must be a LambdaExpression of 'Func&lt;ValueBuffer, IEntityType&gt;'
+        ///     The materialization condition passed for entity shaper of entity type '{entityType}' is not of the correct shape. A materialization condition must be a 'LambdaExpression' of 'Func&lt;ValueBuffer, IEntityType&gt;'
         /// </summary>
         public static string QueryEntityMaterializationConditionWrongShape([CanBeNull] object entityType)
             => string.Format(
@@ -2146,7 +2138,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expression, visitor);
 
         /// <summary>
-        ///     The query contains a final projection '{projection}' to type '{queryableType}'. Collections in the final projection must be an 'IEnumerable&lt;T&gt;' type such as 'List&lt;T&gt;'. Consider using 'ToList' or some other mechanism to convert the 'IQueryable&lt;T&gt;' or 'IOrderedEnumerable&lt;T&gt;' into an 'IEnumerable&lt;T&gt;'.
+        ///     The query contains a projection '{projection}' of type '{queryableType}'. Collections in the final projection must be an 'IEnumerable&lt;T&gt;' type such as 'List&lt;T&gt;'. Consider using 'ToList' or some other mechanism to convert the 'IQueryable&lt;T&gt;' or 'IOrderedEnumerable&lt;T&gt;' into an 'IEnumerable&lt;T&gt;'.
         /// </summary>
         public static string QueryInvalidMaterializationType([CanBeNull] object projection, [CanBeNull] object queryableType)
             => string.Format(
@@ -2170,7 +2162,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 member, entityType);
 
         /// <summary>
-        ///     Translation of method '{declaringTypeName}.{methodName}' failed. If you are trying to map your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information.
+        ///     Translation of method '{declaringTypeName}.{methodName}' failed. If this method can be mapped to your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information.
         /// </summary>
         public static string QueryUnableToTranslateMethod([CanBeNull] object declaringTypeName, [CanBeNull] object methodName)
             => string.Format(
@@ -2264,7 +2256,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 retryLimit, strategy);
 
         /// <summary>
-        ///     Runtime parameter extraction lambda must have one QueryContext parameter.
+        ///     While registering a runtime parameter, the lambda expression must have only one parameter which must be same as 'QueryCompilationContext.QueryContextParameter' expression.
         /// </summary>
         public static string RuntimeParameterMissingParameter
             => GetString("RuntimeParameterMissingParameter");
@@ -2400,7 +2392,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 key);
 
         /// <summary>
-        ///     When performing a set operation, both operands must have the same 'Include' operations.
+        ///     Unable to translate set operation since both operands have different 'Include' operations. Consider having same 'Include' applied on both sides.
         /// </summary>
         public static string SetOperationWithDifferentIncludesInOperands
             => GetString("SetOperationWithDifferentIncludesInOperands");
@@ -2580,7 +2572,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type);
 
         /// <summary>
-        ///     Unable to materialize entity of type '{entityType}'. No discriminators matched '{discriminator}'.
+        ///     Unable to materialize entity instance of type '{entityType}'. No discriminators matched the discriminator value '{discriminator}'.
         /// </summary>
         public static string UnableToDiscriminate([CanBeNull] object entityType, [CanBeNull] object discriminator)
             => string.Format(
@@ -2620,7 +2612,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type);
 
         /// <summary>
-        ///     Unknown {entity}.
+        ///     Unhandled {entity} encounted.
         /// </summary>
         public static string UnknownEntity([CanBeNull] object entity)
             => string.Format(
@@ -2676,7 +2668,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property, converter);
 
         /// <summary>
-        ///     Calling '{visitMethodName}' is not allowed. Visit the expression manually for the relevant part.
+        ///     Calling '{visitMethodName}' is not allowed. Visit the expression manually for the relevant part in the visitor.
         /// </summary>
         public static string VisitIsNotAllowed([CanBeNull] object visitMethodName)
             => string.Format(
@@ -3230,7 +3222,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The query uses the First/FirstOrDefault operator without OrderBy and filter operators. This may lead to unpredictable results.
+        ///     The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.
         /// </summary>
         public static EventDefinition LogFirstWithoutOrderByAndFilter([NotNull] IDiagnosticsLogger logger)
         {
@@ -3374,7 +3366,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Invalid Include path '{navigationChain}': couldn't find navigation for '{navigationName}'.
+        ///     Unable to find navigation '{1_navigation}' specified in string based include path '{0_navigationChain}'.
         /// </summary>
         public static EventDefinition<object, object> LogInvalidIncludePath([NotNull] IDiagnosticsLogger logger)
         {
@@ -3857,27 +3849,27 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     {plan}
+        ///     Generated query execution expression: {newline}'{plan}'
         /// </summary>
-        public static EventDefinition<string> LogQueryExecutionPlanned([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string> LogQueryExecutionPlanned([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogQueryExecutionPlanned;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
                     ref ((LoggingDefinitions)logger.Definitions).LogQueryExecutionPlanned,
-                    () => new EventDefinition<string>(
+                    () => new EventDefinition<string, string>(
                         logger.Options,
                         CoreEventId.QueryExecutionPlanned,
                         LogLevel.Debug,
                         "CoreEventId.QueryExecutionPlanned",
-                        level => LoggerMessage.Define<string>(
+                        level => LoggerMessage.Define<string, string>(
                             level,
                             CoreEventId.QueryExecutionPlanned,
                             _resourceManager.GetString("LogQueryExecutionPlanned"))));
             }
 
-            return (EventDefinition<string>)definition;
+            return (EventDefinition<string, string>)definition;
         }
 
         /// <summary>
@@ -4124,7 +4116,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The query uses a row limiting operator (Skip/Take) without an OrderBy operator. This may lead to unpredictable results.
+        ///     The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results.
         /// </summary>
         public static EventDefinition LogRowLimitingOperationWithoutOrderBy([NotNull] IDiagnosticsLogger logger)
         {

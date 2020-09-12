@@ -399,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             if (Limit != null
                 || Offset != null)
             {
-                throw new InvalidOperationException(CosmosStrings.ReverseRequiresOffsetOrLimit);
+                throw new InvalidOperationException(CosmosStrings.ReverseAfterSkipTakeNotSupported);
             }
 
             var existingOrderings = _orderings.ToArray();

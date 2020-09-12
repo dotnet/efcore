@@ -426,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (!IsScalar)
             {
-                new InvalidOperationException(RelationalStrings.NullabilityInfoOnlyAllowedOnScalarFunctions);
+                new InvalidOperationException(RelationalStrings.NonScalarFunctionCannotBeNullable(Name));
             }
 
             _nullable = nullable;
@@ -545,15 +545,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource configurationSource)
         {
             if (translation != null
-                && !IsScalar)
+                && (!IsScalar || IsAggregate))
             {
-                throw new InvalidOperationException(RelationalStrings.DbFunctionTableValuedCustomTranslation(MethodInfo.DisplayName()));
-            }
-
-            if (translation != null
-                && IsAggregate)
-            {
-                throw new InvalidOperationException(RelationalStrings.DbFunctionAggregateCustomTranslation(MethodInfo.DisplayName()));
+                throw new InvalidOperationException(RelationalStrings.DbFunctionNonScalarCustomTranslation(MethodInfo.DisplayName()));
             }
 
             _translation = translation;

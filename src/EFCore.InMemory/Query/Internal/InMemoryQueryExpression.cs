@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -276,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         : mappingValue is int index
                             ? new ProjectionBindingExpression(
                                 projectionBindingExpression.QueryExpression, index, projectionBindingExpression.Type)
-                            : throw new InvalidOperationException(InMemoryStrings.InvalidStateEncountered("ProjectionMapping"));
+                            : throw new InvalidOperationException(CoreStrings.UnknownEntity("ProjectionMapping"));
                 }
 
                 return base.Visit(expression);

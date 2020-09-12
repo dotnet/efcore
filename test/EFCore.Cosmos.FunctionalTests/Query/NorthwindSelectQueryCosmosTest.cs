@@ -1153,7 +1153,7 @@ ORDER BY c[""CustomerID""]");
         public override Task Reverse_without_explicit_ordering_throws(bool async)
         {
             return AssertTranslationFailedWithDetails(
-                () => base.Reverse_without_explicit_ordering_throws(async), CosmosStrings.MissingOrderingInSqlExpression);
+                () => base.Reverse_without_explicit_ordering_throws(async), CosmosStrings.MissingOrderingInSelectExpression);
         }
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]

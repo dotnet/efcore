@@ -127,7 +127,7 @@
     <value>The 'DbConnection' is currently in use. The connection can only be changed when the existing connection is not being used.</value>
   </data>
   <data name="ClientGroupByNotSupported" xml:space="preserve">
-    <value>The given GroupBy pattern is not translatable. Call AsEnumerable before GroupBy to evaluate it locally.</value>
+    <value>Unable to translate the given 'GroupBy' pattern. Call 'AsEnumerable' before 'GroupBy' to evaluate it client-side.</value>
   </data>
   <data name="ComputedColumnSqlUnspecified" xml:space="preserve">
     <value>The column '{column}' on table '{table}' has unspecified computed column SQL. Specify the SQL before using Entity Framework to create the database schema.</value>
@@ -168,14 +168,11 @@
   <data name="DataOperationNoTable" xml:space="preserve">
     <value>There is no entity type mapped to the table '{table}' used in a data operation. Either add the corresponding entity type to the model or specify the column types in the data operation.</value>
   </data>
-  <data name="DbFunctionAggregateCustomTranslation" xml:space="preserve">
-    <value>Cannot set custom translation on the DbFunction '{function}' since it is an aggregate function.</value>
-  </data>
   <data name="DbFunctionExpressionIsNotMethodCall" xml:space="preserve">
     <value>The provided DbFunction expression '{expression}' is invalid. The expression should be a lambda expression containing a single method call to the target static method. Default values can be provided as arguments if required. E.g. () =&gt; SomeClass.SomeMethod(null, 0)</value>
   </data>
   <data name="DbFunctionGenericMethodNotSupported" xml:space="preserve">
-    <value>The DbFunction '{function}' is generic. Generic methods are not supported.</value>
+    <value>The DbFunction '{function}' is generic. Mapping generic methods as a DbFunction is not supported.</value>
   </data>
   <data name="DbFunctionInvalidInstanceType" xml:space="preserve">
     <value>The DbFunction '{function}' defined on type '{type}' must be either a static method or an instance method defined on a DbContext subclass. Instance methods on other types are not supported.</value>
@@ -184,7 +181,7 @@
     <value>The DbFunction '{function}' has an invalid return type '{type}'. Owned entity types cannot be used as the return type of a DbFunction.</value>
   </data>
   <data name="DbFunctionInvalidIQueryableReturnType" xml:space="preserve">
-    <value>The DbFunction '{function}' has an invalid return type '{type}'. Non-scalar functions must return IQueryable of a valid entity type.</value>
+    <value>The DbFunction '{function}' has an invalid return type '{type}'. Non-scalar functions must return 'IQueryable' of a valid entity type.</value>
   </data>
   <data name="DbFunctionInvalidParameterName" xml:space="preserve">
     <value>The DbFunction '{function}' does not have a parameter named '{parameter}'.</value>
@@ -193,13 +190,13 @@
     <value>The parameter '{parameter}' for the DbFunction '{function}' has an invalid type '{type}'. Ensure the parameter type can be mapped by the current provider.</value>
   </data>
   <data name="DbFunctionInvalidReturnEntityType" xml:space="preserve">
-    <value>The DbFunction '{function}' returns '{type}', but `{elementType}` is not a mapped entity type. Ensure that `{elementType}` is included in the model.</value>
+    <value>The DbFunction '{function}' returns '{type}', but '{elementType}' is not a mapped entity type. Ensure that '{elementType}' is included in the model.</value>
   </data>
   <data name="DbFunctionInvalidReturnType" xml:space="preserve">
     <value>The DbFunction '{function}' has an invalid return type '{type}'. Ensure that the return type can be mapped by the current provider.</value>
   </data>
-  <data name="DbFunctionTableValuedCustomTranslation" xml:space="preserve">
-    <value>Cannot set custom translation on the DbFunction '{function}' since it is a table valued function.</value>
+  <data name="DbFunctionNonScalarCustomTranslation" xml:space="preserve">
+    <value>Cannot set custom translation on the DbFunction '{function}' since it is not a scalar function.</value>
   </data>
   <data name="DefaultValueSqlUnspecified" xml:space="preserve">
     <value>The column '{column}' on table '{table}' has unspecified default value SQL. Specify the SQL before using Entity Framework to create the database schema.</value>
@@ -317,13 +314,10 @@
     <value>The required column '{column}' was not present in the results of a 'FromSql' operation.</value>
   </data>
   <data name="FromSqlNonComposable" xml:space="preserve">
-    <value>FromSqlRaw or FromSqlInterpolated was called with non-composable SQL and with a query composing over it. Consider calling `AsEnumerable` after the FromSqlRaw or FromSqlInterpolated method to perform the composition on the client side.</value>
+    <value>'FromSqlRaw' or 'FromSqlInterpolated' was called with non-composable SQL and with a query composing over it. Consider calling 'AsEnumerable' after the method to perform the composition on the client side.</value>
   </data>
   <data name="FunctionOverrideMismatch" xml:space="preserve">
     <value>The property '{propertySpecification}' has specific configuration for the function '{function}', however it isn't mapped to a column on that function return. Remove the specific configuration or map an entity type that contains this property to '{function}'.</value>
-  </data>
-  <data name="GetXMethodOnNullData" xml:space="preserve">
-    <value>Data is null. This method or property cannot be called on null values.</value>
   </data>
   <data name="IncompatibleTableCommentMismatch" xml:space="preserve">
     <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the comment '{comment}' does not match the comment '{otherComment}'.</value>
@@ -359,7 +353,7 @@
     <value>The number of values ({valuesCount}) doesn't match the number of columns ({columnsCount}) for the data insertion operation on '{table}'. Provide the same number of values and columns.</value>
   </data>
   <data name="InsufficientInformationToIdentifyOuterElementOfCollectionJoin" xml:space="preserve">
-    <value>Not enough information to uniquely identify outer element in correlated collection scenario. This can happen when trying to correlate on keyless entity or when using 'Distinct' or 'GroupBy' operations without projecting all of the key columns.</value>
+    <value>Unable to translate collection subquery in projection since the parent query doesn't project key columns of all of it's tables which are required to generate results on client side. This can happen when trying to correlate on keyless entity or when using 'Distinct' or 'GroupBy' operations without projecting all of the key columns.</value>
   </data>
   <data name="InvalidCommandTimeout" xml:space="preserve">
     <value>The specified CommandTimeout value is not valid. It must be a positive number.</value>
@@ -368,7 +362,7 @@
     <value>The specified entity type '{derivedType}' is not derived from '{entityType}'.</value>
   </data>
   <data name="InvalidKeySelectorForGroupBy" xml:space="preserve">
-    <value>Invalid keySelector for GroupBy.</value>
+    <value>The grouping key '{keySelector}' is of type '{keyType}' which is not valid key. </value>
   </data>
   <data name="InvalidMappedFunctionDerivedType" xml:space="preserve">
     <value>The entity type '{entityType}' is mapped to the DbFunction named '{functionName}' and it's derived from '{baseEntityType}'. Derived entity types cannot be mapped to a function.</value>
@@ -389,7 +383,7 @@
     <value>The specified MinBatchSize value is not valid. It must be a positive number.</value>
   </data>
   <data name="LastUsedWithoutOrderBy" xml:space="preserve">
-    <value>Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an OrderBy clause on the sequence before calling '{method}'.</value>
+    <value>Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an 'OrderBy' clause on the sequence before calling '{method}'.</value>
   </data>
   <data name="LogAmbientTransaction" xml:space="preserve">
     <value>An ambient transaction has been detected. The current provider does not support ambient transactions. See http://go.microsoft.com/fwlink/?LinkId=800142</value>
@@ -572,7 +566,7 @@
     <comment>Information RelationalEventId.MigrationReverting string</comment>
   </data>
   <data name="LogRolledBackToTransactionSavepoint" xml:space="preserve">
-    <value>Rolled back to transaction savepoint..</value>
+    <value>Rolled back to transaction savepoint.</value>
     <comment>Debug RelationalEventId.RolledBackToTransactionSavepoint</comment>
   </data>
   <data name="LogRolledBackTransaction" xml:space="preserve">
@@ -610,6 +604,9 @@
   <data name="MappedFunctionNotFound" xml:space="preserve">
     <value>The entity type '{entityType}' is mapped to the DbFunction named '{functionName}', but no DbFunction with that name was found in the model. Ensure that the entity type mapping is configured using the model name of a function in the model.</value>
   </data>
+  <data name="MethodOnNonTPHRootNotSupported" xml:space="preserve">
+    <value>Using '{methodName}' on DbSet of '{entityType}' is not supported since '{entityType}' is part of hierarchy and does not contain a discriminator property.</value>
+  </data>
   <data name="MigrationNotFound" xml:space="preserve">
     <value>The migration '{migrationName}' was not found.</value>
   </data>
@@ -617,9 +614,9 @@
     <value>Entity type '{entityType}' doesn't contain a property mapped to the store-generated concurrency token column '{missingColumn}' that is used by another entity type sharing the table '{table}'. Add a store-generated property mapped to the same column to '{entityType}'. It can be in shadow state.</value>
   </data>
   <data name="MissingIdentifyingProjectionInDistinctGroupBySubquery" xml:space="preserve">
-    <value>Collection subquery that uses 'Distinct' or 'Group By' operations must project key columns of all of it's tables. Missing column: {column}. Either add column(s) to the projection or rewrite query to not use 'GroupBy'/'Distinct' operation.</value>
+    <value>Unable to translate collection subquery in projection since it uses 'Distinct' or 'Group By' operations and doesn't project key columns of all of it's tables which are required to generate results on client side. Missing column: {column}. Either add column(s) to the projection or rewrite query to not use 'GroupBy'/'Distinct' operation.</value>
   </data>
-  <data name="MissingOrderingInSqlExpression" xml:space="preserve">
+  <data name="MissingOrderingInSelectExpression" xml:space="preserve">
     <value>Reverse could not be translated to the server because there is no ordering on the server side.</value>
   </data>
   <data name="MissingParameterValue" xml:space="preserve">
@@ -649,8 +646,11 @@
   <data name="NoneRelationalTypeMappingOnARelationalTypeMappingSource" xml:space="preserve">
     <value>FindMapping on a 'RelationalTypeMappingSource' with a non-relational 'TypeMappingInfo'.</value>
   </data>
-  <data name="NonTPHOnFromSqlNotSupported" xml:space="preserve">
-    <value>Using '{memberName}' on DbSet of '{entityType}' is not supported since '{entityType}' is part of hierarchy and does not contain a discriminator property.</value>
+  <data name="NonScalarFunctionCannotBeNullable" xml:space="preserve">
+    <value>Cannot set 'IsNullable' on DbFunction '{functionName}' since the function does not represent a scalar function.</value>
+  </data>
+  <data name="NonScalarFunctionParameterCannotPropagatesNullability" xml:space="preserve">
+    <value>Cannot set 'PropagatesNullability' on parameter '{parameterName}' of DbFunction '{functionName}' since function does not represent a scalar function.</value>
   </data>
   <data name="NonTPHTableClash" xml:space="preserve">
     <value>Both '{entityType}' and '{otherEntityType}' are mapped to the table '{table}'. All the entity types in a hierarchy that don't have a discriminator must be mapped to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
@@ -660,12 +660,6 @@
   </data>
   <data name="NoProviderConfigured" xml:space="preserve">
     <value>No relational database providers are configured. Configure a database provider using 'OnConfiguring' or by creating an ImmutableDbContextOptions with a database provider configured and passing it to the context.</value>
-  </data>
-  <data name="NoTypeMappingFoundForSubquery" xml:space="preserve">
-    <value>The subquery '{subquery}' references type '{type}' for which no type mapping could be found.</value>
-  </data>
-  <data name="NullabilityInfoOnlyAllowedOnScalarFunctions" xml:space="preserve">
-    <value>Nullability information should only be specified for scalar database functions.</value>
   </data>
   <data name="NullTypeMappingInSqlTree" xml:space="preserve">
     <value>Expression '{sqlExpression}' in SQL tree does not have type mapping assigned.</value>
@@ -677,13 +671,10 @@
     <value>This connection was used with an ambient transaction. The original ambient transaction needs to be completed before this connection can be used outside of it.</value>
   </data>
   <data name="ProjectionMappingCountMismatch" xml:space="preserve">
-    <value>Different projection mapping count in set operation.</value>
+    <value>Unable to translate set operation when both sides don't assign values to same properties in the nominal type. Please make sure that the properties are inclued on both sides, consider assigning default value if the property doesn't require a specific value.</value>
   </data>
   <data name="PropertyNotMappedToTable" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' is not mapped to the table '{table}'.</value>
-  </data>
-  <data name="QueryUnableToIdentifyConcreteTypeInTPT" xml:space="preserve">
-    <value>Unable to identify the concrete entity type to materialize in TPT hierarchy.</value>
   </data>
   <data name="ReadonlyEntitySaved" xml:space="preserve">
     <value>The entity type '{entityType}' is not mapped to a table, therefore the entities cannot be persisted to the database. Use 'ToTable' in 'OnModelCreating' to map it.</value>
@@ -694,14 +685,11 @@
   <data name="SelectExpressionNonTPHWithCustomTable" xml:space="preserve">
     <value>Cannot create 'SelectExpression' with custom 'TableExpressionBase' since result type '{entityType}' is part of hierarchy and does not contain a discriminator property.</value>
   </data>
-  <data name="SequenceContainsNoElements" xml:space="preserve">
-    <value>Sequence contains no elements.</value>
-  </data>
   <data name="SetOperationsNotAllowedAfterClientEvaluation" xml:space="preserve">
-    <value>Can't process set operations after client evaluation, consider moving the operation before the last 'Select' call (see issue #16243).</value>
+    <value>Unable to  translate set operation after client projection has been applied. Consider moving the set operation before the last 'Select' call.</value>
   </data>
   <data name="SetOperationsOnDifferentStoreTypes" xml:space="preserve">
-    <value>Set operations over different store types are currently unsupported.</value>
+    <value>Unable to translate set operation when matching columns on both sides have different store types.</value>
   </data>
   <data name="SplitQueryString" xml:space="preserve">
     <value>This LINQ query is being executed in split-query mode. The SQL shown is for the first query to be executed. Additional queries may also be executed depending on the results of the first query.</value>
@@ -725,7 +713,7 @@
     <value>Timeout must be greater than or equal to zero.  Provided: {seconds} seconds.</value>
   </data>
   <data name="TooFewReaderFields" xml:space="preserve">
-    <value>The underlying reader doesn't have as many fields as expected.</value>
+    <value>The underlying reader doesn't have as many fields as expected. Expected: {expected}, actual: {actual}.</value>
   </data>
   <data name="TPHTableMismatch" xml:space="preserve">
     <value>'{entityType}' is mapped to the table '{table}' while '{otherEntityType}' is mapped to the table '{otherTable}'. Map all the entity types in the hierarchy to the same table or remove the discriminator and map all of them to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
@@ -745,14 +733,11 @@
   <data name="UnableToSplitCollectionProjectionInSplitQuery" xml:space="preserve">
     <value>The query has been configured to use '{splitQueryEnumValue}' and contains a collection in the 'Select' call, which could not be split into separate query. Please remove '{splitQueryMethodName}' if applied or add '{singleQueryMethodName}' to the query.</value>
   </data>
-  <data name="UnknownExpressionType" xml:space="preserve">
-    <value>Unknown expression '{expression}' of type - '{expressionType}' encountered in '{visitor}'.</value>
+  <data name="UnhandledExpressionInVisitor" xml:space="preserve">
+    <value>Unhandled expression '{expression}' of type '{expressionType}' encountered in '{visitor}'.</value>
   </data>
   <data name="UnknownOperation" xml:space="preserve">
     <value>The current migration SQL generator '{sqlGeneratorType}' is unable to generate SQL for operations of type '{operationType}'.</value>
-  </data>
-  <data name="UnknownProjectionMappingType" xml:space="preserve">
-    <value>Non-matching or unknown projection mapping type in set operation ({type1} and {type2}).</value>
   </data>
   <data name="UnsupportedDataOperationStoreType" xml:space="preserve">
     <value>The store type '{type}' used for the column '{column}' in a migration data operation is not supported by the current provider.</value>
@@ -797,6 +782,6 @@
     <value>The property '{propertySpecification}' has specific configuration for the view '{table}', however it isn't mapped to a column on that view. Remove the specific configuration or map an entity type that contains this property to '{table}'.</value>
   </data>
   <data name="VisitChildrenMustBeOverridden" xml:space="preserve">
-    <value>VisitChildren must be overridden in class deriving from SqlExpression.</value>
+    <value>'VisitChildren' must be overridden in the class deriving from 'SqlExpression'.</value>
   </data>
 </root>

@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 idProperty, entityType, propertyType);
 
         /// <summary>
-        ///     'UpdateEntityType' called with '{derivedType}' which is not derived type of '{entityType}'.
+        ///     The specified entity type '{derivedType}' is not derived from '{entityType}'.
         /// </summary>
         public static string InvalidDerivedTypeInEntityProjection([CanBeNull] object derivedType, [CanBeNull] object entityType)
             => string.Format(
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 derivedType, entityType);
 
         /// <summary>
-        ///     Invalid 'id' value. Supply a string value that's not null or empty.
+        ///     Unable to generate a valid 'id' value to execute ReadItem query. This usually happens when value provided for one of the properties is null or empty string. Please supply a value that's not null or empty.
         /// </summary>
         public static string InvalidResourceId
             => GetString("InvalidResourceId");
@@ -77,10 +77,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 property1, property2, entityType, storeName);
 
         /// <summary>
-        ///     Reverse could not be translated to the server because there is no ordering on the server side.
+        ///     'Reverse' could not be translated to the server because there is no ordering on the server side.
         /// </summary>
-        public static string MissingOrderingInSqlExpression
-            => GetString("MissingOrderingInSqlExpression");
+        public static string MissingOrderingInSelectExpression
+            => GetString("MissingOrderingInSelectExpression");
 
         /// <summary>
         ///     Navigation '{entityType}.{navigationName}' doesn't point to an embedded entity.
@@ -123,12 +123,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType);
 
         /// <summary>
-        ///     Non-embedded IncludeExpression is not supported: {expression}
+        ///     Including navigation '{navigation}' is not supported as the navigation is not embedded in same resource.
         /// </summary>
-        public static string NonEmbeddedIncludeNotSupported([CanBeNull] object expression)
+        public static string NonEmbeddedIncludeNotSupported([CanBeNull] object navigation)
             => string.Format(
-                GetString("NonEmbeddedIncludeNotSupported", nameof(expression)),
-                expression);
+                GetString("NonEmbeddedIncludeNotSupported", nameof(navigation)),
+                navigation);
 
         /// <summary>
         ///     The entity type '{entityType}' has property '{property}' as its concurrency token, but only '_etag' is supported. Consider using 'EntityTypeBuilder.UseETagConcurrency'.
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 sqlExpression);
 
         /// <summary>
-        ///     Offset is not supported without Limit.
+        ///     Cosmos SQL does not allow Offset without Limit. Consider specifying 'Take' operation on the query.
         /// </summary>
         public static string OffsetRequiresLimit
             => GetString("OffsetRequiresLimit");
@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, missingEntityType, keyValue);
 
         /// <summary>
-        ///     A ReadItem query was detected, but the partition key value is missing.
+        ///     Unable to execute a ReadItem query since the partition key value is missing. Consider using 'WithPartitionKey' method on the query to specify partition key to use.
         /// </summary>
         public static string ParitionKeyMissing
             => GetString("ParitionKeyMissing");
@@ -231,16 +231,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 property1, entityType1, storeName1, property2, entityType2, storeName2);
 
         /// <summary>
-        ///     A ReadItem query was detected, but the 'id' value is missing and cannot be generated.
+        ///     Unable to execute a ReadItem query since the 'id' value is missing and cannot be generated.
         /// </summary>
         public static string ResourceIdMissing
             => GetString("ResourceIdMissing");
 
         /// <summary>
-        ///     Reverse is not supported without Limit or Offset.
+        ///     Reversing the ordering in 'SelectExpression' is not supported when limit or offset are already applied.
         /// </summary>
-        public static string ReverseRequiresOffsetOrLimit
-            => GetString("ReverseRequiresOffsetOrLimit");
+        public static string ReverseAfterSkipTakeNotSupported
+            => GetString("ReverseAfterSkipTakeNotSupported");
 
         /// <summary>
         ///     Unable to bind '{memberType}' '{member}' to entity projection of '{entityType}'.
@@ -267,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 itemId);
 
         /// <summary>
-        ///     VisitChildren must be overridden in class deriving from SqlExpression.
+        ///     'VisitChildren' must be overridden in the class deriving from 'SqlExpression'.
         /// </summary>
         public static string VisitChildrenMustBeOverridden
             => GetString("VisitChildrenMustBeOverridden");

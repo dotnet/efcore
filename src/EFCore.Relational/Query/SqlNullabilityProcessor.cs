@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 default:
                     throw new InvalidOperationException(
-                        RelationalStrings.UnknownExpressionType(
+                        RelationalStrings.UnhandledExpressionInVisitor(
                             tableExpressionBase, tableExpressionBase.GetType(), nameof(SqlNullabilityProcessor)));
             }
         }
@@ -402,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             bool allowOptimizedExpansion,
             out bool nullable)
             => throw new InvalidOperationException(
-                RelationalStrings.UnknownExpressionType(sqlExpression, sqlExpression.GetType(), nameof(SqlNullabilityProcessor)));
+                RelationalStrings.UnhandledExpressionInVisitor(sqlExpression, sqlExpression.GetType(), nameof(SqlNullabilityProcessor)));
 
         /// <summary>
         ///     Visits a <see cref="CaseExpression" /> and computes its nullability.
@@ -1114,7 +1114,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             throw new InvalidOperationException(
-                RelationalStrings.UnknownExpressionType(predicate, predicate.GetType(), nameof(SqlNullabilityProcessor)));
+                RelationalStrings.UnhandledExpressionInVisitor(predicate, predicate.GetType(), nameof(SqlNullabilityProcessor)));
         }
 
         private SqlExpression OptimizeComparison(

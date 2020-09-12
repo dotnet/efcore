@@ -143,13 +143,15 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// </summary>
         public static void ForeignKeyReferencesMissingTableWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [CanBeNull] string foreignKeyName)
+            [CanBeNull] string id,
+            [CanBeNull] string tableName,
+            [CanBeNull] string principalTableName)
         {
             var definition = SqliteResources.LogForeignKeyScaffoldErrorPrincipalTableNotFound(diagnostics);
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, foreignKeyName);
+                definition.Log(diagnostics, id, tableName, principalTableName);
             }
 
             // No DiagnosticsSource events because these are purely design-time messages

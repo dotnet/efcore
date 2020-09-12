@@ -475,7 +475,7 @@
     <value>The entity type '{entityType}' is configured to use the '{changeTrackingStrategy}' change tracking strategy when full change tracking notifications are required. Use 'ModelBuilder.HasChangeTrackingStrategy' in 'OnModelCreating' to configure all entity types in the model to use the '{fullStrategy}' or '{fullPlusStrategy}' strategy.</value>
   </data>
   <data name="FunctionOnClient" xml:space="preserve">
-    <value>The '{methodName}' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.</value>
+    <value>The '{methodName}' method is not supported because the query has switched to client-evaluation. This usually happens when the arguments to the method cannot be translated to server. Rewrite the query to avoid client evaluation of arguments so that method can be translated to server.</value>
   </data>
   <data name="GraphDoesNotContainVertex" xml:space="preserve">
     <value>The edge cannot be added because the graph does not contain vertex '{vertex}'.</value>
@@ -505,11 +505,11 @@
     <value>The implementation type for the registration of the '{service}' service could not be determined. Specific implementation types must be used for services that expect multiple registrations so as to avoid duplicates.</value>
   </data>
   <data name="IncludeOnEntityWithDefiningQueryNotSupported" xml:space="preserve">
-    <value>'Include' is not supported on entity type '{entityType}' because it has a defining query.</value>
+    <value>The 'Include' operation with argument '{expression}' is not supported on entity type '{entityType}' because it has a defining query.</value>
     <comment>Obsolete</comment>
   </data>
   <data name="IncludeOnNonEntity" xml:space="preserve">
-    <value>Include has been used on a non-entity queryable.</value>
+    <value>Cannot apply the 'Include' operation with argument '{expression}'. Either the source is not a queryable of a known entity type or 'Include' has been applied after 'Select' method which projects a different entity type through navigation. Consider applying 'Include' before 'Select' method call.</value>
   </data>
   <data name="IncludeWithCycle" xml:space="preserve">
     <value>The Include path '{navigationName}-&gt;{inverseNavigationName}' results in a cycle. Cycles are not allowed in no-tracking queries; either use a tracking query or remove the cycle.</value>
@@ -545,19 +545,13 @@
     <value>The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.</value>
   </data>
   <data name="InvalidIncludeExpression" xml:space="preserve">
-    <value>The expression '{expression}' is invalid inside an Include operation, since it does not represent a property access: 't =&gt; t.MyProperty'. To target navigations declared on derived types, use casting ('t =&gt; ((Derived)t).MyProperty') or the 'as' operator ('t =&gt; (t as Derived).MyProperty'). Collection navigation access can be filtered by composing Where, OrderBy(Descending), ThenBy(Descending), Skip or Take operations. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.</value>
+    <value>The expression '{expression}' is invalid inside an 'Include' operation, since it does not represent a property access: 't =&gt; t.MyProperty'. To target navigations declared on derived types, use casting ('t =&gt; ((Derived)t).MyProperty') or the 'as' operator ('t =&gt; (t as Derived).MyProperty'). Collection navigation access can be filtered by composing Where, OrderBy(Descending), ThenBy(Descending), Skip or Take operations. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.</value>
   </data>
   <data name="InvalidKeyValue" xml:space="preserve">
     <value>Unable to track an entity of type '{entityType}' because its primary key property '{keyProperty}' is null.</value>
   </data>
-  <data name="InvalidLambdaExpressionInsideInclude" xml:space="preserve">
-    <value>The lambda expression used inside 'Include' is not valid.</value>
-  </data>
   <data name="InvalidMemberExpression" xml:space="preserve">
     <value>The expression '{expression}' is not a valid member access expression. The expression should represent a simple property or field access: 't =&gt; t.MyProperty'.</value>
-  </data>
-  <data name="InvalidMemberInitBinding" xml:space="preserve">
-    <value>Unhandled operation: MemberInitExpression binding is not a MemberAssignment</value>
   </data>
   <data name="InvalidMembersExpression" xml:space="preserve">
     <value>The expression '{expression}' is not a valid member access expression. The expression should represent a simple property or field access: 't =&gt; t.MyProperty'. When specifying multiple properties or fields, use an anonymous type: 't =&gt; new {{ t.MyProperty, t.MyField }}'.</value>
@@ -607,7 +601,7 @@
     <value>The value for property '{1_entityType}.{0_property}' cannot be set to a value of type '{valueType}' because its type is '{propertyType}'.</value>
   </data>
   <data name="InvalidTypeConversationWithInclude" xml:space="preserve">
-    <value>Invalid type conversion specified in an 'Include' operation.</value>
+    <value>Unable to include navigation chain '{includeExpression}' specified by 'Include' operation as the converted type '{type}' is not part of model.</value>
   </data>
   <data name="InvalidUseService" xml:space="preserve">
     <value>A call was made to '{useService}', but Entity Framework is not building its own internal service provider. Either allow Entity Framework to build the service provider by removing the call to '{useInternalServiceProvider}', or build the '{service}' services to use into the service provider before passing it to '{useInternalServiceProvider}'.</value>
@@ -622,10 +616,10 @@
     <value>The navigation '{principalEntityType}.{navigation}' is not supported because it is pointing to an owned entity type '{ownedType}'. Only the ownership navigation from the entity type '{ownerType}' can point to the owned entity type.</value>
   </data>
   <data name="IQueryableNotAsync" xml:space="preserve">
-    <value>The source IQueryable doesn't implement IAsyncEnumerable&lt;{genericParameter}&gt;. Only sources that implement IAsyncEnumerable can be used for Entity Framework asynchronous operations.</value>
+    <value>The source 'IQueryable' doesn't implement 'IAsyncEnumerable&lt;{genericParameter}&gt;'. Only sources that implement 'IAsyncEnumerable' can be used for Entity Framework asynchronous operations.</value>
   </data>
   <data name="IQueryableProviderNotAsync" xml:space="preserve">
-    <value>The provider for the source IQueryable doesn't implement IAsyncQueryProvider. Only providers that implement IAsyncQueryProvider can be used for Entity Framework asynchronous operations.</value>
+    <value>The provider for the source 'IQueryable' doesn't implement 'IAsyncQueryProvider'. Only providers that implement 'IAsyncQueryProvider' can be used for Entity Framework asynchronous operations.</value>
   </data>
   <data name="KeyAttributeOnDerivedEntity" xml:space="preserve">
     <value>The derived type '{derivedType}' cannot have the [Key] attribute on property '{property}' since primary keys may only be declared on the root type.</value>
@@ -741,7 +735,7 @@
     <comment>Information CoreEventId.ExecutionStrategyRetrying int string Exception</comment>
   </data>
   <data name="LogFirstWithoutOrderByAndFilter" xml:space="preserve">
-    <value>The query uses the First/FirstOrDefault operator without OrderBy and filter operators. This may lead to unpredictable results.</value>
+    <value>The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.</value>
     <comment>Warning CoreEventId.FirstWithoutOrderByAndFilterWarning</comment>
   </data>
   <data name="LogForeignKeyAttributesOnBothNavigations" xml:space="preserve">
@@ -765,7 +759,7 @@
     <comment>Debug CoreEventId.IncompatibleMatchingForeignKeyProperties string string string string</comment>
   </data>
   <data name="LogInvalidIncludePath" xml:space="preserve">
-    <value>Invalid Include path '{navigationChain}': couldn't find navigation for '{navigationName}'.</value>
+    <value>Unable to find navigation '{1_navigation}' specified in string based include path '{0_navigationChain}'.</value>
     <comment>Error CoreEventId.InvalidIncludePathError object object</comment>
   </data>
   <data name="LogLazyLoadOnDisposedContext" xml:space="preserve">
@@ -845,8 +839,8 @@
     <comment>Debug CoreEventId.QueryCompilationStarting string string</comment>
   </data>
   <data name="LogQueryExecutionPlanned" xml:space="preserve">
-    <value>{plan}</value>
-    <comment>Debug CoreEventId.QueryExecutionPlanned string</comment>
+    <value>Generated query execution expression: {newline}'{plan}'</value>
+    <comment>Debug CoreEventId.QueryExecutionPlanned string string</comment>
   </data>
   <data name="LogRedundantAddServicesCall" xml:space="preserve">
     <value>'AddEntityFramework*' was called on the service provider, but 'UseInternalServiceProvider' wasn't called in the DbContext options configuration. Consider removing the 'AddEntityFramework*' call, as in most cases it's not needed and may cause conflicts with other products and services registered in the same service provider.</value>
@@ -889,7 +883,7 @@
     <comment>Debug CoreEventId.RequiredAttributeOnSkipNavigation string string</comment>
   </data>
   <data name="LogRowLimitingOperationWithoutOrderBy" xml:space="preserve">
-    <value>The query uses a row limiting operator (Skip/Take) without an OrderBy operator. This may lead to unpredictable results.</value>
+    <value>The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results.</value>
     <comment>Warning CoreEventId.RowLimitingOperationWithoutOrderByWarning</comment>
   </data>
   <data name="LogSaveChangesCompleted" xml:space="preserve">
@@ -1224,13 +1218,13 @@
     <value>The 'InitializeStateManager' method has been called multiple times on the current query context. This method is intended to be called only once before query enumeration starts.</value>
   </data>
   <data name="QueryEntityMaterializationConditionWrongShape" xml:space="preserve">
-    <value>The materialization condition passed for entity shaper of entity type '{entityType}' is not of the correct shape. A materialization condition must be a LambdaExpression of 'Func&lt;ValueBuffer, IEntityType&gt;'</value>
+    <value>The materialization condition passed for entity shaper of entity type '{entityType}' is not of the correct shape. A materialization condition must be a 'LambdaExpression' of 'Func&lt;ValueBuffer, IEntityType&gt;'</value>
   </data>
   <data name="QueryFailed" xml:space="preserve">
     <value>Processing of the LINQ expression '{expression}' by '{visitor}' failed. This may indicate either a bug or a limitation in Entity Framework. See https://go.microsoft.com/fwlink/?linkid=2101433 for more detailed information.</value>
   </data>
   <data name="QueryInvalidMaterializationType" xml:space="preserve">
-    <value>The query contains a final projection '{projection}' to type '{queryableType}'. Collections in the final projection must be an 'IEnumerable&lt;T&gt;' type such as 'List&lt;T&gt;'. Consider using 'ToList' or some other mechanism to convert the 'IQueryable&lt;T&gt;' or 'IOrderedEnumerable&lt;T&gt;' into an 'IEnumerable&lt;T&gt;'.</value>
+    <value>The query contains a projection '{projection}' of type '{queryableType}'. Collections in the final projection must be an 'IEnumerable&lt;T&gt;' type such as 'List&lt;T&gt;'. Consider using 'ToList' or some other mechanism to convert the 'IQueryable&lt;T&gt;' or 'IOrderedEnumerable&lt;T&gt;' into an 'IEnumerable&lt;T&gt;'.</value>
   </data>
   <data name="QueryUnableToTranslateEFProperty" xml:space="preserve">
     <value>Translation of '{expression}' failed. Either the query source is not an entity type, or the specified property does not exist on the entity type.</value>
@@ -1239,7 +1233,7 @@
     <value>Translation of member '{member}' on entity type '{entityType}' failed. This commonly occurs when the specified member is unmapped.</value>
   </data>
   <data name="QueryUnableToTranslateMethod" xml:space="preserve">
-    <value>Translation of method '{declaringTypeName}.{methodName}' failed. If you are trying to map your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information.</value>
+    <value>Translation of method '{declaringTypeName}.{methodName}' failed. If this method can be mapped to your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information.</value>
   </data>
   <data name="QueryUnableToTranslateStringEqualsWithStringComparison" xml:space="preserve">
     <value>Translation of the 'string.Equals' overload with a 'StringComparison' parameter is not supported. See https://go.microsoft.com/fwlink/?linkid=2129535 for more information.</value>
@@ -1278,7 +1272,7 @@
     <value>The maximum number of retries ({retryLimit}) was exceeded while executing database operations with '{strategy}'. See the inner exception for the most recent failure.</value>
   </data>
   <data name="RuntimeParameterMissingParameter" xml:space="preserve">
-    <value>Runtime parameter extraction lambda must have one QueryContext parameter.</value>
+    <value>While registering a runtime parameter, the lambda expression must have only one parameter which must be same as 'QueryCompilationContext.QueryContextParameter' expression.</value>
   </data>
   <data name="SeedDatumDefaultValue" xml:space="preserve">
     <value>The seed entity for entity type '{entityType}' cannot be added because a default value was provided for the required property '{property}'. Please provide a value different from '{defaultValue}'.</value>
@@ -1332,7 +1326,7 @@
     <value>configuration removed for '{key}'</value>
   </data>
   <data name="SetOperationWithDifferentIncludesInOperands" xml:space="preserve">
-    <value>When performing a set operation, both operands must have the same 'Include' operations.</value>
+    <value>Unable to translate set operation since both operands have different 'Include' operations. Consider having same 'Include' applied on both sides.</value>
   </data>
   <data name="ShadowEntity" xml:space="preserve">
     <value>The entity type '{entityType}' is in shadow state. A valid model requires all entity types to have corresponding CLR type.</value>
@@ -1401,7 +1395,7 @@
     <value>The type '{type}' is not been configured as a shared type in the model. Before calling 'UsingEntity', please mark the type as shared or add the entity type in the model as a shared entity.</value>
   </data>
   <data name="UnableToDiscriminate" xml:space="preserve">
-    <value>Unable to materialize entity of type '{entityType}'. No discriminators matched '{discriminator}'.</value>
+    <value>Unable to materialize entity instance of type '{entityType}'. No discriminators matched the discriminator value '{discriminator}'.</value>
   </data>
   <data name="UnableToSetIsUnique" xml:space="preserve">
     <value>Unable to set IsUnique to '{isUnique}' on the relationship underlying the navigation '{2_entityType}.{1_navigationName}' because the navigation has the opposite multiplicity.</value>
@@ -1416,7 +1410,7 @@
     <value>Unhandled 'INavigationBase' of type '{type}'.</value>
   </data>
   <data name="UnknownEntity" xml:space="preserve">
-    <value>Unknown {entity}.</value>
+    <value>Unhandled {entity} encounted.</value>
   </data>
   <data name="UnknownKeyValue" xml:space="preserve">
     <value>The value of '{entityType}.{property}' is unknown when attempting to save changes. This is because the property is also part of a foreign key for which the principal entity in the relationship is not known.</value>
@@ -1437,7 +1431,7 @@
     <value>Value generation is not supported for property '{entityType}.{property}' because it has a '{converter}' converter configured. Configure the property to not use value generation using 'ValueGenerated.Never' or 'DatabaseGeneratedOption.None' and specify explicit values instead.</value>
   </data>
   <data name="VisitIsNotAllowed" xml:space="preserve">
-    <value>Calling '{visitMethodName}' is not allowed. Visit the expression manually for the relevant part.</value>
+    <value>Calling '{visitMethodName}' is not allowed. Visit the expression manually for the relevant part in the visitor.</value>
   </data>
   <data name="WarningAsErrorTemplate" xml:space="preserve">
     <value>An error was generated for warning '{eventName}': {message} This exception can be suppressed or logged by passing event ID '{eventId}' to the 'ConfigureWarnings' method in 'DbContext.OnConfiguring' or 'AddDbContext'.</value>

@@ -118,13 +118,10 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="DefaultIfEmptyAppliedAfterProjection" xml:space="preserve">
-    <value>Cannot apply DefaultIfEmpty after a client-evaluated projection.</value>
+    <value>Cannot apply 'DefaultIfEmpty' after a client-evaluated projection. Consider applying 'DefaultIfEmpty' before last 'Select' or use 'AsEnumerable' before 'DefaultIfEmpty' to apply it on client-side.</value>
   </data>
   <data name="InvalidDerivedTypeInEntityProjection" xml:space="preserve">
-    <value>'UpdateEntityType' called with '{derivedType}' which is not derived type of '{entityType}'.</value>
-  </data>
-  <data name="InvalidStateEncountered" xml:space="preserve">
-    <value>Invalid {state} encountered.</value>
+    <value>The specified entity type '{derivedType}' is not derived from '{entityType}'.</value>
   </data>
   <data name="LogSavedChanges" xml:space="preserve">
     <value>Saved {count} entities to in-memory store.</value>

@@ -525,7 +525,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 
                 if (foreignKey.PrincipalTable == null)
                 {
-                    _logger.ForeignKeyReferencesMissingTableWarning(id.ToString());
+                    _logger.ForeignKeyReferencesMissingTableWarning(id.ToString(), table.Name, principalTableName);
                     continue;
                 }
 

@@ -757,11 +757,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             var sqlExpression = subquery.Projection.Single().Expression;
             var typeMapping = sqlExpression.TypeMapping;
 
-            if (typeMapping == null)
-            {
-                throw new InvalidOperationException(RelationalStrings.NoTypeMappingFoundForSubquery(subquery.Print(), sqlExpression.Type));
-            }
-
             item = ApplyTypeMapping(item, typeMapping);
             return new InExpression(item, subquery, negated, _boolTypeMapping);
         }

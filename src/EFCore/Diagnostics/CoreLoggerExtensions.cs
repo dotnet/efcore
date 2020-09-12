@@ -431,7 +431,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, expressionPrinter.Print(queryExecutorExpression));
+                definition.Log(diagnostics, Environment.NewLine, expressionPrinter.Print(queryExecutorExpression));
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -448,9 +448,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static string QueryExecutionPlanned(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string>)definition;
+            var d = (EventDefinition<string, string>)definition;
             var p = (QueryExpressionEventData)payload;
-            return d.GenerateMessage(p.ExpressionPrinter.Print(p.Expression));
+            return d.GenerateMessage(Environment.NewLine, p.ExpressionPrinter.Print(p.Expression));
         }
 
         /// <summary>
