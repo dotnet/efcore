@@ -2379,6 +2379,49 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public virtual void Unicode_annotation_is_enabled()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<UnicodeAnnotationClass>();
+
+            Validate(modelBuilder);
+
+            Assert.True(GetProperty<UnicodeAnnotationClass>(modelBuilder, "PersonFirstName").IsUnicode());
+            Assert.False(GetProperty<UnicodeAnnotationClass>(modelBuilder, "PersonLastName").IsUnicode());
+        }
+
+        [ConditionalFact]
+        public virtual void Unicode_is_configured_explicitly_for_fields()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<UnicodeAnnotationClass>().Property(n => n.PersonMiddleName);
+            modelBuilder.Entity<UnicodeAnnotationClass>().Property(n => n.PersonAddress);
+
+            Validate(modelBuilder);
+
+            Assert.Null(GetProperty<UnicodeAnnotationClass>(modelBuilder, "PersonMiddleName").IsUnicode());
+            Assert.False(GetProperty<UnicodeAnnotationClass>(modelBuilder, "PersonAddress").IsUnicode());
+        }
+
+        protected class UnicodeAnnotationClass
+        {
+            public int Id { get; set; }
+
+            [Unicode]
+            public string PersonFirstName { get; set; }
+
+            [Unicode(false)]
+            public string PersonLastName { get; set; }
+
+            public string PersonMiddleName;
+
+            [Unicode(false)]
+            public string PersonAddress;
+        }
+
+        [ConditionalFact]
         public virtual void OwnedEntityTypeAttribute_configures_one_reference_as_owned()
         {
             var modelBuilder = CreateModelBuilder();

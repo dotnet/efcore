@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
@@ -291,6 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             GenerateRequiredAttribute(property);
             GenerateColumnAttribute(property);
             GenerateMaxLengthAttribute(property);
+            GenerateUnicodeAttribute(property);
 
             var annotations = _annotationCodeGenerator
                 .FilterIgnoredAnnotations(property.GetAnnotations())
@@ -366,6 +368,24 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 lengthAttribute.AddParameter(_code.Literal(maxLength.Value));
 
                 _sb.AppendLine(lengthAttribute.ToString());
+            }
+        }
+
+        private void GenerateUnicodeAttribute(IProperty property)
+        {
+            CoreTypeMapping typeMapping = property.FindTypeMapping();
+            if (property.ClrType != typeof(string) && typeMapping.Converter?.ProviderClrType != typeof(string))
+            {
+                return;
+            }
+
+            var isUnicode = property.IsUnicode();
+
+            if (isUnicode.HasValue && !isUnicode.Value)
+            {
+                var unicodeAttribute = new AttributeWriter(nameof(UnicodeAttribute));
+                unicodeAttribute.AddParameter(_code.Literal(false));
+                _sb.AppendLine(unicodeAttribute.ToString());
             }
         }
 

@@ -544,6 +544,56 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         #endregion
 
+        #region UnicodeAttribute
+        [ConditionalFact]
+        public void UnicodeAttribute_overrides_configuration_from_convention_source()
+        {
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
+
+            var propertyBuilder = entityTypeBuilder.Property(typeof(string), "UnicodeProperty", ConfigurationSource.Explicit);
+
+            propertyBuilder.IsUnicode(false, ConfigurationSource.Convention);
+
+            RunConvention(propertyBuilder);
+
+            Assert.True(propertyBuilder.Metadata.IsUnicode());
+        }
+
+        [ConditionalFact]
+        public void UnicodeAttribute_does_not_override_configuration_from_explicit_source()
+        {
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
+
+            var propertyBuilder = entityTypeBuilder.Property(typeof(string), "UnicodeProperty", ConfigurationSource.Explicit);
+
+            propertyBuilder.IsUnicode(false, ConfigurationSource.Explicit);
+
+            RunConvention(propertyBuilder);
+
+            Assert.False(propertyBuilder.Metadata.IsUnicode());
+        }
+
+        [ConditionalFact]
+        public void UnicodeAttribute_sets_unicode_with_conventional_builder()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityTypeBuilder = modelBuilder.Entity<A>();
+
+            Assert.True(entityTypeBuilder.Property(e => e.UnicodeProperty).Metadata.IsUnicode());
+            Assert.False(entityTypeBuilder.Property(e => e.NonUnicodeProperty).Metadata.IsUnicode());
+        }
+
+        [ConditionalFact]
+        public void UnicodeAttribute_on_field_sets_unicode_with_conventional_builder()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityTypeBuilder = modelBuilder.Entity<F>();
+
+            Assert.True(entityTypeBuilder.Property<string>(nameof(F.UnicodeField)).Metadata.IsUnicode());
+            Assert.False(entityTypeBuilder.Property<string>(nameof(F.NonUnicodeField)).Metadata.IsUnicode());
+        }
+        #endregion
+
         [ConditionalFact]
         public void Property_attribute_convention_runs_for_private_property()
         {
@@ -596,6 +646,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             new KeyAttributeConvention(dependencies)
                 .ProcessPropertyAdded(propertyBuilder, context);
+
+            new UnicodeAttributeConvention(dependencies)
+                .ProcessPropertyAdded(propertyBuilder, context);
         }
 
         private void RunConvention(InternalEntityTypeBuilder entityTypeBuilder)
@@ -628,6 +681,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             [Required]
             public string Name { get; set; }
+
+            [Unicode]
+            public string UnicodeProperty { get; set; }
+
+            [Unicode(false)]
+            public string NonUnicodeProperty { get; set; }
 
             [Key]
             public int MyPrimaryKey { get; set; }
@@ -683,6 +742,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             [Required]
             public string Name;
+
+            [Unicode]
+            public string UnicodeField;
+
+            [Unicode(false)]
+            public string NonUnicodeField;
 
             [Key]
             public int MyPrimaryKey;
