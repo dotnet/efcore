@@ -192,10 +192,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual Category Category { get; set; }
         }
 
-        protected class Category
+        protected class CategoryBase
         {
             public int Id { get; set; }
             public string Name { get; set; }
+        }
+
+        protected class Category : CategoryBase
+        {
             public virtual ICollection<ProductCategory> ProductCategories { get; set; }
             public virtual ICollection<Product> Products { get; set; }
         }

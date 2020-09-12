@@ -41,7 +41,7 @@ namespace Microsoft.Data.Sqlite.Properties
                 operation);
 
         /// <summary>
-        /// The CommandType '{commandType}' is invalid.
+        /// The CommandType '{commandType}' is not supported.
         /// </summary>
         public static string InvalidCommandType(object commandType)
             => string.Format(
@@ -49,7 +49,7 @@ namespace Microsoft.Data.Sqlite.Properties
                 commandType);
 
         /// <summary>
-        /// The IsolationLevel '{isolationLevel}' is invalid.
+        /// The IsolationLevel '{isolationLevel}' is not supported.
         /// </summary>
         public static string InvalidIsolationLevel(object isolationLevel)
             => string.Format(
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Sqlite.Properties
                 isolationLevel);
 
         /// <summary>
-        /// The ParameterDirection '{direction}' is invalid.
+        /// The ParameterDirection '{direction}' is not supported.
         /// </summary>
         public static string InvalidParameterDirection(object direction)
             => string.Format(
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Sqlite.Properties
                 direction);
 
         /// <summary>
-        /// Keyword not supported: '{keyword}'.
+        /// Connection string keyword '{keyword}' is not supported. For a possible alternative, see https://go.microsoft.com/fwlink/?linkid=2142181.
         /// </summary>
         public static string KeywordNotSupported(object keyword)
             => string.Format(
@@ -121,7 +121,7 @@ namespace Microsoft.Data.Sqlite.Properties
             => GetString("TransactionCompleted");
 
         /// <summary>
-        /// The transaction object is not associated with the connection object.
+        /// The transaction object is not associated with the same connection object as this command.
         /// </summary>
         public static string TransactionConnectionMismatch
             => GetString("TransactionConnectionMismatch");
@@ -245,10 +245,12 @@ namespace Microsoft.Data.Sqlite.Properties
             => GetString("WriteNotSupported");
 
         /// <summary>
-        /// You specified a password in the connection string, but the native SQLite library you're using doesn't support encryption.
+        /// You specified a password in the connection string, but the native SQLite library '{libraryName}' doesn't support encryption.
         /// </summary>
-        public static string EncryptionNotSupported
-            => GetString("EncryptionNotSupported");
+        public static string EncryptionNotSupported(object libraryName)
+            => string.Format(
+                GetString("EncryptionNotSupported", nameof(libraryName)),
+                libraryName);
 
         private static string GetString(string name, params string[] formatterNames)
         {

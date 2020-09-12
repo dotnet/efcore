@@ -299,7 +299,7 @@ namespace Microsoft.Data.Sqlite
 
                 var ex = Assert.Throws<InvalidOperationException>(() => connection.Open());
 
-                Assert.Equal(Resources.EncryptionNotSupported, ex.Message);
+                Assert.Equal(Resources.EncryptionNotSupported(GetNativeLibraryName()), ex.Message);
                 Assert.False(stateChangeRaised);
                 Assert.Equal(ConnectionState.Closed, connection.State);
             }

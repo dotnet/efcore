@@ -121,13 +121,13 @@
     <value>Failed creating connection: {exceptionMessage}</value>
   </data>
   <data name="BadSequenceType" xml:space="preserve">
-    <value>For sequence '{sequenceName}'. Unable to scaffold because it uses an unsupported type: '{typeName}'.</value>
+    <value>Cannot scaffold sequence '{sequenceName}' because it uses type '{typeName}' which is unsupported.</value>
   </data>
   <data name="CannotFindDesignTimeProviderAssemblyAttribute" xml:space="preserve">
-    <value>Unable to find expected assembly attribute named {attributeName} in provider assembly {runtimeProviderAssemblyName}. This attribute is required to identify the class which acts as the design-time service provider factory.</value>
+    <value>Unable to find expected assembly attribute [DesignTimeProviderServices] in provider assembly '{runtimeProviderAssemblyName}'. This attribute is required to identify the class which acts as the design-time service provider factory for the provider.</value>
   </data>
   <data name="CannotFindRuntimeProviderAssembly" xml:space="preserve">
-    <value>Unable to find provider assembly with name {assemblyName}. Ensure the specified name is correct and is referenced by the project.</value>
+    <value>Unable to find provider assembly '{assemblyName}'. Ensure the name is correct and it's referenced by the project.</value>
   </data>
   <data name="CannotFindTypeMappingForColumn" xml:space="preserve">
     <value>Could not find type mapping for column '{columnName}' with data type '{dateType}'. Skipping column.</value>
@@ -136,7 +136,7 @@
     <value>The name you have chosen for the migration, '{name}', is the same as the context class name. Please choose a different name for your migration. Might we suggest 'InitialCreate' for your first migration?</value>
   </data>
   <data name="ContextClassNotValidCSharpIdentifier" xml:space="preserve">
-    <value>The context class name passed in, {contextClassName}, is not a valid C# identifier.</value>
+    <value>The context class name '{contextClassName}' is not a valid C# identifier.</value>
   </data>
   <data name="DatabaseDropped" xml:space="preserve">
     <value>Successfully dropped database '{name}'.</value>
@@ -148,7 +148,7 @@
     <value>Done.</value>
   </data>
   <data name="DroppingDatabase" xml:space="preserve">
-    <value>Dropping database '{name}'.</value>
+    <value>Dropping database '{database}' on server '{dataSource}'.</value>
   </data>
   <data name="DuplicateMigrationName" xml:space="preserve">
     <value>The name '{migrationName}' is used by an existing migration.</value>
@@ -157,7 +157,7 @@
     <value>An error occurred while accessing the database. Continuing without the information provided by the database. Error: {message}</value>
   </data>
   <data name="ExistingFiles" xml:space="preserve">
-    <value>The following file(s) already exist in directory {outputDirectoryName}: {existingFiles}. Use the Force flag to overwrite these files.</value>
+    <value>The following file(s) already exist in directory '{outputDirectoryName}': {existingFiles}. Use the Force flag to overwrite these files.</value>
   </data>
   <data name="FindingContextFactories" xml:space="preserve">
     <value>Finding IDesignTimeDbContextFactory implementations...</value>
@@ -178,13 +178,13 @@
     <value>Finding DbContext classes in the project...</value>
   </data>
   <data name="FindingReferencedServices" xml:space="preserve">
-    <value>Finding design-time services referenced by assembly '{startupAssembly}'.</value>
+    <value>Finding design-time services referenced by assembly '{startupAssembly}'...</value>
   </data>
   <data name="FindingServiceProvider" xml:space="preserve">
-    <value>Finding application service provider...</value>
+    <value>Finding application service provider in assembly '{startupAssembly}'...</value>
   </data>
   <data name="ForceRemoveMigration" xml:space="preserve">
-    <value>Unable to check if the migration '{name}' has been applied to the database. If it has, you will need to manually reverse the changes it made. Error encountered while checking: {error}</value>
+    <value>Unable to check if the migration '{name}' has been applied to the database. If it has, you will need to manually revert its changes. Error encountered while checking: {error}</value>
   </data>
   <data name="ForeignKeyPrincipalEndContainsNullableColumns" xml:space="preserve">
     <value>The principal end of the foreign key '{foreignKeyName}' is supported by the unique index '{indexName}' and contains the following nullable columns '{columnNames}'. Entity Framework requires the properties representing those columns to be non-nullable.</value>
@@ -220,7 +220,7 @@
     <value>An unexpected return type was encountered while accessing the Microsoft.Extensions.Hosting services. Method 'CreateHostBuilder(string[])' should return an object of type 'IHostBuilder'. Continuing without the application service provider.</value>
   </data>
   <data name="ManuallyDeleted" xml:space="preserve">
-    <value>A manual migration deletion was detected.</value>
+    <value>The model snapshot and the backing model of the last migration are different. Continuing under the assumption that the last migration was deleted manually.</value>
   </data>
   <data name="MigrationsAssemblyMismatch" xml:space="preserve">
     <value>Your target project '{assembly}' doesn't match your migrations assembly '{migrationsAssembly}'. Either change your target project or change your migrations assembly.
@@ -252,7 +252,7 @@ Change your target project to the migrations project by using the Package Manage
     <value>No design-time services were found.</value>
   </data>
   <data name="NoLanguageService" xml:space="preserve">
-    <value>The project language '{language}' isn't supported by the built-in {service} service. You can try looking for an additional NuGet package which supports this language; moving your DbContext type to a C# class library referenced by this project; or manually implementing and registering the design-time service for programming language.</value>
+    <value>The project language '{language}' isn't supported by the built-in {service} service. You can try looking for an additional NuGet package which supports this language; moving your DbContext type to a C# class library referenced by this project; or manually implementing and registering the design-time service for the programming language.</value>
   </data>
   <data name="NoMigrationFile" xml:space="preserve">
     <value>No file named '{file}' was found. You must manually remove the migration class '{migrationClass}'.</value>
@@ -264,7 +264,7 @@ Change your target project to the migrations project by using the Package Manage
     <value>The column '{columnName}' would normally be mapped to a non-nullable bool property, but it has a default constraint. Such a column is mapped to a nullable bool property to allow a difference between setting the property to false and invoking the default constraint. See https://go.microsoft.com/fwlink/?linkid=851278 for details.</value>
   </data>
   <data name="NonRelationalProvider" xml:space="preserve">
-    <value>{provider} is not a Relational provider and therefore cannot be use with Migrations.</value>
+    <value>The provider '{provider}' is not a Relational provider and therefore cannot be used with Migrations.</value>
   </data>
   <data name="NoParameterlessConstructor" xml:space="preserve">
     <value>Unable to create an object of type '{contextType}'. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728</value>
@@ -294,7 +294,7 @@ Change your target project to the migrations project by using the Package Manage
     <value>Metadata model returned should not be null. Provider: {providerTypeName}.</value>
   </data>
   <data name="ReadOnlyFiles" xml:space="preserve">
-    <value>No files generated in directory {outputDirectoryName}. The following file(s) already exist and must be made writeable to continue: {readOnlyFiles}.</value>
+    <value>No files were generated in directory '{outputDirectoryName}'. The following file(s) already exist(s) and must be made writeable to continue: {readOnlyFiles}.</value>
   </data>
   <data name="RemovingMigration" xml:space="preserve">
     <value>Removing migration '{name}'.</value>
@@ -309,10 +309,10 @@ Change your target project to the migrations project by using the Package Manage
     <value>Reusing model snapshot name '{name}'.</value>
   </data>
   <data name="RevertingSnapshot" xml:space="preserve">
-    <value>Reverting model snapshot.</value>
+    <value>Reverting the model snapshot.</value>
   </data>
   <data name="RevertMigration" xml:space="preserve">
-    <value>The migration '{name}' has already been applied to the database. Revert it and try again. If the migration has been applied to other databases, consider reverting its changes using a new migration.</value>
+    <value>The migration '{name}' has already been applied to the database. Revert it and try again. If the migration has been applied to other databases, consider reverting its changes using a new migration instead.</value>
   </data>
   <data name="SensitiveInformationWarning" xml:space="preserve">
     <value>To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.</value>
@@ -322,7 +322,7 @@ Change your target project to the migrations project by using the Package Manage
     <value>Sequence name cannot be null or empty. Entity Framework cannot model a sequence that does not have a name.</value>
   </data>
   <data name="UnableToGenerateEntityType" xml:space="preserve">
-    <value>Unable to generate entity type for table '{tableName}'.</value>
+    <value>Unable to generate entity type for table '{tableName}' since its primary key could not be scaffolded.</value>
   </data>
   <data name="UnableToScaffoldIndexMissingProperty" xml:space="preserve">
     <value>Unable to scaffold the index '{indexName}'. The following columns could not be scaffolded: {columnNames}.</value>
@@ -331,10 +331,10 @@ Change your target project to the migrations project by using the Package Manage
     <value>Unhandled enum value '{enumValue}'.</value>
   </data>
   <data name="UnknownLiteral" xml:space="preserve">
-    <value>The current CSharpHelper cannot scaffold literals of type '{literalType}'. Configure your services to use one that can.</value>
+    <value>Cannot scaffold C# literals of type '{literalType}'. The provider should implement CoreTypeMapping.GenerateCodeLiteral to support using it at design time.</value>
   </data>
   <data name="UnknownOperation" xml:space="preserve">
-    <value>The current CSharpMigrationOperationGenerator cannot scaffold operations of type '{operationType}'. Configure your services to use one that can.</value>
+    <value>The current CSharpMigrationOperationGenerator cannot scaffold operations of type '{operationType}'. Configure your design-time services to use one that can.</value>
   </data>
   <data name="UnreferencedAssembly" xml:space="preserve">
     <value>Could not load assembly '{assembly}'. Ensure it is referenced by the startup project '{startupProject}'.</value>
