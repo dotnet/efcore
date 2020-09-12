@@ -532,7 +532,7 @@ FROM [Employees] AS [e]
 WHERE 0 = 1");
 
             Assert.Contains(
-                "Possible unintended use of method Equals(object) for arguments 'e.EmployeeID' and '@__longPrm_0' of different types in query. This comparison will always return 'false'.",
+                "Possible unintended use of method 'Equals' for arguments 'e.EmployeeID' and '@__longPrm_0' of different types in a query. This comparison will always return false.",
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
@@ -562,10 +562,10 @@ FROM [Employees] AS [e]
 WHERE 0 = 1");
 
             Assert.Contains(
-                "Possible unintended use of method Equals(object) for arguments 'e.ReportsTo' and '@__longPrm_0' of different types in query. This comparison will always return 'false'.",
+                "Possible unintended use of method 'Equals' for arguments 'e.ReportsTo' and '@__longPrm_0' of different types in a query. This comparison will always return false.",
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
             Assert.Contains(
-                "Possible unintended use of method Equals(object) for arguments '@__longPrm_0' and 'e.ReportsTo' of different types in query. This comparison will always return 'false'.",
+                "Possible unintended use of method 'Equals' for arguments '@__longPrm_0' and 'e.ReportsTo' of different types in a query. This comparison will always return false.",
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
@@ -583,10 +583,10 @@ FROM [Employees] AS [e]
 WHERE 0 = 1");
 
             Assert.Contains(
-                "Possible unintended use of method Equals(object) for arguments 'e.ReportsTo' and '@__nullableLongPrm_0' of different types in query. This comparison will always return 'false'.",
+                "Possible unintended use of method 'Equals' for arguments 'e.ReportsTo' and '@__nullableLongPrm_0' of different types in a query. This comparison will always return false.",
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
             Assert.Contains(
-                "Possible unintended use of method Equals(object) for arguments '@__nullableLongPrm_0' and 'e.ReportsTo' of different types in query. This comparison will always return 'false'.",
+                "Possible unintended use of method 'Equals' for arguments '@__nullableLongPrm_0' and 'e.ReportsTo' of different types in a query. This comparison will always return false.",
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
