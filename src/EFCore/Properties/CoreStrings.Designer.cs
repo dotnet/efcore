@@ -179,6 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The current database provider has not implemented the 'CanConnect' method.
         /// </summary>
+        [Obsolete]
         public static string CanConnectNotImplemented
             => GetString("CanConnectNotImplemented");
 
@@ -301,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     The shared type entity type '{entityType}' with CLR type '{type}' cannot be added to the model because a non-shared entity type with the same CLR type already exists.
+        ///     The shared-type entity type '{entityType}' with CLR type '{type}' cannot be added to the model because a non-shared entity type with the same CLR type already exists.
         /// </summary>
         public static string ClashingNonSharedType([CanBeNull] object entityType, [CanBeNull] object type)
             => string.Format(
@@ -405,7 +406,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     A second operation was started on this context before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+        ///     A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
         /// </summary>
         public static string ConcurrentMethodInvocation
             => GetString("ConcurrentMethodInvocation");
@@ -675,7 +676,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 indexName, indexProperties, entityType, duplicateEntityType);
 
         /// <summary>
-        ///     The type '{entityType}' cannot have base type '{baseType}' because the properties '{derivedPropertyType}.{derivedProperty}' and '{basePropertyType}.{baseProperty}' are conflicting.
+        ///     The type '{entityType}' cannot have base type '{baseType}' because the properties '{derivedPropertyType}.{derivedProperty}' and '{basePropertyType}.{baseProperty}' are in conflict.
         /// </summary>
         public static string DuplicatePropertiesOnBase([CanBeNull] object entityType, [CanBeNull] object baseType, [CanBeNull] object derivedPropertyType, [CanBeNull] object derivedProperty, [CanBeNull] object basePropertyType, [CanBeNull] object baseProperty)
             => string.Format(
@@ -927,7 +928,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 principalKey, principalEntityType);
 
         /// <summary>
-        ///     The foreign keys on entity type '{dependentType}' cannot target the same entity type because it is a weak entity type.
+        ///     The foreign keys on entity type '{dependentType}' cannot target the same entity type because it has a defining navigation.
         /// </summary>
         public static string ForeignKeySelfReferencingDependentEntityType([CanBeNull] object dependentType)
             => string.Format(
@@ -1246,7 +1247,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     Cannot create a DbSet for '{typeName}' because it is configured as an shared type entity type. Access the entity type via the `Set` method overload that accepts an entity type name.
+        ///     Cannot create a DbSet for '{typeName}' because it is configured as an shared-type entity type. Access the entity type via the `Set` method overload that accepts an entity type name.
         /// </summary>
         public static string InvalidSetSharedType([CanBeNull] object typeName)
             => string.Format(
@@ -1750,7 +1751,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property, modelType, providerType);
 
         /// <summary>
-        ///     The navigation '{1_entityType}.{0_navigation}' must be configured in 'OnModelCreating' with an explicit name for the target shared type entity type, or excluded by calling 'EntityTypeBuilder.Ignore'.
+        ///     The navigation '{1_entityType}.{0_navigation}' must be configured in 'OnModelCreating' with an explicit name for the target shared-type entity type, or excluded by calling 'EntityTypeBuilder.Ignore'.
         /// </summary>
         public static string NonConfiguredNavigationToSharedType([CanBeNull] object navigation, [CanBeNull] object entityType)
             => string.Format(
@@ -2184,7 +2185,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("QueryUnableToTranslateStringEqualsWithStringComparison");
 
         /// <summary>
-        ///     An attempt was made to use the context while it is being configured. A DbContext instance cannot be used inside 'OnConfiguring' since it is still being configured at this point. This can happen if a second operation is started on this context before a previous operation completed. Any instance members are not guaranteed to be thread safe.
+        ///     An attempt was made to use the context instance while it is being configured. A DbContext instance cannot be used inside 'OnConfiguring' since it is still being configured at this point. This can happen if a second operation is started on this context instance before a previous operation completed. Any instance members are not guaranteed to be thread safe.
         /// </summary>
         public static string RecursiveOnConfiguring
             => GetString("RecursiveOnConfiguring");
@@ -2414,7 +2415,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     The shared type entity type '{entityType}' cannot have a base type.
+        ///     The shared-type entity type '{entityType}' cannot have a base type.
         /// </summary>
         public static string SharedTypeDerivedType([CanBeNull] object entityType)
             => string.Format(
@@ -2692,7 +2693,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 eventName, message, eventId);
 
         /// <summary>
-        ///     The type '{entityType}' cannot have weak entity type '{baseType}' as the base type.
+        ///     The type '{entityType}' cannot have entity type '{baseType}' as the base type because the latter has a defining navigation.
         /// </summary>
         public static string WeakBaseType([CanBeNull] object entityType, [CanBeNull] object baseType)
             => string.Format(
@@ -2700,7 +2701,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, baseType);
 
         /// <summary>
-        ///     The weak entity type '{entityType}' cannot have a base type.
+        ///     The entity type '{entityType}' cannot have a base type because it has a defining navigation.
         /// </summary>
         public static string WeakDerivedType([CanBeNull] object entityType)
             => string.Format(
@@ -3134,7 +3135,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The same entity is being tracked as different weak entity types '{dependent1}' and '{dependent2}'. If a property value changes, it will result in two store changes, which might not be the desired outcome.
+        ///     The same entity is being tracked as different entity types '{dependent1}' and '{dependent2}' with defining navigations. If a property value changes, it will result in two store changes, which might not be the desired outcome.
         /// </summary>
         public static EventDefinition<string, string> LogDuplicateDependentEntityTypeInstance([NotNull] IDiagnosticsLogger logger)
         {

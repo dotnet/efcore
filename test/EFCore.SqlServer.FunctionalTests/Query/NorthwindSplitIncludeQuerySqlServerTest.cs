@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -188,13 +189,14 @@ ORDER BY [o].[OrderID], [c].[CustomerID]");
         {
             using var context = CreateContext();
 
+            
             Assert.Equal(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 ORDER BY [o].[OrderID], [c].[CustomerID]
 
-This LINQ query is being executed in split-query mode. The SQL shown is for the first query to be executed. Additional queries may also be executed depending on the results of the first query.",
+" + RelationalStrings.SplitQueryString,
                 context.Set<Order>().Include(o => o.Customer).Include(o => o.OrderDetails).AsSplitQuery().ToQueryString(),
                 ignoreLineEndingDifferences: true,
                 ignoreWhiteSpaceDifferences: true);
