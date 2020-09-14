@@ -598,7 +598,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 for (var i = 0; i < memberInitExpression.Bindings.Count; i++)
                 {
-                    if (memberInitExpression.Bindings[i] is MemberAssignment assignment)
+                    var binding = memberInitExpression.Bindings[i];
+                    if (binding is MemberAssignment assignment)
                     {
                         _stringBuilder.Append(assignment.Member.Name + " = ");
                         Visit(assignment.Expression);
@@ -606,7 +607,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                     else
                     {
-                        AppendLine(CoreStrings.InvalidMemberInitBinding);
+                        AppendLine(CoreStrings.UnhandledMemberBinding(binding.BindingType));
                     }
                 }
             }

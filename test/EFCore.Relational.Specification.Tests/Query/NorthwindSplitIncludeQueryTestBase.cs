@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override Task Include_collection_with_last_no_orderby(bool async)
         {
             return AssertTranslationFailedWithDetails(
-                () => base.Include_collection_with_last_no_orderby(async), RelationalStrings.MissingOrderingInSqlExpression);
+                () => base.Include_collection_with_last_no_orderby(async), RelationalStrings.MissingOrderingInSelectExpression);
         }
 
         [ConditionalTheory(Skip = "Issue#22283 Collection Include on nested collection")]

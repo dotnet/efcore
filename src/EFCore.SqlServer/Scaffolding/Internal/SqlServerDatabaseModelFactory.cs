@@ -413,7 +413,7 @@ WHERE "
                 var storeType = reader.GetString("type_name");
                 var precision = reader.GetValueOrDefault<int>("precision");
                 var scale = reader.GetValueOrDefault<int>("scale");
-                var isCyclic = reader.GetValueOrDefault<bool>("is_cycling");
+                var cyclic = reader.GetValueOrDefault<bool>("is_cycling");
                 var incrementBy = reader.GetValueOrDefault<int>("increment");
                 var startValue = reader.GetValueOrDefault<long>("start_value");
                 var minValue = reader.GetValueOrDefault<long>("minimum_value");
@@ -427,7 +427,7 @@ WHERE "
 
                 storeType = GetStoreType(storeType, maxLength: 0, precision: precision, scale: scale);
 
-                _logger.SequenceFound(DisplayName(schema, name), storeType, isCyclic, incrementBy, startValue, minValue, maxValue);
+                _logger.SequenceFound(DisplayName(schema, name), storeType, cyclic, incrementBy, startValue, minValue, maxValue);
 
                 var sequence = new DatabaseSequence
                 {
@@ -435,7 +435,7 @@ WHERE "
                     Name = name,
                     Schema = schema,
                     StoreType = storeType,
-                    IsCyclic = isCyclic,
+                    IsCyclic = cyclic,
                     IncrementBy = incrementBy,
                     StartValue = startValue,
                     MinValue = minValue,

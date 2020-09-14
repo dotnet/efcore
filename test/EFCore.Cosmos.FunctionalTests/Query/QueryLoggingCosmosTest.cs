@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -38,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 "Compiling query expression: ",
                 Fixture.TestSqlLoggerFactory.Log[0].Message);
             Assert.StartsWith(
-                "queryContext => new QueryingEnumerable<Customer>(",
+                "Generated query execution expression: " + Environment.NewLine + "'queryContext => new QueryingEnumerable<Customer>(",
                 Fixture.TestSqlLoggerFactory.Log[1].Message);
         }
 

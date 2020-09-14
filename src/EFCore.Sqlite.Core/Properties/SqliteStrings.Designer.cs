@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                 aggregateOperator, type);
 
         /// <summary>
-        ///     Translating this query requires APPLY operation which is not supported on SQLite.
+        ///     Translating this query requires APPLY operation in SQL which is not supported on SQLite.
         /// </summary>
         public static string ApplyNotSupported
             => GetString("ApplyNotSupported");
@@ -98,31 +98,31 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Sqlite.Properties.SqliteStrings", typeof(SqliteResources).Assembly);
 
         /// <summary>
-        ///     Could not scaffold the foreign key '{foreignKeyName}'. The referenced table could not be found. This most likely occurred because the referenced table was excluded from scaffolding.
+        ///     Skipping foreign key with identity '{id}' on table '{tableName}' since principal table '{principalTableName}' was not found in the model. This usually happens if the principal table was not included in the selection set.
         /// </summary>
-        public static EventDefinition<string> LogForeignKeyScaffoldErrorPrincipalTableNotFound([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, string> LogForeignKeyScaffoldErrorPrincipalTableNotFound([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogForeignKeyScaffoldErrorPrincipalTableNotFound;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
                     ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogForeignKeyScaffoldErrorPrincipalTableNotFound,
-                    () => new EventDefinition<string>(
+                    () => new EventDefinition<string, string, string>(
                         logger.Options,
                         SqliteEventId.ForeignKeyReferencesMissingTableWarning,
                         LogLevel.Warning,
                         "SqliteEventId.ForeignKeyReferencesMissingTableWarning",
-                        level => LoggerMessage.Define<string>(
+                        level => LoggerMessage.Define<string, string, string>(
                             level,
                             SqliteEventId.ForeignKeyReferencesMissingTableWarning,
                             _resourceManager.GetString("LogForeignKeyScaffoldErrorPrincipalTableNotFound"))));
             }
 
-            return (EventDefinition<string>)definition;
+            return (EventDefinition<string, string, string>)definition;
         }
 
         /// <summary>
-        ///     Found column on table: {tableName}, column name: {columnName}, data type: {dataType}, not nullable: {isNotNullable}, default value: {defaultValue}.
+        ///     Found column on table: {tableName}, column name: {columnName}, data type: {dataType}, not nullable: {notNullable}, default value: {defaultValue}.
         /// </summary>
         public static EventDefinition<string, string, string, bool, string> LogFoundColumn([NotNull] IDiagnosticsLogger logger)
         {
@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         }
 
         /// <summary>
-        ///     Found index with name: {indexName}, table: {tableName}, is unique: {isUnique}.
+        ///     Found index with name: {indexName}, table: {tableName}, is unique: {unique}.
         /// </summary>
         public static EventDefinition<string, string, bool?> LogFoundIndex([NotNull] IDiagnosticsLogger logger)
         {
@@ -290,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         }
 
         /// <summary>
-        ///     For foreign key with identity '{id}' on table '{tableName}', unable to find the column called '{principalColumnName}' on the foreign key's principal table, '{principaltableName}'. Skipping foreign key.
+        ///     Skipping foreign key with identity '{id}' on table '{tableName}' since the principal column called '{principalColumnName}' on the foreign key's principal table, '{principalTableName}' was not found in the model.
         /// </summary>
         public static EventDefinition<string, string, string, string> LogPrincipalColumnNotFound([NotNull] IDiagnosticsLogger logger)
         {

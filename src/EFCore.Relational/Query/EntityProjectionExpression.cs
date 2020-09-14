@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && !property.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    RelationalStrings.UnableToBindMemberToEntityProjection("Property", property.Name, EntityType.DisplayName()));
+                    RelationalStrings.UnableToBindMemberToEntityProjection("property", property.Name, EntityType.DisplayName()));
             }
 
             return _propertyExpressionMap[property];
@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    RelationalStrings.UnableToBindMemberToEntityProjection("Navigation", navigation.Name, EntityType.DisplayName()));
+                    RelationalStrings.UnableToBindMemberToEntityProjection("navigation", navigation.Name, EntityType.DisplayName()));
             }
 
             _ownedNavigationMap[navigation] = entityShaper;
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    RelationalStrings.UnableToBindMemberToEntityProjection("Navigation", navigation.Name, EntityType.DisplayName()));
+                    RelationalStrings.UnableToBindMemberToEntityProjection("navigation", navigation.Name, EntityType.DisplayName()));
             }
 
             return _ownedNavigationMap.TryGetValue(navigation, out var expression)

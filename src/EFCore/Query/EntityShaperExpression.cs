@@ -87,6 +87,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
+        ///     Creates an expression to throw an exception when unable to determine entity type
+        ///     to materialize based on discriminator value.
+        /// </summary>
+        /// <param name="entityType"> The entity type for which materialization was requested. </param>
+        /// <param name="discriminatorValue"> The expression containing value of discriminator. </param>
+        /// <returns> An expression of <see cref="Func{ValueBuffer, IEntityType}" /> representing materilization condition for the entity type. </returns>
+        protected static Expression CreateUnableToDiscriminateExceptionExpression([NotNull] IEntityType entityType, [NotNull] Expression discriminatorValue)
+            => Block(
+                Throw(Call(_createUnableToDiscriminateException,
+                    Constant(Check.NotNull(entityType, nameof(entityType))),
+                    Convert(Check.NotNull(discriminatorValue, nameof(discriminatorValue)), typeof(object)))),
+                Constant(null, typeof(IEntityType)));
+
+        /// <summary>
         ///     Creates an expression of <see cref="Func{ValueBuffer, IEntityType}" /> to determine which entity type to materialize.
         /// </summary>
         /// <param name="entityType"> The entity type to create materialization condition for. </param>
@@ -111,12 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             discriminatorProperty.ClrType, discriminatorProperty.GetIndex(), discriminatorProperty))
                 };
 
-                var exception = Block(
-                    Throw(
-                        Call(
-                            _createUnableToDiscriminateException, Constant(entityType),
-                            Convert(discriminatorValueVariable, typeof(object)))),
-                    Constant(null, typeof(IEntityType)));
+                var exception = CreateUnableToDiscriminateExceptionExpression(entityType, discriminatorValueVariable);
 
                 var discriminatorComparer = discriminatorProperty.GetKeyValueComparer();
                 if (discriminatorComparer.IsDefault())
