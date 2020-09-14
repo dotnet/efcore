@@ -549,8 +549,7 @@ namespace Microsoft.EntityFrameworkCore
         public static void SetChangeTrackingStrategy(
             [NotNull] this IMutableEntityType entityType,
             ChangeTrackingStrategy? changeTrackingStrategy)
-            => Check.NotNull(entityType, nameof(entityType)).AsEntityType()
-                .SetChangeTrackingStrategy(changeTrackingStrategy, ConfigurationSource.Explicit);
+            => ((EntityType)entityType).SetChangeTrackingStrategy(changeTrackingStrategy, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     Sets the LINQ expression filter automatically applied to queries for this entity type.

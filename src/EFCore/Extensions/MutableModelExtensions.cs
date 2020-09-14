@@ -196,8 +196,7 @@ namespace Microsoft.EntityFrameworkCore
         public static void SetChangeTrackingStrategy(
             [NotNull] this IMutableModel model,
             ChangeTrackingStrategy? changeTrackingStrategy)
-            => Check.NotNull((Model)model, nameof(model))
-                .SetChangeTrackingStrategy(changeTrackingStrategy, ConfigurationSource.Explicit);
+            => ((Model)model).SetChangeTrackingStrategy(changeTrackingStrategy, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     Marks the given entity type as ignored, preventing conventions from adding a matching entity type to the model.

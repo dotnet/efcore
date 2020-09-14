@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -606,8 +607,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IConventionEntityType entityType,
             ChangeTrackingStrategy? changeTrackingStrategy,
             bool fromDataAnnotation = false)
-            => Check.NotNull(entityType, nameof(entityType)).AsEntityType()
-                .SetChangeTrackingStrategy(
+            => ((EntityType)entityType).SetChangeTrackingStrategy(
                     changeTrackingStrategy,
                     fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -616,8 +616,9 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The configuration source for <see cref="EntityTypeExtensions.GetChangeTrackingStrategy" />. </returns>
+        [DebuggerStepThrough]
         public static ConfigurationSource? GetChangeTrackingStrategyConfigurationSource([NotNull] this IConventionEntityType entityType)
-            => entityType.FindAnnotation(CoreAnnotationNames.ChangeTrackingStrategy)?.GetConfigurationSource();
+            => ((EntityType)entityType).GetChangeTrackingStrategyConfigurationSource();
 
         /// <summary>
         ///     Sets the LINQ expression filter automatically applied to queries for this entity type.
