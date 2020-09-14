@@ -5878,7 +5878,8 @@ ORDER BY [t].[Id], [l0].[Id]");
     ) AS [t0]
     ORDER BY [t0].[Id])
 FROM [LevelOne] AS [l0]
-WHERE [l0].[Id] < 3");
+WHERE [l0].[Id] < 3
+ORDER BY [l0].[Id]");
         }
 
         public override async Task Distinct_take_without_orderby(bool async)
@@ -5894,7 +5895,8 @@ WHERE [l0].[Id] < 3");
     ) AS [t]
     ORDER BY [t].[Id])
 FROM [LevelOne] AS [l0]
-WHERE [l0].[Id] < 3");
+WHERE [l0].[Id] < 3
+ORDER BY [l0].[Id]");
         }
 
         public override async Task Let_let_contains_from_outer_let(bool async)
