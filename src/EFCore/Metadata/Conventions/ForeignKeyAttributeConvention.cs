@@ -302,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         && Attribute.IsDefined(p, typeof(ForeignKeyAttribute), inherit: true))
                 ?.GetCustomAttribute<ForeignKeyAttribute>(inherit: true);
 
-        private static ForeignKeyAttribute GetForeignKeyAttribute(IConventionNavigation navigation)
+        private static ForeignKeyAttribute GetForeignKeyAttribute(IConventionNavigationBase navigation)
             => GetAttribute<ForeignKeyAttribute>(navigation.GetIdentifyingMemberInfo());
 
         private static InversePropertyAttribute GetInversePropertyAttribute(IConventionNavigation navigation)
@@ -449,6 +449,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                                     foreignKey.PrincipalEntityType.DisplayName(),
                                     foreignKey.DeclaringEntityType.DisplayName()));
                         }
+                    }
+                }
+
+                foreach (var declaredSkipNavigation in entityType.GetDeclaredSkipNavigations())
+                {
+                    var fkAttribute = GetForeignKeyAttribute(declaredSkipNavigation);
+                    if (fkAttribute != null
+                        && declaredSkipNavigation.ForeignKey?.GetPropertiesConfigurationSource() != ConfigurationSource.Explicit)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.FkAttributeOnSkipNavigation(entityType.DisplayName(), declaredSkipNavigation.Name));
                     }
                 }
             }

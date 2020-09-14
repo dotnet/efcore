@@ -887,6 +887,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, navigation, entityType);
 
         /// <summary>
+        ///     The [ForeignKey] attribute cannot be specified on the skip navigation '{entityType}'.'{navigation}'. Configure the foreign key properties in 'OnModelCreating' instead.
+        /// </summary>
+        public static string FkAttributeOnSkipNavigation([CanBeNull] object entityType, [CanBeNull] object navigation)
+            => string.Format(
+                GetString("FkAttributeOnSkipNavigation", nameof(entityType), nameof(navigation)),
+                entityType, navigation);
+
+        /// <summary>
         ///     The number of properties specified for the foreign key {foreignKeyProperties} on entity type '{dependentType}' does not match the number of properties in the principal key {principalKey} on entity type '{principalType}'.
         /// </summary>
         public static string ForeignKeyCountMismatch([CanBeNull] object foreignKeyProperties, [CanBeNull] object dependentType, [CanBeNull] object principalKey, [CanBeNull] object principalType)
