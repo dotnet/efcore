@@ -133,16 +133,16 @@
     <value>The type of the '{idProperty}' property on '{entityType}' is '{propertyType}'. All 'id' properties need to be strings or have a string converter.</value>
   </data>
   <data name="InvalidDerivedTypeInEntityProjection" xml:space="preserve">
-    <value>'UpdateEntityType' called with '{derivedType}' which is not derived type of '{entityType}'.</value>
+    <value>The specified entity type '{derivedType}' is not derived from '{entityType}'.</value>
   </data>
   <data name="InvalidResourceId" xml:space="preserve">
-    <value>Invalid 'id' value. Supply a string value that's not null or empty.</value>
+    <value>Unable to generate a valid 'id' value to execute ReadItem query. This usually happens when value provided for one of the properties is null or empty string. Please supply a value that's not null or empty.</value>
   </data>
   <data name="JsonPropertyCollision" xml:space="preserve">
     <value>Both properties '{property1}' and '{property2}' on entity type '{entityType}' are mapped to '{storeName}'. Map one of the properties to a different JSON property.</value>
   </data>
-  <data name="MissingOrderingInSqlExpression" xml:space="preserve">
-    <value>Reverse could not be translated to the server because there is no ordering on the server side.</value>
+  <data name="MissingOrderingInSelectExpression" xml:space="preserve">
+    <value>'Reverse' could not be translated to the server because there is no ordering on the server side.</value>
   </data>
   <data name="NavigationPropertyIsNotAnEmbeddedEntity" xml:space="preserve">
     <value>Navigation '{entityType}.{navigationName}' doesn't point to an embedded entity.</value>
@@ -160,7 +160,7 @@
     <value>The entity type '{entityType}' does not have a property mapped to the 'id' property in the database. Add a property mapped as 'id'.</value>
   </data>
   <data name="NonEmbeddedIncludeNotSupported" xml:space="preserve">
-    <value>Non-embedded IncludeExpression is not supported: {expression}</value>
+    <value>Including navigation '{navigation}' is not supported as the navigation is not embedded in same resource.</value>
   </data>
   <data name="NonETagConcurrencyToken" xml:space="preserve">
     <value>The entity type '{entityType}' has property '{property}' as its concurrency token, but only '_etag' is supported. Consider using 'EntityTypeBuilder.UseETagConcurrency'.</value>
@@ -178,7 +178,7 @@
     <value>Expression '{sqlExpression}' in SQL tree does not have type mapping assigned.</value>
   </data>
   <data name="OffsetRequiresLimit" xml:space="preserve">
-    <value>Offset is not supported without Limit.</value>
+    <value>Cosmos SQL does not allow Offset without Limit. Consider specifying 'Take' operation on the query.</value>
   </data>
   <data name="OrphanedNestedDocument" xml:space="preserve">
     <value>The entity of type '{entityType}' is mapped as a part of the document mapped to '{missingEntityType}', but there is no tracked entity of this type with the corresponding key value. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
@@ -187,7 +187,7 @@
     <value>The entity of type '{entityType}' is mapped as a part of the document mapped to '{missingEntityType}', but there is no tracked entity of this type with the key value '{keyValue}'.</value>
   </data>
   <data name="ParitionKeyMissing" xml:space="preserve">
-    <value>A ReadItem query was detected, but the partition key value is missing.</value>
+    <value>Unable to execute a ReadItem query since the partition key value is missing. Consider using 'WithPartitionKey' method on the query to specify partition key to use.</value>
   </data>
   <data name="PartitionKeyMismatch" xml:space="preserve">
     <value>Partition key specified in the WithPartitionKey call '{paritionKey1}' and the partition key specified in the Where predicate '{paritionKey2}' must be identical. Remove one of them .</value>
@@ -202,10 +202,10 @@
     <value>The partition key property '{property1}' on '{entityType1}' is mapped as '{storeName1}', but the partition key property '{property2}' on '{entityType2}' is mapped as '{storeName2}'. All partition key properties need to be mapped to the same store property.</value>
   </data>
   <data name="ResourceIdMissing" xml:space="preserve">
-    <value>A ReadItem query was detected, but the 'id' value is missing and cannot be generated.</value>
+    <value>Unable to execute a ReadItem query since the 'id' value is missing and cannot be generated.</value>
   </data>
-  <data name="ReverseRequiresOffsetOrLimit" xml:space="preserve">
-    <value>Reverse is not supported without Limit or Offset.</value>
+  <data name="ReverseAfterSkipTakeNotSupported" xml:space="preserve">
+    <value>Reversing the ordering in 'SelectExpression' is not supported when limit or offset are already applied.</value>
   </data>
   <data name="UnableToBindMemberToEntityProjection" xml:space="preserve">
     <value>Unable to bind '{memberType}' '{member}' to entity projection of '{entityType}'.</value>
@@ -217,6 +217,6 @@
     <value>Conflicts were detected for item with id '{itemId}'.</value>
   </data>
   <data name="VisitChildrenMustBeOverridden" xml:space="preserve">
-    <value>VisitChildren must be overridden in class deriving from SqlExpression.</value>
+    <value>'VisitChildren' must be overridden in the class deriving from 'SqlExpression'.</value>
   </data>
 </root>

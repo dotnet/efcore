@@ -6637,7 +6637,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Include_after_select_with_cast_throws(bool async)
         {
             Assert.Equal(
-                CoreStrings.IncludeOnNonEntity,
+                CoreStrings.IncludeOnNonEntity("h => h.Commander"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
                         async,
@@ -6650,7 +6650,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Include_after_select_with_entity_projection_throws(bool async)
         {
             Assert.Equal(
-                CoreStrings.IncludeOnNonEntity,
+                CoreStrings.IncludeOnNonEntity("c => c.BornGears"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
                         async,
@@ -6662,7 +6662,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Include_after_select_anonymous_projection_throws(bool async)
         {
             Assert.Equal(
-                CoreStrings.IncludeOnNonEntity,
+                CoreStrings.IncludeOnNonEntity("x => x.f.Capital"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
                         async,
@@ -6674,7 +6674,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Include_after_Select_throws(bool async)
         {
             Assert.Equal(
-                CoreStrings.IncludeOnNonEntity,
+                CoreStrings.IncludeOnNonEntity("h => h.Capital"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
                         async,
@@ -6686,7 +6686,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Include_after_SelectMany_throws(bool async)
         {
             Assert.Equal(
-                CoreStrings.IncludeOnNonEntity,
+                CoreStrings.IncludeOnNonEntity("g => g.Squad"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
                         async,

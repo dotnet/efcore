@@ -215,7 +215,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             || navigation.IsOnDependent
                             || navigation.ForeignKey.DeclaringEntityType.IsDocumentRoot())
                         {
-                            throw new InvalidOperationException(CosmosStrings.NonEmbeddedIncludeNotSupported(includeExpression.Print()));
+                            throw new InvalidOperationException(
+                                CosmosStrings.NonEmbeddedIncludeNotSupported(includeExpression.Navigation));
                         }
 
                         _pendingIncludes.Add(includeExpression);
@@ -296,7 +297,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             || navigation.IsOnDependent
                             || navigation.ForeignKey.DeclaringEntityType.IsDocumentRoot())
                         {
-                            throw new InvalidOperationException(CosmosStrings.NonEmbeddedIncludeNotSupported(includeExpression.Print()));
+                            throw new InvalidOperationException(
+                                CosmosStrings.NonEmbeddedIncludeNotSupported(includeExpression.Navigation));
                         }
 
                         var isFirstInclude = _pendingIncludes.Count == 0;

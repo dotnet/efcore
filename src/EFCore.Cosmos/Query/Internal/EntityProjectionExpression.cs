@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 && !property.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    CosmosStrings.UnableToBindMemberToEntityProjection("Property", property.Name, EntityType.DisplayName()));
+                    CosmosStrings.UnableToBindMemberToEntityProjection("property", property.Name, EntityType.DisplayName()));
             }
 
             if (!_propertyExpressionsMap.TryGetValue(property, out var expression))
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             }
 
             if (!clientEval
-                // TODO: Remove once __jObject is translated to the access root in a better fashion and 
+                // TODO: Remove once __jObject is translated to the access root in a better fashion and
                 // would not otherwise be found to be non-translatable. See issues #17670 and #14121.
                 && property.Name != StoreKeyConvention.JObjectPropertyName
                 && expression.Name.Length == 0)
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    CosmosStrings.UnableToBindMemberToEntityProjection("Navigation", navigation.Name, EntityType.DisplayName()));
+                    CosmosStrings.UnableToBindMemberToEntityProjection("navigation", navigation.Name, EntityType.DisplayName()));
             }
 
             if (!_navigationExpressionsMap.TryGetValue(navigation, out var expression))

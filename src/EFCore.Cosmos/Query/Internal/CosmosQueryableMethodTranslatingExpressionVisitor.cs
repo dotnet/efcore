@@ -821,7 +821,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             var selectExpression = (SelectExpression)source.QueryExpression;
             if (selectExpression.Orderings.Count == 0)
             {
-                AddTranslationErrorDetails(CosmosStrings.MissingOrderingInSqlExpression);
+                AddTranslationErrorDetails(CosmosStrings.MissingOrderingInSelectExpression);
                 return null;
             }
 

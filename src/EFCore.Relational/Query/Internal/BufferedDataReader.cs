@@ -1218,7 +1218,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(missingColumns.First()));
                     }
 
-                    throw new InvalidOperationException(RelationalStrings.TooFewReaderFields);
+                    throw new InvalidOperationException(RelationalStrings.TooFewReaderFields(_columns.Count, FieldCount));
                 }
 
                 _columnTypeCases = Enumerable.Repeat(TypeCase.Empty, fieldCount).ToArray();

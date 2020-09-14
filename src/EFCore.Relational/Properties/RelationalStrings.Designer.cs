@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("CannotChangeWhenOpen");
 
         /// <summary>
-        ///     The given GroupBy pattern is not translatable. Call AsEnumerable before GroupBy to evaluate it locally.
+        ///     Unable to translate the given 'GroupBy' pattern. Call 'AsEnumerable' before 'GroupBy' to evaluate it client-side.
         /// </summary>
         public static string ClientGroupByNotSupported
             => GetString("ClientGroupByNotSupported");
@@ -147,14 +147,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 table);
 
         /// <summary>
-        ///     Cannot set custom translation on the DbFunction '{function}' since it is an aggregate function.
-        /// </summary>
-        public static string DbFunctionAggregateCustomTranslation([CanBeNull] object function)
-            => string.Format(
-                GetString("DbFunctionAggregateCustomTranslation", nameof(function)),
-                function);
-
-        /// <summary>
         ///     The provided DbFunction expression '{expression}' is invalid. The expression should be a lambda expression containing a single method call to the target static method. Default values can be provided as arguments if required. E.g. () =&gt; SomeClass.SomeMethod(null, 0)
         /// </summary>
         public static string DbFunctionExpressionIsNotMethodCall([CanBeNull] object expression)
@@ -163,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expression);
 
         /// <summary>
-        ///     The DbFunction '{function}' is generic. Generic methods are not supported.
+        ///     The DbFunction '{function}' is generic. Mapping generic methods as a DbFunction is not supported.
         /// </summary>
         public static string DbFunctionGenericMethodNotSupported([CanBeNull] object function)
             => string.Format(
@@ -187,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 function, type);
 
         /// <summary>
-        ///     The DbFunction '{function}' has an invalid return type '{type}'. Non-scalar functions must return IQueryable of a valid entity type.
+        ///     The DbFunction '{function}' has an invalid return type '{type}'. Non-scalar functions must return 'IQueryable' of a valid entity type.
         /// </summary>
         public static string DbFunctionInvalidIQueryableReturnType([CanBeNull] object function, [CanBeNull] object type)
             => string.Format(
@@ -211,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 parameter, function, type);
 
         /// <summary>
-        ///     The DbFunction '{function}' returns '{type}', but `{elementType}` is not a mapped entity type. Ensure that `{elementType}` is included in the model.
+        ///     The DbFunction '{function}' returns '{type}', but '{elementType}' is not a mapped entity type. Ensure that '{elementType}' is included in the model.
         /// </summary>
         public static string DbFunctionInvalidReturnEntityType([CanBeNull] object function, [CanBeNull] object type, [CanBeNull] object elementType)
             => string.Format(
@@ -227,11 +219,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 function, type);
 
         /// <summary>
-        ///     Cannot set custom translation on the DbFunction '{function}' since it is a table valued function.
+        ///     Cannot set custom translation on the DbFunction '{function}' since it is not a scalar function.
         /// </summary>
-        public static string DbFunctionTableValuedCustomTranslation([CanBeNull] object function)
+        public static string DbFunctionNonScalarCustomTranslation([CanBeNull] object function)
             => string.Format(
-                GetString("DbFunctionTableValuedCustomTranslation", nameof(function)),
+                GetString("DbFunctionNonScalarCustomTranslation", nameof(function)),
                 function);
 
         /// <summary>
@@ -538,7 +530,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 column);
 
         /// <summary>
-        ///     FromSqlRaw or FromSqlInterpolated was called with non-composable SQL and with a query composing over it. Consider calling `AsEnumerable` after the FromSqlRaw or FromSqlInterpolated method to perform the composition on the client side.
+        ///     'FromSqlRaw' or 'FromSqlInterpolated' was called with non-composable SQL and with a query composing over it. Consider calling 'AsEnumerable' after the method to perform the composition on the client side.
         /// </summary>
         public static string FromSqlNonComposable
             => GetString("FromSqlNonComposable");
@@ -550,12 +542,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("FunctionOverrideMismatch", nameof(propertySpecification), nameof(function)),
                 propertySpecification, function);
-
-        /// <summary>
-        ///     Data is null. This method or property cannot be called on null values.
-        /// </summary>
-        public static string GetXMethodOnNullData
-            => GetString("GetXMethodOnNullData");
 
         /// <summary>
         ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the comment '{comment}' does not match the comment '{otherComment}'.
@@ -646,7 +632,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 valuesCount, columnsCount, table);
 
         /// <summary>
-        ///     Not enough information to uniquely identify outer element in correlated collection scenario. This can happen when trying to correlate on keyless entity or when using 'Distinct' or 'GroupBy' operations without projecting all of the key columns.
+        ///     Unable to translate collection subquery in projection since the parent query doesn't project key columns of all of it's tables which are required to generate results on client side. This can happen when trying to correlate on keyless entity or when using 'Distinct' or 'GroupBy' operations without projecting all of the key columns.
         /// </summary>
         public static string InsufficientInformationToIdentifyOuterElementOfCollectionJoin
             => GetString("InsufficientInformationToIdentifyOuterElementOfCollectionJoin");
@@ -666,10 +652,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 derivedType, entityType);
 
         /// <summary>
-        ///     Invalid keySelector for GroupBy.
+        ///     The grouping key '{keySelector}' is of type '{keyType}' which is not valid key. 
         /// </summary>
-        public static string InvalidKeySelectorForGroupBy
-            => GetString("InvalidKeySelectorForGroupBy");
+        public static string InvalidKeySelectorForGroupBy([CanBeNull] object keySelector, [CanBeNull] object keyType)
+            => string.Format(
+                GetString("InvalidKeySelectorForGroupBy", nameof(keySelector), nameof(keyType)),
+                keySelector, keyType);
 
         /// <summary>
         ///     The entity type '{entityType}' is mapped to the DbFunction named '{functionName}' and it's derived from '{baseEntityType}'. Derived entity types cannot be mapped to a function.
@@ -716,7 +704,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("InvalidMinBatchSize");
 
         /// <summary>
-        ///     Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an OrderBy clause on the sequence before calling '{method}'.
+        ///     Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an 'OrderBy' clause on the sequence before calling '{method}'.
         /// </summary>
         public static string LastUsedWithoutOrderBy([CanBeNull] object method)
             => string.Format(
@@ -730,6 +718,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("MappedFunctionNotFound", nameof(entityType), nameof(functionName)),
                 entityType, functionName);
+
+        /// <summary>
+        ///     Using '{methodName}' on DbSet of '{entityType}' is not supported since '{entityType}' is part of hierarchy and does not contain a discriminator property.
+        /// </summary>
+        public static string MethodOnNonTPHRootNotSupported([CanBeNull] object methodName, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("MethodOnNonTPHRootNotSupported", nameof(methodName), nameof(entityType)),
+                methodName, entityType);
 
         /// <summary>
         ///     The migration '{migrationName}' was not found.
@@ -748,7 +744,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, missingColumn, table);
 
         /// <summary>
-        ///     Collection subquery that uses 'Distinct' or 'Group By' operations must project key columns of all of it's tables. Missing column: {column}. Either add column(s) to the projection or rewrite query to not use 'GroupBy'/'Distinct' operation.
+        ///     Unable to translate collection subquery in projection since it uses 'Distinct' or 'Group By' operations and doesn't project key columns of all of it's tables which are required to generate results on client side. Missing column: {column}. Either add column(s) to the projection or rewrite query to not use 'GroupBy'/'Distinct' operation.
         /// </summary>
         public static string MissingIdentifyingProjectionInDistinctGroupBySubquery([CanBeNull] object column)
             => string.Format(
@@ -758,8 +754,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Reverse could not be translated to the server because there is no ordering on the server side.
         /// </summary>
-        public static string MissingOrderingInSqlExpression
-            => GetString("MissingOrderingInSqlExpression");
+        public static string MissingOrderingInSelectExpression
+            => GetString("MissingOrderingInSelectExpression");
 
         /// <summary>
         ///     No value provided for required parameter '{parameter}'.
@@ -822,12 +818,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("NoneRelationalTypeMappingOnARelationalTypeMappingSource");
 
         /// <summary>
-        ///     Using '{memberName}' on DbSet of '{entityType}' is not supported since '{entityType}' is part of hierarchy and does not contain a discriminator property.
+        ///     Cannot set 'IsNullable' on DbFunction '{functionName}' since the function does not represent a scalar function.
         /// </summary>
-        public static string NonTPHOnFromSqlNotSupported([CanBeNull] object memberName, [CanBeNull] object entityType)
+        public static string NonScalarFunctionCannotBeNullable([CanBeNull] object functionName)
             => string.Format(
-                GetString("NonTPHOnFromSqlNotSupported", nameof(memberName), nameof(entityType)),
-                memberName, entityType);
+                GetString("NonScalarFunctionCannotBeNullable", nameof(functionName)),
+                functionName);
+
+        /// <summary>
+        ///     Cannot set 'PropagatesNullability' on parameter '{parameterName}' of DbFunction '{functionName}' since function does not represent a scalar function.
+        /// </summary>
+        public static string NonScalarFunctionParameterCannotPropagatesNullability([CanBeNull] object parameterName, [CanBeNull] object functionName)
+            => string.Format(
+                GetString("NonScalarFunctionParameterCannotPropagatesNullability", nameof(parameterName), nameof(functionName)),
+                parameterName, functionName);
 
         /// <summary>
         ///     Both '{entityType}' and '{otherEntityType}' are mapped to the table '{table}'. All the entity types in a hierarchy that don't have a discriminator must be mapped to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
@@ -852,20 +856,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("NoProviderConfigured");
 
         /// <summary>
-        ///     The subquery '{subquery}' references type '{type}' for which no type mapping could be found.
-        /// </summary>
-        public static string NoTypeMappingFoundForSubquery([CanBeNull] object subquery, [CanBeNull] object type)
-            => string.Format(
-                GetString("NoTypeMappingFoundForSubquery", nameof(subquery), nameof(type)),
-                subquery, type);
-
-        /// <summary>
-        ///     Nullability information should only be specified for scalar database functions.
-        /// </summary>
-        public static string NullabilityInfoOnlyAllowedOnScalarFunctions
-            => GetString("NullabilityInfoOnlyAllowedOnScalarFunctions");
-
-        /// <summary>
         ///     Expression '{sqlExpression}' in SQL tree does not have type mapping assigned.
         /// </summary>
         public static string NullTypeMappingInSqlTree([CanBeNull] object sqlExpression)
@@ -888,7 +878,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("PendingAmbientTransaction");
 
         /// <summary>
-        ///     Different projection mapping count in set operation.
+        ///     Unable to translate set operation when both sides don't assign values to same properties in the nominal type. Please make sure that the properties are inclued on both sides, consider assigning default value if the property doesn't require a specific value.
         /// </summary>
         public static string ProjectionMappingCountMismatch
             => GetString("ProjectionMappingCountMismatch");
@@ -900,12 +890,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("PropertyNotMappedToTable", nameof(property), nameof(entityType), nameof(table)),
                 property, entityType, table);
-
-        /// <summary>
-        ///     Unable to identify the concrete entity type to materialize in TPT hierarchy.
-        /// </summary>
-        public static string QueryUnableToIdentifyConcreteTypeInTPT
-            => GetString("QueryUnableToIdentifyConcreteTypeInTPT");
 
         /// <summary>
         ///     The entity type '{entityType}' is not mapped to a table, therefore the entities cannot be persisted to the database. Use 'ToTable' in 'OnModelCreating' to map it.
@@ -930,19 +914,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     Sequence contains no elements.
-        /// </summary>
-        public static string SequenceContainsNoElements
-            => GetString("SequenceContainsNoElements");
-
-        /// <summary>
-        ///     Can't process set operations after client evaluation, consider moving the operation before the last 'Select' call (see issue #16243).
+        ///     Unable to  translate set operation after client projection has been applied. Consider moving the set operation before the last 'Select' call.
         /// </summary>
         public static string SetOperationsNotAllowedAfterClientEvaluation
             => GetString("SetOperationsNotAllowedAfterClientEvaluation");
 
         /// <summary>
-        ///     Set operations over different store types are currently unsupported.
+        ///     Unable to translate set operation when matching columns on both sides have different store types.
         /// </summary>
         public static string SetOperationsOnDifferentStoreTypes
             => GetString("SetOperationsOnDifferentStoreTypes");
@@ -1002,10 +980,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 seconds);
 
         /// <summary>
-        ///     The underlying reader doesn't have as many fields as expected.
+        ///     The underlying reader doesn't have as many fields as expected. Expected: {expected}, actual: {actual}.
         /// </summary>
-        public static string TooFewReaderFields
-            => GetString("TooFewReaderFields");
+        public static string TooFewReaderFields([CanBeNull] object expected, [CanBeNull] object actual)
+            => string.Format(
+                GetString("TooFewReaderFields", nameof(expected), nameof(actual)),
+                expected, actual);
 
         /// <summary>
         ///     '{entityType}' is mapped to the table '{table}' while '{otherEntityType}' is mapped to the table '{otherTable}'. Map all the entity types in the hierarchy to the same table or remove the discriminator and map all of them to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
@@ -1052,11 +1032,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 splitQueryEnumValue, splitQueryMethodName, singleQueryMethodName);
 
         /// <summary>
-        ///     Unknown expression '{expression}' of type - '{expressionType}' encountered in '{visitor}'.
+        ///     Unhandled expression '{expression}' of type '{expressionType}' encountered in '{visitor}'.
         /// </summary>
-        public static string UnknownExpressionType([CanBeNull] object expression, [CanBeNull] object expressionType, [CanBeNull] object visitor)
+        public static string UnhandledExpressionInVisitor([CanBeNull] object expression, [CanBeNull] object expressionType, [CanBeNull] object visitor)
             => string.Format(
-                GetString("UnknownExpressionType", nameof(expression), nameof(expressionType), nameof(visitor)),
+                GetString("UnhandledExpressionInVisitor", nameof(expression), nameof(expressionType), nameof(visitor)),
                 expression, expressionType, visitor);
 
         /// <summary>
@@ -1066,14 +1046,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("UnknownOperation", nameof(sqlGeneratorType), nameof(operationType)),
                 sqlGeneratorType, operationType);
-
-        /// <summary>
-        ///     Non-matching or unknown projection mapping type in set operation ({type1} and {type2}).
-        /// </summary>
-        public static string UnknownProjectionMappingType([CanBeNull] object type1, [CanBeNull] object type2)
-            => string.Format(
-                GetString("UnknownProjectionMappingType", nameof(type1), nameof(type2)),
-                type1, type2);
 
         /// <summary>
         ///     The store type '{type}' used for the column '{column}' in a migration data operation is not supported by the current provider.
@@ -1186,7 +1158,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 propertySpecification, table);
 
         /// <summary>
-        ///     VisitChildren must be overridden in class deriving from SqlExpression.
+        ///     'VisitChildren' must be overridden in the class deriving from 'SqlExpression'.
         /// </summary>
         public static string VisitChildrenMustBeOverridden
             => GetString("VisitChildrenMustBeOverridden");
@@ -2293,7 +2265,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Rolled back to transaction savepoint..
+        ///     Rolled back to transaction savepoint.
         /// </summary>
         public static EventDefinition LogRolledBackToTransactionSavepoint([NotNull] IDiagnosticsLogger logger)
         {

@@ -1437,7 +1437,7 @@ ORDER BY [c].[CustomerID], [o].[OrderID], [o0].[OrderID]");
         public override Task Reverse_without_explicit_ordering_throws(bool async)
         {
             return AssertTranslationFailedWithDetails(
-                () => base.Reverse_without_explicit_ordering_throws(async), RelationalStrings.MissingOrderingInSqlExpression);
+                () => base.Reverse_without_explicit_ordering_throws(async), RelationalStrings.MissingOrderingInSelectExpression);
         }
 
         public override async Task Custom_projection_reference_navigation_PK_to_FK_optimization(bool async)

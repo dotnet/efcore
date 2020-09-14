@@ -827,7 +827,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     throw new InvalidOperationException(
 #pragma warning disable CS0612 // Type or member is obsolete
-                        CoreStrings.IncludeOnEntityWithDefiningQueryNotSupported(entityReference.EntityType.DisplayName()));
+                        CoreStrings.IncludeOnEntityWithDefiningQueryNotSupported(expression, entityReference.EntityType.DisplayName()));
 #pragma warning restore CS0612 // Type or member is obsolete
                 }
 #pragma warning restore CS0618 // Type or member is obsolete
@@ -869,11 +869,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     var (result, filterExpression) = ExtractIncludeFilter(includeLambda.Body, includeLambda.Body);
                     var lastIncludeTree = PopulateIncludeTree(currentIncludeTreeNode, result);
-                    if (lastIncludeTree == null)
-                    {
-                        throw new InvalidOperationException(CoreStrings.InvalidLambdaExpressionInsideInclude);
-                    }
-
                     if (filterExpression != null)
                     {
                         if (lastIncludeTree.FilterExpression != null
@@ -894,7 +889,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return source;
             }
 
-            throw new InvalidOperationException(CoreStrings.IncludeOnNonEntity);
+            throw new InvalidOperationException(CoreStrings.IncludeOnNonEntity(expression.Print()));
 
             static (Expression result, LambdaExpression filterExpression) ExtractIncludeFilter(
                 Expression currentExpression,
@@ -1749,7 +1744,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             .FirstOrDefault(et => et.ClrType == convertedType);
                         if (entityType == null)
                         {
-                            throw new InvalidOperationException(CoreStrings.InvalidTypeConversationWithInclude);
+                            throw new InvalidOperationException(
+                                CoreStrings.InvalidTypeConversationWithInclude(expression, convertedType.ShortDisplayName()));
                         }
                     }
 
@@ -1778,7 +1774,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     break;
             }
 
-            return null;
+            throw new InvalidOperationException(CoreStrings.InvalidIncludeExpression(expression));
         }
 
         private Expression Reduce(Expression source)

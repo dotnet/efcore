@@ -966,7 +966,7 @@ CREATE TABLE DependentTable (
                             .EventId, Id);
                     Assert.Equal(
                         SqliteResources.LogForeignKeyScaffoldErrorPrincipalTableNotFound(new TestLogger<SqliteLoggingDefinitions>())
-                            .GenerateMessage("0"), Message);
+                            .GenerateMessage("0", "DependentTable", "PrincipalTable"), Message);
                 },
                 @"
 DROP TABLE DependentTable;

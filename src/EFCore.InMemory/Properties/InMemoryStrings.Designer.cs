@@ -22,26 +22,18 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.InMemory.Properties.InMemoryStrings", typeof(InMemoryStrings).Assembly);
 
         /// <summary>
-        ///     Cannot apply DefaultIfEmpty after a client-evaluated projection.
+        ///     Cannot apply 'DefaultIfEmpty' after a client-evaluated projection. Consider applying 'DefaultIfEmpty' before last 'Select' or use 'AsEnumerable' before 'DefaultIfEmpty' to apply it on client-side.
         /// </summary>
         public static string DefaultIfEmptyAppliedAfterProjection
             => GetString("DefaultIfEmptyAppliedAfterProjection");
 
         /// <summary>
-        ///     'UpdateEntityType' called with '{derivedType}' which is not derived type of '{entityType}'.
+        ///     The specified entity type '{derivedType}' is not derived from '{entityType}'.
         /// </summary>
         public static string InvalidDerivedTypeInEntityProjection([CanBeNull] object derivedType, [CanBeNull] object entityType)
             => string.Format(
                 GetString("InvalidDerivedTypeInEntityProjection", nameof(derivedType), nameof(entityType)),
                 derivedType, entityType);
-
-        /// <summary>
-        ///     Invalid {state} encountered.
-        /// </summary>
-        public static string InvalidStateEncountered([CanBeNull] object state)
-            => string.Format(
-                GetString("InvalidStateEncountered", nameof(state)),
-                state);
 
         /// <summary>
         ///     There is no query string because the in-memory provider does not use a string-based query language.
