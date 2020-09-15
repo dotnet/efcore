@@ -447,6 +447,9 @@
   <data name="FkAttributeOnPropertyNavigationMismatch" xml:space="preserve">
     <value>The [ForeignKey] attributes on property '{property}' and navigation '{navigation}' in entity type '{entityType}' do not point at each other. The value of the [ForeignKey] attribute on the property should be navigation name, and the value of the [ForeignKey] attribute on the navigation should be the foreign key property name.</value>
   </data>
+  <data name="FkAttributeOnSkipNavigation" xml:space="preserve">
+    <value>The [ForeignKey] attribute cannot be specified on the skip navigation '{entityType}'.'{navigation}'. Configure the foreign key properties in 'OnModelCreating' instead.</value>
+  </data>
   <data name="ForeignKeyCountMismatch" xml:space="preserve">
     <value>The number of properties specified for the foreign key {foreignKeyProperties} on entity type '{dependentType}' does not match the number of properties in the principal key {principalKey} on entity type '{principalType}'.</value>
   </data>
