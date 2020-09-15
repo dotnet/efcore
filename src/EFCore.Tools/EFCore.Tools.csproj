@@ -22,6 +22,7 @@ Scaffold-DbContext
 Script-Migration
 Update-Database
   </Description>
+    <CheckEolTargetFramework>False</CheckEolTargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
