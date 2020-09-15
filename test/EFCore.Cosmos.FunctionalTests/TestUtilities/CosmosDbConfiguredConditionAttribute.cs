@@ -8,6 +8,10 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
+#if NET5_0
+using System.Net;
+#endif
+
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Assembly)]
@@ -67,7 +71,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private static bool IsNotConfigured(Exception exception)
             => exception switch
             {
-                HttpRequestException re => re.InnerException is SocketException,
+                HttpRequestException re => re.InnerException is SocketException
+#if NET5_0
+                    || (re.InnerException is NetworkException networkException
+                        && networkException.InnerException is SocketException)
+#endif
+                    ,
                 _ => exception.Message.Contains(
                     "The input authorization token can't serve the request. Please check that the expected payload is built as per the protocol, and check the key being used.",
                     StringComparison.Ordinal),
