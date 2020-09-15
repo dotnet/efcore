@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -342,6 +343,55 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         () => modelBuilder.Entity<ManyToManyNavPrincipal>()
                             .HasMany<NavDependent>( /* leaving empty causes the exception */)
                             .WithMany(d => d.ManyToManyPrincipals)).Message);
+            }
+
+            [ConditionalFact]
+            public virtual void Throws_for_ForeignKeyAttribute_on_navigation()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<CategoryWithAttribute>();
+
+                Assert.Equal(
+                    CoreStrings.FkAttributeOnSkipNavigation(
+                        nameof(ProductWithAttribute), nameof(Product.Categories)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.FinalizeModel()).Message);
+            }
+
+            [ConditionalFact]
+            public virtual void Overrides_ForeignKeyAttribute()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<CategoryWithAttribute>()
+                    .HasMany(e => e.Products)
+                    .WithMany(e => e.Categories)
+                    .UsingEntity<Dictionary<string, object>>(
+                        "ProductCategory",
+                        e => e.HasOne<ProductWithAttribute>().WithMany().HasForeignKey("ProductKey"),
+                        e => e.HasOne<CategoryWithAttribute>().WithMany().HasForeignKey("CategoryKey"));
+
+                var model = modelBuilder.FinalizeModel();
+
+                var category = model.FindEntityType(typeof(CategoryWithAttribute));
+                var productsNavigation = category.GetSkipNavigations().Single();
+                var categoryFk = productsNavigation.ForeignKey;
+                Assert.Equal("CategoryKey", categoryFk.Properties.Single().Name);
+            }
+
+            protected class ProductWithAttribute
+            {
+                public int Id { get; set; }
+
+                [ForeignKey("ProductId")]
+                public virtual ICollection<CategoryWithAttribute> Categories { get; set; }
+            }
+
+            protected class CategoryWithAttribute
+            {
+                public int Id { get; set; }
+                public virtual ICollection<ProductWithAttribute> Products { get; set; }
             }
 
             [ConditionalFact]
