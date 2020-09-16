@@ -684,6 +684,78 @@ namespace TestNamespace
                 model => { });
         }
 
+        [ConditionalFact]
+        public void Column_type_is_not_scaffolded_as_annotation()
+        {
+            Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "Employee",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<DateTime>("HireDate").HasColumnType("date").HasColumnName("hiring_date");
+                        }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = false },
+                code =>
+                {
+                    AssertFileContents(
+                        @"using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+
+#nullable disable
+
+namespace TestNamespace
+{
+    public partial class TestDbContext : DbContext
+    {
+        public TestDbContext()
+        {
+        }
+
+        public TestDbContext(DbContextOptions<TestDbContext> options)
+            : base(options)
+        {
+        }
+
+        public virtual DbSet<Employee> Employee { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning "
+                        + DesignStrings.SensitiveInformationWarning
+                        + @"
+                optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+            }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Employee>(entity =>
+            {
+                entity.Property(e => e.Id).UseIdentityColumn();
+
+                entity.Property(e => e.HireDate)
+                    .HasColumnType(""date"")
+                    .HasColumnName(""hiring_date"");
+            });
+
+            OnModelCreatingPartial(modelBuilder);
+        }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    }
+}
+",
+                        code.ContextFile);
+                },
+                model =>
+                    Assert.Equal("date", model.FindEntityType("TestNamespace.Employee").GetProperty("HireDate").GetConfiguredColumnType()));
+        }
+
         private class TestCodeGeneratorPlugin : ProviderCodeGeneratorPlugin
         {
             public override MethodCallCodeFragment GenerateProviderOptions()
