@@ -582,15 +582,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
 
                 var columnType = property.GetConfiguredColumnType();
-
                 if (columnType != null)
                 {
                     lines.Add(
                         $".{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}({_code.Literal(columnType)})");
+                    annotations.Remove(RelationalAnnotationNames.ColumnType);
                 }
 
                 var maxLength = property.GetMaxLength();
-
                 if (maxLength.HasValue)
                 {
                     lines.Add(

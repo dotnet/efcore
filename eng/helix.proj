@@ -8,7 +8,7 @@
 
     <IncludeDotNetCli>true</IncludeDotNetCli>
     <DotNetCliPackageType>sdk</DotNetCliPackageType>
-    <DotNetCliVersion>5.0.100-preview.8.20417.9</DotNetCliVersion>
+    <DotNetCliVersion>5.0.100-rc.1.20452.10</DotNetCliVersion>
 
     <EnableAzurePipelinesReporter>true</EnableAzurePipelinesReporter>
     <FailOnTestFailure>true</FailOnTestFailure>
