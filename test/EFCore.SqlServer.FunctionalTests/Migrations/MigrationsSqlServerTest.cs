@@ -19,7 +19,7 @@ using Xunit.Abstractions;
 
 #nullable enable
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class MigrationsSqlServerTest : MigrationsTestBase<MigrationsSqlServerTest.MigrationsSqlServerFixture>
     {

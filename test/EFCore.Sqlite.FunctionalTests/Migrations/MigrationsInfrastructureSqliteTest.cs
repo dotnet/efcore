@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using ModelSnapshot22;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class MigrationsInfrastructureSqliteTest
         : MigrationsInfrastructureTestBase<MigrationsInfrastructureSqliteTest.MigrationsInfrastructureSqliteFixture>

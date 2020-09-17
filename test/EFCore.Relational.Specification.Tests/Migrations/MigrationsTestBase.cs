@@ -20,7 +20,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : MigrationsTestBase<TFixture>.MigrationsFixtureBase, new()

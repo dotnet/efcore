@@ -16,7 +16,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore.Migrations
 {
     [SqlServerCondition(SqlServerCondition.IsNotSqlAzure | SqlServerCondition.IsNotCI)]
     public class MigrationsInfrastructureSqlServerTest

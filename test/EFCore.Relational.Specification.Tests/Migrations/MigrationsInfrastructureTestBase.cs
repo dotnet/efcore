@@ -14,7 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : MigrationsInfrastructureFixtureBase, new()
