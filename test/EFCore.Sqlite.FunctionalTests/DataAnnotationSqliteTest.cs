@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -10,7 +9,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class DataAnnotationSqliteTest : DataAnnotationTestBase<DataAnnotationSqliteTest.DataAnnotationSqliteFixture>
+    public class DataAnnotationSqliteTest : DataAnnotationRelationalTestBase<DataAnnotationSqliteTest.DataAnnotationSqliteFixture>
     {
         // ReSharper disable once UnusedParameter.Local
         public DataAnnotationSqliteTest(DataAnnotationSqliteFixture fixture, ITestOutputHelper testOutputHelper)
@@ -165,12 +164,10 @@ WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();");
             Assert.True(context.Model.FindEntityType(typeof(Two)).FindProperty("Timestamp").IsConcurrencyToken);
         }
 
-        private static readonly string _eol = Environment.NewLine;
-
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
-        public class DataAnnotationSqliteFixture : DataAnnotationFixtureBase
+        public class DataAnnotationSqliteFixture : DataAnnotationRelationalFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory
                 => SqliteTestStoreFactory.Instance;

@@ -15,7 +15,7 @@ using Xunit.Abstractions;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public class DataAnnotationSqlServerTest : DataAnnotationTestBase<DataAnnotationSqlServerTest.DataAnnotationSqlServerFixture>
+    public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<DataAnnotationSqlServerTest.DataAnnotationSqlServerFixture>
     {
         // ReSharper disable once UnusedParameter.Local
         public DataAnnotationSqlServerTest(DataAnnotationSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -276,7 +276,7 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
-        public class DataAnnotationSqlServerFixture : DataAnnotationFixtureBase
+        public class DataAnnotationSqlServerFixture : DataAnnotationRelationalFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory
                 => SqlServerTestStoreFactory.Instance;
