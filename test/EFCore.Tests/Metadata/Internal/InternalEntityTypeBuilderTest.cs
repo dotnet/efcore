@@ -1225,10 +1225,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotEmpty(entityType.GetKeys());
 
             Assert.Equal(
-                CoreStrings.KeylessTypeExistingKey(nameof(Order)),
+                CoreStrings.KeylessTypeExistingKey(nameof(Order), "{'CustomerId'}"),
                 Assert.Throws<InvalidOperationException>(
-                    () =>
-                        entityBuilder.HasNoKey(ConfigurationSource.Explicit)).Message);
+                    () => entityBuilder.HasNoKey(ConfigurationSource.Explicit)).Message);
             Assert.NotEmpty(entityType.GetKeys());
         }
 

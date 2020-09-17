@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 table);
 
         /// <summary>
-        ///     The provided DbFunction expression '{expression}' is invalid. The expression should be a lambda expression containing a single method call to the target static method. Default values can be provided as arguments if required. E.g. () =&gt; SomeClass.SomeMethod(null, 0)
+        ///     The provided DbFunction expression '{expression}' is invalid. The expression should be a lambda expression containing a single method call to the target static method. Default values can be provided as arguments if required. E.g. '() =&gt; SomeClass.SomeMethod(null, 0)'.
         /// </summary>
         public static string DbFunctionExpressionIsNotMethodCall([CanBeNull] object expression)
             => string.Format(
@@ -380,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType1, property1, entityType2, property2, columnName, table, scale1, scale2);
 
         /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different unicode configuration
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different unicode configuration.
         /// </summary>
         public static string DuplicateColumnNameUnicodenessMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table)
             => string.Format(
@@ -652,7 +652,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 derivedType, entityType);
 
         /// <summary>
-        ///     The grouping key '{keySelector}' is of type '{keyType}' which is not valid key. 
+        ///     The grouping key '{keySelector}' is of type '{keyType}' which is not valid key.
         /// </summary>
         public static string InvalidKeySelectorForGroupBy([CanBeNull] object keySelector, [CanBeNull] object keyType)
             => string.Format(
@@ -668,7 +668,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, functionName, baseEntityType);
 
         /// <summary>
-        ///     The entity type '{entityType}' is mapped to the DbFunction named '{functionName}' with return type '{returnType}'. Ensure that mapped function returns `IQueryable&lt;{clrType}&gt;`.
+        ///     The entity type '{entityType}' is mapped to the DbFunction named '{functionName}' with return type '{returnType}'. Ensure that mapped function returns 'IQueryable&lt;{clrType}&gt;'.
         /// </summary>
         public static string InvalidMappedFunctionUnmatchedReturn([CanBeNull] object entityType, [CanBeNull] object functionName, [CanBeNull] object returnType, [CanBeNull] object clrType)
             => string.Format(
@@ -1955,7 +1955,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Compiling a query which loads related collections for more than one collection navigation either via 'Include' or through projection but no 'QuerySplittingBehavior' has been configured. By default Entity Framework will use 'QuerySplittingBehavior.SingleQuery' which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w =&gt; w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'
+        ///     Compiling a query which loads related collections for more than one collection navigation either via 'Include' or through projection but no 'QuerySplittingBehavior' has been configured. By default Entity Framework will use 'QuerySplittingBehavior.SingleQuery' which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w =&gt; w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
         /// </summary>
         public static EventDefinition LogMultipleCollectionIncludeWarning([NotNull] IDiagnosticsLogger logger)
         {

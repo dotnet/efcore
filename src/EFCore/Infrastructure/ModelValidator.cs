@@ -491,7 +491,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                         if (!reachableTypes.Add(principalType))
                         {
-                            throw new InvalidOperationException(CoreStrings.IdentifyingRelationshipCycle(rootEntityType.DisplayName()));
+                            throw new InvalidOperationException(CoreStrings.IdentifyingRelationshipCycle(
+                                rootEntityType.DisplayName(),
+                                primaryKey.Properties.Format()));
                         }
 
                         typesToValidate.Enqueue(principalType);
@@ -578,7 +580,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         if (!baseEntityType.IsAssignableFrom(entityType))
                         {
                             throw new InvalidOperationException(
-                                CoreStrings.InconsistentInheritance(entityType.DisplayName(), baseEntityType.DisplayName()));
+                                CoreStrings.InconsistentInheritance(
+                                    entityType.DisplayName(), entityType.BaseType.DisplayName(), baseEntityType.DisplayName()));
                         }
 
                         break;
@@ -714,7 +717,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 var ownerships = entityType.GetForeignKeys().Where(fk => fk.IsOwnership).ToList();
                 if (ownerships.Count > 1)
                 {
-                    throw new InvalidOperationException(CoreStrings.MultipleOwnerships(entityType.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.MultipleOwnerships(
+                        entityType.DisplayName(),
+                        string.Join(", ",
+                            ownerships.Select(o => $"'{o.PrincipalEntityType.DisplayName()}.{o.PrincipalToDependent?.Name}'"))));
                 }
 
                 if (ownerships.Count == 1)

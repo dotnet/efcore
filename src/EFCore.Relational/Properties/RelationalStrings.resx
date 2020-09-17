@@ -169,7 +169,7 @@
     <value>There is no entity type mapped to the table '{table}' used in a data operation. Either add the corresponding entity type to the model or specify the column types in the data operation.</value>
   </data>
   <data name="DbFunctionExpressionIsNotMethodCall" xml:space="preserve">
-    <value>The provided DbFunction expression '{expression}' is invalid. The expression should be a lambda expression containing a single method call to the target static method. Default values can be provided as arguments if required. E.g. () =&gt; SomeClass.SomeMethod(null, 0)</value>
+    <value>The provided DbFunction expression '{expression}' is invalid. The expression should be a lambda expression containing a single method call to the target static method. Default values can be provided as arguments if required. E.g. '() =&gt; SomeClass.SomeMethod(null, 0)'.</value>
   </data>
   <data name="DbFunctionGenericMethodNotSupported" xml:space="preserve">
     <value>The DbFunction '{function}' is generic. Mapping generic methods as a DbFunction is not supported.</value>
@@ -257,7 +257,7 @@
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different scale ('{scale1}' and '{scale2}').</value>
   </data>
   <data name="DuplicateColumnNameUnicodenessMismatch" xml:space="preserve">
-    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different unicode configuration</value>
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different unicode configuration.</value>
   </data>
   <data name="DuplicateForeignKeyColumnMismatch" xml:space="preserve">
     <value>The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but use different columns ({columnNames1} and {columnNames2}).</value>
@@ -362,13 +362,13 @@
     <value>The specified entity type '{derivedType}' is not derived from '{entityType}'.</value>
   </data>
   <data name="InvalidKeySelectorForGroupBy" xml:space="preserve">
-    <value>The grouping key '{keySelector}' is of type '{keyType}' which is not valid key. </value>
+    <value>The grouping key '{keySelector}' is of type '{keyType}' which is not valid key.</value>
   </data>
   <data name="InvalidMappedFunctionDerivedType" xml:space="preserve">
     <value>The entity type '{entityType}' is mapped to the DbFunction named '{functionName}' and it's derived from '{baseEntityType}'. Derived entity types cannot be mapped to a function.</value>
   </data>
   <data name="InvalidMappedFunctionUnmatchedReturn" xml:space="preserve">
-    <value>The entity type '{entityType}' is mapped to the DbFunction named '{functionName}' with return type '{returnType}'. Ensure that mapped function returns `IQueryable&lt;{clrType}&gt;`.</value>
+    <value>The entity type '{entityType}' is mapped to the DbFunction named '{functionName}' with return type '{returnType}'. Ensure that mapped function returns 'IQueryable&lt;{clrType}&gt;'.</value>
   </data>
   <data name="InvalidMappedFunctionWithParameters" xml:space="preserve">
     <value>The entity type '{entityType}' is mapped to the DbFunction named '{functionName}' with parameters {parameters}. Ensure that mapped function doesn't have any parameters.</value>
@@ -514,7 +514,7 @@
     <comment>Warning RelationalEventId.MigrationAttributeMissingWarning string</comment>
   </data>
   <data name="LogMultipleCollectionIncludeWarning" xml:space="preserve">
-    <value>Compiling a query which loads related collections for more than one collection navigation either via 'Include' or through projection but no 'QuerySplittingBehavior' has been configured. By default Entity Framework will use 'QuerySplittingBehavior.SingleQuery' which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w =&gt; w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'</value>
+    <value>Compiling a query which loads related collections for more than one collection navigation either via 'Include' or through projection but no 'QuerySplittingBehavior' has been configured. By default Entity Framework will use 'QuerySplittingBehavior.SingleQuery' which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w =&gt; w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.</value>
     <comment>Warning RelationalEventId.MultipleCollectionIncludeWarning</comment>
   </data>
   <data name="LogNamedIndexAllPropertiesNotToMappedToAnyTable" xml:space="preserve">

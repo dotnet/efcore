@@ -2786,7 +2786,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<Order>();
 
                 Assert.Equal(
-                    CoreStrings.ForeignKeyTypeMismatch("{'GuidProperty'}", nameof(CustomerDetails), "{'Id'}", nameof(Customer)),
+                    CoreStrings.ForeignKeyTypeMismatch("{'GuidProperty' : Guid}", nameof(CustomerDetails), "{'Id' : int}", nameof(Customer)),
                     Assert.Throws<InvalidOperationException>(
                         () => modelBuilder
                             .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
@@ -2826,7 +2826,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<Order>();
 
                 Assert.Equal(
-                    CoreStrings.ForeignKeyTypeMismatch("{'GuidProperty'}", nameof(CustomerDetails), "{'Id'}", nameof(Customer)),
+                    CoreStrings.ForeignKeyTypeMismatch("{'GuidProperty' : Guid}", nameof(CustomerDetails), "{'Id' : int}", nameof(Customer)),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             modelBuilder
@@ -3608,7 +3608,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
                 Assert.Equal(
-                    CoreStrings.MultipleNavigationsSameFk(typeof(Zeta).Name, "CommonFkProperty"),
+                    CoreStrings.MultipleNavigationsSameFk(typeof(Zeta).Name, "CommonFkProperty", "'AlphaOne', 'AlphaTwo'"),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Zeta>().HasOne<Alpha>().WithOne()).Message);
             }
 
