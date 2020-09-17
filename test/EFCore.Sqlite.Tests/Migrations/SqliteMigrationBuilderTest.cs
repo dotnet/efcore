@@ -4,7 +4,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class SqliteMigrationBuilderTest
     {

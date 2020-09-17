@@ -701,8 +701,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 columnModifications = columnModifications.Where(c => !c.IsWrite).ToArray();
             }
 
-            return new FakeModificationCommand(
-                "Ducks", Schema, new ParameterNameGenerator().GenerateNext, false, columnModifications);
+            return new ModificationCommand("Ducks", Schema, columnModifications, false);
         }
 
         protected ModificationCommand CreateUpdateCommand(bool isComputed = true, bool concurrencyToken = true)
@@ -736,8 +735,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     concurrencyProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, concurrencyToken, true)
             };
 
-            return new FakeModificationCommand(
-                "Ducks", Schema, new ParameterNameGenerator().GenerateNext, false, columnModifications);
+            return new ModificationCommand("Ducks", Schema, columnModifications, false);
         }
 
         protected ModificationCommand CreateDeleteCommand(bool concurrencyToken = true)
@@ -759,8 +757,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     concurrencyProperty.GetTableColumnMappings().Single().TypeMapping, false, false, false, concurrencyToken, true)
             };
 
-            return new FakeModificationCommand(
-                "Ducks", Schema, new ParameterNameGenerator().GenerateNext, false, columnModifications);
+            return new ModificationCommand("Ducks", Schema, columnModifications, false);
         }
 
         protected abstract TestHelpers TestHelpers { get; }
