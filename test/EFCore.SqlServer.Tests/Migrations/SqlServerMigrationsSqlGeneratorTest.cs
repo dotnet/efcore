@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     public class SqlServerMigrationsSqlGeneratorTest : MigrationsSqlGeneratorTestBase
     {
         protected static string SQL_EOL
-            => string.Join(", ", EOL.Select(c => "CHAR(" + (short)c + ")"));
+            => string.Join(", ", EOL.Select(c => "NCHAR(" + (short)c + ")"));
 
         [ConditionalFact]
         public virtual void AddColumnOperation_identity_legacy()
@@ -926,7 +926,7 @@ SELECT @@ROWCOUNT;
             var storeType = isUnicode ? "nvarchar(max)" : "varchar(max)";
             var unicodePrefix = isUnicode ? "N" : string.Empty;
             var expectedSql = @$"CREATE TABLE [dbo].[TestLineBreaks] (
-    [TestDefaultValue] {storeType} NOT NULL DEFAULT CONCAT(CHAR(13), CHAR(10), {unicodePrefix}'Various Line', CHAR(13), {unicodePrefix}'Breaks', CHAR(10))
+    [TestDefaultValue] {storeType} NOT NULL DEFAULT CONCAT({unicodePrefix}CHAR(13), {unicodePrefix}CHAR(10), {unicodePrefix}'Various Line', {unicodePrefix}CHAR(13), {unicodePrefix}'Breaks', {unicodePrefix}CHAR(10))
 );
 ";
             AssertSql(expectedSql);

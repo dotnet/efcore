@@ -1,7 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -55,25 +57,117 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override string GenerateNonNullSqlLiteral(object value)
-            => EscapeLineBreaks(EscapeSqlLiteral((string)value));
-
-        private static readonly char[] LineBreakChars = { '\r', '\n' };
-
-        private static string EscapeLineBreaks(string value)
         {
-            if (value == null
-                || value.IndexOfAny(LineBreakChars) == -1)
+            var stringValue = (string)value;
+            var builder = new StringBuilder();
+
+            var start = 0;
+            int i;
+            int length;
+            var concatenated = false;
+            var openApostrophe = false;
+            for (i = 0; i < stringValue.Length; i++)
             {
-                return $"'{value}'";
+                var lineFeed = stringValue[i] == '\n';
+                var carriageReturn = stringValue[i] == '\r';
+                var apostrophe = stringValue[i] == '\'';
+                if (lineFeed || carriageReturn || apostrophe)
+                {
+                    length = i - start;
+                    if (length != 0)
+                    {
+                        if (!openApostrophe)
+                        {
+                            if (builder.Length != 0)
+                            {
+                                builder.Append(" || ");
+                                concatenated = true;
+                            }
+
+                            builder.Append('\'');
+                            openApostrophe = true;
+                        }
+
+                        builder.Append(stringValue.AsSpan().Slice(start, length));
+                    }
+
+                    if (lineFeed || carriageReturn)
+                    {
+                        if (openApostrophe)
+                        {
+                            builder.Append('\'');
+                            openApostrophe = false;
+                        }
+
+                        if (builder.Length != 0)
+                        {
+                            builder.Append(" || ");
+                            concatenated = true;
+                        }
+
+                        builder
+                            .Append("CHAR(")
+                            .Append(lineFeed ? "10" : "13")
+                            .Append(')');
+
+                    }
+                    else if (apostrophe)
+                    {
+                        if (!openApostrophe)
+                        {
+                            if (builder.Length != 0)
+                            {
+                                builder.Append(" || ");
+                                concatenated = true;
+                            }
+
+                            builder.Append("'");
+                            openApostrophe = true;
+                        }
+
+                        builder.Append("''");
+                    }
+
+                    start = i + 1;
+                }
             }
 
-            return ("('"
-                    + value
-                        .Replace("\r", "' || CHAR(13) || '")
-                        .Replace("\n", "' || CHAR(10) || '")
-                    + "')")
-                .Replace("'' || ", string.Empty)
-                .Replace(" || ''", string.Empty);
+            length = i - start;
+            if (length != 0)
+            {
+                if (!openApostrophe)
+                {
+                    if (builder.Length != 0)
+                    {
+                        builder.Append(" || ");
+                        concatenated = true;
+                    }
+
+                    builder.Append('\'');
+                    openApostrophe = true;
+                }
+
+                builder.Append(stringValue.AsSpan().Slice(start, length));
+            }
+
+            if (openApostrophe)
+            {
+                builder.Append('\'');
+            }
+
+            if (concatenated)
+            {
+                builder
+                    .Insert(0, '(')
+                    .Append(')');
+            }
+
+            if (builder.Length == 0)
+            {
+                builder.Append("''");
+            }
+
+            return builder.ToString();
         }
     }
 }
