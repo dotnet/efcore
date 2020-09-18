@@ -24,7 +24,7 @@ For EF Core 5.0 RC2 daily builds, `NuGet.config` should contain:
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
     <packageSources>
-        <add key="aspnetcore" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet5/nuget/v3/index.json" />
+        <add key="dotnet5" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet5/nuget/v3/index.json" />
         <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
     </packageSources>
 </configuration>
