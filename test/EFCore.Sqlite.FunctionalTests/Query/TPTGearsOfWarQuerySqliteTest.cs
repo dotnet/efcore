@@ -1,7 +1,10 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -55,43 +58,84 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override Task DateTimeOffset_Date_returns_datetime(bool async)
             => AssertTranslationFailed(() => base.DateTimeOffset_Date_returns_datetime(async));
 
-        // Sqlite does not support cross/outer apply
-        public override Task Correlated_collections_inner_subquery_predicate_references_outer_qsre(bool async)
-            => null;
+        public override async Task Correlated_collections_inner_subquery_predicate_references_outer_qsre(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Correlated_collections_inner_subquery_predicate_references_outer_qsre(async))).Message);
 
-        public override Task Correlated_collections_inner_subquery_selector_references_outer_qsre(bool async)
-            => null;
+        public override async Task Correlated_collections_inner_subquery_selector_references_outer_qsre(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Correlated_collections_inner_subquery_selector_references_outer_qsre(async))).Message);
 
-        public override Task Correlated_collections_nested_inner_subquery_references_outer_qsre_one_level_up(bool async)
-            => null;
+        public override async Task Correlated_collections_nested_inner_subquery_references_outer_qsre_one_level_up(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Correlated_collections_nested_inner_subquery_references_outer_qsre_one_level_up(async))).Message);
 
-        public override Task Correlated_collections_nested_inner_subquery_references_outer_qsre_two_levels_up(bool async)
-            => null;
+        public override async Task Correlated_collections_nested_inner_subquery_references_outer_qsre_two_levels_up(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Correlated_collections_nested_inner_subquery_references_outer_qsre_two_levels_up(async))).Message);
 
-        public override Task Outer_parameter_in_group_join_with_DefaultIfEmpty(bool async)
-            => null;
+        public override async Task Outer_parameter_in_group_join_with_DefaultIfEmpty(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Outer_parameter_in_group_join_with_DefaultIfEmpty(async))).Message);
 
-        public override Task Outer_parameter_in_join_key(bool async)
-            => null;
+        public override async Task Outer_parameter_in_join_key(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Outer_parameter_in_join_key(async))).Message);
 
-        public override Task Outer_parameter_in_join_key_inner_and_outer(bool async)
-            => null;
+        public override async Task Outer_parameter_in_join_key_inner_and_outer(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Outer_parameter_in_join_key_inner_and_outer(async))).Message);
 
-        public override Task Subquery_projecting_nullable_scalar_contains_nullable_value_needs_null_expansion(bool async)
-            => null;
+        public override async Task Subquery_projecting_nullable_scalar_contains_nullable_value_needs_null_expansion(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Subquery_projecting_nullable_scalar_contains_nullable_value_needs_null_expansion(async))).Message);
 
-        public override Task Subquery_projecting_nullable_scalar_contains_nullable_value_needs_null_expansion_negated(bool async)
-            => null;
+        public override async Task Subquery_projecting_nullable_scalar_contains_nullable_value_needs_null_expansion_negated(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Subquery_projecting_nullable_scalar_contains_nullable_value_needs_null_expansion_negated(async))).Message);
 
-        public override Task Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion(bool async)
-            => null;
+        public override async Task Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion(async))).Message);
 
-        public override Task Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion_negated(
+        public override async Task Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion_negated(
             bool async)
-            => null;
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion_negated(async))).Message);
 
-        public override Task SelectMany_predicate_with_non_equality_comparison_with_Take_doesnt_convert_to_join(bool async)
-            => null;
+        public override async Task SelectMany_predicate_with_non_equality_comparison_with_Take_doesnt_convert_to_join(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.SelectMany_predicate_with_non_equality_comparison_with_Take_doesnt_convert_to_join(async))).Message);
+
+        public override async Task Correlated_collection_with_inner_collection_references_element_two_levels_up(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Correlated_collection_with_inner_collection_references_element_two_levels_up(async))).Message);
 
         public override async Task Negate_on_binary_expression(bool async)
         {
