@@ -150,6 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
 
                     var ownedEntityReference = new EntityReference(targetType);
+                    _navigationExpandingExpressionVisitor.PopulateEagerLoadedNavigations(ownedEntityReference.IncludePaths);
                     ownedEntityReference.MarkAsOptional();
                     if (entityReference.IncludePaths.TryGetValue(navigation, out var includePath))
                     {
@@ -482,6 +483,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 typeof(IncludeExpandingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(FetchJoinEntity));
 
             private readonly bool _queryStateManager;
+            private readonly bool _ignoreAutoIncludes;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
 
             public IncludeExpandingExpressionVisitor(
@@ -494,6 +496,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     == QueryTrackingBehavior.TrackAll
                     || navigationExpandingExpressionVisitor._queryCompilationContext.QueryTrackingBehavior
                     == QueryTrackingBehavior.NoTrackingWithIdentityResolution;
+                _ignoreAutoIncludes = navigationExpandingExpressionVisitor._queryCompilationContext.IgnoreAutoIncludes;
             }
 
             protected override Expression VisitExtension(Expression extensionExpression)
@@ -653,7 +656,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     VerifyNoCycles(entityReference.IncludePaths);
                 }
 
-                return ExpandIncludesHelper(root, entityReference);
+                return ExpandIncludesHelper(root, entityReference, previousNavigation: null);
             }
 
             private void VerifyNoCycles(IncludeTreeNode includeTreeNode)
@@ -673,13 +676,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
 
-            private Expression ExpandIncludesHelper(Expression root, EntityReference entityReference)
+            private Expression ExpandIncludesHelper(Expression root, EntityReference entityReference, INavigationBase previousNavigation)
             {
                 var result = root;
                 var convertedRoot = root;
                 foreach (var kvp in entityReference.IncludePaths)
                 {
                     var navigationBase = kvp.Key;
+                    if (!navigationBase.IsCollection
+                        && previousNavigation?.Inverse == navigationBase)
+                    {
+                        continue;
+                    }
+
                     var converted = false;
                     if (entityReference.EntityType != navigationBase.DeclaringEntityType
                         && entityReference.EntityType.IsAssignableFrom(navigationBase.DeclaringEntityType))
@@ -694,6 +703,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         ISkipNavigation skipNavigation => ExpandSkipNavigation(convertedRoot, entityReference, skipNavigation, converted),
                         _ => throw new InvalidOperationException(CoreStrings.UnhandledNavigationBase(navigationBase.GetType())),
                     };
+
                     _logger.NavigationBaseIncluded(navigationBase);
 
                     // Collection will expand it's includes when reducing the navigationExpansionExpression
@@ -701,12 +711,35 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         var innerEntityReference = UnwrapEntityReference(included);
 
-                        included = ExpandIncludesHelper(included, innerEntityReference);
+                        included = ExpandIncludesHelper(included, innerEntityReference, navigationBase);
                     }
-
-                    if (included is MaterializeCollectionNavigationExpression materializeCollectionNavigation)
+                    else
                     {
+                        var materializeCollectionNavigation = (MaterializeCollectionNavigationExpression)included;
                         var subquery = materializeCollectionNavigation.Subquery;
+                        if (!_ignoreAutoIncludes
+                            && navigationBase is INavigation
+                            && navigationBase.Inverse != null
+                            && subquery is MethodCallExpression subqueryMethodCallExpression
+                            && subqueryMethodCallExpression.Method.IsGenericMethod)
+                        {
+                            EntityReference innerEntityReference = null;
+                            if (subqueryMethodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.Where
+                                && subqueryMethodCallExpression.Arguments[0] is NavigationExpansionExpression navigationExpansionExpression)
+                            {
+                                innerEntityReference = UnwrapEntityReference(navigationExpansionExpression.CurrentTree);
+                            }
+                            else if (subqueryMethodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable)
+                            {
+                                innerEntityReference = UnwrapEntityReference(subqueryMethodCallExpression.Arguments[0]);
+                            }
+
+                            if (innerEntityReference != null)
+                            {
+                                innerEntityReference.IncludePaths.Remove(navigationBase.Inverse);
+                            }
+                        }
+
                         var filterExpression = entityReference.IncludePaths[navigationBase].FilterExpression;
                         if (_queryStateManager
                             && navigationBase is ISkipNavigation
