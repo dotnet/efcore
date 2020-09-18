@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ValueGeneration;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -95,14 +95,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     Gets a value indicating whether this property requires a <see cref="ValueGenerator" /> to generate
-        ///     values when new entities are added to the context.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool RequiresValueGenerator([NotNull] this IProperty property)
             => (property.ValueGenerated.ForAdd()
-                    && !property.IsForeignKey()
-                    && property.IsKey())
+                    && property.IsKey()
+                    && (!property.IsForeignKey() || property.IsForeignKeyToSelf()))
                 || property.GetValueGeneratorFactory() != null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static bool IsForeignKeyToSelf([NotNull] this IProperty property)
+        {
+            Check.DebugAssert(property.IsKey(), "Only call this method for properties known to be part of a key.");
+
+            foreach (var foreignKey in property.GetContainingForeignKeys())
+            {
+                var propertyIndex = foreignKey.Properties.IndexOf(property);
+                if (propertyIndex == foreignKey.PrincipalKey.Properties.IndexOf(property))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
