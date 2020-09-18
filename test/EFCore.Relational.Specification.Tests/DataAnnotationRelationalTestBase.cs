@@ -47,8 +47,11 @@ namespace Microsoft.EntityFrameworkCore
                     var dogType = model.FindEntityType(typeof(Dog));
                     Assert.Equal("Dogs", dogType.GetTableMappings().Last().Table.Name);
 
-                    context.Set<Cat>().Add(
-                        new Cat { Key = 1, Species = "Felis catus", Tag = new PetTag { TagId = 2 } });
+                    var petFood = new PetFood() { FoodName = "Fish" };
+                    context.Add(petFood);
+
+                    context.Add(
+                        new Cat { Species = "Felis catus", Tag = new PetTag { TagId = 2 }, FavoritePetFood = petFood });
 
                     context.SaveChanges();
                 },
@@ -66,10 +69,10 @@ namespace Microsoft.EntityFrameworkCore
             {
                 base.OnModelCreating(modelBuilder, context);
 
-                modelBuilder.Entity<Animal>().ToTable("Animals").Property(x => x.Key).ValueGeneratedNever();
-                modelBuilder.Entity<Pet>().ToTable("Pets").HasOne(x => x.CatFriend);
-                modelBuilder.Entity<Cat>().ToTable("Cats");
-                modelBuilder.Entity<Dog>().ToTable("Dogs");
+                modelBuilder.Entity<Animal>();
+                modelBuilder.Entity<Pet>();
+                modelBuilder.Entity<Cat>();
+                modelBuilder.Entity<Dog>();
             }
         }
 
@@ -86,10 +89,10 @@ namespace Microsoft.EntityFrameworkCore
         {
             public string Name { get; set; }
 
-            [Column("CatFriend_Id")]
-            [ForeignKey(nameof(CatFriend))]
-            public int? CatFriendId { get; set; }
-            public Cat CatFriend { get; set; }
+            [Column("FavoritePetFood_Id")]
+            [ForeignKey(nameof(FavoritePetFood))]
+            public int? FavoritePetFoodId { get; set; }
+            public PetFood FavoritePetFood { get; set; }
 
             [Required]
             public PetTag Tag { get; set; }
@@ -112,6 +115,16 @@ namespace Microsoft.EntityFrameworkCore
         {
             [Required]
             public uint? TagId { get; set; }
+        }
+
+        [Table("PetFoods")]
+        public sealed class PetFood
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Column("PetFoods_Id")]
+            public int PetFoodId { get; set; }
+
+            public string FoodName { get; set; }
         }
     }
 }
