@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -46,6 +47,23 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         public virtual string BatchTerminator
             => Environment.NewLine;
+
+        /// <summary>
+        ///     Gets the SQL statement which enables or disables automatic rollback for the
+        ///     current transaction when statement raises a runtime error.
+        /// </summary>
+        public virtual string AutomaticTransactionRollbackStatement(bool enable = true)
+            => string.Empty;
+
+        /// <summary>
+        ///     Begins a SQL check to make sure the transaction is still valid.
+        /// </summary>
+        public virtual void BeginIfTransactionStateValidScript([NotNull] IndentedStringBuilder builder) { }
+
+        /// <summary>
+        ///     Ends a SQL check to make sure the transaction is still valid.
+        /// </summary>
+        public virtual void EndIfTransactionStateValidScript([NotNull] IndentedStringBuilder builder) { }
 
         /// <inheritdoc />
         public virtual string StartTransactionStatement

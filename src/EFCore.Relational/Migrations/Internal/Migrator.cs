@@ -333,6 +333,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var builder = new IndentedStringBuilder();
 
+            if (!noTransactions)
+            {
+                builder.Append(_sqlGenerationHelper.AutomaticTransactionRollbackStatement());
+            }
+
             if (fromMigration == Migration.InitialDatabase
                 || string.IsNullOrEmpty(fromMigration))
             {
@@ -375,17 +380,37 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     if (idempotent)
                     {
-                        builder.AppendLine(_historyRepository.GetBeginIfExistsScript(migration.GetId()));
+                        if (!noTransactions && !command.TransactionSuppressed)
+                        {
+                            _sqlGenerationHelper.BeginIfTransactionStateValidScript(builder);
+                        }
+
+                        builder.AppendLines(_historyRepository.GetBeginIfExistsScript(migration.GetId()));
+
                         using (builder.Indent())
                         {
                             builder.AppendLines(command.CommandText);
                         }
 
-                        builder.Append(_historyRepository.GetEndIfScript());
+                        builder.AppendLines(_historyRepository.GetEndIfScript());
+
+                        if (!noTransactions && !command.TransactionSuppressed)
+                        {
+                            _sqlGenerationHelper.EndIfTransactionStateValidScript(builder);
+                        }
                     }
                     else
                     {
-                        builder.Append(command.CommandText);
+                        if (noTransactions || command.TransactionSuppressed)
+                        {
+                            builder.Append(command.CommandText);
+                        }
+                        else
+                        {
+                            _sqlGenerationHelper.BeginIfTransactionStateValidScript(builder);
+                            builder.AppendLines(command.CommandText);
+                            _sqlGenerationHelper.EndIfTransactionStateValidScript(builder);
+                        }
                     }
 
                     builder.Append(_sqlGenerationHelper.BatchTerminator);
@@ -393,9 +418,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                 if (!noTransactions && transactionStarted)
                 {
-                    builder
-                        .AppendLine(_sqlGenerationHelper.CommitTransactionStatement)
-                        .Append(_sqlGenerationHelper.BatchTerminator);
+                    _sqlGenerationHelper.BeginIfTransactionStateValidScript(builder);
+                    builder.AppendLines(_sqlGenerationHelper.CommitTransactionStatement);
+                    _sqlGenerationHelper.EndIfTransactionStateValidScript(builder);
+
+                    builder.Append(_sqlGenerationHelper.BatchTerminator);
                     transactionStarted = false;
                 }
             }
@@ -418,26 +445,47 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                         if (transactionStarted && command.TransactionSuppressed)
                         {
-                            builder
-                                .AppendLine(_sqlGenerationHelper.CommitTransactionStatement)
-                                .Append(_sqlGenerationHelper.BatchTerminator);
+                            _sqlGenerationHelper.BeginIfTransactionStateValidScript(builder);
+                            builder.AppendLines(_sqlGenerationHelper.CommitTransactionStatement);
+                            _sqlGenerationHelper.EndIfTransactionStateValidScript(builder);
+
                             transactionStarted = false;
                         }
                     }
 
                     if (idempotent)
                     {
-                        builder.AppendLine(_historyRepository.GetBeginIfNotExistsScript(migration.GetId()));
+                        if (!noTransactions && !command.TransactionSuppressed)
+                        {
+                            _sqlGenerationHelper.BeginIfTransactionStateValidScript(builder);
+                        }
+
+                        builder.AppendLines(_historyRepository.GetBeginIfNotExistsScript(migration.GetId()));
+
                         using (builder.Indent())
                         {
                             builder.AppendLines(command.CommandText);
                         }
 
-                        builder.Append(_historyRepository.GetEndIfScript());
+                        builder.AppendLines(_historyRepository.GetEndIfScript());
+
+                        if (!noTransactions && !command.TransactionSuppressed)
+                        {
+                            _sqlGenerationHelper.EndIfTransactionStateValidScript(builder);
+                        }
                     }
                     else
                     {
-                        builder.Append(command.CommandText);
+                        if (noTransactions || command.TransactionSuppressed)
+                        {
+                            builder.Append(command.CommandText);
+                        }
+                        else
+                        {
+                            _sqlGenerationHelper.BeginIfTransactionStateValidScript(builder);
+                            builder.AppendLines(command.CommandText);
+                            _sqlGenerationHelper.EndIfTransactionStateValidScript(builder);
+                        }
                     }
 
                     builder.Append(_sqlGenerationHelper.BatchTerminator);
@@ -445,9 +493,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                 if (!noTransactions && transactionStarted)
                 {
-                    builder
-                        .AppendLine(_sqlGenerationHelper.CommitTransactionStatement)
-                        .Append(_sqlGenerationHelper.BatchTerminator);
+                    _sqlGenerationHelper.BeginIfTransactionStateValidScript(builder);
+                    builder.AppendLines(_sqlGenerationHelper.CommitTransactionStatement);
+                    _sqlGenerationHelper.EndIfTransactionStateValidScript(builder);
+
+                    builder.Append(_sqlGenerationHelper.BatchTerminator);
                     transactionStarted = false;
                 }
             }

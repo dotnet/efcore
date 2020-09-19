@@ -1,8 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -32,6 +34,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The terminator to be used for batches of SQL statements.
         /// </summary>
         string BatchTerminator { get; }
+
+        /// <summary>
+        ///     Gets the SQL statement which enables or disables automatic rollback for the
+        ///     current transaction when statement raises a runtime error.
+        /// </summary>
+        string AutomaticTransactionRollbackStatement(bool enable = true);
+
+        /// <summary>
+        ///     Begins a SQL check to make sure the transaction is still valid.
+        /// </summary>
+        void BeginIfTransactionStateValidScript([NotNull] IndentedStringBuilder builder);
+
+        /// <summary>
+        ///     Ends a SQL check to make sure the transaction is still valid.
+        /// </summary>
+        void EndIfTransactionStateValidScript([NotNull] IndentedStringBuilder builder);
 
         /// <summary>
         ///     Gets the SQL for a START TRANSACTION statement.

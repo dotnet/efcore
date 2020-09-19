@@ -32,7 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             base.Can_generate_migration_from_initial_database_to_initial();
 
             Assert.Equal(
-                @"IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+                @"SET XACT_ABORT ON;
+
+IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
         [MigrationId] nvarchar(150) NOT NULL,
@@ -52,7 +54,9 @@ GO
             base.Can_generate_no_migration_script();
 
             Assert.Equal(
-                @"IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+                @"SET XACT_ABORT ON;
+
+IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
         [MigrationId] nvarchar(150) NOT NULL,
@@ -72,7 +76,9 @@ GO
             base.Can_generate_up_scripts();
 
             Assert.Equal(
-                @"IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+                @"SET XACT_ABORT ON;
+
+IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
         [MigrationId] nvarchar(150) NOT NULL,
@@ -85,31 +91,49 @@ GO
 BEGIN TRANSACTION;
 GO
 
-CREATE TABLE [Table1] (
-    [Id] int NOT NULL,
-    [Foo] int NOT NULL,
-    CONSTRAINT [PK_Table1] PRIMARY KEY ([Id])
-);
+IF XACT_STATE() = 1
+BEGIN
+    CREATE TABLE [Table1] (
+        [Id] int NOT NULL,
+        [Foo] int NOT NULL,
+        CONSTRAINT [PK_Table1] PRIMARY KEY ([Id])
+    );
+END;
 GO
 
-INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000001_Migration1', N'7.0.0-test');
+IF XACT_STATE() = 1
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'00000000000001_Migration1', N'7.0.0-test');
+END;
 GO
 
-COMMIT;
+IF XACT_STATE() = 1
+BEGIN
+    COMMIT;
+END;
 GO
 
 BEGIN TRANSACTION;
 GO
 
-EXEC sp_rename N'[Table1].[Foo]', N'Bar', N'COLUMN';
+IF XACT_STATE() = 1
+BEGIN
+    EXEC sp_rename N'[Table1].[Foo]', N'Bar', N'COLUMN';
+END;
 GO
 
-INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000002_Migration2', N'7.0.0-test');
+IF XACT_STATE() = 1
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'00000000000002_Migration2', N'7.0.0-test');
+END;
 GO
 
-COMMIT;
+IF XACT_STATE() = 1
+BEGIN
+    COMMIT;
+END;
 GO
 
 CREATE DATABASE TransactionSuppressed;
@@ -121,11 +145,17 @@ GO
 BEGIN TRANSACTION;
 GO
 
-INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000003_Migration3', N'7.0.0-test');
+IF XACT_STATE() = 1
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'00000000000003_Migration3', N'7.0.0-test');
+END;
 GO
 
-COMMIT;
+IF XACT_STATE() = 1
+BEGIN
+    COMMIT;
+END;
 GO
 
 ",
@@ -186,17 +216,28 @@ GO
             base.Can_generate_one_up_script();
 
             Assert.Equal(
-                @"BEGIN TRANSACTION;
+                @"SET XACT_ABORT ON;
+
+BEGIN TRANSACTION;
 GO
 
-EXEC sp_rename N'[Table1].[Foo]', N'Bar', N'COLUMN';
+IF XACT_STATE() = 1
+BEGIN
+    EXEC sp_rename N'[Table1].[Foo]', N'Bar', N'COLUMN';
+END;
 GO
 
-INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000002_Migration2', N'7.0.0-test');
+IF XACT_STATE() = 1
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'00000000000002_Migration2', N'7.0.0-test');
+END;
 GO
 
-COMMIT;
+IF XACT_STATE() = 1
+BEGIN
+    COMMIT;
+END;
 GO
 
 ",
@@ -209,17 +250,28 @@ GO
             base.Can_generate_up_script_using_names();
 
             Assert.Equal(
-                @"BEGIN TRANSACTION;
+                @"SET XACT_ABORT ON;
+
+BEGIN TRANSACTION;
 GO
 
-EXEC sp_rename N'[Table1].[Foo]', N'Bar', N'COLUMN';
+IF XACT_STATE() = 1
+BEGIN
+    EXEC sp_rename N'[Table1].[Foo]', N'Bar', N'COLUMN';
+END;
 GO
 
-INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000002_Migration2', N'7.0.0-test');
+IF XACT_STATE() = 1
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'00000000000002_Migration2', N'7.0.0-test');
+END;
 GO
 
-COMMIT;
+IF XACT_STATE() = 1
+BEGIN
+    COMMIT;
+END;
 GO
 
 ",
@@ -232,7 +284,9 @@ GO
             base.Can_generate_idempotent_up_scripts();
 
             Assert.Equal(
-                @"IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+                @"SET XACT_ABORT ON;
+
+IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
         [MigrationId] nvarchar(150) NOT NULL,
@@ -245,43 +299,61 @@ GO
 BEGIN TRANSACTION;
 GO
 
-IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000001_Migration1')
+IF XACT_STATE() = 1
 BEGIN
-    CREATE TABLE [Table1] (
-        [Id] int NOT NULL,
-        [Foo] int NOT NULL,
-        CONSTRAINT [PK_Table1] PRIMARY KEY ([Id])
-    );
+    IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000001_Migration1')
+    BEGIN
+        CREATE TABLE [Table1] (
+            [Id] int NOT NULL,
+            [Foo] int NOT NULL,
+            CONSTRAINT [PK_Table1] PRIMARY KEY ([Id])
+        );
+    END;
 END;
 GO
 
-IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000001_Migration1')
+IF XACT_STATE() = 1
 BEGIN
-    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'00000000000001_Migration1', N'7.0.0-test');
+    IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000001_Migration1')
+    BEGIN
+        INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+        VALUES (N'00000000000001_Migration1', N'7.0.0-test');
+    END;
 END;
 GO
 
-COMMIT;
+IF XACT_STATE() = 1
+BEGIN
+    COMMIT;
+END;
 GO
 
 BEGIN TRANSACTION;
 GO
 
-IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000002_Migration2')
+IF XACT_STATE() = 1
 BEGIN
-    EXEC sp_rename N'[Table1].[Foo]', N'Bar', N'COLUMN';
+    IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000002_Migration2')
+    BEGIN
+        EXEC sp_rename N'[Table1].[Foo]', N'Bar', N'COLUMN';
+    END;
 END;
 GO
 
-IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000002_Migration2')
+IF XACT_STATE() = 1
 BEGIN
-    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'00000000000002_Migration2', N'7.0.0-test');
+    IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000002_Migration2')
+    BEGIN
+        INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+        VALUES (N'00000000000002_Migration2', N'7.0.0-test');
+    END;
 END;
 GO
 
-COMMIT;
+IF XACT_STATE() = 1
+BEGIN
+    COMMIT;
+END;
 GO
 
 IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000003_Migration3')
@@ -299,14 +371,20 @@ GO
 BEGIN TRANSACTION;
 GO
 
-IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000003_Migration3')
+IF XACT_STATE() = 1
 BEGIN
-    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'00000000000003_Migration3', N'7.0.0-test');
+    IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000003_Migration3')
+    BEGIN
+        INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+        VALUES (N'00000000000003_Migration3', N'7.0.0-test');
+    END;
 END;
 GO
 
-COMMIT;
+IF XACT_STATE() = 1
+BEGIN
+    COMMIT;
+END;
 GO
 
 ",
@@ -388,30 +466,50 @@ GO
             base.Can_generate_down_scripts();
 
             Assert.Equal(
-                @"BEGIN TRANSACTION;
+                @"SET XACT_ABORT ON;
+
+BEGIN TRANSACTION;
 GO
 
-EXEC sp_rename N'[Table1].[Bar]', N'Foo', N'COLUMN';
+IF XACT_STATE() = 1
+BEGIN
+    EXEC sp_rename N'[Table1].[Bar]', N'Foo', N'COLUMN';
+END;
 GO
 
-DELETE FROM [__EFMigrationsHistory]
-WHERE [MigrationId] = N'00000000000002_Migration2';
+IF XACT_STATE() = 1
+BEGIN
+    DELETE FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000002_Migration2';
+END;
 GO
 
-COMMIT;
+IF XACT_STATE() = 1
+BEGIN
+    COMMIT;
+END;
 GO
 
 BEGIN TRANSACTION;
 GO
 
-DROP TABLE [Table1];
+IF XACT_STATE() = 1
+BEGIN
+    DROP TABLE [Table1];
+END;
 GO
 
-DELETE FROM [__EFMigrationsHistory]
-WHERE [MigrationId] = N'00000000000001_Migration1';
+IF XACT_STATE() = 1
+BEGIN
+    DELETE FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000001_Migration1';
+END;
 GO
 
-COMMIT;
+IF XACT_STATE() = 1
+BEGIN
+    COMMIT;
+END;
 GO
 
 ",
@@ -424,42 +522,62 @@ GO
             base.Can_generate_idempotent_down_scripts();
 
             Assert.Equal(
-                @"BEGIN TRANSACTION;
+                @"SET XACT_ABORT ON;
+
+BEGIN TRANSACTION;
 GO
 
-IF EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000002_Migration2')
+IF XACT_STATE() = 1
 BEGIN
-    EXEC sp_rename N'[Table1].[Bar]', N'Foo', N'COLUMN';
+    IF EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000002_Migration2')
+    BEGIN
+        EXEC sp_rename N'[Table1].[Bar]', N'Foo', N'COLUMN';
+    END;
 END;
 GO
 
-IF EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000002_Migration2')
+IF XACT_STATE() = 1
 BEGIN
-    DELETE FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000002_Migration2';
+    IF EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000002_Migration2')
+    BEGIN
+        DELETE FROM [__EFMigrationsHistory]
+        WHERE [MigrationId] = N'00000000000002_Migration2';
+    END;
 END;
 GO
 
-COMMIT;
+IF XACT_STATE() = 1
+BEGIN
+    COMMIT;
+END;
 GO
 
 BEGIN TRANSACTION;
 GO
 
-IF EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000001_Migration1')
+IF XACT_STATE() = 1
 BEGIN
-    DROP TABLE [Table1];
+    IF EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000001_Migration1')
+    BEGIN
+        DROP TABLE [Table1];
+    END;
 END;
 GO
 
-IF EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000001_Migration1')
+IF XACT_STATE() = 1
 BEGIN
-    DELETE FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000001_Migration1';
+    IF EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000001_Migration1')
+    BEGIN
+        DELETE FROM [__EFMigrationsHistory]
+        WHERE [MigrationId] = N'00000000000001_Migration1';
+    END;
 END;
 GO
 
-COMMIT;
+IF XACT_STATE() = 1
+BEGIN
+    COMMIT;
+END;
 GO
 
 ",
@@ -472,17 +590,28 @@ GO
             base.Can_generate_one_down_script();
 
             Assert.Equal(
-                @"BEGIN TRANSACTION;
+                @"SET XACT_ABORT ON;
+
+BEGIN TRANSACTION;
 GO
 
-EXEC sp_rename N'[Table1].[Bar]', N'Foo', N'COLUMN';
+IF XACT_STATE() = 1
+BEGIN
+    EXEC sp_rename N'[Table1].[Bar]', N'Foo', N'COLUMN';
+END;
 GO
 
-DELETE FROM [__EFMigrationsHistory]
-WHERE [MigrationId] = N'00000000000002_Migration2';
+IF XACT_STATE() = 1
+BEGIN
+    DELETE FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000002_Migration2';
+END;
 GO
 
-COMMIT;
+IF XACT_STATE() = 1
+BEGIN
+    COMMIT;
+END;
 GO
 
 ",
@@ -495,17 +624,28 @@ GO
             base.Can_generate_down_script_using_names();
 
             Assert.Equal(
-                @"BEGIN TRANSACTION;
+                @"SET XACT_ABORT ON;
+
+BEGIN TRANSACTION;
 GO
 
-EXEC sp_rename N'[Table1].[Bar]', N'Foo', N'COLUMN';
+IF XACT_STATE() = 1
+BEGIN
+    EXEC sp_rename N'[Table1].[Bar]', N'Foo', N'COLUMN';
+END;
 GO
 
-DELETE FROM [__EFMigrationsHistory]
-WHERE [MigrationId] = N'00000000000002_Migration2';
+IF XACT_STATE() = 1
+BEGIN
+    DELETE FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000002_Migration2';
+END;
 GO
 
-COMMIT;
+IF XACT_STATE() = 1
+BEGIN
+    COMMIT;
+END;
 GO
 
 ",
