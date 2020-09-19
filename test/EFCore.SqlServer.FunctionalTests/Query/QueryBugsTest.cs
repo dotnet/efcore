@@ -1267,7 +1267,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                                 on eVersion.RootEntityId equals eRoot.Id
                                 into RootEntities
                             from eRootJoined in RootEntities.DefaultIfEmpty()
-                            // ReSharper disable once ConstantNullCoalescingCondition
+                                // ReSharper disable once ConstantNullCoalescingCondition
                             select new { One = 1, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
 
                 var result = query.ToList();
@@ -1286,7 +1286,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                                 on eVersion.RootEntityId equals eRoot.Id
                                 into RootEntities
                             from eRootJoined in RootEntities.DefaultIfEmpty()
-                            // ReSharper disable once ConstantNullCoalescingCondition
+                                // ReSharper disable once ConstantNullCoalescingCondition
                             select new
                             {
                                 One = eRootJoined,
@@ -1310,7 +1310,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                                 on eVersion.RootEntityId equals eRoot.Id
                                 into RootEntities
                             from eRootJoined in RootEntities.DefaultIfEmpty()
-                            // ReSharper disable once MergeConditionalExpression
+                                // ReSharper disable once MergeConditionalExpression
 #pragma warning disable IDE0029 // Use coalesce expression
                             select eRootJoined != null ? eRootJoined : eVersion;
 #pragma warning restore IDE0029 // Use coalesce expression
@@ -4835,7 +4835,8 @@ LEFT JOIN [Categories] AS [c] ON [p].[CategoryId] = [c].[Id]");
                     context.Products.Add(
                         new Product15684
                         {
-                            Name = "Apple", Category = new Category15684 { Name = "Fruit", Status = CategoryStatus15684.Active }
+                            Name = "Apple",
+                            Category = new Category15684 { Name = "Fruit", Status = CategoryStatus15684.Active }
                         });
 
                     context.Products.Add(new Product15684 { Name = "Bike" });
@@ -8901,6 +8902,235 @@ ORDER BY [t].[Id], [t].[MasterTrunk22340Id], [t].[MasterTrunk22340Id0], [f0].[Cu
                         }
                     };
                     context.Add(masterTrunk);
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        #endregion
+
+        #region Issue22568
+
+        [ConditionalFact]
+        public virtual void Cycles_in_auto_include_one_to_one()
+        {
+            using (CreateDatabase22568())
+            {
+                using var context = new MyContext22568(_options);
+
+                var principals = context.Set<PrincipalOneToOne>().ToList();
+                Assert.Single(principals);
+                Assert.NotNull(principals[0].Dependent);
+                Assert.NotNull(principals[0].Dependent.Principal);
+
+                var dependents = context.Set<DependentOneToOne>().ToList();
+                Assert.Single(dependents);
+                Assert.NotNull(dependents[0].Principal);
+                Assert.NotNull(dependents[0].Principal.Dependent);
+
+                AssertSql(
+                    @"SELECT [p].[Id], [d].[Id], [d].[PrincipalId]
+FROM [PrincipalOneToOne] AS [p]
+LEFT JOIN [DependentOneToOne] AS [d] ON [p].[Id] = [d].[PrincipalId]",
+                    //
+                    @"SELECT [d].[Id], [d].[PrincipalId], [p].[Id]
+FROM [DependentOneToOne] AS [d]
+INNER JOIN [PrincipalOneToOne] AS [p] ON [d].[PrincipalId] = [p].[Id]");
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Cycles_in_auto_include_one_to_many()
+        {
+            using (CreateDatabase22568())
+            {
+                using var context = new MyContext22568(_options);
+
+                var principals = context.Set<PrincipalOneToMany>().ToList();
+                Assert.Single(principals);
+                Assert.NotNull(principals[0].Dependents);
+                Assert.True(principals[0].Dependents.All(e => e.Principal != null));
+
+                var dependents = context.Set<DependentOneToMany>().ToList();
+                Assert.Equal(2, dependents.Count);
+                Assert.True(dependents.All(e => e.Principal != null));
+                Assert.True(dependents.All(e => e.Principal.Dependents != null));
+                Assert.True(dependents.All(e => e.Principal.Dependents.All(i => i.Principal != null)));
+
+                AssertSql(
+                    @"SELECT [p].[Id], [d].[Id], [d].[PrincipalId]
+FROM [PrincipalOneToMany] AS [p]
+LEFT JOIN [DependentOneToMany] AS [d] ON [p].[Id] = [d].[PrincipalId]
+ORDER BY [p].[Id], [d].[Id]",
+                    //
+                    @"SELECT [d].[Id], [d].[PrincipalId], [p].[Id], [d0].[Id], [d0].[PrincipalId]
+FROM [DependentOneToMany] AS [d]
+INNER JOIN [PrincipalOneToMany] AS [p] ON [d].[PrincipalId] = [p].[Id]
+LEFT JOIN [DependentOneToMany] AS [d0] ON [p].[Id] = [d0].[PrincipalId]
+ORDER BY [d].[Id], [p].[Id], [d0].[Id]");
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Cycles_in_auto_include_many_to_many_throws()
+        {
+            using (CreateDatabase22568())
+            {
+                using var context = new MyContext22568(_options);
+
+                Assert.Equal(
+                    CoreStrings.AutoIncludeNavigationCycle("'PrincipalManyToMany.Dependents', 'DependentManyToMany.Principals'"),
+                    Assert.Throws<InvalidOperationException>(() => context.Set<PrincipalManyToMany>().ToList()).Message);
+
+                Assert.Equal(
+                    CoreStrings.AutoIncludeNavigationCycle("'DependentManyToMany.Principals', 'PrincipalManyToMany.Dependents'"),
+                    Assert.Throws<InvalidOperationException>(() => context.Set<DependentManyToMany>().ToList()).Message);
+
+                context.Set<PrincipalManyToMany>().IgnoreAutoIncludes().ToList();
+                context.Set<DependentManyToMany>().IgnoreAutoIncludes().ToList();
+
+                AssertSql(
+                    @"SELECT [p].[Id]
+FROM [PrincipalManyToMany] AS [p]",
+                    //
+                    @"SELECT [d].[Id]
+FROM [DependentManyToMany] AS [d]");
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Cycles_in_auto_include_multi_level_throws()
+        {
+            using (CreateDatabase22568())
+            {
+                using var context = new MyContext22568(_options);
+
+                Assert.Equal(
+                    CoreStrings.AutoIncludeNavigationCycle("'CycleA.Bs', 'CycleB.C', 'CycleC.As'"),
+                    Assert.Throws<InvalidOperationException>(() => context.Set<CycleA>().ToList()).Message);
+
+                Assert.Equal(
+                    CoreStrings.AutoIncludeNavigationCycle("'CycleB.C', 'CycleC.As', 'CycleA.Bs'"),
+                    Assert.Throws<InvalidOperationException>(() => context.Set<CycleB>().ToList()).Message);
+
+                Assert.Equal(
+                    CoreStrings.AutoIncludeNavigationCycle("'CycleC.As', 'CycleA.Bs', 'CycleB.C'"),
+                    Assert.Throws<InvalidOperationException>(() => context.Set<CycleC>().ToList()).Message);
+
+                context.Set<CycleA>().IgnoreAutoIncludes().ToList();
+                context.Set<CycleB>().IgnoreAutoIncludes().ToList();
+                context.Set<CycleC>().IgnoreAutoIncludes().ToList();
+
+                AssertSql(
+                    @"SELECT [c].[Id], [c].[CycleCId]
+FROM [CycleA] AS [c]",
+                    //
+                    @"SELECT [c].[Id], [c].[CId], [c].[CycleAId]
+FROM [CycleB] AS [c]",
+                    //
+                    @"SELECT [c].[Id], [c].[BId]
+FROM [CycleC] AS [c]");
+            }
+        }
+
+        private class PrincipalOneToOne
+        {
+            public int Id { get; set; }
+            public DependentOneToOne Dependent { get; set; }
+        }
+
+        private class DependentOneToOne
+        {
+            public int Id { get; set; }
+            [ForeignKey("Principal")]
+            public int PrincipalId { get; set; }
+            public PrincipalOneToOne Principal { get; set; }
+        }
+
+        private class PrincipalOneToMany
+        {
+            public int Id { get; set; }
+            public List<DependentOneToMany> Dependents { get; set; }
+        }
+
+        private class DependentOneToMany
+        {
+            public int Id { get; set; }
+            [ForeignKey("Principal")]
+            public int PrincipalId { get; set; }
+            public PrincipalOneToMany Principal { get; set; }
+        }
+
+        private class PrincipalManyToMany
+        {
+            public int Id { get; set; }
+            public List<DependentManyToMany> Dependents { get; set; }
+        }
+
+        private class DependentManyToMany
+        {
+            public int Id { get; set; }
+            public List<PrincipalManyToMany> Principals { get; set; }
+        }
+
+        private class CycleA
+        {
+            public int Id { get; set; }
+            public List<CycleB> Bs { get; set; }
+        }
+
+        private class CycleB
+        {
+            public int Id { get; set; }
+            public CycleC C { get; set; }
+        }
+
+        private class CycleC
+        {
+            public int Id { get; set; }
+            [ForeignKey("B")]
+            public int BId { get; set; }
+            private CycleB B { get; set; }
+            public List<CycleA> As { get; set; }
+        }
+
+        private class MyContext22568 : DbContext
+        {
+            public MyContext22568(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<PrincipalOneToOne>().Navigation(e => e.Dependent).AutoInclude();
+                modelBuilder.Entity<DependentOneToOne>().Navigation(e => e.Principal).AutoInclude();
+                modelBuilder.Entity<PrincipalOneToMany>().Navigation(e => e.Dependents).AutoInclude();
+                modelBuilder.Entity<DependentOneToMany>().Navigation(e => e.Principal).AutoInclude();
+                modelBuilder.Entity<PrincipalManyToMany>().Navigation(e => e.Dependents).AutoInclude();
+                modelBuilder.Entity<DependentManyToMany>().Navigation(e => e.Principals).AutoInclude();
+
+                modelBuilder.Entity<CycleA>().Navigation(e => e.Bs).AutoInclude();
+                modelBuilder.Entity<CycleB>().Navigation(e => e.C).AutoInclude();
+                modelBuilder.Entity<CycleC>().Navigation(e => e.As).AutoInclude();
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase22568()
+            => CreateTestStore(
+                () => new MyContext22568(_options),
+                context =>
+                {
+                    context.Add(new PrincipalOneToOne { Dependent = new DependentOneToOne() });
+                    context.Add(new PrincipalOneToMany
+                    {
+                        Dependents = new List<DependentOneToMany>
+                        {
+                            new DependentOneToMany(),
+                            new DependentOneToMany(),
+                        }
+                    });
 
                     context.SaveChanges();
 

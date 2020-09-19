@@ -153,6 +153,9 @@
   <data name="ArgumentPropertyNull" xml:space="preserve">
     <value>The property '{property}' of the argument '{argument}' cannot be null.</value>
   </data>
+  <data name="AutoIncludeNavigationCycle" xml:space="preserve">
+    <value>Cycle detected while auto-including navigations: {cycleNavigations}. To fix this issue, either don't configure at least one navigation in the cycle as auto included in `OnModelCreating` or call 'IgnoreAutoInclude' method on the query.</value>
+  </data>
   <data name="BackingFieldOnIndexer" xml:space="preserve">
     <value>Cannot set backing field '{field}' for the indexer property '{entityType}.{property}'. Ensure no backing fields are specified for indexer properties.</value>
   </data>
