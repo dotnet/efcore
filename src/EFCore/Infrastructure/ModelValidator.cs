@@ -48,11 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         protected virtual ModelValidatorDependencies Dependencies { get; }
 
-        /// <summary>
-        ///     Validates a model, throwing an exception if any errors are found.
-        /// </summary>
-        /// <param name="model"> The model to validate. </param>
-        /// <param name="logger"> The logger to use. </param>
+        /// <inheritdoc />
         public virtual void Validate(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             ((Model)model).IsValidated = true;

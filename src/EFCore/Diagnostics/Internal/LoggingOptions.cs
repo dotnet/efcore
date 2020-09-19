@@ -2,14 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
+namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
 {
     /// <summary>
     ///     <para>
@@ -24,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public class SqliteModelValidator : RelationalModelValidator
+    public class LoggingOptions : ILoggingOptions
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -32,11 +29,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqliteModelValidator(
-            [NotNull] ModelValidatorDependencies dependencies,
-            [NotNull] RelationalModelValidatorDependencies relationalDependencies)
-            : base(dependencies, relationalDependencies)
+        public virtual void Initialize(IDbContextOptions options)
         {
+            var coreOptions = options.FindExtension<CoreOptionsExtension>() ?? new CoreOptionsExtension();
+
+            IsSensitiveDataLoggingEnabled = coreOptions.IsSensitiveDataLoggingEnabled;
+            WarningsConfiguration = coreOptions.WarningsConfiguration;
         }
 
         /// <summary>
@@ -45,74 +43,53 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override void Validate(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        public virtual void Validate(IDbContextOptions options)
         {
-            base.Validate(model, logger);
+            var coreOptions = options.FindExtension<CoreOptionsExtension>() ?? new CoreOptionsExtension();
 
-            ValidateNoSchemas(model, logger);
-            ValidateNoSequences(model, logger);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected virtual void ValidateNoSchemas(
-            [NotNull] IModel model,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
-        {
-            foreach (var entityType in model.GetEntityTypes().Where(e => e.GetSchema() != null))
+            if (IsSensitiveDataLoggingEnabled != coreOptions.IsSensitiveDataLoggingEnabled)
             {
-                logger.SchemaConfiguredWarning(entityType, entityType.GetSchema());
-            }
-        }
+                Check.DebugAssert(coreOptions.InternalServiceProvider != null, "InternalServiceProvider is null");
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected virtual void ValidateNoSequences(
-            [NotNull] IModel model,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
-        {
-            foreach (var sequence in model.GetSequences())
-            {
-                logger.SequenceConfiguredWarning(sequence);
-            }
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override void ValidateCompatible(
-            IProperty property,
-            IProperty duplicateProperty,
-            string columnName,
-            in StoreObjectIdentifier storeObject,
-            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
-        {
-            base.ValidateCompatible(property, duplicateProperty, columnName, storeObject, logger);
-
-            var propertySrid = property.GetSrid(storeObject);
-            var duplicatePropertySrid = duplicateProperty.GetSrid(storeObject);
-            if (propertySrid != duplicatePropertySrid)
-            {
                 throw new InvalidOperationException(
-                    SqliteStrings.DuplicateColumnNameSridMismatch(
-                        duplicateProperty.DeclaringEntityType.DisplayName(),
-                        duplicateProperty.Name,
-                        property.DeclaringEntityType.DisplayName(),
-                        property.Name,
-                        columnName,
-                        storeObject.DisplayName()));
+                    CoreStrings.SingletonOptionChanged(
+                        nameof(DbContextOptionsBuilder.EnableSensitiveDataLogging),
+                        nameof(DbContextOptionsBuilder.UseInternalServiceProvider)));
+            }
+
+            if (WarningsConfiguration?.GetServiceProviderHashCode() != coreOptions.WarningsConfiguration?.GetServiceProviderHashCode())
+            {
+                Check.DebugAssert(coreOptions.InternalServiceProvider != null, "InternalServiceProvider is null");
+
+                throw new InvalidOperationException(
+                    CoreStrings.SingletonOptionChanged(
+                        nameof(DbContextOptionsBuilder.ConfigureWarnings),
+                        nameof(DbContextOptionsBuilder.UseInternalServiceProvider)));
             }
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool IsSensitiveDataLoggingEnabled { get; private set; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool IsSensitiveDataLoggingWarned { get; set; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual WarningsConfiguration WarningsConfiguration { get; private set; }
     }
 }
