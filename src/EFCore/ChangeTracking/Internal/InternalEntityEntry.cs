@@ -1045,8 +1045,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             get
             {
-                var value = ReadPropertyValue(propertyBase);
-
                 var storeGeneratedIndex = propertyBase.GetStoreGeneratedIndex();
                 if (storeGeneratedIndex != -1)
                 {
@@ -1062,6 +1060,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         return generatedValue;
                     }
 
+                    var value = ReadPropertyValue(propertyBase);
                     if (equals(value, defaultValue))
                     {
                         if (_temporaryValues.TryGetValue(storeGeneratedIndex, out generatedValue)
@@ -1070,9 +1069,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             return generatedValue;
                         }
                     }
+
+                    return value;
                 }
 
-                return value;
+                return ReadPropertyValue(propertyBase);
             }
 
             [param: CanBeNull] set => SetProperty(propertyBase, value, isMaterialization: false);
