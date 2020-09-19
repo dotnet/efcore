@@ -121,6 +121,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, argument);
 
         /// <summary>
+        ///     Cycle detected while auto-including navigations: {cycleNavigations}. To fix this issue, either don't configure at least one navigation in the cycle as auto included in `OnModelCreating` or call 'IgnoreAutoInclude' method on the query.
+        /// </summary>
+        public static string AutoIncludeNavigationCycle([CanBeNull] object cycleNavigations)
+            => string.Format(
+                GetString("AutoIncludeNavigationCycle", nameof(cycleNavigations)),
+                cycleNavigations);
+
+        /// <summary>
         ///     Cannot set backing field '{field}' for the indexer property '{entityType}.{property}'. Ensure no backing fields are specified for indexer properties.
         /// </summary>
         public static string BackingFieldOnIndexer([CanBeNull] object field, [CanBeNull] object entityType, [CanBeNull] object property)
