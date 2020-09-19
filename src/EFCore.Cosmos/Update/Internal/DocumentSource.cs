@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 }
                 else
                 {
-                    var embeddedOrdinal = 0;
+                    var embeddedOrdinal = 1;
                     var array = new JArray();
                     foreach (var dependent in (IEnumerable)embeddedValue)
                     {
@@ -227,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 }
                 else
                 {
-                    var embeddedOrdinal = 0;
+                    var embeddedOrdinal = 1;
                     var ordinalKeyProperty = GetOrdinalKeyProperty(fk.DeclaringEntityType);
                     if (ordinalKeyProperty != null)
                     {
@@ -273,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                         }
                     }
 
-                    embeddedOrdinal = 0;
+                    embeddedOrdinal = 1;
                     var array = new JArray();
                     foreach (var dependent in (IEnumerable)embeddedValue)
                     {
