@@ -4,6 +4,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -161,32 +162,138 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override string GenerateNonNullSqlLiteral(object value)
-            => EscapeLineBreaks(EscapeSqlLiteral((string)value));
-
-        private static readonly char[] LineBreakChars = { '\r', '\n' };
-
-        private string EscapeLineBreaks(string value)
         {
-            var unicodePrefix = IsUnicode ? "N" : string.Empty;
+            var stringValue = (string)value;
+            var builder = new StringBuilder();
 
-            if (value == null
-                || value.IndexOfAny(LineBreakChars) == -1)
+            var start = 0;
+            int i;
+            int length;
+            var concatenated = false;
+            var openApostrophe = false;
+            for (i = 0; i < stringValue.Length; i++)
             {
-                return $"{unicodePrefix}'{value}'";
+                var lineFeed = stringValue[i] == '\n';
+                var carriageReturn = stringValue[i] == '\r';
+                var apostrophe = stringValue[i] == '\'';
+                if (lineFeed || carriageReturn || apostrophe)
+                {
+                    length = i - start;
+                    if (length != 0)
+                    {
+                        if (!openApostrophe)
+                        {
+                            if (builder.Length != 0)
+                            {
+                                builder.Append(", ");
+                                concatenated = true;
+                            }
+
+                            if (IsUnicode)
+                            {
+                                builder.Append('N');
+                            }
+
+                            builder.Append('\'');
+                            openApostrophe = true;
+                        }
+
+                        builder.Append(stringValue.AsSpan().Slice(start, length));
+                    }
+
+                    if (lineFeed || carriageReturn)
+                    {
+                        if (openApostrophe)
+                        {
+                            builder.Append('\'');
+                            openApostrophe = false;
+                        }
+
+                        if (builder.Length != 0)
+                        {
+                            builder.Append(", ");
+                            concatenated = true;
+                        }
+
+                        if (IsUnicode)
+                        {
+                            builder.Append('N');
+                        }
+
+                        builder
+                            .Append("CHAR(")
+                            .Append(lineFeed ? "10" : "13")
+                            .Append(')');
+                    }
+                    else if (apostrophe)
+                    {
+                        if (!openApostrophe)
+                        {
+                            if (builder.Length != 0)
+                            {
+                                builder.Append(", ");
+                                concatenated = true;
+                            }
+
+                            if (IsUnicode)
+                            {
+                                builder.Append('N');
+                            }
+
+                            builder.Append("'");
+                            openApostrophe = true;
+                        }
+                        builder.Append("''");
+                    }
+                    start = i + 1;
+                }
+            }
+            length = i - start;
+            if (length != 0)
+            {
+                if (!openApostrophe)
+                {
+                    if (builder.Length != 0)
+                    {
+                        builder.Append(", ");
+                        concatenated = true;
+                    }
+
+                    if (IsUnicode)
+                    {
+                        builder.Append('N');
+                    }
+
+                    builder.Append('\'');
+                    openApostrophe = true;
+                }
+
+                builder.Append(stringValue.AsSpan().Slice(start, length));
             }
 
-            if (value.Length == 1)
+            if (openApostrophe)
             {
-                return value[0] == '\n' ? "CHAR(10)" : "CHAR(13)";
+                builder.Append('\'');
             }
 
-            return ($"CONCAT({unicodePrefix}'"
-                    + value
-                        .Replace("\r", $"', CHAR(13), {unicodePrefix}'")
-                        .Replace("\n", $"', CHAR(10), {unicodePrefix}'")
-                    + "')")
-                .Replace($"{unicodePrefix}'', ", string.Empty)
-                .Replace($", {unicodePrefix}''", string.Empty);
+            if (concatenated)
+            {
+                builder
+                    .Insert(0, "CONCAT(")
+                    .Append(')');
+            }
+
+            if (builder.Length == 0)
+            {
+                if (IsUnicode)
+                {
+                    builder.Append('N');
+                }
+
+                builder.Append("''");
+            }
+
+            return builder.ToString();
         }
     }
 }
