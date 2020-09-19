@@ -58,12 +58,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Begins a SQL check to make sure the transaction is still valid.
         /// </summary>
-        public virtual void BeginIfTransactionStateValidScript([NotNull] IndentedStringBuilder builder) { }
+        public virtual void BeginIfTransactionStateValidScript(IndentedStringBuilder builder) { }
 
         /// <summary>
         ///     Ends a SQL check to make sure the transaction is still valid.
         /// </summary>
-        public virtual void EndIfTransactionStateValidScript([NotNull] IndentedStringBuilder builder) { }
+        public virtual void EndIfTransactionStateValidScript(IndentedStringBuilder builder) { }
 
         /// <inheritdoc />
         public virtual string StartTransactionStatement

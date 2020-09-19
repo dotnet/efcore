@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override void BeginIfTransactionStateValidScript([NotNull] IndentedStringBuilder builder)
+        public override void BeginIfTransactionStateValidScript(IndentedStringBuilder builder)
             => builder.AppendLine("IF XACT_STATE() = 1").AppendLine("BEGIN").IncrementIndent();
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override void EndIfTransactionStateValidScript([NotNull] IndentedStringBuilder builder)
+        public override void EndIfTransactionStateValidScript(IndentedStringBuilder builder)
             => builder.DecrementIndent().AppendLine("END").AppendLine(StatementTerminator);
 
         /// <summary>
