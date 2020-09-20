@@ -1045,8 +1045,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             get
             {
-                var value = ReadPropertyValue(propertyBase);
-
                 var storeGeneratedIndex = propertyBase.GetStoreGeneratedIndex();
                 if (storeGeneratedIndex != -1)
                 {
@@ -1062,6 +1060,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         return generatedValue;
                     }
 
+                    var value = ReadPropertyValue(propertyBase);
                     if (equals(value, defaultValue))
                     {
                         if (_temporaryValues.TryGetValue(storeGeneratedIndex, out generatedValue)
@@ -1070,9 +1069,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             return generatedValue;
                         }
                     }
+
+                    return value;
                 }
 
-                return value;
+                return ReadPropertyValue(propertyBase);
             }
 
             [param: CanBeNull] set => SetProperty(propertyBase, value, isMaterialization: false);
@@ -1178,12 +1179,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         WritePropertyValue(propertyBase, value, isMaterialization);
 
-                        if (currentValueType != CurrentValueType.Normal
-                            && !_temporaryValues.IsEmpty)
+                        switch (currentValueType)
                         {
-                            var defaultValue = asProperty.ClrType.GetDefaultValue();
-                            var storeGeneratedIndex = asProperty.GetStoreGeneratedIndex();
-                            _temporaryValues.SetValue(asProperty, defaultValue, storeGeneratedIndex);
+                            case CurrentValueType.StoreGenerated:
+                                if (!_storeGeneratedValues.IsEmpty)
+                                {
+                                    var defaultValue = asProperty.ClrType.GetDefaultValue();
+                                    var storeGeneratedIndex = asProperty.GetStoreGeneratedIndex();
+                                    _storeGeneratedValues.SetValue(asProperty, defaultValue, storeGeneratedIndex);
+                                }
+                                break;
+                            case CurrentValueType.Temporary:
+                                if (!_temporaryValues.IsEmpty)
+                                {
+                                    var defaultValue = asProperty.ClrType.GetDefaultValue();
+                                    var storeGeneratedIndex = asProperty.GetStoreGeneratedIndex();
+                                    _temporaryValues.SetValue(asProperty, defaultValue, storeGeneratedIndex);
+                                }
+                                break;
                         }
                     }
                     else

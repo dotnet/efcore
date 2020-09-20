@@ -58,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             private readonly IDictionary<Expression, (IEntityType EntityType, Expression JObjectExpression)> _ownerMappings
                 = new Dictionary<Expression, (IEntityType, Expression)>();
 
-            private readonly IDictionary<Expression, ParameterExpression> _ordinalParameterBindings
-                = new Dictionary<Expression, ParameterExpression>();
+            private readonly IDictionary<Expression, Expression> _ordinalParameterBindings
+                = new Dictionary<Expression, Expression>();
 
             private List<IncludeExpression> _pendingIncludes
                 = new List<IncludeExpression>();
@@ -269,9 +269,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                         var accessExpression = objectArrayProjection.InnerProjection.AccessExpression;
                         _projectionBindings[accessExpression] = jObjectParameter;
-                        _ownerMappings[accessExpression] = (
-                            objectArrayProjection.Navigation.DeclaringEntityType, objectArrayProjection.AccessExpression);
-                        _ordinalParameterBindings[accessExpression] = ordinalParameter;
+                        _ownerMappings[accessExpression] =
+                            (objectArrayProjection.Navigation.DeclaringEntityType, objectArrayProjection.AccessExpression);
+                        _ordinalParameterBindings[accessExpression] = Expression.Add(
+                            ordinalParameter, Expression.Constant(1, typeof(int)));
 
                         var innerShaper = (BlockExpression)Visit(collectionShaperExpression.InnerShaper);
 
