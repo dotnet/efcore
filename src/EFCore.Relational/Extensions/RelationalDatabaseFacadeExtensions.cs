@@ -408,7 +408,15 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Gets the underlying ADO.NET <see cref="DbConnection" /> for this <see cref="DbContext" />.
+        ///     <para>
+        ///         Gets the underlying ADO.NET <see cref="DbConnection" /> for this <see cref="DbContext" />.
+        ///     </para>
+        ///     <para>
+        ///         This connection should not be disposed if it was created by Entity Framework. Connections are created by
+        ///         Entity Framework when a connection string rather than a DbConnection object is passed to the the 'UseMyProvider'
+        ///         method for the database provider in use. Conversely, the application is responsible for disposing a DbConnection
+        ///         passed to Entity Framework in 'UseMtyProvider'.
+        ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <returns> The <see cref="DbConnection" /> </returns>
@@ -605,8 +613,19 @@ namespace Microsoft.EntityFrameworkCore
         ///         Sets the timeout (in seconds) to use for commands executed with this <see cref="DbContext" />.
         ///     </para>
         ///     <para>
-        ///         Note that the command timeout is distinct from the connection timeout, which is commonly
-        ///         set on the database connection string.
+        ///         If this value is set, then it is used to set <see cref="DbCommand.CommandTimeout" /> whenever Entity Framework creates a
+        ///         <see cref="DbCommand" /> to execute a query.
+        ///     </para>
+        ///     <para>
+        ///         If this value is not set, then the default value used is defined by the underlying ADO.NET data provider.
+        ///         Consult the documentation for the implementation of <see cref="DbCommand" /> in the ADO.NET data provider for details of
+        ///         default values, etc.
+        ///     </para>
+        ///     <para>
+        ///         Note that the command timeout is distinct from the connection timeout. Connection timeouts are usually
+        ///         configured in the connection string. More recently, some ADO.NET data providers are adding the capability
+        ///         to also set a command timeout in the connection string. A value set with this API for the command timeout
+        ///         will override any value set in the connection string.
         ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
@@ -619,8 +638,8 @@ namespace Microsoft.EntityFrameworkCore
         ///         Sets the timeout to use for commands executed with this <see cref="DbContext" />.
         ///     </para>
         ///     <para>
-        ///         Note that the command timeout is distinct from the connection timeout, which is commonly
-        ///         set on the database connection string.
+        ///         This is a sugar method allowing a <see cref="TimeSpan" /> to be used to set the value. It delegates to
+        ///         <see cref="SetCommandTimeout(DatabaseFacade,Nullable{int})" />.
         ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
