@@ -740,7 +740,7 @@ namespace Microsoft.EntityFrameworkCore
                     return s.Result;
                 }, async (c, s, ct) => new ExecutionResult<TResult>(
                     s.CommitFailed && await s.VerifySucceeded(s.State, ct).ConfigureAwait(false),
-                    s.Result));
+                    s.Result), cancellationToken);
 
         private sealed class ExecutionState<TState, TResult>
         {

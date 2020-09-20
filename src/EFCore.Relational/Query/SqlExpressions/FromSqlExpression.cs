@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         private bool Equals(FromSqlExpression fromSqlExpression)
             => base.Equals(fromSqlExpression)
-                && string.Equals(Sql, fromSqlExpression.Sql)
+                && Sql == fromSqlExpression.Sql
                 && ExpressionEqualityComparer.Instance.Equals(Arguments, fromSqlExpression.Arguments);
 
         /// <inheritdoc />

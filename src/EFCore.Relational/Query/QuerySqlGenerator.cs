@@ -249,9 +249,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Visit(projectionExpression.Expression);
 
-            if (!string.Equals(string.Empty, projectionExpression.Alias)
-                && !(projectionExpression.Expression is ColumnExpression column
-                    && string.Equals(column.Name, projectionExpression.Alias)))
+            if (projectionExpression.Alias != string.Empty
+                && !(projectionExpression.Expression is ColumnExpression column && column.Name == projectionExpression.Alias))
             {
                 _relationalCommandBuilder.Append(AliasSeparator + _sqlGenerationHelper.DelimitIdentifier(projectionExpression.Alias));
             }

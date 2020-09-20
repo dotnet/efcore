@@ -942,14 +942,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 return true;
             }
 
-            if (!string.Equals(source.Name, target.Name))
+            if (source.Name != target.Name)
             {
                 return false;
             }
 
-            if (!string.Equals(
-                GetDefiningNavigationName(source),
-                GetDefiningNavigationName(target)))
+            if (GetDefiningNavigationName(source) != GetDefiningNavigationName(target))
             {
                 return false;
             }

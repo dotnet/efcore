@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         private bool Equals(SqlParameterExpression sqlParameterExpression)
             => base.Equals(sqlParameterExpression)
-                && string.Equals(Name, sqlParameterExpression.Name);
+                && Name == sqlParameterExpression.Name;
 
         /// <inheritdoc />
         public override int GetHashCode()
