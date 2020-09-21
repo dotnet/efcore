@@ -15,18 +15,18 @@
     <UsingToolXliff>False</UsingToolXliff>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/runtime">
-    <SystemCollectionsImmutableVersion>5.0.0-rc.2.20470.3</SystemCollectionsImmutableVersion>
-    <SystemComponentModelAnnotationsVersion>5.0.0-rc.2.20470.3</SystemComponentModelAnnotationsVersion>
-    <SystemDiagnosticsDiagnosticSourceVersion>5.0.0-rc.2.20470.3</SystemDiagnosticsDiagnosticSourceVersion>
-    <MicrosoftExtensionsCachingMemoryVersion>5.0.0-rc.2.20470.3</MicrosoftExtensionsCachingMemoryVersion>
-    <MicrosoftExtensionsConfigurationVersion>5.0.0-rc.2.20470.3</MicrosoftExtensionsConfigurationVersion>
-    <MicrosoftExtensionsConfigurationAbstractionsVersion>5.0.0-rc.2.20470.3</MicrosoftExtensionsConfigurationAbstractionsVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>5.0.0-rc.2.20470.3</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
-    <MicrosoftExtensionsConfigurationJsonVersion>5.0.0-rc.2.20470.3</MicrosoftExtensionsConfigurationJsonVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion>5.0.0-rc.2.20470.3</MicrosoftExtensionsDependencyInjectionVersion>
-    <MicrosoftExtensionsDependencyModelVersion>5.0.0-rc.2.20470.3</MicrosoftExtensionsDependencyModelVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesVersion>5.0.0-rc.2.20470.3</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
-    <MicrosoftExtensionsLoggingVersion>5.0.0-rc.2.20470.3</MicrosoftExtensionsLoggingVersion>
+    <SystemCollectionsImmutableVersion>5.0.0-rc.2.20471.5</SystemCollectionsImmutableVersion>
+    <SystemComponentModelAnnotationsVersion>5.0.0-rc.2.20471.5</SystemComponentModelAnnotationsVersion>
+    <SystemDiagnosticsDiagnosticSourceVersion>5.0.0-rc.2.20471.5</SystemDiagnosticsDiagnosticSourceVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>5.0.0-rc.2.20471.5</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsConfigurationVersion>5.0.0-rc.2.20471.5</MicrosoftExtensionsConfigurationVersion>
+    <MicrosoftExtensionsConfigurationAbstractionsVersion>5.0.0-rc.2.20471.5</MicrosoftExtensionsConfigurationAbstractionsVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>5.0.0-rc.2.20471.5</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
+    <MicrosoftExtensionsConfigurationJsonVersion>5.0.0-rc.2.20471.5</MicrosoftExtensionsConfigurationJsonVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>5.0.0-rc.2.20471.5</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftExtensionsDependencyModelVersion>5.0.0-rc.2.20471.5</MicrosoftExtensionsDependencyModelVersion>
+    <MicrosoftExtensionsHostFactoryResolverSourcesVersion>5.0.0-rc.2.20471.5</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
+    <MicrosoftExtensionsLoggingVersion>5.0.0-rc.2.20471.5</MicrosoftExtensionsLoggingVersion>
   </PropertyGroup>
   <PropertyGroup Label="Other dependencies">
     <MicrosoftCodeAnalysisVersion>3.7.0</MicrosoftCodeAnalysisVersion>
