@@ -696,6 +696,82 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Assert.Equal(ProductInfo.GetVersion(), modelFromSnapshot.GetProductVersion());
         }
 
+        [ConditionalFact]
+        public virtual void Model_use_identity_columns()
+        {
+            Test(
+                builder => builder.UseIdentityColumns(),
+                AddBoilerPlate(
+                    @"
+            modelBuilder
+                .UseIdentityColumns()
+                .HasAnnotation(""Relational:MaxIdentifierLength"", 128);"),
+                o =>
+                {
+                    Assert.Equal(5, o.GetAnnotations().Count());
+                    Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, o.GetValueGenerationStrategy());
+                    Assert.Equal(1, o.GetIdentitySeed());
+                    Assert.Equal(1, o.GetIdentityIncrement());
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Model_use_identity_columns_custom_seed()
+        {
+            Test(
+                builder => builder.UseIdentityColumns(5),
+                AddBoilerPlate(
+                    @"
+            modelBuilder
+                .UseIdentityColumns(5)
+                .HasAnnotation(""Relational:MaxIdentifierLength"", 128);"),
+                o =>
+                {
+                    Assert.Equal(5, o.GetAnnotations().Count());
+                    Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, o.GetValueGenerationStrategy());
+                    Assert.Equal(5, o.GetIdentitySeed());
+                    Assert.Equal(1, o.GetIdentityIncrement());
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Model_use_identity_columns_custom_increment()
+        {
+            Test(
+                builder => builder.UseIdentityColumns(increment: 5),
+                AddBoilerPlate(
+                    @"
+            modelBuilder
+                .UseIdentityColumns(1, 5)
+                .HasAnnotation(""Relational:MaxIdentifierLength"", 128);"),
+                o =>
+                {
+                    Assert.Equal(5, o.GetAnnotations().Count());
+                    Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, o.GetValueGenerationStrategy());
+                    Assert.Equal(1, o.GetIdentitySeed());
+                    Assert.Equal(5, o.GetIdentityIncrement());
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Model_use_identity_columns_custom_seed_increment()
+        {
+            Test(
+                builder => builder.UseIdentityColumns(5, 5),
+                AddBoilerPlate(
+                    @"
+            modelBuilder
+                .UseIdentityColumns(5, 5)
+                .HasAnnotation(""Relational:MaxIdentifierLength"", 128);"),
+                o =>
+                {
+                    Assert.Equal(5, o.GetAnnotations().Count());
+                    Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, o.GetValueGenerationStrategy());
+                    Assert.Equal(5, o.GetIdentitySeed());
+                    Assert.Equal(5, o.GetIdentityIncrement());
+                });
+        }
+
         #endregion
 
         #region EntityType
@@ -2997,6 +3073,166 @@ namespace RootNamespace
                 {
                     var property = o.FindEntityType("Building").FindProperty("Id");
                     Assert.Equal("int", property.GetColumnType());
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Property_with_identity_column()
+        {
+            var modelBuilder = new ModelBuilder();
+            var model = modelBuilder.Model;
+
+            modelBuilder.Entity(
+                "Building", b =>
+                {
+                    b.Property<int>("Id").UseIdentityColumn();
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Buildings");
+                });
+
+            Test(
+                model.FinalizeModel(),
+                AddBoilerPlate(
+                    @"
+
+            modelBuilder.Entity(""Building"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .HasColumnType(""int"")
+                        .UseIdentityColumn();
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""Buildings"");
+                });"),
+                o =>
+                {
+                    var property = o.FindEntityType("Building").FindProperty("Id");
+                    Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, property.GetValueGenerationStrategy());
+                    Assert.Equal(1, property.GetIdentitySeed());
+                    Assert.Equal(1, property.GetIdentityIncrement());
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Property_with_identity_column_custom_seed()
+        {
+            var modelBuilder = new ModelBuilder();
+            var model = modelBuilder.Model;
+
+            modelBuilder.Entity(
+                "Building", b =>
+                {
+                    b.Property<int>("Id").UseIdentityColumn(5);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Buildings");
+                });
+
+            Test(
+                model.FinalizeModel(),
+                AddBoilerPlate(
+                    @"
+
+            modelBuilder.Entity(""Building"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .HasColumnType(""int"")
+                        .UseIdentityColumn(5);
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""Buildings"");
+                });"),
+                o =>
+                {
+                    var property = o.FindEntityType("Building").FindProperty("Id");
+                    Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, property.GetValueGenerationStrategy());
+                    Assert.Equal(5, property.GetIdentitySeed());
+                    Assert.Equal(1, property.GetIdentityIncrement());
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Property_with_identity_column_custom_increment()
+        {
+            var modelBuilder = new ModelBuilder();
+            var model = modelBuilder.Model;
+
+            modelBuilder.Entity(
+                "Building", b =>
+                {
+                    b.Property<int>("Id").UseIdentityColumn(increment: 5);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Buildings");
+                });
+
+            Test(
+                model.FinalizeModel(),
+                AddBoilerPlate(
+                    @"
+
+            modelBuilder.Entity(""Building"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .HasColumnType(""int"")
+                        .UseIdentityColumn(1, 5);
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""Buildings"");
+                });"),
+                o =>
+                {
+                    var property = o.FindEntityType("Building").FindProperty("Id");
+                    Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, property.GetValueGenerationStrategy());
+                    Assert.Equal(1, property.GetIdentitySeed());
+                    Assert.Equal(5, property.GetIdentityIncrement());
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Property_with_identity_column_custom_seed_increment()
+        {
+            var modelBuilder = new ModelBuilder();
+            var model = modelBuilder.Model;
+
+            modelBuilder.Entity(
+                "Building", b =>
+                {
+                    b.Property<int>("Id").UseIdentityColumn(5, 5);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Buildings");
+                });
+
+            Test(
+                model.FinalizeModel(),
+                AddBoilerPlate(
+                    @"
+
+            modelBuilder.Entity(""Building"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .HasColumnType(""int"")
+                        .UseIdentityColumn(5, 5);
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""Buildings"");
+                });"),
+                o =>
+                {
+                    var property = o.FindEntityType("Building").FindProperty("Id");
+                    Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, property.GetValueGenerationStrategy());
+                    Assert.Equal(5, property.GetIdentitySeed());
+                    Assert.Equal(5, property.GetIdentityIncrement());
                 });
         }
 
