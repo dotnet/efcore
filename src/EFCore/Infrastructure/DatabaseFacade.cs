@@ -53,13 +53,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         <item>
         ///             <description>
         ///                 If the database exists but does not have any tables, then the Entity Framework model is used to
-        ///                 populate the database schema.
+        ///                 create the database schema.
         ///             </description>
         ///         </item>
         ///         <item>
         ///             <description>
         ///                 If the database does not exist, then the database is created and the Entity Framework model is used to
-        ///                 populate the database schema.
+        ///                 create the database schema.
         ///             </description>
         ///         </item>
         ///     </list>
@@ -93,13 +93,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         <item>
         ///             <description>
         ///                 If the database exists but does not have any tables, then the Entity Framework model is used to
-        ///                 populate the database schema.
+        ///                 create the database schema.
         ///             </description>
         ///         </item>
         ///         <item>
         ///             <description>
         ///                 If the database does not exist, then the database is created and the Entity Framework model is used to
-        ///                 populate the database schema.
+        ///                 create the database schema.
         ///             </description>
         ///         </item>
         ///     </list>
@@ -267,14 +267,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         if no transaction is in use.
         ///     </para>
         ///     <para>
-        ///         This property will be null unless one of the <see cref="M:BeginTransaction" />, <see cref="M:UseTransaction" />,
+        ///         This property is null unless one of <see cref="M:BeginTransaction" />, <see cref="M:UseTransaction" />,
         ///         <see cref="M:Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.BeginTransaction" />, or
         ///         <see cref="M:Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.UseTransaction" />
         ///         has been called.
         ///         No attempt is made to obtain a transaction from the current DbConnection or similar.
         ///     </para>
         ///     <para>
-        ///         For relational databases, the underlying DbTransaction can be obtained using
+        ///         For relational databases, the underlying <see cref="T:System.Data.Common.DbTransaction" /> can be obtained using
         ///         <see cref="M:Microsoft.EntityFrameworkCore.Storage.GetDbTransaction" />
         ///         on the returned <see cref="IDbContextTransaction" />.
         ///     </para>
