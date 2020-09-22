@@ -32,7 +32,32 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             base.Can_generate_migration_from_initial_database_to_initial();
 
             Assert.Equal(
-                @"IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+                @"SET CONTEXT_INFO 0x0;
+GO
+
+-- Abort execution if an error is encountered in a batch
+:ON ERROR EXIT
+
+SET CONTEXT_INFO 0xEF;
+GO
+
+IF CONTEXT_INFO() <> 0xEF
+BEGIN
+    PRINT 'ERROR: Entity Framework scripts should be run in SQLCMD mode. Enable SQL > Execution Settings > SQLCMD Mode and try again.';
+
+    -- Disable execution if not running in SQLCMD mode
+    SET NOEXEC ON;
+END;
+GO
+
+-- Automatically rollback the current transaction when a SQL statement raises a runtime error
+SET XACT_ABORT ON;
+
+-- Must be ON when you are creating a filtered index.
+SET QUOTED_IDENTIFIER ON;
+GO
+
+IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
         [MigrationId] nvarchar(150) NOT NULL,
@@ -40,6 +65,10 @@ BEGIN
         CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
     );
 END;
+GO
+
+SET NOEXEC OFF;
+SET QUOTED_IDENTIFIER OFF;
 GO
 
 ",
@@ -52,7 +81,32 @@ GO
             base.Can_generate_no_migration_script();
 
             Assert.Equal(
-                @"IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+                @"SET CONTEXT_INFO 0x0;
+GO
+
+-- Abort execution if an error is encountered in a batch
+:ON ERROR EXIT
+
+SET CONTEXT_INFO 0xEF;
+GO
+
+IF CONTEXT_INFO() <> 0xEF
+BEGIN
+    PRINT 'ERROR: Entity Framework scripts should be run in SQLCMD mode. Enable SQL > Execution Settings > SQLCMD Mode and try again.';
+
+    -- Disable execution if not running in SQLCMD mode
+    SET NOEXEC ON;
+END;
+GO
+
+-- Automatically rollback the current transaction when a SQL statement raises a runtime error
+SET XACT_ABORT ON;
+
+-- Must be ON when you are creating a filtered index.
+SET QUOTED_IDENTIFIER ON;
+GO
+
+IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
         [MigrationId] nvarchar(150) NOT NULL,
@@ -60,6 +114,10 @@ BEGIN
         CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
     );
 END;
+GO
+
+SET NOEXEC OFF;
+SET QUOTED_IDENTIFIER OFF;
 GO
 
 ",
@@ -72,7 +130,32 @@ GO
             base.Can_generate_up_scripts();
 
             Assert.Equal(
-                @"IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+                @"SET CONTEXT_INFO 0x0;
+GO
+
+-- Abort execution if an error is encountered in a batch
+:ON ERROR EXIT
+
+SET CONTEXT_INFO 0xEF;
+GO
+
+IF CONTEXT_INFO() <> 0xEF
+BEGIN
+    PRINT 'ERROR: Entity Framework scripts should be run in SQLCMD mode. Enable SQL > Execution Settings > SQLCMD Mode and try again.';
+
+    -- Disable execution if not running in SQLCMD mode
+    SET NOEXEC ON;
+END;
+GO
+
+-- Automatically rollback the current transaction when a SQL statement raises a runtime error
+SET XACT_ABORT ON;
+
+-- Must be ON when you are creating a filtered index.
+SET QUOTED_IDENTIFIER ON;
+GO
+
+IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
         [MigrationId] nvarchar(150) NOT NULL,
@@ -126,6 +209,10 @@ VALUES (N'00000000000003_Migration3', N'7.0.0-test');
 GO
 
 COMMIT;
+GO
+
+SET NOEXEC OFF;
+SET QUOTED_IDENTIFIER OFF;
 GO
 
 ",
@@ -138,7 +225,11 @@ GO
             base.Can_generate_up_scripts_noTransactions();
 
             Assert.Equal(
-                @"IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+                @"-- Must be ON when you are creating a filtered index.
+SET QUOTED_IDENTIFIER ON;
+GO
+
+IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
         [MigrationId] nvarchar(150) NOT NULL,
@@ -176,6 +267,9 @@ INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000003_Migration3', N'7.0.0-test');
 GO
 
+SET QUOTED_IDENTIFIER OFF;
+GO
+
 ",
                 Sql,
                 ignoreLineEndingDifferences: true);
@@ -186,7 +280,32 @@ GO
             base.Can_generate_one_up_script();
 
             Assert.Equal(
-                @"BEGIN TRANSACTION;
+                @"SET CONTEXT_INFO 0x0;
+GO
+
+-- Abort execution if an error is encountered in a batch
+:ON ERROR EXIT
+
+SET CONTEXT_INFO 0xEF;
+GO
+
+IF CONTEXT_INFO() <> 0xEF
+BEGIN
+    PRINT 'ERROR: Entity Framework scripts should be run in SQLCMD mode. Enable SQL > Execution Settings > SQLCMD Mode and try again.';
+
+    -- Disable execution if not running in SQLCMD mode
+    SET NOEXEC ON;
+END;
+GO
+
+-- Automatically rollback the current transaction when a SQL statement raises a runtime error
+SET XACT_ABORT ON;
+
+-- Must be ON when you are creating a filtered index.
+SET QUOTED_IDENTIFIER ON;
+GO
+
+BEGIN TRANSACTION;
 GO
 
 EXEC sp_rename N'[Table1].[Foo]', N'Bar', N'COLUMN';
@@ -197,6 +316,10 @@ VALUES (N'00000000000002_Migration2', N'7.0.0-test');
 GO
 
 COMMIT;
+GO
+
+SET NOEXEC OFF;
+SET QUOTED_IDENTIFIER OFF;
 GO
 
 ",
@@ -209,7 +332,32 @@ GO
             base.Can_generate_up_script_using_names();
 
             Assert.Equal(
-                @"BEGIN TRANSACTION;
+                @"SET CONTEXT_INFO 0x0;
+GO
+
+-- Abort execution if an error is encountered in a batch
+:ON ERROR EXIT
+
+SET CONTEXT_INFO 0xEF;
+GO
+
+IF CONTEXT_INFO() <> 0xEF
+BEGIN
+    PRINT 'ERROR: Entity Framework scripts should be run in SQLCMD mode. Enable SQL > Execution Settings > SQLCMD Mode and try again.';
+
+    -- Disable execution if not running in SQLCMD mode
+    SET NOEXEC ON;
+END;
+GO
+
+-- Automatically rollback the current transaction when a SQL statement raises a runtime error
+SET XACT_ABORT ON;
+
+-- Must be ON when you are creating a filtered index.
+SET QUOTED_IDENTIFIER ON;
+GO
+
+BEGIN TRANSACTION;
 GO
 
 EXEC sp_rename N'[Table1].[Foo]', N'Bar', N'COLUMN';
@@ -222,6 +370,10 @@ GO
 COMMIT;
 GO
 
+SET NOEXEC OFF;
+SET QUOTED_IDENTIFIER OFF;
+GO
+
 ",
                 Sql,
                 ignoreLineEndingDifferences: true);
@@ -232,7 +384,32 @@ GO
             base.Can_generate_idempotent_up_scripts();
 
             Assert.Equal(
-                @"IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+                @"SET CONTEXT_INFO 0x0;
+GO
+
+-- Abort execution if an error is encountered in a batch
+:ON ERROR EXIT
+
+SET CONTEXT_INFO 0xEF;
+GO
+
+IF CONTEXT_INFO() <> 0xEF
+BEGIN
+    PRINT 'ERROR: Entity Framework scripts should be run in SQLCMD mode. Enable SQL > Execution Settings > SQLCMD Mode and try again.';
+
+    -- Disable execution if not running in SQLCMD mode
+    SET NOEXEC ON;
+END;
+GO
+
+-- Automatically rollback the current transaction when a SQL statement raises a runtime error
+SET XACT_ABORT ON;
+
+-- Must be ON when you are creating a filtered index.
+SET QUOTED_IDENTIFIER ON;
+GO
+
+IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
         [MigrationId] nvarchar(150) NOT NULL,
@@ -307,6 +484,10 @@ END;
 GO
 
 COMMIT;
+GO
+
+SET NOEXEC OFF;
+SET QUOTED_IDENTIFIER OFF;
 GO
 
 ",
@@ -319,7 +500,11 @@ GO
             base.Can_generate_idempotent_up_scripts_noTransactions();
 
             Assert.Equal(
-                @"IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+                @"-- Must be ON when you are creating a filtered index.
+SET QUOTED_IDENTIFIER ON;
+GO
+
+IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
         [MigrationId] nvarchar(150) NOT NULL,
@@ -378,6 +563,9 @@ BEGIN
 END;
 GO
 
+SET QUOTED_IDENTIFIER OFF;
+GO
+
 ",
                 Sql,
                 ignoreLineEndingDifferences: true);
@@ -388,7 +576,32 @@ GO
             base.Can_generate_down_scripts();
 
             Assert.Equal(
-                @"BEGIN TRANSACTION;
+                @"SET CONTEXT_INFO 0x0;
+GO
+
+-- Abort execution if an error is encountered in a batch
+:ON ERROR EXIT
+
+SET CONTEXT_INFO 0xEF;
+GO
+
+IF CONTEXT_INFO() <> 0xEF
+BEGIN
+    PRINT 'ERROR: Entity Framework scripts should be run in SQLCMD mode. Enable SQL > Execution Settings > SQLCMD Mode and try again.';
+
+    -- Disable execution if not running in SQLCMD mode
+    SET NOEXEC ON;
+END;
+GO
+
+-- Automatically rollback the current transaction when a SQL statement raises a runtime error
+SET XACT_ABORT ON;
+
+-- Must be ON when you are creating a filtered index.
+SET QUOTED_IDENTIFIER ON;
+GO
+
+BEGIN TRANSACTION;
 GO
 
 EXEC sp_rename N'[Table1].[Bar]', N'Foo', N'COLUMN';
@@ -414,6 +627,10 @@ GO
 COMMIT;
 GO
 
+SET NOEXEC OFF;
+SET QUOTED_IDENTIFIER OFF;
+GO
+
 ",
                 Sql,
                 ignoreLineEndingDifferences: true);
@@ -424,7 +641,32 @@ GO
             base.Can_generate_idempotent_down_scripts();
 
             Assert.Equal(
-                @"BEGIN TRANSACTION;
+                @"SET CONTEXT_INFO 0x0;
+GO
+
+-- Abort execution if an error is encountered in a batch
+:ON ERROR EXIT
+
+SET CONTEXT_INFO 0xEF;
+GO
+
+IF CONTEXT_INFO() <> 0xEF
+BEGIN
+    PRINT 'ERROR: Entity Framework scripts should be run in SQLCMD mode. Enable SQL > Execution Settings > SQLCMD Mode and try again.';
+
+    -- Disable execution if not running in SQLCMD mode
+    SET NOEXEC ON;
+END;
+GO
+
+-- Automatically rollback the current transaction when a SQL statement raises a runtime error
+SET XACT_ABORT ON;
+
+-- Must be ON when you are creating a filtered index.
+SET QUOTED_IDENTIFIER ON;
+GO
+
+BEGIN TRANSACTION;
 GO
 
 IF EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000002_Migration2')
@@ -462,6 +704,10 @@ GO
 COMMIT;
 GO
 
+SET NOEXEC OFF;
+SET QUOTED_IDENTIFIER OFF;
+GO
+
 ",
                 Sql,
                 ignoreLineEndingDifferences: true);
@@ -472,7 +718,32 @@ GO
             base.Can_generate_one_down_script();
 
             Assert.Equal(
-                @"BEGIN TRANSACTION;
+                @"SET CONTEXT_INFO 0x0;
+GO
+
+-- Abort execution if an error is encountered in a batch
+:ON ERROR EXIT
+
+SET CONTEXT_INFO 0xEF;
+GO
+
+IF CONTEXT_INFO() <> 0xEF
+BEGIN
+    PRINT 'ERROR: Entity Framework scripts should be run in SQLCMD mode. Enable SQL > Execution Settings > SQLCMD Mode and try again.';
+
+    -- Disable execution if not running in SQLCMD mode
+    SET NOEXEC ON;
+END;
+GO
+
+-- Automatically rollback the current transaction when a SQL statement raises a runtime error
+SET XACT_ABORT ON;
+
+-- Must be ON when you are creating a filtered index.
+SET QUOTED_IDENTIFIER ON;
+GO
+
+BEGIN TRANSACTION;
 GO
 
 EXEC sp_rename N'[Table1].[Bar]', N'Foo', N'COLUMN';
@@ -483,6 +754,10 @@ WHERE [MigrationId] = N'00000000000002_Migration2';
 GO
 
 COMMIT;
+GO
+
+SET NOEXEC OFF;
+SET QUOTED_IDENTIFIER OFF;
 GO
 
 ",
@@ -495,7 +770,32 @@ GO
             base.Can_generate_down_script_using_names();
 
             Assert.Equal(
-                @"BEGIN TRANSACTION;
+                @"SET CONTEXT_INFO 0x0;
+GO
+
+-- Abort execution if an error is encountered in a batch
+:ON ERROR EXIT
+
+SET CONTEXT_INFO 0xEF;
+GO
+
+IF CONTEXT_INFO() <> 0xEF
+BEGIN
+    PRINT 'ERROR: Entity Framework scripts should be run in SQLCMD mode. Enable SQL > Execution Settings > SQLCMD Mode and try again.';
+
+    -- Disable execution if not running in SQLCMD mode
+    SET NOEXEC ON;
+END;
+GO
+
+-- Automatically rollback the current transaction when a SQL statement raises a runtime error
+SET XACT_ABORT ON;
+
+-- Must be ON when you are creating a filtered index.
+SET QUOTED_IDENTIFIER ON;
+GO
+
+BEGIN TRANSACTION;
 GO
 
 EXEC sp_rename N'[Table1].[Bar]', N'Foo', N'COLUMN';
@@ -506,6 +806,10 @@ WHERE [MigrationId] = N'00000000000002_Migration2';
 GO
 
 COMMIT;
+GO
+
+SET NOEXEC OFF;
+SET QUOTED_IDENTIFIER OFF;
 GO
 
 ",

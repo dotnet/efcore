@@ -333,6 +333,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var builder = new IndentedStringBuilder();
 
+            _sqlGenerationHelper.StartMigrationScript(builder, noTransactions);
+
             if (fromMigration == Migration.InitialDatabase
                 || string.IsNullOrEmpty(fromMigration))
             {
@@ -451,6 +453,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     transactionStarted = false;
                 }
             }
+
+            _sqlGenerationHelper.EndMigrationScript(builder, noTransactions);
 
             return builder.ToString();
         }

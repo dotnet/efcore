@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -199,5 +200,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             return builder.ToString();
         }
+
+        /// <summary>
+        ///     Gets the SQL script that will execute at the start of each migration script.
+        /// </summary>
+        public virtual void StartMigrationScript(IndentedStringBuilder builder, bool noTransactions) { }
+
+        /// <summary>
+        ///     Gets the SQL script that will execute at the end of each migration script.
+        /// </summary>
+        public virtual void EndMigrationScript(IndentedStringBuilder builder, bool noTransactions) { }
     }
 }

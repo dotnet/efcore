@@ -3,6 +3,7 @@
 
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -120,5 +121,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="text"> The comment text. </param>
         /// <returns> The generated SQL. </returns>
         string GenerateComment([NotNull] string text);
+
+        /// <summary>
+        ///     Gets the SQL script that will execute at the start of each migration script.
+        /// </summary>
+        void StartMigrationScript([NotNull] IndentedStringBuilder builder, bool noTransactions);
+
+        /// <summary>
+        ///     Gets the SQL script that will execute at the end of each migration script.
+        /// </summary>
+        void EndMigrationScript([NotNull] IndentedStringBuilder builder, bool noTransactions);
     }
 }
