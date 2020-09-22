@@ -314,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateColumnAttribute(IProperty property)
         {
-            var columnName = property.GetColumnName();
+            var columnName = property.GetColumnBaseName();
             var columnType = property.GetConfiguredColumnType();
 
             var delimitedColumnName = columnName != null && columnName != property.Name ? _code.Literal(columnName) : null;

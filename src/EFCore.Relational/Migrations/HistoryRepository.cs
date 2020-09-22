@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => _migrationIdColumnName ??= EnsureModel()
                 .FindEntityType(typeof(HistoryRow))
                 .FindProperty(nameof(HistoryRow.MigrationId))
-                .GetColumnName();
+                .GetColumnBaseName();
 
         private IModel EnsureModel()
         {
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => _productVersionColumnName ??= EnsureModel()
                 .FindEntityType(typeof(HistoryRow))
                 .FindProperty(nameof(HistoryRow.ProductVersion))
-                .GetColumnName();
+                .GetColumnBaseName();
 
         /// <summary>
         ///     Overridden by database providers to generate SQL that tests for existence of the history table.

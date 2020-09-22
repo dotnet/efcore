@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.NotNull(propertyBuilder.IsFixedLength(true));
             Assert.True(propertyBuilder.Metadata.IsFixedLength());
             Assert.NotNull(propertyBuilder.HasColumnName("Splew"));
-            Assert.Equal("Splew", propertyBuilder.Metadata.GetColumnName());
+            Assert.Equal("Splew", propertyBuilder.Metadata.GetColumnBaseName());
             Assert.NotNull(propertyBuilder.HasColumnType("int"));
             Assert.Equal("int", propertyBuilder.Metadata.GetColumnType());
             Assert.NotNull(propertyBuilder.HasDefaultValue(1));
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.False(propertyBuilder.Metadata.IsFixedLength());
             Assert.NotNull(propertyBuilder.HasColumnName("Splow", fromDataAnnotation: true));
             Assert.Null(propertyBuilder.HasColumnName("Splod"));
-            Assert.Equal("Splow", propertyBuilder.Metadata.GetColumnName());
+            Assert.Equal("Splow", propertyBuilder.Metadata.GetColumnBaseName());
             Assert.NotNull(propertyBuilder.HasColumnType("varchar", fromDataAnnotation: true));
             Assert.Null(propertyBuilder.HasColumnType("int"));
             Assert.Equal("varchar", propertyBuilder.Metadata.GetColumnType());
