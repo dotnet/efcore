@@ -2921,6 +2921,216 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public virtual void Can_insert_many_to_many_fully_by_convention_generated_keys()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var leftEntities = new[]
+                    {
+                        context.Set<GeneratedKeysLeft>().CreateInstance(),
+                        context.Set<GeneratedKeysLeft>().CreateInstance(),
+                        context.Set<GeneratedKeysLeft>().CreateInstance()
+                    };
+                    var rightEntities = new[]
+                    {
+                        context.Set<GeneratedKeysRight>().CreateInstance(),
+                        context.Set<GeneratedKeysRight>().CreateInstance(),
+                        context.Set<GeneratedKeysRight>().CreateInstance()
+                    };
+
+                    leftEntities[0].Rights.Add(rightEntities[0]); // 11 - 21
+                    leftEntities[0].Rights.Add(rightEntities[1]); // 11 - 22
+                    leftEntities[0].Rights.Add(rightEntities[2]); // 11 - 23
+
+                    rightEntities[0].Lefts.Add(leftEntities[0]); // 21 - 11 (Dupe)
+                    rightEntities[0].Lefts.Add(leftEntities[1]); // 21 - 12
+                    rightEntities[0].Lefts.Add(leftEntities[2]); // 21 - 13
+
+                    context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+
+                    context.SaveChanges();
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+                },
+                context =>
+                {
+                    var results = context.Set<GeneratedKeysLeft>().Include(e => e.Rights).ToList();
+                    Assert.Equal(3, results.Count);
+
+                    Assert.Equal(11, context.ChangeTracker.Entries().Count());
+                    Assert.Equal(3, context.ChangeTracker.Entries<GeneratedKeysLeft>().Count());
+                    Assert.Equal(3, context.ChangeTracker.Entries<GeneratedKeysRight>().Count());
+                    Assert.Equal(5, context.ChangeTracker.Entries<Dictionary<string, object>>().Count());
+
+                    var leftEntities = context.ChangeTracker.Entries<GeneratedKeysLeft>().Select(e => e.Entity).OrderBy(e => e.Id)
+                        .ToList();
+                    var rightEntities = context.ChangeTracker.Entries<GeneratedKeysRight>().Select(e => e.Entity).OrderBy(e => e.Id)
+                        .ToList();
+
+                    Assert.Equal(3, leftEntities[0].Rights.Count);
+                    Assert.Single(leftEntities[1].Rights);
+                    Assert.Single(leftEntities[2].Rights);
+
+                    Assert.Equal(3, rightEntities[0].Lefts.Count);
+                    Assert.Single(rightEntities[1].Lefts);
+                    Assert.Single(rightEntities[2].Lefts);
+                });
+
+            static void ValidateFixup(DbContext context, IList<GeneratedKeysLeft> leftEntities, IList<GeneratedKeysRight> rightEntities)
+            {
+                Assert.Equal(11, context.ChangeTracker.Entries().Count());
+                Assert.Equal(3, context.ChangeTracker.Entries<GeneratedKeysLeft>().Count());
+                Assert.Equal(3, context.ChangeTracker.Entries<GeneratedKeysRight>().Count());
+                Assert.Equal(5, context.ChangeTracker.Entries<Dictionary<string, object>>().Count());
+
+                Assert.Equal(3, leftEntities[0].Rights.Count);
+                Assert.Single(leftEntities[1].Rights);
+                Assert.Single(leftEntities[2].Rights);
+
+                Assert.Equal(3, rightEntities[0].Lefts.Count);
+                Assert.Single(rightEntities[1].Lefts);
+                Assert.Single(rightEntities[2].Lefts);
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void Can_Attach_or_Update_a_many_to_many_with_mixed_set_and_unset_keys(bool useUpdate)
+        {
+            var existingLeftId = -1;
+            var existingRightId = -1;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var left = context.Set<GeneratedKeysLeft>().CreateInstance();
+                    var right = context.Set<GeneratedKeysRight>().CreateInstance();
+
+                    if (!useUpdate)
+                    {
+                        left.Rights.Add(right);
+                    }
+
+                    context.AddRange(left, right);
+                    context.SaveChanges();
+
+                    existingLeftId = left.Id;
+                    existingRightId = right.Id;
+                },
+                context =>
+                {
+                    var leftEntities = new[]
+                    {
+                        context.Set<GeneratedKeysLeft>().CreateInstance((e, p) => e.Id = existingLeftId),
+                        context.Set<GeneratedKeysLeft>().CreateInstance(),
+                        context.Set<GeneratedKeysLeft>().CreateInstance()
+                    };
+                    var rightEntities = new[]
+                    {
+                        context.Set<GeneratedKeysRight>().CreateInstance((e, p) => e.Id = existingRightId),
+                        context.Set<GeneratedKeysRight>().CreateInstance(),
+                        context.Set<GeneratedKeysRight>().CreateInstance()
+                    };
+
+                    leftEntities[0].Rights.Add(rightEntities[0]); // 11 - 21
+                    leftEntities[0].Rights.Add(rightEntities[1]); // 11 - 22
+                    leftEntities[0].Rights.Add(rightEntities[2]); // 11 - 23
+
+                    rightEntities[0].Lefts.Add(leftEntities[0]); // 21 - 11 (Dupe)
+                    rightEntities[0].Lefts.Add(leftEntities[1]); // 21 - 12
+                    rightEntities[0].Lefts.Add(leftEntities[2]); // 21 - 13
+
+                    if (useUpdate)
+                    {
+                        context.Update(leftEntities[0]);
+                    }
+                    else
+                    {
+                        context.Attach(leftEntities[0]);
+                    }
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+
+                    var entityEntries = context.ChangeTracker.Entries<Dictionary<string, object>>().ToList();
+                    foreach (var joinEntry in entityEntries)
+                    {
+                        Assert.Equal(
+                            !useUpdate
+                            && joinEntry.Property<int>("RightsId").CurrentValue == existingRightId
+                            && joinEntry.Property<int>("LeftsId").CurrentValue == existingLeftId
+                                ? EntityState.Unchanged
+                                : EntityState.Added, joinEntry.State);
+                    }
+
+                    foreach (var leftEntry in context.ChangeTracker.Entries<GeneratedKeysLeft>())
+                    {
+                        Assert.Equal(
+                            leftEntry.Entity.Id == existingLeftId
+                                ? useUpdate
+                                    ? EntityState.Modified
+                                    : EntityState.Unchanged
+                                : EntityState.Added, leftEntry.State);
+                    }
+
+                    foreach (var rightEntry in context.ChangeTracker.Entries<GeneratedKeysRight>())
+                    {
+                        Assert.Equal(
+                            rightEntry.Entity.Id == existingRightId
+                                ? useUpdate
+                                    ? EntityState.Modified
+                                    : EntityState.Unchanged
+                                : EntityState.Added, rightEntry.State);
+                    }
+
+                    context.SaveChanges();
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+                },
+                context =>
+                {
+                    var results = context.Set<GeneratedKeysLeft>().Include(e => e.Rights).ToList();
+                    Assert.Equal(3, results.Count);
+
+                    Assert.Equal(11, context.ChangeTracker.Entries().Count());
+                    Assert.Equal(3, context.ChangeTracker.Entries<GeneratedKeysLeft>().Count());
+                    Assert.Equal(3, context.ChangeTracker.Entries<GeneratedKeysRight>().Count());
+                    Assert.Equal(5, context.ChangeTracker.Entries<Dictionary<string, object>>().Count());
+
+                    var leftEntities = context.ChangeTracker.Entries<GeneratedKeysLeft>().Select(e => e.Entity).OrderBy(e => e.Id)
+                        .ToList();
+                    var rightEntities = context.ChangeTracker.Entries<GeneratedKeysRight>().Select(e => e.Entity).OrderBy(e => e.Id)
+                        .ToList();
+
+                    Assert.Equal(3, leftEntities[0].Rights.Count);
+                    Assert.Single(leftEntities[1].Rights);
+                    Assert.Single(leftEntities[2].Rights);
+
+                    Assert.Equal(3, rightEntities[0].Lefts.Count);
+                    Assert.Single(rightEntities[1].Lefts);
+                    Assert.Single(rightEntities[2].Lefts);
+                });
+
+            static void ValidateFixup(DbContext context, IList<GeneratedKeysLeft> leftEntities, IList<GeneratedKeysRight> rightEntities)
+            {
+                Assert.Equal(11, context.ChangeTracker.Entries().Count());
+                Assert.Equal(3, context.ChangeTracker.Entries<GeneratedKeysLeft>().Count());
+                Assert.Equal(3, context.ChangeTracker.Entries<GeneratedKeysRight>().Count());
+                Assert.Equal(5, context.ChangeTracker.Entries<Dictionary<string, object>>().Count());
+
+                Assert.Equal(3, leftEntities[0].Rights.Count);
+                Assert.Single(leftEntities[1].Rights);
+                Assert.Single(leftEntities[2].Rights);
+
+                Assert.Equal(3, rightEntities[0].Lefts.Count);
+                Assert.Single(rightEntities[1].Lefts);
+                Assert.Single(rightEntities[2].Lefts);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Initial_tracking_uses_skip_navigations()
         {
             ExecuteWithStrategyInTransaction(
