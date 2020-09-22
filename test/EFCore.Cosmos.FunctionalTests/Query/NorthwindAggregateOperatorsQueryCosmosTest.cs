@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -740,6 +741,15 @@ WHERE (c[""Discriminator""] = ""Order"")");
                 @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
+        }
+
+        [ConditionalTheory(Skip = "Issue#16146")]
+        public override async Task Average_on_nav_subquery_in_projection(bool isAsync)
+        {
+            await base.Average_on_nav_subquery_in_projection(isAsync);
+
+            AssertSql(
+                @"");
         }
 
         [ConditionalTheory(Skip = "Issue#17246")]

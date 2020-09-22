@@ -1168,6 +1168,12 @@ ORDER BY c[""CustomerID""]");
             return base.Select_nested_collection_deep(async);
         }
 
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Projecting_Length_of_a_string_property_after_FirstOrDefault_on_correlated_collection(bool async)
+        {
+            return base.Projecting_Length_of_a_string_property_after_FirstOrDefault_on_correlated_collection(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

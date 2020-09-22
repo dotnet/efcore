@@ -1466,6 +1466,19 @@ FROM [Orders] AS [o]",
 FROM [Orders] AS [o]");
         }
 
+        public override async Task Average_on_nav_subquery_in_projection(bool isAsync)
+        {
+            await base.Average_on_nav_subquery_in_projection(isAsync);
+
+            AssertSql(
+                @"SELECT (
+    SELECT AVG(CAST([o].[OrderID] AS float))
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]) AS [Ave]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
