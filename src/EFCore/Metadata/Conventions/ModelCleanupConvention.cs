@@ -79,7 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 foreach (var foreignKey in entityType.GetDeclaredForeignKeys().ToList())
                 {
                     if (foreignKey.PrincipalToDependent == null
-                        && foreignKey.DependentToPrincipal == null)
+                        && foreignKey.DependentToPrincipal == null
+                        && !foreignKey.GetReferencingSkipNavigations().Any())
                     {
                         entityType.Builder.HasNoRelationship(foreignKey, fromDataAnnotation: true);
                     }
