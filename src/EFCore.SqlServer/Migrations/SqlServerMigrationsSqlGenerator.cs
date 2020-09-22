@@ -51,6 +51,145 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
+        ///     Gets the SQL script that will execute at the start of each migration script.
+        /// </summary>
+        /// <param name="noTransactions"> Indicates if transactions will be used in the migration. </param>
+        /// <returns> The command to be executed before all of the migrations. </returns>
+        public override IReadOnlyList<IRelationalCommand> GeneratePreMigrationCommands(bool noTransactions)
+        {
+            IRelationalCommand ClearContextInfo()
+            {
+                var builder = Dependencies.CommandBuilderFactory.Create();
+
+                builder.AppendLine(Dependencies.SqlGenerationHelper.SetSessionVariableStatement("CONTEXT_INFO", "0x0"));
+
+                return builder.Build();
+            }
+
+            IRelationalCommand EnableExitOnError()
+            {
+                var builder = Dependencies.CommandBuilderFactory.Create();
+
+                builder.Append(Dependencies.SqlGenerationHelper.GenerateComment("Abort execution if an error is encountered in a batch"));
+
+                // Instruct SQLCMD to exit when an error is encountered in a batch
+                builder.AppendLine(":ON ERROR EXIT").AppendLine();
+
+                // Set the context to "EF" after the SQLCMD statement so that we can detect in the next batch
+                // if there was an error (meaning that SQLCMD is not available)
+                builder.AppendLine(Dependencies.SqlGenerationHelper.SetSessionVariableStatement("CONTEXT_INFO", "0xEF"));
+
+                return builder.Build();
+            }
+
+            IRelationalCommand DisableExecutionIfNotUsingSqlcmd()
+            {
+                var builder = Dependencies.CommandBuilderFactory.Create();
+
+                // If the previous batch didn't set the context to EF then we can assume SQLCMD is not available
+                // so we print an error message to the console and set NOEXEC so that the rest of the migration
+                // script does not execute
+                builder.AppendLine("IF CONTEXT_INFO() <> 0xEF");
+                builder.AppendLine("BEGIN");
+
+                using (builder.Indent())
+                {
+                    builder
+                        .AppendLines(Dependencies.SqlGenerationHelper.GeneratePrint(
+                            "ERROR: Entity Framework scripts should be run in SQLCMD mode. Enable SQL > Execution Settings > SQLCMD Mode and try again."
+                        ))
+                        .AppendLine()
+                        .AppendLines(Dependencies.SqlGenerationHelper.GenerateComment(
+                            "Disable execution if not running in SQLCMD mode"
+                        ))
+                        .AppendLine(Dependencies.SqlGenerationHelper.SetSessionVariableStatement("NOEXEC", "ON"));
+                }
+
+                builder.Append("END").AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
+                return builder.Build();
+            }
+
+            IRelationalCommand EnableAutomaticTransactionRollback()
+            {
+                var builder = Dependencies.CommandBuilderFactory.Create();
+
+                // Enable XACT_ABORT to instruct SQL server to rollback the current transaction on failure
+                builder
+                    .Append(Dependencies.SqlGenerationHelper.GenerateComment(
+                        "Automatically rollback the current transaction when a SQL statement raises a runtime error"
+                    ))
+                    .AppendLine(Dependencies.SqlGenerationHelper.SetSessionVariableStatement("XACT_ABORT", "ON"));
+
+                return builder.Build();
+            }
+
+            IRelationalCommand EnableQuotedIdentifiers()
+            {
+                var builder = Dependencies.CommandBuilderFactory.Create();
+
+                // Enable QUOTED_IDENTIFIER which is required to create filtered indexes when using SQLCMD
+                // see: https://docs.microsoft.com/en-us/sql/t-sql/statements/set-quoted-identifier-transact-sql?view=sql-server-ver15#remarks
+                builder
+                    .Append(Dependencies.SqlGenerationHelper.GenerateComment(
+                        "Must be ON when you are creating a filtered index."
+                    ))
+                    .AppendLine(Dependencies.SqlGenerationHelper.SetSessionVariableStatement("QUOTED_IDENTIFIER", "ON"));
+
+                return builder.Build();
+            }
+
+            IEnumerable<IRelationalCommand> GetCommands()
+            {
+                if (!noTransactions)
+                {
+                    yield return ClearContextInfo();
+                    yield return EnableExitOnError();
+                    yield return DisableExecutionIfNotUsingSqlcmd();
+                    yield return EnableAutomaticTransactionRollback();
+                }
+
+                yield return EnableQuotedIdentifiers();
+            }
+
+            return GetCommands().ToArray();
+        }
+
+        /// <summary>
+        ///     Gets the SQL script that will execute at the end of each migration script.
+        /// </summary>
+        /// <param name="noTransactions"> Indicates if transactions were used in the migration. </param>
+        /// <returns> The command to be executed after all of the migrations. </returns>
+        public override IReadOnlyList<IRelationalCommand> GeneratePostMigrationCommands(bool noTransactions)
+        {
+            IRelationalCommand EnableExecution()
+            {
+                var builder = Dependencies.CommandBuilderFactory.Create();
+                builder.AppendLine(Dependencies.SqlGenerationHelper.SetSessionVariableStatement("NOEXEC", "OFF"));
+                return builder.Build();
+            }
+
+            IRelationalCommand DisableQuotedIdentifiers()
+            {
+                var builder = Dependencies.CommandBuilderFactory.Create();
+                builder.AppendLine(Dependencies.SqlGenerationHelper.SetSessionVariableStatement("QUOTED_IDENTIFIER", "OFF"));
+                return builder.Build();
+            }
+
+            IEnumerable<IRelationalCommand> GetCommands()
+            {
+                if (!noTransactions)
+                {
+                    yield return EnableExecution();
+                }
+
+                yield return DisableQuotedIdentifiers();
+            }
+
+            return GetCommands().ToList();
+        }
+
+        /// <summary>
         ///     Generates commands from a list of operations.
         /// </summary>
         /// <param name="operations"> The operations. </param>

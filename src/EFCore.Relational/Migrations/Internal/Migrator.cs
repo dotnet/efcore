@@ -333,7 +333,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var builder = new IndentedStringBuilder();
 
-            _sqlGenerationHelper.StartMigrationScript(builder, noTransactions);
+            var preMigrationCommands = _migrationsSqlGenerator.GeneratePreMigrationCommands(noTransactions);
+            foreach (var preMigrationCommand in preMigrationCommands)
+            {
+                builder
+                    .Append(preMigrationCommand.CommandText)
+                    .Append(_sqlGenerationHelper.BatchTerminator);
+            }
 
             if (fromMigration == Migration.InitialDatabase
                 || string.IsNullOrEmpty(fromMigration))
@@ -454,7 +460,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
             }
 
-            _sqlGenerationHelper.EndMigrationScript(builder, noTransactions);
+            var postMigrationCommands = _migrationsSqlGenerator.GeneratePostMigrationCommands(noTransactions);
+            foreach (var postMigrationCommand in postMigrationCommands)
+            {
+                builder
+                    .Append(postMigrationCommand.CommandText)
+                    .Append(_sqlGenerationHelper.BatchTerminator);
+            }
 
             return builder.ToString();
         }

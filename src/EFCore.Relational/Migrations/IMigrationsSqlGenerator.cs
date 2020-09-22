@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
@@ -23,6 +24,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     /// </summary>
     public interface IMigrationsSqlGenerator
     {
+        /// <summary>
+        ///     Generates commands that will execute before all the migration operations.
+        /// </summary>
+        /// <param name="noTransactions"> Indicates if transactions will be used in the migrations. </param>
+        /// <returns> The commands to be executed before all of the migration operations. </returns>
+        IReadOnlyList<IRelationalCommand> GeneratePreMigrationCommands(bool noTransactions);
+
+        /// <summary>
+        ///     Generates commands that will execute after all the migration operations.
+        /// </summary>
+        /// <param name="noTransactions"> Indicates if transactions will be used in the migrations. </param>
+        /// <returns> The commands to be executed after all of the migration operations. </returns>
+        IReadOnlyList<IRelationalCommand> GeneratePostMigrationCommands(bool noTransactions);
+
         /// <summary>
         ///     Generates commands from a list of operations.
         /// </summary>

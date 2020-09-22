@@ -113,6 +113,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected virtual MigrationsSqlGenerationOptions Options { get; set; }
 
         /// <summary>
+        ///     Generates commands that will execute before all the migration operations.
+        /// </summary>
+        /// <param name="noTransactions"> Indicates if transactions will be used in the migrations. </param>
+        /// <returns> The commands to be executed before all of the migration operations. </returns>
+        public virtual IReadOnlyList<IRelationalCommand> GeneratePreMigrationCommands(bool noTransactions)
+            => Array.Empty<IRelationalCommand>();
+
+        /// <summary>
+        ///     Generates commands that will execute after all the migration operations.
+        /// </summary>
+        /// <param name="noTransactions"> Indicates if transactions will be used in the migrations. </param>
+        /// <returns> The commands to be executed after all of the migration operations. </returns>
+        public virtual IReadOnlyList<IRelationalCommand> GeneratePostMigrationCommands(bool noTransactions)
+            => Array.Empty<IRelationalCommand>();
+
+        /// <summary>
         ///     Generates commands from a list of operations.
         /// </summary>
         /// <param name="operations"> The operations. </param>

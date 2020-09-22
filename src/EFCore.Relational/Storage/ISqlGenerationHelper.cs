@@ -3,7 +3,6 @@
 
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -123,13 +122,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         string GenerateComment([NotNull] string text);
 
         /// <summary>
-        ///     Gets the SQL script that will execute at the start of each migration script.
+        ///     Generates a SQL SET statement that changes the current session handling of specific information.
         /// </summary>
-        void StartMigrationScript([NotNull] IndentedStringBuilder builder, bool noTransactions);
+        /// <param name="name"> The variable name. </param>
+        /// <param name="value"> The value to set the variable to. </param>
+        /// <returns> The generated SQL. </returns>
+        string SetSessionVariableStatement([NotNull] string name, [NotNull] string value);
 
         /// <summary>
-        ///     Gets the SQL script that will execute at the end of each migration script.
+        ///     Generates a SQL PRINT statement.
         /// </summary>
-        void EndMigrationScript([NotNull] IndentedStringBuilder builder, bool noTransactions);
+        /// <param name="text"> The print text. </param>
+        /// <returns> The generated SQL. </returns>
+        string GeneratePrint([NotNull] string text);
     }
 }

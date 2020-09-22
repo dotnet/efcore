@@ -52,6 +52,7 @@ GO
 
 -- Automatically rollback the current transaction when a SQL statement raises a runtime error
 SET XACT_ABORT ON;
+GO
 
 -- Must be ON when you are creating a filtered index.
 SET QUOTED_IDENTIFIER ON;
@@ -68,6 +69,8 @@ END;
 GO
 
 SET NOEXEC OFF;
+GO
+
 SET QUOTED_IDENTIFIER OFF;
 GO
 
@@ -101,6 +104,7 @@ GO
 
 -- Automatically rollback the current transaction when a SQL statement raises a runtime error
 SET XACT_ABORT ON;
+GO
 
 -- Must be ON when you are creating a filtered index.
 SET QUOTED_IDENTIFIER ON;
@@ -117,6 +121,8 @@ END;
 GO
 
 SET NOEXEC OFF;
+GO
+
 SET QUOTED_IDENTIFIER OFF;
 GO
 
@@ -150,6 +156,7 @@ GO
 
 -- Automatically rollback the current transaction when a SQL statement raises a runtime error
 SET XACT_ABORT ON;
+GO
 
 -- Must be ON when you are creating a filtered index.
 SET QUOTED_IDENTIFIER ON;
@@ -212,6 +219,8 @@ COMMIT;
 GO
 
 SET NOEXEC OFF;
+GO
+
 SET QUOTED_IDENTIFIER OFF;
 GO
 
@@ -300,6 +309,7 @@ GO
 
 -- Automatically rollback the current transaction when a SQL statement raises a runtime error
 SET XACT_ABORT ON;
+GO
 
 -- Must be ON when you are creating a filtered index.
 SET QUOTED_IDENTIFIER ON;
@@ -319,6 +329,8 @@ COMMIT;
 GO
 
 SET NOEXEC OFF;
+GO
+
 SET QUOTED_IDENTIFIER OFF;
 GO
 
@@ -352,6 +364,7 @@ GO
 
 -- Automatically rollback the current transaction when a SQL statement raises a runtime error
 SET XACT_ABORT ON;
+GO
 
 -- Must be ON when you are creating a filtered index.
 SET QUOTED_IDENTIFIER ON;
@@ -371,6 +384,8 @@ COMMIT;
 GO
 
 SET NOEXEC OFF;
+GO
+
 SET QUOTED_IDENTIFIER OFF;
 GO
 
@@ -404,6 +419,7 @@ GO
 
 -- Automatically rollback the current transaction when a SQL statement raises a runtime error
 SET XACT_ABORT ON;
+GO
 
 -- Must be ON when you are creating a filtered index.
 SET QUOTED_IDENTIFIER ON;
@@ -487,6 +503,8 @@ COMMIT;
 GO
 
 SET NOEXEC OFF;
+GO
+
 SET QUOTED_IDENTIFIER OFF;
 GO
 
@@ -596,6 +614,7 @@ GO
 
 -- Automatically rollback the current transaction when a SQL statement raises a runtime error
 SET XACT_ABORT ON;
+GO
 
 -- Must be ON when you are creating a filtered index.
 SET QUOTED_IDENTIFIER ON;
@@ -628,6 +647,8 @@ COMMIT;
 GO
 
 SET NOEXEC OFF;
+GO
+
 SET QUOTED_IDENTIFIER OFF;
 GO
 
@@ -661,6 +682,7 @@ GO
 
 -- Automatically rollback the current transaction when a SQL statement raises a runtime error
 SET XACT_ABORT ON;
+GO
 
 -- Must be ON when you are creating a filtered index.
 SET QUOTED_IDENTIFIER ON;
@@ -705,6 +727,8 @@ COMMIT;
 GO
 
 SET NOEXEC OFF;
+GO
+
 SET QUOTED_IDENTIFIER OFF;
 GO
 
@@ -738,6 +762,7 @@ GO
 
 -- Automatically rollback the current transaction when a SQL statement raises a runtime error
 SET XACT_ABORT ON;
+GO
 
 -- Must be ON when you are creating a filtered index.
 SET QUOTED_IDENTIFIER ON;
@@ -757,6 +782,8 @@ COMMIT;
 GO
 
 SET NOEXEC OFF;
+GO
+
 SET QUOTED_IDENTIFIER OFF;
 GO
 
@@ -790,6 +817,7 @@ GO
 
 -- Automatically rollback the current transaction when a SQL statement raises a runtime error
 SET XACT_ABORT ON;
+GO
 
 -- Must be ON when you are creating a filtered index.
 SET QUOTED_IDENTIFIER ON;
@@ -809,6 +837,8 @@ COMMIT;
 GO
 
 SET NOEXEC OFF;
+GO
+
 SET QUOTED_IDENTIFIER OFF;
 GO
 

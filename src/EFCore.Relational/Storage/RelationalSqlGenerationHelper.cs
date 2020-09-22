@@ -5,7 +5,6 @@ using System;
 using System.IO;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -202,13 +201,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Gets the SQL script that will execute at the start of each migration script.
+        ///     Generates a SQL SET statement that changes the current session handling of specific information.
         /// </summary>
-        public virtual void StartMigrationScript(IndentedStringBuilder builder, bool noTransactions) { }
+        /// <param name="name"> The variable name. </param>
+        /// <param name="value"> The value to set the variable to. </param>
+        /// <returns> The generated SQL. </returns>
+        public virtual string SetSessionVariableStatement(string name, string value) => string.Empty;
 
         /// <summary>
-        ///     Gets the SQL script that will execute at the end of each migration script.
+        ///     Generates a SQL PRINT statement.
         /// </summary>
-        public virtual void EndMigrationScript(IndentedStringBuilder builder, bool noTransactions) { }
+        /// <param name="text"> The print text. </param>
+        /// <returns> The generated SQL. </returns>
+        public virtual string GeneratePrint(string text) => string.Empty;
     }
 }
