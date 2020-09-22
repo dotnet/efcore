@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
         private bool Equals(SqlFunctionExpression sqlFunctionExpression)
             => base.Equals(sqlFunctionExpression)
-                && string.Equals(Name, sqlFunctionExpression.Name)
+                && Name == sqlFunctionExpression.Name
                 && Arguments.SequenceEqual(sqlFunctionExpression.Arguments);
 
         /// <summary>

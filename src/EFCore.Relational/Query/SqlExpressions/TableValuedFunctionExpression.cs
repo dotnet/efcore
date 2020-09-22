@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="arguments"> The arguments of the function. </param>
         public TableValuedFunctionExpression([NotNull] IStoreFunction storeFunction, [NotNull] IReadOnlyList<SqlExpression> arguments)
             : this(
-                storeFunction.Name.Substring(0, 1).ToLower(),
+                storeFunction.Name.Substring(0, 1).ToLowerInvariant(),
                 Check.NotNull(storeFunction, nameof(storeFunction)),
                 Check.NotNull(arguments, nameof(arguments)))
         {

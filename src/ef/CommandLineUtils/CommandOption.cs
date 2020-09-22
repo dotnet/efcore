@@ -17,11 +17,11 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             foreach (var part in Template.Split(new[] { ' ', '|' }, StringSplitOptions.RemoveEmptyEntries))
             {
-                if (part.StartsWith("--"))
+                if (part.StartsWith("--", StringComparison.Ordinal))
                 {
                     LongName = part.Substring(2);
                 }
-                else if (part.StartsWith("-"))
+                else if (part.StartsWith("-", StringComparison.Ordinal))
                 {
                     var optName = part.Substring(1);
 
@@ -36,14 +36,14 @@ namespace Microsoft.DotNet.Cli.CommandLine
                         ShortName = optName;
                     }
                 }
-                else if (part.StartsWith("<")
-                         && part.EndsWith(">"))
+                else if (part.StartsWith("<", StringComparison.Ordinal)
+                         && part.EndsWith(">", StringComparison.Ordinal))
                 {
                     ValueName = part.Substring(1, part.Length - 2);
                 }
                 else if (optionType == CommandOptionType.MultipleValue
-                         && part.StartsWith("<")
-                         && part.EndsWith(">..."))
+                         && part.StartsWith("<", StringComparison.Ordinal)
+                         && part.EndsWith(">...", StringComparison.Ordinal))
                 {
                     ValueName = part.Substring(1, part.Length - 5);
                 }

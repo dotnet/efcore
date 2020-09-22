@@ -107,7 +107,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public int Execute(params string[] args)
         {
             var command = this;
-            IEnumerator<CommandArgument> arguments = null;
 
             if (HandleResponseFiles)
             {
@@ -118,8 +117,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
             {
                 var arg = args[index];
 
-                var isLongOption = arg.StartsWith("--");
-                if (isLongOption || arg.StartsWith("-"))
+                var isLongOption = arg.StartsWith("--", StringComparison.Ordinal);
+                if (isLongOption || arg.StartsWith("-", StringComparison.Ordinal))
                 {
                     var result = ParseOption(isLongOption, command, args, ref index, out var option);
                     if (result == ParseOptionResult.ShowHelp)
@@ -143,10 +142,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     }
                     else
                     {
-                        if (arguments == null)
-                        {
-                            arguments = new CommandArgumentEnumerator(command.Arguments.GetEnumerator());
-                        }
+                        using var arguments = new CommandArgumentEnumerator(command.Arguments.GetEnumerator());
 
                         if (arguments.MoveNext())
                         {

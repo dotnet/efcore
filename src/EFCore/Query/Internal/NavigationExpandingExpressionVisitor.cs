@@ -457,9 +457,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             return ProcessInclude(
                                 source,
                                 methodCallExpression.Arguments[1],
-                                string.Equals(
-                                    method.Name,
-                                    nameof(EntityFrameworkQueryableExtensions.ThenInclude)));
+                                method.Name == nameof(EntityFrameworkQueryableExtensions.ThenInclude));
 
                         case nameof(Queryable.GroupBy)
                             when genericMethod == QueryableMethods.GroupByWithKeySelector:
@@ -1603,7 +1601,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             PopulateEagerLoadedNavigations(entityReference.IncludePaths);
 
             var currentTree = new NavigationTreeExpression(entityReference);
-            var parameterName = GetParameterName(entityType.ShortName()[0].ToString().ToLower());
+            var parameterName = GetParameterName(entityType.ShortName()[0].ToString().ToLowerInvariant());
 
             return new NavigationExpansionExpression(sourceExpression, currentTree, currentTree, parameterName);
         }

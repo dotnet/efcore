@@ -1159,7 +1159,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                     if (valueExpression is ConstantExpression
                         || (valueExpression is ParameterExpression valueParameterExpression
-                            && valueParameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix) == true))
+                            && valueParameterExpression.Name?
+                                .StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true))
                     {
                         return valueExpression;
                     }

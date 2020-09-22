@@ -69,9 +69,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             {
                 Check.DebugAssert(instance.TypeMapping != null, "Instance must have typeMapping assigned.");
                 var storeType = instance.TypeMapping.StoreType;
-                var isGeography = string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);
+                var isGeography = storeType == "geography";
 
-                if (isGeography && string.Equals(functionName, "STIsRing"))
+                if (isGeography && functionName == "STIsRing")
                 {
                     return null;
                 }
