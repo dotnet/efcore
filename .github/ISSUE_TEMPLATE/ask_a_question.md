@@ -1,14 +1,14 @@
 ---
-name: Bug in Entity Framework Core
-about: Create a report about something that isn't working
+name: Ask a question
+about: Ask a question about Entity Framework Core or Microsoft.Data.Sqlite
 labels: customer-reported
 ---
 
+## Please make your question as clear and specific as possible
+
 ### Include your code
 
-To fix any bug we mus first reproduce it. To make this possible, please attach a small, runnable project or post a small, runnable code listing that reproduces what you are seeing.
-
-It is often impossible for us to reproduce a bug when working with only code snippets since we have to guess at the missing code. 
+Usually the best way to ask a clear question and get a quick response is to show your code. Preferably, attach a small, runnable project or post a small, runnable code listing that reproduces what you are seeing.
 
 Use triple-tick code fences for any posted code. For example:
 
@@ -30,7 +30,7 @@ Unhandled exception. System.NullReferenceException: Object reference not set to 
 
 ### Include verbose output
 
-Please include `--verbose` output when filing bugs about the `dotnet ef` or Package Manager Console tools.
+Please include verbose output when asking questions about the `dotnet ef` or Package Manager Console tools.
 
 Use triple-tick fences for tool output. For example:
 

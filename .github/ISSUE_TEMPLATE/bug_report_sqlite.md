@@ -4,28 +4,33 @@ about: Create a report about something that isn't working
 labels: area-adonet-sqlite, customer-reported
 ---
 
-<!-- Describe what isn't working as expected -->
+### Include your code
 
+To fix any bug we mus first reproduce it. To make this possible, please attach a small, runnable project or post a small, runnable code listing that reproduces what you are seeing.
 
+It is often impossible for us to reproduce a bug when working with only code snippets since we have to guess at the missing code. 
 
-### To Reproduce
+Use triple-tick code fences for any posted code. For example:
 
-<!--
-What steps can we follow to reproduce the issue?
-
-We ❤ code! Include a complete code listing or attach a simplified project
-
-``` C#
+```C#
 Console.WriteLine("Hello, World!");
 ```
 
-Got Exceptions? Include both the message and the stack trace
--->
+### Include stack traces
 
+Include the full exception message and stack trace for any exception you encounter.
 
+Use triple-tick fences for stack traces. For example:
 
-### Additional context
+```
+Unhandled exception. System.NullReferenceException: Object reference not set to an instance of an object.
+   at SixFour.Sub() in C:\Stuff\AllTogetherNow\SixFour\SixFour.cs:line 49
+   at SixFour.Main() in C:\Stuff\AllTogetherNow\SixFour\SixFour.cs:line 54
+```
+
+### Include version information
 
 Microsoft.Data.Sqlite version:
 Target framework: (e.g. .NET Core 3.0)
 Operating system:
+
