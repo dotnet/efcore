@@ -93,10 +93,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var property1 = modelBuilder.Model.FindEntityType(typeof(DisjointChildSubclass1)).FindProperty("ParentId");
                 Assert.True(property1.IsForeignKey());
-                Assert.Equal("ParentId", property1.GetColumnName());
+                Assert.Equal("ParentId", property1.GetColumnBaseName());
                 var property2 = modelBuilder.Model.FindEntityType(typeof(DisjointChildSubclass2)).FindProperty("ParentId");
                 Assert.True(property2.IsForeignKey());
-                Assert.Equal("DisjointChildSubclass2_ParentId", property2.GetColumnName());
+                Assert.Equal("DisjointChildSubclass2_ParentId", property2.GetColumnBaseName());
             }
 
             [ConditionalFact]
@@ -111,9 +111,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.FinalizeModel();
 
                 var property1 = modelBuilder.Model.FindEntityType(typeof(DisjointChildSubclass1)).FindProperty(nameof(Child.Name));
-                Assert.Equal(nameof(Child.Name), property1.GetColumnName());
+                Assert.Equal(nameof(Child.Name), property1.GetColumnBaseName());
                 var property2 = modelBuilder.Model.FindEntityType(typeof(DisjointChildSubclass2)).FindProperty(nameof(Child.Name));
-                Assert.Equal(nameof(Child.Name), property2.GetColumnName());
+                Assert.Equal(nameof(Child.Name), property2.GetColumnBaseName());
             }
 
             [ConditionalFact] //Issue#10659
@@ -526,7 +526,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Single(owned.GetIndexes());
                 Assert.Equal(
                     new[] { nameof(Order.OrderId), nameof(Order.AnotherCustomerId), nameof(Order.CustomerId) },
-                    owned.GetProperties().Select(p => p.GetColumnName()));
+                    owned.GetProperties().Select(p => p.GetColumnBaseName()));
                 Assert.Equal(nameof(Order), owned.GetTableName());
                 Assert.Null(owned.GetSchema());
                 Assert.True(owned.IsMemoryOptimized());

@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var entityBuilder = modelBuilder.Entity<A>();
 
-            Assert.Equal("Post Name", entityBuilder.Property(e => e.Name).Metadata.GetColumnName());
+            Assert.Equal("Post Name", entityBuilder.Property(e => e.Name).Metadata.GetColumnBaseName());
             Assert.Equal("DECIMAL", entityBuilder.Property(e => e.Name).Metadata.GetColumnType());
         }
 
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var entityBuilder = modelBuilder.Entity<F>();
 
-            Assert.Equal("Post Name", entityBuilder.Property<string>(nameof(F.Name)).Metadata.GetColumnName());
+            Assert.Equal("Post Name", entityBuilder.Property<string>(nameof(F.Name)).Metadata.GetColumnBaseName());
             Assert.Equal("DECIMAL", entityBuilder.Property<string>(nameof(F.Name)).Metadata.GetColumnType());
         }
 
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             RunConvention(propertyBuilder);
 
-            Assert.Equal("Post Name", propertyBuilder.Metadata.GetColumnName());
+            Assert.Equal("Post Name", propertyBuilder.Metadata.GetColumnBaseName());
             Assert.Equal("DECIMAL", propertyBuilder.Metadata.GetColumnType());
             Assert.Equal("Test column comment", propertyBuilder.Metadata.GetComment());
         }
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             RunConvention(propertyBuilder);
 
-            Assert.Equal("ExplicitName", propertyBuilder.Metadata.GetColumnName());
+            Assert.Equal("ExplicitName", propertyBuilder.Metadata.GetColumnBaseName());
             Assert.Equal("BYTE", propertyBuilder.Metadata.GetColumnType());
             Assert.Equal("ExplicitComment", propertyBuilder.Metadata.GetComment());
         }

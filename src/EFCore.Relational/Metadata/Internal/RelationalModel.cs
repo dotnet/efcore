@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             foreach (var property in entityType.GetProperties())
             {
-                var columnName = property.GetColumnName();
+                var columnName = property.GetColumnBaseName();
                 if (columnName == null)
                 {
                     continue;
