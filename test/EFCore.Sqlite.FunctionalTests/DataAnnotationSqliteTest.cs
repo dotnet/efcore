@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = base.Non_public_annotations_are_enabled();
 
             var relational = GetProperty<PrivateMemberAnnotationClass>(modelBuilder, "PersonFirstName");
-            Assert.Equal("dsdsd", relational.GetColumnName());
+            Assert.Equal("dsdsd", relational.GetColumnBaseName());
             Assert.Equal("nvarchar(128)", relational.GetColumnType());
 
             return modelBuilder;
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = base.Field_annotations_are_enabled();
 
             var relational = GetProperty<FieldAnnotationClass>(modelBuilder, "_personFirstName");
-            Assert.Equal("dsdsd", relational.GetColumnName());
+            Assert.Equal("dsdsd", relational.GetColumnBaseName());
             Assert.Equal("nvarchar(128)", relational.GetColumnType());
 
             return modelBuilder;
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = base.Key_and_column_work_together();
 
             var relational = GetProperty<ColumnKeyAnnotationClass1>(modelBuilder, "PersonFirstName");
-            Assert.Equal("dsdsd", relational.GetColumnName());
+            Assert.Equal("dsdsd", relational.GetColumnBaseName());
             Assert.Equal("nvarchar(128)", relational.GetColumnType());
 
             return modelBuilder;

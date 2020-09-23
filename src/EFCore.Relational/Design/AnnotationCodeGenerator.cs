@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             IProperty property,
             IDictionary<string, IAnnotation> annotations)
         {
-            var columnName = property.GetColumnName();
+            var columnName = property.GetColumnBaseName();
             if (columnName == property.Name)
             {
                 annotations.Remove(RelationalAnnotationNames.ColumnName);
