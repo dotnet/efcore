@@ -341,6 +341,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .Append(_sqlGenerationHelper.BatchTerminator);
             }
 
+            var transactionStarted = false;
+
+            if (!noTransactions)
+            {
+                builder
+                    .AppendLine(_sqlGenerationHelper.StartTransactionStatement)
+                    .Append(_sqlGenerationHelper.BatchTerminator);
+                transactionStarted = true;
+            }
+
             if (fromMigration == Migration.InitialDatabase
                 || string.IsNullOrEmpty(fromMigration))
             {
@@ -348,8 +358,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .Append(_historyRepository.GetCreateIfNotExistsScript())
                     .Append(_sqlGenerationHelper.BatchTerminator);
             }
-
-            var transactionStarted = false;
 
             for (var i = 0; i < migrationsToRevert.Count; i++)
             {
@@ -398,14 +406,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     builder.Append(_sqlGenerationHelper.BatchTerminator);
                 }
-
-                if (!noTransactions && transactionStarted)
-                {
-                    builder
-                        .AppendLine(_sqlGenerationHelper.CommitTransactionStatement)
-                        .Append(_sqlGenerationHelper.BatchTerminator);
-                    transactionStarted = false;
-                }
             }
 
             foreach (var migration in migrationsToApply)
@@ -450,14 +450,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     builder.Append(_sqlGenerationHelper.BatchTerminator);
                 }
+            }
 
-                if (!noTransactions && transactionStarted)
-                {
-                    builder
-                        .AppendLine(_sqlGenerationHelper.CommitTransactionStatement)
-                        .Append(_sqlGenerationHelper.BatchTerminator);
-                    transactionStarted = false;
-                }
+            if (transactionStarted)
+            {
+                builder
+                    .AppendLine(_sqlGenerationHelper.CommitTransactionStatement)
+                    .Append(_sqlGenerationHelper.BatchTerminator);
+                transactionStarted = false;
             }
 
             var postMigrationCommands = _migrationsSqlGenerator.GeneratePostMigrationCommands(noTransactions);
