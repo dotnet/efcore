@@ -26,14 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             base.Can_generate_migration_from_initial_database_to_initial();
 
             Assert.Equal(
-                @"BEGIN TRANSACTION;
-
-CREATE TABLE IF NOT EXISTS ""__EFMigrationsHistory"" (
+                @"CREATE TABLE IF NOT EXISTS ""__EFMigrationsHistory"" (
     ""MigrationId"" TEXT NOT NULL CONSTRAINT ""PK___EFMigrationsHistory"" PRIMARY KEY,
     ""ProductVersion"" TEXT NOT NULL
 );
-
-COMMIT;
 
 ",
                 Sql,
@@ -45,14 +41,10 @@ COMMIT;
             base.Can_generate_no_migration_script();
 
             Assert.Equal(
-                @"BEGIN TRANSACTION;
-
-CREATE TABLE IF NOT EXISTS ""__EFMigrationsHistory"" (
+                @"CREATE TABLE IF NOT EXISTS ""__EFMigrationsHistory"" (
     ""MigrationId"" TEXT NOT NULL CONSTRAINT ""PK___EFMigrationsHistory"" PRIMARY KEY,
     ""ProductVersion"" TEXT NOT NULL
 );
-
-COMMIT;
 
 ",
                 Sql,
@@ -64,12 +56,12 @@ COMMIT;
             base.Can_generate_up_scripts();
 
             Assert.Equal(
-                @"BEGIN TRANSACTION;
-
-CREATE TABLE IF NOT EXISTS ""__EFMigrationsHistory"" (
+                @"CREATE TABLE IF NOT EXISTS ""__EFMigrationsHistory"" (
     ""MigrationId"" TEXT NOT NULL CONSTRAINT ""PK___EFMigrationsHistory"" PRIMARY KEY,
     ""ProductVersion"" TEXT NOT NULL
 );
+
+BEGIN TRANSACTION;
 
 CREATE TABLE ""Table1"" (
     ""Id"" INTEGER NOT NULL CONSTRAINT ""PK_Table1"" PRIMARY KEY,

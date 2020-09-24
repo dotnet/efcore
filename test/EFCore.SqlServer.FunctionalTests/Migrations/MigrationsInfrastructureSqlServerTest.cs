@@ -58,9 +58,6 @@ GO
 SET QUOTED_IDENTIFIER ON;
 GO
 
-BEGIN TRANSACTION;
-GO
-
 IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
@@ -69,9 +66,6 @@ BEGIN
         CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
     );
 END;
-GO
-
-COMMIT;
 GO
 
 SET NOEXEC OFF;
@@ -116,9 +110,6 @@ GO
 SET QUOTED_IDENTIFIER ON;
 GO
 
-BEGIN TRANSACTION;
-GO
-
 IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
@@ -127,9 +118,6 @@ BEGIN
         CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
     );
 END;
-GO
-
-COMMIT;
 GO
 
 SET NOEXEC OFF;
@@ -174,9 +162,6 @@ GO
 SET QUOTED_IDENTIFIER ON;
 GO
 
-BEGIN TRANSACTION;
-GO
-
 IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
@@ -185,6 +170,9 @@ BEGIN
         CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
     );
 END;
+GO
+
+BEGIN TRANSACTION;
 GO
 
 CREATE TABLE [Table1] (
@@ -431,9 +419,6 @@ GO
 SET QUOTED_IDENTIFIER ON;
 GO
 
-BEGIN TRANSACTION;
-GO
-
 IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
@@ -442,6 +427,9 @@ BEGIN
         CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
     );
 END;
+GO
+
+BEGIN TRANSACTION;
 GO
 
 IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000001_Migration1')

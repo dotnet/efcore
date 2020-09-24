@@ -341,22 +341,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .Append(_sqlGenerationHelper.BatchTerminator);
             }
 
-            var transactionStarted = false;
-
-            if (!noTransactions)
-            {
-                builder
-                    .AppendLine(_sqlGenerationHelper.StartTransactionStatement)
-                    .Append(_sqlGenerationHelper.BatchTerminator);
-                transactionStarted = true;
-            }
-
             if (fromMigration == Migration.InitialDatabase
                 || string.IsNullOrEmpty(fromMigration))
             {
                 builder
                     .Append(_historyRepository.GetCreateIfNotExistsScript())
                     .Append(_sqlGenerationHelper.BatchTerminator);
+            }
+
+            var transactionStarted = false;
+            var containsMigrations = migrationsToRevert.Count > 0 || migrationsToApply.Count > 0;
+
+            if (!noTransactions && containsMigrations)
+            {
+                builder
+                    .AppendLine(_sqlGenerationHelper.StartTransactionStatement)
+                    .Append(_sqlGenerationHelper.BatchTerminator);
+                transactionStarted = true;
             }
 
             for (var i = 0; i < migrationsToRevert.Count; i++)
