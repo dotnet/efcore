@@ -153,8 +153,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     Gets an <see cref="EntityEntry" /> for each entity being tracked by the context.
-        ///     The entries provide access to change tracking information and operations for each entity.
+        ///     <para>
+        ///         Returns an <see cref="EntityEntry" /> for each entity being tracked by the context.
+        ///         The entries provide access to change tracking information and operations for each entity.
+        ///     </para>
+        ///     <para>
+        ///         This method calls <see cref="DetectChanges" /> to ensure all entries returned reflect up-to-date state.
+        ///         Use <see cref="AutoDetectChangesEnabled" /> to prevent DetectChanges from being called automatically.
+        ///     </para>
+        ///     <para>
+        ///         Note that modification of entity state while iterating over the returned enumeration may result in
+        ///         an <see cref="InvalidOperationException" /> indicating that the collection was modified while enumerating.
+        ///         To avoid this, create a defensive copy using <see cref="Enumerable.ToList{TSource}" /> or similar before iterating.
+        ///     </para>
         /// </summary>
         /// <returns> An entry for each entity being tracked. </returns>
         public virtual IEnumerable<EntityEntry> Entries()

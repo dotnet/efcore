@@ -92,6 +92,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="LocalView{TEntity}.ToObservableCollection" /> for WPF binding, or
         ///         <see cref="LocalView{TEntity}.ToBindingList" /> for WinForms.
         ///     </para>
+        ///     <para>
+        ///         Note that this method calls <see cref="ChangeTracker.DetectChanges" /> unless
+        ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" /> has been set to <see langword="false" />.
+        ///     </para>
         /// </summary>
         public virtual LocalView<TEntity> Local
             => throw new NotImplementedException();
