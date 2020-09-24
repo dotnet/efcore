@@ -1464,6 +1464,86 @@ FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]");
         }
 
+        public override async Task Projecting_count_of_navigation_which_is_generic_list(bool async)
+        {
+            await base.Projecting_count_of_navigation_which_is_generic_list(async);
+
+            AssertSql(
+                @"SELECT (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID])
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override async Task Projecting_count_of_navigation_which_is_generic_collection(bool async)
+        {
+            await base.Projecting_count_of_navigation_which_is_generic_collection(async);
+
+            AssertSql(
+                @"SELECT (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID])
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override async Task Projection_take_projection_doesnt_project_intermittent_column(bool async)
+        {
+            await base.Projection_take_projection_doesnt_project_intermittent_column(async);
+
+            AssertSql(
+                @"@__p_0='10'
+
+SELECT TOP(@__p_0) ([c].[CustomerID] + N' ') + COALESCE([c].[City], N'') AS [Aggregate]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override async Task Projection_skip_projection_doesnt_project_intermittent_column(bool async)
+        {
+            await base.Projection_skip_projection_doesnt_project_intermittent_column(async);
+
+            AssertSql(
+                @"@__p_0='7'
+
+SELECT ([c].[CustomerID] + N' ') + COALESCE([c].[City], N'') AS [Aggregate]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
+OFFSET @__p_0 ROWS");
+        }
+
+        public override async Task Projection_Distinct_projection_preserves_columns_used_for_distinct_in_subquery(bool async)
+        {
+            await base.Projection_Distinct_projection_preserves_columns_used_for_distinct_in_subquery(async);
+
+            AssertSql(
+                @"SELECT (COALESCE([t].[c], N'') + N' ') + [t].[c0] AS [Aggregate]
+FROM (
+    SELECT DISTINCT [c].[CustomerID], SUBSTRING([c].[CustomerID], 0 + 1, 1) AS [c], N'Foo' AS [c0]
+    FROM [Customers] AS [c]
+) AS [t]");
+        }
+
+        public override async Task Projection_take_predicate_projection(bool async)
+        {
+            await base.Projection_take_predicate_projection(async);
+
+            AssertSql(
+                @"@__p_0='10'
+
+SELECT ([t].[CustomerID] + N' ') + COALESCE([t].[City], N'') AS [Aggregate]
+FROM (
+    SELECT TOP(@__p_0) [c].[CustomerID], [c].[City]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
+) AS [t]
+WHERE [t].[CustomerID] LIKE N'A%'
+ORDER BY [t].[CustomerID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

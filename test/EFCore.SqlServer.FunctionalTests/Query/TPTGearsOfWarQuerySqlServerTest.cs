@@ -8342,6 +8342,33 @@ LEFT JOIN [LocustCommanders] AS [l0] ON [l].[Name] = [l0].[Name]
 WHERE [l0].[Name] IS NOT NULL AND (([l0].[HighCommandId] <> 0) OR [l0].[HighCommandId] IS NULL)");
         }
 
+        public override async Task Cast_to_derived_followed_by_include_and_FirstOrDefault(bool async)
+        {
+            await base.Cast_to_derived_followed_by_include_and_FirstOrDefault(async);
+
+            AssertSql(
+                @"");
+        }
+
+        public override async Task Correlated_collection_take(bool async)
+        {
+            await base.Correlated_collection_take(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [c].[Name], [c].[Location], [c].[Nation], [g].[SquadId], [t0].[Id], [t0].[AmmunitionType], [t0].[IsAutomatic], [t0].[Name], [t0].[OwnerFullName], [t0].[SynergyWithId]
+FROM [Gears] AS [g]
+INNER JOIN [Cities] AS [c] ON [g].[CityOfBirthName] = [c].[Name]
+LEFT JOIN (
+    SELECT [t].[Id], [t].[AmmunitionType], [t].[IsAutomatic], [t].[Name], [t].[OwnerFullName], [t].[SynergyWithId]
+    FROM (
+        SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId], ROW_NUMBER() OVER(PARTITION BY [w].[OwnerFullName] ORDER BY [w].[Id]) AS [row]
+        FROM [Weapons] AS [w]
+    ) AS [t]
+    WHERE [t].[row] <= 10
+) AS [t0] ON [g].[FullName] = [t0].[OwnerFullName]
+ORDER BY [g].[Nickname], [g].[SquadId], [c].[Name], [t0].[OwnerFullName], [t0].[Id]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

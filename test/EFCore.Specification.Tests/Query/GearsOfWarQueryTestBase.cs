@@ -7898,6 +7898,49 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<LocustLeader>().Where(ll => ll is LocustCommander && (ll as LocustCommander).HighCommandId != 0));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Cast_to_derived_followed_by_include_and_FirstOrDefault(bool async)
+        {
+            return AssertFirstOrDefault(
+                async,
+                ss => ss.Set<LocustLeader>().Where(ll => ll.Name.Contains("Queen")).Cast<LocustCommander>().Include(lc => lc.DefeatedBy),
+                asserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<LocustCommander>(x => x.DefeatedBy)));
+
+        }
+
+        [ConditionalTheory(Skip = "issue #22692")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Cast_to_derived_followed_by_multiple_includes(bool async)
+        {
+            var expectedIncludes = new IExpectedInclude[]
+            {
+                new ExpectedInclude<LocustCommander>(x => x.DefeatedBy),
+                new ExpectedInclude<Gear>(x => x.Weapons, "DefeatedBy"),
+            };
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<LocustLeader>().Where(ll => ll.Name.Contains("Queen")).Cast<LocustCommander>().Include(lc => lc.DefeatedBy).ThenInclude(g => g.Weapons),
+                elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collection_take(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>().Select(g => new { g.Nickname, Weapons = g.Weapons.Take(10).ToList(), g.CityOfBirth }),
+                elementSorter: e => e.Nickname,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Nickname, a.Nickname);
+                    AssertCollection(e.Weapons, a.Weapons, elementSorter: ee => ee.Id);
+                    AssertEqual(e.CityOfBirth, a.CityOfBirth);
+                });
+        }
+
         protected GearsOfWarContext CreateContext()
             => Fixture.CreateContext();
 

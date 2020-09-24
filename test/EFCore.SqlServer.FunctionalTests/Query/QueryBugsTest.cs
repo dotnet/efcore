@@ -9301,6 +9301,61 @@ FROM [Blogs] AS [b]");
 
         #endregion
 
+        #region Issue10295
+
+        [ConditionalFact]
+        public virtual void Query_filter_with_contains_evaluates_correctly()
+        {
+            using (CreateDatabase10295())
+            {
+                using var context = new MyContext10295(_options);
+                var result = context.Entities.ToList();
+                Assert.Equal(1, result.Count);
+
+                AssertSql(
+                    @"SELECT [e].[Id], [e].[Name]
+FROM [Entities] AS [e]
+WHERE [e].[Id] NOT IN (1, 7)");
+            }
+        }
+
+        public class MyContext10295 : DbContext
+        {
+            private readonly List<int> _ids = new List<int> { 1, 7 };
+
+            public DbSet<MyEntity10295> Entities { get; set; }
+
+            public MyContext10295(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<MyEntity10295>().HasQueryFilter(x => !_ids.Contains(x.Id));
+            }
+        }
+
+        public class MyEntity10295
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        private SqlServerTestStore CreateDatabase10295()
+            => CreateTestStore(
+                () => new MyContext10295(_options),
+                context =>
+                {
+                    var e1 = new MyEntity10295 { Name = "Name1" };
+                    var e2 = new MyEntity10295 { Name = "Name2" };
+                    context.Entities.AddRange(e1, e2);
+                    context.SaveChanges();
+                    ClearLog();
+                });
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
