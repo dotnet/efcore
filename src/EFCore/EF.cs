@@ -21,8 +21,9 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         References a given property on an entity instance. This is useful for shadow state properties, for which no CLR property exists. Currently this method can only be used in LINQ queries and can not be used to access the value assigned to a
-        ///         property in other scenarios.
+        ///         References a given property or navigation on an entity instance. This is useful for shadow state properties, for
+        ///         which no CLR property exists. Currently this method can only be used in LINQ queries and can not be used to
+        ///         access the value assigned to a property in other scenarios.
         ///     </para>
         ///     <para>
         ///         Note that this is a static method accessed through the top-level <see cref="EF" /> static type.

@@ -4,7 +4,13 @@ about: Ask a question about Entity Framework Core or Microsoft.Data.Sqlite
 labels: customer-reported
 ---
 
-## Please make your question as clear and specific as possible
+## Ask a question
+
+Remember:
+
+* Please make your question as clear and specific as possible.
+* Please check that the [documentation](https://docs.microsoft.com/ef/) does not answer your question.
+* Please search in both [open](https://github.com/dotnet/efcore/issues) and [closed](https://github.com/dotnet/efcore/issues?q=is%3Aissue+is%3Aclosed) issues to check that your question has not already been answered.
 
 ### Include your code
 
@@ -47,6 +53,6 @@ BlogContext
 
 EF Core version:
 Database provider: (e.g. Microsoft.EntityFrameworkCore.SqlServer)
-Target framework: (e.g. .NET Core 3.0)
+Target framework: (e.g. .NET 5.0)
 Operating system:
 IDE: (e.g. Visual Studio 2019 16.3)

@@ -4,11 +4,18 @@ about: Create a report about something that isn't working
 labels: area-adonet-sqlite, customer-reported
 ---
 
+## File a bug
+
+Remember:
+
+* Please check that the [documentation](https://docs.microsoft.com/ef/) does not explain the behavior you are seeing.
+* Please search in both [open](https://github.com/dotnet/efcore/issues) and [closed](https://github.com/dotnet/efcore/issues?q=is%3Aissue+is%3Aclosed) issues to check that your bug has not already been filed.
+
 ### Include your code
 
-To fix any bug we mus first reproduce it. To make this possible, please attach a small, runnable project or post a small, runnable code listing that reproduces what you are seeing.
+To fix any bug we must first reproduce it. To make this possible, please attach a small, runnable project or post a small, runnable code listing that reproduces what you are seeing.
 
-It is often impossible for us to reproduce a bug when working with only code snippets since we have to guess at the missing code. 
+It is often impossible for us to reproduce a bug when working with only code snippets since we have to guess at the missing code.
 
 Use triple-tick code fences for any posted code. For example:
 
@@ -31,6 +38,6 @@ Unhandled exception. System.NullReferenceException: Object reference not set to 
 ### Include version information
 
 Microsoft.Data.Sqlite version:
-Target framework: (e.g. .NET Core 3.0)
+Target framework: (e.g. .NET 5.0)
 Operating system:
 
