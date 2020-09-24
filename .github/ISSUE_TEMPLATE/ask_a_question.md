@@ -1,21 +1,20 @@
 ---
-name: Bug in Entity Framework Core
-about: Create a report about something that isn't working
+name: Ask a question
+about: Ask a question about Entity Framework Core or Microsoft.Data.Sqlite
 labels: customer-reported
 ---
 
-## File a bug
+## Ask a question
 
 Remember:
 
-* Please check that the [documentation](https://docs.microsoft.com/ef/) does not explain the behavior you are seeing.
-* Please search in both [open](https://github.com/dotnet/efcore/issues) and [closed](https://github.com/dotnet/efcore/issues?q=is%3Aissue+is%3Aclosed) issues to check that your bug has not already been filed.
+* Please make your question as clear and specific as possible.
+* Please check that the [documentation](https://docs.microsoft.com/ef/) does not answer your question.
+* Please search in both [open](https://github.com/dotnet/efcore/issues) and [closed](https://github.com/dotnet/efcore/issues?q=is%3Aissue+is%3Aclosed) issues to check that your question has not already been answered.
 
 ### Include your code
 
-To fix any bug we must first reproduce it. To make this possible, please attach a small, runnable project or post a small, runnable code listing that reproduces what you are seeing.
-
-It is often impossible for us to reproduce a bug when working with only code snippets since we have to guess at the missing code. 
+Usually the best way to ask a clear question and get a quick response is to show your code. Preferably, attach a small, runnable project or post a small, runnable code listing that reproduces what you are seeing.
 
 Use triple-tick code fences for any posted code. For example:
 
@@ -37,7 +36,7 @@ Unhandled exception. System.NullReferenceException: Object reference not set to 
 
 ### Include verbose output
 
-Please include `--verbose` output when filing bugs about the `dotnet ef` or Package Manager Console tools.
+Please include verbose output when asking questions about the `dotnet ef` or Package Manager Console tools.
 
 Use triple-tick fences for tool output. For example:
 
