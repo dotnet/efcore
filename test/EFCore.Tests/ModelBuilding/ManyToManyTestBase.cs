@@ -26,6 +26,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<Product>();
                 modelBuilder.Entity<CategoryBase>();
 
+                var sharedTypeName = nameof(Category) + nameof(Product);
+
+                modelBuilder.SharedTypeEntity<Dictionary<string, object>>(sharedTypeName);
+
                 var model = modelBuilder.FinalizeModel();
 
                 var productType = model.FindEntityType(typeof(Product));
@@ -39,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var productCategoryType = categoriesFk.DeclaringEntityType;
 
                 Assert.Equal(typeof(Dictionary<string, object>), productCategoryType.ClrType);
-                Assert.Equal(nameof(Category) + nameof(Product), productCategoryType.Name);
+                Assert.Equal(sharedTypeName, productCategoryType.Name);
                 Assert.Same(categoriesFk, productCategoryType.GetForeignKeys().Last());
                 Assert.Same(productsFk, productCategoryType.GetForeignKeys().First());
                 Assert.Equal(2, productCategoryType.GetForeignKeys().Count());

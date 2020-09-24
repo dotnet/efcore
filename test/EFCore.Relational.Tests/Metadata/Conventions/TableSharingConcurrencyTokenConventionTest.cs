@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var concurrencyProperty = animal.FindProperty("_TableSharingConcurrencyTokenConvention_Version");
             Assert.True(concurrencyProperty.IsConcurrencyToken);
             Assert.True(concurrencyProperty.IsShadowProperty());
-            Assert.Equal("Version", concurrencyProperty.GetColumnName());
+            Assert.Equal("Version", concurrencyProperty.GetColumnBaseName());
             Assert.Equal(ValueGenerated.OnAddOrUpdate, concurrencyProperty.ValueGenerated);
         }
 
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var concurrencyProperty = animal.FindProperty("_TableSharingConcurrencyTokenConvention_Version");
             Assert.True(concurrencyProperty.IsConcurrencyToken);
             Assert.True(concurrencyProperty.IsShadowProperty());
-            Assert.Equal("Version", concurrencyProperty.GetColumnName());
+            Assert.Equal("Version", concurrencyProperty.GetColumnBaseName());
             Assert.Equal(ValueGenerated.OnUpdate, concurrencyProperty.ValueGenerated);
 
             var cat = model.FindEntityType(typeof(Cat));
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             concurrencyProperty = animalHouse.FindProperty("_TableSharingConcurrencyTokenConvention_Version");
             Assert.True(concurrencyProperty.IsConcurrencyToken);
             Assert.True(concurrencyProperty.IsShadowProperty());
-            Assert.Equal("Version", concurrencyProperty.GetColumnName());
+            Assert.Equal("Version", concurrencyProperty.GetColumnBaseName());
             Assert.Equal(ValueGenerated.OnUpdate, concurrencyProperty.ValueGenerated);
 
             var theMovie = model.FindEntityType(typeof(TheMovie));
@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var concurrencyProperty = personEntityType.FindProperty("_TableSharingConcurrencyTokenConvention_Version");
             Assert.True(concurrencyProperty.IsConcurrencyToken);
             Assert.True(concurrencyProperty.IsShadowProperty());
-            Assert.Equal("Version", concurrencyProperty.GetColumnName());
+            Assert.Equal("Version", concurrencyProperty.GetColumnBaseName());
             Assert.Equal(ValueGenerated.OnAddOrUpdate, concurrencyProperty.ValueGenerated);
         }
 

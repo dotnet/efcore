@@ -25,9 +25,9 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public Task Instantiation_on_type_in_internal_namespace()
             => Test(
-                "new CoreSingletonOptions();",
-                "Microsoft.EntityFrameworkCore.Internal.CoreSingletonOptions",
-                "CoreSingletonOptions");
+                "new Microsoft.EntityFrameworkCore.Infrastructure.Internal.CoreSingletonOptions();",
+                "Microsoft.EntityFrameworkCore.Infrastructure.Internal.CoreSingletonOptions",
+                "Microsoft.EntityFrameworkCore.Infrastructure.Internal.CoreSingletonOptions");
 
         [ConditionalFact]
         public async Task Base_type()

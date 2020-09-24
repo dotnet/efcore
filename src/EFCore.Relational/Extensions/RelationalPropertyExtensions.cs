@@ -24,14 +24,26 @@ namespace Microsoft.EntityFrameworkCore
     public static class RelationalPropertyExtensions
     {
         /// <summary>
-        ///     Returns the name of the column to which the property is mapped.
+        ///     Returns the name of the table column to which the property is mapped.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The name of the column to which the property is mapped. </returns>
+        /// <returns> The name of the table column to which the property is mapped. </returns>
+        [Obsolete("Use the overload that takes a StoreObjectIdentifier")]
         public static string GetColumnName([NotNull] this IProperty property)
         {
             var annotation = property.FindAnnotation(RelationalAnnotationNames.ColumnName);
             return annotation != null ? (string)annotation.Value : property.GetDefaultColumnName();
+        }
+
+        /// <summary>
+        ///     Returns the base name of the column to which the property would be mapped.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The the base name of the column to which the property would be mapped. </returns>
+        public static string GetColumnBaseName([NotNull] this IProperty property)
+        {
+            var annotation = property.FindAnnotation(RelationalAnnotationNames.ColumnName);
+            return annotation != null ? (string)annotation.Value : property.GetDefaultColumnBaseName();
         }
 
         /// <summary>
@@ -86,11 +98,23 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Returns the default column name to which the property would be mapped.
+        ///     Returns the default table column name to which the property would be mapped.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The default column name to which the property would be mapped. </returns>
+        /// <returns> The default table column name to which the property would be mapped. </returns>
+        [Obsolete("Use the overload that takes a StoreObjectIdentifier")]
         public static string GetDefaultColumnName([NotNull] this IProperty property)
+        {
+            var table = StoreObjectIdentifier.Create(property.DeclaringEntityType, StoreObjectType.Table);
+            return table == null ? property.GetDefaultColumnBaseName() : property.GetDefaultColumnName(table.Value);
+        }
+
+        /// <summary>
+        ///     Returns the default base name of the column to which the property would be mapped
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The default base column name to which the property would be mapped. </returns>
+        public static string GetDefaultColumnBaseName([NotNull] this IProperty property)
             => Uniquifier.Truncate(property.Name, property.DeclaringEntityType.Model.GetMaxIdentifierLength());
 
         /// <summary>
@@ -170,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore
                 entityType = ownerType;
             }
 
-            var baseName = property.GetDefaultColumnName();
+            var baseName = property.GetDefaultColumnBaseName();
             if (builder == null)
             {
                 return baseName;

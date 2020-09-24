@@ -22,6 +22,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
         public DbSet<EntityRoot> EntityRoots { get; set; }
         public DbSet<ImplicitManyToManyA> ImplicitManyToManyAs { get; set; }
         public DbSet<ImplicitManyToManyB> ImplicitManyToManyBs { get; set; }
+        public DbSet<GeneratedKeysLeft> GeneratedKeysLefts { get; set; }
+        public DbSet<GeneratedKeysRight> GeneratedKeysRights { get; set; }
 
         public static void Seed(ManyToManyContext context)
             => ManyToManyData.Seed(context);
@@ -29,14 +31,14 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 
     public static class ManyToManyContextExtensions
     {
-        public static TEntity CreateInstance<TEntity>(this DbSet<TEntity> set, Action<TEntity, bool> configureEntity)
+        public static TEntity CreateInstance<TEntity>(this DbSet<TEntity> set, Action<TEntity, bool> configureEntity = null)
             where TEntity : class, new()
         {
             var isProxy = set.GetService<IDbContextOptions>().FindExtension<ProxiesOptionsExtension>()?.UseChangeTrackingProxies == true;
 
             var entity = isProxy ? set.CreateProxy() : new TEntity();
 
-            configureEntity(entity, isProxy);
+            configureEntity?.Invoke(entity, isProxy);
 
             return entity;
         }

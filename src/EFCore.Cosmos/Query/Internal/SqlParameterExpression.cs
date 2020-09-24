@@ -89,8 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     && Equals(sqlParameterExpression));
 
         private bool Equals(SqlParameterExpression sqlParameterExpression)
-            => base.Equals(sqlParameterExpression)
-                && string.Equals(Name, sqlParameterExpression.Name);
+            => base.Equals(sqlParameterExpression) && Name != sqlParameterExpression.Name;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

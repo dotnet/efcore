@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore
                     .Append("AK_")
                     .Append(tableName)
                     .Append("_")
-                    .AppendJoin(key.Properties.Select(p => p.GetColumnName()), "_")
+                    .AppendJoin(key.Properties.Select(p => p.GetColumnBaseName()), "_")
                     .ToString();
             }
 

@@ -461,8 +461,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             _isSearchCondition = parentSearchCondition;
             var newFunction = sqlFunctionExpression.Update(instance, arguments);
 
-            var condition = string.Equals(sqlFunctionExpression.Name, "FREETEXT")
-                || string.Equals(sqlFunctionExpression.Name, "CONTAINS");
+            var condition = sqlFunctionExpression.Name == "FREETEXT" || sqlFunctionExpression.Name == "CONTAINS";
 
             return ApplyConversion(newFunction, condition);
         }

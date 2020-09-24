@@ -292,21 +292,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                         if (navigationBase is ISkipNavigation skipNavigation)
                         {
-                            var joinEntry = FindOrCreateJoinEntry(
-                                entry, newTargetEntry, skipNavigation, fromQuery: false, setModified: false);
-
-                            if (joinEntry.EntityState == EntityState.Detached)
-                            {
-                                try
-                                {
-                                    _inFixup = false;
-                                    joinEntry.SetEntityState(EntityState.Added);
-                                }
-                                finally
-                                {
-                                    _inFixup = true;
-                                }
-                            }
+                            FindOrCreateJoinEntry(entry, newTargetEntry, skipNavigation, fromQuery: false, setModified: true);
 
                             Check.DebugAssert(
                                 skipNavigation.Inverse.IsCollection,
@@ -845,21 +831,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             }
                             else
                             {
-                                var joinEntry = FindOrCreateJoinEntry(
-                                    entry, otherEntry, skipNavigation, fromQuery, setModified);
-
-                                if (joinEntry.EntityState == EntityState.Detached)
-                                {
-                                    try
-                                    {
-                                        _inFixup = false;
-                                        joinEntry.SetEntityState(setModified ? EntityState.Added : EntityState.Unchanged);
-                                    }
-                                    finally
-                                    {
-                                        _inFixup = true;
-                                    }
-                                }
+                                FindOrCreateJoinEntry(entry, otherEntry, skipNavigation, fromQuery, setModified);
 
                                 Check.DebugAssert(
                                     skipNavigation.Inverse.IsCollection,
@@ -893,21 +865,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var setModified = referencedEntry.EntityState != EntityState.Unchanged;
                 if (navigationBase is ISkipNavigation skipNavigation)
                 {
-                    var joinEntry = FindOrCreateJoinEntry(
-                        entry, referencedEntry, skipNavigation, fromQuery, setModified);
+                    FindOrCreateJoinEntry(entry, referencedEntry, skipNavigation, fromQuery, setModified);
 
-                    if (joinEntry.EntityState == EntityState.Detached)
-                    {
-                        try
-                        {
-                            _inFixup = false;
-                            joinEntry.SetEntityState(setModified ? EntityState.Added : EntityState.Unchanged);
-                        }
-                        finally
-                        {
-                            _inFixup = true;
-                        }
-                    }
+                    Check.DebugAssert(
+                        skipNavigation.Inverse.IsCollection,
+                        "Issue #21673. Non-collection skip navigations not supported.");
 
                     AddToCollection(referencedEntry, skipNavigation.Inverse, entry, fromQuery);
                 }
@@ -937,7 +899,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private static InternalEntityEntry FindOrCreateJoinEntry(
+        private InternalEntityEntry FindOrCreateJoinEntry(
             InternalEntityEntry entry,
             InternalEntityEntry otherEntry,
             ISkipNavigation skipNavigation,
@@ -957,6 +919,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             SetForeignKeyProperties(joinEntry, entry, skipNavigation.ForeignKey, setModified, fromQuery);
             SetForeignKeyProperties(joinEntry, otherEntry, skipNavigation.Inverse.ForeignKey, setModified, fromQuery);
+
+            if (joinEntry.EntityState == EntityState.Detached)
+            {
+                try
+                {
+                    _inFixup = false;
+
+                    joinEntry.SetEntityState(
+                        setModified
+                        || entry.EntityState == EntityState.Added
+                        || otherEntry.EntityState == EntityState.Added
+                            ? EntityState.Added
+                            : EntityState.Unchanged);
+                }
+                finally
+                {
+                    _inFixup = true;
+                }
+            }
 
             return joinEntry;
         }

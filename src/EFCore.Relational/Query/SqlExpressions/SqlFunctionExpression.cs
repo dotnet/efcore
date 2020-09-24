@@ -379,8 +379,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         private bool Equals(SqlFunctionExpression sqlFunctionExpression)
             => base.Equals(sqlFunctionExpression)
-                && string.Equals(Name, sqlFunctionExpression.Name)
-                && string.Equals(Schema, sqlFunctionExpression.Schema)
+                && Name == sqlFunctionExpression.Name
+                && Schema == sqlFunctionExpression.Schema
                 && ((Instance == null && sqlFunctionExpression.Instance == null)
                     || (Instance != null && Instance.Equals(sqlFunctionExpression.Instance)))
                 && Arguments.SequenceEqual(sqlFunctionExpression.Arguments);

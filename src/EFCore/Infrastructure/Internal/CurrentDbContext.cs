@@ -1,14 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Threading;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Internal
+namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
 {
     /// <summary>
     ///     <para>
@@ -24,34 +22,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public class ConcurrencyDetector : IConcurrencyDetector
+    public sealed class CurrentDbContext : ICurrentDbContext
     {
-        private int _inCriticalSection;
-        private static readonly AsyncLocal<bool> _threadHasLock = new AsyncLocal<bool>();
-        private int _refCount;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConcurrencyDetectorCriticalSectionDisposer EnterCriticalSection()
+        public CurrentDbContext([NotNull] DbContext context)
         {
-            if (Interlocked.CompareExchange(ref _inCriticalSection, 1, 0) == 1)
-            {
-                if (!_threadHasLock.Value)
-                {
-                    throw new InvalidOperationException(CoreStrings.ConcurrentMethodInvocation);
-                }
-            }
-            else
-            {
-                _threadHasLock.Value = true;
-            }
-
-            _refCount++;
-            return new ConcurrencyDetectorCriticalSectionDisposer(this);
+            Context = context;
         }
 
         /// <summary>
@@ -60,15 +41,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void ExitCriticalSection()
+        public DbContext Context
         {
-            Check.DebugAssert(_inCriticalSection == 1, "Expected to be in a critical section");
-
-            if (--_refCount == 0)
-            {
-                _threadHasLock.Value = false;
-                _inCriticalSection = 0;
-            }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get;
         }
     }
 }

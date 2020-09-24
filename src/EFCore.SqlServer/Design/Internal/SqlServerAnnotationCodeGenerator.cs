@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
 
             if (annotation.Name == RelationalAnnotationNames.DefaultSchema)
             {
-                return string.Equals("dbo", (string)annotation.Value);
+                return (string)annotation.Value == "dbo";
             }
 
             return annotation.Name == SqlServerAnnotationNames.ValueGenerationStrategy
@@ -132,8 +132,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
             switch (strategy)
             {
                 case SqlServerValueGenerationStrategy.IdentityColumn:
-                    var seed = GetAndRemove<int?>(SqlServerAnnotationNames.IdentitySeed);
-                    var increment = GetAndRemove<int?>(SqlServerAnnotationNames.IdentityIncrement);
+                    var seed = GetAndRemove<int?>(SqlServerAnnotationNames.IdentitySeed) ?? 1;
+                    var increment = GetAndRemove<int?>(SqlServerAnnotationNames.IdentityIncrement) ?? 1;
                     return new List<MethodCallCodeFragment>
                     {
                         new MethodCallCodeFragment(
@@ -142,8 +142,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
                                 : nameof(SqlServerPropertyBuilderExtensions.UseIdentityColumn),
                             (seed, increment) switch
                             {
-                                (null, null) => Array.Empty<object>(),
-                                (_, null) => new object[] { seed },
+                                (1, 1) => Array.Empty<object>(),
+                                (_, 1) => new object[] { seed },
                                 _ => new object[] { seed, increment }
                             })
                     };

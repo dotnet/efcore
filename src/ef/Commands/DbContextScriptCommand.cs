@@ -12,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
     {
         protected override int Execute(string[] args)
         {
-            var sql = CreateExecutor(args).ScriptDbContext(Context.Value());
+            using var executor = CreateExecutor(args);
+            var sql = executor.ScriptDbContext(Context.Value());
 
             if (!_output.HasValue())
             {

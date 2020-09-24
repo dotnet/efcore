@@ -1986,5 +1986,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => ss.Set<Order>().Where(o => o.OrderID == 10243).Select(o => o.OrderID).DefaultIfEmpty());
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Average_on_nav_subquery_in_projection(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => new { Ave = (double?)c.Orders.Average(o => o.OrderID) }),
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => new { Ave = c.Orders != null && c.Orders.Count() > 0 ? (double?)c.Orders.Average(o => o.OrderID) : null }),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Ave.HasValue, a.Ave.HasValue);
+                    if (e.Ave.HasValue)
+                    {
+                        Assert.InRange(e.Ave.Value - a.Ave.Value, -0.1D, 0.1D);
+                    }
+                });
+        }
     }
 }

@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = base.Non_public_annotations_are_enabled();
 
             var property = GetProperty<PrivateMemberAnnotationClass>(modelBuilder, "PersonFirstName");
-            Assert.Equal("dsdsd", property.GetColumnName());
+            Assert.Equal("dsdsd", property.GetColumnBaseName());
             Assert.Equal("nvarchar(128)", property.GetColumnType());
 
             return modelBuilder;
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = base.Field_annotations_are_enabled();
 
             var property = GetProperty<FieldAnnotationClass>(modelBuilder, "_personFirstName");
-            Assert.Equal("dsdsd", property.GetColumnName());
+            Assert.Equal("dsdsd", property.GetColumnBaseName());
             Assert.Equal("nvarchar(128)", property.GetColumnType());
 
             return modelBuilder;
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = base.Key_and_column_work_together();
 
             var relational = GetProperty<ColumnKeyAnnotationClass1>(modelBuilder, "PersonFirstName");
-            Assert.Equal("dsdsd", relational.GetColumnName());
+            Assert.Equal("dsdsd", relational.GetColumnBaseName());
             Assert.Equal("nvarchar(128)", relational.GetColumnType());
 
             return modelBuilder;
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 "Unique_No",
-                modelBuilder.Model.FindEntityType(typeof(One)).FindProperty(nameof(One.UniqueNo)).GetColumnName());
+                modelBuilder.Model.FindEntityType(typeof(One)).FindProperty(nameof(One.UniqueNo)).GetColumnBaseName());
         }
 
         public override ModelBuilder DatabaseGeneratedOption_Identity_does_not_throw_on_noninteger_properties()

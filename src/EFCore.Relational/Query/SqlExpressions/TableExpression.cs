@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     public sealed class TableExpression : TableExpressionBase
     {
         internal TableExpression([NotNull] ITableBase table)
-            : base(table.Name.Substring(0, 1).ToLower())
+            : base(table.Name.Substring(0, 1).ToLowerInvariant())
         {
             Name = table.Name;
             Schema = table.Schema;

@@ -72,13 +72,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var orderMapping = orderType.GetDefaultMappings().Single();
             Assert.True(orderMapping.IncludesDerivedTypes);
             Assert.Equal(
-                new[] { nameof(Order.OrderId), nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate) },
+                new[] { nameof(Order.Id), nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate) },
                 orderMapping.ColumnMappings.Select(m => m.Property.Name));
 
             var ordersTable = orderMapping.Table;
             Assert.Equal(new[] { nameof(Order) }, ordersTable.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
             Assert.Equal(
-                new[] { nameof(Order.AlternateId), nameof(Order.CustomerId), "OrderDate", nameof(Order.OrderId) },
+                new[] { nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.Id), "OrderDate" },
                 ordersTable.Columns.Select(m => m.Name));
             Assert.Equal("Order", ordersTable.Name);
             Assert.Null(ordersTable.Schema);
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(orderType.GetViewMappings(), orderType.GetViewOrTableMappings());
             Assert.True(orderMapping.IncludesDerivedTypes);
             Assert.Equal(
-                new[] { nameof(Order.OrderId), nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate) },
+                new[] { nameof(Order.Id), nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate) },
                 orderMapping.ColumnMappings.Select(m => m.Property.Name));
 
             var ordersView = orderMapping.View;
@@ -159,8 +159,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     "Details_BillingAddress_Street",
                     "Details_ShippingAddress_City",
                     "Details_ShippingAddress_Street",
-                    "OrderDate",
-                    nameof(Order.OrderId)
+                    nameof(Order.Id),
+                    "OrderDate"
                 },
                 ordersView.Columns.Select(m => m.Name));
             Assert.Equal("OrderView", ordersView.Name);
@@ -249,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var orderMapping = orderType.GetTableMappings().Single();
             Assert.True(orderMapping.IncludesDerivedTypes);
             Assert.Equal(
-                new[] { nameof(Order.OrderId), nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate) },
+                new[] { nameof(Order.Id), nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate) },
                 orderMapping.ColumnMappings.Select(m => m.Property.Name));
 
             var ordersTable = orderMapping.Table;
@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(
                 new[]
                 {
-                    nameof(Order.OrderId),
+                    nameof(Order.Id),
                     nameof(Order.AlternateId),
                     nameof(Order.CustomerId),
                     "Details_BillingAddress_City",
@@ -298,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var orderPkConstraint = orderPk.GetMappedConstraints().Single();
 
             Assert.Equal("PK_Order", orderPkConstraint.Name);
-            Assert.Equal(nameof(Order.OrderId), orderPkConstraint.Columns.Single().Name);
+            Assert.Equal(nameof(Order.Id), orderPkConstraint.Columns.Single().Name);
             Assert.Same(ordersTable, orderPkConstraint.Table);
             Assert.True(orderPkConstraint.GetIsPrimaryKey());
             Assert.Same(orderPkConstraint, ordersTable.UniqueConstraints.Last());
@@ -388,6 +388,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var orderDetailsPk = orderDetailsType.FindPrimaryKey();
             Assert.Same(orderPkConstraint, orderDetailsPk.GetMappedConstraints().Single());
 
+            var orderDetailsPkProperty = orderDetailsPk.Properties.Single();
+#pragma warning disable CS0618 // Type or member is obsolete
+            Assert.Equal("Id", orderDetailsPkProperty.GetColumnName());
+#pragma warning restore CS0618 // Type or member is obsolete
+            Assert.Equal("OrderId", orderDetailsPkProperty.GetColumnBaseName());
+
             var billingAddressOwnership = orderDetailsType.FindNavigation(nameof(OrderDetails.BillingAddress)).ForeignKey;
             var billingAddressType = billingAddressOwnership.DeclaringEntityType;
 
@@ -395,7 +401,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var shippingAddressType = shippingAddressOwnership.DeclaringEntityType;
 
             Assert.Equal(
-                new[] { billingAddressType.FindPrimaryKey(), shippingAddressType.FindPrimaryKey(), orderPk, orderDetailsPk },
+                new[] { orderPk, billingAddressType.FindPrimaryKey(), shippingAddressType.FindPrimaryKey(), orderDetailsPk },
                 orderPkConstraint.MappedKeys);
 
             var orderDetailsDate = orderDetailsType.FindProperty(nameof(OrderDetails.OrderDate));
@@ -710,7 +716,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.True(orderMapping.IncludesDerivedTypes);
             Assert.Equal(
-                new[] { nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate), nameof(Order.OrderId) },
+                new[] { nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.Id), nameof(Order.OrderDate) },
                 orderMapping.ColumnMappings.Select(m => m.Property.Name));
 
             var ordersQuery = orderMapping.SqlQuery;
@@ -718,7 +724,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 new[] { orderType },
                 ordersQuery.EntityTypeMappings.Select(m => m.EntityType));
             Assert.Equal(
-                new[] { nameof(Order.CustomerId), nameof(Order.OrderDate), nameof(Order.OrderId), "SomeName" },
+                new[] { nameof(Order.CustomerId), nameof(Order.Id), nameof(Order.OrderDate), "SomeName" },
                 ordersQuery.Columns.Select(m => m.Name));
             Assert.Equal("Microsoft.EntityFrameworkCore.Metadata.RelationalModelTest+Order.MappedSqlQuery", ordersQuery.Name);
             Assert.Null(ordersQuery.Schema);
@@ -791,7 +797,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.True(orderMapping.IncludesDerivedTypes);
             Assert.Equal(
-                new[] { nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate), nameof(Order.OrderId) },
+                new[] { nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.Id), nameof(Order.OrderDate) },
                 orderMapping.ColumnMappings.Select(m => m.Property.Name));
 
             var ordersFunction = orderMapping.StoreFunction;
@@ -800,7 +806,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 new[] { orderType },
                 ordersFunction.EntityTypeMappings.Select(m => m.EntityType));
             Assert.Equal(
-                new[] { nameof(Order.CustomerId), nameof(Order.OrderDate), nameof(Order.OrderId), "SomeName" },
+                new[] { nameof(Order.CustomerId), nameof(Order.Id), nameof(Order.OrderDate), "SomeName" },
                 ordersFunction.Columns.Select(m => m.Name));
             Assert.Equal("GetOrders", ordersFunction.Name);
             Assert.Null(ordersFunction.Schema);
@@ -879,7 +885,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         private class Order
         {
-            public int OrderId { get; set; }
+            public int Id { get; set; }
             public Guid AlternateId { get; set; }
 
             public DateTime OrderDate { get; set; }

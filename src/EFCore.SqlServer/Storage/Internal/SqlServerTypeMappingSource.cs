@@ -229,10 +229,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         {
             var clrType = mappingInfo.ClrType;
             var storeTypeName = mappingInfo.StoreTypeName;
-            var storeTypeNameBase = mappingInfo.StoreTypeNameBase;
 
             if (storeTypeName != null)
             {
+                var storeTypeNameBase = mappingInfo.StoreTypeNameBase;
+                if (storeTypeNameBase.StartsWith("[", StringComparison.Ordinal)
+                    && storeTypeNameBase.EndsWith("]", StringComparison.Ordinal))
+                {
+                    storeTypeNameBase = storeTypeNameBase.Substring(1, storeTypeNameBase.Length - 2);
+                }
+
                 if (clrType == typeof(float)
                     && mappingInfo.Precision != null
                     && mappingInfo.Precision <= 24

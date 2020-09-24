@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo()
                 .GetDeclaredProperty(nameof(QueryContext.Context));
 
-        private static readonly IDictionary<MethodInfo, MethodInfo> _predicateLessMethodInfo = new Dictionary<MethodInfo, MethodInfo>
+        private static readonly Dictionary<MethodInfo, MethodInfo> _predicateLessMethodInfo = new Dictionary<MethodInfo, MethodInfo>
         {
             { QueryableMethods.FirstWithPredicate, QueryableMethods.FirstWithoutPredicate },
             { QueryableMethods.FirstOrDefaultWithPredicate, QueryableMethods.FirstOrDefaultWithoutPredicate },
@@ -59,8 +59,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly ReducingExpressionVisitor _reducingExpressionVisitor;
         private readonly EntityReferenceOptionalMarkingExpressionVisitor _entityReferenceOptionalMarkingExpressionVisitor;
         private readonly RemoveRedundantNavigationComparisonExpressionVisitor _removeRedundantNavigationComparisonExpressionVisitor;
-        private readonly ISet<string> _parameterNames = new HashSet<string>();
+        private readonly HashSet<string> _parameterNames = new HashSet<string>();
         private readonly ParameterExtractingExpressionVisitor _parameterExtractingExpressionVisitor;
+        private readonly HashSet<IEntityType> _nonCyclicAutoIncludeEntityTypes;
 
         private readonly Dictionary<IEntityType, LambdaExpression> _parameterizedQueryFilterPredicateCache
             = new Dictionary<IEntityType, LambdaExpression>();
@@ -95,6 +96,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _queryCompilationContext.Logger,
                 parameterize: false,
                 generateContextAccessors: true);
+
+            if (!_queryCompilationContext.IgnoreAutoIncludes)
+            {
+                _nonCyclicAutoIncludeEntityTypes = new HashSet<IEntityType>();
+            }
         }
 
         /// <summary>
@@ -451,9 +457,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             return ProcessInclude(
                                 source,
                                 methodCallExpression.Arguments[1],
-                                string.Equals(
-                                    method.Name,
-                                    nameof(EntityFrameworkQueryableExtensions.ThenInclude)));
+                                method.Name == nameof(EntityFrameworkQueryableExtensions.ThenInclude));
 
                         case nameof(Queryable.GroupBy)
                             when genericMethod == QueryableMethods.GroupByWithKeySelector:
@@ -1597,7 +1601,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             PopulateEagerLoadedNavigations(entityReference.IncludePaths);
 
             var currentTree = new NavigationTreeExpression(entityReference);
-            var parameterName = GetParameterName(entityType.ShortName()[0].ToString().ToLower());
+            var parameterName = GetParameterName(entityType.ShortName()[0].ToString().ToLowerInvariant());
 
             return new NavigationExpansionExpression(sourceExpression, currentTree, currentTree, parameterName);
         }
@@ -1707,13 +1711,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private void PopulateEagerLoadedNavigations(IncludeTreeNode includeTreeNode)
         {
             var entityType = includeTreeNode.EntityType;
-            var outboundNavigations
-                = entityType.GetNavigations()
-                    .Cast<INavigationBase>()
-                    .Concat(entityType.GetSkipNavigations())
-                    .Concat(entityType.GetDerivedNavigations())
-                    .Concat(entityType.GetDerivedSkipNavigations())
-                    .Where(n => n.IsEagerLoaded);
+
+            if (!_queryCompilationContext.IgnoreAutoIncludes
+                && !_nonCyclicAutoIncludeEntityTypes.Contains(entityType))
+            {
+                VerifyNoAutoIncludeCycles(entityType, new HashSet<IEntityType>(), new List<INavigationBase>());
+            }
+
+            var outboundNavigations = GetOutgoingEagerLoadedNavigations(entityType);
 
             if (_queryCompilationContext.IgnoreAutoIncludes)
             {
@@ -1722,10 +1727,52 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             foreach (var navigation in outboundNavigations)
             {
-                var addedIncludeTreeNode = includeTreeNode.AddNavigation(navigation);
-                PopulateEagerLoadedNavigations(addedIncludeTreeNode);
+                includeTreeNode.AddNavigation(navigation);
             }
         }
+
+        private void VerifyNoAutoIncludeCycles(
+            IEntityType entityType, HashSet<IEntityType> visitedEntityTypes, List<INavigationBase> navigationChain)
+        {
+            if (_nonCyclicAutoIncludeEntityTypes.Contains(entityType))
+            {
+                return;
+            }
+
+            if (!visitedEntityTypes.Add(entityType))
+            {
+                throw new InvalidOperationException(CoreStrings.AutoIncludeNavigationCycle(
+                    navigationChain.Select(e => $"'{e.DeclaringEntityType.ShortName()}.{e.Name}'").Join()));
+            }
+
+            var autoIncludedNavigations = GetOutgoingEagerLoadedNavigations(entityType)
+                .Where(n => !(n is INavigation navigation && navigation.ForeignKey.IsOwnership));
+
+            foreach (var navigationBase in autoIncludedNavigations)
+            {
+                if (navigationChain.Count > 0
+                    && navigationChain[^1].Inverse == navigationBase
+                    && navigationBase is INavigation)
+                {
+                    continue;
+                }
+
+                navigationChain.Add(navigationBase);
+                VerifyNoAutoIncludeCycles(navigationBase.TargetEntityType, visitedEntityTypes, navigationChain);
+                navigationChain.Remove(navigationBase);
+            }
+
+            _nonCyclicAutoIncludeEntityTypes.Add(entityType);
+            visitedEntityTypes.Remove(entityType);
+        }
+
+        private static IEnumerable<INavigationBase> GetOutgoingEagerLoadedNavigations(IEntityType entityType)
+            => entityType.GetNavigations()
+                .Cast<INavigationBase>()
+                .Concat(entityType.GetSkipNavigations())
+                .Concat(entityType.GetDerivedNavigations())
+                .Concat(entityType.GetDerivedSkipNavigations())
+                .Where(n => n.IsEagerLoaded);
 
         private IncludeTreeNode PopulateIncludeTree(IncludeTreeNode includeTreeNode, Expression expression)
         {
