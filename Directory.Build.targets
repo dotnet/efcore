@@ -1,3 +1,20 @@
 <Project>
   <Import Project="Sdk.targets" Sdk="Microsoft.DotNet.Arcade.Sdk" />
+
+  <Target Name="GetCustomAssemblyAttributes"
+          BeforeTargets="GetAssemblyAttributes"
+          Condition=" '$(MSBuildProjectExtension)' == '.csproj' "
+          DependsOnTargets="InitializeSourceControlInformation">
+    <ItemGroup>
+      <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute" Condition="'$(SourceRevisionId)' != ''">
+        <_Parameter1>CommitHash</_Parameter1>
+        <_Parameter2>$(SourceRevisionId)</_Parameter2>
+      </AssemblyAttribute>
+
+      <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute" Condition="'$(Serviceable)' == 'true'">
+        <_Parameter1>Serviceable</_Parameter1>
+        <_Parameter2>True</_Parameter2>
+      </AssemblyAttribute>
+    </ItemGroup>
+  </Target>
 </Project>
