@@ -3,9 +3,9 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using EFCore.Analyzers.Test.TestUtilities;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
