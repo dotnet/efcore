@@ -57,10 +57,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private Key _primaryKey;
         private bool? _isKeyless;
         private EntityType _baseType;
+        private ChangeTrackingStrategy? _changeTrackingStrategy;
 
         private ConfigurationSource? _primaryKeyConfigurationSource;
         private ConfigurationSource? _isKeylessConfigurationSource;
         private ConfigurationSource? _baseTypeConfigurationSource;
+        private ConfigurationSource? _changeTrackingStrategyConfigurationSource;
 
         // Warning: Never access these fields directly as access needs to be thread-safe
         private PropertyCounts _counts;
@@ -781,7 +783,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (property == properties[j])
                     {
-                        throw new InvalidOperationException(CoreStrings.DuplicatePropertyInList(properties.Format(), property.Name));
+                        throw new InvalidOperationException(CoreStrings.DuplicatePropertyInKey(properties.Format(), property.Name));
                     }
                 }
 
@@ -789,12 +791,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     || property.Builder == null)
                 {
                     throw new InvalidOperationException(CoreStrings.KeyPropertiesWrongEntity(properties.Format(), this.DisplayName()));
-                }
-
-                if (property.ValueGenerated != ValueGenerated.Never
-                    && property.GetContainingForeignKeys().Any(k => k.DeclaringEntityType != this))
-                {
-                    throw new InvalidOperationException(CoreStrings.KeyPropertyInForeignKey(property.Name, this.DisplayName()));
                 }
 
                 if (property.IsNullable)
@@ -2065,7 +2061,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (property == properties[j])
                     {
-                        throw new InvalidOperationException(CoreStrings.DuplicatePropertyInList(properties.Format(), property.Name));
+                        throw new InvalidOperationException(CoreStrings.DuplicatePropertyInIndex(properties.Format(), property.Name));
                     }
                 }
 
@@ -2401,13 +2397,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (memberInfo.DeclaringType?.IsAssignableFrom(ClrType) != true)
                 {
-                    throw new InvalidOperationException(
-                        HasSharedClrType
-                            ? CoreStrings.PropertyWrongEntitySharedClrType(
-                                memberInfo.Name, this.DisplayName(), ClrType.ShortDisplayName(),
-                                memberInfo.DeclaringType?.ShortDisplayName())
-                            : CoreStrings.PropertyWrongEntityClrType(
-                                memberInfo.Name, this.DisplayName(), memberInfo.DeclaringType?.ShortDisplayName()));
+                    throw new InvalidOperationException(CoreStrings.PropertyWrongEntityClrType(
+                        memberInfo.Name, this.DisplayName(), memberInfo.DeclaringType?.ShortDisplayName()));
                 }
             }
             else if (IsPropertyBag)
@@ -3075,7 +3066,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         #endregion
 
-        #region Annotations
+        #region Other
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        public virtual ChangeTrackingStrategy GetChangeTrackingStrategy()
+            => _changeTrackingStrategy ?? Model.GetChangeTrackingStrategy();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3097,7 +3098,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            this.SetOrRemoveAnnotation(CoreAnnotationNames.ChangeTrackingStrategy, changeTrackingStrategy, configurationSource);
+            _changeTrackingStrategy = changeTrackingStrategy;
+
+            _changeTrackingStrategyConfigurationSource = _changeTrackingStrategy == null
+                ? (ConfigurationSource?)null
+                : configurationSource.Max(_changeTrackingStrategyConfigurationSource);
 
             return changeTrackingStrategy;
         }
@@ -3141,6 +3146,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return null;
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual ConfigurationSource? GetChangeTrackingStrategyConfigurationSource()
+            => _changeTrackingStrategyConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

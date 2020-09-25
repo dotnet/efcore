@@ -316,6 +316,11 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 }
             }
 
+            if (!_sensitiveLoggingEnabled)
+            {
+                builder.Append(CoreStrings.SensitiveDataDisabled);
+            }
+
             return builder.ToString();
         }
 
@@ -359,10 +364,13 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             var reverseDependency = !source.Entries.Any(e => foreignKey.DeclaringEntityType.IsAssignableFrom(e.EntityType));
             if (reverseDependency)
             {
-                builder.Append(" <-");
+                builder.AppendLine(" <-");
+            }
+            else
+            {
+                builder.Append(" ");
             }
 
-            builder.Append(" ");
             if (foreignKey.DependentToPrincipal != null
                 || foreignKey.PrincipalToDependent != null)
             {
@@ -416,7 +424,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
             if (!reverseDependency)
             {
-                builder.Append("<- ");
+                builder.AppendLine("<-");
             }
         }
 
@@ -425,10 +433,14 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             var reverseDependency = source.EntityState != EntityState.Deleted;
             if (reverseDependency)
             {
-                builder.Append(" <-");
+                builder.AppendLine(" <-");
+            }
+            else
+            {
+                builder.Append(" ");
             }
 
-            builder.Append(" Index ");
+            builder.Append("Index ");
 
             var dependentCommand = reverseDependency ? target : source;
             var dependentEntry = dependentCommand.Entries.First(e => index.DeclaringEntityType.IsAssignableFrom(e.EntityType));
@@ -455,7 +467,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
             if (!reverseDependency)
             {
-                builder.Append("<- ");
+                builder.AppendLine("<-");
             }
         }
 

@@ -293,8 +293,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             switch (propertyStrategy)
             {
                 case SqlServerValueGenerationStrategy.IdentityColumn:
-                    var increment = property.GetIdentityIncrement();
-                    var duplicateIncrement = duplicateProperty.GetIdentityIncrement();
+                    var increment = property.GetIdentityIncrement(storeObject);
+                    var duplicateIncrement = duplicateProperty.GetIdentityIncrement(storeObject);
                     if (increment != duplicateIncrement)
                     {
                         throw new InvalidOperationException(
@@ -307,8 +307,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                                 storeObject.DisplayName()));
                     }
 
-                    var seed = property.GetIdentitySeed();
-                    var duplicateSeed = duplicateProperty.GetIdentitySeed();
+                    var seed = property.GetIdentitySeed(storeObject);
+                    var duplicateSeed = duplicateProperty.GetIdentitySeed(storeObject);
                     if (seed != duplicateSeed)
                     {
                         throw new InvalidOperationException(
@@ -323,8 +323,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
 
                     break;
                 case SqlServerValueGenerationStrategy.SequenceHiLo:
-                    if (property.GetHiLoSequenceName() != duplicateProperty.GetHiLoSequenceName()
-                        || property.GetHiLoSequenceSchema() != duplicateProperty.GetHiLoSequenceSchema())
+                    if (property.GetHiLoSequenceName(storeObject) != duplicateProperty.GetHiLoSequenceName(storeObject)
+                        || property.GetHiLoSequenceSchema(storeObject) != duplicateProperty.GetHiLoSequenceSchema(storeObject))
                     {
                         throw new InvalidOperationException(
                             SqlServerStrings.DuplicateColumnSequenceMismatch(

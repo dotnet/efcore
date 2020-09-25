@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -16,6 +17,44 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
     {
         public abstract class ManyToManyTestBase : ModelBuilderTestBase
         {
+            [ConditionalFact]
+            public virtual void Discovers_navigations()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<Category>().Ignore(c => c.ProductCategories);
+                modelBuilder.Entity<Product>();
+                modelBuilder.Entity<CategoryBase>();
+
+                var sharedTypeName = nameof(Category) + nameof(Product);
+
+                modelBuilder.SharedTypeEntity<Dictionary<string, object>>(sharedTypeName);
+
+                var model = modelBuilder.FinalizeModel();
+
+                var productType = model.FindEntityType(typeof(Product));
+                var categoryType = model.FindEntityType(typeof(Category));
+
+                var categoriesNavigation = productType.GetSkipNavigations().Single();
+                var productsNavigation = categoryType.GetSkipNavigations().Single();
+
+                var categoriesFk = categoriesNavigation.ForeignKey;
+                var productsFk = productsNavigation.ForeignKey;
+                var productCategoryType = categoriesFk.DeclaringEntityType;
+
+                Assert.Equal(typeof(Dictionary<string, object>), productCategoryType.ClrType);
+                Assert.Equal(sharedTypeName, productCategoryType.Name);
+                Assert.Same(categoriesFk, productCategoryType.GetForeignKeys().Last());
+                Assert.Same(productsFk, productCategoryType.GetForeignKeys().First());
+                Assert.Equal(2, productCategoryType.GetForeignKeys().Count());
+
+                Assert.Same(categoriesNavigation, productType.GetSkipNavigations().Single());
+                Assert.Same(productsNavigation, categoryType.GetSkipNavigations().Single());
+                Assert.Same(categoriesFk, productCategoryType.GetForeignKeys().Last());
+                Assert.Same(productsFk, productCategoryType.GetForeignKeys().First());
+                Assert.Equal(2, productCategoryType.GetForeignKeys().Count());
+            }
+
             [ConditionalFact]
             public virtual void Finds_existing_navigations_and_uses_associated_FK()
             {
@@ -311,6 +350,55 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            public virtual void Throws_for_ForeignKeyAttribute_on_navigation()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<CategoryWithAttribute>();
+
+                Assert.Equal(
+                    CoreStrings.FkAttributeOnSkipNavigation(
+                        nameof(ProductWithAttribute), nameof(Product.Categories)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.FinalizeModel()).Message);
+            }
+
+            [ConditionalFact]
+            public virtual void Overrides_ForeignKeyAttribute()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<CategoryWithAttribute>()
+                    .HasMany(e => e.Products)
+                    .WithMany(e => e.Categories)
+                    .UsingEntity<Dictionary<string, object>>(
+                        "ProductCategory",
+                        e => e.HasOne<ProductWithAttribute>().WithMany().HasForeignKey("ProductKey"),
+                        e => e.HasOne<CategoryWithAttribute>().WithMany().HasForeignKey("CategoryKey"));
+
+                var model = modelBuilder.FinalizeModel();
+
+                var category = model.FindEntityType(typeof(CategoryWithAttribute));
+                var productsNavigation = category.GetSkipNavigations().Single();
+                var categoryFk = productsNavigation.ForeignKey;
+                Assert.Equal("CategoryKey", categoryFk.Properties.Single().Name);
+            }
+
+            protected class ProductWithAttribute
+            {
+                public int Id { get; set; }
+
+                [ForeignKey("ProductId")]
+                public virtual ICollection<CategoryWithAttribute> Categories { get; set; }
+            }
+
+            protected class CategoryWithAttribute
+            {
+                public int Id { get; set; }
+                public virtual ICollection<ProductWithAttribute> Products { get; set; }
+            }
+
+            [ConditionalFact]
             public virtual void Navigation_properties_can_set_access_mode()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -403,7 +491,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<OneToOnePrincipalWithField>().HasKey(d => d.Id);
                 modelBuilder.Entity<DependentWithField>().HasKey(d => d.DependentWithFieldId);
 
-                var model = modelBuilder.FinalizeModel();
+                var model = modelBuilder.Model;
 
                 var shared1 = model.FindEntityType("Shared1");
                 Assert.NotNull(shared1);
@@ -433,6 +521,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(
                     CoreStrings.ClashingSharedType(typeof(Dictionary<string, object>).DisplayName()),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Dictionary<string, object>>()).Message);
+
+                modelBuilder.FinalizeModel();
             }
 
             [ConditionalFact]

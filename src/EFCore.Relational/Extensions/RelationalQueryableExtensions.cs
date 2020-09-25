@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore
             if ((entityType.BaseType != null || entityType.GetDirectlyDerivedTypes().Any())
                 && entityType.GetDiscriminatorProperty() == null)
             {
-                throw new InvalidOperationException(RelationalStrings.NonTPHOnFromSqlNotSupported(memberName, entityType.DisplayName()));
+                throw new InvalidOperationException(RelationalStrings.MethodOnNonTPHRootNotSupported(memberName, entityType.DisplayName()));
             }
 
             return new FromSqlQueryRootExpression(

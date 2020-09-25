@@ -28,14 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public class RelationalEntityShaperExpression : EntityShaperExpression
     {
-        private static readonly MethodInfo _createUnableToIdentifyConcreteTypeException
-            = typeof(RelationalEntityShaperExpression).GetTypeInfo()
-                .GetDeclaredMethod(nameof(CreateUnableToIdentifyConcreteTypeException));
-
-        [UsedImplicitly]
-        private static Exception CreateUnableToIdentifyConcreteTypeException()
-            => new InvalidOperationException(RelationalStrings.QueryUnableToIdentifyConcreteTypeInTPT);
-
         /// <summary>
         ///     Creates a new instance of the <see cref="RelationalEntityShaperExpression" /> class.
         /// </summary>
@@ -94,8 +86,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
 
                 var defaultBlock = entityType.IsAbstract()
-                    ? Block(Throw(Call(_createUnableToIdentifyConcreteTypeException)), Constant(null, typeof(IEntityType)))
-                    : (Expression)Constant(entityType, typeof(IEntityType));
+                    ? CreateUnableToDiscriminateExceptionExpression(entityType, discriminatorValueVariable)
+                    : Constant(entityType, typeof(IEntityType));
 
                 expressions.Add(Switch(discriminatorValueVariable, defaultBlock, switchCases));
                 baseCondition = Lambda(Block(new[] { discriminatorValueVariable }, expressions), valueBufferParameter);

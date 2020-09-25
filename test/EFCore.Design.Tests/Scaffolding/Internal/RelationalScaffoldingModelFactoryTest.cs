@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 },
                 col1 =>
                 {
-                    Assert.Equal("created", col1.GetColumnName());
+                    Assert.Equal("created", col1.GetColumnBaseName());
                     Assert.Equal(ValueGenerated.OnAdd, col1.ValueGenerated);
                 },
                 col2 =>
@@ -221,12 +221,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 },
                 col3 =>
                 {
-                    Assert.Equal("modified", col3.GetColumnName());
+                    Assert.Equal("modified", col3.GetColumnBaseName());
                     Assert.Equal(ValueGenerated.OnAddOrUpdate, col3.ValueGenerated);
                 },
                 col4 =>
                 {
-                    Assert.Equal("occupation", col4.GetColumnName());
+                    Assert.Equal("occupation", col4.GetColumnBaseName());
                     Assert.Equal(typeof(string), col4.ClrType);
                     Assert.False(col4.IsColumnNullable());
                     Assert.Null(col4.GetMaxLength());
@@ -495,7 +495,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var model = (EntityType)_factory.Create(info, new ModelReverseEngineerOptions()).GetEntityTypes().Single();
 
             Assert.Equal("MyPk", model.FindPrimaryKey().GetName());
-            Assert.Equal(keyProps, model.FindPrimaryKey().Properties.Select(p => p.GetColumnName()).ToArray());
+            Assert.Equal(keyProps, model.FindPrimaryKey().Properties.Select(p => p.GetColumnBaseName()).ToArray());
         }
 
         [ConditionalFact]
@@ -1272,12 +1272,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         s1 =>
                         {
                             Assert.Equal("SanItized", s1.Name);
-                            Assert.Equal("San itized", s1.GetColumnName());
+                            Assert.Equal("San itized", s1.GetColumnBaseName());
                         },
                         s2 =>
                         {
                             Assert.Equal("SanItized1", s2.Name);
-                            Assert.Equal("San+itized", s2.GetColumnName());
+                            Assert.Equal("San+itized", s2.GetColumnBaseName());
                         });
                 },
                 ef2 =>
@@ -1286,7 +1286,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     Assert.Equal("EF1", ef2.Name);
                     var id = Assert.Single(ef2.GetProperties());
                     Assert.Equal("Id", id.Name);
-                    Assert.Equal("Id", id.GetColumnName());
+                    Assert.Equal("Id", id.GetColumnBaseName());
                 });
         }
 
@@ -1931,7 +1931,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 new ModelReverseEngineerOptions { UseDatabaseNames = useDatabaseNames, NoPluralize = noPluralize });
 
             var user = Assert.Single(model.GetEntityTypes().Where(e => e.GetTableName() == userTableName));
-            var id = Assert.Single(user.GetProperties().Where(p => p.GetColumnName() == "id"));
+            var id = Assert.Single(user.GetProperties().Where(p => p.GetColumnBaseName() == "id"));
             var foreignKey = Assert.Single(user.GetReferencingForeignKeys());
             if (useDatabaseNames && noPluralize)
             {

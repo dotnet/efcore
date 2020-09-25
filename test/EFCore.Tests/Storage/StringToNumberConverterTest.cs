@@ -580,7 +580,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 CoreStrings.ConverterBadType(
                     typeof(StringNumberConverter<string, Guid, Guid>).ShortDisplayName(),
                     "Guid",
-                    "int, long, short, byte, uint, ulong, ushort, sbyte, decimal, float, double"),
+                    "'int', 'long', 'short', 'byte', 'uint', 'ulong', 'ushort', 'sbyte', 'decimal', 'float', 'double'"),
                 Assert.Throws<InvalidOperationException>(
                     () => new StringToNumberConverter<Guid>()).Message);
         }

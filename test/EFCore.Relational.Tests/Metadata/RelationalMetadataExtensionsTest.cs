@@ -64,16 +64,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Property(e => e.Name)
                 .Metadata;
 
-            Assert.Equal("Name", property.GetColumnName());
+            Assert.Equal("Name", property.GetColumnBaseName());
 
             property.SetColumnName("Eman");
 
             Assert.Equal("Name", property.Name);
-            Assert.Equal("Eman", property.GetColumnName());
+            Assert.Equal("Eman", property.GetColumnBaseName());
 
             property.SetColumnName(null);
 
-            Assert.Equal("Name", property.GetColumnName());
+            Assert.Equal("Name", property.GetColumnBaseName());
         }
 
         [ConditionalFact]

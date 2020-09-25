@@ -58,6 +58,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             builder.Append(function.Name);
 
+            if (function.IsBuiltIn)
+            {
+                builder.Append(" IsBuiltIn");
+            }
+
             if ((options & MetadataDebugStringOptions.SingleLine) == 0)
             {
                 var parameters = function.Parameters.ToList();
@@ -67,6 +72,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     foreach (var parameter in parameters)
                     {
                         builder.AppendLine().Append(parameter.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                var mappings = function.EntityTypeMappings.ToList();
+                if (mappings.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  EntityTypeMappings: ");
+                    foreach (var mapping in mappings)
+                    {
+                        builder.AppendLine().Append(mapping.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                var columns = function.Columns.ToList();
+                if (columns.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Columns: ");
+                    foreach (var column in columns)
+                    {
+                        builder.AppendLine().Append(column.ToDebugString(options, indent + 4));
                     }
                 }
 

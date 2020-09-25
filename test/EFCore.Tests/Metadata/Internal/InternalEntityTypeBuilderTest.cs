@@ -511,27 +511,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [ConditionalFact]
         public void Removing_relationship_removes_unused_conventional_index()
         {
-            var modelBuilder = CreateModelBuilder();
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Ignore(typeof(SpecialOrder), ConfigurationSource.Explicit);
             var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            var derivedPrincipalEntityBuilder = modelBuilder.Entity(typeof(SpecialCustomer), ConfigurationSource.Explicit);
             var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
             var relationshipBuilder = dependentEntityBuilder.HasRelationship(
                 principalEntityBuilder.Metadata,
                 new[] { dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata },
-                ConfigurationSource.Convention);
+                ConfigurationSource.DataAnnotation);
             Assert.NotNull(relationshipBuilder);
+
+            var relationshipBuilder2 = dependentEntityBuilder.HasRelationship(
+                derivedPrincipalEntityBuilder.Metadata,
+                new[] { dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata },
+                ConfigurationSource.DataAnnotation);
+            Assert.NotNull(relationshipBuilder2);
+            Assert.NotSame(relationshipBuilder, relationshipBuilder2);
+            Assert.Single(dependentEntityBuilder.Metadata.GetIndexes());
 
             Assert.NotNull(
                 dependentEntityBuilder.HasNoRelationship(relationshipBuilder.Metadata, ConfigurationSource.DataAnnotation));
+
+            Assert.Single(dependentEntityBuilder.Metadata.GetIndexes());
+            Assert.Single(dependentEntityBuilder.Metadata.GetForeignKeys());
+
+            Assert.NotNull(
+                dependentEntityBuilder.HasNoRelationship(relationshipBuilder2.Metadata, ConfigurationSource.DataAnnotation));
 
             Assert.Empty(dependentEntityBuilder.Metadata.GetIndexes());
             Assert.Empty(dependentEntityBuilder.Metadata.GetForeignKeys());
         }
 
-        [ConditionalFact] // TODO: Add test if the index is being used by another FK when support for multiple FK on same set of properties is added
+        [ConditionalFact]
         public void Removing_relationship_does_not_remove_conventional_index_if_in_use()
         {
-            var modelBuilder = CreateModelBuilder();
+            var modelBuilder = CreateConventionalModelBuilder();
             var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
@@ -1054,33 +1070,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void Key_throws_if_conflicting_with_derived_foreign_key()
-        {
-            var modelBuilder = CreateModelBuilder();
-            var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
-            principalEntityBuilder.PrimaryKey(new[] { Customer.IdProperty }, ConfigurationSource.Explicit);
-            var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
-            var derivedDependentEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
-            derivedDependentEntityBuilder.HasBaseType(dependentEntityBuilder.Metadata, ConfigurationSource.Explicit);
-            var idProperty = dependentEntityBuilder.Property(Order.IdProperty, ConfigurationSource.Convention).Metadata;
-            idProperty.ValueGenerated = ValueGenerated.OnAdd;
-
-            derivedDependentEntityBuilder.HasRelationship(
-                    principalEntityBuilder.Metadata,
-                    Order.CustomerProperty.Name,
-                    nameof(Customer.SpecialOrders),
-                    ConfigurationSource.Explicit)
-                .HasForeignKey(new[] { idProperty }, ConfigurationSource.Explicit);
-
-            Assert.Null(dependentEntityBuilder.HasKey(new[] { Order.IdProperty }, ConfigurationSource.DataAnnotation));
-
-            Assert.Equal(
-                CoreStrings.KeyPropertyInForeignKey(Order.IdProperty.Name, nameof(Order)),
-                Assert.Throws<InvalidOperationException>(
-                    () => dependentEntityBuilder.HasKey(new[] { Order.IdProperty }, ConfigurationSource.Explicit)).Message);
-        }
-
-        [ConditionalFact]
         public void Key_throws_for_property_names_for_shadow_entity_type_if_they_do_not_exist()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1280,8 +1269,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(
                 CoreStrings.KeylessTypeWithKey("{'CustomerId'}", nameof(Order)),
                 Assert.Throws<InvalidOperationException>(
-                    () =>
-                        entityBuilder.HasKey(new[] { Order.CustomerIdProperty.Name }, ConfigurationSource.Explicit)).Message);
+                    () => entityBuilder.HasKey(new[] { Order.CustomerIdProperty.Name }, ConfigurationSource.Explicit)).Message);
         }
 
         [ConditionalFact]
@@ -3231,12 +3219,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(
                 CoreStrings.DiscriminatorEntityTypeNotDerived("Splow", "Splot"),
                 Assert.Throws<InvalidOperationException>(
-                    ()
-                        => discriminatorBuilder.HasValue(nonDerivedTypeBuilder.Metadata, "1")).Message);
+                    () => discriminatorBuilder.HasValue(nonDerivedTypeBuilder.Metadata, "1")).Message);
         }
 
         private InternalModelBuilder CreateModelBuilder()
             => new InternalModelBuilder(new Model());
+
+        private InternalModelBuilder CreateConventionalModelBuilder()
+            => (InternalModelBuilder)InMemoryTestHelpers.Instance.CreateConventionBuilder().GetInfrastructure();
 
         public enum MemberType
         {

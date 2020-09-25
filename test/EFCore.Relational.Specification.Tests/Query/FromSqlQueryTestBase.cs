@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using var context = CreateContext();
             Assert.Equal(
-                CoreStrings.ErrorMaterializingValueInvalidCast(typeof(decimal?), typeof(int)),
+                RelationalStrings.ErrorMaterializingValueInvalidCast(typeof(decimal?), typeof(int)),
                 Assert.Throws<InvalidOperationException>(
                     () =>
                         context.Set<Product>().FromSqlRaw(
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using var context = CreateContext();
             Assert.Equal(
-                CoreStrings.ErrorMaterializingPropertyNullReference("Product", "Discontinued", typeof(bool)),
+                RelationalStrings.ErrorMaterializingPropertyNullReference("Product", "Discontinued", typeof(bool)),
                 Assert.Throws<InvalidOperationException>(
                     () =>
                         context.Set<Product>().FromSqlRaw(
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using var context = CreateContext();
             Assert.Equal(
-                CoreStrings.ErrorMaterializingValueNullReference(typeof(bool)),
+                RelationalStrings.ErrorMaterializingValueNullReference(typeof(bool)),
                 Assert.Throws<InvalidOperationException>(
                     () =>
                         context.Set<Product>().FromSqlRaw(
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using var context = CreateContext();
             Assert.Equal(
-                CoreStrings.ErrorMaterializingPropertyNullReference("Product", "Discontinued", typeof(bool)),
+                RelationalStrings.ErrorMaterializingPropertyNullReference("Product", "Discontinued", typeof(bool)),
                 Assert.Throws<InvalidOperationException>(
                     () =>
                         context.Set<Product>()
@@ -985,6 +985,24 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                 .ToArray();
 
             Assert.NotNull(actual);
+        }
+
+        [ConditionalFact]
+        public virtual void FromSql_with_db_parameter_in_split_query()
+        {
+            using var context = CreateContext();
+
+            var actual = context.Set<Customer>()
+                .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"),
+                    CreateDbParameter("customerID", "ALFKI"))
+                .Include(e => e.Orders)
+                .ThenInclude(o => o.OrderDetails)
+                .AsSplitQuery()
+                .ToArray();
+
+            var customer = Assert.Single(actual);
+            Assert.Equal(6, customer.Orders.Count);
+            Assert.Equal(12, customer.Orders.SelectMany(e => e.OrderDetails).Count());
         }
 
         protected string NormalizeDelimitersInRawString(string sql)

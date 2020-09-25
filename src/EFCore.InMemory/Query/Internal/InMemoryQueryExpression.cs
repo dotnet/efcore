@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -105,7 +106,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             foreach (var derivedEntityType in entityType.GetDerivedTypes())
             {
                 var entityCheck = derivedEntityType.GetConcreteDerivedTypesInclusive()
-                    .Select(e => Equal(readExpressionMap[discriminatorProperty], Constant(e.GetDiscriminatorValue())))
+                    .Select(
+                        e => discriminatorProperty.GetKeyValueComparer().ExtractEqualsBody(
+                            readExpressionMap[discriminatorProperty],
+                            Constant(e.GetDiscriminatorValue(), discriminatorProperty.ClrType)))
                     .Aggregate((l, r) => OrElse(l, r));
 
                 foreach (var property in derivedEntityType.GetDeclaredProperties())
@@ -273,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         : mappingValue is int index
                             ? new ProjectionBindingExpression(
                                 projectionBindingExpression.QueryExpression, index, projectionBindingExpression.Type)
-                            : throw new InvalidOperationException(InMemoryStrings.InvalidStateEncountered("ProjectionMapping"));
+                            : throw new InvalidOperationException(CoreStrings.UnknownEntity("ProjectionMapping"));
                 }
 
                 return base.Visit(expression);

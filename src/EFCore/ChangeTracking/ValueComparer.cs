@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -27,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         reference.
     ///     </para>
     /// </summary>
-    public abstract class ValueComparer : IEqualityComparer
+    public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<object>
     {
         private protected static readonly MethodInfo _doubleEqualsMethodInfo
             = typeof(double).GetRuntimeMethod(nameof(double.Equals), new[] { typeof(double) });

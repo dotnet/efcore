@@ -24,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         IEntityTypeAddedConvention,
         IEntityTypeIgnoredConvention,
         IEntityTypeBaseTypeChangedConvention,
-        INavigationRemovedConvention,
         IEntityTypeMemberIgnoredConvention,
+        INavigationRemovedConvention,
         INavigationAddedConvention,
         IForeignKeyOwnershipChangedConvention
     {
@@ -808,7 +808,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             foreach (var relatedEntityType in relatedEntityTypes)
             {
                 var relatedEntityTypeBuilder = relatedEntityType.Builder;
-                DiscoverRelationships(relatedEntityTypeBuilder, context);
+                if (relatedEntityTypeBuilder != null)
+                {
+                    DiscoverRelationships(relatedEntityTypeBuilder, context);
+                }
             }
         }
 

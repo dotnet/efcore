@@ -245,9 +245,9 @@ namespace Microsoft.Data.Sqlite
             {
                 if (!string.IsNullOrEmpty(ConnectionOptions.Password))
                 {
-                    if (SQLitePCLExtensions.EncryptionSupported() == false)
+                    if (SQLitePCLExtensions.EncryptionSupported(out var libraryName) == false)
                     {
-                        throw new InvalidOperationException(Resources.EncryptionNotSupported);
+                        throw new InvalidOperationException(Resources.EncryptionNotSupported(libraryName));
                     }
 
                     // NB: SQLite doesn't support parameters in PRAGMA statements, so we escape the value using the

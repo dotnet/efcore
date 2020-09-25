@@ -5,10 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using Xunit;
@@ -262,6 +264,30 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 Assert.Equal("P3 Billing", addresses[2].AddressTitle.Title);
                 Assert.Equal(1, addresses[2].Notes.Count);
                 Assert.Equal("City note", addresses[2].Notes.First().Content);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Properties_on_owned_types_can_be_client_generated()
+        {
+            var options = Fixture.CreateOptions(seed: false);
+
+            using (var context = new EmbeddedTransportationContext(options))
+            {
+                var address = new Address
+                {
+                    Street = "First",
+                    City = "City",
+                    AddressTitle = new AddressTitle()
+                };
+
+                context.Add(new Person { Id = 1, Addresses = new List<Address> { address} });
+                Assert.Equal("DefaultTitle", address.AddressTitle.Title);
+
+                await context.SaveChangesAsync();
+
+                var people = await context.Set<Person>().ToListAsync();
+                Assert.Same(address, people[0].Addresses.Single());
             }
         }
 
@@ -569,10 +595,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                         v => v.Addresses, b =>
                         {
                             b.ToJsonProperty("Stored Addresses");
-                            b.OwnsOne(a => a.AddressTitle);
+                            b.OwnsOne(a => a.AddressTitle).Property(a => a.Title).HasValueGenerator<TitleGenerator>().IsRequired();
                             b.OwnsMany(a => a.Notes);
                         }));
             }
+        }
+
+        private class TitleGenerator : ValueGenerator<string>
+        {
+            public override bool GeneratesTemporaryValues => false;
+
+            public override string Next(EntityEntry entry) => "DefaultTitle";
         }
 
         private abstract class PersonBase

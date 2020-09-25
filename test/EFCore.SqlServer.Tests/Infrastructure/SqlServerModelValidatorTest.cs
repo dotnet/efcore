@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -109,6 +108,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 SqlServerStrings.DuplicateColumnIdentityIncrementMismatch(
                     nameof(Cat), nameof(Cat.Identity), nameof(Dog), nameof(Dog.Identity), nameof(Cat.Identity), nameof(Animal)),
                 modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Passes_for_identity_seed_and_increment_on_owner()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>().Property(a => a.Id).UseIdentityColumn(2, 3);
+            modelBuilder.Entity<Cat>().OwnsOne(a => a.FavoritePerson);
+            modelBuilder.Entity<Dog>();
+
+            Validate(modelBuilder.Model);
         }
 
         [ConditionalFact]

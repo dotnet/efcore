@@ -55,6 +55,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             if ((options & MetadataDebugStringOptions.SingleLine) == 0)
             {
+                if (sqlQuery.Sql != null)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Sql: ");
+                    builder.AppendLine().Append(indentString).Append(new string(' ', 4)).Append(sqlQuery.Sql);
+                }
+
                 var mappings = sqlQuery.EntityTypeMappings.ToList();
                 if (mappings.Count != 0)
                 {
@@ -68,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var columns = sqlQuery.Columns.ToList();
                 if (columns.Count != 0)
                 {
-                    builder.AppendLine().Append(indentString).Append("  Properties: ");
+                    builder.AppendLine().Append(indentString).Append("  Columns: ");
                     foreach (var column in columns)
                     {
                         builder.AppendLine().Append(column.ToDebugString(options, indent + 4));

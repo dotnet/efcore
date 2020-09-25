@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
             Assert.Equal("Name", property.Name);
-            Assert.Equal("Eman", property.GetColumnName());
+            Assert.Equal("Eman", property.GetColumnBaseName());
         }
 
         [ConditionalFact]

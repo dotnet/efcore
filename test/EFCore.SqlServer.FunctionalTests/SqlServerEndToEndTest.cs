@@ -784,8 +784,7 @@ namespace Microsoft.EntityFrameworkCore
                         eb.Property(g => g.Id)
                             .ValueGeneratedNever();
 
-                        eb.HasKey(
-                            l => new { l.GameId, l.Id });
+                        eb.HasKey(l => new { l.GameId, l.Id });
                     });
 
                 modelBuilder.Entity<Actor>(
@@ -794,8 +793,7 @@ namespace Microsoft.EntityFrameworkCore
                         eb.Property(g => g.Id)
                             .ValueGeneratedNever();
 
-                        eb.HasKey(
-                            a => new { a.GameId, a.Id });
+                        eb.HasKey(a => new { a.GameId, a.Id });
 
                         eb.HasOne(a => a.Level)
                             .WithMany(l => l.Actors)
@@ -821,8 +819,7 @@ namespace Microsoft.EntityFrameworkCore
                         eb.Property(g => g.Id)
                             .ValueGeneratedNever();
 
-                        eb.HasKey(
-                            l => new { l.GameId, l.Id });
+                        eb.HasKey(l => new { l.GameId, l.Id });
                     });
 
                 modelBuilder.Entity<Container>();

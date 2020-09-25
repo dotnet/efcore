@@ -124,19 +124,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (propertyBase is IProperty property)
                 {
-                    var storeGeneratedIndex = property.GetStoreGeneratedIndex();
-                    if (storeGeneratedIndex != -1)
-                    {
-                        arguments[i] = CreateReadValueExpression(parameter, property);
-                        continue;
-                    }
+                    arguments[i] = CreateSnapshotValueExpression(CreateReadValueExpression(parameter, property), property);
+                    continue;
                 }
 
                 if (propertyBase.IsShadowProperty())
                 {
-                    arguments[i] = CreateSnapshotValueExpression(
-                        CreateReadShadowValueExpression(parameter, propertyBase),
-                        propertyBase);
+                    arguments[i] = CreateSnapshotValueExpression(CreateReadShadowValueExpression(parameter, propertyBase), propertyBase);
                     continue;
                 }
 

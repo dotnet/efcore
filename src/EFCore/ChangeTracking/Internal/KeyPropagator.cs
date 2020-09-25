@@ -55,7 +55,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var principalEntry = TryPropagateValue(entry, property);
             if (principalEntry == null
-                && property.IsKey())
+                && property.IsKey()
+                && !property.IsForeignKeyToSelf())
             {
                 var valueGenerator = TryGetValueGenerator(property);
 
@@ -153,19 +154,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         if (principalEntry != null)
                         {
                             var principalProperty = foreignKey.PrincipalKey.Properties[propertyIndex];
-                            var principalValue = principalEntry[principalProperty];
-                            if (!principalProperty.ClrType.IsDefaultValue(principalValue))
-                            {
-                                if (principalEntry.HasTemporaryValue(principalProperty))
-                                {
-                                    entry.SetTemporaryValue(property, principalValue);
-                                }
-                                else
-                                {
-                                    entry[property] = principalValue;
-                                }
 
-                                return principalEntry;
+                            if (principalProperty != property)
+                            {
+                                var principalValue = principalEntry[principalProperty];
+                                if (!principalProperty.ClrType.IsDefaultValue(principalValue))
+                                {
+                                    if (principalEntry.HasTemporaryValue(principalProperty))
+                                    {
+                                        entry.SetTemporaryValue(property, principalValue);
+                                    }
+                                    else
+                                    {
+                                        entry[property] = principalValue;
+                                    }
+
+                                    return principalEntry;
+                                }
                             }
                         }
 

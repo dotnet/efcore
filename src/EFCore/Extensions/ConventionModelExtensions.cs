@@ -192,8 +192,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IConventionModel model,
             ChangeTrackingStrategy? changeTrackingStrategy,
             bool fromDataAnnotation = false)
-            => Check.NotNull((Model)model, nameof(model))
-                .SetChangeTrackingStrategy(
+            => ((Model)model).SetChangeTrackingStrategy(
                     changeTrackingStrategy,
                     fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -202,8 +201,9 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model to find configuration source for. </param>
         /// <returns> The configuration source for <see cref="ModelExtensions.GetChangeTrackingStrategy" />. </returns>
+        [DebuggerStepThrough]
         public static ConfigurationSource? GetChangeTrackingStrategyConfigurationSource([NotNull] this IConventionModel model)
-            => model.FindAnnotation(CoreAnnotationNames.ChangeTrackingStrategy)?.GetConfigurationSource();
+            => ((Model)model).GetChangeTrackingStrategyConfigurationSource();
 
         /// <summary>
         ///     Returns a value indicating whether the entity types using the given type should be configured

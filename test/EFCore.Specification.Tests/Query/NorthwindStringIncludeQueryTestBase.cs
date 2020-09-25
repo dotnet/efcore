@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -150,6 +151,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         // Filtered include does not work for string based API.
         public override Task Filtered_include_with_multiple_ordering(bool async)
             => Task.CompletedTask;
+
+        public override async Task Include_specified_on_non_entity_not_supported(bool async)
+        {
+            Assert.Equal(
+                CoreStrings.IncludeOnNonEntity("\"Item1.Orders\""),
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => AssertQuery(
+                        async,
+                        ss => ss.Set<Customer>().Select(c => new Tuple<Customer, int>(c, 5)).Include(t => t.Item1.Orders)))).Message);
+        }
 
         protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)
         {

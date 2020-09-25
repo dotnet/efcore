@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
@@ -38,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 "Compiling query expression: ",
                 Fixture.TestSqlLoggerFactory.Log[0].Message);
             Assert.StartsWith(
-                "queryContext => new SingleQueryingEnumerable<Customer>(",
+                "Generated query execution expression: " + Environment.NewLine + "'queryContext => new SingleQueryingEnumerable<Customer>(",
                 Fixture.TestSqlLoggerFactory.Log[1].Message);
         }
 
@@ -52,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Assert.NotNull(customers);
             Assert.StartsWith(
-                "queryContext => new SplitQueryingEnumerable<Customer>(",
+                "Generated query execution expression: " + Environment.NewLine + "'queryContext => new SplitQueryingEnumerable<Customer>(",
                 Fixture.TestSqlLoggerFactory.Log[1].Message);
         }
 

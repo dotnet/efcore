@@ -592,7 +592,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     break;
 
                 default:
-                    throw new InvalidOperationException(RelationalStrings.InvalidKeySelectorForGroupBy);
+                    throw new InvalidOperationException(RelationalStrings.InvalidKeySelectorForGroupBy(keySelector, keySelector.GetType()));
             }
         }
 
@@ -879,7 +879,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             if (select1._projectionMapping.Count != select2._projectionMapping.Count)
             {
-                // Should not be possible after compiler checks
+                // For DTO each side can have different projection mapping if some columns are not present.
+                // We need to project null for missing columns.
                 throw new InvalidOperationException(RelationalStrings.ProjectionMappingCountMismatch);
             }
 
@@ -895,41 +896,33 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     HandleEntityProjection(joinedMapping.Key, select1, entityProjection1, select2, entityProjection2);
                     continue;
                 }
-
-                if (joinedMapping.Value1 is SqlExpression innerColumn1
-                    && joinedMapping.Value2 is SqlExpression innerColumn2)
+                var innerColumn1 = (SqlExpression)joinedMapping.Value1;
+                var innerColumn2 = (SqlExpression)joinedMapping.Value2;
+                // For now, make sure that both sides output the same store type, otherwise the query may fail.
+                // TODO: with #15586 we'll be able to also allow different store types which are implicitly convertible to one another.
+                if (innerColumn1.TypeMapping.StoreType != innerColumn2.TypeMapping.StoreType)
                 {
-                    // For now, make sure that both sides output the same store type, otherwise the query may fail.
-                    // TODO: with #15586 we'll be able to also allow different store types which are implicitly convertible to one another.
-                    if (innerColumn1.TypeMapping.StoreType != innerColumn2.TypeMapping.StoreType)
-                    {
-                        throw new InvalidOperationException(RelationalStrings.SetOperationsOnDifferentStoreTypes);
-                    }
-
-                    var alias = GenerateUniqueAlias(
-                        joinedMapping.Key.Last?.Name
-                        ?? (innerColumn1 as ColumnExpression)?.Name
-                        ?? "c");
-
-                    var innerProjection1 = new ProjectionExpression(innerColumn1, alias);
-                    var innerProjection2 = new ProjectionExpression(innerColumn2, alias);
-                    select1._projection.Add(innerProjection1);
-                    select2._projection.Add(innerProjection2);
-                    var outerProjection = new ColumnExpression(innerProjection1, setExpression);
-
-                    if (IsNullableProjection(innerProjection1)
-                        || IsNullableProjection(innerProjection2))
-                    {
-                        outerProjection = outerProjection.MakeNullable();
-                    }
-
-                    _projectionMapping[joinedMapping.Key] = outerProjection;
-                    continue;
+                    throw new InvalidOperationException(RelationalStrings.SetOperationsOnDifferentStoreTypes);
                 }
 
-                throw new InvalidOperationException(
-                    RelationalStrings.UnknownProjectionMappingType(
-                        joinedMapping.Value1.GetType().Name, joinedMapping.Value2.GetType().Name));
+                var alias = GenerateUniqueAlias(
+                    joinedMapping.Key.Last?.Name
+                    ?? (innerColumn1 as ColumnExpression)?.Name
+                    ?? "c");
+
+                var innerProjection1 = new ProjectionExpression(innerColumn1, alias);
+                var innerProjection2 = new ProjectionExpression(innerColumn2, alias);
+                select1._projection.Add(innerProjection1);
+                select2._projection.Add(innerProjection2);
+                var outerProjection = new ColumnExpression(innerProjection1, setExpression);
+
+                if (IsNullableProjection(innerProjection1)
+                    || IsNullableProjection(innerProjection2))
+                {
+                    outerProjection = outerProjection.MakeNullable();
+                }
+
+                _projectionMapping[joinedMapping.Key] = outerProjection;
             }
 
             Offset = null;
@@ -1263,7 +1256,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         Throw(
                             New(
                                 typeof(InvalidOperationException).GetConstructors().Single(ci => ci.GetParameters().Count() == 1),
-                                Constant(RelationalStrings.SequenceContainsNoElements))),
+                                Constant(CoreStrings.SequenceContainsNoElements))),
                         Default(shaperExpression.Type));
 
                 shaperExpression = Condition(

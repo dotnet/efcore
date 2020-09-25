@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 && !property.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    InMemoryStrings.UnableToBindMemberToEntityProjection("Property", property.Name, EntityType.DisplayName()));
+                    InMemoryStrings.UnableToBindMemberToEntityProjection("property", property.Name, EntityType.DisplayName()));
             }
 
             return _readExpressionMap[property];
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    InMemoryStrings.UnableToBindMemberToEntityProjection("Navigation", navigation.Name, EntityType.DisplayName()));
+                    InMemoryStrings.UnableToBindMemberToEntityProjection("navigation", navigation.Name, EntityType.DisplayName()));
             }
 
             _navigationExpressionsCache[navigation] = entityShaper;
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    InMemoryStrings.UnableToBindMemberToEntityProjection("Navigation", navigation.Name, EntityType.DisplayName()));
+                    InMemoryStrings.UnableToBindMemberToEntityProjection("navigation", navigation.Name, EntityType.DisplayName()));
             }
 
             return _navigationExpressionsCache.TryGetValue(navigation, out var expression)

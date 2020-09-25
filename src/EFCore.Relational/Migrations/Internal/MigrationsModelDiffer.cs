@@ -304,17 +304,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
             }
 
-            createTableOperations = createTableGraph.TopologicalSort(
+            createTableOperations = (List<CreateTableOperation>)createTableGraph.TopologicalSort(
                 (principalCreateTableOperation, createTableOperation, cyclicAddForeignKeyOperations) =>
                 {
                     foreach (var cyclicAddForeignKeyOperation in cyclicAddForeignKeyOperations)
                     {
-                        createTableOperation.ForeignKeys.Remove(cyclicAddForeignKeyOperation);
-                        constraintOperations.Add(cyclicAddForeignKeyOperation);
+                        var removed = createTableOperation.ForeignKeys.Remove(cyclicAddForeignKeyOperation);
+                        if (removed)
+                        {
+                            constraintOperations.Add(cyclicAddForeignKeyOperation);
+                        }
+                        else
+                        {
+                            Check.DebugAssert(false, "Operation removed twice: " + cyclicAddForeignKeyOperation.ToString());
+                        }
                     }
 
                     return true;
-                }).ToList();
+                });
 
             var dropTableGraph = new Multigraph<DropTableOperation, IForeignKeyConstraint>();
             dropTableGraph.AddVertices(dropTableOperations);
@@ -333,13 +340,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
 
             var newDiffContext = new DiffContext();
-            dropTableOperations = dropTableGraph.TopologicalSort(
+            dropTableOperations = (List<DropTableOperation>)dropTableGraph.TopologicalSort(
                 (dropTableOperation, principalDropTableOperation, foreignKeys) =>
                 {
                     dropForeignKeyOperations.AddRange(foreignKeys.SelectMany(c => Remove(c, newDiffContext)));
 
                     return true;
-                }).ToList();
+                });
 
             return dropForeignKeyOperations
                 .Concat(dropTableOperations)
@@ -422,7 +429,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             IRelationalModel source,
             IRelationalModel target)
         {
-            var sourceMigrationsAnnotations = source?.GetAnnotations().ToList();
             var targetMigrationsAnnotations = target?.GetAnnotations().ToList();
 
             if (source == null)
@@ -439,17 +445,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             if (target == null)
             {
-                sourceMigrationsAnnotations = MigrationsAnnotations.ForRemove(source).ToList();
-                if (sourceMigrationsAnnotations.Count > 0)
+                var sourceMigrationsAnnotationsForRemoved = MigrationsAnnotations.ForRemove(source).ToList();
+                if (sourceMigrationsAnnotationsForRemoved.Count > 0)
                 {
                     var alterDatabaseOperation = new AlterDatabaseOperation();
-                    alterDatabaseOperation.OldDatabase.AddAnnotations(sourceMigrationsAnnotations);
+                    alterDatabaseOperation.OldDatabase.AddAnnotations(sourceMigrationsAnnotationsForRemoved);
                     yield return alterDatabaseOperation;
                 }
 
                 yield break;
             }
 
+            var sourceMigrationsAnnotations = source?.GetAnnotations().ToList();
             if (HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
             {
                 var alterDatabaseOperation = new AlterDatabaseOperation();
@@ -2577,7 +2584,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 = new Dictionary<ITable, DropTableOperation>();
 
             private readonly IDictionary<IColumn, DropColumnOperation> _dropColumnOperations
-                = new Dictionary<IColumn, DropColumnOperation>();            
+                = new Dictionary<IColumn, DropColumnOperation>();
 
             private readonly IDictionary<DropTableOperation, ITable> _removedTables
                 = new Dictionary<DropTableOperation, ITable>();

@@ -2,8 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -31,6 +34,44 @@ namespace Microsoft.EntityFrameworkCore
                 ProxiesStrings.NonVirtualProperty(nameof(ChangeNonVirtualPropEntity.Id), nameof(ChangeNonVirtualPropEntity)),
                 Assert.Throws<InvalidOperationException>(
                     () => context.Model).Message);
+        }
+
+        [ConditionalFact]
+        public void Throws_if_non_virtual_indexer_property()
+        {
+            using var context = new ChangeContext<ChangeNonVirtualIndexer>(entityBuilderAction: b => b.IndexerProperty<int>("Snoopy"));
+            Assert.Equal(
+                ProxiesStrings.NonVirtualIndexerProperty(nameof(ChangeNonVirtualIndexer)),
+                Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+        }
+
+        [ConditionalFact]
+        public void Does_not_throw_when_non_virtual_indexer_not_mapped()
+        {
+            using var context = new ChangeContext<ChangeNonVirtualIndexerNotUsed>();
+
+            Assert.False(
+                context.Model.FindEntityType(typeof(ChangeNonVirtualIndexerNotUsed)).GetProperties().Any(e => e.IsIndexerProperty()));
+        }
+
+        [ConditionalFact]
+        public void Does_not_throw_if_dictionary_type_with_only_PKs()
+        {
+            using var context = new SharedChangeContext<Dictionary<string, int>>();
+
+            Assert.True(context.Model.IsShared(typeof(Dictionary<string, int>)));
+        }
+
+        [ConditionalFact]
+        public void Throws_if_dictionary_type_with_additional_properties()
+        {
+            using var context = new SharedChangeContext<Dictionary<string, int>>(b => b.IndexerProperty<int>("Snoopy"));
+
+            Assert.Equal(
+                ProxiesStrings.DictionaryCannotBeProxied(
+                    typeof(Dictionary<string, int>).ShortDisplayName(), "STET (Dictionary<string, int>)",
+                    typeof(IDictionary<string, int>).ShortDisplayName()),
+                Assert.Throws<InvalidOperationException>(() => context.Model).Message);
         }
 
         [ConditionalFact]
@@ -277,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore
         private class ChangeContext<TEntity> : TestContext<TEntity>
             where TEntity : class
         {
-            private readonly Action<EntityTypeBuilder<TEntity>> _entityBuilderAction;
+            private  Action<EntityTypeBuilder<TEntity>> _entityBuilderAction;
 
             public ChangeContext(
                 bool useLazyLoading = false,
@@ -295,6 +336,29 @@ namespace Microsoft.EntityFrameworkCore
                 base.OnModelCreating(modelBuilder);
 
                 var builder = modelBuilder.Entity<TEntity>();
+                _entityBuilderAction?.Invoke(builder);
+            }
+        }
+
+        private class SharedChangeContext<TEntity> : DbContext
+            where TEntity : class
+        {
+            private  Action<EntityTypeBuilder<TEntity>> _entityBuilderAction;
+
+            public SharedChangeContext(Action<EntityTypeBuilder<TEntity>> entityBuilderAction = null)
+            {
+                _entityBuilderAction = entityBuilderAction;
+            }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder
+                    .UseChangeTrackingProxies()
+                    .UseInMemoryDatabase(GetType().ShortDisplayName());
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                var builder = modelBuilder.SharedTypeEntity<TEntity>("STET");
+                builder.Property<int>("Id");
                 _entityBuilderAction?.Invoke(builder);
             }
         }
@@ -330,6 +394,32 @@ namespace Microsoft.EntityFrameworkCore
             public virtual int Id { get; set; }
 
             public virtual ChangeSelfRefEntity SelfRef { get; set; }
+        }
+
+        public class ChangeNonVirtualIndexer
+        {
+            private readonly Dictionary<string, object> _keyValuePairs = new Dictionary<string, object>();
+
+            public virtual int Id { get; set; }
+
+            public object this[string key]
+            {
+                get => _keyValuePairs[key];
+                set => _keyValuePairs[key] = value;
+            }
+        }
+
+        public class ChangeNonVirtualIndexerNotUsed
+        {
+            private readonly Dictionary<string, object> _keyValuePairs = new Dictionary<string, object>();
+
+            public virtual int Id { get; set; }
+
+            public object this[string key]
+            {
+                get => _keyValuePairs[key];
+                set => _keyValuePairs[key] = value;
+            }
         }
 
         private class DefaultContext : TestContext<ChangeValueEntity>

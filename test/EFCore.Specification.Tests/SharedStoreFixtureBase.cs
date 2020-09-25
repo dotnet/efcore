@@ -16,10 +16,17 @@ namespace Microsoft.EntityFrameworkCore
         where TContext : DbContext
     {
         protected virtual Type ContextType { get; } = typeof(TContext);
-        public IServiceProvider ServiceProvider { get; }
+
+        private IServiceProvider _serviceProvider;
+        public IServiceProvider ServiceProvider
+            => _serviceProvider ?? throw new InvalidOperationException($"You must override the {nameof(InitializeAsync)} method and call `await base.{nameof(InitializeAsync)}();`. At this point the {nameof(ServiceProvider)} property will be available.");
+
         protected abstract string StoreName { get; }
         protected abstract ITestStoreFactory TestStoreFactory { get; }
-        public TestStore TestStore { get; }
+
+        private TestStore _testStore;
+        public TestStore TestStore
+            => _testStore ?? throw new InvalidOperationException($"You must override the {nameof(InitializeAsync)} method and call `await base.{nameof(InitializeAsync)}();`. At this point the {nameof(TestStore)} property will be available.");
 
         protected virtual bool UsePooling
             => true;
@@ -35,9 +42,9 @@ namespace Microsoft.EntityFrameworkCore
         public ListLoggerFactory ListLoggerFactory
             => _listLoggerFactory ??= (ListLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 
-        protected SharedStoreFixtureBase()
+        public virtual Task InitializeAsync()
         {
-            TestStore = TestStoreFactory.GetOrCreate(StoreName);
+            _testStore = TestStoreFactory.GetOrCreate(StoreName);
 
             var services = AddServices(TestStoreFactory.AddProviderServices(new ServiceCollection()));
             if (UsePooling)
@@ -53,13 +60,10 @@ namespace Microsoft.EntityFrameworkCore
                     ServiceLifetime.Singleton);
             }
 
-            ServiceProvider = services.BuildServiceProvider(validateScopes: true);
+            _serviceProvider = services.BuildServiceProvider(validateScopes: true);
 
             TestStore.Initialize(ServiceProvider, CreateContext, c => Seed((TContext)c), c => Clean(c));
-        }
 
-        public virtual Task InitializeAsync()
-        {
             return Task.CompletedTask;
         }
 

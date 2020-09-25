@@ -139,8 +139,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The change tracking strategy. </returns>
         [DebuggerStepThrough]
         public static ChangeTrackingStrategy GetChangeTrackingStrategy([NotNull] this IModel model)
-            => (ChangeTrackingStrategy?)Check.NotNull(model, nameof(model))[CoreAnnotationNames.ChangeTrackingStrategy]
-                ?? ChangeTrackingStrategy.Snapshot;
+            => ((Model)model).GetChangeTrackingStrategy();
 
         /// <summary>
         ///     <para>

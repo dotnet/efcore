@@ -24,15 +24,15 @@ LONG DESCRIPTION
 
         Drop-Database               Drops the database.
 
-        Get-DbContext               Gets information about a DbContext type.
+        Get-DbContext               Lists and gets information about available DbContext types.
 
-        Get-Migration               Lists the migrations in the migration assembly.
+        Get-Migration               Lists available migrations.
 
         Remove-Migration            Removes the last migration.
 
         Scaffold-DbContext          Scaffolds a DbContext and entity types for a database.
 
-        Script-DbContext            Generates a SQL script from the current DbContext.
+        Script-DbContext            Generates a SQL script from the DbContext. Bypasses any migrations.
 
         Script-Migration            Generates a SQL script from migrations.
 

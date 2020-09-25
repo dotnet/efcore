@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore
                 .Append("_")
                 .Append(principalTableName)
                 .Append("_")
-                .AppendJoin(foreignKey.Properties.Select(p => p.GetColumnName()), "_")
+                .AppendJoin(foreignKey.Properties.Select(p => p.GetColumnBaseName()), "_")
                 .ToString();
 
             return Uniquifier.Truncate(name, foreignKey.DeclaringEntityType.Model.GetMaxIdentifierLength());
@@ -103,13 +103,18 @@ namespace Microsoft.EntityFrameworkCore
                     .SelectMany(fk => fk.PrincipalEntityType.GetForeignKeys()))
                 {
                     if (principalStoreObject.Name == otherForeignKey.PrincipalEntityType.GetTableName()
-                        && principalStoreObject.Schema == otherForeignKey.PrincipalEntityType.GetSchema()
-                        && propertyNames.SequenceEqual(otherForeignKey.Properties.GetColumnNames(storeObject))
-                        && principalPropertyNames.SequenceEqual(
-                            otherForeignKey.PrincipalKey.Properties.GetColumnNames(principalStoreObject)))
+                        && principalStoreObject.Schema == otherForeignKey.PrincipalEntityType.GetSchema())
                     {
-                        linkedForeignKey = otherForeignKey;
-                        break;
+                        var otherColumnNames = otherForeignKey.Properties.GetColumnNames(storeObject);
+                        var otherPrincipalColumnNames = otherForeignKey.PrincipalKey.Properties.GetColumnNames(principalStoreObject);
+                        if (otherColumnNames != null
+                            && otherPrincipalColumnNames != null
+                            && propertyNames.SequenceEqual(otherColumnNames)
+                            && principalPropertyNames.SequenceEqual(otherPrincipalColumnNames))
+                        {
+                            linkedForeignKey = otherForeignKey;
+                            break;
+                        }
                     }
                 }
 

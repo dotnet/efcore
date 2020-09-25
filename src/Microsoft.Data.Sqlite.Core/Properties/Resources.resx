@@ -130,16 +130,16 @@
     <value>Invalid attempt to call {operation} when reader is closed.</value>
   </data>
   <data name="InvalidCommandType" xml:space="preserve">
-    <value>The CommandType '{commandType}' is invalid.</value>
+    <value>The CommandType '{commandType}' is not supported.</value>
   </data>
   <data name="InvalidIsolationLevel" xml:space="preserve">
-    <value>The IsolationLevel '{isolationLevel}' is invalid.</value>
+    <value>The IsolationLevel '{isolationLevel}' is not supported.</value>
   </data>
   <data name="InvalidParameterDirection" xml:space="preserve">
-    <value>The ParameterDirection '{direction}' is invalid.</value>
+    <value>The ParameterDirection '{direction}' is not supported.</value>
   </data>
   <data name="KeywordNotSupported" xml:space="preserve">
-    <value>Keyword not supported: '{keyword}'.</value>
+    <value>Connection string keyword '{keyword}' is not supported. For a possible alternative, see https://go.microsoft.com/fwlink/?linkid=2142181.</value>
   </data>
   <data name="MissingParameters" xml:space="preserve">
     <value>Must add values for the following parameters: {parameters}</value>
@@ -163,7 +163,7 @@
     <value>This SqliteTransaction has completed; it is no longer usable.</value>
   </data>
   <data name="TransactionConnectionMismatch" xml:space="preserve">
-    <value>The transaction object is not associated with the connection object.</value>
+    <value>The transaction object is not associated with the same connection object as this command.</value>
   </data>
   <data name="TransactionRequired" xml:space="preserve">
     <value>Execute requires the command to have a transaction object when the connection assigned to the command is in a pending local transaction.  The Transaction property of the command has not been initialized.</value>
@@ -217,6 +217,6 @@
     <value>Stream does not support writing.</value>
   </data>
   <data name="EncryptionNotSupported" xml:space="preserve">
-    <value>You specified a password in the connection string, but the native SQLite library you're using doesn't support encryption.</value>
+    <value>You specified a password in the connection string, but the native SQLite library '{libraryName}' doesn't support encryption.</value>
   </data>
 </root>

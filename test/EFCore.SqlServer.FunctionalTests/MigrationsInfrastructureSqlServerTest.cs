@@ -1399,9 +1399,10 @@ GO
             protected override ITestStoreFactory TestStoreFactory
                 => SqlServerTestStoreFactory.Instance;
 
-            public MigrationsInfrastructureSqlServerFixture()
+            public override async Task InitializeAsync()
             {
-                ((SqlServerTestStore)TestStore).ExecuteNonQuery(
+                await base.InitializeAsync();
+                await ((SqlServerTestStore)TestStore).ExecuteNonQueryAsync(
                     @"USE master
 IF EXISTS(select * from sys.databases where name='TransactionSuppressed')
 DROP DATABASE TransactionSuppressed");

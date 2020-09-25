@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 property, entityType, propertyType);
 
         /// <summary>
-        ///     Include property '{entityType}.{property}' cannot be defined multiple times
+        ///     Include property '{entityType}.{property}' cannot be defined multiple times.
         /// </summary>
         public static string IncludePropertyDuplicated([CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 entityType, property);
 
         /// <summary>
-        ///     Include property '{entityType}.{property}' is already included in the index
+        ///     Include property '{entityType}.{property}' is already included in the index.
         /// </summary>
         public static string IncludePropertyInIndex([CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 entityType, property);
 
         /// <summary>
-        ///     Include property '{entityType}.{property}' not found
+        ///     Include property '{entityType}.{property}' not found.
         /// </summary>
         public static string IncludePropertyNotFound([CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 table, entityType, otherEntityType, memoryOptimizedEntityType, nonMemoryOptimizedEntityType);
 
         /// <summary>
-        ///     SQL Server requires the table name to be specified for rename index operations. Specify table name in the call to MigrationBuilder.RenameIndex.
+        ///     SQL Server requires the table name to be specified for rename index operations. Specify table name in the call to 'MigrationBuilder.RenameIndex'.
         /// </summary>
         public static string IndexTableRequired
             => GetString("IndexTableRequired");
@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("InvalidColumnNameForFreeText");
 
         /// <summary>
-        ///     The specified table '{table}' is not valid. Specify tables using the format '[schema].[table]'.
+        ///     The specified table '{table}' is not in a valid format. Specify tables using the format '[schema].[table]'.
         /// </summary>
         public static string InvalidTableToIncludeInScaffolding([CanBeNull] object table)
             => string.Format(
@@ -208,28 +208,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         /// </summary>
         public static string TransientExceptionDetected
             => GetString("TransientExceptionDetected");
-
-        /// <summary>
-        ///     Unknown operator type encountered in SqlUnaryExpression.
-        /// </summary>
-        public static string UnknownOperatorTypeInSqlUnaryExpression
-            => GetString("UnknownOperatorTypeInSqlUnaryExpression");
-
-        /// <summary>
-        ///     Data type '{dataType}' is not supported in this form. Either specify the length explicitly in the type name, for example as '{dataType}(16)', or remove the data type and use APIs such as HasMaxLength to allow EF choose the data type.
-        /// </summary>
-        public static string UnqualifiedDataType([CanBeNull] object dataType)
-            => string.Format(
-                GetString("UnqualifiedDataType", nameof(dataType)),
-                dataType);
-
-        /// <summary>
-        ///     Data type '{dataType}' for property '{property}' is not supported in this form. Either specify the length explicitly in the type name, for example as '{dataType}(16)', or remove the data type and use APIs such as HasMaxLength to allow EF choose the data type.
-        /// </summary>
-        public static string UnqualifiedDataTypeOnProperty([CanBeNull] object dataType, [CanBeNull] object property)
-            => string.Format(
-                GetString("UnqualifiedDataTypeOnProperty", nameof(dataType), nameof(property)),
-                dataType, property);
 
         private static string GetString(string name, params string[] formatterNames)
         {
@@ -282,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Both the SqlServerValueGenerationStrategy {generationStrategy} and {otherGenerationStrategy} have been set on property '{propertyName}' on entity type '{entityName}'. Usually this is a mistake. Only use these at the same time if you are sure you understand the consequences.
+        ///     Both the SqlServerValueGenerationStrategy '{generationStrategy}' and '{otherGenerationStrategy}' have been set on property '{propertyName}' on entity type '{entityName}'. Usually this is a mistake. Only use these at the same time if you are sure you understand the consequences.
         /// </summary>
         public static EventDefinition<string, string, string, string> LogConflictingValueGenerationStrategies([NotNull] IDiagnosticsLogger logger)
         {
@@ -330,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     No type was specified for the decimal property '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values using 'HasColumnType()', specify precision and scale using 'HasPrecision()' or configure a value converter using 'HasConversion()'.
+        ///     No type was specified for the decimal property '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType()', specify precision and scale using 'HasPrecision()' or configure a value converter using 'HasConversion()'.
         /// </summary>
         public static EventDefinition<string, string> LogDefaultDecimalTypeColumn([NotNull] IDiagnosticsLogger logger)
         {
@@ -354,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Found column with table: {tableName}, column name: {columnName}, ordinal: {ordinal}, data type: {dataType}, maximum length: {maxLength}, precision: {precision}, scale: {scale}, nullable: {isNullable}, identity: {isIdentity}, default value: {defaultValue}, computed value: {computedValue}, computed value is stored: {stored}
+        ///     Found column with table: {tableName}, column name: {columnName}, ordinal: {ordinal}, data type: {dataType}, maximum length: {maxLength}, precision: {precision}, scale: {scale}, nullable: {nullable}, identity: {identity}, default value: {defaultValue}, computed value: {computedValue}, computed value is stored: {stored}
         /// </summary>
         public static FallbackEventDefinition LogFoundColumn([NotNull] IDiagnosticsLogger logger)
         {
@@ -375,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Found default schema {defaultSchema}.
+        ///     Found default schema '{defaultSchema}'.
         /// </summary>
         public static EventDefinition<string> LogFoundDefaultSchema([NotNull] IDiagnosticsLogger logger)
         {
@@ -423,7 +401,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Found index with name: {indexName}, table: {tableName}, is unique: {isUnique}.
+        ///     Found index with name: {indexName}, table: {tableName}, is unique: {unique}.
         /// </summary>
         public static EventDefinition<string, string, bool> LogFoundIndex([NotNull] IDiagnosticsLogger logger)
         {
@@ -471,7 +449,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Found sequence name: {name}, data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}.
+        ///     Found sequence name: {name}, data type: {dataType}, cyclic: {cyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}.
         /// </summary>
         public static FallbackEventDefinition LogFoundSequence([NotNull] IDiagnosticsLogger logger)
         {
@@ -564,7 +542,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Unable to find a schema in the database matching the selected schema {schema}.
+        ///     Unable to find a schema in the database matching the selected schema '{schema}'.
         /// </summary>
         public static EventDefinition<string> LogMissingSchema([NotNull] IDiagnosticsLogger logger)
         {
@@ -588,7 +566,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Unable to find a table in the database matching the selected table {table}.
+        ///     Unable to find a table in the database matching the selected table '{table}'.
         /// </summary>
         public static EventDefinition<string> LogMissingTable([NotNull] IDiagnosticsLogger logger)
         {
@@ -612,7 +590,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     For foreign key {foreignKeyName} on table {tableName}, unable to find the column called {principalColumnName} on the foreign key's principal table, {principaltableName}. Skipping foreign key.
+        ///     Skipping foreign key '{foreignKeyName}' on table '{tableName}' since the principal column called '{principalColumnName}' on the foreign key's principal table, '{principalTableName}' was not found in the model.
         /// </summary>
         public static EventDefinition<string, string, string, string> LogPrincipalColumnNotFound([NotNull] IDiagnosticsLogger logger)
         {
@@ -636,7 +614,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     For foreign key {fkName} on table {tableName}, unable to model the end of the foreign key on principal table {principaltableName}. This is usually because the principal table was not included in the selection set.
+        ///     Skipping foreign key '{foreignKeyName}' on table '{tableName}' since principal table '{principalTableName}' was not found in the model. This usually happens if the principal table was not included in the selection set.
         /// </summary>
         public static EventDefinition<string, string, string> LogPrincipalTableNotInSelectionSet([NotNull] IDiagnosticsLogger logger)
         {

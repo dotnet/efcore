@@ -130,6 +130,8 @@ namespace Microsoft.EntityFrameworkCore
                     .ValueGeneratedOnAdd()
                     .HasDefaultValueSql("randomblob(16)");
 
+                modelBuilder.Entity<NonStoreGenDependent>().Property(e => e.HasTemp).HasDefaultValue(777);
+
                 base.OnModelCreating(modelBuilder, context);
             }
         }

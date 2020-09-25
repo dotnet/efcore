@@ -1218,7 +1218,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(missingColumns.First()));
                     }
 
-                    throw new InvalidOperationException(RelationalStrings.TooFewReaderFields);
+                    throw new InvalidOperationException(RelationalStrings.TooFewReaderFields(_columns.Count, FieldCount));
                 }
 
                 _columnTypeCases = Enumerable.Repeat(TypeCase.Empty, fieldCount).ToArray();
@@ -1884,19 +1884,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     message = exception is NullReferenceException
                         || Equals(value, DBNull.Value)
-                            ? CoreStrings.ErrorMaterializingPropertyNullReference(entityType, propertyName, expectedType)
+                            ? RelationalStrings.ErrorMaterializingPropertyNullReference(entityType, propertyName, expectedType)
                             : exception is InvalidCastException
                                 ? CoreStrings.ErrorMaterializingPropertyInvalidCast(entityType, propertyName, expectedType, actualType)
-                                : CoreStrings.ErrorMaterializingProperty(entityType, propertyName);
+                                : RelationalStrings.ErrorMaterializingProperty(entityType, propertyName);
                 }
                 else
                 {
                     message = exception is NullReferenceException
                         || Equals(value, DBNull.Value)
-                            ? CoreStrings.ErrorMaterializingValueNullReference(expectedType)
+                            ? RelationalStrings.ErrorMaterializingValueNullReference(expectedType)
                             : exception is InvalidCastException
-                                ? CoreStrings.ErrorMaterializingValueInvalidCast(expectedType, actualType)
-                                : CoreStrings.ErrorMaterializingValue;
+                                ? RelationalStrings.ErrorMaterializingValueInvalidCast(expectedType, actualType)
+                                : RelationalStrings.ErrorMaterializingValue;
                 }
 
                 throw new InvalidOperationException(message, exception);

@@ -39,6 +39,9 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual void ExecuteWithStrategyInTransaction(Action<DbContext> testOperation)
             => TestHelpers.ExecuteWithStrategyInTransaction(CreateContext, UseTransaction, testOperation);
 
+        protected virtual void ExecuteWithStrategyInTransaction(Action<DbContext> testOperation1, Action<DbContext> testOperation2)
+            => TestHelpers.ExecuteWithStrategyInTransaction(CreateContext, UseTransaction, testOperation1, testOperation2);
+
         protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         {
         }
@@ -2175,7 +2178,7 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Ignore<B>();
 
             Assert.Equal(
-                CoreStrings.ConflictingForeignKeyAttributes("{'AId'}", nameof(ConflictingFKAttributes)),
+                CoreStrings.ConflictingForeignKeyAttributes("{'AId'}", nameof(ConflictingFKAttributes), nameof(A)),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<ConflictingFKAttributes>()).Message);
         }
 

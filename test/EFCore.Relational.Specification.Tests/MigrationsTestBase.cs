@@ -415,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore
                 builder => { },
                 builder => builder.Entity("People").Property<int?>("Sum")
                     .HasDefaultValueSql());
-            Assert.Equal(RelationalStrings.DefaultValueSqlUnspecified("Sum", "'People'"), ex.Message);
+            Assert.Equal(RelationalStrings.DefaultValueSqlUnspecified("Sum", "People"), ex.Message);
         }
 
         [ConditionalFact]
@@ -426,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore
                 builder => { },
                 builder => builder.Entity("People").Property<int?>("Sum")
                     .HasDefaultValue());
-            Assert.Equal(RelationalStrings.DefaultValueUnspecified("Sum", "'People'"), ex.Message);
+            Assert.Equal(RelationalStrings.DefaultValueUnspecified("Sum", "People"), ex.Message);
         }
 
         [ConditionalTheory]
@@ -466,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore
                 builder => { },
                 builder => builder.Entity("People").Property<int?>("Sum")
                     .HasComputedColumnSql());
-            Assert.Equal(RelationalStrings.ComputedColumnSqlUnspecified("Sum", "'People'"), ex.Message);
+            Assert.Equal(RelationalStrings.ComputedColumnSqlUnspecified("Sum", "People"), ex.Message);
         }
 
         [ConditionalFact]

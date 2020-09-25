@@ -93,10 +93,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     ThrowIfKeyChanged(entry, property);
                 }
 
-                if (property.GetRelationshipIndex() != -1)
-                {
-                    DetectKeyChange(entry, property);
-                }
+                DetectKeyChange(entry, property);
             }
             else if (propertyBase.GetRelationshipIndex() != -1
                 && propertyBase is INavigationBase navigation)
@@ -156,8 +153,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             foreach (var entry in stateManager.ToList()) // Might be too big, but usually _all_ entities are using Snapshot tracking
             {
-                if (entry.EntityType.GetChangeTrackingStrategy() == ChangeTrackingStrategy.Snapshot
-                    && entry.EntityState != EntityState.Detached)
+                if (entry.EntityState != EntityState.Detached)
                 {
                     LocalDetectChanges(entry);
                 }
@@ -198,6 +194,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private void LocalDetectChanges(InternalEntityEntry entry)
         {
             var entityType = entry.EntityType;
+
+            if (entry.EntityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot)
+            {
+                return;
+            }
 
             foreach (var property in entityType.GetProperties())
             {
@@ -270,34 +271,36 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private void DetectKeyChange(InternalEntityEntry entry, IProperty property)
         {
-            if (property.GetRelationshipIndex() >= 0)
+            if (property.GetRelationshipIndex() < 0)
             {
-                var snapshotValue = entry.GetRelationshipSnapshotValue(property);
-                var currentValue = entry[property];
+                return;
+            }
 
-                var comparer = property.GetKeyValueComparer();
+            var snapshotValue = entry.GetRelationshipSnapshotValue(property);
+            var currentValue = entry[property];
 
-                // Note that mutation of a byte[] key is not supported or detected, but two different instances
-                // of byte[] with the same content must be detected as equal.
-                if (!(comparer?.Equals(currentValue, snapshotValue)
-                    ?? StructuralComparisons.StructuralEqualityComparer.Equals(currentValue, snapshotValue)))
+            var comparer = property.GetKeyValueComparer();
+
+            // Note that mutation of a byte[] key is not supported or detected, but two different instances
+            // of byte[] with the same content must be detected as equal.
+            if (!(comparer?.Equals(currentValue, snapshotValue)
+                ?? StructuralComparisons.StructuralEqualityComparer.Equals(currentValue, snapshotValue)))
+            {
+                var keys = property.GetContainingKeys();
+                var foreignKeys = property.GetContainingForeignKeys()
+                    .Where(fk => fk.DeclaringEntityType.IsAssignableFrom(entry.EntityType));
+
+                if (_loggingOptions.IsSensitiveDataLoggingEnabled)
                 {
-                    var keys = property.GetContainingKeys();
-                    var foreignKeys = property.GetContainingForeignKeys()
-                        .Where(fk => fk.DeclaringEntityType.IsAssignableFrom(entry.EntityType));
-
-                    if (_loggingOptions.IsSensitiveDataLoggingEnabled)
-                    {
-                        _logger.ForeignKeyChangeDetectedSensitive(entry, property, snapshotValue, currentValue);
-                    }
-                    else
-                    {
-                        _logger.ForeignKeyChangeDetected(entry, property, snapshotValue, currentValue);
-                    }
-
-                    entry.StateManager.InternalEntityEntryNotifier.KeyPropertyChanged(
-                        entry, property, keys, foreignKeys, snapshotValue, currentValue);
+                    _logger.ForeignKeyChangeDetectedSensitive(entry, property, snapshotValue, currentValue);
                 }
+                else
+                {
+                    _logger.ForeignKeyChangeDetected(entry, property, snapshotValue, currentValue);
+                }
+
+                entry.StateManager.InternalEntityEntryNotifier.KeyPropertyChanged(
+                    entry, property, keys, foreignKeys, snapshotValue, currentValue);
             }
         }
 

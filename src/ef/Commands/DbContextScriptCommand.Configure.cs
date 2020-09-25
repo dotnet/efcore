@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 
         public override void Configure(CommandLineApplication command)
         {
-            command.Description = Resources.MigrationsScriptDescription;
+            command.Description = Resources.DbContextScriptDescription;
 
             _output = command.Option("-o|--output <FILE>", Resources.OutputDescription);
 

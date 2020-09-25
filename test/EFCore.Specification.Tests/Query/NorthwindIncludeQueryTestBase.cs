@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Include_property_after_navigation(bool async)
         {
             Assert.Equal(
-                CoreStrings.InvalidLambdaExpressionInsideInclude,
+                CoreStrings.InvalidIncludeExpression("o.Customer.CustomerID"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
                         async,
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Include_property(bool async)
         {
             Assert.Equal(
-                CoreStrings.InvalidLambdaExpressionInsideInclude,
+                CoreStrings.InvalidIncludeExpression("o.OrderDate"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
                         async,
@@ -1251,7 +1251,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Include_specified_on_non_entity_not_supported(bool async)
         {
             Assert.Equal(
-                CoreStrings.IncludeOnNonEntity,
+                CoreStrings.IncludeOnNonEntity("t => t.Item1.Orders"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
                         async,

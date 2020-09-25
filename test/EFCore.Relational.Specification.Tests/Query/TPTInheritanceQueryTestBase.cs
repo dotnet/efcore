@@ -48,12 +48,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var message = Assert.Throws<InvalidOperationException>(() => context.Set<Bird>().FromSqlRaw("Select * from Birds")).Message;
 
-            Assert.Equal(RelationalStrings.NonTPHOnFromSqlNotSupported("FromSqlRaw", typeof(Bird).Name), message);
+            Assert.Equal(RelationalStrings.MethodOnNonTPHRootNotSupported("FromSqlRaw", typeof(Bird).Name), message);
 
             message = Assert.Throws<InvalidOperationException>(() => context.Set<Bird>().FromSqlInterpolated($"Select * from Birds"))
                 .Message;
 
-            Assert.Equal(RelationalStrings.NonTPHOnFromSqlNotSupported("FromSqlInterpolated", typeof(Bird).Name), message);
+            Assert.Equal(RelationalStrings.MethodOnNonTPHRootNotSupported("FromSqlInterpolated", typeof(Bird).Name), message);
         }
 
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)

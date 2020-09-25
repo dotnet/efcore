@@ -62,6 +62,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             new Dictionary<Type, ConfigurationSource> { { DefaultPropertyBagType, ConfigurationSource.Convention } };
 
         private bool? _skipDetectChanges;
+        private ChangeTrackingStrategy? _changeTrackingStrategy;
+
+        private ConfigurationSource? _changeTrackingStrategyConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -937,14 +940,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [DebuggerStepThrough]
+        public virtual ChangeTrackingStrategy GetChangeTrackingStrategy()
+            => _changeTrackingStrategy ?? ChangeTrackingStrategy.Snapshot;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual ChangeTrackingStrategy? SetChangeTrackingStrategy(
             ChangeTrackingStrategy? changeTrackingStrategy,
             ConfigurationSource configurationSource)
         {
-            this.SetOrRemoveAnnotation(CoreAnnotationNames.ChangeTrackingStrategy, changeTrackingStrategy, configurationSource);
+            _changeTrackingStrategy = changeTrackingStrategy;
+
+            _changeTrackingStrategyConfigurationSource = _changeTrackingStrategy == null
+                ? (ConfigurationSource?)null
+                : configurationSource.Max(_changeTrackingStrategyConfigurationSource);
 
             return changeTrackingStrategy;
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual ConfigurationSource? GetChangeTrackingStrategyConfigurationSource()
+            => _changeTrackingStrategyConfigurationSource;
 
         /// <summary>
         ///     Runs the conventions when an annotation was set or removed.
@@ -1024,6 +1050,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return skipDetectChanges;
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual object RelationalModel
+            => this["Relational:RelationalModel"];
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

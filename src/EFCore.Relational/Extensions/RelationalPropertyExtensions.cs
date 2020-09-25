@@ -24,14 +24,26 @@ namespace Microsoft.EntityFrameworkCore
     public static class RelationalPropertyExtensions
     {
         /// <summary>
-        ///     Returns the name of the column to which the property is mapped.
+        ///     Returns the name of the table column to which the property is mapped.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The name of the column to which the property is mapped. </returns>
+        /// <returns> The name of the table column to which the property is mapped. </returns>
+        [Obsolete("Use the overload that takes a StoreObjectIdentifier")]
         public static string GetColumnName([NotNull] this IProperty property)
         {
             var annotation = property.FindAnnotation(RelationalAnnotationNames.ColumnName);
             return annotation != null ? (string)annotation.Value : property.GetDefaultColumnName();
+        }
+
+        /// <summary>
+        ///     Returns the base name of the column to which the property would be mapped.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The the base name of the column to which the property would be mapped. </returns>
+        public static string GetColumnBaseName([NotNull] this IProperty property)
+        {
+            var annotation = property.FindAnnotation(RelationalAnnotationNames.ColumnName);
+            return annotation != null ? (string)annotation.Value : property.GetDefaultColumnBaseName();
         }
 
         /// <summary>
@@ -86,11 +98,23 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Returns the default column name to which the property would be mapped.
+        ///     Returns the default table column name to which the property would be mapped.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The default column name to which the property would be mapped. </returns>
+        /// <returns> The default table column name to which the property would be mapped. </returns>
+        [Obsolete("Use the overload that takes a StoreObjectIdentifier")]
         public static string GetDefaultColumnName([NotNull] this IProperty property)
+        {
+            var table = StoreObjectIdentifier.Create(property.DeclaringEntityType, StoreObjectType.Table);
+            return table == null ? property.GetDefaultColumnBaseName() : property.GetDefaultColumnName(table.Value);
+        }
+
+        /// <summary>
+        ///     Returns the default base name of the column to which the property would be mapped
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The default base column name to which the property would be mapped. </returns>
+        public static string GetDefaultColumnBaseName([NotNull] this IProperty property)
             => Uniquifier.Truncate(property.Name, property.DeclaringEntityType.Model.GetMaxIdentifierLength());
 
         /// <summary>
@@ -170,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore
                 entityType = ownerType;
             }
 
-            var baseName = property.GetDefaultColumnName();
+            var baseName = property.GetDefaultColumnBaseName();
             if (builder == null)
             {
                 return baseName;
@@ -757,6 +781,89 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The <see cref="ConfigurationSource" /> for the default value. </returns>
         public static ConfigurationSource? GetDefaultValueConfigurationSource([NotNull] this IConventionProperty property)
             => property.FindAnnotation(RelationalAnnotationNames.DefaultValue)?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Gets the maximum length of data that is allowed in this property. For example, if the property is a <see cref="string" />
+        ///     then this is the maximum number of characters.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
+        /// <returns> The maximum length, or <see langword="null" /> if none if defined. </returns>
+        public static int? GetMaxLength([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
+        {
+            Check.NotNull(property, nameof(property));
+
+            var maxLength = property.GetMaxLength();
+            if (maxLength != null)
+            {
+                return maxLength.Value;
+            }
+
+            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
+            return sharedTableRootProperty != null ? GetMaxLength(sharedTableRootProperty, storeObject) : null;
+        }
+
+        /// <summary>
+        ///     Gets the precision of data that is allowed in this property.
+        ///     For example, if the property is a <see cref="decimal" /> then this is the maximum number of digits.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
+        /// <returns> The precision, or <see langword="null" /> if none is defined. </returns>
+        public static int? GetPrecision([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
+        {
+            Check.NotNull(property, nameof(property));
+
+            var precision = property.GetPrecision();
+            if (precision != null)
+            {
+                return precision;
+            }
+
+            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
+            return sharedTableRootProperty != null ? GetPrecision(sharedTableRootProperty, storeObject) : null;
+        }
+
+        /// <summary>
+        ///     Gets the scale of data that is allowed in this property.
+        ///     For example, if the property is a <see cref="decimal" /> then this is the maximum number of decimal places.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
+        /// <returns> The scale, or <see langword="null" /> if none is defined. </returns>
+        public static int? GetScale([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
+        {
+            Check.NotNull(property, nameof(property));
+
+            var scale = property.GetScale();
+            if (scale != null)
+            {
+                return scale.Value;
+            }
+
+            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
+            return sharedTableRootProperty != null ? GetScale(sharedTableRootProperty, storeObject) : null;
+        }
+
+        /// <summary>
+        ///     Gets a value indicating whether or not the property can persist Unicode characters.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
+        /// <returns> The Unicode setting, or <see langword="null" /> if none is defined. </returns>
+        public static bool? IsUnicode([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
+        {
+            Check.NotNull(property, nameof(property));
+
+            var unicode = property.IsUnicode();
+            if (unicode != null)
+            {
+                return unicode.Value;
+            }
+
+            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
+            return sharedTableRootProperty != null ? IsUnicode(sharedTableRootProperty, storeObject) : null;
+        }
 
         /// <summary>
         ///     Returns a flag indicating if the property as capable of storing only fixed-length data, such as strings.

@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             annotatable.AddAnnotation("Foo", "Bar");
 
             Assert.Equal(
-                CoreStrings.DuplicateAnnotation("Foo"),
+                CoreStrings.DuplicateAnnotation("Foo", annotatable.ToString()),
                 Assert.Throws<InvalidOperationException>(() => annotatable.AddAnnotation("Foo", "Bar")).Message);
         }
 
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Empty(annotatable.GetAnnotations());
 
             Assert.Equal(
-                CoreStrings.AnnotationNotFound("Foo"),
+                CoreStrings.AnnotationNotFound("Foo", "Microsoft.EntityFrameworkCore.Infrastructure.Annotatable"),
                 Assert.Throws<InvalidOperationException>(() => annotatable.GetAnnotation("Foo")).Message);
         }
 
