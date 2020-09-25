@@ -78,7 +78,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Tests", "test\EFCore
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Analyzers", "src\EFCore.Analyzers\EFCore.Analyzers.csproj", "{C0D4A199-3ED4-447B-8657-0502493294E7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Analyzers.Test", "test\EFCore.Analyzers.Tests\EFCore.Analyzers.Test.csproj", "{7BC66E5C-BAA3-420B-8331-22821EBA361A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Analyzers.Tests", "test\EFCore.Analyzers.Tests\EFCore.Analyzers.Tests.csproj", "{7BC66E5C-BAA3-420B-8331-22821EBA361A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Cosmos", "src\EFCore.Cosmos\EFCore.Cosmos.csproj", "{6C115EF9-519E-4A4E-BD02-3801777BFEBA}"
 EndProject
