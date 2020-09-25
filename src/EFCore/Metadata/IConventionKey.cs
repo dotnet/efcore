@@ -15,23 +15,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="IKey" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IConventionKey : IConventionAnnotatable, IKey
+    public interface IConventionKey : IKey, IConventionAnnotatable
     {
         /// <summary>
         ///     Gets the builder that can be used to configure this key.
         /// </summary>
         new IConventionKeyBuilder Builder { get; }
 
-        /// <summary>
-        ///     Gets the properties that make up the key.
-        /// </summary>
+        /// <inheritdoc cref="IKey.Properties" />
         new IReadOnlyList<IConventionProperty> Properties { get; }
 
-        /// <summary>
-        ///     Gets the entity type the key is defined on. This may be different from the type that <see cref="Properties" />
-        ///     are defined on when the key is defined a derived type in an inheritance hierarchy (since the properties
-        ///     may be defined on a base type).
-        /// </summary>
+        /// <inheritdoc cref="IKey.DeclaringEntityType" />
         new IConventionEntityType DeclaringEntityType { get; }
 
         /// <summary>

@@ -52,47 +52,29 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                 : value);
         }
 
-        /// <summary>
-        ///     Gets the function to convert objects when writing data to the store,
-        ///     setup to handle nulls, boxing, and non-exact matches of simple types.
-        /// </summary>
+        /// <inheritdoc />
         public override Func<object, object> ConvertToProvider
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _convertToProvider, this, c => SanitizeConverter(c.ConvertToProviderExpression));
 
-        /// <summary>
-        ///     Gets the function to convert objects when reading data from the store,
-        ///     setup to handle nulls, boxing, and non-exact matches of simple types.
-        /// </summary>
+        /// <inheritdoc />
         public override Func<object, object> ConvertFromProvider
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _convertFromProvider, this, c => SanitizeConverter(c.ConvertFromProviderExpression));
 
-        /// <summary>
-        ///     Gets the expression to convert objects when writing data to the store,
-        ///     exactly as supplied and may not handle
-        ///     nulls, boxing, and non-exact matches of simple types.
-        /// </summary>
+        /// <inheritdoc cref="ValueConverter.ConvertToProviderExpression" />
         public new virtual Expression<Func<TModel, TProvider>> ConvertToProviderExpression
             => (Expression<Func<TModel, TProvider>>)base.ConvertToProviderExpression;
 
-        /// <summary>
-        ///     Gets the expression to convert objects when reading data from the store,
-        ///     exactly as supplied and may not handle
-        ///     nulls, boxing, and non-exact matches of simple types.
-        /// </summary>
+        /// <inheritdoc cref="ValueConverter.ConvertFromProviderExpression" />
         public new virtual Expression<Func<TProvider, TModel>> ConvertFromProviderExpression
             => (Expression<Func<TProvider, TModel>>)base.ConvertFromProviderExpression;
 
-        /// <summary>
-        ///     The CLR type used in the EF model.
-        /// </summary>
+        /// <inheritdoc />
         public override Type ModelClrType
             => typeof(TModel);
 
-        /// <summary>
-        ///     The CLR type used when reading and writing from the store.
-        /// </summary>
+        /// <inheritdoc />
         public override Type ProviderClrType
             => typeof(TProvider);
     }

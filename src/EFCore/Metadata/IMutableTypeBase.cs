@@ -17,9 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     public interface IMutableTypeBase : ITypeBase, IMutableAnnotatable
     {
-        /// <summary>
-        ///     Gets the model that this type belongs to.
-        /// </summary>
+        /// <inheritdoc cref="ITypeBase.Model" />
         new IMutableModel Model { get; }
 
         /// <summary>

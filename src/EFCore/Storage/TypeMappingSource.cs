@@ -136,16 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return resolvedMapping;
         }
 
-        /// <summary>
-        ///     <para>
-        ///         Finds the type mapping for a given <see cref="IProperty" />.
-        ///     </para>
-        ///     <para>
-        ///         Note: providers should typically not need to override this method.
-        ///     </para>
-        /// </summary>
-        /// <param name="property"> The property. </param>
-        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        /// <inheritdoc />
         public override CoreTypeMapping FindMapping(IProperty property)
         {
             var mapping = property.FindTypeMapping();
@@ -158,39 +149,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return FindMappingWithConversion(new TypeMappingInfo(principals), principals);
         }
 
-        /// <summary>
-        ///     <para>
-        ///         Finds the type mapping for a given <see cref="Type" />.
-        ///     </para>
-        ///     <para>
-        ///         Note: Only call this method if there is no <see cref="IProperty" />
-        ///         or <see cref="MemberInfo" /> available, otherwise call <see cref="FindMapping(IProperty)" />
-        ///         or <see cref="FindMapping(MemberInfo)" />
-        ///     </para>
-        ///     <para>
-        ///         Note: providers should typically not need to override this method.
-        ///     </para>
-        /// </summary>
-        /// <param name="type"> The CLR type. </param>
-        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        /// <inheritdoc />
         public override CoreTypeMapping FindMapping(Type type)
             => FindMappingWithConversion(new TypeMappingInfo(type), null);
 
-        /// <summary>
-        ///     <para>
-        ///         Finds the type mapping for a given <see cref="MemberInfo" /> representing
-        ///         a field or a property of a CLR type.
-        ///     </para>
-        ///     <para>
-        ///         Note: Only call this method if there is no <see cref="IProperty" /> available, otherwise
-        ///         call <see cref="FindMapping(IProperty)" />
-        ///     </para>
-        ///     <para>
-        ///         Note: providers should typically not need to override this method.
-        ///     </para>
-        /// </summary>
-        /// <param name="member"> The field or property. </param>
-        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        /// <inheritdoc />
         public override CoreTypeMapping FindMapping(MemberInfo member)
             => FindMappingWithConversion(new TypeMappingInfo(member), null);
     }

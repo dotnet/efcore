@@ -18,36 +18,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     public interface IMutableNavigation : INavigation, IMutableNavigationBase
     {
-        /// <summary>
-        ///     Gets the type that this navigation property belongs to.
-        /// </summary>
+        /// <inheritdoc cref="INavigation.DeclaringEntityType" />
         new IMutableEntityType DeclaringEntityType
         {
             [DebuggerStepThrough]
             get => (IMutableEntityType)((INavigationBase)this).DeclaringEntityType;
         }
 
-        /// <summary>
-        ///     Gets the entity type that this navigation property will hold an instance(s) of.
-        /// </summary>
+        /// <inheritdoc cref="INavigation.TargetEntityType" />
         new IMutableEntityType TargetEntityType
         {
             [DebuggerStepThrough]
             get => (IMutableEntityType)((INavigationBase)this).TargetEntityType;
         }
 
-        /// <summary>
-        ///     Gets the foreign key that defines the relationship this navigation property will navigate.
-        /// </summary>
+        /// <inheritdoc cref="INavigation.ForeignKey" />
         new IMutableForeignKey ForeignKey
         {
             [DebuggerStepThrough]
             get => (IMutableForeignKey)((INavigation)this).ForeignKey;
         }
 
-        /// <summary>
-        ///     Gets the inverse navigation.
-        /// </summary>
+        /// <inheritdoc cref="INavigation.Inverse" />
         new IMutableNavigation Inverse
         {
             [DebuggerStepThrough]

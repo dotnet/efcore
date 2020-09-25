@@ -153,92 +153,47 @@ namespace Microsoft.EntityFrameworkCore
         public virtual DbContextId ContextId
             => new DbContextId(_contextId, _leaseCount);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [EntityFrameworkInternal]
         IDbSetSource IDbContextDependencies.SetSource
             => DbContextDependencies.SetSource;
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [EntityFrameworkInternal]
         IEntityFinderFactory IDbContextDependencies.EntityFinderFactory
             => DbContextDependencies.EntityFinderFactory;
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [EntityFrameworkInternal]
         IAsyncQueryProvider IDbContextDependencies.QueryProvider
             => DbContextDependencies.QueryProvider;
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [EntityFrameworkInternal]
         IStateManager IDbContextDependencies.StateManager
             => DbContextDependencies.StateManager;
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [EntityFrameworkInternal]
         IChangeDetector IDbContextDependencies.ChangeDetector
             => DbContextDependencies.ChangeDetector;
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [EntityFrameworkInternal]
         IEntityGraphAttacher IDbContextDependencies.EntityGraphAttacher
             => DbContextDependencies.EntityGraphAttacher;
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [EntityFrameworkInternal]
         IDiagnosticsLogger<DbLoggerCategory.Update> IDbContextDependencies.UpdateLogger
             => DbContextDependencies.UpdateLogger;
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [EntityFrameworkInternal]
         IDiagnosticsLogger<DbLoggerCategory.Infrastructure> IDbContextDependencies.InfrastructureLogger
             => DbContextDependencies.InfrastructureLogger;
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [EntityFrameworkInternal]
         object IDbSetCache.GetOrAddSet(IDbSetSource source, Type type)
         {
@@ -258,12 +213,7 @@ namespace Microsoft.EntityFrameworkCore
             return set;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [EntityFrameworkInternal]
         object IDbSetCache.GetOrAddSet(IDbSetSource source, string entityTypeName, Type type)
         {
@@ -674,22 +624,12 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         public event EventHandler<SaveChangesFailedEventArgs> SaveChangesFailed;
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [EntityFrameworkInternal]
         void IDbContextPoolable.ClearLease()
             => _lease = DbContextLease.InactiveLease;
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [EntityFrameworkInternal]
         void IDbContextPoolable.SetLease(DbContextLease lease)
         {
@@ -726,12 +666,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [EntityFrameworkInternal]
         void IDbContextPoolable.SnapshotConfiguration()
             => _configurationSnapshot = new DbContextPoolConfigurationSnapshot(
@@ -742,12 +677,7 @@ namespace Microsoft.EntityFrameworkCore
                 _changeTracker?.CascadeDeleteTiming,
                 _changeTracker?.DeleteOrphansTiming);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [EntityFrameworkInternal]
         void IResettableService.ResetState()
         {

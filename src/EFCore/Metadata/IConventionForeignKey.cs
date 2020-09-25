@@ -27,14 +27,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         new IConventionForeignKeyBuilder Builder { get; }
 
-        /// <summary>
-        ///     Gets the foreign key properties in the dependent entity.
-        /// </summary>
+        /// <inheritdoc cref="IForeignKey.Properties" />
         new IReadOnlyList<IConventionProperty> Properties { get; }
 
-        /// <summary>
-        ///     Gets the primary or alternate key that the relationship targets.
-        /// </summary>
+        /// <inheritdoc cref="IForeignKey.PrincipalKey" />
         new IConventionKey PrincipalKey { get; }
 
         /// <summary>
@@ -51,14 +47,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         new IConventionEntityType PrincipalEntityType { get; }
 
-        /// <summary>
-        ///     Gets the navigation property on the dependent entity type that points to the principal entity.
-        /// </summary>
+        /// <inheritdoc cref="IForeignKey.DependentToPrincipal" />
         new IConventionNavigation DependentToPrincipal { get; }
 
-        /// <summary>
-        ///     Gets the navigation property on the principal entity type that points to the dependent entity.
-        /// </summary>
+        /// <inheritdoc cref="IForeignKey.PrincipalToDependent" />
         new IConventionNavigation PrincipalToDependent { get; }
 
         /// <summary>

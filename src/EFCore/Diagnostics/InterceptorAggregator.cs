@@ -25,14 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public virtual Type InterceptorType
             => typeof(TInterceptor);
 
-        /// <summary>
-        ///     <para>
-        ///         Resolves a single <see cref="IInterceptor" /> /> from all those registered on
-        ///         the <see cref="DbContext" /> or in the internal service provider.
-        ///     </para>
-        /// </summary>
-        /// <param name="interceptors"> The interceptors to combine. </param>
-        /// <returns> The combined interceptor. </returns>
+        /// <inheritdoc />
         public virtual IInterceptor AggregateInterceptors(IReadOnlyList<IInterceptor> interceptors)
         {
             Check.NotNull(interceptors, nameof(interceptors));

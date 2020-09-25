@@ -27,10 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="fieldName"> The field name. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
         new IConventionNavigationBuilder HasField([CanBeNull] string fieldName, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -38,10 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="fieldInfo"> The field. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
         new IConventionNavigationBuilder HasField([CanBeNull] FieldInfo fieldInfo, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -49,10 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> to use for this navigation. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
         new IConventionNavigationBuilder UsePropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -69,10 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="autoInclude"> A value indicating whether the navigation should be automatically included. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
         IConventionNavigationBuilder AutoInclude(bool? autoInclude, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -87,14 +75,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Configures whether this navigation is required.
         /// </summary>
-        /// <param name="required">
-        ///     A value indicating whether this is a required navigation.
-        ///     <see langword="null" /> to reset to default.
+        /// <param name="required"> A value indicating whether this is a required navigation. <see langword="null" /> to reset to default.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the requiredness was configured, <see langword="null" /> otherwise.
-        /// </returns>
+        /// <returns> The same builder instance if the requiredness was configured, <see langword="null" /> otherwise. </returns>
         IConventionNavigationBuilder IsRequired(bool? required, bool fromDataAnnotation = false);
     }
 }

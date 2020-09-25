@@ -19,11 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Query
     public interface IQueryContextFactory
     {
         /// <summary>
-        ///     Creates a new QueryContext.
+        ///     Creates a new <see cref="QueryContext" />.
         /// </summary>
-        /// <returns>
-        ///     A QueryContext instance.
-        /// </returns>
+        /// <returns> A <see cref="QueryContext" /> instance. </returns>
         QueryContext Create();
     }
 }

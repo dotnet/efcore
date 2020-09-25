@@ -92,13 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [NotNull] IConventionEntityType definingEntityType,
             bool fromDataAnnotation = false);
 
-        /// <summary>
-        ///     Gets the entity with the given name. Returns <see langword="null" /> if no entity type with the given name is found
-        ///     or the given CLR type is being used by shared type entity type
-        ///     or the entity type has a defining navigation.
-        /// </summary>
-        /// <param name="name"> The name of the entity type to find. </param>
-        /// <returns> The entity type, or <see langword="null" /> if none are found. </returns>
+        /// <inheritdoc cref="IModel.FindEntityType(string)" />
         new IConventionEntityType FindEntityType([NotNull] string name);
 
         /// <summary>
@@ -121,10 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> The removed entity type. </returns>
         IConventionEntityType RemoveEntityType([NotNull] IConventionEntityType entityType);
 
-        /// <summary>
-        ///     Gets all entity types defined in the model.
-        /// </summary>
-        /// <returns> All entity types defined in the model. </returns>
+        /// <inheritdoc cref="IModel.GetEntityTypes" />
         new IEnumerable<IConventionEntityType> GetEntityTypes();
 
         /// <summary>

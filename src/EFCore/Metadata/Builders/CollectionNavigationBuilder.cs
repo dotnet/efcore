@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on the other end of this relationship.
-        ///     If null or not specified, then there is no navigation property on the other end of the relationship.
+        ///     If <see langword="null" /> or not specified, then there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceCollectionBuilder WithOne([CanBeNull] string navigationName = null)
@@ -372,28 +372,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         #region Hidden System.Object members
 
-        /// <summary>
-        ///     Returns a string that represents the current object.
-        /// </summary>
-        /// <returns> A string that represents the current object. </returns>
+        /// <inheritdoc />
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override string ToString()
             => base.ToString();
 
-        /// <summary>
-        ///     Determines whether the specified object is equal to the current object.
-        /// </summary>
-        /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
+        /// <inheritdoc />
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
         public override bool Equals(object obj)
             => base.Equals(obj);
 
-        /// <summary>
-        ///     Serves as the default hash function.
-        /// </summary>
-        /// <returns> A hash code for the current object. </returns>
+        /// <inheritdoc />
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
         public override int GetHashCode()

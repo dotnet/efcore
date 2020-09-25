@@ -14,14 +14,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     public interface IMutableProperty : IProperty, IMutablePropertyBase
     {
-        /// <summary>
-        ///     Gets the type that this property belongs to.
-        /// </summary>
+        /// <inheritdoc cref="IProperty.DeclaringEntityType" />
         new IMutableEntityType DeclaringEntityType { get; }
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether this property can contain <see langword="null" />.
-        /// </summary>
+        /// <inheritdoc cref="IProperty.IsNullable" />
         new bool IsNullable { get; set; }
 
         /// <summary>

@@ -21,9 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         new IConventionPropertyBuilder Builder { get; }
 
-        /// <summary>
-        ///     Gets the type that this property belongs to.
-        /// </summary>
+        /// <inheritdoc cref="IProperty.DeclaringEntityType" />
         new IConventionEntityType DeclaringEntityType { get; }
 
         /// <summary>

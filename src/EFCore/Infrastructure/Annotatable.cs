@@ -31,12 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual IEnumerable<Annotation> GetAnnotations()
             => _annotations?.Values ?? Enumerable.Empty<Annotation>();
 
-        /// <summary>
-        ///     Adds an annotation to this object. Throws if an annotation with the specified name already exists.
-        /// </summary>
-        /// <param name="name"> The key of the annotation to be added. </param>
-        /// <param name="value"> The value to be stored in the annotation. </param>
-        /// <returns> The newly added annotation. </returns>
+        /// <inheritdoc cref="IMutableAnnotatable.AddAnnotation" />
         public virtual Annotation AddAnnotation([NotNull] string name, [CanBeNull] object value)
         {
             Check.NotEmpty(name, nameof(name));
@@ -64,12 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             return annotation;
         }
 
-        /// <summary>
-        ///     Sets the annotation stored under the given key. Overwrites the existing annotation if an
-        ///     annotation with the specified name already exists.
-        /// </summary>
-        /// <param name="name"> The key of the annotation to be added. </param>
-        /// <param name="value"> The value to be stored in the annotation. </param>
+        /// <inheritdoc />
         public virtual void SetAnnotation(string name, object value)
         {
             var oldAnnotation = FindAnnotation(name);
@@ -118,13 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             [CanBeNull] Annotation oldAnnotation)
             => annotation;
 
-        /// <summary>
-        ///     Gets the annotation with the given name, returning <see langword="null" /> if it does not exist.
-        /// </summary>
-        /// <param name="name"> The key of the annotation to find. </param>
-        /// <returns>
-        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
-        /// </returns>
+        /// <inheritdoc cref="IAnnotatable.FindAnnotation" />
         public virtual Annotation FindAnnotation([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
@@ -136,11 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     : null;
         }
 
-        /// <summary>
-        ///     Removes the given annotation from this object.
-        /// </summary>
-        /// <param name="name"> The annotation to remove. </param>
-        /// <returns> The annotation that was removed. </returns>
+        /// <inheritdoc cref="IMutableAnnotatable.RemoveAnnotation" />
         public virtual Annotation RemoveAnnotation([NotNull] string name)
         {
             Check.NotNull(name, nameof(name));
@@ -163,14 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             return annotation;
         }
 
-        /// <summary>
-        ///     Gets the value annotation with the given name, returning <see langword="null" /> if it does not exist.
-        /// </summary>
-        /// <param name="name"> The key of the annotation to find. </param>
-        /// <returns>
-        ///     The value of the existing annotation if an annotation with the specified name already exists.
-        ///     Otherwise, <see langword="null" />.
-        /// </returns>
+        /// <inheritdoc cref="IMutableAnnotatable.this[string]" />
         public virtual object this[string name]
         {
             get => FindAnnotation(name)?.Value;

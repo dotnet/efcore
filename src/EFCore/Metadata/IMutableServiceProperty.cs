@@ -17,9 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     public interface IMutableServiceProperty : IServiceProperty, IMutablePropertyBase
     {
-        /// <summary>
-        ///     Gets the type that this property belongs to.
-        /// </summary>
+        /// <inheritdoc cref="IServiceProperty.DeclaringEntityType" />
         new IMutableEntityType DeclaringEntityType { get; }
 
         /// <summary>

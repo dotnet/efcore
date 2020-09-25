@@ -47,9 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Constructor,
                 ParameterBindings.Select(b => b.BindToParameter(bindingInfo)));
 
-        /// <summary>
-        ///     The type that will be created from the expression tree created for this binding.
-        /// </summary>
+        /// <inheritdoc />
         public override Type RuntimeType
             => Constructor.DeclaringType;
     }

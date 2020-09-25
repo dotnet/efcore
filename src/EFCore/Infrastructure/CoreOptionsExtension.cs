@@ -83,9 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Information/metadata about the extension.
-        /// </summary>
+        /// <inheritdoc />
         public virtual DbContextOptionsExtensionInfo Info
             => _info ??= new ExtensionInfo(this);
 
@@ -407,13 +405,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual IEnumerable<IInterceptor> Interceptors
             => _interceptors;
 
-        /// <summary>
-        ///     Adds the services required to make the selected options work. This is used when there
-        ///     is no external <see cref="IServiceProvider" /> and EF is maintaining its own service
-        ///     provider internally. This allows database providers (and other extensions) to register their
-        ///     required services when EF is creating an service provider.
-        /// </summary>
-        /// <param name="services"> The collection to add services to. </param>
+        /// <inheritdoc />
         public virtual void ApplyServices(IServiceCollection services)
         {
             var memoryCache = GetMemoryCache();
@@ -426,11 +418,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private IMemoryCache GetMemoryCache()
             => MemoryCache;
 
-        /// <summary>
-        ///     Gives the extension a chance to validate that all options in the extension are valid.
-        ///     If options are invalid, then an exception will be thrown.
-        /// </summary>
-        /// <param name="options"> The options being validated. </param>
+        /// <inheritdoc />
         public virtual void Validate(IDbContextOptions options)
         {
             if (_internalServiceProvider != null)

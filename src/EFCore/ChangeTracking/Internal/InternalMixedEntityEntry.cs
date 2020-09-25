@@ -10,12 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
+    /// <inheritdoc />
     public class InternalMixedEntityEntry : InternalEntityEntry
     {
         private readonly ISnapshot _shadowValues;
@@ -56,51 +51,26 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _shadowValues = ((EntityType)entityType).ShadowValuesFactory(valueBuffer);
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         public override object Entity { get; }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         protected override T ReadShadowValue<T>(int shadowIndex)
             => _shadowValues.GetValue<T>(shadowIndex);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         protected override object ReadPropertyValue(IPropertyBase propertyBase)
             => !propertyBase.IsShadowProperty()
                 ? base.ReadPropertyValue(propertyBase)
                 : _shadowValues[propertyBase.GetShadowIndex()];
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         protected override bool PropertyHasDefaultValue(IPropertyBase propertyBase)
             => !propertyBase.IsShadowProperty()
                 ? base.PropertyHasDefaultValue(propertyBase)
                 : propertyBase.ClrType.IsDefaultValue(_shadowValues[propertyBase.GetShadowIndex()]);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         protected override void WritePropertyValue(IPropertyBase propertyBase, object value, bool forMaterialization)
         {
             if (!propertyBase.IsShadowProperty())
@@ -113,12 +83,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         public override object GetOrCreateCollection(INavigationBase navigationBase, bool forMaterialization)
             => navigationBase.IsShadowProperty()
                 ? GetOrCreateCollectionTyped(navigationBase)
@@ -135,23 +100,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return collection;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         public override bool CollectionContains(INavigationBase navigationBase, InternalEntityEntry value)
             => navigationBase.IsShadowProperty()
                 ? GetOrCreateCollectionTyped(navigationBase).Contains(value.Entity)
                 : base.CollectionContains(navigationBase, value);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         public override bool AddToCollection(INavigationBase navigationBase, InternalEntityEntry value, bool forMaterialization)
         {
             if (!navigationBase.IsShadowProperty())
@@ -174,12 +129,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return false;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         public override bool RemoveFromCollection(INavigationBase navigationBase, InternalEntityEntry value)
             => navigationBase.IsShadowProperty()
                 ? GetOrCreateCollectionTyped(navigationBase).Remove(value.Entity)

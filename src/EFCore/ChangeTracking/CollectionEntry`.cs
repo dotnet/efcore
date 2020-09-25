@@ -57,27 +57,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public new virtual EntityEntry<TEntity> EntityEntry
             => new EntityEntry<TEntity>(InternalEntry);
 
-        /// <summary>
-        ///     Gets or sets the value currently assigned to this property. If the current value is set using this property,
-        ///     the change tracker is aware of the change and <see cref="ChangeTracker.DetectChanges" /> is not required
-        ///     for the context to detect the change.
-        /// </summary>
+        /// <inheritdoc cref="MemberEntry.CurrentValue" />
         public new virtual IEnumerable<TRelatedEntity> CurrentValue
         {
             get => this.GetInfrastructure().GetCurrentValue<IEnumerable<TRelatedEntity>>(Metadata);
             [param: CanBeNull] set => base.CurrentValue = value;
         }
 
-        /// <summary>
-        ///     <para>
-        ///         Returns the query that would be used by <see cref="CollectionEntry.Load" /> to load entities referenced by
-        ///         this navigation property.
-        ///     </para>
-        ///     <para>
-        ///         The query can be composed over using LINQ to perform filtering, counting, etc. without
-        ///         actually loading all entities from the database.
-        ///     </para>
-        /// </summary>
+        /// <inheritdoc cref="CollectionEntry.Query" />
         public new virtual IQueryable<TRelatedEntity> Query()
         {
             InternalEntry.GetOrCreateCollection(Metadata, forMaterialization: true);
@@ -85,11 +72,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             return (IQueryable<TRelatedEntity>)base.Query();
         }
 
-        /// <summary>
-        ///     The <see cref="EntityEntry{T}" /> of an entity this navigation targets.
-        /// </summary>
-        /// <param name="entity"> The entity to get the entry for. </param>
-        /// <value> An entry for an entity that this navigation targets. </value>
+        /// <inheritdoc cref="CollectionEntry.FindEntry" />
         public new virtual EntityEntry<TRelatedEntity> FindEntry([NotNull] object entity)
         {
             var entry = GetInternalTargetEntry(entity);

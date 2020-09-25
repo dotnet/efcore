@@ -21,11 +21,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     /// </summary>
     public class TemporaryNumberValueGeneratorFactory : ValueGeneratorFactory
     {
-        /// <summary>
-        ///     Creates a new value generator.
-        /// </summary>
-        /// <param name="property"> The property to create the value generator for. </param>
-        /// <returns> The newly created value generator. </returns>
+        /// <inheritdoc />
         public override ValueGenerator Create(IProperty property)
         {
             var type = property.ClrType.UnwrapNullableType().UnwrapEnumType();

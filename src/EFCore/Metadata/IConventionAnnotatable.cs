@@ -25,9 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         IConventionAnnotatableBuilder Builder { get; }
 
-        /// <summary>
-        ///     Gets all annotations on the current object.
-        /// </summary>
+        /// <inheritdoc cref="IAnnotatable.GetAnnotations" />
         new IEnumerable<IConventionAnnotation> GetAnnotations();
 
         /// <summary>
@@ -49,13 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> The new annotation. </returns>
         IConventionAnnotation SetAnnotation([NotNull] string name, [CanBeNull] object value, bool fromDataAnnotation = false);
 
-        /// <summary>
-        ///     Gets the annotation with the given name, returning <see langword="null" /> if it does not exist.
-        /// </summary>
-        /// <param name="name"> The name of the annotation to find. </param>
-        /// <returns>
-        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
-        /// </returns>
+        /// <inheritdoc cref="IAnnotatable.FindAnnotation" />
         new IConventionAnnotation FindAnnotation([NotNull] string name);
 
         /// <summary>

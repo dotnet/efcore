@@ -30,14 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Value = value;
         }
 
-        /// <summary>
-        ///     Gets the key of this annotation.
-        /// </summary>
+        /// <inheritdoc />
         public virtual string Name { get; }
 
-        /// <summary>
-        ///     Gets the value assigned to this annotation.
-        /// </summary>
+        /// <inheritdoc />
         public virtual object Value { get; }
     }
 }

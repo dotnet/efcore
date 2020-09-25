@@ -27,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the type that this navigation property belongs to.
         /// </summary>
+        /// <inheritdoc cref="INavigationBase.DeclaringEntityType" />
         new IConventionEntityType DeclaringEntityType
         {
             [DebuggerStepThrough]

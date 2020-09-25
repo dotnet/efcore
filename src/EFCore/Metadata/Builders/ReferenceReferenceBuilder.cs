@@ -15,9 +15,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
-    ///     <para>
-    ///         Provides a simple API for configuring a one-to-one relationship.
-    ///     </para>
+    ///     Provides a simple API for configuring a one-to-one relationship.
     /// </summary>
     public class ReferenceReferenceBuilder : InvertibleRelationshipBuilderBase
     {
@@ -240,8 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     entity type.
         /// </remarks>
         /// <param name="principalEntityType">
-        ///     The entity type that is the principal in this relationship (the type
-        ///     that has the reference key properties).
+        ///     The entity type that is the principal in this relationship (the type that has the reference key properties).
         /// </param>
         /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>

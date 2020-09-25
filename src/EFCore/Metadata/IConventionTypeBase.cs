@@ -17,9 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     public interface IConventionTypeBase : ITypeBase, IConventionAnnotatable
     {
-        /// <summary>
-        ///     Gets the model that this type belongs to.
-        /// </summary>
+        /// <inheritdoc cref="ITypeBase.Model" />
         new IConventionModel Model { get; }
 
         /// <summary>

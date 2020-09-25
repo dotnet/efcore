@@ -30,13 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
         }
 
-        /// <summary>
-        ///     Adds or updates an annotation on the key. If an annotation with the key specified in
-        ///     <paramref name="annotation" /> already exists its value will be updated.
-        /// </summary>
-        /// <param name="annotation"> The key of the annotation to be added or updated. </param>
-        /// <param name="value"> The value to be stored in the annotation. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <inheritdoc cref="KeyBuilder.HasAnnotation" />
         public new virtual KeyBuilder<T> HasAnnotation([NotNull] string annotation, [NotNull] object value)
             => (KeyBuilder<T>)base.HasAnnotation(annotation, value);
     }

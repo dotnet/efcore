@@ -44,14 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
         }
 
-        /// <summary>
-        ///     Configures this as a one-to-many relationship.
-        /// </summary>
-        /// <param name="navigationName">
-        ///     The name of the reference navigation property on the other end of this relationship.
-        ///     If null, there is no navigation property on the other end of the relationship.
-        /// </param>
-        /// <returns> An object to further configure the relationship. </returns>
+        /// <inheritdoc cref="CollectionNavigationBuilder.WithOne" />
         public new virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(
             [CanBeNull] string navigationName = null)
         {

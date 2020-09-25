@@ -75,11 +75,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the value currently assigned to this property. If the current value is set using this property,
-        ///     the change tracker is aware of the change and <see cref="ChangeTracker.DetectChanges" /> is not required
-        ///     for the context to detect the change.
-        /// </summary>
+        /// <inheritdoc cref="MemberEntry.CurrentValue" />
         public new virtual IEnumerable CurrentValue
         {
             get => (IEnumerable)base.CurrentValue;
@@ -191,15 +187,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        /// <summary>
-        ///     <para>
-        ///         Loads the entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
-        ///         is already set to true.
-        ///     </para>
-        ///     <para>
-        ///         Note that entities that are already being tracked are not overwritten with new data from the database.
-        ///     </para>
-        /// </summary>
+        /// <inheritdoc />
         public override void Load()
         {
             EnsureInitialized();
@@ -210,25 +198,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        /// <summary>
-        ///     <para>
-        ///         Loads entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
-        ///         is already set to true.
-        ///     </para>
-        ///     <para>
-        ///         Note that entities that are already being tracked are not overwritten with new data from the database.
-        ///     </para>
-        ///     <para>
-        ///         Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
-        ///         that any asynchronous operations have completed before calling another method on this context.
-        ///     </para>
-        /// </summary>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
-        /// <returns>
-        ///     A task that represents the asynchronous save operation.
-        /// </returns>
+        /// <inheritdoc />
         public override Task LoadAsync(CancellationToken cancellationToken = default)
         {
             EnsureInitialized();
@@ -238,16 +208,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 : TargetLoader.LoadAsync(InternalEntry, cancellationToken);
         }
 
-        /// <summary>
-        ///     <para>
-        ///         Returns the query that would be used by <see cref="Load" /> to load entities referenced by
-        ///         this navigation property.
-        ///     </para>
-        ///     <para>
-        ///         The query can be composed over using LINQ to perform filtering, counting, etc. without
-        ///         actually loading all entities from the database.
-        ///     </para>
-        /// </summary>
+        /// <inheritdoc />
         public override IQueryable Query()
         {
             EnsureInitialized();

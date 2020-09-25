@@ -83,19 +83,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public abstract Type Type { get; }
 
-        /// <summary>
-        ///     Compares the two instances to determine if they are equal.
-        /// </summary>
-        /// <param name="left"> The first instance. </param>
-        /// <param name="right"> The second instance. </param>
-        /// <returns> <see langword="true" /> if they are equal; <see langword="false" /> otherwise. </returns>
+        /// <inheritdoc cref="EqualityComparer{T}" />
         public new abstract bool Equals(object left, object right);
 
-        /// <summary>
-        ///     Returns the hash code for the given instance.
-        /// </summary>
-        /// <param name="instance"> The instance. </param>
-        /// <returns> The hash code. </returns>
+        /// <inheritdoc cref="EqualityComparer{T}" />
         public abstract int GetHashCode(object instance);
 
         /// <summary>

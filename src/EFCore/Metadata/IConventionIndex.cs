@@ -22,9 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         new IConventionIndexBuilder Builder { get; }
 
-        /// <summary>
-        ///     Gets the properties that this index is defined on.
-        /// </summary>
+        /// <inheritdoc cref="IIndex.Properties" />
         new IReadOnlyList<IConventionProperty> Properties { get; }
 
         /// <summary>

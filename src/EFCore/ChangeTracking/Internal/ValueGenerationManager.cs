@@ -13,20 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
-    /// <summary>
-    ///     <para>
-    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///         any release. You should only use it directly in your code with extreme caution and knowing that
-    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
-    ///     </para>
-    ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
-    ///         <see cref="DbContext" /> instance will use its own instance of this service.
-    ///         The implementation may depend on other services registered with any lifetime.
-    ///         The implementation does not need to be thread-safe.
-    ///     </para>
-    /// </summary>
+    /// <inheritdoc />
     public class ValueGenerationManager : IValueGenerationManager
     {
         private readonly IValueGeneratorSelector _valueGeneratorSelector;
@@ -56,12 +43,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _loggingOptions = loggingOptions;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         public virtual InternalEntityEntry Propagate(InternalEntityEntry entry)
         {
             InternalEntityEntry chosenPrincipal = null;
@@ -82,12 +64,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return chosenPrincipal;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         public virtual void Generate(InternalEntityEntry entry, bool includePrimaryKey = true)
         {
             var entityEntry = new EntityEntry(entry);
@@ -128,12 +105,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         public virtual async Task GenerateAsync(
             InternalEntityEntry entry,
             bool includePrimaryKey = true,
@@ -209,12 +181,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     ? property.DeclaringEntityType
                     : entry.EntityType);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         public virtual bool MayGetTemporaryValue(IProperty property, IEntityType entityType)
             => property.RequiresValueGenerator()
                 && _valueGeneratorSelector.Select(property, entityType).GeneratesTemporaryValues;

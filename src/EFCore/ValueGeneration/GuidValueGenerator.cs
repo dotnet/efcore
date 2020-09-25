@@ -12,18 +12,11 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     /// </summary>
     public class GuidValueGenerator : ValueGenerator<Guid>
     {
-        /// <summary>
-        ///     Gets a value to be assigned to a property.
-        /// </summary>
-        /// <param name="entry"> The change tracking entry of the entity for which the value is being generated. </param>
-        /// <returns> The value to be assigned to a property. </returns>
+        /// <inheritdoc />
         public override Guid Next(EntityEntry entry)
             => Guid.NewGuid();
 
-        /// <summary>
-        ///     Gets a value indicating whether the values generated are temporary or permanent. This implementation
-        ///     always returns false, meaning the generated values will be saved to the database.
-        /// </summary>
+        /// <inheritdoc />
         public override bool GeneratesTemporaryValues
             => false;
     }

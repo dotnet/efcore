@@ -39,9 +39,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
         }
 
-        /// <summary>
-        ///     Gets the entity being tracked by this entry.
-        /// </summary>
+        /// <inheritdoc cref="EntityEntry.Entity" />
         public new virtual TEntity Entity
             => (TEntity)base.Entity;
 

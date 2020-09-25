@@ -53,23 +53,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public new virtual EntityEntry<TEntity> EntityEntry
             => new EntityEntry<TEntity>(InternalEntry);
 
-        /// <summary>
-        ///     Gets or sets the value currently assigned to this property. If the current value is set using this property,
-        ///     the change tracker is aware of the change and <see cref="ChangeTracker.DetectChanges" /> is not required
-        ///     for the context to detect the change.
-        /// </summary>
+        /// <inheritdoc cref="MemberEntry.CurrentValue" />
         public new virtual TProperty CurrentValue
         {
             get => InternalEntry.GetCurrentValue<TProperty>(Metadata);
             [param: CanBeNull] set => base.CurrentValue = value;
         }
 
-        /// <summary>
-        ///     Gets or sets the value that was assigned to this property when it was retrieved from the database.
-        ///     This property is populated when an entity is retrieved from the database, but setting it may be
-        ///     useful in disconnected scenarios where entities are retrieved with one context instance and
-        ///     saved with a different context instance.
-        /// </summary>
+        /// <inheritdoc cref="PropertyEntry.OriginalValue" />
         public new virtual TProperty OriginalValue
         {
             get => InternalEntry.GetOriginalValue<TProperty>(Metadata);

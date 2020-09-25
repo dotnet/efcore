@@ -31,17 +31,11 @@ namespace Microsoft.EntityFrameworkCore
             _extensions = extensions;
         }
 
-        /// <summary>
-        ///     Gets the extensions that store the configured options.
-        /// </summary>
+        /// <inheritdoc />
         public virtual IEnumerable<IDbContextOptionsExtension> Extensions
             => _extensions.Values;
 
-        /// <summary>
-        ///     Gets the extension of the specified type. Returns null if no extension of the specified type is configured.
-        /// </summary>
-        /// <typeparam name="TExtension"> The type of the extension to get. </typeparam>
-        /// <returns> The extension, or null if none was found. </returns>
+        /// <inheritdoc />
         public virtual TExtension FindExtension<TExtension>()
             where TExtension : class, IDbContextOptionsExtension
             => _extensions.TryGetValue(typeof(TExtension), out var extension) ? (TExtension)extension : null;

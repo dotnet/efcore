@@ -9,12 +9,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
+    /// <inheritdoc />
     public class ObservableBackedBindingList<T> : SortableBindingList<T>
     {
         private bool _addingNewInstance;
@@ -41,12 +36,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             ((INotifyCollectionChanged)observableCollection).CollectionChanged += ObservableCollectionChanged;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         protected override object AddNewCore()
         {
             _addingNewInstance = true;
@@ -54,12 +44,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return _addNewInstance;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         public override void CancelNew(int itemIndex)
         {
             if (itemIndex >= 0
@@ -74,12 +59,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             base.CancelNew(itemIndex);
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         protected override void ClearItems()
         {
             foreach (var entity in Items)
@@ -90,12 +70,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             base.ClearItems();
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         public override void EndNew(int itemIndex)
         {
             if (itemIndex >= 0
@@ -110,12 +85,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             base.EndNew(itemIndex);
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         protected override void InsertItem(int index, T item)
         {
             base.InsertItem(index, item);
@@ -127,12 +97,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         protected override void RemoveItem(int index)
         {
             if (index >= 0
@@ -149,12 +114,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             base.RemoveItem(index);
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         protected override void SetItem(int index, T item)
         {
             var entity = base[index];
@@ -224,10 +184,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        // <summary>
-        // Adds the item to the underlying observable collection.
-        // </summary>
-        // <param name="item"> The item. </param>
+        /// <summary>
+        /// Adds the item to the underlying observable collection.
+        /// </summary>
+        /// <param name="item"> The item. </param>
         private void AddToObservableCollection(T item)
         {
             // Don't try to change the ObservableCollection if the original change
@@ -249,10 +209,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        // <summary>
-        // Removes the item from the underlying from observable collection.
-        // </summary>
-        // <param name="item"> The item. </param>
+        /// <summary>
+        /// Removes the item from the underlying from observable collection.
+        /// </summary>
+        /// <param name="item"> The item. </param>
         private void RemoveFromObservableCollection(T item)
         {
             // Don't try to change the ObservableCollection if the original change

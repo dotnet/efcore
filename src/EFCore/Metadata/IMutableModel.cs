@@ -88,14 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> The entity type, or <see langword="null" /> if none are found. </returns>
         new IMutableEntityType FindEntityType([NotNull] string name);
 
-        /// <summary>
-        ///     Gets the entity type for the given name, defining navigation name
-        ///     and the defining entity type. Returns <see langword="null" /> if no matching entity type is found.
-        /// </summary>
-        /// <param name="name"> The name of the entity type to find. </param>
-        /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
-        /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
-        /// <returns> The entity type, or <see langword="null" /> if none are found. </returns>
+        /// <inheritdoc cref="IModel.FindEntityType(string,string,IEntityType)" />
         IMutableEntityType FindEntityType(
             [NotNull] string name,
             [NotNull] string definingNavigationName,
@@ -108,10 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> The removed entity type. </returns>
         IMutableEntityType RemoveEntityType([NotNull] IMutableEntityType entityType);
 
-        /// <summary>
-        ///     Gets all entity types defined in the model.
-        /// </summary>
-        /// <returns> All entity types defined in the model. </returns>
+        /// <inheritdoc cref="IModel.GetEntityTypes" />
         new IEnumerable<IMutableEntityType> GetEntityTypes();
 
         /// <summary>

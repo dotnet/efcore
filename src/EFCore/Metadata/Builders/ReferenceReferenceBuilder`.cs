@@ -12,10 +12,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
-    ///     <para>
-    ///         Provides a simple API for configuring a one-to-one relationship.
-    ///     </para>
+    ///     Provides a simple API for configuring a one-to-one relationship.
     /// </summary>
+    /// <typeparam name="TEntity"> The entity type to be configured. </typeparam>
+    /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
     public class ReferenceReferenceBuilder<TEntity, TRelatedEntity> : ReferenceReferenceBuilder
         where TEntity : class
         where TRelatedEntity : class
@@ -53,13 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
         }
 
-        /// <summary>
-        ///     Adds or updates an annotation on the relationship. If an annotation with the key specified in
-        ///     <paramref name="annotation" /> already exists its value will be updated.
-        /// </summary>
-        /// <param name="annotation"> The key of the annotation to be added or updated. </param>
-        /// <param name="value"> The value to be stored in the annotation. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <inheritdoc cref="ReferenceReferenceBuilder.HasAnnotation" />
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasAnnotation(
             [NotNull] string annotation,
             [NotNull] object value)
@@ -217,18 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 inverted: Builder.Metadata.DeclaringEntityType.ClrType != typeof(TDependentEntity),
                 foreignKeySet: true);
 
-        /// <summary>
-        ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
-        ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
-        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
-        ///     constraint will be introduced.
-        /// </summary>
-        /// <param name="principalEntityTypeName">
-        ///     The name of entity type that is the principal in this relationship (the type
-        ///     that has the reference key properties).
-        /// </param>
-        /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <inheritdoc cref="ReferenceReferenceBuilder.HasPrincipalKey(string,string[])" />
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey(
             [NotNull] string principalEntityTypeName,
             [NotNull] params string[] keyPropertyNames)
@@ -241,18 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 inverted: Builder.Metadata.PrincipalEntityType.Name != principalEntityTypeName,
                 principalKeySet: keyPropertyNames.Length > 0);
 
-        /// <summary>
-        ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
-        ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
-        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
-        ///     constraint will be introduced.
-        /// </summary>
-        /// <param name="principalEntityType">
-        ///     The entity type that is the principal in this relationship (the type
-        ///     that has the reference key properties).
-        /// </param>
-        /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <inheritdoc cref="ReferenceReferenceBuilder.HasPrincipalKey(Type,string[])" />
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey(
             [NotNull] Type principalEntityType,
             [NotNull] params string[] keyPropertyNames)
@@ -320,24 +292,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 inverted: Builder.Metadata.PrincipalEntityType.ClrType != typeof(TPrincipalEntity),
                 principalKeySet: true);
 
-        /// <summary>
-        ///     Configures whether this is a required relationship (i.e. whether the foreign key property(s) can
-        ///     be assigned <see langword="null" />).
-        /// </summary>
-        /// <param name="required"> A value indicating whether this is a required relationship. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <inheritdoc cref="ReferenceReferenceBuilder.IsRequired" />
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> IsRequired(bool required = true)
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
                 Builder.IsRequired(required, ConfigurationSource.Explicit),
                 this,
                 requiredSet: true);
 
-        /// <summary>
-        ///     Configures the operation applied to dependent entities in the relationship when the
-        ///     principal is deleted or the relationship is severed.
-        /// </summary>
-        /// <param name="deleteBehavior"> The action to perform. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <inheritdoc cref="ReferenceReferenceBuilder.OnDelete" />
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> OnDelete(DeleteBehavior deleteBehavior)
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
                 Builder.OnDelete(deleteBehavior, ConfigurationSource.Explicit), this);

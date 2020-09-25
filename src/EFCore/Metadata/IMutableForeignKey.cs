@@ -21,14 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     public interface IMutableForeignKey : IForeignKey, IMutableAnnotatable
     {
-        /// <summary>
-        ///     Gets the foreign key properties in the dependent entity.
-        /// </summary>
+        /// <inheritdoc cref="IForeignKey.Properties" />
         new IReadOnlyList<IMutableProperty> Properties { get; }
 
-        /// <summary>
-        ///     Gets the primary or alternate key that the relationship targets.
-        /// </summary>
+        /// <inheritdoc cref="IForeignKey.PrincipalKey" />
         new IMutableKey PrincipalKey { get; }
 
         /// <summary>
@@ -45,43 +41,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         new IMutableEntityType PrincipalEntityType { get; }
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether the values assigned to the foreign key properties are unique.
-        /// </summary>
+        /// <inheritdoc cref="IForeignKey.IsUnique" />
         new bool IsUnique { get; set; }
 
-        /// <summary>
-        ///     Sets a value indicating whether the principal entity is required.
-        ///     If <see langword="true" />, the dependent entity must always be assigned to a valid principal entity.
-        /// </summary>
+        /// <inheritdoc cref="IForeignKey.IsRequired" />
         new bool IsRequired { get; set; }
 
-        /// <summary>
-        ///     Sets a value indicating whether the dependent entity is required.
-        ///     If <see langword="true" />, the principal entity must always have a valid dependent entity assigned.
-        /// </summary>
+        /// <inheritdoc cref="IForeignKey.IsRequiredDependent" />
         new bool IsRequiredDependent { get; set; }
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether this relationship defines ownership. If true, the dependent entity must always be
-        ///     accessed via the navigation from the principal entity.
-        /// </summary>
+        /// <inheritdoc cref="IForeignKey.IsOwnership" />
         new bool IsOwnership { get; set; }
 
-        /// <summary>
-        ///     Gets or sets a value indicating how a delete operation is applied to dependent entities in the relationship when the
-        ///     principal is deleted or the relationship is severed.
-        /// </summary>
+        /// <inheritdoc cref="IForeignKey.DeleteBehavior" />
         new DeleteBehavior DeleteBehavior { get; set; }
 
-        /// <summary>
-        ///     Gets the navigation property on the dependent entity type that points to the principal entity.
-        /// </summary>
+        /// <inheritdoc cref="IForeignKey.DependentToPrincipal" />
         new IMutableNavigation DependentToPrincipal { get; }
 
-        /// <summary>
-        ///     Gets the navigation property on the principal entity type that points to the dependent entity.
-        /// </summary>
+        /// <inheritdoc cref="IForeignKey.PrincipalToDependent" />
         new IMutableNavigation PrincipalToDependent { get; }
 
         /// <summary>
@@ -179,10 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IMutableNavigation HasPrincipalToDependent([CanBeNull] MemberInfo property)
             => SetPrincipalToDependent(property);
 
-        /// <summary>
-        ///     Gets all skip navigations using this foreign key.
-        /// </summary>
-        /// <returns> The skip navigations using this foreign key. </returns>
+        /// <inheritdoc cref="IForeignKey.GetReferencingSkipNavigations" />
         new IEnumerable<IMutableSkipNavigation> GetReferencingSkipNavigations()
             => ((IForeignKey)this).GetReferencingSkipNavigations().Cast<IMutableSkipNavigation>();
     }

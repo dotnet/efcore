@@ -14,11 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="IKey" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IMutableKey : IMutableAnnotatable, IKey
+    public interface IMutableKey : IKey, IMutableAnnotatable
     {
-        /// <summary>
-        ///     Gets the properties that make up the key.
-        /// </summary>
+        /// <inheritdoc cref="IKey.Properties" />
         new IReadOnlyList<IMutableProperty> Properties { get; }
 
         /// <summary>

@@ -35,31 +35,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             _underlyingComparer = Comparer<TProperty>.Default;
         }
 
-        /// <summary>
-        ///     Compares two objects and returns a value indicating whether one is less than, equal to, or greater than the other.
-        /// </summary>
-        /// <param name="x"> The first object to compare. </param>
-        /// <param name="y"> The second object to compare. </param>
-        /// <returns> A negative number if 'x' is less than 'y'; a positive number if 'x' is greater than 'y'; zero otherwise. </returns>
+        /// <inheritdoc />
         public int Compare(IUpdateEntry x, IUpdateEntry y)
             => _underlyingComparer.Compare(
                 x.GetCurrentValue<TProperty>(_property),
                 y.GetCurrentValue<TProperty>(_property));
 
-        /// <summary>
-        ///     Determines whether the specified objects are equal.
-        /// </summary>
-        /// <param name="x"> The first object to compare. </param>
-        /// <param name="y"> The second object to compare. </param>
-        /// <returns> <see langword="true" /> if the specified objects are equal; otherwise, <see langword="false" />. </returns>
+        /// <inheritdoc />
         public bool Equals(IUpdateEntry x, IUpdateEntry y)
             => Compare(x, y) == 0;
 
-        /// <summary>
-        ///     Returns a hash code for the specified object.
-        /// </summary>
-        /// <param name="obj"> The for which a hash code is to be returned. </param>
-        /// <returns> A hash code for the specified object. </returns>
+        /// <inheritdoc />
         public int GetHashCode(IUpdateEntry obj)
             => obj.GetCurrentValue<TProperty>(_property).GetHashCode();
     }

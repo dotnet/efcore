@@ -30,22 +30,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
         }
 
-        /// <summary>
-        ///     Adds or updates an annotation on the index. If an annotation with the key specified in
-        ///     <paramref name="annotation" />
-        ///     already exists its value will be updated.
-        /// </summary>
-        /// <param name="annotation"> The key of the annotation to be added or updated. </param>
-        /// <param name="value"> The value to be stored in the annotation. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <inheritdoc cref="IndexBuilder.HasAnnotation" />
         public new virtual IndexBuilder<T> HasAnnotation([NotNull] string annotation, [NotNull] object value)
             => (IndexBuilder<T>)base.HasAnnotation(annotation, value);
 
-        /// <summary>
-        ///     Configures whether this index is unique (i.e. the value(s) for each instance must be unique).
-        /// </summary>
-        /// <param name="unique"> A value indicating whether this index is unique. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <inheritdoc cref="IndexBuilder.IsUnique" />
         public new virtual IndexBuilder<T> IsUnique(bool unique = true)
             => (IndexBuilder<T>)base.IsUnique(unique);
     }

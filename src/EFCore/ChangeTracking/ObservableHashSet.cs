@@ -91,9 +91,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         void ICollection<T>.Add(T item)
             => Add(item);
 
-        /// <summary>
-        ///     Removes all elements from the hash set.
-        /// </summary>
+        /// <inheritdoc />
         public virtual void Clear()
         {
             if (_set.Count == 0)
@@ -112,35 +110,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             OnCountPropertyChanged();
         }
 
-        /// <summary>
-        ///     Determines whether the hash set object contains the
-        ///     specified element.
-        /// </summary>
-        /// <param name="item">The element to locate in the hash set.</param>
-        /// <returns>
-        ///     <see langword="true" /> if the hash set contains the specified element; otherwise, <see langword="false" />.
-        /// </returns>
+        /// <inheritdoc />
         public virtual bool Contains(T item)
             => _set.Contains(item);
 
-        /// <summary>
-        ///     Copies the elements of the hash set to an array, starting at the specified array index.
-        /// </summary>
-        /// <param name="array">
-        ///     The one-dimensional array that is the destination of the elements copied from
-        ///     the hash set. The array must have zero-based indexing.
-        /// </param>
-        /// <param name="arrayIndex"> The zero-based index in array at which copying begins. </param>
+        /// <inheritdoc />
         public virtual void CopyTo(T[] array, int arrayIndex)
             => _set.CopyTo(array, arrayIndex);
 
-        /// <summary>
-        ///     Removes the specified element from the hash set.
-        /// </summary>
-        /// <param name="item"> The element to remove. </param>
-        /// <returns>
-        ///     <see langword="true" /> if the element is successfully found and removed; otherwise, <see langword="false" />.
-        /// </returns>
+        /// <inheritdoc />
         public virtual bool Remove(T item)
         {
             if (!_set.Contains(item))
@@ -159,15 +137,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             return true;
         }
 
-        /// <summary>
-        ///     Gets the number of elements that are contained in the hash set.
-        /// </summary>
+        /// <inheritdoc cref="ICollection{T}" />
         public virtual int Count
             => _set.Count;
 
-        /// <summary>
-        ///     Gets a value indicating whether the hash set is read-only.
-        /// </summary>
+        /// <inheritdoc />
         public virtual bool IsReadOnly
             => ((ICollection<T>)_set).IsReadOnly;
 
@@ -188,13 +162,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         IEnumerator IEnumerable.GetEnumerator()
             => GetEnumerator();
 
-        /// <summary>
-        ///     Adds the specified element to the hash set.
-        /// </summary>
-        /// <param name="item"> The element to add to the set. </param>
-        /// <returns>
-        ///     <see langword="true" /> if the element is added to the hash set; <see langword="false" /> if the element is already present.
-        /// </returns>
+        /// <inheritdoc />
         public virtual bool Add(T item)
         {
             if (_set.Contains(item))
@@ -213,10 +181,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             return true;
         }
 
-        /// <summary>
-        ///     Modifies the hash set to contain all elements that are present in itself, the specified collection, or both.
-        /// </summary>
-        /// <param name="other"> The collection to compare to the current hash set. </param>
+        /// <inheritdoc />
         public virtual void UnionWith(IEnumerable<T> other)
         {
             var copy = new HashSet<T>(_set, _set.Comparer);
@@ -239,11 +204,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             OnCountPropertyChanged();
         }
 
-        /// <summary>
-        ///     Modifies the current hash set to contain only
-        ///     elements that are present in that object and in the specified collection.
-        /// </summary>
-        /// <param name="other"> The collection to compare to the current hash set. </param>
+        /// <inheritdoc />
         public virtual void IntersectWith(IEnumerable<T> other)
         {
             var copy = new HashSet<T>(_set, _set.Comparer);
@@ -266,10 +227,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             OnCountPropertyChanged();
         }
 
-        /// <summary>
-        ///     Removes all elements in the specified collection from the hash set.
-        /// </summary>
-        /// <param name="other"> The collection of items to remove from the current hash set. </param>
+        /// <inheritdoc />
         public virtual void ExceptWith(IEnumerable<T> other)
         {
             var copy = new HashSet<T>(_set, _set.Comparer);
@@ -292,11 +250,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             OnCountPropertyChanged();
         }
 
-        /// <summary>
-        ///     Modifies the current hash set to contain only elements that are present either in that
-        ///     object or in the specified collection, but not both.
-        /// </summary>
-        /// <param name="other"> The collection to compare to the current hash set. </param>
+        /// <inheritdoc />
         public virtual void SymmetricExceptWith(IEnumerable<T> other)
         {
             var copy = new HashSet<T>(_set, _set.Comparer);
@@ -321,63 +275,27 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             OnCountPropertyChanged();
         }
 
-        /// <summary>
-        ///     Determines whether the hash set is a subset of the specified collection.
-        /// </summary>
-        /// <param name="other"> The collection to compare to the current hash set. </param>
-        /// <returns>
-        ///     <see langword="true" /> if the hash set is a subset of other; otherwise, <see langword="false" />.
-        /// </returns>
+        /// <inheritdoc />
         public virtual bool IsSubsetOf(IEnumerable<T> other)
             => _set.IsSubsetOf(other);
 
-        /// <summary>
-        ///     Determines whether the hash set is a proper subset of the specified collection.
-        /// </summary>
-        /// <param name="other"> The collection to compare to the current hash set. </param>
-        /// <returns>
-        ///     <see langword="true" /> if the hash set is a proper subset of other; otherwise, <see langword="false" />.
-        /// </returns>
+        /// <inheritdoc />
         public virtual bool IsProperSubsetOf(IEnumerable<T> other)
             => _set.IsProperSubsetOf(other);
 
-        /// <summary>
-        ///     Determines whether the hash set is a superset of the specified collection.
-        /// </summary>
-        /// <param name="other"> The collection to compare to the current hash set. </param>
-        /// <returns>
-        ///     <see langword="true" /> if the hash set is a superset of other; otherwise, <see langword="false" />.
-        /// </returns>
+        /// <inheritdoc />
         public virtual bool IsSupersetOf(IEnumerable<T> other)
             => _set.IsSupersetOf(other);
 
-        /// <summary>
-        ///     Determines whether the hash set is a proper superset of the specified collection.
-        /// </summary>
-        /// <param name="other"> The collection to compare to the current hash set. </param>
-        /// <returns>
-        ///     <see langword="true" /> if the hash set is a proper superset of other; otherwise, <see langword="false" />.
-        /// </returns>
+        /// <inheritdoc />
         public virtual bool IsProperSupersetOf(IEnumerable<T> other)
             => _set.IsProperSupersetOf(other);
 
-        /// <summary>
-        ///     Determines whether the current System.Collections.Generic.HashSet`1 object and a specified collection share common elements.
-        /// </summary>
-        /// <param name="other"> The collection to compare to the current hash set. </param>
-        /// <returns>
-        ///     <see langword="true" /> if the hash set and other share at least one common element; otherwise, <see langword="false" />.
-        /// </returns>
+        /// <inheritdoc />
         public virtual bool Overlaps(IEnumerable<T> other)
             => _set.Overlaps(other);
 
-        /// <summary>
-        ///     Determines whether the hash set and the specified collection contain the same elements.
-        /// </summary>
-        /// <param name="other"> The collection to compare to the current hash set. </param>
-        /// <returns>
-        ///     <see langword="true" /> if the hash set is equal to other; otherwise, <see langword="false" />.
-        /// </returns>
+        /// <inheritdoc />
         public virtual bool SetEquals(IEnumerable<T> other)
             => _set.SetEquals(other);
 

@@ -41,12 +41,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     Gets the entity type for the given name, defining navigation name
-        ///     and the defining entity type. Returns null if no matching entity type is found.
+        ///     and the defining entity type. Returns <see langword="null" /> if no matching entity type is found.
         /// </summary>
         /// <param name="name"> The name of the entity type to find. </param>
         /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
-        /// <returns> The entity type, or null if none are found. </returns>
+        /// <returns> The entity type, or <see langword="null" /> if none are found. </returns>
         IEntityType FindEntityType(
             [NotNull] string name,
             [NotNull] string definingNavigationName,

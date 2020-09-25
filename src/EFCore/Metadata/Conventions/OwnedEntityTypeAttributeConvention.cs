@@ -22,12 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
         }
 
-        /// <summary>
-        ///     Called after an entity type is added to the model if it has an attribute.
-        /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="attribute"> The attribute. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         protected override void ProcessEntityTypeAdded(
             IConventionEntityTypeBuilder entityTypeBuilder,
             OwnedAttribute attribute,

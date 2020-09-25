@@ -52,13 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
         }
 
-        /// <summary>
-        ///     Adds or updates an annotation on the foreign key. If an annotation with the key specified in
-        ///     <paramref name="annotation" /> already exists its value will be updated.
-        /// </summary>
-        /// <param name="annotation"> The key of the annotation to be added or updated. </param>
-        /// <param name="value"> The value to be stored in the annotation. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <inheritdoc cref="OwnershipBuilder.HasAnnotation" />
         public new virtual OwnershipBuilder<TEntity, TDependentEntity> HasAnnotation(
             [NotNull] string annotation,
             [NotNull] object value)
@@ -141,14 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 foreignKeySet: true);
         }
 
-        /// <summary>
-        ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
-        ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
-        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
-        ///     constraint will be introduced.
-        /// </summary>
-        /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <inheritdoc cref="OwnershipBuilder.HasPrincipalKey" />
         public new virtual OwnershipBuilder<TEntity, TDependentEntity> HasPrincipalKey(
             [NotNull] params string[] keyPropertyNames)
         {

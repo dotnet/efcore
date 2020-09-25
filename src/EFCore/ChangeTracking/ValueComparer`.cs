@@ -236,12 +236,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             return Expression.Lambda<Func<T, int>>(expression, param);
         }
 
-        /// <summary>
-        ///     Compares the two instances to determine if they are equal.
-        /// </summary>
-        /// <param name="left"> The first instance. </param>
-        /// <param name="right"> The second instance. </param>
-        /// <returns> <see langword="true" /> if they are equal; <see langword="false" /> otherwise. </returns>
+        /// <inheritdoc cref="ValueComparer.Equals(object,object)" />
         public override bool Equals(object left, object right)
         {
             var v1Null = left == null;
@@ -250,95 +245,42 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             return v1Null || v2Null ? v1Null && v2Null : Equals((T)left, (T)right);
         }
 
-        /// <summary>
-        ///     Returns the hash code for the given instance.
-        /// </summary>
-        /// <param name="instance"> The instance. </param>
-        /// <returns> The hash code. </returns>
+        /// <inheritdoc cref="ValueComparer.GetHashCode(object)" />
         public override int GetHashCode(object instance)
             => instance == null ? 0 : GetHashCode((T)instance);
 
-        /// <summary>
-        ///     Compares the two instances to determine if they are equal.
-        /// </summary>
-        /// <param name="left"> The first instance. </param>
-        /// <param name="right"> The second instance. </param>
-        /// <returns> <see langword="true" /> if they are equal; <see langword="false" /> otherwise. </returns>
+        /// <inheritdoc cref="IEqualityComparer{T}.Equals(T,T)" />
         public virtual bool Equals(T left, T right)
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _equals, this, c => c.EqualsExpression.Compile())(left, right);
 
-        /// <summary>
-        ///     Returns the hash code for the given instance.
-        /// </summary>
-        /// <param name="instance"> The instance. </param>
-        /// <returns> The hash code. </returns>
+        /// <inheritdoc cref="IEqualityComparer{T}.GetHashCode(T)" />
         public virtual int GetHashCode(T instance)
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _hashCode, this, c => c.HashCodeExpression.Compile())(instance);
 
-        /// <summary>
-        ///     <para>
-        ///         Creates a snapshot of the given instance.
-        ///     </para>
-        ///     <para>
-        ///         Snapshotting is the process of creating a copy of the value into a snapshot so it can
-        ///         later be compared to determine if it has changed. For some types, such as collections,
-        ///         this needs to be a deep copy of the collection rather than just a shallow copy of the
-        ///         reference.
-        ///     </para>
-        /// </summary>
-        /// <param name="instance"> The instance. </param>
-        /// <returns> The snapshot. </returns>
+        /// <inheritdoc />
         public override object Snapshot(object instance)
             => instance == null ? null : (object)Snapshot((T)instance);
 
-        /// <summary>
-        ///     <para>
-        ///         Creates a snapshot of the given instance.
-        ///     </para>
-        ///     <para>
-        ///         Snapshotting is the process of creating a copy of the value into a snapshot so it can
-        ///         later be compared to determine if it has changed. For some types, such as collections,
-        ///         this needs to be a deep copy of the collection rather than just a shallow copy of the
-        ///         reference.
-        ///     </para>
-        /// </summary>
-        /// <param name="instance"> The instance. </param>
-        /// <returns> The snapshot. </returns>
+        /// <inheritdoc cref="ValueComparer.Snapshot" />
         public virtual T Snapshot([CanBeNull] T instance)
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _snapshot, this, c => c.SnapshotExpression.Compile())(instance);
 
-        /// <summary>
-        ///     The type.
-        /// </summary>
+        /// <inheritdoc />
         public override Type Type
             => typeof(T);
 
-        /// <summary>
-        ///     The comparison expression.
-        /// </summary>
+        /// <inheritdoc cref="ValueComparer.EqualsExpression" />
         public new virtual Expression<Func<T, T, bool>> EqualsExpression
             => (Expression<Func<T, T, bool>>)base.EqualsExpression;
 
-        /// <summary>
-        ///     The hash code expression.
-        /// </summary>
+        /// <inheritdoc cref="ValueComparer.HashCodeExpression" />
         public new virtual Expression<Func<T, int>> HashCodeExpression
             => (Expression<Func<T, int>>)base.HashCodeExpression;
 
-        /// <summary>
-        ///     <para>
-        ///         The snapshot expression.
-        ///     </para>
-        ///     <para>
-        ///         Snapshotting is the process of creating a copy of the value into a snapshot so it can
-        ///         later be compared to determine if it has changed. For some types, such as collections,
-        ///         this needs to be a deep copy of the collection rather than just a shallow copy of the
-        ///         reference.
-        ///     </para>
-        /// </summary>
+        /// <inheritdoc cref="ValueComparer.SnapshotExpression" />
         public new virtual Expression<Func<T, T>> SnapshotExpression
             => (Expression<Func<T, T>>)base.SnapshotExpression;
     }

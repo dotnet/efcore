@@ -33,14 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
         }
 
-        /// <summary>
-        ///     Called for every navigation property that has an attribute after an entity type is added to the model.
-        /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="navigationMemberInfo"> The navigation member info. </param>
-        /// <param name="targetClrType"> The CLR type of the target entity type</param>
-        /// <param name="attribute"> The attribute. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         public override void ProcessEntityTypeAdded(
             IConventionEntityTypeBuilder entityTypeBuilder,
             MemberInfo navigationMemberInfo,

@@ -50,8 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <summary>
         ///     Adds or updates an annotation on the key. If an annotation with the key specified in
-        ///     <paramref name="annotation" />
-        ///     already exists its value will be updated.
+        ///     <paramref name="annotation" /> already exists, its value will be updated.
         /// </summary>
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
@@ -68,28 +67,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         #region Hidden System.Object members
 
-        /// <summary>
-        ///     Returns a string that represents the current object.
-        /// </summary>
-        /// <returns> A string that represents the current object. </returns>
+        /// <inheritdoc />
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override string ToString()
             => base.ToString();
 
-        /// <summary>
-        ///     Determines whether the specified object is equal to the current object.
-        /// </summary>
-        /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
+        /// <inheritdoc />
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
         public override bool Equals(object obj)
             => base.Equals(obj);
 
-        /// <summary>
-        ///     Serves as the default hash function.
-        /// </summary>
-        /// <returns> A hash code for the current object. </returns>
+        /// <inheritdoc />
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
         public override int GetHashCode()

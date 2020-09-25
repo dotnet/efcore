@@ -164,9 +164,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             set => InternalEntry.SetIsLoaded(Metadata, value);
         }
 
-        /// <summary>
-        ///     Gets the metadata that describes the facets of this property and how it maps to the database.
-        /// </summary>
+        /// <inheritdoc cref="MemberEntry.CurrentValue" />
         public new virtual INavigationBase Metadata
             => (INavigationBase)base.Metadata;
     }

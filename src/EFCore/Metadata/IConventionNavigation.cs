@@ -24,18 +24,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         new IConventionNavigationBuilder Builder { get; }
 
-        /// <summary>
-        ///     Gets the type that this navigation property belongs to.
-        /// </summary>
+        /// <inheritdoc cref="INavigation.DeclaringEntityType" />
         new IConventionEntityType DeclaringEntityType
         {
             [DebuggerStepThrough]
             get => (IConventionEntityType)((INavigationBase)this).DeclaringEntityType;
         }
 
-        /// <summary>
-        ///     Gets the entity type that this navigation property will hold an instance(s) of.
-        /// </summary>
+        /// <inheritdoc cref="INavigation.TargetEntityType" />
         new IConventionEntityType TargetEntityType
         {
             [DebuggerStepThrough]
@@ -51,18 +47,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 ? ForeignKey.GetDependentToPrincipalConfigurationSource()
                 : ForeignKey.GetPrincipalToDependentConfigurationSource());
 
-        /// <summary>
-        ///     Gets the foreign key that defines the relationship this navigation property will navigate.
-        /// </summary>
+        /// <inheritdoc cref="INavigation.ForeignKey" />
         new IConventionForeignKey ForeignKey
         {
             [DebuggerStepThrough]
             get => (IConventionForeignKey)((INavigation)this).ForeignKey;
         }
 
-        /// <summary>
-        ///     Gets the inverse navigation.
-        /// </summary>
+        /// <inheritdoc cref="INavigation.Inverse" />
         new IConventionNavigation Inverse
         {
             [DebuggerStepThrough]

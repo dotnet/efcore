@@ -23,9 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public abstract class ConventionAnnotatable : Annotatable, IConventionAnnotatable, IMutableAnnotatable
     {
-        /// <summary>
-        ///     Gets all annotations on the current object.
-        /// </summary>
+        /// <inheritdoc cref="Annotatable.GetAnnotations" />
         public new virtual IEnumerable<ConventionAnnotation> GetAnnotations()
             => base.GetAnnotations().Cast<ConventionAnnotation>();
 
@@ -70,13 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             return (ConventionAnnotation)base.SetAnnotation(name, CreateAnnotation(name, value, configurationSource), oldAnnotation);
         }
 
-        /// <summary>
-        ///     Called when an annotation was set or removed.
-        /// </summary>
-        /// <param name="name"> The key of the set annotation. </param>
-        /// <param name="annotation"> The annotation set. </param>
-        /// <param name="oldAnnotation"> The old annotation. </param>
-        /// <returns> The annotation that was set. </returns>
+        /// <inheritdoc />
         protected override Annotation OnAnnotationSet(string name, Annotation annotation, Annotation oldAnnotation)
             => (Annotation)OnAnnotationSet(name, (IConventionAnnotation)annotation, (IConventionAnnotation)oldAnnotation);
 
@@ -93,21 +85,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             [CanBeNull] IConventionAnnotation oldAnnotation)
             => annotation;
 
-        /// <summary>
-        ///     Gets the annotation with the given name, returning <see langword="null" /> if it does not exist.
-        /// </summary>
-        /// <param name="name"> The key of the annotation to find. </param>
-        /// <returns>
-        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
-        /// </returns>
+        /// <inheritdoc cref="Annotatable.FindAnnotation" />
         public new virtual ConventionAnnotation FindAnnotation([NotNull] string name)
             => (ConventionAnnotation)base.FindAnnotation(name);
 
-        /// <summary>
-        ///     Removes the given annotation from this object.
-        /// </summary>
-        /// <param name="name"> The annotation to remove. </param>
-        /// <returns> The annotation that was removed. </returns>
+        /// <inheritdoc cref="Annotatable.RemoveAnnotation" />
         public new virtual ConventionAnnotation RemoveAnnotation([NotNull] string name)
             => (ConventionAnnotation)base.RemoveAnnotation(name);
 

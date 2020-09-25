@@ -33,11 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
-        /// <summary>
-        ///     Called after a property is added to the entity type.
-        /// </summary>
-        /// <param name="propertyBuilder"> The builder for the property. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         public virtual void ProcessPropertyAdded(
             IConventionPropertyBuilder propertyBuilder,
             IConventionContext<IConventionPropertyBuilder> context)
@@ -53,13 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Process(propertyBuilder, memberInfo, (IReadableConventionContext)context);
         }
 
-        /// <summary>
-        ///     Called after the backing field for a property is changed.
-        /// </summary>
-        /// <param name="propertyBuilder"> The builder for the property. </param>
-        /// <param name="newFieldInfo"> The new field. </param>
-        /// <param name="oldFieldInfo"> The old field. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         public virtual void ProcessPropertyFieldChanged(
             IConventionPropertyBuilder propertyBuilder,
             FieldInfo newFieldInfo,

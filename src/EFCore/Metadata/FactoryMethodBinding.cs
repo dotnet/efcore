@@ -84,9 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             return expression;
         }
 
-        /// <summary>
-        ///     The type that will be created from the expression tree created for this binding.
-        /// </summary>
+        /// <inheritdoc />
         public override Type RuntimeType { get; }
     }
 }

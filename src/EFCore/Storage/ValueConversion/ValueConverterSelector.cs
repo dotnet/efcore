@@ -76,14 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// </summary>
         protected virtual ValueConverterSelectorDependencies Dependencies { get; }
 
-        /// <summary>
-        ///     Returns the list of <see cref="ValueConverter" /> instances that can be
-        ///     used to convert the given model type. Converters nearer the front of
-        ///     the list should be used in preference to converters nearer the end.
-        /// </summary>
-        /// <param name="modelClrType"> The type for which a converter is needed. </param>
-        /// <param name="providerClrType"> The database provider type to target, or null for any. </param>
-        /// <returns> The converters available. </returns>
+        /// <inheritdoc />
         public virtual IEnumerable<ValueConverterInfo> Select(
             Type modelClrType,
             Type providerClrType = null)

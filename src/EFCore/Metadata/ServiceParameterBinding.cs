@@ -10,11 +10,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
-    /// <summary>
-    ///     Describes the binding from an EF dependency injection service, or metadata type, which may or
-    ///     may not also have and associated <see cref="IServiceProperty" />, to a parameter in
-    ///     a constructor, factory method, or similar.
-    /// </summary>
+    /// <inheritdoc />
     public abstract class ServiceParameterBinding : ParameterBinding
     {
         private Func<MaterializationContext, IEntityType, object, object> _serviceDelegate;
@@ -45,12 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         public virtual Type ServiceType { get; }
 
-        /// <summary>
-        ///     Creates an expression tree representing the binding of the value of a property from a
-        ///     materialization expression to a parameter of the constructor, factory method, etc.
-        /// </summary>
-        /// <param name="bindingInfo"> The binding information. </param>
-        /// <returns> The expression tree. </returns>
+        /// <inheritdoc />
         public override Expression BindToParameter(ParameterBindingInfo bindingInfo)
             => BindToParameter(
                 bindingInfo.MaterializationContextExpression,

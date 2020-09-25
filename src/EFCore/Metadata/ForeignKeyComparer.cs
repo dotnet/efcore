@@ -28,12 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         public static readonly ForeignKeyComparer Instance = new ForeignKeyComparer();
 
-        /// <summary>
-        ///     Compares two objects and returns a value indicating whether one is less than, equal to, or greater than the other.
-        /// </summary>
-        /// <param name="x"> The first object to compare. </param>
-        /// <param name="y"> The second object to compare. </param>
-        /// <returns> A negative number if 'x' is less than 'y'; a positive number if 'x' is greater than 'y'; zero otherwise. </returns>
+        /// <inheritdoc />
         public int Compare(IForeignKey x, IForeignKey y)
         {
             var result = PropertyListComparer.Instance.Compare(x.Properties, y.Properties);
@@ -52,20 +47,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             return result != 0 ? result : EntityTypeFullNameComparer.Instance.Compare(x.DeclaringEntityType, y.DeclaringEntityType);
         }
 
-        /// <summary>
-        ///     Determines whether the specified objects are equal.
-        /// </summary>
-        /// <param name="x"> The first object to compare. </param>
-        /// <param name="y"> The second object to compare. </param>
-        /// <returns> <see langword="true" /> if the specified objects are equal; otherwise, <see langword="false" />. </returns>
+        /// <inheritdoc />
         public bool Equals(IForeignKey x, IForeignKey y)
             => Compare(x, y) == 0;
 
-        /// <summary>
-        ///     Returns a hash code for the specified object.
-        /// </summary>
-        /// <param name="obj"> The for which a hash code is to be returned. </param>
-        /// <returns> A hash code for the specified object. </returns>
+        /// <inheritdoc />
         public int GetHashCode(IForeignKey obj)
         {
             var hashCode = new HashCode();

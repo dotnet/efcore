@@ -75,9 +75,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        /// <summary>
-        ///     Gets the metadata that describes the facets of this property and how it maps to the database.
-        /// </summary>
+        /// <inheritdoc cref="MemberEntry.Metadata" />
         public new virtual IProperty Metadata
             => (IProperty)base.Metadata;
 

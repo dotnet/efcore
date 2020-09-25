@@ -31,9 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         new IMutableEntityType BaseType { get; [param: CanBeNull] set; }
 
-        /// <summary>
-        ///     Gets the defining entity type.
-        /// </summary>
+        /// <inheritdoc cref="IEntityType.DefiningEntityType" />
         new IMutableEntityType DefiningEntityType { get; }
 
         /// <summary>
@@ -57,10 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IMutableKey SetPrimaryKey([CanBeNull] IMutableProperty property)
             => SetPrimaryKey(property == null ? null : new[] { property });
 
-        /// <summary>
-        ///     Gets primary key for this entity type. Returns <see langword="null" /> if no primary key is defined.
-        /// </summary>
-        /// <returns> The primary key, or <see langword="null" /> if none is defined. </returns>
+        /// <inheritdoc cref="IEntityType.FindPrimaryKey" />
         new IMutableKey FindPrimaryKey();
 
         /// <summary>
@@ -70,18 +65,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> The newly created key. </returns>
         IMutableKey AddKey([NotNull] IReadOnlyList<IMutableProperty> properties);
 
-        /// <summary>
-        ///     Gets the primary or alternate key that is defined on the given properties.
-        ///     Returns <see langword="null" /> if no key is defined for the given properties.
-        /// </summary>
-        /// <param name="properties"> The properties that make up the key. </param>
-        /// <returns> The key, or <see langword="null" /> if none is defined. </returns>
+        /// <inheritdoc cref="IEntityType.FindKey" />
         new IMutableKey FindKey([NotNull] IReadOnlyList<IProperty> properties);
 
-        /// <summary>
-        ///     Gets the primary and alternate keys for this entity type.
-        /// </summary>
-        /// <returns> The primary and alternate keys. </returns>
+        /// <inheritdoc cref="IEntityType.GetKeys" />
         new IEnumerable<IMutableKey> GetKeys();
 
         /// <summary>
@@ -107,27 +94,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [NotNull] IMutableKey principalKey,
             [NotNull] IMutableEntityType principalEntityType);
 
-        /// <summary>
-        ///     Gets the foreign key for the given properties that points to a given primary or alternate key.
-        ///     Returns <see langword="null" /> if no foreign key is found.
-        /// </summary>
-        /// <param name="properties"> The properties that the foreign key is defined on. </param>
-        /// <param name="principalKey"> The primary or alternate key that is referenced. </param>
-        /// <param name="principalEntityType">
-        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
-        ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
-        ///     base type of the hierarchy).
-        /// </param>
-        /// <returns> The foreign key, or <see langword="null" /> if none is defined. </returns>
+        /// <inheritdoc cref="IEntityType.FindForeignKey" />
         new IMutableForeignKey FindForeignKey(
             [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] IKey principalKey,
             [NotNull] IEntityType principalEntityType);
 
-        /// <summary>
-        ///     Gets the foreign keys defined on this entity type.
-        /// </summary>
-        /// <returns> The foreign keys defined on this entity type. </returns>
+        /// <inheritdoc cref="IEntityType.GetForeignKeys" />
         new IEnumerable<IMutableForeignKey> GetForeignKeys();
 
         /// <summary>
@@ -162,27 +135,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             bool collection,
             bool onDependent);
 
-        /// <summary>
-        ///     Gets a skip navigation property on this entity type. Returns <see langword="null" /> if no navigation property is found.
-        /// </summary>
-        /// <param name="memberInfo"> The navigation property on the entity class. </param>
-        /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
+        /// <inheritdoc cref="IEntityType.FindSkipNavigation(MemberInfo)" />
         new IMutableSkipNavigation FindSkipNavigation([NotNull] MemberInfo memberInfo)
             => (IMutableSkipNavigation)((IEntityType)this).FindSkipNavigation(memberInfo);
 
-        /// <summary>
-        ///     Gets a skip navigation property on this entity type. Returns <see langword="null" /> if no skip navigation property is found.
-        /// </summary>
-        /// <param name="name"> The name of the navigation property on the entity class. </param>
-        /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
+        /// <inheritdoc cref="IEntityType.FindSkipNavigation(string)" />
         new IMutableSkipNavigation FindSkipNavigation([NotNull] string name);
 
-        /// <summary>
-        ///     Gets a skip navigation property on this entity type. Does not return skip navigation properties defined on a base type.
-        ///     Returns <see langword="null" /> if no skip navigation property is found.
-        /// </summary>
-        /// <param name="name"> The name of the navigation property on the entity class. </param>
-        /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
+        /// <inheritdoc cref="IEntityType.FindDeclaredSkipNavigation" />
         new IMutableSkipNavigation FindDeclaredSkipNavigation([NotNull] string name)
             => (IMutableSkipNavigation)((IEntityType)this).FindDeclaredSkipNavigation(name);
 
@@ -200,10 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IEnumerable<IMutableSkipNavigation> GetDeclaredSkipNavigations()
             => ((IEntityType)this).GetDeclaredSkipNavigations().Cast<IMutableSkipNavigation>();
 
-        /// <summary>
-        ///     Gets the skip navigation properties on this entity type.
-        /// </summary>
-        /// <returns> The skip navigation properties on this entity type. </returns>
+        /// <inheritdoc cref="IEntityType.GetSkipNavigations" />
         new IEnumerable<IMutableSkipNavigation> GetSkipNavigations();
 
         /// <summary>
@@ -230,29 +187,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [NotNull] IReadOnlyList<IMutableProperty> properties,
             [NotNull] string name);
 
-        /// <summary>
-        ///     <para>
-        ///         Gets the unnamed index defined on the given properties. Returns <see langword="null" /> if no such index is defined.
-        ///     </para>
-        ///     <para>
-        ///         Named indexes will not be returned even if the list of properties matches.
-        ///     </para>
-        /// </summary>
-        /// <param name="properties"> The properties to find the index on. </param>
-        /// <returns> The index, or <see langword="null" /> if none is found. </returns>
+        /// <inheritdoc cref="IEntityType.FindIndex(IReadOnlyList{IProperty})" />
         new IMutableIndex FindIndex([NotNull] IReadOnlyList<IProperty> properties);
 
-        /// <summary>
-        ///     Gets the index with the given name. Returns <see langword="null" /> if no such index exists.
-        /// </summary>
-        /// <param name="name"> The name of the index. </param>
-        /// <returns> The index, or <see langword="null" /> if none is found. </returns>
+        /// <inheritdoc cref="IEntityType.FindIndex(string)" />
         new IMutableIndex FindIndex([NotNull] string name);
 
-        /// <summary>
-        ///     Gets the indexes defined on this entity type.
-        /// </summary>
-        /// <returns> The indexes defined on this entity type. </returns>
+        /// <inheritdoc cref="IEntityType.GetIndexes" />
         new IEnumerable<IMutableIndex> GetIndexes();
 
         /// <summary>

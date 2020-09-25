@@ -59,21 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
         }
 
-        /// <summary>
-        ///     <para>
-        ///         Configures this as a one-to-many relationship.
-        ///     </para>
-        ///     <para>
-        ///         Note that calling this method with no parameters will explicitly configure this side
-        ///         of the relationship to use no navigation property, even if such a property exists on the
-        ///         entity type. If the navigation property is to be used, then it must be specified.
-        ///     </para>
-        /// </summary>
-        /// <param name="navigationName">
-        ///     The name of the collection navigation property on the other end of this relationship.
-        ///     If null or not specified, there is no navigation property on the other end of the relationship.
-        /// </param>
-        /// <returns> An object to further configure the relationship. </returns>
+        /// <inheritdoc cref="ReferenceNavigationBuilder.WithMany" />
         public new virtual ReferenceCollectionBuilder<TRelatedEntity, TEntity> WithMany(
             [CanBeNull] string navigationName = null)
         {
@@ -109,21 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 WithManyBuilder(navigationExpression?.GetMemberAccess()).Metadata);
         }
 
-        /// <summary>
-        ///     <para>
-        ///         Configures this as a one-to-one relationship.
-        ///     </para>
-        ///     <para>
-        ///         Note that calling this method with no parameters will explicitly configure this side
-        ///         of the relationship to use no navigation property, even if such a property exists on the
-        ///         entity type. If the navigation property is to be used, then it must be specified.
-        ///     </para>
-        /// </summary>
-        /// <param name="navigationName">
-        ///     The name of the reference navigation property on the other end of this relationship.
-        ///     If null or not specified, there is no navigation property on the other end of the relationship.
-        /// </param>
-        /// <returns> An object to further configure the relationship. </returns>
+        /// <inheritdoc cref="ReferenceNavigationBuilder.WithOne" />
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(
             [CanBeNull] string navigationName = null)
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(

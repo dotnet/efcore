@@ -18,14 +18,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IEntityType JoinEntityType
             => IsOnDependent ? ForeignKey?.PrincipalEntityType : ForeignKey?.DeclaringEntityType;
 
-        /// <summary>
-        ///     Gets the inverse skip navigation.
-        /// </summary>
+        /// <inheritdoc cref="INavigationBase.Inverse" />
         new ISkipNavigation Inverse { get; }
 
-        /// <summary>
-        ///     Gets the inverse navigation.
-        /// </summary>
+        /// <inheritdoc />
         INavigationBase INavigationBase.Inverse
         {
             [DebuggerStepThrough]

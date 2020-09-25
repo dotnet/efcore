@@ -27,12 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         public static readonly EntityTypeFullNameComparer Instance = new EntityTypeFullNameComparer();
 
-        /// <summary>
-        ///     Compares two objects and returns a value indicating whether one is less than, equal to, or greater than the other.
-        /// </summary>
-        /// <param name="x"> The first object to compare. </param>
-        /// <param name="y"> The second object to compare. </param>
-        /// <returns> A negative number if 'x' is less than 'y'; a positive number if 'x' is greater than 'y'; zero otherwise. </returns>
+        /// <inheritdoc />
         public int Compare(IEntityType x, IEntityType y)
         {
             if (ReferenceEquals(x, y))
@@ -88,20 +83,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
         }
 
-        /// <summary>
-        ///     Determines whether the specified objects are equal.
-        /// </summary>
-        /// <param name="x"> The first object to compare. </param>
-        /// <param name="y"> The second object to compare. </param>
-        /// <returns> <see langword="true" /> if the specified objects are equal; otherwise, <see langword="false" />. </returns>
+        /// <inheritdoc />
         public bool Equals(IEntityType x, IEntityType y)
             => Compare(x, y) == 0;
 
-        /// <summary>
-        ///     Returns a hash code for the specified object.
-        /// </summary>
-        /// <param name="obj"> The for which a hash code is to be returned. </param>
-        /// <returns> A hash code for the specified object. </returns>
+        /// <inheritdoc />
         public int GetHashCode(IEntityType obj)
         {
             var hash = new HashCode();

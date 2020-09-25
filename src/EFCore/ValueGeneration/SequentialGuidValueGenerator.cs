@@ -26,11 +26,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     {
         private long _counter = DateTime.UtcNow.Ticks;
 
-        /// <summary>
-        ///     Gets a value to be assigned to a property.
-        /// </summary>
-        /// <param name="entry"> The change tracking entry of the entity for which the value is being generated. </param>
-        /// <returns> The value to be assigned to a property. </returns>
+        /// <inheritdoc />
         public override Guid Next(EntityEntry entry)
         {
             var guidBytes = Guid.NewGuid().ToByteArray();
@@ -53,10 +49,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             return new Guid(guidBytes);
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether the values generated are temporary or permanent. This implementation
-        ///     always returns false, meaning the generated values will be saved to the database.
-        /// </summary>
+        /// <inheritdoc />
         public override bool GeneratesTemporaryValues
             => false;
     }

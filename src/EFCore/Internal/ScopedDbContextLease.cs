@@ -7,12 +7,7 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
+    /// <inheritdoc cref="IScopedDbContextLease{TContext}" />
     public sealed class ScopedDbContextLease<TContext> : IScopedDbContextLease<TContext>, IDisposable, IAsyncDisposable
         where TContext : DbContext
     {
@@ -27,30 +22,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public ScopedDbContextLease([NotNull] IDbContextPool<TContext> contextPool)
             => _lease = new DbContextLease(contextPool, standalone: false);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         public TContext Context
             => (TContext)_lease.Context;
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         void IDisposable.Dispose()
             => _lease.Release();
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         ValueTask IAsyncDisposable.DisposeAsync()
             => _lease.ReleaseAsync();
     }

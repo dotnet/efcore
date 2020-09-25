@@ -22,13 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
         }
 
-        /// <summary>
-        ///     Creates an expression tree representing the binding of the value of a property from a
-        ///     materialization expression to a parameter of the constructor, factory method, etc.
-        /// </summary>
-        /// <param name="materializationExpression"> The expression representing the materialization context. </param>
-        /// <param name="entityTypeExpression"> The expression representing the <see cref="IEntityType" /> constant. </param>
-        /// <returns> The expression tree. </returns>
+        /// <inheritdoc />
         public override Expression BindToParameter(
             Expression materializationExpression,
             Expression entityTypeExpression)

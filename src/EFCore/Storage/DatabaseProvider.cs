@@ -39,18 +39,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotNull(dependencies, nameof(dependencies));
         }
 
-        /// <summary>
-        ///     The unique name used to identify the database provider. This should be the same as the NuGet package name
-        ///     for the providers runtime.
-        /// </summary>
+        /// <inheritdoc />
         public virtual string Name
             => typeof(TOptionsExtension).Assembly.GetName().Name;
 
-        /// <summary>
-        ///     Gets a value indicating whether this database provider has been selected for a given context.
-        /// </summary>
-        /// <param name="options"> The options for the context. </param>
-        /// <returns> <see langword="true" /> if the database provider has been selected, otherwise <see langword="false" />. </returns>
+        /// <inheritdoc />
         public virtual bool IsConfigured(IDbContextOptions options)
             => Check.NotNull(options, nameof(options)).Extensions.OfType<TOptionsExtension>().Any();
     }

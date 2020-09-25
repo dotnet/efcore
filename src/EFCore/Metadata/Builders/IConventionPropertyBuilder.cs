@@ -114,10 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="fieldName"> The field name. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
         new IConventionPropertyBuilder HasField([CanBeNull] string fieldName, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -125,10 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="fieldInfo"> The field. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
         new IConventionPropertyBuilder HasField([CanBeNull] FieldInfo fieldInfo, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -136,10 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> to use for this property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
         new IConventionPropertyBuilder UsePropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -147,10 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="maxLength"> The maximum length of data allowed in the property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
         IConventionPropertyBuilder HasMaxLength(int? maxLength, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -167,10 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="unicode"> A value indicating whether the property can contain unicode characters. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
         IConventionPropertyBuilder IsUnicode(bool? unicode, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -190,10 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     saved to the database. <see langword="null" /> to reset to default.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
         IConventionPropertyBuilder BeforeSave(PropertySaveBehavior? behavior, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -206,7 +188,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
-        ///     <see langword="true" /> if the ability to be modified before the entity is saved to the database can be configured for this property.
+        ///     <see langword="true" /> if the ability to be modified before the entity is saved to the database can be configured for this
+        ///     property.
         /// </returns>
         bool CanSetBeforeSave(PropertySaveBehavior? behavior, bool fromDataAnnotation = false);
 
@@ -218,10 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     saved to the database. <see langword="null" /> to reset to default.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
         IConventionPropertyBuilder AfterSave(PropertySaveBehavior? behavior, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -234,7 +214,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
-        ///     <see langword="true" /> if the ability to be modified after the entity is saved to the database can be configured for this property.
+        ///     <see langword="true" /> if the ability to be modified after the entity is saved to the database can be configured for this
+        ///     property.
         /// </returns>
         bool CanSetAfterSave(PropertySaveBehavior? behavior, bool fromDataAnnotation = false);
 
@@ -243,10 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="valueGeneratorType"> A type that inherits from <see cref="ValueGenerator" />. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
         IConventionPropertyBuilder HasValueGenerator([CanBeNull] Type valueGeneratorType, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -254,10 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="factory"> A delegate that will be used to create value generator instances. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
         IConventionPropertyBuilder HasValueGenerator(
             [CanBeNull] Func<IProperty, IEntityType, ValueGenerator> factory,
             bool fromDataAnnotation = false);
@@ -268,13 +243,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="factory"> A delegate that will be used to create value generator instances. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
-        /// <returns>
-        ///     <see langword="true" /> if the <see cref="ValueGenerator" /> can be configured for this property.
-        /// </returns>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
+        /// <returns> <see langword="true" /> if the <see cref="ValueGenerator" /> can be configured for this property. </returns>
         bool CanSetValueGenerator(
             [CanBeNull] Func<IProperty, IEntityType, ValueGenerator> factory,
             bool fromDataAnnotation = false);
@@ -285,10 +255,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="converter"> The converter to use. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
         IConventionPropertyBuilder HasConversion([CanBeNull] ValueConverter converter, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -297,9 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="converter"> The converter to use. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     <see langword="true" /> if the <see cref="ValueConverter" /> can be configured for this property.
-        /// </returns>
+        /// <returns> <see langword="true" /> if the <see cref="ValueConverter" /> can be configured for this property. </returns>
         bool CanSetConversion([CanBeNull] ValueConverter converter, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -308,10 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="providerClrType"> The type to convert to and from. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
         IConventionPropertyBuilder HasConversion([CanBeNull] Type providerClrType, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -330,10 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="typeMapping"> The type mapping, or <see langword="null" /> to remove any previously set type mapping. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
         IConventionPropertyBuilder HasTypeMapping([CanBeNull] CoreTypeMapping typeMapping, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -342,9 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="typeMapping"> The type mapping, or <see langword="null" /> to remove any previously set type mapping. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     <see langword="true" /> if the given <see cref="ValueComparer" /> can be configured for this property.
-        /// </returns>
+        /// <returns> <see langword="true" /> if the given <see cref="ValueComparer" /> can be configured for this property. </returns>
         bool CanSetTypeMapping([CanBeNull] CoreTypeMapping typeMapping, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -352,10 +309,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="comparer"> The comparer, or <see langword="null" /> to remove any previously set comparer. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
         IConventionPropertyBuilder HasValueComparer([CanBeNull] ValueComparer comparer, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -364,9 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="comparer"> The comparer, or <see langword="null" /> to remove any previously set comparer. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     <see langword="true" /> if the given <see cref="ValueComparer" /> can be configured for this property.
-        /// </returns>
+        /// <returns> <see langword="true" /> if the given <see cref="ValueComparer" /> can be configured for this property. </returns>
         bool CanSetValueComparer([CanBeNull] ValueComparer comparer, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -374,10 +326,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="comparer"> The comparer, or <see langword="null" /> to remove any previously set comparer. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
         [Obsolete("Use HasValueComparer. Only a single value comparer is allowed for a given property.")]
         IConventionPropertyBuilder HasKeyValueComparer([CanBeNull] ValueComparer comparer, bool fromDataAnnotation = false);
 
@@ -387,9 +336,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="comparer"> The comparer, or <see langword="null" /> to remove any previously set comparer. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     <see langword="true" /> if the given <see cref="ValueComparer" /> can be configured for this property.
-        /// </returns>
+        /// <returns> <see langword="true" /> if the given <see cref="ValueComparer" /> can be configured for this property. </returns>
         [Obsolete("Use CanSetValueComparer. Only a single value comparer is allowed for a given property.")]
         bool CanSetKeyValueComparer([CanBeNull] ValueComparer comparer, bool fromDataAnnotation = false);
 
@@ -398,10 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="comparer"> The comparer, or <see langword="null" /> to remove any previously set comparer. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
         [Obsolete("Use HasValueComparer. Only a single value comparer is allowed for a given property.")]
         IConventionPropertyBuilder HasStructuralValueComparer([CanBeNull] ValueComparer comparer, bool fromDataAnnotation = false);
 
@@ -411,9 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="comparer"> The comparer, or <see langword="null" /> to remove any previously set comparer. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     <see langword="true" /> if the given <see cref="ValueComparer" /> can be configured for this property.
-        /// </returns>
+        /// <returns> <see langword="true" /> if the given <see cref="ValueComparer" /> can be configured for this property. </returns>
         [Obsolete("Use CanSetValueComparer. Only a single value comparer is allowed for a given property.")]
         bool CanSetStructuralValueComparer([CanBeNull] ValueComparer comparer, bool fromDataAnnotation = false);
     }

@@ -47,22 +47,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         protected virtual DatabaseDependencies Dependencies { get; }
 
-        /// <summary>
-        ///     Persists changes from the supplied entries to the database.
-        /// </summary>
-        /// <param name="entries"> Entries representing the changes to be persisted. </param>
-        /// <returns> The number of state entries persisted to the database. </returns>
+        /// <inheritdoc />
         public abstract int SaveChanges(IList<IUpdateEntry> entries);
 
-        /// <summary>
-        ///     Asynchronously persists changes from the supplied entries to the database.
-        /// </summary>
-        /// <param name="entries"> Entries representing the changes to be persisted. </param>
-        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns>
-        ///     A task that represents the asynchronous save operation. The task result contains the
-        ///     number of entries persisted to the database.
-        /// </returns>
+        /// <inheritdoc />
         public abstract Task<int> SaveChangesAsync(
             IList<IUpdateEntry> entries,
             CancellationToken cancellationToken = default);

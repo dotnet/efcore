@@ -12,17 +12,11 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     /// </summary>
     public class BinaryValueGenerator : ValueGenerator<byte[]>
     {
-        /// <summary>
-        ///     Gets a value indicating whether the values generated are temporary or permanent. This implementation
-        ///     always returns false, meaning the generated values will be saved to the database.
-        /// </summary>
+        /// <inheritdoc />
         public override bool GeneratesTemporaryValues
             => false;
 
-        /// <summary>
-        ///     Gets a value to be assigned to a property.
-        /// </summary>
-        /// <returns> The value to be assigned to a property. </returns>
+        /// <inheritdoc />
         public override byte[] Next(EntityEntry entry)
             => Guid.NewGuid().ToByteArray();
     }

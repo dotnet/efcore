@@ -18,13 +18,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     public interface IMutablePropertyBase : IPropertyBase, IMutableAnnotatable
     {
-        /// <summary>
-        ///     Gets the type that this property belongs to.
-        /// </summary>
+        /// <inheritdoc cref="IPropertyBase.DeclaringType" />
         new IMutableTypeBase DeclaringType { get; }
 
         /// <summary>
-        ///     Gets or sets the underlying CLR field for this property.
+        ///     Gets or sets the <see cref="FieldInfo" /> for the underlying CLR field for this property-like object.
         ///     This may be <see langword="null" /> for shadow properties or if the backing field for the property is not known.
         /// </summary>
         new FieldInfo FieldInfo { get; [param: CanBeNull] set; }

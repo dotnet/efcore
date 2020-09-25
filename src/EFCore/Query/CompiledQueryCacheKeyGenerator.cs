@@ -44,12 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         protected virtual CompiledQueryCacheKeyGeneratorDependencies Dependencies { get; }
 
-        /// <summary>
-        ///     Generates the cache key for the given query.
-        /// </summary>
-        /// <param name="query"> The query to get the cache key for. </param>
-        /// <param name="async"> A value indicating whether the query will be executed asynchronously. </param>
-        /// <returns> The cache key. </returns>
+        /// <inheritdoc />
         public virtual object GenerateCacheKey(Expression query, bool async)
             => GenerateCacheKeyCore(query, async);
 
@@ -115,15 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public override bool Equals(object obj)
                 => obj is CompiledQueryCacheKey other && Equals(other);
 
-            /// <summary>
-            ///     Indicates whether the current object is equal to another object of the same type.
-            /// </summary>
-            /// <param name="other">
-            ///     An object to compare with this object.
-            /// </param>
-            /// <returns>
-            ///     <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
-            /// </returns>
+            /// <inheritdoc />
             public bool Equals(CompiledQueryCacheKey other)
             {
                 return ReferenceEquals(_model, other._model)
@@ -132,12 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     && ExpressionEqualityComparer.Instance.Equals(_query, other._query);
             }
 
-            /// <summary>
-            ///     Gets the hash code for the key.
-            /// </summary>
-            /// <returns>
-            ///     The hash code for the key.
-            /// </returns>
+            /// <inheritdoc />
             public override int GetHashCode()
             {
                 var hash = new HashCode();

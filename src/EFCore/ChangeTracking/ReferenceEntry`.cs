@@ -69,27 +69,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the value currently assigned to this property. If the current value is set using this property,
-        ///     the change tracker is aware of the change and <see cref="ChangeTracker.DetectChanges" /> is not required
-        ///     for the context to detect the change.
-        /// </summary>
+        /// <inheritdoc cref="MemberEntry.CurrentValue" />
         public new virtual TProperty CurrentValue
         {
             get => this.GetInfrastructure().GetCurrentValue<TProperty>(Metadata);
             [param: CanBeNull] set => base.CurrentValue = value;
         }
 
-        /// <summary>
-        ///     <para>
-        ///         Returns the query that would be used by <see cref="NavigationEntry.Load" /> to load the entity referenced by
-        ///         this navigation property.
-        ///     </para>
-        ///     <para>
-        ///         The query can be composed over using LINQ to perform filtering, counting, etc. without
-        ///         actually loading the entity from the database.
-        ///     </para>
-        /// </summary>
+        /// <inheritdoc cref="ReferenceEntry.Query" />
         public new virtual IQueryable<TProperty> Query()
             => (IQueryable<TProperty>)base.Query();
     }

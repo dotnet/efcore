@@ -247,11 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         public Type ClrType { get; }
 
-        /// <summary>
-        ///     Compares this <see cref="TypeMappingInfo" /> to another to check if they represent the same mapping.
-        /// </summary>
-        /// <param name="other"> The other object. </param>
-        /// <returns> <see langword="true" /> if they represent the same mapping; <see langword="false" /> otherwise. </returns>
+        /// <inheritdoc />
         public bool Equals(TypeMappingInfo other)
             => ClrType == other.ClrType
                 && IsKeyOrIndex == other.IsKeyOrIndex
@@ -261,20 +257,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 && Precision == other.Precision
                 && Scale == other.Scale;
 
-        /// <summary>
-        ///     Compares this <see cref="TypeMappingInfo" /> to another to check if they represent the same mapping.
-        /// </summary>
-        /// <param name="obj"> The other object. </param>
-        /// <returns> <see langword="true" /> if they represent the same mapping; <see langword="false" /> otherwise. </returns>
+        /// <inheritdoc />
         public override bool Equals(object obj)
             => obj != null
                 && obj.GetType() == GetType()
                 && Equals((TypeMappingInfo)obj);
 
-        /// <summary>
-        ///     Returns a hash code for this object.
-        /// </summary>
-        /// <returns> The hash code. </returns>
+        /// <inheritdoc />
         public override int GetHashCode()
             => HashCode.Combine(ClrType, IsKeyOrIndex, Size, IsUnicode, IsRowVersion, Scale, Precision);
     }

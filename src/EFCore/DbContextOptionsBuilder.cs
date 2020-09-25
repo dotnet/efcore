@@ -94,7 +94,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         for logging done by this context.
         ///     </para>
         ///     <para>
-        ///         There is no need to call this method when using one of the 'AddDbContext' methods, including 'AddDbContextPool'.
+        ///         There is no need to call this method when using one of the
+        ///         <see cref="M:EntityFrameworkServiceCollectionExtensions.AddDbContext" /> methods, including
+        ///         <see cref="M:EntityFrameworkServiceCollectionExtensions.AddDbContextPool" />.
         ///         These methods ensure that the <see cref="ILoggerFactory" /> used by EF is obtained from the application service provider.
         ///     </para>
         ///     <para>
@@ -275,8 +277,8 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Logs events filtered by a supplied custom filter delegate. The filter should return true to
-        ///         log a message, or false to filter it out of the log.
+        ///         Logs events filtered by a supplied custom filter delegate. The filter should return <see langword="true" /> to
+        ///         log a message, or <see langword="false" /> to filter it out of the log.
         ///     </para>
         ///     <para>
         ///         Use the <see cref="LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" /> overload for default logging of
@@ -288,9 +290,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="action"> Delegate called when there is a message to log. </param>
-        /// <param name="filter"> Delegate that returns true to log the message or false to ignore it. </param>
+        /// <param name="filter">
+        ///     Delegate that returns <see langword="true" /> to log the message or <see langword="false" /> to ignore it.
+        /// </param>
         /// <param name="options">
-        ///     Formatting options for log messages. Passing null (the default) means use <see cref="DbContextLoggerOptions.DefaultWithLocalTime" />
+        ///     Formatting options for log messages. Passing <see langword="null" /> (the default) means use
+        ///     <see cref="DbContextLoggerOptions.DefaultWithLocalTime" />
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual DbContextOptionsBuilder LogTo(
@@ -306,8 +311,8 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Logs events to a custom logger delegate filtered by a custom filter delegate. The filter should return true to
-        ///         log a message, or false to filter it out of the log.
+        ///         Logs events to a custom logger delegate filtered by a custom filter delegate. The filter should return
+        ///         <see langword="true" /> to log a message, or <see langword="false" /> to filter it out of the log.
         ///     </para>
         ///     <para>
         ///         Use the <see cref="LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" /> overload for default logging of
@@ -319,7 +324,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         overload to use a custom filter for events.
         ///     </para>
         /// </summary>
-        /// <param name="filter"> Delegate that returns true to log the message or false to ignore it. </param>
+        /// <param name="filter">
+        ///     Delegate that returns <see langword="true" /> to log the message or <see langword="false" /> to ignore it.
+        /// </param>
         /// <param name="logger"> Delegate called when there is a message to log. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         // Filter comes first, logger second, otherwise it's hard to get the correct overload to resolve
@@ -338,11 +345,11 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Enables detailed errors when handling of data value exceptions that occur during processing of store query results. Such errors
-        ///         most often occur due to misconfiguration of entity properties. E.g. If a property is configured to be of type
-        ///         'int', but the underlying data in the store is actually of type 'string', then an exception will be generated
-        ///         at runtime during processing of the data value. When this option is enabled and a data error is encountered, the
-        ///         generated exception will include details of the specific entity property that generated the error.
+        ///         Enables detailed errors when handling of data value exceptions that occur during processing of store query results.
+        ///         Such errors most often occur due to misconfiguration of entity properties. E.g. If a property is configured to be of
+        ///         type <see langword="int" />, but the underlying data in the store is actually of type <see langword="string" />, then an
+        ///         exception will be generated at runtime during processing of the data value. When this option is enabled and a data error
+        ///         is encountered, the generated exception will include details of the specific entity property that generated the error.
         ///     </para>
         ///     <para>
         ///         Enabling this option incurs a small performance overhead during query execution.
@@ -402,8 +409,9 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Sets the <see cref="IServiceProvider" /> from which application services will be obtained. This
-        ///     is done automatically when using 'AddDbContext' or 'AddDbContextPool',
-        ///     so it is rare that this method needs to be called.
+        ///     is done automatically when using <see cref="M:EntityFrameworkServiceCollectionExtensions.AddDbContext" /> or
+        ///     <see cref="M:EntityFrameworkServiceCollectionExtensions.AddDbContextPool" />, so it is rare that this method needs to be
+        ///     called.
         /// </summary>
         /// <param name="serviceProvider"> The service provider to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -608,17 +616,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual DbContextOptionsBuilder AddInterceptors([NotNull] params IInterceptor[] interceptors)
             => AddInterceptors((IEnumerable<IInterceptor>)interceptors);
 
-        /// <summary>
-        ///     <para>
-        ///         Adds the given extension to the options. If an existing extension of the same type already exists, it will be replaced.
-        ///     </para>
-        ///     <para>
-        ///         This method is intended for use by extension methods to configure the context. It is not intended to be used in
-        ///         application code.
-        ///     </para>
-        /// </summary>
-        /// <typeparam name="TExtension"> The type of extension to be added. </typeparam>
-        /// <param name="extension"> The extension to be added. </param>
+        /// <inheritdoc />
         void IDbContextOptionsBuilderInfrastructure.AddOrUpdateExtension<TExtension>(TExtension extension)
         {
             Check.NotNull(extension, nameof(extension));

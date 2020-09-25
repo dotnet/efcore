@@ -22,12 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
         }
 
-        /// <summary>
-        ///     Called after a navigation property that has an attribute is added to an entity type.
-        /// </summary>
-        /// <param name="navigationBuilder"> The builder for the navigation. </param>
-        /// <param name="attribute"> The attribute. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         public override void ProcessNavigationAdded(
             IConventionNavigationBuilder navigationBuilder,
             BackingFieldAttribute attribute,

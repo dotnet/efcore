@@ -27,10 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="fieldName"> The field name. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
         new IConventionSkipNavigationBuilder HasField([CanBeNull] string fieldName, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -38,10 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="fieldInfo"> The field. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
         new IConventionSkipNavigationBuilder HasField([CanBeNull] FieldInfo fieldInfo, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -49,10 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> to use for this navigation. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
         new IConventionSkipNavigationBuilder UsePropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -62,10 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The foreign key. Passing <see langword="null" /> will result in there being no foreign key associated.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
         IConventionSkipNavigationBuilder HasForeignKey([CanBeNull] IConventionForeignKey foreignKey, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -76,20 +64,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The foreign key. Passing <see langword="null" /> will result in there being no foreign key associated.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the <see cref="IConventionSkipNavigation.ForeignKey" /> can be set for this property. </returns>
+        /// <returns>
+        ///     <see langword="true" /> if the <see cref="IConventionSkipNavigation.ForeignKey" /> can be set for this property.
+        /// </returns>
         bool CanSetForeignKey([CanBeNull] IConventionForeignKey foreignKey, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the inverse skip navigation.
         /// </summary>
         /// <param name="inverse">
-        ///     The inverse skip navigation. Passing <see langword="null" /> will result in there being no inverse navigation property defined.
+        ///     The inverse skip navigation. Passing <see langword="null" /> will result in there being no inverse navigation property
+        ///     defined.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
         IConventionSkipNavigationBuilder HasInverse([CanBeNull] IConventionSkipNavigation inverse, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -97,10 +85,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     from the given configuration source.
         /// </summary>
         /// <param name="inverse">
-        ///     The inverse skip navigation. Passing <see langword="null" /> will result in there being no inverse navigation property defined.
+        ///     The inverse skip navigation. Passing <see langword="null" /> will result in there being no inverse navigation property
+        ///     defined.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the <see cref="IConventionSkipNavigation.Inverse" /> can be set for this property. </returns>
+        /// <returns>
+        ///     <see langword="true" /> if the <see cref="IConventionSkipNavigation.Inverse" /> can be set for this property.
+        /// </returns>
         bool CanSetInverse([CanBeNull] IConventionSkipNavigation inverse, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -117,10 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="autoInclude"> A value indicating whether the navigation should be automatically included. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
         IConventionSkipNavigationBuilder AutoInclude(bool? autoInclude, bool fromDataAnnotation = false);
     }
 }

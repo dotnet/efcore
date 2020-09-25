@@ -126,17 +126,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         entity type. If the navigation property is to be used, then it must be specified.
         ///     </para>
         /// </summary>
-        /// <param name="collection">
+        /// <param name="navigationName">
         ///     The name of the collection navigation property on the other end of this relationship.
         ///     If null or not specified, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public virtual ReferenceCollectionBuilder WithMany([CanBeNull] string collection = null)
+        public virtual ReferenceCollectionBuilder WithMany([CanBeNull] string navigationName = null)
         {
             return new ReferenceCollectionBuilder(
                 RelatedEntityType,
                 DeclaringEntityType,
-                WithManyBuilder(Check.NullButNotEmpty(collection, nameof(collection))).Metadata);
+                WithManyBuilder(Check.NullButNotEmpty(navigationName, nameof(navigationName))).Metadata);
         }
 
         /// <summary>
@@ -304,28 +304,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         #region Hidden System.Object members
 
-        /// <summary>
-        ///     Returns a string that represents the current object.
-        /// </summary>
-        /// <returns> A string that represents the current object. </returns>
+        /// <inheritdoc />
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override string ToString()
             => base.ToString();
 
-        /// <summary>
-        ///     Determines whether the specified object is equal to the current object.
-        /// </summary>
-        /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
+        /// <inheritdoc />
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
         public override bool Equals(object obj)
             => base.Equals(obj);
 
-        /// <summary>
-        ///     Serves as the default hash function.
-        /// </summary>
-        /// <returns> A hash code for the current object. </returns>
+        /// <inheritdoc />
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
         public override int GetHashCode()

@@ -27,24 +27,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> The configuration source. </returns>
         ConfigurationSource GetConfigurationSource();
 
-        /// <summary>
-        ///     Gets the model this entity belongs to.
-        /// </summary>
+        /// <inheritdoc cref="IConventionTypeBase.Model" />
         new IConventionModel Model { get; }
 
-        /// <summary>
-        ///     Gets the builder that can be used to configure this entity type.
-        /// </summary>
+        /// <inheritdoc cref="IConventionAnnotatable.Builder" />
         new IConventionEntityTypeBuilder Builder { get; }
 
-        /// <summary>
-        ///     Gets the base type of this entity type. Returns <see langword="null" /> if this is not a derived type in an inheritance hierarchy.
-        /// </summary>
+        /// <inheritdoc cref="IEntityType.BaseType" />
         new IConventionEntityType BaseType { get; }
 
-        /// <summary>
-        ///     Gets the defining entity type.
-        /// </summary>
+        /// <inheritdoc cref="IEntityType.BaseType" />
         new IConventionEntityType DefiningEntityType { get; }
 
         /// <summary>
@@ -122,10 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             bool fromDataAnnotation = false)
             => SetPrimaryKey(property == null ? null : new[] { property }, fromDataAnnotation);
 
-        /// <summary>
-        ///     Gets primary key for this entity type. Returns <see langword="null" /> if no primary key is defined.
-        /// </summary>
-        /// <returns> The primary key, or <see langword="null" /> if none is defined. </returns>
+        /// <inheritdoc cref="IEntityType.FindPrimaryKey" />
         new IConventionKey FindPrimaryKey();
 
         /// <summary>
@@ -142,18 +131,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> The newly created key. </returns>
         IConventionKey AddKey([NotNull] IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation = false);
 
-        /// <summary>
-        ///     Gets the primary or alternate key that is defined on the given properties.
-        ///     Returns <see langword="null" /> if no key is defined for the given properties.
-        /// </summary>
-        /// <param name="properties"> The properties that make up the key. </param>
-        /// <returns> The key, or <see langword="null" /> if none is defined. </returns>
+        /// <inheritdoc cref="IEntityType.FindKey" />
         new IConventionKey FindKey([NotNull] IReadOnlyList<IProperty> properties);
 
-        /// <summary>
-        ///     Gets the primary and alternate keys for this entity type.
-        /// </summary>
-        /// <returns> The primary and alternate keys. </returns>
+        /// <inheritdoc cref="IEntityType.GetKeys" />
         new IEnumerable<IConventionKey> GetKeys();
 
         /// <summary>
@@ -185,27 +166,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             bool setComponentConfigurationSource = true,
             bool fromDataAnnotation = false);
 
-        /// <summary>
-        ///     Gets the foreign key for the given properties that points to a given primary or alternate key.
-        ///     Returns <see langword="null" /> if no foreign key is found.
-        /// </summary>
-        /// <param name="properties"> The properties that the foreign key is defined on. </param>
-        /// <param name="principalKey"> The primary or alternate key that is referenced. </param>
-        /// <param name="principalEntityType">
-        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
-        ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
-        ///     base type of the hierarchy).
-        /// </param>
-        /// <returns> The foreign key, or <see langword="null" /> if none is defined. </returns>
+        /// <inheritdoc cref="IEntityType.FindForeignKey" />
         new IConventionForeignKey FindForeignKey(
             [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] IKey principalKey,
             [NotNull] IEntityType principalEntityType);
 
-        /// <summary>
-        ///     Gets the foreign keys defined on this entity type.
-        /// </summary>
-        /// <returns> The foreign keys defined on this entity type. </returns>
+        /// <inheritdoc cref="IEntityType.GetForeignKeys" />
         new IEnumerable<IConventionForeignKey> GetForeignKeys();
 
         /// <summary>
@@ -242,48 +209,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             bool onDependent,
             bool fromDataAnnotation = false);
 
-        /// <summary>
-        ///     Gets a skip navigation property on this entity type. Returns <see langword="null" /> if no navigation property is found.
-        /// </summary>
-        /// <param name="memberInfo"> The navigation property on the entity class. </param>
-        /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
+        /// <inheritdoc cref="IEntityType.FindSkipNavigation(MemberInfo)" />
         new IConventionSkipNavigation FindSkipNavigation([NotNull] MemberInfo memberInfo)
             => (IConventionSkipNavigation)((IEntityType)this).FindSkipNavigation(memberInfo);
 
-        /// <summary>
-        ///     Gets a skip navigation property on this entity type. Returns <see langword="null" /> if no skip navigation property is found.
-        /// </summary>
-        /// <param name="name"> The name of the navigation property on the entity class. </param>
-        /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
+        /// <inheritdoc cref="IEntityType.FindSkipNavigation(string)" />
         new IConventionSkipNavigation FindSkipNavigation([NotNull] string name);
 
-        /// <summary>
-        ///     Gets a skip navigation property on this entity type. Does not return skip navigation properties defined on a base type.
-        ///     Returns <see langword="null" /> if no skip navigation property is found.
-        /// </summary>
-        /// <param name="name"> The name of the navigation property on the entity class. </param>
-        /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
+        /// <inheritdoc cref="IEntityType.FindDeclaredSkipNavigation" />
         new IConventionSkipNavigation FindDeclaredSkipNavigation([NotNull] string name)
             => (IConventionSkipNavigation)((IEntityType)this).FindDeclaredSkipNavigation(name);
 
-        /// <summary>
-        ///     <para>
-        ///         Gets the skip navigation properties declared on this entity type.
-        ///     </para>
-        ///     <para>
-        ///         This method does not return skip navigation properties declared declared on base types.
-        ///         It is useful when iterating over all entity types to avoid processing the same foreign key more than once.
-        ///         Use <see cref="GetSkipNavigations" /> to also return skip navigation properties declared on base types.
-        ///     </para>
-        /// </summary>
-        /// <returns> Declared foreign keys. </returns>
+        /// <inheritdoc cref="IEntityType.GetDeclaredSkipNavigations" />
         new IEnumerable<IConventionSkipNavigation> GetDeclaredSkipNavigations()
             => ((IEntityType)this).GetDeclaredSkipNavigations().Cast<IConventionSkipNavigation>();
 
-        /// <summary>
-        ///     Gets all skip navigation properties on this entity type.
-        /// </summary>
-        /// <returns> All skip navigation properties on this entity type. </returns>
+        /// <inheritdoc cref="IEntityType.GetSkipNavigations" />
         new IEnumerable<IConventionSkipNavigation> GetSkipNavigations();
 
         /// <summary>
@@ -315,29 +256,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [NotNull] string name,
             bool fromDataAnnotation = false);
 
-        /// <summary>
-        ///     <para>
-        ///         Gets the unnamed index defined on the given properties. Returns <see langword="null" /> if no index is defined.
-        ///     </para>
-        ///     <para>
-        ///         Named indexes will not be returned even if the list of properties matches.
-        ///     </para>
-        /// </summary>
-        /// <param name="properties"> The properties to find the index on. </param>
-        /// <returns> The index, or <see langword="null" /> if none is found. </returns>
+        /// <inheritdoc cref="IEntityType.FindIndex(IReadOnlyList{IProperty})" />
         new IConventionIndex FindIndex([NotNull] IReadOnlyList<IProperty> properties);
 
-        /// <summary>
-        ///     Gets the index with the given name. Returns <see langword="null" /> if no such index exists.
-        /// </summary>
-        /// <param name="name"> The name of the index to find. </param>
-        /// <returns> The index, or <see langword="null" /> if none is found. </returns>
+        /// <inheritdoc cref="IEntityType.FindIndex(string)" />
         new IConventionIndex FindIndex([NotNull] string name);
 
-        /// <summary>
-        ///     Gets the indexes defined on this entity type.
-        /// </summary>
-        /// <returns> The indexes defined on this entity type. </returns>
+        /// <inheritdoc cref="IEntityType.GetIndexes" />
         new IEnumerable<IConventionIndex> GetIndexes();
 
         /// <summary>

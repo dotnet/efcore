@@ -19,9 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     public interface IConventionPropertyBase : IPropertyBase, IConventionAnnotatable
     {
-        /// <summary>
-        ///     Gets the type that this property belongs to.
-        /// </summary>
+        /// <inheritdoc cref="IPropertyBase.DeclaringType" />
         new IConventionTypeBase DeclaringType { get; }
 
         /// <summary>

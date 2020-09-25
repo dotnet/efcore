@@ -41,11 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
         }
 
-        /// <summary>
-        ///     Configures the join entity type implementing the many-to-many relationship.
-        /// </summary>
-        /// <param name="configureJoinEntityType"> The configuration of the join entity type. </param>
-        /// <returns> The builder for the originating entity type so that multiple configuration calls can be chained. </returns>
+        /// <inheritdoc cref="CollectionCollectionBuilder.UsingEntity(Action{EntityTypeBuilder})" />
         public new virtual EntityTypeBuilder<TRightEntity> UsingEntity(
             [NotNull] Action<EntityTypeBuilder> configureJoinEntityType)
         {

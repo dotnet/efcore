@@ -11,11 +11,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
-    /// <summary>
-    ///     Describes the binding from a method on an EF internal dependency injection service, which may or may not
-    ///     also have and associated <see cref="IServiceProperty" />, to a parameter in a constructor,
-    ///     factory method, or similar.
-    /// </summary>
+    /// <inheritdoc />
     public class DependencyInjectionMethodParameterBinding : DependencyInjectionParameterBinding
     {
         /// <summary>
@@ -43,13 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         public virtual MethodInfo Method { get; }
 
-        /// <summary>
-        ///     Creates an expression tree representing the binding of the value of a property from a
-        ///     materialization expression to a parameter of the constructor, factory method, etc.
-        /// </summary>
-        /// <param name="materializationExpression"> The expression representing the materialization context. </param>
-        /// <param name="entityTypeExpression"> The expression representing the <see cref="IEntityType" /> constant. </param>
-        /// <returns> The expression tree. </returns>
+        /// <inheritdoc />
         public override Expression BindToParameter(
             Expression materializationExpression,
             Expression entityTypeExpression)

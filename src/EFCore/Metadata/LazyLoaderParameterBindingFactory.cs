@@ -39,12 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Check.NotNull(dependencies, nameof(dependencies));
         }
 
-        /// <summary>
-        ///     Checks whether or not this factory can bind a parameter with the given type and name.
-        /// </summary>
-        /// <param name="parameterType"> The parameter type. </param>
-        /// <param name="parameterName"> The parameter name. </param>
-        /// <returns> <see langword="true" /> if this parameter can be bound; <see langword="false" /> otherwise. </returns>
+        /// <inheritdoc />
         public override bool CanBind(
             Type parameterType,
             string parameterName)
@@ -57,13 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 || IsLazyLoaderAsyncMethod(parameterType, parameterName);
         }
 
-        /// <summary>
-        ///     Creates a <see cref="ParameterBinding" /> for the given type and name on the given entity type.
-        /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="parameterType"> The parameter type. </param>
-        /// <param name="parameterName"> The parameter name. </param>
-        /// <returns> The binding. </returns>
+        /// <inheritdoc />
         public override ParameterBinding Bind(
             IMutableEntityType entityType,
             Type parameterType,
@@ -84,13 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             return Bind(entityType, parameterType);
         }
 
-        /// <summary>
-        ///     Creates a <see cref="ParameterBinding" /> for the given type and name on the given entity type.
-        /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="parameterType"> The parameter type. </param>
-        /// <param name="parameterName"> The parameter name. </param>
-        /// <returns> The binding. </returns>
+        /// <inheritdoc />
         public override ParameterBinding Bind(
             IConventionEntityType entityType,
             Type parameterType,

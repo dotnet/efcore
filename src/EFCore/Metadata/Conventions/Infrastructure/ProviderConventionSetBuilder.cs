@@ -48,10 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// </summary>
         protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
-        /// <summary>
-        ///     Builds and returns the convention set for the current database provider.
-        /// </summary>
-        /// <returns> The convention set for the current database provider. </returns>
+        /// <inheritdoc />
         public virtual ConventionSet CreateConventionSet()
         {
             var conventionSet = new ConventionSet();

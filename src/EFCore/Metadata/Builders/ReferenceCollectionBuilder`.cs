@@ -119,14 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 this,
                 foreignKeySet: true);
 
-        /// <summary>
-        ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
-        ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
-        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
-        ///     constraint will be introduced.
-        /// </summary>
-        /// <param name="keyPropertyNames"> The name(s) of the referenced key property(s). </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <inheritdoc cref="ReferenceCollectionBuilder.HasPrincipalKey" />
         public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasPrincipalKey(
             [NotNull] params string[] keyPropertyNames)
             => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
@@ -158,13 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 this,
                 principalKeySet: true);
 
-        /// <summary>
-        ///     Adds or updates an annotation on the relationship. If an annotation with the key specified in
-        ///     <paramref name="annotation" /> already exists its value will be updated.
-        /// </summary>
-        /// <param name="annotation"> The key of the annotation to be added or updated. </param>
-        /// <param name="value"> The value to be stored in the annotation. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <inheritdoc cref="ReferenceCollectionBuilder.HasAnnotation" />
         public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasAnnotation(
             [NotNull] string annotation,
             [NotNull] object value)
@@ -172,22 +159,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Check.NotEmpty(annotation, nameof(annotation)),
                 Check.NotNull(value, nameof(value)));
 
-        /// <summary>
-        ///     Configures whether this is a required relationship (i.e. whether the foreign key property(s) can
-        ///     be assigned <see langword="null" />).
-        /// </summary>
-        /// <param name="required"> A value indicating whether this is a required relationship. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <inheritdoc cref="ReferenceCollectionBuilder.IsRequired" />
         public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> IsRequired(bool required = true)
             => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
                 Builder.IsRequired(required, ConfigurationSource.Explicit), this, requiredSet: true);
 
-        /// <summary>
-        ///     Configures the operation applied to dependent entities in the relationship when the
-        ///     principal is deleted or the relationship is severed.
-        /// </summary>
-        /// <param name="deleteBehavior"> The action to perform. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <inheritdoc cref="ReferenceCollectionBuilder.OnDelete" />
         public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> OnDelete(DeleteBehavior deleteBehavior)
             => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
                 Builder.OnDelete(deleteBehavior, ConfigurationSource.Explicit), this);

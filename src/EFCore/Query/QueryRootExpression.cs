@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual IAsyncQueryProvider QueryProvider { get; }
 
         /// <summary>
-        ///     The entity type reprenseted by this query root.
+        ///     The entity type represented by this query root.
         /// </summary>
         public virtual IEntityType EntityType { get; }
 

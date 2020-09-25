@@ -16,14 +16,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     public interface IMutableIndex : IIndex, IMutableAnnotatable
     {
-        /// <summary>
-        ///     Gets or sets a value indicating whether the values assigned to the indexed properties are unique.
-        /// </summary>
+        /// <inheritdoc cref="IIndex.IsUnique" />
         new bool IsUnique { get; set; }
 
-        /// <summary>
-        ///     Gets the properties that this index is defined on.
-        /// </summary>
+        /// <inheritdoc cref="IIndex.Properties" />
         new IReadOnlyList<IMutableProperty> Properties { get; }
 
         /// <summary>

@@ -12,10 +12,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     /// </summary>
     public class TemporaryGuidValueGenerator : GuidValueGenerator
     {
-        /// <summary>
-        ///     Gets a value to be assigned to a property.
-        /// </summary>
-        /// <returns> The value to be assigned to a property. </returns>
+        /// <inheritdoc />
         public override bool GeneratesTemporaryValues
             => true;
     }

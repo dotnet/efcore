@@ -15,12 +15,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
+    /// <inheritdoc cref="IDbContextPool{TContext}" />
     public class DbContextPool<TContext> : IDbContextPool<TContext>, IDisposable, IAsyncDisposable
         where TContext : DbContext
     {
@@ -79,12 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return null;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         public virtual IDbContextPoolable Rent()
         {
             if (_pool.TryDequeue(out var context))
@@ -103,12 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return context;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         public virtual void Return(IDbContextPoolable context)
         {
             if (Interlocked.Increment(ref _count) <= _maxSize)
@@ -123,12 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         public virtual async ValueTask ReturnAsync(IDbContextPoolable context, CancellationToken cancellationToken = default)
         {
             if (Interlocked.Increment(ref _count) <= _maxSize)

@@ -18,36 +18,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     public interface IMutableSkipNavigation : ISkipNavigation, IMutableNavigationBase
     {
-        /// <summary>
-        ///     Gets the type that this navigation property belongs to.
-        /// </summary>
+        /// <inheritdoc cref="INavigationBase.DeclaringEntityType" />
         new IMutableEntityType DeclaringEntityType
         {
             [DebuggerStepThrough]
             get => (IMutableEntityType)((INavigationBase)this).DeclaringEntityType;
         }
 
-        /// <summary>
-        ///     Gets the entity type that this navigation property will hold an instance(s) of.
-        /// </summary>
+        /// <inheritdoc cref="INavigationBase.TargetEntityType" />
         new IMutableEntityType TargetEntityType
         {
             [DebuggerStepThrough]
             get => (IMutableEntityType)((INavigationBase)this).TargetEntityType;
         }
 
-        /// <summary>
-        ///     Gets the join type used by the foreign key.
-        /// </summary>
+        /// <inheritdoc cref="ISkipNavigation.JoinEntityType" />
         new IMutableEntityType JoinEntityType
         {
             [DebuggerStepThrough]
             get => (IMutableEntityType)((ISkipNavigation)this).JoinEntityType;
         }
 
-        /// <summary>
-        ///     Gets the foreign key to the join type.
-        /// </summary>
+        /// <inheritdoc cref="ISkipNavigation.ForeignKey" />
         new IMutableForeignKey ForeignKey
         {
             [DebuggerStepThrough]
@@ -62,9 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         void SetForeignKey([CanBeNull] IMutableForeignKey foreignKey);
 
-        /// <summary>
-        ///     Gets the inverse skip navigation.
-        /// </summary>
+        /// <inheritdoc cref="ISkipNavigation.Inverse" />
         new IMutableSkipNavigation Inverse
         {
             [DebuggerStepThrough]

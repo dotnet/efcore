@@ -23,12 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
         }
 
-        /// <summary>
-        ///     Creates an expression tree representing the binding of the value of a property from a
-        ///     materialization expression to a parameter of the constructor, factory method, etc.
-        /// </summary>
-        /// <param name="bindingInfo"> The binding information. </param>
-        /// <returns> The expression tree. </returns>
+        /// <inheritdoc />
         public override Expression BindToParameter(ParameterBindingInfo bindingInfo)
         {
             var property = ConsumedProperties[0];

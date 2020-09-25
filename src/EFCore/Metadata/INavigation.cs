@@ -11,36 +11,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     public interface INavigation : INavigationBase
     {
-        /// <summary>
-        ///     Gets the entity type that this navigation property belongs to.
-        /// </summary>
+        /// <inheritdoc cref="INavigationBase.DeclaringEntityType" />
         new IEntityType DeclaringEntityType
         {
             [DebuggerStepThrough]
             get => IsOnDependent ? ForeignKey.DeclaringEntityType : ForeignKey.PrincipalEntityType;
         }
 
-        /// <summary>
-        ///     Gets the entity type that this navigation property will hold an instance(s) of.
-        /// </summary>
+        /// <inheritdoc cref="INavigationBase.TargetEntityType" />
         new IEntityType TargetEntityType
         {
             [DebuggerStepThrough]
             get => IsOnDependent ? ForeignKey.PrincipalEntityType : ForeignKey.DeclaringEntityType;
         }
 
-        /// <summary>
-        ///     Gets the inverse navigation.
-        /// </summary>
+        /// <inheritdoc cref="INavigationBase.Inverse" />
         new INavigation Inverse
         {
             [DebuggerStepThrough]
             get => IsOnDependent ? ForeignKey.PrincipalToDependent : ForeignKey.DependentToPrincipal;
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether the navigation property is a collection property.
-        /// </summary>
+        /// <inheritdoc cref="INavigationBase.IsCollection" />
         new bool IsCollection
         {
             [DebuggerStepThrough]
@@ -61,11 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             get => ForeignKey.DependentToPrincipal == this;
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IClrCollectionAccessor" /> for this navigation property, if it's a collection
-        ///     navigation.
-        /// </summary>
-        /// <returns> The accessor. </returns>
+        /// <inheritdoc cref="INavigationBase.GetCollectionAccessor" />
         [DebuggerStepThrough]
         new IClrCollectionAccessor GetCollectionAccessor()
             => ((Navigation)this).CollectionAccessor;
@@ -97,9 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             get => Inverse;
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether the navigation property is a collection property.
-        /// </summary>
+        /// <inheritdoc />
         bool INavigationBase.IsCollection
         {
             [DebuggerStepThrough]
