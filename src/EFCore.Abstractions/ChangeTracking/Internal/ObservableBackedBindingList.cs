@@ -209,10 +209,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        /// <summary>
-        /// Removes the item from the underlying from observable collection.
-        /// </summary>
-        /// <param name="item"> The item. </param>
         private void RemoveFromObservableCollection(T item)
         {
             // Don't try to change the ObservableCollection if the original change
