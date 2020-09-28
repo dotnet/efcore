@@ -91,9 +91,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 if (_entityType.IsOwned())
                 {
+                    var message = CoreStrings.InvalidSetTypeOwned(
+                        _entityType.DisplayName(), _entityType.FindOwnership().PrincipalEntityType.DisplayName());
                     _entityType = null;
 
-                    throw new InvalidOperationException(CoreStrings.InvalidSetTypeOwned(typeof(TEntity).ShortDisplayName()));
+                    throw new InvalidOperationException(message);
                 }
 
                 if (_entityType.ClrType != typeof(TEntity))

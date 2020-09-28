@@ -1351,9 +1351,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     throw new InvalidOperationException(
                         CoreStrings.ForeignKeyTypeMismatch(
-                            dependentProperties.Format(),
+                            dependentProperties.Format(includeTypes: true),
                             dependentEntityType.DisplayName(),
-                            principalProperties.Format(),
+                            principalProperties.Format(includeTypes: true),
                             principalEntityType.DisplayName()));
                 }
 
