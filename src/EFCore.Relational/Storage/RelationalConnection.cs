@@ -111,8 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             get => _connectionString ?? _connection?.ConnectionString;
             set
             {
-                if (_connection != null
-                    && !string.Equals(_connection.ConnectionString, value, StringComparison.InvariantCulture))
+                if (_connection != null && _connection.ConnectionString != value)
                 {
                     // Let ADO.NET throw if this is not valid for the state of the connection.
                     _connection.ConnectionString = value;

@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     && Equals(tableExpressionBase));
 
         private bool Equals(TableExpressionBase tableExpressionBase)
-            => string.Equals(Alias, tableExpressionBase.Alias);
+            => Alias == tableExpressionBase.Alias;
 
         /// <inheritdoc />
         public override int GetHashCode()

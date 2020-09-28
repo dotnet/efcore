@@ -76,9 +76,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 
             expressionPrinter.Visit(Expression);
-            if (!string.Equals(string.Empty, Alias)
+            if (Alias != string.Empty
                 && !(Expression is ColumnExpression column
-                    && string.Equals(column.Name, Alias)))
+                    && column.Name == Alias))
             {
                 expressionPrinter.Append(" AS " + Alias);
             }
@@ -92,8 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     && Equals(projectionExpression));
 
         private bool Equals(ProjectionExpression projectionExpression)
-            => string.Equals(Alias, projectionExpression.Alias)
-                && Expression.Equals(projectionExpression.Expression);
+            => Alias == projectionExpression.Alias && Expression.Equals(projectionExpression.Expression);
 
         /// <inheritdoc />
         public override int GetHashCode()

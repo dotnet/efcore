@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
     {
         protected override int Execute(string[] args)
         {
-            var executor = CreateExecutor(args);
+            using var executor = CreateExecutor(args);
 
             void LogDropCommand(Func<object, object, string> resource)
             {

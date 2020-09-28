@@ -8305,6 +8305,43 @@ WHERE ([s].[Name] = N'Kilo') AND (COALESCE((
     WHERE ([s].[Id] = [g].[SquadId]) AND ([g].[HasSoulPatch] = CAST(1 AS bit))), 0) <> 0)");
         }
 
+        public override async Task Correlated_collection_with_inner_collection_references_element_two_levels_up(bool async)
+        {
+            await base.Correlated_collection_with_inner_collection_references_element_two_levels_up(async);
+
+            AssertSql(
+                @"SELECT [g].[FullName], [g].[Nickname], [g].[SquadId], [t].[ReportName], [t].[OfficerName], [t].[Nickname], [t].[SquadId]
+FROM [Gears] AS [g]
+LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
+OUTER APPLY (
+    SELECT [g0].[FullName] AS [ReportName], [g].[FullName] AS [OfficerName], [g0].[Nickname], [g0].[SquadId]
+    FROM [Gears] AS [g0]
+    WHERE ([g].[Nickname] = [g0].[LeaderNickname]) AND ([g].[SquadId] = [g0].[LeaderSquadId])
+) AS [t]
+WHERE [o].[Nickname] IS NOT NULL
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId]");
+        }
+
+        public override async Task Accessing_derived_property_using_hard_and_soft_cast(bool async)
+        {
+            await base.Accessing_derived_property_using_hard_and_soft_cast(async);
+
+            AssertSql(
+                @"SELECT [l].[Name], [l].[LocustHordeId], [l].[ThreatLevel], [l].[ThreatLevelByte], [l].[ThreatLevelNullableByte], [l0].[DefeatedByNickname], [l0].[DefeatedBySquadId], [l0].[HighCommandId], CASE
+    WHEN [l0].[Name] IS NOT NULL THEN N'LocustCommander'
+END AS [Discriminator]
+FROM [LocustLeaders] AS [l]
+LEFT JOIN [LocustCommanders] AS [l0] ON [l].[Name] = [l0].[Name]
+WHERE [l0].[Name] IS NOT NULL AND (([l0].[HighCommandId] <> 0) OR [l0].[HighCommandId] IS NULL)",
+                //
+                @"SELECT [l].[Name], [l].[LocustHordeId], [l].[ThreatLevel], [l].[ThreatLevelByte], [l].[ThreatLevelNullableByte], [l0].[DefeatedByNickname], [l0].[DefeatedBySquadId], [l0].[HighCommandId], CASE
+    WHEN [l0].[Name] IS NOT NULL THEN N'LocustCommander'
+END AS [Discriminator]
+FROM [LocustLeaders] AS [l]
+LEFT JOIN [LocustCommanders] AS [l0] ON [l].[Name] = [l0].[Name]
+WHERE [l0].[Name] IS NOT NULL AND (([l0].[HighCommandId] <> 0) OR [l0].[HighCommandId] IS NULL)");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

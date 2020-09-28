@@ -1845,5 +1845,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                     AssertEqual(e.Customer, a.Customer);
                 });
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_Length_of_a_string_property_after_FirstOrDefault_on_correlated_collection(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => (int?)c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).FirstOrDefault().Length),
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).FirstOrDefault().MaybeScalar(x => x.Length)),
+                assertOrder: true);
+        }
     }
 }

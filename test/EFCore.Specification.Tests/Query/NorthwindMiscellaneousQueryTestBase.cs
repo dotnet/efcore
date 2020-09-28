@@ -6326,5 +6326,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(e.OrderDate, a.OrderDate);
                 });
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SkipWhile_throws_meaningful_exception(bool async)
+        {
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    async,
+                    ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).SkipWhile(c => c.CustomerID != "Foo").Skip(1)));
+        }
     }
 }

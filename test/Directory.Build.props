@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <NoWarn>$(NoWarn);1591;xUnit1000;xUnit1003;xUnit1004;xUnit1010;xUnit1013;xUnit1026</NoWarn>
+    <NoWarn>$(NoWarn);CA1707;1591;xUnit1000;xUnit1003;xUnit1004;xUnit1010;xUnit1013;xUnit1026</NoWarn>
   </PropertyGroup>
 
 </Project>
