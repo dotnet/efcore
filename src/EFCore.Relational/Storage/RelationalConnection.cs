@@ -565,7 +565,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (DbConnection.State == ConnectionState.Broken)
             {
-                DbConnection.Close();
+                CloseDbConnection();
             }
 
             var wasOpened = false;
@@ -599,7 +599,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (DbConnection.State == ConnectionState.Broken)
             {
-                await DbConnection.CloseAsync().ConfigureAwait(false);
+                await CloseDbConnectionAsync().ConfigureAwait(false);
             }
 
             var wasOpened = false;
@@ -806,7 +806,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     {
                         if (!interceptionResult.IsSuppressed)
                         {
-                            DbConnection.Close();
+                            CloseDbConnection();
                         }
 
                         wasClosed = true;
@@ -826,6 +826,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             return wasClosed;
         }
+
+        /// <summary>
+        ///     Template method that by default calls <see cref="System.Data.Common.DbConnection.Close" /> but can be overriden
+        ///     by providers to make a different call instead.
+        /// </summary>
+        protected virtual void CloseDbConnection()
+            => DbConnection.Close();
 
         /// <summary>
         ///     Closes the connection to the database.
@@ -859,7 +866,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     {
                         if (!interceptionResult.IsSuppressed)
                         {
-                            await DbConnection.CloseAsync().ConfigureAwait(false);
+                            await CloseDbConnectionAsync().ConfigureAwait(false);
                         }
 
                         wasClosed = true;
@@ -889,6 +896,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             return wasClosed;
         }
+
+        /// <summary>
+        ///     Template method that by default calls <see cref="M:System.Data.Common.DbConnection.CloseAsync" /> but can be overriden
+        ///     by providers to make a different call instead.
+        /// </summary>
+        protected virtual Task CloseDbConnectionAsync()
+            => DbConnection.CloseAsync();
 
         private bool ShouldClose()
             => (_openedCount == 0
