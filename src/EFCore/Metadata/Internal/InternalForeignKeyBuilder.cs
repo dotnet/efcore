@@ -353,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     if (inverse?.Builder != null
                         && inverse.GetConfigurationSource() != ConfigurationSource.Explicit)
                     {
-                        inverse.DeclaringEntityType.Builder.HasNoSkipNavigation(conflictingSkipNavigation, configurationSource);
+                        inverse.DeclaringEntityType.Builder.HasNoSkipNavigation(inverse, configurationSource);
                     }
 
                     conflictingSkipNavigation.DeclaringEntityType.Builder.HasNoSkipNavigation(
