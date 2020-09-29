@@ -571,13 +571,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> <see langword="true" /> if the underlying connection was actually opened; <see langword="false" /> otherwise. </returns>
         public virtual bool Open(bool errorsExpected = false)
         {
-            if (DbConnection.State == ConnectionState.Broken)
+            if (DbConnectionState == ConnectionState.Broken)
             {
                 CloseDbConnection();
             }
 
             var wasOpened = false;
-            if (DbConnection.State != ConnectionState.Open)
+            if (DbConnectionState != ConnectionState.Open)
             {
                 CurrentTransaction?.Dispose();
                 ClearTransactions(clearAmbient: false);
@@ -605,13 +605,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         public virtual async Task<bool> OpenAsync(CancellationToken cancellationToken, bool errorsExpected = false)
         {
-            if (DbConnection.State == ConnectionState.Broken)
+            if (DbConnectionState == ConnectionState.Broken)
             {
                 await CloseDbConnectionAsync().ConfigureAwait(false);
             }
 
             var wasOpened = false;
-            if (DbConnection.State != ConnectionState.Open)
+            if (DbConnectionState != ConnectionState.Open)
             {
                 if (CurrentTransaction != null)
                 {
@@ -803,7 +803,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 CurrentTransaction?.Dispose();
                 ClearTransactions(clearAmbient: false);
 
-                if (DbConnection.State != ConnectionState.Closed)
+                if (DbConnectionState != ConnectionState.Closed)
                 {
                     var startTime = DateTimeOffset.UtcNow;
                     var stopwatch = Stopwatch.StartNew();
@@ -862,7 +862,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 ClearTransactions(clearAmbient: false);
 
-                if (DbConnection.State != ConnectionState.Closed)
+                if (DbConnectionState != ConnectionState.Closed)
                 {
                     var startTime = DateTimeOffset.UtcNow;
                     var stopwatch = Stopwatch.StartNew();
@@ -911,6 +911,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         protected virtual Task CloseDbConnectionAsync()
             => DbConnection.CloseAsync();
+
+        /// <summary>
+        ///     Template method that by default calls <see cref="M:System.Data.Common.DbConnection.State" /> but can be overriden
+        ///     by providers to make a different call instead.
+        /// </summary>
+        protected virtual ConnectionState DbConnectionState => DbConnection.State;
 
         private bool ShouldClose()
             => (_openedCount == 0
