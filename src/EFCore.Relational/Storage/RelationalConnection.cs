@@ -227,10 +227,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 Dependencies.TransactionLogger.ExplicitTransactionEnlisted(this, transaction);
             }
 
-            DbConnection.EnlistTransaction(transaction);
+            ConnectionEnlistTransaction(transaction);
 
             EnlistedTransaction = transaction;
         }
+
+        /// <summary>
+        ///     Template method that by default calls <see cref="System.Data.Common.DbConnection.EnlistTransaction" /> but can be overriden
+        ///     by providers to make a different call instead.
+        /// </summary>
+        /// <param name="transaction"> The transaction to be used. </param>
+        protected virtual void ConnectionEnlistTransaction(Transaction transaction)
+             => DbConnection.EnlistTransaction(transaction);
 
         /// <summary>
         ///     Indicates whether the store connection supports ambient transactions
@@ -761,7 +769,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Dependencies.TransactionLogger.AmbientTransactionEnlisted(this, current);
             current.TransactionCompleted += HandleTransactionCompleted;
 
-            DbConnection.EnlistTransaction(current);
+            ConnectionEnlistTransaction(current);
             _ambientTransactions.Push(current);
         }
 
