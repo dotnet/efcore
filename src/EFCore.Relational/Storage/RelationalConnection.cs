@@ -301,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var dbTransaction = interceptionResult.HasResult
                 ? interceptionResult.Result
-                : DbConnection.BeginTransaction(isolationLevel);
+                : ConnectionBeginTransation(isolationLevel);
 
             dbTransaction = Dependencies.TransactionLogger.TransactionStarted(
                 this,
@@ -312,6 +312,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             return CreateRelationalTransaction(dbTransaction, transactionId, true);
         }
+
+        /// <summary>
+        ///     Template method that by default calls <see cref="System.Data.Common.DbConnection.BeginDbTransaction" /> but can be overriden
+        ///     by providers to make a different call instead.
+        /// </summary>
+        /// <param name="isolationLevel"> The isolation level to use for the transaction. </param>
+        /// <returns> The newly created transaction. </returns>
+        protected virtual DbTransaction ConnectionBeginTransation(IsolationLevel isolationLevel)
+             => DbConnection.BeginTransaction(isolationLevel);
 
         /// <summary>
         ///     Asynchronously begins a new transaction.
@@ -344,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var dbTransaction = interceptionResult.HasResult
                 ? interceptionResult.Result
-                : await DbConnection.BeginTransactionAsync(isolationLevel, cancellationToken).ConfigureAwait(false);
+                : await ConnectionBeginTransationAsync(isolationLevel, cancellationToken).ConfigureAwait(false);
 
             dbTransaction = await Dependencies.TransactionLogger.TransactionStartedAsync(
                     this,
@@ -357,6 +366,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             return CreateRelationalTransaction(dbTransaction, transactionId, true);
         }
+
+        /// <summary>
+        ///     Template method that by default calls <see cref="System.Data.Common.DbConnection.BeginDbTransactionAsync" /> but can be overriden
+        ///     by providers to make a different call instead.
+        /// </summary>
+        /// <param name="isolationLevel"> The isolation level to use for the transaction. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <returns> The newly created transaction. </returns>
+        protected virtual ValueTask<DbTransaction> ConnectionBeginTransationAsync(
+            IsolationLevel isolationLevel,
+            CancellationToken cancellationToken = default)
+             => DbConnection.BeginTransactionAsync(isolationLevel, cancellationToken);
 
         private void EnsureNoTransactions()
         {
