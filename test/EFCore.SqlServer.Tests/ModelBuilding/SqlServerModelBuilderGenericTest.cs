@@ -253,6 +253,68 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => CreateTestModelBuilder(SqlServerTestHelpers.Instance);
         }
 
+        public class SqlServerGenericManyToMany : GenericManyToMany
+        {
+            [ConditionalFact]
+            public virtual void Join_entity_type_uses_same_schema()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<Category>().ToTable("Category", "mySchema").Ignore(c => c.ProductCategories);
+                modelBuilder.Entity<Product>().ToTable("Product", "mySchema");
+                modelBuilder.Entity<CategoryBase>();
+
+                var model = modelBuilder.FinalizeModel();
+
+                var productType = model.FindEntityType(typeof(Product));
+                var categoryType = model.FindEntityType(typeof(Category));
+
+                var categoriesNavigation = productType.GetSkipNavigations().Single();
+                var productsNavigation = categoryType.GetSkipNavigations().Single();
+
+                var categoriesFk = categoriesNavigation.ForeignKey;
+                var productsFk = productsNavigation.ForeignKey;
+                var productCategoryType = categoriesFk.DeclaringEntityType;
+
+                Assert.Equal(typeof(Dictionary<string, object>), productCategoryType.ClrType);
+                Assert.Equal("mySchema", productCategoryType.GetSchema());
+                Assert.Same(categoriesFk, productCategoryType.GetForeignKeys().Last());
+                Assert.Same(productsFk, productCategoryType.GetForeignKeys().First());
+                Assert.Equal(2, productCategoryType.GetForeignKeys().Count());
+            }
+
+            [ConditionalFact]
+            public virtual void Join_entity_type_uses_default_schema_if_related_are_different()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<Category>().ToTable("Category").Ignore(c => c.ProductCategories);
+                modelBuilder.Entity<Product>().ToTable("Product", "dbo");
+                modelBuilder.Entity<CategoryBase>();
+
+                var model = modelBuilder.FinalizeModel();
+
+                var productType = model.FindEntityType(typeof(Product));
+                var categoryType = model.FindEntityType(typeof(Category));
+
+                var categoriesNavigation = productType.GetSkipNavigations().Single();
+                var productsNavigation = categoryType.GetSkipNavigations().Single();
+
+                var categoriesFk = categoriesNavigation.ForeignKey;
+                var productsFk = productsNavigation.ForeignKey;
+                var productCategoryType = categoriesFk.DeclaringEntityType;
+
+                Assert.Equal(typeof(Dictionary<string, object>), productCategoryType.ClrType);
+                Assert.Null(productCategoryType.GetSchema());
+                Assert.Same(categoriesFk, productCategoryType.GetForeignKeys().Last());
+                Assert.Same(productsFk, productCategoryType.GetForeignKeys().First());
+                Assert.Equal(2, productCategoryType.GetForeignKeys().Count());
+            }
+
+            protected override TestModelBuilder CreateModelBuilder()
+                => CreateTestModelBuilder(SqlServerTestHelpers.Instance);
+        }
+
         public class SqlServerGenericOwnedTypes : GenericOwnedTypes
         {
             [ConditionalFact]

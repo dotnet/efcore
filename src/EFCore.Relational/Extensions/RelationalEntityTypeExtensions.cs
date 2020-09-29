@@ -147,9 +147,25 @@ namespace Microsoft.EntityFrameworkCore
                 return ownership.PrincipalEntityType.GetSchema();
             }
 
-            return entityType.HasDefiningNavigation()
-                ? entityType.DefiningEntityType.GetSchema() ?? entityType.Model.GetDefaultSchema()
-                : entityType.Model.GetDefaultSchema();
+            if (entityType.HasDefiningNavigation())
+            {
+                return entityType.DefiningEntityType.GetSchema() ?? entityType.Model.GetDefaultSchema();
+            }
+            else
+            {
+                var skipNavigationSchema = entityType.GetForeignKeys().SelectMany(fk => fk.GetReferencingSkipNavigations())
+                    .FirstOrDefault(n => !n.IsOnDependent)
+                    ?.DeclaringEntityType.GetSchema();
+                if (skipNavigationSchema != null
+                    && entityType.GetForeignKeys().SelectMany(fk => fk.GetReferencingSkipNavigations())
+                        .Where(n => !n.IsOnDependent)
+                        .All(n => n.DeclaringEntityType.GetSchema() == skipNavigationSchema))
+                {
+                    return skipNavigationSchema;
+                }
+
+                return entityType.Model.GetDefaultSchema();
+            }
         }
 
         /// <summary>
