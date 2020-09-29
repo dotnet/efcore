@@ -946,12 +946,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
             if (_connectionOwned
                 && _connection != null)
             {
-                DbConnection.Dispose();
+                DisposeDbConnection();
                 _connection = null;
                 _openedCount = 0;
                 _openedInternally = false;
             }
         }
+
+        /// <summary>
+        ///     Template method that by default calls Dispose on <see cref="System.Data.Common.DbConnection" /> but can be overriden
+        ///     by providers to make a different call instead.
+        /// </summary>
+        protected virtual void DisposeDbConnection()
+            => DbConnection.Dispose();
 
         /// <summary>
         ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -968,10 +975,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
             if (_connectionOwned
                 && _connection != null)
             {
-                await DbConnection.DisposeAsync().ConfigureAwait(false);
+                await DisposeDbConnectionAsync().ConfigureAwait(false);
                 _connection = null;
                 _openedCount = 0;
             }
         }
+
+        /// <summary>
+        ///     Template method that by default calls <see cref="System.Data.Common.DbConnection.DisposeAsync" /> but can be overriden
+        ///     by providers to make a different call instead.
+        /// </summary>
+        protected virtual ValueTask DisposeDbConnectionAsync()
+            => DbConnection.DisposeAsync();
     }
 }
