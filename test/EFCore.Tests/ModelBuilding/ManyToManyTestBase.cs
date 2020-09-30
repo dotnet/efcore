@@ -47,12 +47,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Same(categoriesFk, productCategoryType.GetForeignKeys().Last());
                 Assert.Same(productsFk, productCategoryType.GetForeignKeys().First());
                 Assert.Equal(2, productCategoryType.GetForeignKeys().Count());
-
-                Assert.Same(categoriesNavigation, productType.GetSkipNavigations().Single());
-                Assert.Same(productsNavigation, categoryType.GetSkipNavigations().Single());
-                Assert.Same(categoriesFk, productCategoryType.GetForeignKeys().Last());
-                Assert.Same(productsFk, productCategoryType.GetForeignKeys().First());
-                Assert.Equal(2, productCategoryType.GetForeignKeys().Count());
             }
 
             [ConditionalFact]
