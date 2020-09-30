@@ -16,9 +16,9 @@ There are two different NuGet package sources for daily builds as we transition 
 
 ### Package source for EF Core 5.0
 
-Note that a feature complete release candidate with a go-live license is [available now on NuGet](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore/5.0.0-rc.1.20451.13). Daily builds are only needed for early access to the RC2 bits.
+Note that a feature complete release candidate with a go-live license is [available now on NuGet](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore/5.0.0-rc.1.20451.13). Daily builds are only needed for early access to the GA bits.
 
-For EF Core 5.0 RC2 daily builds, `NuGet.config` should contain:
+For EF Core 5.0 GA daily builds, `NuGet.config` should contain:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -59,14 +59,14 @@ The easiest way to use daily builds is with wildcards in project references. For
   </ItemGroup>
 ```
 
-Or for EF Core 5.0 RC2 daily builds:
+Or for EF Core 5.0 GA daily builds:
 
 ```xml
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.0-rc.2.*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.0-rc.2.*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.0-rc.2.*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" Version="5.0.0-rc.2.*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.0-rtm.*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.0-rtm.*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.0-rtm.*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" Version="5.0.0-rtm.*" />
   </ItemGroup>
 ```
 
