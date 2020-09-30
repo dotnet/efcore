@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis.Text;
 using Microsoft.Extensions.DependencyModel;
 using Xunit;
 
-namespace EFCore.Analyzers.Test.TestUtilities
+namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public abstract class DiagnosticAnalyzerTestBase
     {

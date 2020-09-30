@@ -41,15 +41,38 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     <para>
-        ///         Ensures that the database for the context exists. If it exists, no action is taken. If it does not
-        ///         exist then the database and all its schema are created. If the database exists, then no effort is made
-        ///         to ensure it is compatible with the model for this context.
+        ///         Ensures that the database for the context exists.
+        ///     </para>
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 If the database exists and has any tables, then no action is taken. Nothing is done to ensure
+        ///                 the database schema is compatible with the Entity Framework model.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 If the database exists but does not have any tables, then the Entity Framework model is used to
+        ///                 create the database schema.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 If the database does not exist, then the database is created and the Entity Framework model is used to
+        ///                 create the database schema.
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     <para>
+        ///         It is common to use <see cref="EnsureCreated" /> immediately following <see cref="EnsureDeleted" /> when
+        ///         testing or prototyping using Entity Framework. This ensures that the database is in a clean state before each
+        ///         execution of the test/prototype. Note, however, that data in the database is not preserved.
         ///     </para>
         ///     <para>
-        ///         Note that this API does not use migrations to create the database. In addition, the database that is
+        ///         Note that this API does **not** use migrations to create the database. In addition, the database that is
         ///         created cannot be later updated using migrations. If you are targeting a relational database and using migrations,
-        ///         you can use the DbContext.Database.Migrate() method to ensure the database is created and all migrations
-        ///         are applied.
+        ///         then you can use <see cref="M:Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.Migrate" />
+        ///         to ensure the database is created using migrations and that all migrations have been applied.
         ///     </para>
         /// </summary>
         /// <returns> <see langword="true" /> if the database is created, false if it already existed. </returns>
@@ -58,15 +81,38 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     <para>
-        ///         Asynchronously ensures that the database for the context exists. If it exists, no action is taken. If it does not
-        ///         exist then the database and all its schema are created. If the database exists, then no effort is made
-        ///         to ensure it is compatible with the model for this context.
+        ///         Ensures that the database for the context exists.
+        ///     </para>
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 If the database exists and has any tables, then no action is taken. Nothing is done to ensure
+        ///                 the database schema is compatible with the Entity Framework model.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 If the database exists but does not have any tables, then the Entity Framework model is used to
+        ///                 create the database schema.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 If the database does not exist, then the database is created and the Entity Framework model is used to
+        ///                 create the database schema.
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     <para>
+        ///         It is common to use <see cref="EnsureCreatedAsync" /> immediately following <see cref="EnsureDeletedAsync" /> when
+        ///         testing or prototyping using Entity Framework. This ensures that the database is in a clean state before each
+        ///         execution of the test/prototype. Note, however, that data in the database is not preserved.
         ///     </para>
         ///     <para>
-        ///         Note that this API does not use migrations to create the database. In addition, the database that is
+        ///         Note that this API does **not** use migrations to create the database. In addition, the database that is
         ///         created cannot be later updated using migrations. If you are targeting a relational database and using migrations,
-        ///         you can use the DbContext.Database.Migrate() method to ensure the database is created and all migrations
-        ///         are applied.
+        ///         then you can use <see cref="M:Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.MigrateAsync" />
+        ///         to ensure the database is created using migrations and that all migrations have been applied.
         ///     </para>
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
@@ -86,6 +132,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         Warning: The entire database is deleted, and no effort is made to remove just the database objects that are used by
         ///         the model for this context.
         ///     </para>
+        ///     <para>
+        ///         It is common to use <see cref="EnsureCreated" /> immediately following <see cref="EnsureDeleted" /> when
+        ///         testing or prototyping using Entity Framework. This ensures that the database is in a clean state before each
+        ///         execution of the test/prototype. Note, however, that data in the database is not preserved.
+        ///     </para>
         /// </summary>
         /// <returns> <see langword="true" /> if the database is deleted, false if it did not exist. </returns>
         public virtual bool EnsureDeleted()
@@ -99,6 +150,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     <para>
         ///         Warning: The entire database is deleted, and no effort is made to remove just the database objects that are used by
         ///         the model for this context.
+        ///     </para>
+        ///     <para>
+        ///         It is common to use <see cref="EnsureCreatedAsync" /> immediately following <see cref="EnsureDeletedAsync" /> when
+        ///         testing or prototyping using Entity Framework. This ensures that the database is in a clean state before each
+        ///         execution of the test/prototype. Note, however, that data in the database is not preserved.
         ///     </para>
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
@@ -211,13 +267,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         if no transaction is in use.
         ///     </para>
         ///     <para>
-        ///         This property will be null unless one of the 'BeginTransaction' or 'UseTransaction' methods has
-        ///         been called, some of which are available as extension methods installed by EF providers.
+        ///         This property is null unless one of <see cref="M:BeginTransaction" />, <see cref="M:UseTransaction" />,
+        ///         <see cref="M:Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.BeginTransaction" />, or
+        ///         <see cref="M:Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.UseTransaction" />
+        ///         has been called.
         ///         No attempt is made to obtain a transaction from the current DbConnection or similar.
         ///     </para>
         ///     <para>
-        ///         For relational databases, the underlying DbTransaction can be obtained using the
-        ///         'Microsoft.EntityFrameworkCore.Storage.GetDbTransaction' extension method
+        ///         For relational databases, the underlying <see cref="T:System.Data.Common.DbTransaction" /> can be obtained using
+        ///         <see cref="M:Microsoft.EntityFrameworkCore.Storage.GetDbTransaction" />
         ///         on the returned <see cref="IDbContextTransaction" />.
         ///     </para>
         /// </summary>
@@ -249,8 +307,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     <para>
         ///         Returns the name of the database provider currently in use.
         ///         The name is typically the name of the provider assembly.
-        ///         It is usually easier to use a sugar method such as 'IsSqlServer()' instead of
-        ///         calling this method directly.
+        ///         It is usually easier to use a sugar method such as
+        ///         <see cref="M:Microsoft.EntityFrameworkCore.SqlServerDatabaseFacadeExtensions.IsSqlServer" />
+        ///         instead of calling this method directly.
         ///     </para>
         ///     <para>
         ///         This method can only be used after the <see cref="DbContext" /> has been configured because

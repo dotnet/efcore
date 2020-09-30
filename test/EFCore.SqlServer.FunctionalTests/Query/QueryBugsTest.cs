@@ -9139,6 +9139,168 @@ FROM [CycleC] AS [c]");
 
         #endregion
 
+        #region Issue12274
+
+        [ConditionalFact]
+        public virtual void Parameterless_ctor_on_inner_DTO_gets_called_for_every_row()
+        {
+            using (CreateDatabase12274())
+            {
+                using var context = new MyContext12274(_options);
+                var results = context.Entities.Select(x => new OuterDTO12274 { Id = x.Id, Name = x.Name, Inner = new InnerDTO12274() }).ToList();
+                Assert.Equal(4, results.Count);
+                Assert.False(ReferenceEquals(results[0].Inner, results[1].Inner));
+                Assert.False(ReferenceEquals(results[1].Inner, results[2].Inner));
+                Assert.False(ReferenceEquals(results[2].Inner, results[3].Inner));
+            }
+        }
+
+        private class MyContext12274 : DbContext
+        {
+            public DbSet<MyEntity12274> Entities { get; set; }
+
+            public MyContext12274(DbContextOptions options)
+                : base(options)
+            {
+            }
+        }
+
+        public class MyEntity12274
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        public class OuterDTO12274
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public InnerDTO12274 Inner { get; set; }
+        }
+
+        public class InnerDTO12274
+        {
+            public InnerDTO12274()
+            {
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase12274()
+            => CreateTestStore(
+                () => new MyContext12274(_options),
+                context =>
+                {
+                    var e1 = new MyEntity12274 { Name = "1" };
+                    var e2 = new MyEntity12274 { Name = "2" };
+                    var e3 = new MyEntity12274 { Name = "3" };
+                    var e4 = new MyEntity12274 { Name = "4" };
+
+                    context.Entities.AddRange(e1, e2, e3, e4);
+                    context.SaveChanges();
+                    ClearLog();
+                });
+
+        #endregion
+
+        #region Issue11835
+
+        [ConditionalFact]
+        public virtual void Projecting_correlated_collection_along_with_non_mapped_property()
+        {
+            using (CreateDatabase11835())
+            {
+                using var context = new MyContext11835(_options);
+                var result = context.Blogs.Select(
+                    e => new
+                    {
+                        Id = e.Id,
+                        Title = e.Title,
+                        FirstPostName = e.Posts.Where(i => i.Name.Contains("2")).ToList()
+                    }).ToList();
+
+                AssertSql(
+                    @"SELECT [b].[Id], [t].[Id], [t].[BlogId], [t].[Name]
+FROM [Blogs] AS [b]
+LEFT JOIN (
+    SELECT [p].[Id], [p].[BlogId], [p].[Name]
+    FROM [Posts] AS [p]
+    WHERE [p].[Name] LIKE N'%2%'
+) AS [t] ON [b].[Id] = [t].[BlogId]
+ORDER BY [b].[Id], [t].[Id]");
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Projecting_element_from_correlated_collection_along_with_non_mapped_property()
+        {
+            using (CreateDatabase11835())
+            {
+                using var context = new MyContext11835(_options);
+                var result = context.Blogs.Select(
+                    e => new
+                    {
+                        Id = e.Id,
+                        Title = e.Title,
+                        FirstPostName = e.Posts.OrderBy(i => i.Id).FirstOrDefault().Name
+                    }).ToList();
+
+                AssertSql(
+                    @"SELECT [b].[Id], (
+    SELECT TOP(1) [p].[Name]
+    FROM [Posts] AS [p]
+    WHERE [b].[Id] = [p].[BlogId]
+    ORDER BY [p].[Id])
+FROM [Blogs] AS [b]");
+            }
+        }
+
+        private class MyContext11835 : DbContext
+        {
+            public DbSet<Blog11835> Blogs { get; set; }
+            public DbSet<Post11835> Posts { get; set; }
+
+            public MyContext11835(DbContextOptions options)
+                : base(options)
+            {
+            }
+        }
+
+        public class Blog11835
+        {
+            public int Id { get; set; }
+            [NotMapped]
+            public string Title { get; set; }
+            public List<Post11835> Posts { get; set; }
+        }
+        public class Post11835
+        {
+            public int Id { get; set; }
+            public int BlogId { get; set; }
+            public Blog11835 Blog { get; set; }
+            public string Name { get; set; }
+        }
+
+        private SqlServerTestStore CreateDatabase11835()
+            => CreateTestStore(
+                () => new MyContext11835(_options),
+                context =>
+                {
+                    var b1 = new Blog11835 { Title = "B1" };
+                    var b2 = new Blog11835 { Title = "B2" };
+                    var p11 = new Post11835 { Name = "P11", Blog = b1 };
+                    var p12 = new Post11835 { Name = "P12", Blog = b1 };
+                    var p13 = new Post11835 { Name = "P13", Blog = b1 };
+                    var p21 = new Post11835 { Name = "P21", Blog = b2 };
+                    var p22 = new Post11835 { Name = "P22", Blog = b2 };
+
+                    context.Blogs.AddRange(b1, b2);
+                    context.Posts.AddRange(p11, p12, p13, p21, p22);
+                    context.SaveChanges();
+                    ClearLog();
+                });
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(

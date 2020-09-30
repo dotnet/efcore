@@ -332,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Found column with table: {tableName}, column name: {columnName}, ordinal: {ordinal}, data type: {dataType}, maximum length: {maxLength}, precision: {precision}, scale: {scale}, nullable: {nullable}, identity: {identity}, default value: {defaultValue}, computed value: {computedValue}, computed value is stored: {stored}
+        ///     Found column with table: {tableName}, column name: {columnName}, ordinal: {ordinal}, data type: {dataType}, maximum length: {maxLength}, precision: {precision}, scale: {scale}, nullable: {nullable}, identity: {identity}, default value: {defaultValue}, computed value: {computedValue}, computed value is stored: {stored}.
         /// </summary>
         public static FallbackEventDefinition LogFoundColumn([NotNull] IDiagnosticsLogger logger)
         {

@@ -27,7 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 
         protected override int Execute(string[] args)
         {
-            var result = CreateExecutor(args).ScaffoldContext(
+            using var executor = CreateExecutor(args);
+            var result = executor.ScaffoldContext(
                 _provider.Value,
                 _connection.Value,
                 _outputDir.Value(),
