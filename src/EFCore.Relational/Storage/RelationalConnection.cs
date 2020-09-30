@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     by providers to make a different call instead.
         /// </summary>
         /// <param name="transaction"> The transaction to be used. </param>
-        protected virtual void ConnectionEnlistTransaction(Transaction transaction)
+        protected virtual void ConnectionEnlistTransaction([NotNull] Transaction transaction)
              => DbConnection.EnlistTransaction(transaction);
 
         /// <summary>
