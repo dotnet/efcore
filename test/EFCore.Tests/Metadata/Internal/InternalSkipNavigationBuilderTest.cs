@@ -13,6 +13,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     public class InternalSkipNavigationBuilderTest
     {
         [ConditionalFact]
+        public void Can_only_override_lower_or_equal_source_SkipNavigation()
+        {
+            var builder = CreateInternalSkipNavigationBuilder();
+            IConventionSkipNavigation skipNavigation = builder.Metadata;
+
+            ((SkipNavigation)skipNavigation).SetConfigurationSource(ConfigurationSource.DataAnnotation);
+
+            var productEntity = skipNavigation.TargetEntityType.Builder;
+            Assert.Null(productEntity.HasRelationship(skipNavigation.DeclaringEntityType, null, nameof(Order.Products)));
+
+            Assert.NotNull(productEntity.HasRelationship(
+                skipNavigation.DeclaringEntityType, null, nameof(Order.Products), fromDataAnnotation: true));
+
+            Assert.Null(skipNavigation.Builder);
+            Assert.Empty(skipNavigation.DeclaringEntityType.GetSkipNavigations());
+        }
+
+        [ConditionalFact]
         public void Can_only_override_lower_or_equal_source_HasField()
         {
             var builder = CreateInternalSkipNavigationBuilder();
