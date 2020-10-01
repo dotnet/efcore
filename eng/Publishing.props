@@ -2,5 +2,6 @@
 <Project>
    <PropertyGroup>
       <PublishingVersion>3</PublishingVersion>
+      <AutoGenerateSymbolPackages>false</AutoGenerateSymbolPackages>
    </PropertyGroup>
 </Project>
