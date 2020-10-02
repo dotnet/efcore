@@ -255,7 +255,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     column.IsNullable = property.IsColumnNullable();
                     defaultTable.Columns.Add(columnName, column);
                 }
-                else if (!property.IsNullable)
+                else if (!property.IsColumnNullable())
                 {
                     column.IsNullable = false;
                 }
@@ -758,14 +758,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var entityType = (IConventionEntityType)entityTypeMapping.EntityType;
                 foreach (var foreignKey in entityType.GetForeignKeys())
                 {
+                    var firstPrincipalMapping = true;
                     foreach (var principalMapping in foreignKey.PrincipalEntityType.GetTableMappings().Reverse())
                     {
-                        if (!principalMapping.IncludesDerivedTypes
+                        if (firstPrincipalMapping
+                            && !principalMapping.IncludesDerivedTypes
                             && foreignKey.PrincipalEntityType.GetDirectlyDerivedTypes().Any())
                         {
                             // Derived principal entity types are mapped to different tables, so the constraint is not enforceable
                             break;
                         }
+
+                        firstPrincipalMapping = false;
 
                         var principalTable = (Table)principalMapping.Table;
                         var name = foreignKey.GetConstraintName(
@@ -1066,9 +1070,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     if (table.EntityTypeMappings.Single(etm => etm.EntityType == entityType).IncludesDerivedTypes)
                     {
-                        foreach (var directlyDerivedEntityType in entityType.GetDirectlyDerivedTypes())
+                        foreach (var directlyDerivedEntityType in entityType.GetDerivedTypes())
                         {
-                            if (mappedEntityTypes.Contains(directlyDerivedEntityType))
+                            if (mappedEntityTypes.Contains(directlyDerivedEntityType)
+                                && !optionalTypes.ContainsKey(directlyDerivedEntityType))
                             {
                                 entityTypesToVisit.Enqueue((directlyDerivedEntityType, optional));
                             }

@@ -21,11 +21,13 @@ namespace Microsoft.EntityFrameworkCore
             base.Can_use_with_redundant_relationships();
 
             AssertSql(
-                @"SELECT [v].[Name], [v].[SeatingCapacity], CASE
+                @"SELECT [v].[Name], [v].[SeatingCapacity], [c].[AttachedVehicleName], CASE
+    WHEN [c].[Name] IS NOT NULL THEN N'CompositeVehicle'
     WHEN [p].[Name] IS NOT NULL THEN N'PoweredVehicle'
 END AS [Discriminator], [t0].[Name], [t0].[Operator_Name], [t0].[LicenseType], [t0].[Discriminator], [t3].[Name], [t3].[Type], [t5].[Name], [t5].[Computed], [t5].[Description], [t5].[Discriminator], [t7].[VehicleName], [t7].[Capacity], [t7].[FuelType], [t7].[GrainGeometry], [t7].[Discriminator]
 FROM [Vehicles] AS [v]
 LEFT JOIN [PoweredVehicles] AS [p] ON [v].[Name] = [p].[Name]
+LEFT JOIN [CompositeVehicles] AS [c] ON [v].[Name] = [c].[Name]
 LEFT JOIN (
     SELECT [v0].[Name], [v0].[Operator_Name], [l].[LicenseType], CASE
         WHEN [l].[VehicleName] IS NOT NULL THEN N'LicensedOperator'
@@ -54,10 +56,10 @@ LEFT JOIN (
     SELECT [p2].[Name], [p2].[Computed], [p2].[Description], CASE
         WHEN [s].[VehicleName] IS NOT NULL THEN N'SolidRocket'
         WHEN [i].[VehicleName] IS NOT NULL THEN N'IntermittentCombustionEngine'
-        WHEN [c0].[VehicleName] IS NOT NULL THEN N'ContinuousCombustionEngine'
+        WHEN [c3].[VehicleName] IS NOT NULL THEN N'ContinuousCombustionEngine'
     END AS [Discriminator]
     FROM [PoweredVehicles] AS [p2]
-    LEFT JOIN [ContinuousCombustionEngines] AS [c0] ON [p2].[Name] = [c0].[VehicleName]
+    LEFT JOIN [ContinuousCombustionEngines] AS [c3] ON [p2].[Name] = [c3].[VehicleName]
     LEFT JOIN [IntermittentCombustionEngines] AS [i] ON [p2].[Name] = [i].[VehicleName]
     LEFT JOIN [SolidRockets] AS [s] ON [p2].[Name] = [s].[VehicleName]
     INNER JOIN (
@@ -68,17 +70,17 @@ LEFT JOIN (
     WHERE [p2].[Computed] IS NOT NULL
 ) AS [t5] ON [v].[Name] = [t5].[Name]
 LEFT JOIN (
-    SELECT [c1].[VehicleName], [c1].[Capacity], [c1].[FuelType], [s0].[GrainGeometry], CASE
+    SELECT [c5].[VehicleName], [c5].[Capacity], [c5].[FuelType], [s0].[GrainGeometry], CASE
         WHEN [s0].[VehicleName] IS NOT NULL THEN N'SolidFuelTank'
     END AS [Discriminator]
-    FROM [CombustionEngines] AS [c1]
-    LEFT JOIN [SolidFuelTanks] AS [s0] ON [c1].[VehicleName] = [s0].[VehicleName]
+    FROM [CombustionEngines] AS [c5]
+    LEFT JOIN [SolidFuelTanks] AS [s0] ON [c5].[VehicleName] = [s0].[VehicleName]
     INNER JOIN (
         SELECT [p4].[Name]
         FROM [PoweredVehicles] AS [p4]
-        INNER JOIN [CombustionEngines] AS [c2] ON [p4].[Name] = [c2].[VehicleName]
-    ) AS [t6] ON [c1].[VehicleName] = [t6].[Name]
-    WHERE [c1].[FuelType] IS NOT NULL OR [c1].[Capacity] IS NOT NULL
+        INNER JOIN [CombustionEngines] AS [c6] ON [p4].[Name] = [c6].[VehicleName]
+    ) AS [t6] ON [c5].[VehicleName] = [t6].[Name]
+    WHERE [c5].[FuelType] IS NOT NULL OR [c5].[Capacity] IS NOT NULL
 ) AS [t7] ON [t5].[Name] = [t7].[VehicleName]
 ORDER BY [v].[Name]");
         }
@@ -176,28 +178,29 @@ WHERE [c].[FuelType] IS NOT NULL AND [c].[Capacity] IS NOT NULL");
         public override void Can_change_dependent_instance_non_derived()
         {
             base.Can_change_dependent_instance_non_derived();
-
             AssertSql(
-                @"@p0='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
+                            @"@p0='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
 @p1='Repair' (Size = 4000)
 
 SET NOCOUNT ON;
 INSERT INTO [LicensedOperators] ([VehicleName], [LicenseType])
 VALUES (@p0, @p1);",
-                //
-                @"@p1='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
+                            //
+                            @"@p1='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
 @p0='repairman' (Size = 4000)
 
 SET NOCOUNT ON;
 UPDATE [Vehicles] SET [Operator_Name] = @p0
 WHERE [Name] = @p1;
 SELECT @@ROWCOUNT;",
-                //
-                @"SELECT TOP(2) [v].[Name], [v].[SeatingCapacity], CASE
+                            //
+                            @"SELECT TOP(2) [v].[Name], [v].[SeatingCapacity], [c].[AttachedVehicleName], CASE
+    WHEN [c].[Name] IS NOT NULL THEN N'CompositeVehicle'
     WHEN [p].[Name] IS NOT NULL THEN N'PoweredVehicle'
 END AS [Discriminator], [t0].[Name], [t0].[Operator_Name], [t0].[LicenseType], [t0].[Discriminator]
 FROM [Vehicles] AS [v]
 LEFT JOIN [PoweredVehicles] AS [p] ON [v].[Name] = [p].[Name]
+LEFT JOIN [CompositeVehicles] AS [c] ON [v].[Name] = [c].[Name]
 LEFT JOIN (
     SELECT [v0].[Name], [v0].[Operator_Name], [l].[LicenseType], CASE
         WHEN [l].[VehicleName] IS NOT NULL THEN N'LicensedOperator'
@@ -217,19 +220,21 @@ WHERE [v].[Name] = N'Trek Pro Fit Madone 6 Series'");
             base.Can_change_principal_instance_non_derived();
 
             AssertSql(
-                @"@p1='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
+               @"@p1='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
 @p0='2'
 
 SET NOCOUNT ON;
 UPDATE [Vehicles] SET [SeatingCapacity] = @p0
 WHERE [Name] = @p1;
 SELECT @@ROWCOUNT;",
-                //
-                @"SELECT TOP(2) [v].[Name], [v].[SeatingCapacity], CASE
+               //
+               @"SELECT TOP(2) [v].[Name], [v].[SeatingCapacity], [c].[AttachedVehicleName], CASE
+    WHEN [c].[Name] IS NOT NULL THEN N'CompositeVehicle'
     WHEN [p].[Name] IS NOT NULL THEN N'PoweredVehicle'
 END AS [Discriminator], [t0].[Name], [t0].[Operator_Name], [t0].[LicenseType], [t0].[Discriminator]
 FROM [Vehicles] AS [v]
 LEFT JOIN [PoweredVehicles] AS [p] ON [v].[Name] = [p].[Name]
+LEFT JOIN [CompositeVehicles] AS [c] ON [v].[Name] = [c].[Name]
 LEFT JOIN (
     SELECT [v0].[Name], [v0].[Operator_Name], [l].[LicenseType], CASE
         WHEN [l].[VehicleName] IS NOT NULL THEN N'LicensedOperator'
