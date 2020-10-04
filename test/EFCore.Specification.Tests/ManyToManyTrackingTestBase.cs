@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -17,11 +18,13 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class ManyToManyTrackingTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : ManyToManyTrackingTestBase<TFixture>.ManyToManyTrackingFixtureBase
     {
-        [ConditionalFact]
-        public virtual void Can_insert_many_to_many_composite_with_navs()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Can_insert_many_to_many_composite_with_navs(bool async)
         {
-            ExecuteWithStrategyInTransaction(
-                context =>
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
                 {
                     var leftEntities = new[]
                     {
@@ -66,18 +69,34 @@ namespace Microsoft.EntityFrameworkCore
                     rightEntities[0].CompositeKeySkipFull.Add(leftEntities[1]); // 21 - 12
                     rightEntities[0].CompositeKeySkipFull.Add(leftEntities[2]); // 21 - 13
 
-                    context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
-                    context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    if (async)
+                    {
+                        await context.AddRangeAsync(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        await context.AddRangeAsync(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    }
+                    else
+                    {
+                        context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities);
 
-                    context.SaveChanges();
+                    if (async)
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities);
                 },
-                context =>
+                async context =>
                 {
-                    var results = context.Set<EntityCompositeKey>().Where(e => e.Key1 > 7700).Include(e => e.LeafSkipFull).ToList();
+                    var queryable = context.Set<EntityCompositeKey>().Where(e => e.Key1 > 7700).Include(e => e.LeafSkipFull);
+                    var results = async ? await queryable.ToListAsync() : queryable.ToList();
                     Assert.Equal(3, results.Count);
 
                     var leftEntities = context.ChangeTracker.Entries<EntityCompositeKey>()
@@ -410,11 +429,13 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
-        public virtual void Can_insert_many_to_many_composite_shared_with_navs()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Can_insert_many_to_many_composite_shared_with_navs(bool async)
         {
-            ExecuteWithStrategyInTransaction(
-                context =>
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
                 {
                     var leftEntities = new[]
                     {
@@ -459,18 +480,34 @@ namespace Microsoft.EntityFrameworkCore
                     rightEntities[0].CompositeKeySkipShared.Add(leftEntities[1]); // 21 - 12
                     rightEntities[0].CompositeKeySkipShared.Add(leftEntities[2]); // 21 - 13
 
-                    context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
-                    context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    if (async)
+                    {
+                        await context.AddRangeAsync(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        await context.AddRangeAsync(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    }
+                    else
+                    {
+                        context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities);
 
-                    context.SaveChanges();
+                    if (async)
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities);
                 },
-                context =>
+                async context =>
                 {
-                    var results = context.Set<EntityCompositeKey>().Where(e => e.Key1 > 7700).Include(e => e.RootSkipShared).ToList();
+                    var queryable = context.Set<EntityCompositeKey>().Where(e => e.Key1 > 7700).Include(e => e.RootSkipShared);
+                    var results = async ? await queryable.ToListAsync() : queryable.ToList();
                     Assert.Equal(3, results.Count);
 
                     var leftEntities = context.ChangeTracker.Entries<EntityCompositeKey>()
@@ -727,11 +764,13 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
-        public virtual void Can_insert_many_to_many_composite_additional_pk_with_navs()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Can_insert_many_to_many_composite_additional_pk_with_navs(bool async)
         {
-            ExecuteWithStrategyInTransaction(
-                context =>
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
                 {
                     var leftEntities = new[]
                     {
@@ -776,18 +815,34 @@ namespace Microsoft.EntityFrameworkCore
                     rightEntities[0].CompositeKeySkipFull.Add(leftEntities[1]); // 21 - 12
                     rightEntities[0].CompositeKeySkipFull.Add(leftEntities[2]); // 21 - 13
 
-                    context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
-                    context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    if (async)
+                    {
+                        await context.AddRangeAsync(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        await context.AddRangeAsync(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    }
+                    else
+                    {
+                        context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities);
 
-                    context.SaveChanges();
+                    if (async)
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities);
                 },
-                context =>
+                async context =>
                 {
-                    var results = context.Set<EntityCompositeKey>().Where(e => e.Key1 > 7700).Include(e => e.ThreeSkipFull).ToList();
+                    var queryable = context.Set<EntityCompositeKey>().Where(e => e.Key1 > 7700).Include(e => e.ThreeSkipFull);
+                    var results = async ? await queryable.ToListAsync() : queryable.ToList();
                     Assert.Equal(3, results.Count);
 
                     var leftEntities = context.ChangeTracker.Entries<EntityCompositeKey>()
@@ -1121,11 +1176,13 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
-        public virtual void Can_insert_many_to_many_self_shared()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Can_insert_many_to_many_self_shared(bool async)
         {
-            ExecuteWithStrategyInTransaction(
-                context =>
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
                 {
                     var leftEntities = new[]
                     {
@@ -1152,18 +1209,34 @@ namespace Microsoft.EntityFrameworkCore
                     rightEntities[0].SelfSkipSharedRight.Add(leftEntities[1]); // 21 - 12
                     rightEntities[0].SelfSkipSharedRight.Add(leftEntities[2]); // 21 - 13
 
-                    context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
-                    context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    if (async)
+                    {
+                        await context.AddRangeAsync(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        await context.AddRangeAsync(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    }
+                    else
+                    {
+                        context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities);
 
-                    context.SaveChanges();
+                    if (async)
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities);
                 },
-                context =>
+                async context =>
                 {
-                    var results = context.Set<EntityTwo>().Where(e => e.Id > 7700).Include(e => e.SelfSkipSharedLeft).ToList();
+                    var queryable = context.Set<EntityTwo>().Where(e => e.Id > 7700).Include(e => e.SelfSkipSharedLeft);
+                    var results = async ? await queryable.ToListAsync() : queryable.ToList();
                     Assert.Equal(6, results.Count);
 
                     var leftEntities = context.ChangeTracker.Entries<EntityTwo>()
@@ -1297,11 +1370,13 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
-        public virtual void Can_insert_many_to_many_with_navs()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Can_insert_many_to_many_with_navs(bool async)
         {
-            ExecuteWithStrategyInTransaction(
-                context =>
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
                 {
                     var leftEntities = new[]
                     {
@@ -1328,18 +1403,34 @@ namespace Microsoft.EntityFrameworkCore
                     rightEntities[0].TwoSkipFull.Add(leftEntities[1]); // 21 - 12
                     rightEntities[0].TwoSkipFull.Add(leftEntities[2]); // 21 - 13
 
-                    context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
-                    context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    if (async)
+                    {
+                        await context.AddRangeAsync(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        await context.AddRangeAsync(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    }
+                    else
+                    {
+                        context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities);
 
-                    context.SaveChanges();
+                    if (async)
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities);
                 },
-                context =>
+                async context =>
                 {
-                    var results = context.Set<EntityTwo>().Where(e => e.Id > 7700).Include(e => e.ThreeSkipFull).ToList();
+                    var queryable = context.Set<EntityTwo>().Where(e => e.Id > 7700).Include(e => e.ThreeSkipFull);
+                    var results = async ? await queryable.ToListAsync() : queryable.ToList();
                     Assert.Equal(3, results.Count);
 
                     var leftEntities = context.ChangeTracker.Entries<EntityTwo>().Select(e => e.Entity).OrderBy(e => e.Id).ToList();
@@ -1484,11 +1575,13 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
-        public virtual void Can_insert_many_to_many_with_inheritance()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Can_insert_many_to_many_with_inheritance(bool async)
         {
-            ExecuteWithStrategyInTransaction(
-                context =>
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
                 {
                     var leftEntities = new[]
                     {
@@ -1515,18 +1608,34 @@ namespace Microsoft.EntityFrameworkCore
                     rightEntities[0].OneSkip.Add(leftEntities[1]); // 21 - 12
                     rightEntities[0].OneSkip.Add(leftEntities[2]); // 21 - 13
 
-                    context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
-                    context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    if (async)
+                    {
+                        await context.AddRangeAsync(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        await context.AddRangeAsync(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    }
+                    else
+                    {
+                        context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities);
 
-                    context.SaveChanges();
+                    if (async)
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities);
                 },
-                context =>
+                async context =>
                 {
-                    var results = context.Set<EntityOne>().Where(e => e.Id > 7700).Include(e => e.BranchSkip).ToList();
+                    var queryable = context.Set<EntityOne>().Where(e => e.Id > 7700).Include(e => e.BranchSkip);
+                    var results = async ? await queryable.ToListAsync() : queryable.ToList();
                     Assert.Equal(3, results.Count);
 
                     var leftEntities = context.ChangeTracker.Entries<EntityOne>().Select(e => e.Entity).OrderBy(e => e.Id).ToList();
@@ -1654,11 +1763,13 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
-        public virtual void Can_insert_many_to_many_self_with_payload()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Can_insert_many_to_many_self_with_payload(bool async)
         {
-            ExecuteWithStrategyInTransaction(
-                context =>
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
                 {
                     var leftEntities = new[]
                     {
@@ -1685,18 +1796,34 @@ namespace Microsoft.EntityFrameworkCore
                     rightEntities[0].SelfSkipPayloadRight.Add(leftEntities[1]); // 21 - 12
                     rightEntities[0].SelfSkipPayloadRight.Add(leftEntities[2]); // 21 - 13
 
-                    context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
-                    context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    if (async)
+                    {
+                        await context.AddRangeAsync(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        await context.AddRangeAsync(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    }
+                    else
+                    {
+                        context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities, postSave: false);
 
-                    context.SaveChanges();
+                    if (async)
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities, postSave: true);
                 },
-                context =>
+                async context =>
                 {
-                    var results = context.Set<EntityOne>().Where(e => e.Id > 7700).Include(e => e.SelfSkipPayloadLeft).ToList();
+                    var queryable = context.Set<EntityOne>().Where(e => e.Id > 7700).Include(e => e.SelfSkipPayloadLeft);
+                    var results = async ? await queryable.ToListAsync() : queryable.ToList();
                     Assert.Equal(6, results.Count);
 
                     var leftEntities = context.ChangeTracker.Entries<EntityOne>()
@@ -1875,11 +2002,13 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
-        public virtual void Can_insert_many_to_many_shared_with_payload()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Can_insert_many_to_many_shared_with_payload(bool async)
         {
-            ExecuteWithStrategyInTransaction(
-                context =>
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
                 {
                     var leftEntities = new[]
                     {
@@ -1906,18 +2035,34 @@ namespace Microsoft.EntityFrameworkCore
                     rightEntities[0].OneSkipPayloadFullShared.Add(leftEntities[1]); // 21 - 12
                     rightEntities[0].OneSkipPayloadFullShared.Add(leftEntities[2]); // 21 - 13
 
-                    context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
-                    context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    if (async)
+                    {
+                        await context.AddRangeAsync(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        await context.AddRangeAsync(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    }
+                    else
+                    {
+                        context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities, postSave: false);
 
-                    context.SaveChanges();
+                    if (async)
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities, postSave: true);
                 },
-                context =>
+                async context =>
                 {
-                    var results = context.Set<EntityOne>().Where(e => e.Id > 7700).Include(e => e.ThreeSkipPayloadFullShared).ToList();
+                    var queryable = context.Set<EntityOne>().Where(e => e.Id > 7700).Include(e => e.ThreeSkipPayloadFullShared);
+                    var results = async ? await queryable.ToListAsync() : queryable.ToList();
                     Assert.Equal(3, results.Count);
 
                     var leftEntities = context.ChangeTracker.Entries<EntityOne>().Select(e => e.Entity).OrderBy(e => e.Id).ToList();
@@ -2078,11 +2223,13 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
-        public virtual void Can_insert_many_to_many_shared()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Can_insert_many_to_many_shared(bool async)
         {
-            ExecuteWithStrategyInTransaction(
-                context =>
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
                 {
                     var leftEntities = new[]
                     {
@@ -2109,18 +2256,34 @@ namespace Microsoft.EntityFrameworkCore
                     rightEntities[0].OneSkipShared.Add(leftEntities[1]); // 21 - 12
                     rightEntities[0].OneSkipShared.Add(leftEntities[2]); // 21 - 13
 
-                    context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
-                    context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    if (async)
+                    {
+                        await context.AddRangeAsync(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        await context.AddRangeAsync(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    }
+                    else
+                    {
+                        context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities);
 
-                    context.SaveChanges();
+                    if (async)
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities);
                 },
-                context =>
+                async context =>
                 {
-                    var results = context.Set<EntityOne>().Where(e => e.Id > 7700).Include(e => e.TwoSkipShared).ToList();
+                    var queryable = context.Set<EntityOne>().Where(e => e.Id > 7700).Include(e => e.TwoSkipShared);
+                    var results = async ? await queryable.ToListAsync() : queryable.ToList();
                     Assert.Equal(3, results.Count);
 
                     var leftEntities = context.ChangeTracker.Entries<EntityOne>().Select(e => e.Entity).OrderBy(e => e.Id).ToList();
@@ -2248,11 +2411,13 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
-        public virtual void Can_insert_many_to_many_with_payload()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Can_insert_many_to_many_with_payload(bool async)
         {
-            ExecuteWithStrategyInTransaction(
-                context =>
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
                 {
                     var leftEntities = new[]
                     {
@@ -2279,18 +2444,34 @@ namespace Microsoft.EntityFrameworkCore
                     rightEntities[0].OneSkipPayloadFull.Add(leftEntities[1]); // 21 - 12
                     rightEntities[0].OneSkipPayloadFull.Add(leftEntities[2]); // 21 - 13
 
-                    context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
-                    context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    if (async)
+                    {
+                        await context.AddRangeAsync(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        await context.AddRangeAsync(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    }
+                    else
+                    {
+                        context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities, postSave: false);
 
-                    context.SaveChanges();
+                    if (async)
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities, postSave: true);
                 },
-                context =>
+                async context =>
                 {
-                    var results = context.Set<EntityOne>().Where(e => e.Id > 7700).Include(e => e.ThreeSkipPayloadFull).ToList();
+                    var queryable = context.Set<EntityOne>().Where(e => e.Id > 7700).Include(e => e.ThreeSkipPayloadFull);
+                    var results = async ? await queryable.ToListAsync() : queryable.ToList();
                     Assert.Equal(3, results.Count);
 
                     var leftEntities = context.ChangeTracker.Entries<EntityOne>().Select(e => e.Entity).OrderBy(e => e.Id).ToList();
@@ -2588,11 +2769,13 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
-        public virtual void Can_insert_many_to_many()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Can_insert_many_to_many(bool async)
         {
-            ExecuteWithStrategyInTransaction(
-                context =>
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
                 {
                     var leftEntities = new[]
                     {
@@ -2619,18 +2802,34 @@ namespace Microsoft.EntityFrameworkCore
                     rightEntities[0].OneSkip.Add(leftEntities[1]); // 21 - 12
                     rightEntities[0].OneSkip.Add(leftEntities[2]); // 21 - 13
 
-                    context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
-                    context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    if (async)
+                    {
+                        await context.AddRangeAsync(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        await context.AddRangeAsync(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    }
+                    else
+                    {
+                        context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities);
 
-                    context.SaveChanges();
+                    if (async)
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities);
                 },
-                context =>
+                async context =>
                 {
-                    var results = context.Set<EntityOne>().Where(e => e.Id > 7700).Include(e => e.TwoSkip).ToList();
+                    var queryable = context.Set<EntityOne>().Where(e => e.Id > 7700).Include(e => e.TwoSkip);
+                    var results = async ? await queryable.ToListAsync() : queryable.ToList();
                     Assert.Equal(3, results.Count);
 
                     var leftEntities = context.ChangeTracker.Entries<EntityOne>().Select(e => e.Entity).OrderBy(e => e.Id).ToList();
@@ -2843,11 +3042,13 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
-        public virtual void Can_insert_many_to_many_fully_by_convention()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Can_insert_many_to_many_fully_by_convention(bool async)
         {
-            ExecuteWithStrategyInTransaction(
-                context =>
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
                 {
                     var leftEntities = new[]
                     {
@@ -2870,18 +3071,34 @@ namespace Microsoft.EntityFrameworkCore
                     rightEntities[0].As.Add(leftEntities[1]); // 21 - 12
                     rightEntities[0].As.Add(leftEntities[2]); // 21 - 13
 
-                    context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
-                    context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    if (async)
+                    {
+                        await context.AddRangeAsync(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        await context.AddRangeAsync(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    }
+                    else
+                    {
+                        context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities);
 
-                    context.SaveChanges();
+                    if (async)
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities);
                 },
-                context =>
+                async context =>
                 {
-                    var results = context.Set<ImplicitManyToManyA>().Where(e => e.Id > 7700).Include(e => e.Bs).ToList();
+                    var queryable = context.Set<ImplicitManyToManyA>().Where(e => e.Id > 7700).Include(e => e.Bs);
+                    var results = async ? await queryable.ToListAsync() : queryable.ToList();
                     Assert.Equal(3, results.Count);
 
                     Assert.Equal(11, context.ChangeTracker.Entries().Count());
@@ -2920,11 +3137,13 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
-        public virtual void Can_insert_many_to_many_fully_by_convention_generated_keys()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Can_insert_many_to_many_fully_by_convention_generated_keys(bool async)
         {
-            ExecuteWithStrategyInTransaction(
-                context =>
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
                 {
                     var leftEntities = new[]
                     {
@@ -2947,17 +3166,34 @@ namespace Microsoft.EntityFrameworkCore
                     rightEntities[0].Lefts.Add(leftEntities[1]); // 21 - 12
                     rightEntities[0].Lefts.Add(leftEntities[2]); // 21 - 13
 
-                    context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
+                    if (async)
+                    {
+                        await context.AddRangeAsync(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        await context.AddRangeAsync(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    }
+                    else
+                    {
+                        context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities);
 
-                    context.SaveChanges();
+                    if (async)
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities);
                 },
-                context =>
+                async context =>
                 {
-                    var results = context.Set<GeneratedKeysLeft>().Include(e => e.Rights).ToList();
+                    var queryable = context.Set<GeneratedKeysLeft>().Include(e => e.Rights);
+                    var results = async ? await queryable.ToListAsync() : queryable.ToList();
                     Assert.Equal(3, results.Count);
 
                     Assert.Equal(11, context.ChangeTracker.Entries().Count());
@@ -2997,14 +3233,16 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual void Can_Attach_or_Update_a_many_to_many_with_mixed_set_and_unset_keys(bool useUpdate)
+        [InlineData(true, false)]
+        [InlineData(false, false)]
+        [InlineData(true, true)]
+        [InlineData(false, true)]
+        public virtual async Task Can_Attach_or_Update_a_many_to_many_with_mixed_set_and_unset_keys(bool useUpdate, bool async)
         {
             var existingLeftId = -1;
             var existingRightId = -1;
-            ExecuteWithStrategyInTransaction(
-                context =>
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
                 {
                     var left = context.Set<GeneratedKeysLeft>().CreateInstance();
                     var right = context.Set<GeneratedKeysRight>().CreateInstance();
@@ -3014,13 +3252,21 @@ namespace Microsoft.EntityFrameworkCore
                         left.Rights.Add(right);
                     }
 
-                    context.AddRange(left, right);
-                    context.SaveChanges();
+                    if (async)
+                    {
+                        await context.AddRangeAsync(left, right);
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.AddRange(left, right);
+                        context.SaveChanges();
+                    }
 
                     existingLeftId = left.Id;
                     existingRightId = right.Id;
                 },
-                context =>
+                async context =>
                 {
                     var leftEntities = new[]
                     {
@@ -3085,13 +3331,21 @@ namespace Microsoft.EntityFrameworkCore
                                 : EntityState.Added, rightEntry.State);
                     }
 
-                    context.SaveChanges();
+                    if (async)
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities);
                 },
-                context =>
+                async context =>
                 {
-                    var results = context.Set<GeneratedKeysLeft>().Include(e => e.Rights).ToList();
+                    var queryable = context.Set<GeneratedKeysLeft>().Include(e => e.Rights);
+                    var results = async ? await queryable.ToListAsync() : queryable.ToList();
                     Assert.Equal(3, results.Count);
 
                     Assert.Equal(11, context.ChangeTracker.Entries().Count());
@@ -3130,11 +3384,13 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
-        public virtual void Initial_tracking_uses_skip_navigations()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Initial_tracking_uses_skip_navigations(bool async)
         {
-            ExecuteWithStrategyInTransaction(
-                context =>
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
                 {
                     var leftEntities = new[]
                     {
@@ -3153,17 +3409,32 @@ namespace Microsoft.EntityFrameworkCore
                     leftEntities[0].Bs.Add(rightEntities[1]); // 11 - 22
                     leftEntities[0].Bs.Add(rightEntities[2]); // 11 - 23
 
-                    context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
+                    if (async)
+                    {
+                        await context.AddRangeAsync(leftEntities[0], leftEntities[1], leftEntities[2]);
+                    }
+                    else
+                    {
+                        context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities);
 
-                    context.SaveChanges();
+                    if (async)
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities);
                 },
-                context =>
+                async context =>
                 {
-                    var results = context.Set<ImplicitManyToManyA>().Where(e => e.Id > 7700).Include(e => e.Bs).ToList();
+                    var queryable = context.Set<ImplicitManyToManyA>().Where(e => e.Id > 7700).Include(e => e.Bs);
+                    var results = async ? await queryable.ToListAsync() : queryable.ToList();
                     Assert.Equal(3, results.Count);
 
                     var leftEntities = context.ChangeTracker.Entries<ImplicitManyToManyA>().Select(e => e.Entity).OrderBy(e => e.Id)
@@ -3352,6 +3623,15 @@ namespace Microsoft.EntityFrameworkCore
             Action<ManyToManyContext> nestedTestOperation2 = null,
             Action<ManyToManyContext> nestedTestOperation3 = null)
             => TestHelpers.ExecuteWithStrategyInTransaction(
+                CreateContext, UseTransaction,
+                testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
+
+        protected virtual Task ExecuteWithStrategyInTransactionAsync(
+            Func<ManyToManyContext, Task> testOperation,
+            Func<ManyToManyContext, Task> nestedTestOperation1 = null,
+            Func<ManyToManyContext, Task> nestedTestOperation2 = null,
+            Func<ManyToManyContext, Task> nestedTestOperation3 = null)
+            => TestHelpers.ExecuteWithStrategyInTransactionAsync(
                 CreateContext, UseTransaction,
                 testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
 

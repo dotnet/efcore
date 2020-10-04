@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -22,8 +23,22 @@ namespace Microsoft.EntityFrameworkCore
             Action<ManyToManyContext> nestedTestOperation2 = null,
             Action<ManyToManyContext> nestedTestOperation3 = null)
         {
-            base.ExecuteWithStrategyInTransaction(testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
+            base.ExecuteWithStrategyInTransaction(
+                testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
+
             Fixture.Reseed();
+        }
+
+        protected override async Task ExecuteWithStrategyInTransactionAsync(
+            Func<ManyToManyContext, Task> testOperation,
+            Func<ManyToManyContext, Task> nestedTestOperation1 = null,
+            Func<ManyToManyContext, Task> nestedTestOperation2 = null,
+            Func<ManyToManyContext, Task> nestedTestOperation3 = null)
+        {
+            await base.ExecuteWithStrategyInTransactionAsync(
+                testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
+
+            await Fixture.ReseedAsync();
         }
 
         protected override bool SupportsDatabaseDefaults

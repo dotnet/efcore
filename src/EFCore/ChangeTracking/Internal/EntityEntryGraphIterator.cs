@@ -93,7 +93,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             var internalEntityEntry = node.GetInfrastructure();
-            var navigations = internalEntityEntry.EntityType.GetNavigations();
+            var navigations = internalEntityEntry.EntityType.GetNavigations()
+                .Concat<INavigationBase>(internalEntityEntry.EntityType.GetSkipNavigations());
             var stateManager = internalEntityEntry.StateManager;
 
             foreach (var navigation in navigations)
