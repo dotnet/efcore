@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
 
             // TODO: [Name] shouldn't be selected multiple times and no joins are needed
             AssertSql(
-                @"SELECT [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [t].[Name], [t].[Operator_Discriminator], [t].[Operator_Name], [t].[LicenseType], [t1].[Name], [t1].[Type], [t3].[Name], [t3].[Computed], [t3].[Description], [t3].[Engine_Discriminator], [t7].[Name], [t7].[Capacity], [t7].[FuelTank_Discriminator], [t7].[FuelType], [t7].[GrainGeometry]
+                @"SELECT [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [v].[AttachedVehicleName], [t].[Name], [t].[Operator_Discriminator], [t].[Operator_Name], [t].[LicenseType], [t1].[Name], [t1].[Type], [t3].[Name], [t3].[Computed], [t3].[Description], [t3].[Engine_Discriminator], [t7].[Name], [t7].[Capacity], [t7].[FuelTank_Discriminator], [t7].[FuelType], [t7].[GrainGeometry]
 FROM [Vehicles] AS [v]
 LEFT JOIN (
     SELECT [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType]
@@ -46,7 +46,7 @@ LEFT JOIN (
     INNER JOIN (
         SELECT [v6].[Name]
         FROM [Vehicles] AS [v6]
-        WHERE [v6].[Discriminator] = N'PoweredVehicle'
+        WHERE [v6].[Discriminator] IN (N'PoweredVehicle', N'CompositeVehicle')
     ) AS [t2] ON [v5].[Name] = [t2].[Name]
     WHERE [v5].[Engine_Discriminator] IS NOT NULL AND [v5].[Computed] IS NOT NULL
 ) AS [t3] ON [v].[Name] = [t3].[Name]
@@ -54,9 +54,9 @@ LEFT JOIN (
     SELECT [v7].[Name], [v7].[Capacity], [v7].[FuelTank_Discriminator], [v7].[FuelType], [v7].[GrainGeometry]
     FROM [Vehicles] AS [v7]
     INNER JOIN (
-        SELECT [v8].[Name], [v8].[Discriminator], [v8].[SeatingCapacity]
+        SELECT [v8].[Name], [v8].[Discriminator], [v8].[SeatingCapacity], [v8].[AttachedVehicleName]
         FROM [Vehicles] AS [v8]
-        WHERE [v8].[Discriminator] = N'PoweredVehicle'
+        WHERE [v8].[Discriminator] IN (N'PoweredVehicle', N'CompositeVehicle')
     ) AS [t4] ON [v7].[Name] = [t4].[Name]
     WHERE [v7].[FuelTank_Discriminator] IS NOT NULL
     UNION
@@ -66,9 +66,9 @@ LEFT JOIN (
         SELECT [v10].[Name], [v10].[Computed], [v10].[Description], [v10].[Engine_Discriminator], [t5].[Name] AS [Name0]
         FROM [Vehicles] AS [v10]
         INNER JOIN (
-            SELECT [v11].[Name], [v11].[Discriminator], [v11].[SeatingCapacity]
+            SELECT [v11].[Name], [v11].[Discriminator], [v11].[SeatingCapacity], [v11].[AttachedVehicleName]
             FROM [Vehicles] AS [v11]
-            WHERE [v11].[Discriminator] = N'PoweredVehicle'
+            WHERE [v11].[Discriminator] IN (N'PoweredVehicle', N'CompositeVehicle')
         ) AS [t5] ON [v10].[Name] = [t5].[Name]
         WHERE [v10].[Engine_Discriminator] IN (N'ContinuousCombustionEngine', N'IntermittentCombustionEngine', N'SolidRocket')
     ) AS [t6] ON [v9].[Name] = [t6].[Name]
@@ -115,9 +115,9 @@ INNER JOIN [Vehicles] AS [v0] ON [v].[Name] = [v0].[Name]");
                 @"SELECT [v].[Name], [v].[Capacity], [v].[FuelTank_Discriminator], [v].[FuelType], [v].[GrainGeometry]
 FROM [Vehicles] AS [v]
 INNER JOIN (
-    SELECT [v0].[Name], [v0].[Discriminator], [v0].[SeatingCapacity]
+    SELECT [v0].[Name], [v0].[Discriminator], [v0].[SeatingCapacity], [v0].[AttachedVehicleName]
     FROM [Vehicles] AS [v0]
-    WHERE [v0].[Discriminator] = N'PoweredVehicle'
+    WHERE [v0].[Discriminator] IN (N'PoweredVehicle', N'CompositeVehicle')
 ) AS [t] ON [v].[Name] = [t].[Name]
 WHERE [v].[FuelTank_Discriminator] IS NOT NULL
 UNION
@@ -127,9 +127,9 @@ INNER JOIN (
     SELECT [v2].[Name], [v2].[Computed], [v2].[Description], [v2].[Engine_Discriminator], [t0].[Name] AS [Name0]
     FROM [Vehicles] AS [v2]
     INNER JOIN (
-        SELECT [v3].[Name], [v3].[Discriminator], [v3].[SeatingCapacity]
+        SELECT [v3].[Name], [v3].[Discriminator], [v3].[SeatingCapacity], [v3].[AttachedVehicleName]
         FROM [Vehicles] AS [v3]
-        WHERE [v3].[Discriminator] = N'PoweredVehicle'
+        WHERE [v3].[Discriminator] IN (N'PoweredVehicle', N'CompositeVehicle')
     ) AS [t0] ON [v2].[Name] = [t0].[Name]
     WHERE [v2].[Engine_Discriminator] IN (N'ContinuousCombustionEngine', N'IntermittentCombustionEngine', N'SolidRocket')
 ) AS [t1] ON [v1].[Name] = [t1].[Name]
@@ -144,9 +144,9 @@ WHERE [v1].[FuelTank_Discriminator] IS NOT NULL");
                 @"SELECT [v].[Name], [v].[Capacity], [v].[FuelType]
 FROM [Vehicles] AS [v]
 INNER JOIN (
-    SELECT [v0].[Name], [v0].[Discriminator], [v0].[SeatingCapacity]
+    SELECT [v0].[Name], [v0].[Discriminator], [v0].[SeatingCapacity], [v0].[AttachedVehicleName]
     FROM [Vehicles] AS [v0]
-    WHERE [v0].[Discriminator] = N'PoweredVehicle'
+    WHERE [v0].[Discriminator] IN (N'PoweredVehicle', N'CompositeVehicle')
 ) AS [t] ON [v].[Name] = [t].[Name]
 WHERE [v].[FuelType] IS NOT NULL OR [v].[Capacity] IS NOT NULL
 UNION
@@ -156,9 +156,9 @@ INNER JOIN (
     SELECT [v2].[Name], [v2].[Computed], [v2].[Description], [v2].[Engine_Discriminator], [t0].[Name] AS [Name0]
     FROM [Vehicles] AS [v2]
     INNER JOIN (
-        SELECT [v3].[Name], [v3].[Discriminator], [v3].[SeatingCapacity]
+        SELECT [v3].[Name], [v3].[Discriminator], [v3].[SeatingCapacity], [v3].[AttachedVehicleName]
         FROM [Vehicles] AS [v3]
-        WHERE [v3].[Discriminator] = N'PoweredVehicle'
+        WHERE [v3].[Discriminator] IN (N'PoweredVehicle', N'CompositeVehicle')
     ) AS [t0] ON [v2].[Name] = [t0].[Name]
     WHERE [v2].[Engine_Discriminator] IN (N'ContinuousCombustionEngine', N'IntermittentCombustionEngine', N'SolidRocket')
 ) AS [t1] ON [v1].[Name] = [t1].[Name]
@@ -173,9 +173,9 @@ WHERE [v1].[FuelType] IS NOT NULL OR [v1].[Capacity] IS NOT NULL");
                 @"SELECT [v].[Name], [v].[Capacity], [v].[FuelType]
 FROM [Vehicles] AS [v]
 INNER JOIN (
-    SELECT [v0].[Name], [v0].[Discriminator], [v0].[SeatingCapacity]
+    SELECT [v0].[Name], [v0].[Discriminator], [v0].[SeatingCapacity], [v0].[AttachedVehicleName]
     FROM [Vehicles] AS [v0]
-    WHERE [v0].[Discriminator] = N'PoweredVehicle'
+    WHERE [v0].[Discriminator] IN (N'PoweredVehicle', N'CompositeVehicle')
 ) AS [t] ON [v].[Name] = [t].[Name]
 WHERE [v].[FuelType] IS NOT NULL AND [v].[Capacity] IS NOT NULL
 UNION
@@ -185,9 +185,9 @@ INNER JOIN (
     SELECT [v2].[Name], [v2].[Computed], [v2].[Description], [v2].[Engine_Discriminator], [t0].[Name] AS [Name0]
     FROM [Vehicles] AS [v2]
     INNER JOIN (
-        SELECT [v3].[Name], [v3].[Discriminator], [v3].[SeatingCapacity]
+        SELECT [v3].[Name], [v3].[Discriminator], [v3].[SeatingCapacity], [v3].[AttachedVehicleName]
         FROM [Vehicles] AS [v3]
-        WHERE [v3].[Discriminator] = N'PoweredVehicle'
+        WHERE [v3].[Discriminator] IN (N'PoweredVehicle', N'CompositeVehicle')
     ) AS [t0] ON [v2].[Name] = [t0].[Name]
     WHERE [v2].[Engine_Discriminator] IN (N'ContinuousCombustionEngine', N'IntermittentCombustionEngine', N'SolidRocket')
 ) AS [t1] ON [v1].[Name] = [t1].[Name]
@@ -209,7 +209,7 @@ UPDATE [Vehicles] SET [Operator_Discriminator] = @p0, [LicenseType] = @p1, [Oper
 WHERE [Name] = @p3;
 SELECT @@ROWCOUNT;",
                 //
-                @"SELECT TOP(2) [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [t].[Name], [t].[Operator_Discriminator], [t].[Operator_Name], [t].[LicenseType]
+                @"SELECT TOP(2) [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [v].[AttachedVehicleName], [t].[Name], [t].[Operator_Discriminator], [t].[Operator_Name], [t].[LicenseType]
 FROM [Vehicles] AS [v]
 LEFT JOIN (
     SELECT [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType]
@@ -232,7 +232,7 @@ UPDATE [Vehicles] SET [SeatingCapacity] = @p0
 WHERE [Name] = @p1;
 SELECT @@ROWCOUNT;",
                 //
-                @"SELECT TOP(2) [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [t].[Name], [t].[Operator_Discriminator], [t].[Operator_Name], [t].[LicenseType]
+                @"SELECT TOP(2) [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [v].[AttachedVehicleName], [t].[Name], [t].[Operator_Discriminator], [t].[Operator_Name], [t].[LicenseType]
 FROM [Vehicles] AS [v]
 LEFT JOIN (
     SELECT [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType]

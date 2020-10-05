@@ -567,6 +567,7 @@ namespace Microsoft.EntityFrameworkCore
                     eb.Property<string>("Discriminator").HasColumnName("Discriminator");
                     eb.ToTable("Vehicles");
                 });
+            modelBuilder.Entity<CompositeVehicle>();
 
             modelBuilder.Entity<Engine>().ToTable("Vehicles")
                 .Property(e => e.Computed).ValueGeneratedOnAddOrUpdate();
