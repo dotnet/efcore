@@ -100,10 +100,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 throw new InvalidOperationException(
                     CoreStrings.SelfReferencingNavigationWithInverseProperty(
-                        navigationMemberInfo.Name,
                         entityType.DisplayName(),
-                        navigationMemberInfo.Name,
-                        entityType.DisplayName()));
+                        navigationMemberInfo.Name));
             }
 
             // Check for InversePropertyAttribute on the inverse navigation to verify that it matches.

@@ -7159,6 +7159,36 @@ WHERE ([s].[Name] = N'Kilo') AND (COALESCE((
     WHERE ([s].[Id] = [g].[SquadId]) AND ([g].[HasSoulPatch] = CAST(1 AS bit))), 0) <> 0)");
         }
 
+        public override async Task Correlated_collection_with_inner_collection_references_element_two_levels_up(bool async)
+        {
+            await base.Correlated_collection_with_inner_collection_references_element_two_levels_up(async);
+
+            AssertSql(
+                @"SELECT [g].[FullName], [g].[Nickname], [g].[SquadId], [t].[ReportName], [t].[OfficerName], [t].[Nickname], [t].[SquadId]
+FROM [Gears] AS [g]
+OUTER APPLY (
+    SELECT [g0].[FullName] AS [ReportName], [g].[FullName] AS [OfficerName], [g0].[Nickname], [g0].[SquadId]
+    FROM [Gears] AS [g0]
+    WHERE ([g].[Nickname] = [g0].[LeaderNickname]) AND ([g].[SquadId] = [g0].[LeaderSquadId])
+) AS [t]
+WHERE [g].[Discriminator] = N'Officer'
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId]");
+        }
+
+        public override async Task Accessing_derived_property_using_hard_and_soft_cast(bool async)
+        {
+            await base.Accessing_derived_property_using_hard_and_soft_cast(async);
+
+            AssertSql(
+                @"SELECT [l].[Name], [l].[Discriminator], [l].[LocustHordeId], [l].[ThreatLevel], [l].[ThreatLevelByte], [l].[ThreatLevelNullableByte], [l].[DefeatedByNickname], [l].[DefeatedBySquadId], [l].[HighCommandId]
+FROM [LocustLeaders] AS [l]
+WHERE ([l].[Discriminator] = N'LocustCommander') AND (([l].[HighCommandId] <> 0) OR [l].[HighCommandId] IS NULL)",
+                //
+                @"SELECT [l].[Name], [l].[Discriminator], [l].[LocustHordeId], [l].[ThreatLevel], [l].[ThreatLevelByte], [l].[ThreatLevelNullableByte], [l].[DefeatedByNickname], [l].[DefeatedBySquadId], [l].[HighCommandId]
+FROM [LocustLeaders] AS [l]
+WHERE ([l].[Discriminator] = N'LocustCommander') AND (([l].[HighCommandId] <> 0) OR [l].[HighCommandId] IS NULL)");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

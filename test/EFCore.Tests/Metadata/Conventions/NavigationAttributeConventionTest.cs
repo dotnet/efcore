@@ -431,7 +431,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             Assert.Equal(
                 CoreStrings.SelfReferencingNavigationWithInverseProperty(
-                    "AnotherEntity", nameof(SelfReferencingEntity), "AnotherEntity", nameof(SelfReferencingEntity)),
+                    nameof(SelfReferencingEntity), nameof(SelfReferencingEntity.AnotherEntity)),
                 Assert.Throws<InvalidOperationException>(
                     () => RunEntityTypeConventions(entityTypeBuilder)).Message);
         }
@@ -848,7 +848,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var navigation = relationshipBuilder.Metadata.DependentToPrincipal;
             Assert.Equal(
-                CoreStrings.MultipleNavigationsSameFk(typeof(MultipleNavigationsSameFk).Name, "CommonFkProperty"),
+                CoreStrings.MultipleNavigationsSameFk(typeof(MultipleNavigationsSameFk).Name, "CommonFkProperty", "'One', 'Two'"),
                 Assert.Throws<InvalidOperationException>(
                     () => useNavigation
                         ? RunForeignKeyAttributeConvention(relationshipBuilder, navigation)

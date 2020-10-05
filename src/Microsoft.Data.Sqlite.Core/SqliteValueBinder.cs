@@ -136,7 +136,7 @@ namespace Microsoft.Data.Sqlite
                 var guid = (Guid)_value;
                 if (_sqliteType != SqliteType.Blob)
                 {
-                    var value = guid.ToString().ToUpper();
+                    var value = guid.ToString().ToUpperInvariant();
                     BindText(value);
                 }
                 else

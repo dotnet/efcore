@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 
         protected override int Execute(string[] args)
         {
-            var files = CreateExecutor(args)
-                .AddMigration(_name.Value, _outputDir.Value(), Context.Value(), _namespace.Value());
+            using var executor = CreateExecutor(args);
+            var files = executor.AddMigration(_name.Value, _outputDir.Value(), Context.Value(), _namespace.Value());
 
             if (_json.HasValue())
             {

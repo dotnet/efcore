@@ -417,7 +417,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     if (attribute?.Name == navigationFkAttribute.Name)
                     {
                         throw new InvalidOperationException(
-                            CoreStrings.MultipleNavigationsSameFk(navigation.DeclaringEntityType.DisplayName(), attribute.Name));
+                            CoreStrings.MultipleNavigationsSameFk(
+                                navigation.DeclaringEntityType.DisplayName(),
+                                attribute.Name,
+                                $"'{navigation.Name}', '{propertyInfo.Name}'"));
                     }
                 }
 

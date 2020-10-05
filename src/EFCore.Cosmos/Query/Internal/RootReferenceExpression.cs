@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     && Equals(rootReferenceExpression));
 
         private bool Equals(RootReferenceExpression rootReferenceExpression)
-            => string.Equals(Alias, rootReferenceExpression.Alias)
+            => Alias == rootReferenceExpression.Alias
                 && EntityType.Equals(rootReferenceExpression.EntityType);
 
         /// <summary>

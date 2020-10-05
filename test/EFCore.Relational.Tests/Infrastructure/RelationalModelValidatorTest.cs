@@ -377,7 +377,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<B>().ToTable("Table");
 
             VerifyError(
-                CoreStrings.IdentifyingRelationshipCycle(nameof(A)),
+                CoreStrings.IdentifyingRelationshipCycle(nameof(A), "{'Id'}"),
                 modelBuilder.Model);
         }
 

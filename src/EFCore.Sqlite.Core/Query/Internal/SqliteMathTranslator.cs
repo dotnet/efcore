@@ -85,8 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             {
                 RelationalTypeMapping typeMapping;
                 List<SqlExpression> newArguments = null;
-                if (string.Equals(sqlFunctionName, "max")
-                    || string.Equals(sqlFunctionName, "max"))
+                if (sqlFunctionName == "max" || sqlFunctionName == "max")
                 {
                     typeMapping = ExpressionExtensions.InferTypeMapping(arguments[0], arguments[1]);
                     newArguments = new List<SqlExpression>

@@ -325,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (symbol?.ContainingNamespace?.ToDisplayString() is string ns)
             {
-                var i = ns.IndexOf("EntityFrameworkCore");
+                var i = ns.IndexOf("EntityFrameworkCore", StringComparison.Ordinal);
 
                 return
                     i != -1

@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             fromSqlQueryRootExpression.EntityType,
                             new FromSqlExpression(
                                 fromSqlQueryRootExpression.EntityType.GetDefaultMappings().SingleOrDefault().Table.Name.Substring(0, 1)
-                                    .ToLower(),
+                                    .ToLowerInvariant(),
                                 fromSqlQueryRootExpression.Sql,
                                 fromSqlQueryRootExpression.Argument)));
 
@@ -1461,7 +1461,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         tableExpression = selectExpression.Tables
                             .Select(t => (t as InnerJoinExpression)?.Table ?? (t as LeftJoinExpression)?.Table ?? t)
                             .Cast<TableExpression>()
-                            .First(t => string.Equals(t.Name, table.Name) && string.Equals(t.Schema, table.Schema));
+                            .First(t => t.Name == table.Name && t.Schema == table.Schema);
                     }
 
                     var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();

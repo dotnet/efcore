@@ -152,6 +152,7 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(RelationalDatabaseFacadeExtensions).GetMethod(nameof(RelationalDatabaseFacadeExtensions.CloseConnectionAsync)),
                 typeof(IRelationalConnection).GetMethod(nameof(IRelationalConnection.CloseAsync)),
                 typeof(RelationalConnection).GetMethod(nameof(RelationalConnection.CloseAsync)),
+                typeof(RelationalConnection).GetMethod("CloseDbConnectionAsync", BindingFlags.NonPublic | BindingFlags.Instance),
                 typeof(DbConnectionInterceptor).GetMethod(nameof(DbConnectionInterceptor.ConnectionClosingAsync)),
                 typeof(DbConnectionInterceptor).GetMethod(nameof(DbConnectionInterceptor.ConnectionClosedAsync)),
                 typeof(IDbConnectionInterceptor).GetMethod(nameof(IDbConnectionInterceptor.ConnectionClosingAsync)),

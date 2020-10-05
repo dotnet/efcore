@@ -7860,6 +7860,44 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collection_with_inner_collection_references_element_two_levels_up(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from o in ss.Set<Gear>().OfType<Officer>()
+                      select new
+                      {
+                          o.FullName,
+                          Collection = (from r in o.Reports
+                                        select new
+                                        {
+                                            ReportName = r.FullName,
+                                            OfficerName = o.FullName
+                                        }).ToList()
+                      },
+                elementSorter: e => e.FullName,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.FullName, a.FullName);
+                    AssertCollection(e.Collection, a.Collection, elementSorter: ee => (ee.OfficerName, ee.ReportName));
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Accessing_derived_property_using_hard_and_soft_cast(bool async)
+        {
+            await AssertQuery(
+                async,
+                ss => ss.Set<LocustLeader>().Where(ll => ll is LocustCommander && ((LocustCommander)ll).HighCommandId != 0));
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<LocustLeader>().Where(ll => ll is LocustCommander && (ll as LocustCommander).HighCommandId != 0));
+        }
+
         protected GearsOfWarContext CreateContext()
             => Fixture.CreateContext();
 

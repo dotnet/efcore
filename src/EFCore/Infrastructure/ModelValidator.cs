@@ -48,11 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         protected virtual ModelValidatorDependencies Dependencies { get; }
 
-        /// <summary>
-        ///     Validates a model, throwing an exception if any errors are found.
-        /// </summary>
-        /// <param name="model"> The model to validate. </param>
-        /// <param name="logger"> The logger to use. </param>
+        /// <inheritdoc />
         public virtual void Validate(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             ((Model)model).IsValidated = true;
@@ -495,7 +491,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                         if (!reachableTypes.Add(principalType))
                         {
-                            throw new InvalidOperationException(CoreStrings.IdentifyingRelationshipCycle(rootEntityType.DisplayName()));
+                            throw new InvalidOperationException(CoreStrings.IdentifyingRelationshipCycle(
+                                rootEntityType.DisplayName(),
+                                primaryKey.Properties.Format()));
                         }
 
                         typesToValidate.Enqueue(principalType);
@@ -582,7 +580,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         if (!baseEntityType.IsAssignableFrom(entityType))
                         {
                             throw new InvalidOperationException(
-                                CoreStrings.InconsistentInheritance(entityType.DisplayName(), baseEntityType.DisplayName()));
+                                CoreStrings.InconsistentInheritance(
+                                    entityType.DisplayName(), entityType.BaseType.DisplayName(), baseEntityType.DisplayName()));
                         }
 
                         break;
@@ -718,7 +717,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 var ownerships = entityType.GetForeignKeys().Where(fk => fk.IsOwnership).ToList();
                 if (ownerships.Count > 1)
                 {
-                    throw new InvalidOperationException(CoreStrings.MultipleOwnerships(entityType.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.MultipleOwnerships(
+                        entityType.DisplayName(),
+                        string.Join(", ",
+                            ownerships.Select(o => $"'{o.PrincipalEntityType.DisplayName()}.{o.PrincipalToDependent?.Name}'"))));
                 }
 
                 if (ownerships.Count == 1)
