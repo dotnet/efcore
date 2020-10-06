@@ -634,7 +634,8 @@ namespace Microsoft.EntityFrameworkCore
             var property = entityType.FindProperty(name);
             if (property == null)
             {
-                if (entityType.FindNavigation(name) != null)
+                if (entityType.FindNavigation(name) != null
+                    || entityType.FindSkipNavigation(name) != null)
                 {
                     throw new InvalidOperationException(
                         CoreStrings.PropertyIsNavigation(

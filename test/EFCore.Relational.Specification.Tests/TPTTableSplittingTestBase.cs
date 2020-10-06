@@ -25,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             modelBuilder.Entity<Vehicle>().ToTable("Vehicles");
             modelBuilder.Entity<PoweredVehicle>().ToTable("PoweredVehicles");
+            modelBuilder.Entity<CompositeVehicle>().ToTable("CompositeVehicles");
 
             modelBuilder.Entity<Operator>(
                 eb =>
