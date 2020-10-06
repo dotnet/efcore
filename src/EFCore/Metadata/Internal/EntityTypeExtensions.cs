@@ -419,12 +419,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     yield return navigation;
                 }
+
+                foreach (var navigation in entityType.GetSkipNavigations())
+                {
+                    yield return navigation;
+                }
             }
             else
             {
                 // ReSharper disable once AssignNullToNotNullAttribute
-                var property = (IPropertyBase)entityType.FindProperty(propertyName)
-                    ?? entityType.FindNavigation(propertyName);
+                var property = entityType.FindProperty(propertyName)
+                    ?? entityType.FindNavigation(propertyName)
+                    ?? (IPropertyBase)entityType.FindSkipNavigation(propertyName);
+
                 if (property != null)
                 {
                     yield return property;
