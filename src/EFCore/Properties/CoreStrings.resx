@@ -1302,10 +1302,10 @@
     <value>The seed entity for entity type '{entityType}' cannot be added because no value was provided for the required property '{property}'.</value>
   </data>
   <data name="SeedDatumNavigation" xml:space="preserve">
-    <value>The seed entity for entity type '{entityType}' cannot be added because it has the navigation '{navigation}' set. To seed relationships,  add the related entity seed to '{relatedEntityType}' and specify the foreign key values {foreignKeyProperties}. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the involved property values.</value>
+    <value>The seed entity for entity type '{entityType}' cannot be added because it has the navigation '{navigation}' set. To seed relationships,  add the entity seed to '{relatedEntityType}' and specify the foreign key values {foreignKeyProperties}. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the involved property values.</value>
   </data>
   <data name="SeedDatumNavigationSensitive" xml:space="preserve">
-    <value>The seed entity for entity type '{entityType}' with the key value '{keyValue}' cannot be added because it has the navigation '{navigation}' set. To seed relationships, add the related entity seed to '{relatedEntityType}' and specify the foreign key values {foreignKeyProperties}.</value>
+    <value>The seed entity for entity type '{entityType}' with the key value '{keyValue}' cannot be added because it has the navigation '{navigation}' set. To seed relationships, add the entity seed to '{relatedEntityType}' and specify the foreign key values {foreignKeyProperties}.</value>
   </data>
   <data name="SeedDatumSignedNumericValue" xml:space="preserve">
     <value>The seed entity for entity type '{entityType}' cannot be added because a non-zero value is required for property '{property}'. Consider providing a negative value to avoid collisions with non-seed data.</value>

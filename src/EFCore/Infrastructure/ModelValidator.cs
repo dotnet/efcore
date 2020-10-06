@@ -1104,12 +1104,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         keyValues[i] = seedDatum[key.Properties[i].Name];
                     }
 
-                    foreach (var navigation in entityType.GetNavigations())
+                    foreach (var navigation in entityType.GetNavigations().Concat<INavigationBase>(entityType.GetSkipNavigations()))
                     {
                         if (seedDatum.TryGetValue(navigation.Name, out var value)
                             && ((navigation.IsCollection && value is IEnumerable collection && collection.Any())
                                 || (!navigation.IsCollection && value != null)))
                         {
+                            var foreignKey = navigation is INavigation nav
+                                ? nav.ForeignKey
+                                : ((ISkipNavigation)navigation).ForeignKey;
                             if (sensitiveDataLogged)
                             {
                                 throw new InvalidOperationException(
@@ -1117,16 +1120,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                         entityType.DisplayName(),
                                         string.Join(", ", key.Properties.Select((p, i) => p.Name + ":" + keyValues[i])),
                                         navigation.Name,
-                                        navigation.TargetEntityType.DisplayName(),
-                                        navigation.ForeignKey.Properties.Format()));
+                                        foreignKey.DeclaringEntityType.DisplayName(),
+                                        foreignKey.Properties.Format()));
                             }
 
                             throw new InvalidOperationException(
                                 CoreStrings.SeedDatumNavigation(
                                     entityType.DisplayName(),
                                     navigation.Name,
-                                    navigation.TargetEntityType.DisplayName(),
-                                    navigation.ForeignKey.Properties.Format()));
+                                    foreignKey.DeclaringEntityType.DisplayName(),
+                                    foreignKey.Properties.Format()));
                         }
                     }
 
