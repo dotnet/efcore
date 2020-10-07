@@ -1215,6 +1215,37 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
+        public virtual void Detects_reference_navigations_in_seeds2(bool sensitiveDataLoggingEnabled)
+        {
+            var modelBuilder = CreateConventionalModelBuilder(sensitiveDataLoggingEnabled);
+            modelBuilder.Entity<Order>(
+                e =>
+                {
+                    e.HasMany(o => o.Products)
+                     .WithMany(p => p.Orders);
+                    e.HasData(
+                        new Order { Id = 1, Products = new List<Product> { new Product() } });
+                });
+
+            VerifyError(
+                sensitiveDataLoggingEnabled
+                    ? CoreStrings.SeedDatumNavigationSensitive(
+                        nameof(Order),
+                        $"{nameof(Order.Id)}:1",
+                        nameof(Order.Products),
+                        "OrderProduct (Dictionary<string, object>)",
+                        "{'OrdersId'}")
+                    : CoreStrings.SeedDatumNavigation(
+                        nameof(Order),
+                        nameof(Order.Products),
+                        "OrderProduct (Dictionary<string, object>)",
+                        "{'OrdersId'}"),
+                modelBuilder.Model);
+        }
+
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
         public virtual void Detects_collection_navigations_in_seeds(bool sensitiveDataLoggingEnabled)
         {
             var modelBuilder = CreateConventionalModelBuilder(sensitiveDataLoggingEnabled);

@@ -2944,7 +2944,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var data = new List<Dictionary<string, object>>();
             var valueConverters = new Dictionary<string, ValueConverter>(StringComparer.Ordinal);
-            var properties = this.GetPropertiesAndNavigations().ToDictionary(p => p.Name);
+            var properties = GetProperties()
+                .Concat<IPropertyBase>(GetNavigations())
+                .Concat(GetSkipNavigations())
+                .ToDictionary(p => p.Name);
             foreach (var rawSeed in _data)
             {
                 var seed = new Dictionary<string, object>(StringComparer.Ordinal);
@@ -2958,13 +2961,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         ValueConverter valueConverter = null;
                         if (providerValues
+                            && propertyBase is IProperty property
                             && !valueConverters.TryGetValue(propertyBase.Name, out valueConverter))
                         {
-                            if (propertyBase is IProperty property)
-                            {
-                                valueConverter = property.GetTypeMapping().Converter;
-                            }
-
+                            valueConverter = property.GetTypeMapping().Converter;
                             valueConverters[propertyBase.Name] = valueConverter;
                         }
 
