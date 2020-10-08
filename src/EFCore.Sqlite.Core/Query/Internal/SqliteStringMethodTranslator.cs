@@ -90,6 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private const char LikeEscapeChar = '\\';
+        private const string LikeEscapeString = "\\";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -226,8 +227,30 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 instance = _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
                 pattern = _sqlExpressionFactory.ApplyTypeMapping(pattern, stringTypeMapping);
 
+                if (pattern is SqlConstantExpression constantExpression)
+                {
+                    if (!(constantExpression.Value is string patternValue))
+                    {
+                        return _sqlExpressionFactory.Like(
+                            instance,
+                            _sqlExpressionFactory.Constant(null, stringTypeMapping));
+                    }
+
+                    if (patternValue.Length == 0)
+                    {
+                        return _sqlExpressionFactory.Constant(true);
+                    }
+
+                    return patternValue.Any(IsLikeWildChar)
+                        ? _sqlExpressionFactory.Like(
+                            instance,
+                            _sqlExpressionFactory.Constant($"%{EscapeLikePattern(patternValue)}%"),
+                            _sqlExpressionFactory.Constant(LikeEscapeString))
+                        : _sqlExpressionFactory.Like(instance, _sqlExpressionFactory.Constant($"%{patternValue}%"));
+                }
+
                 return _sqlExpressionFactory.OrElse(
-                    _sqlExpressionFactory.Equal(
+                    _sqlExpressionFactory.Like(
                         pattern,
                         _sqlExpressionFactory.Constant(string.Empty, stringTypeMapping)),
                     _sqlExpressionFactory.GreaterThan(

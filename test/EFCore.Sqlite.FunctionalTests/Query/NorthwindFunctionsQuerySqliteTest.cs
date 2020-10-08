@@ -208,7 +208,7 @@ WHERE ""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" LIKE '%m')");
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ('M' = '') OR (instr(""c"".""ContactName"", 'M') > 0)");
+WHERE ""c"".""ContactName"" LIKE '%M%'");
         }
 
         public override async Task String_Contains_Identity(bool async)
