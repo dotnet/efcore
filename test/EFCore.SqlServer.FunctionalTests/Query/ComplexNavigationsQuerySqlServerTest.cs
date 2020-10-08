@@ -5935,14 +5935,14 @@ LEFT JOIN [LevelOne] AS [l1] ON [l].[Level1_Optional_Id] = [l1].[Id]");
             await base.Composite_key_join_on_groupby_aggregate_projecting_only_grouping_key(async);
 
             AssertSql(
-                @"SELECT [t].[c]
+                @"SELECT [t].[Key]
 FROM [LevelOne] AS [l]
 INNER JOIN (
-    SELECT [l0].[Id] % 3 AS [c], COALESCE(SUM([l0].[Id]), 0) AS [c0]
+    SELECT [l0].[Id] % 3 AS [Key], COALESCE(SUM([l0].[Id]), 0) AS [Sum]
     FROM [LevelTwo] AS [l0]
     GROUP BY [l0].[Id] % 3
-) AS [t] ON ([l].[Id] = [t].[c]) AND (CAST(1 AS bit) = CASE
-    WHEN [t].[c0] > 10 THEN CAST(1 AS bit)
+) AS [t] ON ([l].[Id] = [t].[Key]) AND (CAST(1 AS bit) = CASE
+    WHEN [t].[Sum] > 10 THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END)");
         }
@@ -5959,11 +5959,11 @@ END AS [Foo]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 LEFT JOIN (
-    SELECT [l1].[Name], COUNT(*) AS [c]
+    SELECT [l1].[Name] AS [Key], COUNT(*) AS [Count]
     FROM [LevelThree] AS [l1]
     GROUP BY [l1].[Name]
-) AS [t] ON [l].[Name] = [t].[Name]
-WHERE [l0].[Name] IS NOT NULL OR ([t].[c] > 0)");
+) AS [t] ON [l].[Name] = [t].[Key]
+WHERE [l0].[Name] IS NOT NULL OR ([t].[Count] > 0)");
         }
 
         public override async Task Collection_FirstOrDefault_property_accesses_in_projection(bool async)
@@ -6034,13 +6034,12 @@ WHERE [l2].[Id] < 2");
         {
             await base.Projecting_columns_with_same_name_from_different_entities_making_sure_aliasing_works_after_Distinct(async);
 
-            // see #22915
             AssertSql(
                 @"@__p_0='10'
 
-SELECT [t].[Id] AS [Foo], [t].[Id0] AS [Bar], [t].[Id1] AS [Baz]
+SELECT [t].[Id1] AS [Foo], [t].[Id2] AS [Bar], [t].[Id3] AS [Baz]
 FROM (
-    SELECT DISTINCT TOP(@__p_0) [l].[Id], [l0].[Id] AS [Id0], [l1].[Id] AS [Id1], [l].[Name], [l0].[Name] AS [Name0]
+    SELECT DISTINCT TOP(@__p_0) [l].[Id] AS [Id1], [l0].[Id] AS [Id2], [l1].[Id] AS [Id3], [l].[Name] AS [Name1], [l0].[Name] AS [Name2]
     FROM [LevelOne] AS [l]
     INNER JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
     INNER JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Level2_Optional_Id]
