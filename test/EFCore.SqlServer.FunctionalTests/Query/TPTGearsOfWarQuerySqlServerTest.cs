@@ -6279,7 +6279,7 @@ ORDER BY COALESCE([w0].[Name], N'') + N'Marcus'' Lancer'");
             await base.Time_of_day_datetimeoffset(async);
 
             AssertSql(
-                @"SELECT CAST([m].[Timeline] AS time)
+                @"SELECT CONVERT(time, [m].[Timeline])
 FROM [Missions] AS [m]");
         }
 

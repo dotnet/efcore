@@ -611,8 +611,8 @@ BEGIN
 IF NOT EXISTS (
     SELECT 1 FROM [sys].[filegroups] [FG] JOIN [sys].[database_files] [F] ON [FG].[data_space_id] = [F].[data_space_id] WHERE [FG].[type] = N'FX' AND [F].[type] = 2)
     BEGIN
-    DECLARE @db_name NVARCHAR(MAX) = DB_NAME();
-    DECLARE @fg_name NVARCHAR(MAX);
+    DECLARE @db_name nvarchar(max) = DB_NAME();
+    DECLARE @fg_name nvarchar(max);
     SELECT TOP(1) @fg_name = [name] FROM [sys].[filegroups] WHERE [type] = N'FX';
 
     IF @fg_name IS NULL
@@ -621,14 +621,14 @@ IF NOT EXISTS (
         EXEC(N'ALTER DATABASE CURRENT ADD FILEGROUP [' + @fg_name + '] CONTAINS MEMORY_OPTIMIZED_DATA;');
         END
 
-    DECLARE @path NVARCHAR(MAX);
+    DECLARE @path nvarchar(max);
     SELECT TOP(1) @path = [physical_name] FROM [sys].[database_files] WHERE charindex('\', [physical_name]) > 0 ORDER BY [file_id];
     IF (@path IS NULL)
         SET @path = '\' + @db_name;
 
-    DECLARE @filename NVARCHAR(MAX) = right(@path, charindex('\', reverse(@path)) - 1);
+    DECLARE @filename nvarchar(max) = right(@path, charindex('\', reverse(@path)) - 1);
     SET @filename = REPLACE(left(@filename, len(@filename) - charindex('.', reverse(@filename))), '''', '''''') + N'_MOD';
-    DECLARE @new_path NVARCHAR(MAX) = REPLACE(CAST(SERVERPROPERTY('InstanceDefaultDataPath') AS NVARCHAR(MAX)), '''', '''''') + @filename;
+    DECLARE @new_path nvarchar(max) = REPLACE(CAST(SERVERPROPERTY('InstanceDefaultDataPath') AS nvarchar(max)), '''', '''''') + @filename;
 
     EXEC(N'
         ALTER DATABASE CURRENT

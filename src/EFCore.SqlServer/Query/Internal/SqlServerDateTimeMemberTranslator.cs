@@ -101,7 +101,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                                 : _typeMappingSource.FindMapping(typeof(DateTime)));
 
                     case nameof(DateTime.TimeOfDay):
-                        return _sqlExpressionFactory.Convert(instance, returnType);
+                        return _sqlExpressionFactory.Function(
+                            "CONVERT",
+                            new[] { _sqlExpressionFactory.Fragment("time"), instance },
+                            nullable: true,
+                            argumentsPropagateNullability: new[] { false, true },
+                            returnType);
 
                     case nameof(DateTime.Now):
                         return _sqlExpressionFactory.Function(

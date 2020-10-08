@@ -3100,7 +3100,7 @@ ORDER BY (
             AssertSql(
                 @"SELECT [o].[CustomerID]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] IS NOT NULL AND (CONVERT(VARCHAR(10), [o].[EmployeeID]) LIKE N'%10%')");
+WHERE [o].[OrderDate] IS NOT NULL AND (CONVERT(varchar(10), [o].[EmployeeID]) LIKE N'%10%')");
         }
 
         public override async Task Select_expression_long_to_string(bool async)
@@ -3108,7 +3108,7 @@ WHERE [o].[OrderDate] IS NOT NULL AND (CONVERT(VARCHAR(10), [o].[EmployeeID]) LI
             await base.Select_expression_long_to_string(async);
 
             AssertSql(
-                @"SELECT CONVERT(VARCHAR(20), CAST([o].[OrderID] AS bigint)) AS [ShipName]
+                @"SELECT CONVERT(varchar(20), CAST([o].[OrderID] AS bigint)) AS [ShipName]
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] IS NOT NULL");
         }
@@ -3118,7 +3118,7 @@ WHERE [o].[OrderDate] IS NOT NULL");
             await base.Select_expression_int_to_string(async);
 
             AssertSql(
-                @"SELECT CONVERT(VARCHAR(11), [o].[OrderID]) AS [ShipName]
+                @"SELECT CONVERT(varchar(11), [o].[OrderID]) AS [ShipName]
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] IS NOT NULL");
         }
@@ -3142,7 +3142,7 @@ WHERE [o].[OrderDate] IS NOT NULL");
             await base.Select_expression_other_to_string(async);
 
             AssertSql(
-                @"SELECT CONVERT(VARCHAR(100), [o].[OrderDate]) AS [ShipName]
+                @"SELECT CONVERT(varchar(100), [o].[OrderDate]) AS [ShipName]
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] IS NOT NULL");
         }
