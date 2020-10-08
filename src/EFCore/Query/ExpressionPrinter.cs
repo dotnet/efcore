@@ -460,15 +460,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 _stringBuilder.Append(value.GetType().ShortDisplayName() + " { ");
 
-                var needsComma = false;
+                var isFirst = true;
                 foreach (var item in enumerable)
                 {
-                    if (needsComma)
+                    if (isFirst)
+                    {
+                        isFirst = false;
+                    }
+                    else
                     {
                         _stringBuilder.Append(", ");
                     }
                     Print(item);
-                    needsComma = true;
                 }
 
                 _stringBuilder.Append(" }");
