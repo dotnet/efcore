@@ -1086,7 +1086,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 else
                 {
                     var innerColumn = (SqlExpression)mapping.Value;
-                    var outerColumn = subquery.GenerateOuterColumn(innerColumn);
+                    var outerColumn = subquery.GenerateOuterColumn(innerColumn, mapping.Key.Last?.Name);
                     projectionMap[innerColumn] = outerColumn;
                     _projectionMapping[mapping.Key] = outerColumn;
                 }

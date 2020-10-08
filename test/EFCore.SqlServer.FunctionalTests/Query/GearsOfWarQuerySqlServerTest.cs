@@ -4782,12 +4782,12 @@ FROM [Squads] AS [s]");
             await base.Select_subquery_projecting_single_constant_inside_anonymous(async);
 
             AssertSql(
-                @"SELECT [s].[Name], [t0].[c]
+                @"SELECT [s].[Name], [t0].[One]
 FROM [Squads] AS [s]
 LEFT JOIN (
-    SELECT [t].[c], [t].[SquadId]
+    SELECT [t].[One], [t].[SquadId]
     FROM (
-        SELECT 1 AS [c], [g].[SquadId], ROW_NUMBER() OVER(PARTITION BY [g].[SquadId] ORDER BY [g].[Nickname], [g].[SquadId]) AS [row]
+        SELECT 1 AS [One], [g].[SquadId], ROW_NUMBER() OVER(PARTITION BY [g].[SquadId] ORDER BY [g].[Nickname], [g].[SquadId]) AS [row]
         FROM [Gears] AS [g]
         WHERE [g].[HasSoulPatch] = CAST(1 AS bit)
     ) AS [t]
@@ -4800,12 +4800,12 @@ LEFT JOIN (
             await base.Select_subquery_projecting_multiple_constants_inside_anonymous(async);
 
             AssertSql(
-                @"SELECT [s].[Name], [t0].[c], [t0].[c0], [t0].[c1]
+                @"SELECT [s].[Name], [t0].[True1], [t0].[False1], [t0].[c]
 FROM [Squads] AS [s]
 LEFT JOIN (
-    SELECT [t].[c], [t].[c0], [t].[c1], [t].[SquadId]
+    SELECT [t].[True1], [t].[False1], [t].[c], [t].[SquadId]
     FROM (
-        SELECT CAST(1 AS bit) AS [c], CAST(0 AS bit) AS [c0], 1 AS [c1], [g].[SquadId], ROW_NUMBER() OVER(PARTITION BY [g].[SquadId] ORDER BY [g].[Nickname], [g].[SquadId]) AS [row]
+        SELECT CAST(1 AS bit) AS [True1], CAST(0 AS bit) AS [False1], 1 AS [c], [g].[SquadId], ROW_NUMBER() OVER(PARTITION BY [g].[SquadId] ORDER BY [g].[Nickname], [g].[SquadId]) AS [row]
         FROM [Gears] AS [g]
         WHERE [g].[HasSoulPatch] = CAST(1 AS bit)
     ) AS [t]

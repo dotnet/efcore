@@ -1161,10 +1161,10 @@ ORDER BY [c].[CustomerID], [t].[OrderID]");
             await base.SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(async);
 
             AssertSql(
-                @"SELECT [t].[CustomerID] AS [OrderProperty], [t].[CustomerID0] AS [CustomerProperty]
+                @"SELECT [t].[OrderProperty], [t].[CustomerProperty]
 FROM [Customers] AS [c]
 CROSS APPLY (
-    SELECT [o].[CustomerID], [c].[CustomerID] AS [CustomerID0]
+    SELECT [o].[CustomerID] AS [OrderProperty], [c].[CustomerID] AS [CustomerProperty]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
 ) AS [t]");
@@ -1233,10 +1233,10 @@ WHERE [o].[OrderID] = 10243");
             await base.SelectMany_whose_selector_references_outer_source(async);
 
             AssertSql(
-                @"SELECT [t].[OrderDate], [t].[City] AS [CustomerCity]
+                @"SELECT [t].[OrderDate], [t].[CustomerCity]
 FROM [Customers] AS [c]
 CROSS APPLY (
-    SELECT [o].[OrderDate], [c].[City]
+    SELECT [o].[OrderDate], [c].[City] AS [CustomerCity]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
 ) AS [t]");
@@ -1520,9 +1520,9 @@ OFFSET @__p_0 ROWS");
             await base.Projection_Distinct_projection_preserves_columns_used_for_distinct_in_subquery(async);
 
             AssertSql(
-                @"SELECT (COALESCE([t].[c], N'') + N' ') + [t].[c0] AS [Aggregate]
+                @"SELECT (COALESCE([t].[FirstLetter], N'') + N' ') + [t].[Foo] AS [Aggregate]
 FROM (
-    SELECT DISTINCT [c].[CustomerID], SUBSTRING([c].[CustomerID], 0 + 1, 1) AS [c], N'Foo' AS [c0]
+    SELECT DISTINCT [c].[CustomerID], SUBSTRING([c].[CustomerID], 0 + 1, 1) AS [FirstLetter], N'Foo' AS [Foo]
     FROM [Customers] AS [c]
 ) AS [t]");
         }

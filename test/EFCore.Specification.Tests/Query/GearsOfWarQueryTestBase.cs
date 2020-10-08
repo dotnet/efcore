@@ -5265,7 +5265,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         s.Name,
                         Gear = s.Members.Where(g => g.HasSoulPatch).Select(
-                            g => new { True = true, False = false }).FirstOrDefault()
+                            g => new { True1 = true, False1 = false }).FirstOrDefault()
                     }));
         }
 
