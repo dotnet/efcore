@@ -459,13 +459,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && !(value is string))
             {
                 _stringBuilder.Append(value.GetType().ShortDisplayName() + " { ");
+
+                var needsComma = false;
                 foreach (var item in enumerable)
                 {
+                    if (needsComma)
+                    {
+                        _stringBuilder.Append(", ");
+                    }
                     Print(item);
-                    _stringBuilder.Append(", ");
+                    needsComma = true;
                 }
 
-                _stringBuilder.Append("}");
+                _stringBuilder.Append(" }");
                 return;
             }
 
