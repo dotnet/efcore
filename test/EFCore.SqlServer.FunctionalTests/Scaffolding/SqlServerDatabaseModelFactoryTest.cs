@@ -144,6 +144,38 @@ DROP SEQUENCE [NumericSequence];");
         }
 
         [ConditionalFact]
+        public void Sequence_high_min_max_start_values_are_not_null_if_decimal()
+        {
+            Test(
+                @"
+CREATE SEQUENCE [dbo].[HighDecimalSequence] 
+ AS [numeric](38, 0)
+ START WITH -99999999999999999999999999999999999999
+ INCREMENT BY 1
+ MINVALUE -99999999999999999999999999999999999999
+ MAXVALUE 99999999999999999999999999999999999999
+ CACHE;",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    Assert.All(
+                        dbModel.Sequences,
+                        s =>
+                        {
+                            Assert.NotNull(s.StartValue);
+                            Assert.Equal(long.MinValue, s.StartValue);
+                            Assert.NotNull(s.MinValue);
+                            Assert.Equal(long.MinValue, s.MinValue);
+                            Assert.NotNull(s.MaxValue);
+                            Assert.Equal(long.MaxValue, s.MaxValue);
+                        });
+                },
+                @"
+DROP SEQUENCE [HighDecimalSequence];");
+        }
+
+        [ConditionalFact]
         public void Sequence_using_type_alias()
         {
             Fixture.TestStore.ExecuteNonQuery(
