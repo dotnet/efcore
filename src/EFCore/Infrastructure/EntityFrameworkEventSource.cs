@@ -173,8 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             /// </summary>
             internal double CalculateAndReset()
             {
-                var clone = new CacheInfo { _all = Volatile.Read(ref _all) };
-                Volatile.Write(ref _all, 0);
+                var clone = new CacheInfo { _all = Interlocked.Exchange(ref _all, 0) };
                 return ((double)clone.Hits / (clone.Hits + clone.Misses)) * 100;
             }
         }
