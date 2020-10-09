@@ -106,6 +106,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             Check.NotNull(entityType, nameof(entityType));
 
+            GenerateComment(entityType.GetComment());
+
             if (_useDataAnnotations)
             {
                 GenerateEntityTypeDataAnnotations(entityType);
@@ -264,6 +266,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreach (var property in entityType.GetProperties().OrderBy(p => p.GetColumnOrdinal()))
             {
+                GenerateComment(property.GetComment());
+
                 if (_useDataAnnotations)
                 {
                     GeneratePropertyDataAnnotations(property);
@@ -446,6 +450,21 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                     _sb.AppendLine(inversePropertyAttribute.ToString());
                 }
+            }
+        }
+
+        private void GenerateComment(string comment)
+        {
+            if (!string.IsNullOrWhiteSpace(comment))
+            {
+                _sb.AppendLine("/// <summary>");
+
+                foreach (var line in comment.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None))
+                {
+                    _sb.AppendLine($"/// {System.Security.SecurityElement.Escape(line)}");
+                }
+
+                _sb.AppendLine("/// </summary>");
             }
         }
 
