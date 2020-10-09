@@ -197,5 +197,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _expressionPrinter.Print(expr.Body),
                 ignoreLineEndingDifferences: true);
         }
+
+        [ConditionalFact]
+        public void Enumerable_Constant_printed_correctly()
+        {
+            Assert.Equal(
+                @"int[] { 1, 2, 3 }",
+                _expressionPrinter.Print(
+                    Expression.Constant(
+                        new[] { 1, 2, 3 })));
+        }
     }
 }
