@@ -460,12 +460,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 _stringBuilder.Append(value.GetType().ShortDisplayName() + " { ");
 
-                var isFirst = true;
+                var first = true;
                 foreach (var item in enumerable)
                 {
-                    if (isFirst)
+                    if (first)
                     {
-                        isFirst = false;
+                        first = false;
                     }
                     else
                     {
