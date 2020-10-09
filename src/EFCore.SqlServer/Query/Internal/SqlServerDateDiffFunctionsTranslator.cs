@@ -27,313 +27,313 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffYear),
                         new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
-                    "YEAR"
+                    "year"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffYear),
                         new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
-                    "YEAR"
+                    "year"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffYear),
                         new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
-                    "YEAR"
+                    "year"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffYear),
                         new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
-                    "YEAR"
+                    "year"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMonth),
                         new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
-                    "MONTH"
+                    "month"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMonth),
                         new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
-                    "MONTH"
+                    "month"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMonth),
                         new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
-                    "MONTH"
+                    "month"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMonth),
                         new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
-                    "MONTH"
+                    "month"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffDay),
                         new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
-                    "DAY"
+                    "day"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffDay),
                         new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
-                    "DAY"
+                    "day"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffDay),
                         new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
-                    "DAY"
+                    "day"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffDay),
                         new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
-                    "DAY"
+                    "day"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffHour),
                         new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
-                    "HOUR"
+                    "hour"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffHour),
                         new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
-                    "HOUR"
+                    "hour"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffHour),
                         new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
-                    "HOUR"
+                    "hour"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffHour),
                         new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
-                    "HOUR"
+                    "hour"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffHour),
                         new[] { typeof(DbFunctions), typeof(TimeSpan), typeof(TimeSpan) }),
-                    "HOUR"
+                    "hour"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffHour),
                         new[] { typeof(DbFunctions), typeof(TimeSpan?), typeof(TimeSpan?) }),
-                    "HOUR"
+                    "hour"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMinute),
                         new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
-                    "MINUTE"
+                    "minute"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMinute),
                         new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
-                    "MINUTE"
+                    "minute"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMinute),
                         new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
-                    "MINUTE"
+                    "minute"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMinute),
                         new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
-                    "MINUTE"
+                    "minute"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMinute),
                         new[] { typeof(DbFunctions), typeof(TimeSpan), typeof(TimeSpan) }),
-                    "MINUTE"
+                    "minute"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMinute),
                         new[] { typeof(DbFunctions), typeof(TimeSpan?), typeof(TimeSpan?) }),
-                    "MINUTE"
+                    "minute"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffSecond),
                         new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
-                    "SECOND"
+                    "second"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffSecond),
                         new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
-                    "SECOND"
+                    "second"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffSecond),
                         new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
-                    "SECOND"
+                    "second"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffSecond),
                         new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
-                    "SECOND"
+                    "second"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffSecond),
                         new[] { typeof(DbFunctions), typeof(TimeSpan), typeof(TimeSpan) }),
-                    "SECOND"
+                    "second"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffSecond),
                         new[] { typeof(DbFunctions), typeof(TimeSpan?), typeof(TimeSpan?) }),
-                    "SECOND"
+                    "second"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMillisecond),
                         new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
-                    "MILLISECOND"
+                    "millisecond"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMillisecond),
                         new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
-                    "MILLISECOND"
+                    "millisecond"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMillisecond),
                         new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
-                    "MILLISECOND"
+                    "millisecond"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMillisecond),
                         new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
-                    "MILLISECOND"
+                    "millisecond"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMillisecond),
                         new[] { typeof(DbFunctions), typeof(TimeSpan), typeof(TimeSpan) }),
-                    "MILLISECOND"
+                    "millisecond"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMillisecond),
                         new[] { typeof(DbFunctions), typeof(TimeSpan?), typeof(TimeSpan?) }),
-                    "MILLISECOND"
+                    "millisecond"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMicrosecond),
                         new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
-                    "MICROSECOND"
+                    "microsecond"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMicrosecond),
                         new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
-                    "MICROSECOND"
+                    "microsecond"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMicrosecond),
                         new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
-                    "MICROSECOND"
+                    "microsecond"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMicrosecond),
                         new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
-                    "MICROSECOND"
+                    "microsecond"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMicrosecond),
                         new[] { typeof(DbFunctions), typeof(TimeSpan), typeof(TimeSpan) }),
-                    "MICROSECOND"
+                    "microsecond"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMicrosecond),
                         new[] { typeof(DbFunctions), typeof(TimeSpan?), typeof(TimeSpan?) }),
-                    "MICROSECOND"
+                    "microsecond"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffNanosecond),
                         new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
-                    "NANOSECOND"
+                    "nanosecond"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffNanosecond),
                         new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
-                    "NANOSECOND"
+                    "nanosecond"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffNanosecond),
                         new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
-                    "NANOSECOND"
+                    "nanosecond"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffNanosecond),
                         new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
-                    "NANOSECOND"
+                    "nanosecond"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffNanosecond),
                         new[] { typeof(DbFunctions), typeof(TimeSpan), typeof(TimeSpan) }),
-                    "NANOSECOND"
+                    "nanosecond"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffNanosecond),
                         new[] { typeof(DbFunctions), typeof(TimeSpan?), typeof(TimeSpan?) }),
-                    "NANOSECOND"
+                    "nanosecond"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffWeek),
                         new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
-                    "WEEK"
+                    "week"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffWeek),
                         new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
-                    "WEEK"
+                    "week"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffWeek),
                         new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
-                    "WEEK"
+                    "week"
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffWeek),
                         new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
-                    "WEEK"
+                    "week"
                 }
             };
 

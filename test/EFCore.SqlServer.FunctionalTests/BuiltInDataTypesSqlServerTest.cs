@@ -121,7 +121,7 @@ WHERE [m].[Int] = 81");
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE DATEDIFF(HOUR, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
+WHERE DATEDIFF(hour, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         [ConditionalFact]
@@ -142,7 +142,7 @@ WHERE DATEDIFF(HOUR, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE DATEDIFF(MINUTE, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
+WHERE DATEDIFF(minute, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         [ConditionalFact]
@@ -163,7 +163,7 @@ WHERE DATEDIFF(MINUTE, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE DATEDIFF(SECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
+WHERE DATEDIFF(second, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         [ConditionalFact]
@@ -184,7 +184,7 @@ WHERE DATEDIFF(SECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE DATEDIFF(MILLISECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
+WHERE DATEDIFF(millisecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         [ConditionalFact]
@@ -205,7 +205,7 @@ WHERE DATEDIFF(MILLISECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE DATEDIFF(MICROSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
+WHERE DATEDIFF(microsecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         [ConditionalFact]
@@ -226,7 +226,7 @@ WHERE DATEDIFF(MICROSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
+WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         [ConditionalFact]
@@ -3368,7 +3368,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             base.Object_to_string_conversion();
 
             AssertSql(
-                @"SELECT CONVERT(VARCHAR(4), [b].[TestSignedByte]) AS [Sbyte], CONVERT(VARCHAR(3), [b].[TestByte]) AS [Byte], CONVERT(VARCHAR(6), [b].[TestInt16]) AS [Short], CONVERT(VARCHAR(5), [b].[TestUnsignedInt16]) AS [Ushort], CONVERT(VARCHAR(11), [b].[TestInt32]) AS [Int], CONVERT(VARCHAR(10), [b].[TestUnsignedInt32]) AS [Uint], CONVERT(VARCHAR(20), [b].[TestInt64]) AS [Long], CONVERT(VARCHAR(20), [b].[TestUnsignedInt64]) AS [Ulong], CONVERT(VARCHAR(100), [b].[TestSingle]) AS [Float], CONVERT(VARCHAR(100), [b].[TestDouble]) AS [Double], CONVERT(VARCHAR(100), [b].[TestDecimal]) AS [Decimal], CONVERT(VARCHAR(1), [b].[TestCharacter]) AS [Char], CONVERT(VARCHAR(100), [b].[TestDateTime]) AS [DateTime], CONVERT(VARCHAR(100), [b].[TestDateTimeOffset]) AS [DateTimeOffset], CONVERT(VARCHAR(100), [b].[TestTimeSpan]) AS [TimeSpan]
+                @"SELECT CONVERT(varchar(4), [b].[TestSignedByte]) AS [Sbyte], CONVERT(varchar(3), [b].[TestByte]) AS [Byte], CONVERT(varchar(6), [b].[TestInt16]) AS [Short], CONVERT(varchar(5), [b].[TestUnsignedInt16]) AS [Ushort], CONVERT(varchar(11), [b].[TestInt32]) AS [Int], CONVERT(varchar(10), [b].[TestUnsignedInt32]) AS [Uint], CONVERT(varchar(20), [b].[TestInt64]) AS [Long], CONVERT(varchar(20), [b].[TestUnsignedInt64]) AS [Ulong], CONVERT(varchar(100), [b].[TestSingle]) AS [Float], CONVERT(varchar(100), [b].[TestDouble]) AS [Double], CONVERT(varchar(100), [b].[TestDecimal]) AS [Decimal], CONVERT(varchar(1), [b].[TestCharacter]) AS [Char], CONVERT(varchar(100), [b].[TestDateTime]) AS [DateTime], CONVERT(varchar(100), [b].[TestDateTimeOffset]) AS [DateTimeOffset], CONVERT(varchar(100), [b].[TestTimeSpan]) AS [TimeSpan]
 FROM [BuiltInDataTypes] AS [b]
 WHERE [b].[Id] = 13");
         }

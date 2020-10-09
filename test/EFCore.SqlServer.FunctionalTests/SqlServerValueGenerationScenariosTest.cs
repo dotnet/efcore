@@ -667,9 +667,9 @@ RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
 
                 context.Database.ExecuteSqlRaw(
                     @"CREATE FUNCTION [dbo].[GetFullName](@Id int)
-RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS
+RETURNS nvarchar(max) WITH SCHEMABINDING AS
 BEGIN
-    DECLARE @FullName NVARCHAR(MAX);
+    DECLARE @FullName nvarchar(max);
     SELECT @FullName = [FirstName] + [LastName] FROM [dbo].[FullNameBlogs] WHERE [Id] = @Id;
     RETURN @FullName
 END");
