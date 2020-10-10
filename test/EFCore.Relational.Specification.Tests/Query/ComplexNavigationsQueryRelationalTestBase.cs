@@ -457,19 +457,31 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(l1 => ss.Set<Level2>().Include(l2 => l2.OneToMany_Optional2.Where(x => x.Id != l2.Id))).AsSplitQuery()));
         }
 
-        [ConditionalFact(Skip = "Issue#21234")]
-        public virtual void Filtered_include_outer_parameter_used_inside_filter_split()
+        [ConditionalTheory(Skip = "Issue#21234")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Filtered_include_outer_parameter_used_inside_filter_split(bool async)
         {
-            // TODO: needs #18191 for result verification
-            using var ctx = CreateContext();
-            var query = ctx.LevelOne.AsSplitQuery().Select(
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>().AsSplitQuery().Select(
                 l1 => new
                 {
                     l1.Id,
-                    FullInclude = ctx.LevelTwo.Include(l2 => l2.OneToMany_Optional2).ToList(),
-                    FilteredInclude = ctx.LevelTwo.Include(l2 => l2.OneToMany_Optional2.Where(x => x.Id != l1.Id)).ToList()
+                    FullInclude = ss.Set<Level2>().Include(l2 => l2.OneToMany_Optional2).ToList(),
+                    FilteredInclude = ss.Set<Level2>().Include(l2 => l2.OneToMany_Optional2.Where(x => x.Id != l1.Id)).ToList()
+                }),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+                    AssertInclude(e.FullInclude, a.FullInclude, new ExpectedInclude<Level2>(x => x.OneToMany_Optional2));
+                    AssertInclude(
+                        e.FilteredInclude,
+                        a.FilteredInclude,
+                        new ExpectedFilteredInclude<Level2, Level3>(
+                            x => x.OneToMany_Optional2,
+                            includeFilter: x => x.Where(x => x.Id != e.Id)));
                 });
-            var result = query.ToList();
         }
 
         [ConditionalFact]

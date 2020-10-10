@@ -7219,6 +7219,26 @@ LEFT JOIN (
 ORDER BY [g].[Nickname], [g].[SquadId], [c].[Name], [t0].[OwnerFullName], [t0].[Id]");
         }
 
+        public override async Task GroupBy_Select_sum(bool async)
+        {
+            await base.GroupBy_Select_sum(async);
+
+            AssertSql(
+                @"SELECT COALESCE(SUM([m].[Rating]), 0.0E0)
+FROM [Missions] AS [m]
+GROUP BY [m].[CodeName]");
+        }
+
+        public override async Task Sum_with_no_data_nullable_double(bool async)
+        {
+            await base.Sum_with_no_data_nullable_double(async);
+
+            AssertSql(
+                @"SELECT COALESCE(SUM([m].[Rating]), 0.0E0)
+FROM [Missions] AS [m]
+WHERE [m].[CodeName] = N'Operation Foobar'");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

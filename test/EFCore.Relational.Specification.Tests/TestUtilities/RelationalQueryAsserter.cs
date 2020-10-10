@@ -6,6 +6,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Xunit;
 
@@ -17,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public RelationalQueryAsserter(
             IQueryFixtureBase queryFixture,
-            Func<Expression, Expression> rewriteExpectedQueryExpression,
+            Func<Expression, IModel, Expression> rewriteExpectedQueryExpression,
             Func<Expression, Expression> rewriteServerQueryExpression,
             bool ignoreEntryCount = false,
             bool canExecuteQueryString = false)

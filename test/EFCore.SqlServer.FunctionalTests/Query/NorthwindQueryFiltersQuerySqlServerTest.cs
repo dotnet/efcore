@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -20,9 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        public override void Count_query()
+        public override async Task Count_query(bool async)
         {
-            base.Count_query();
+            await base.Count_query(async);
 
             AssertSql(
                 @"@__ef_filter__TenantPrefix_0='B' (Size = 4000)
@@ -32,9 +33,9 @@ FROM [Customers] AS [c]
 WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))");
         }
 
-        public override void Materialized_query()
+        public override async Task Materialized_query(bool async)
         {
-            base.Materialized_query();
+            await base.Materialized_query(async);
 
             AssertSql(
                 @"@__ef_filter__TenantPrefix_0='B' (Size = 4000)
@@ -99,9 +100,9 @@ FROM [Customers] AS [c]
 WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))");
         }
 
-        public override void Projection_query()
+        public override async Task Projection_query(bool async)
         {
-            base.Projection_query();
+            await base.Projection_query(async);
 
             AssertSql(
                 @"@__ef_filter__TenantPrefix_0='B' (Size = 4000)
@@ -111,9 +112,9 @@ FROM [Customers] AS [c]
 WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))");
         }
 
-        public override void Include_query()
+        public override async Task Include_query(bool async)
         {
-            base.Include_query();
+            await base.Include_query(async);
 
             AssertSql(
                 @"@__ef_filter__TenantPrefix_0='B' (Size = 4000)
@@ -185,9 +186,9 @@ INNER JOIN (
 WHERE [o].[Quantity] > @__ef_filter___quantity_0");
         }
 
-        public override void Navs_query()
+        public override async Task Navs_query(bool async)
         {
-            base.Navs_query();
+            await base.Navs_query(async);
 
             AssertSql(
                 @"@__ef_filter__TenantPrefix_0='B' (Size = 4000)
@@ -216,7 +217,7 @@ WHERE ((@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AN
         [ConditionalFact]
         public void FromSql_is_composed()
         {
-            using (var context = CreateContext())
+            using (var context = Fixture.CreateContext())
             {
                 var results = context.Customers.FromSqlRaw("select * from Customers").ToList();
 
@@ -236,7 +237,7 @@ WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND
         [ConditionalFact]
         public void FromSql_is_composed_when_filter_has_navigation()
         {
-            using (var context = CreateContext())
+            using (var context = Fixture.CreateContext())
             {
                 var results = context.Orders.FromSqlRaw("select * from Orders").ToList();
 
@@ -278,9 +279,9 @@ FROM [Customers] AS [c]
 WHERE ((@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))) AND ([c].[CustomerID] = @__customerID)");
         }
 
-        public override void Entity_Equality()
+        public override async Task Entity_Equality(bool async)
         {
-            base.Entity_Equality();
+            await base.Entity_Equality(async);
 
             AssertSql(
                 @"@__ef_filter__TenantPrefix_0='B' (Size = 4000)

@@ -7941,6 +7941,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_Select_sum(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Mission>().GroupBy(m => m.CodeName).Select(g => g.Sum(m => m.Rating)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Sum_with_no_data_nullable_double(bool async)
+        {
+            return AssertSum(
+                async,
+                ss => ss.Set<Mission>().Where(m => m.CodeName == "Operation Foobar").Select(m => m.Rating));
+        }
+
         protected GearsOfWarContext CreateContext()
             => Fixture.CreateContext();
 

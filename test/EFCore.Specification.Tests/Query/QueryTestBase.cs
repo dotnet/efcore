@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -34,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual Expression RewriteServerQueryExpression(Expression serverQueryExpression)
             => serverQueryExpression;
 
-        protected virtual Expression RewriteExpectedQueryExpression(Expression expectedQueryExpression)
+        protected virtual Expression RewriteExpectedQueryExpression(Expression expectedQueryExpression, IModel model)
             => new ExpectedQueryRewritingVisitor().Visit(expectedQueryExpression);
 
         public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };

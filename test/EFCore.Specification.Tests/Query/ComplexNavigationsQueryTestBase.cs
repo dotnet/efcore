@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -38,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        protected override Expression RewriteExpectedQueryExpression(Expression expectedQueryExpression)
+        protected override Expression RewriteExpectedQueryExpression(Expression expectedQueryExpression, IModel model)
             => CreateExpectedQueryRewritingVisitor().Visit(expectedQueryExpression);
 
         private MemberInfo GetMemberInfo(Type sourceType, string name)
@@ -5394,19 +5395,31 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(l1 => ss.Set<Level2>().Include(l2 => l2.OneToMany_Optional2.Where(x => x.Id != l2.Id)))));
         }
 
-        [ConditionalFact]
-        public virtual void Filtered_include_outer_parameter_used_inside_filter()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Filtered_include_outer_parameter_used_inside_filter(bool async)
         {
-            // TODO: needs #18191 for result verification
-            using var ctx = CreateContext();
-            var query = ctx.LevelOne.Select(
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>().Select(
                 l1 => new
                 {
                     l1.Id,
-                    FullInclude = ctx.LevelTwo.Include(l2 => l2.OneToMany_Optional2).ToList(),
-                    FilteredInclude = ctx.LevelTwo.Include(l2 => l2.OneToMany_Optional2.Where(x => x.Id != l1.Id)).ToList()
+                    FullInclude = ss.Set<Level2>().Include(l2 => l2.OneToMany_Optional2).ToList(),
+                    FilteredInclude = ss.Set<Level2>().Include(l2 => l2.OneToMany_Optional2.Where(x => x.Id != l1.Id)).ToList()
+                }),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+                    AssertInclude(e.FullInclude, a.FullInclude, new ExpectedInclude<Level2>(x => x.OneToMany_Optional2));
+                    AssertInclude(
+                        e.FilteredInclude,
+                        a.FilteredInclude,
+                        new ExpectedFilteredInclude<Level2, Level3>(
+                            x => x.OneToMany_Optional2,
+                            includeFilter: x => x.Where(x => x.Id != e.Id)));
                 });
-            var result = query.ToList();
         }
 
         [ConditionalFact]

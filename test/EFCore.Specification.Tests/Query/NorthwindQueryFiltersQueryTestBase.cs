@@ -3,9 +3,12 @@
 
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 // ReSharper disable StaticMemberInGenericType
@@ -15,107 +18,128 @@ using Xunit;
 // ReSharper disable StringStartsWithIsCultureSpecific
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class NorthwindQueryFiltersQueryTestBase<TFixture> : IClassFixture<TFixture>, IDisposable
+    public abstract class NorthwindQueryFiltersQueryTestBase<TFixture> : QueryTestBase<TFixture>
         where TFixture : NorthwindQueryFixtureBase<NorthwindQueryFiltersCustomizer>, new()
     {
-        private readonly NorthwindContext _context;
-
         protected NorthwindQueryFiltersQueryTestBase(TFixture fixture)
+            : base(fixture)
         {
-            Fixture = fixture;
-
-            _context = CreateContext();
         }
 
-        protected TFixture Fixture { get; }
-
-        [ConditionalFact]
-        public virtual void Count_query()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Count_query(bool async)
         {
-            Assert.Equal(7, _context.Customers.Count());
+            return AssertCount(
+                async,
+                ss => ss.Set<Customer>());
         }
 
-        [ConditionalFact]
-        public virtual void Materialized_query()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Materialized_query(bool async)
         {
-            Assert.Equal(7, _context.Customers.ToList().Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>(),
+                entryCount: 7);
         }
 
         [ConditionalFact]
         public virtual void Find()
         {
-            Assert.Null(_context.Find<Customer>("ALFKI"));
+            using var context = Fixture.CreateContext();
+
+            Assert.Null(context.Find<Customer>("ALFKI"));
         }
 
-        [ConditionalFact]
-        public virtual void Client_eval()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Client_eval(bool async)
         {
             Assert.Equal(
                 CoreStrings.TranslationFailed("DbSet<Product>()    .Where(p => NorthwindContext.ClientMethod(p))"),
                 RemoveNewLines(
-                    Assert.Throws<InvalidOperationException>(
-                        () => _context.Products.ToList()).Message));
-        }
-
-        [ConditionalFact]
-        public virtual async Task Materialized_query_async()
-        {
-            Assert.Equal(7, (await _context.Customers.ToListAsync()).Count);
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        () => AssertQuery(
+                            async,
+                            ss => ss.Set<Product>()))).Message));
         }
 
         [ConditionalFact]
         public virtual void Materialized_query_parameter()
         {
-            _context.TenantPrefix = "F";
+            using var context = Fixture.CreateContext();
+            context.TenantPrefix = "F";
 
-            Assert.Equal(8, _context.Customers.ToList().Count);
+            Assert.Equal(8, context.Customers.ToList().Count);
         }
 
         [ConditionalFact]
         public virtual void Materialized_query_parameter_new_context()
         {
-            Assert.Equal(7, _context.Customers.ToList().Count);
+            using var context1 = Fixture.CreateContext();
+            Assert.Equal(7, context1.Customers.ToList().Count);
 
-            using var context = CreateContext();
-            context.TenantPrefix = "T";
+            using var context2 = Fixture.CreateContext();
+            context2.TenantPrefix = "T";
 
-            Assert.Equal(6, context.Customers.ToList().Count);
+            Assert.Equal(6, context2.Customers.ToList().Count);
         }
 
-        [ConditionalFact]
-        public virtual void Projection_query()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projection_query(bool async)
         {
-            Assert.Equal(7, _context.Customers.Select(c => c.CustomerID).ToList().Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Select(c => c.CustomerID));
         }
 
         [ConditionalFact]
         public virtual void Projection_query_parameter()
         {
-            _context.TenantPrefix = "F";
+            using var context = Fixture.CreateContext();
+            context.TenantPrefix = "F";
 
-            Assert.Equal(8, _context.Customers.Select(c => c.CustomerID).ToList().Count);
+            Assert.Equal(8, context.Customers.Select(c => c.CustomerID).ToList().Count);
         }
 
-        [ConditionalFact]
-        public virtual void Include_query()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_query(bool async)
         {
-            var results = _context.Customers.Include(c => c.Orders).ToList();
-
-            Assert.Equal(7, results.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Include(c => c.Orders),
+                elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(x => x.Orders)),
+                entryCount: 87);
         }
 
         [ConditionalFact]
         public virtual void Include_query_opt_out()
         {
-            var results = _context.Customers.Include(c => c.Orders).IgnoreQueryFilters().ToList();
+            using var context = Fixture.CreateContext();
+            var results = context.Customers.Include(c => c.Orders).IgnoreQueryFilters().ToList();
 
             Assert.Equal(91, results.Count);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Included_many_to_one_query2(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().Include(o => o.Customer),
+                entryCount: 87);
         }
 
         [ConditionalFact]
         public virtual void Included_many_to_one_query()
         {
-            var results = _context.Orders.Include(o => o.Customer).ToList();
+            using var context = Fixture.CreateContext();
+            var results = context.Orders.Include(o => o.Customer).ToList();
 
             Assert.Equal(80, results.Count);
             Assert.True(results.All(o => o.Customer == null || o.CustomerID.StartsWith("B")));
@@ -124,33 +148,50 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Project_reference_that_itself_has_query_filter_with_another_reference()
         {
-            var results = _context.OrderDetails.Select(od => od.Order).ToList();
+            using var context = Fixture.CreateContext();
+            var results = context.OrderDetails.Select(od => od.Order).ToList();
 
             Assert.Equal(5, results.Count);
             Assert.True(results.All(o => o.Customer == null || o.CustomerID.StartsWith("B")));
         }
 
-        [ConditionalFact]
-        public virtual void Included_one_to_many_query_with_client_eval()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Project_reference_that_itself_has_query_filter_with_another_reference2(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OrderDetail>().Select(od => od.Order),
+                // expected query doesn't distinguish between inner join and left join, so the filtered elements are returned as nulls
+                ss => ss.Set<OrderDetail>().Select(od => od.Order).Where(x => x != null),
+                entryCount: 5);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Included_one_to_many_query_with_client_eval(bool async)
         {
             Assert.Equal(
                 CoreStrings.TranslationFailed("DbSet<Product>()    .Where(p => NorthwindContext.ClientMethod(p))"),
                 RemoveNewLines(
-                    Assert.Throws<InvalidOperationException>(
-                        () => _context.Products.Include(p => p.OrderDetails).ToList()).Message));
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        () => AssertQuery(
+                            async,
+                            ss => ss.Set<Product>().Include(p => p.OrderDetails)))).Message));
         }
 
-        [ConditionalFact]
-        public virtual void Navs_query()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Navs_query(bool async)
         {
-            var results
-                = (from c in _context.Customers
-                   from o in c.Orders
-                   from od in o.OrderDetails
-                   where od.Discount < 10
-                   select c).ToList();
-
-            Assert.Equal(5, results.Count);
+            return AssertQuery(
+                async,
+                ss => from c in ss.Set<Customer>()
+                      from o in c.Orders
+                      from od in o.OrderDetails
+                      where od.Discount < 10
+                      select c,
+                entryCount: 3);
         }
 
         [ConditionalFact]
@@ -160,25 +201,29 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (NorthwindContext context, string customerID)
                     => context.Customers.Where(c => c.CustomerID == customerID));
 
-            Assert.Equal("BERGS", query(_context, "BERGS").First().CustomerID);
+            using var context1 = Fixture.CreateContext();
+            Assert.Equal("BERGS", query(context1, "BERGS").First().CustomerID);
 
-            using var context = CreateContext();
-            Assert.Equal("BLAUS", query(context, "BLAUS").First().CustomerID);
+            using var context2 = Fixture.CreateContext();
+            Assert.Equal("BLAUS", query(context2, "BLAUS").First().CustomerID);
         }
 
-        [ConditionalFact]
-        public virtual void Entity_Equality()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Entity_Equality(bool async)
         {
-            var results = _context.Orders.ToList();
-
-            Assert.Equal(80, results.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>(),
+                entryCount: 80);
         }
 
-        protected NorthwindContext CreateContext()
-            => Fixture.CreateContext();
+        protected override Expression RewriteExpectedQueryExpression(Expression expectedQueryExpression, IModel model)
+        {
+            expectedQueryExpression = new QueryFiltersExpectedQueryRewritingVisitor(model).Visit(expectedQueryExpression);
 
-        public void Dispose()
-            => _context.Dispose();
+            return base.RewriteExpectedQueryExpression(expectedQueryExpression, model);
+        }
 
         private string RemoveNewLines(string message)
             => message.Replace("\n", "").Replace("\r", "");
