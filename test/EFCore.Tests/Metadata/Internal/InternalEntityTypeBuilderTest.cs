@@ -1070,6 +1070,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
+        public void Key_throws_for_derived_type_before_HasBase()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+            entityBuilder.HasKey(new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, ConfigurationSource.Convention);
+
+            var derivedEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
+            derivedEntityBuilder.HasKey(new[] { nameof(SpecialOrder.Specialty) }, ConfigurationSource.Explicit);
+
+            Assert.Equal(
+                CoreStrings.DerivedEntityCannotHaveKeys(typeof(SpecialOrder).Name),
+                Assert.Throws<InvalidOperationException>(
+                    () => derivedEntityBuilder.HasBaseType(entityBuilder.Metadata, ConfigurationSource.Explicit)).Message);
+        }
+
+        [ConditionalFact]
         public void Key_throws_for_property_names_for_shadow_entity_type_if_they_do_not_exist()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2795,6 +2811,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(derivedEntityBuilder.Metadata.BaseType);
             Assert.Single(derivedEntityBuilder.Metadata.GetDeclaredKeys());
 
+            entityBuilder.HasKey(new[] { Order.IdProperty }, ConfigurationSource.DataAnnotation);
             Assert.Same(
                 derivedEntityBuilder,
                 derivedEntityBuilder.HasBaseType(typeof(Order), ConfigurationSource.Explicit));
