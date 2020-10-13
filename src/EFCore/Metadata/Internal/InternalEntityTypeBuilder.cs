@@ -1734,7 +1734,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     foreach (var detachedKeyTuple in detachedKeys)
                     {
-                        detachedKeyTuple.Item1.Attach(Metadata.RootType().Builder, detachedKeyTuple.Item2);
+                        var newKeyBuilder = detachedKeyTuple.Item1.Attach(Metadata.RootType().Builder, detachedKeyTuple.Item2);
+                        if (newKeyBuilder == null
+                            && detachedKeyTuple.Item1.Metadata.GetConfigurationSource() == ConfigurationSource.Explicit)
+                        {
+                            throw new InvalidOperationException(CoreStrings.DerivedEntityCannotHaveKeys(Metadata.DisplayName()));
+                        }
                     }
                 }
 
@@ -1848,7 +1853,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var configurationSourceForRemoval = ConfigurationSource.DataAnnotation.Max(configurationSource);
-            if (Metadata.GetDeclaredKeys().Any(k => !configurationSourceForRemoval.Overrides(k.GetConfigurationSource()))
+            if (Metadata.GetDeclaredKeys().Any(k => !configurationSourceForRemoval.Overrides(k.GetConfigurationSource())
+                && k.Properties.Any(p => baseEntityType.FindProperty(p.Name) == null))
                 || (Metadata.IsKeyless && !configurationSource.Overrides(Metadata.GetIsKeylessConfigurationSource())))
             {
                 return false;
