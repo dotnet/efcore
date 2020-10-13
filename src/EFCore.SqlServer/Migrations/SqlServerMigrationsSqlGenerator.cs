@@ -79,8 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         <see cref="MigrationCommandListBuilder" />.
         ///     </para>
         ///     <para>
-        ///         This method uses a double-dispatch mechanism to call one of the 'Generate' methods that are
-        ///         specific to a certain subtype of <see cref="MigrationOperation" />. Typically database providers
+        ///         This method uses a double-dispatch mechanism to call the <see cref="M:MigrationsSqlGenerator.Generate" /> method
+        ///         that is specific to a certain subtype of <see cref="MigrationOperation" />. Typically database providers
         ///         will override these specific methods rather than this method. However, providers can override
         ///         this methods to handle provider-specific operations.
         ///     </para>
@@ -998,7 +998,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 builder
                     .AppendLine("BEGIN")
-                    .AppendLine("DECLARE @db_name NVARCHAR(MAX) = DB_NAME();")
+                    .AppendLine("DECLARE @db_name nvarchar(max) = DB_NAME();")
                     .AppendLine("EXEC(N'ALTER DATABASE [' + @db_name + '] MODIFY ( ")
                     .Append(editionOptions.Replace("'", "''"))
                     .AppendLine(" );');")
@@ -1010,7 +1010,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 builder
                     .AppendLine("BEGIN")
-                    .AppendLine("DECLARE @db_name NVARCHAR(MAX) = DB_NAME();")
+                    .AppendLine("DECLARE @db_name nvarchar(max) = DB_NAME();")
                     .Append("EXEC(N'ALTER DATABASE [' + @db_name + '] COLLATE ")
                     .Append(operation.Collation)
                     .AppendLine(";');")
@@ -1043,8 +1043,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder
                         .AppendLine("BEGIN")
                         .AppendLine("ALTER DATABASE CURRENT SET AUTO_CLOSE OFF;")
-                        .AppendLine("DECLARE @db_name NVARCHAR(MAX) = DB_NAME();")
-                        .AppendLine("DECLARE @fg_name NVARCHAR(MAX);")
+                        .AppendLine("DECLARE @db_name nvarchar(max) = DB_NAME();")
+                        .AppendLine("DECLARE @fg_name nvarchar(max);")
                         .AppendLine("SELECT TOP(1) @fg_name = [name] FROM [sys].[filegroups] WHERE [type] = N'FX';")
                         .AppendLine()
                         .AppendLine("IF @fg_name IS NULL");
@@ -1060,17 +1060,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     builder
                         .AppendLine()
-                        .AppendLine("DECLARE @path NVARCHAR(MAX);")
+                        .AppendLine("DECLARE @path nvarchar(max);")
                         .Append("SELECT TOP(1) @path = [physical_name] FROM [sys].[database_files] ")
                         .AppendLine("WHERE charindex('\\', [physical_name]) > 0 ORDER BY [file_id];")
                         .AppendLine("IF (@path IS NULL)")
                         .IncrementIndent().AppendLine("SET @path = '\\' + @db_name;").DecrementIndent()
                         .AppendLine()
-                        .AppendLine("DECLARE @filename NVARCHAR(MAX) = right(@path, charindex('\\', reverse(@path)) - 1);")
+                        .AppendLine("DECLARE @filename nvarchar(max) = right(@path, charindex('\\', reverse(@path)) - 1);")
                         .AppendLine(
                             "SET @filename = REPLACE(left(@filename, len(@filename) - charindex('.', reverse(@filename))), '''', '''''') + N'_MOD';")
                         .AppendLine(
-                            "DECLARE @new_path NVARCHAR(MAX) = REPLACE(CAST(SERVERPROPERTY('InstanceDefaultDataPath') AS NVARCHAR(MAX)), '''', '''''') + @filename;")
+                            "DECLARE @new_path nvarchar(max) = REPLACE(CAST(SERVERPROPERTY('InstanceDefaultDataPath') AS nvarchar(max)), '''', '''''') + @filename;")
                         .AppendLine()
                         .AppendLine("EXEC(N'");
 

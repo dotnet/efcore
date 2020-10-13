@@ -565,8 +565,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             responseMessage.EnsureSuccessStatusCode();
 
             var responseStream = responseMessage.Content;
-            var reader = new StreamReader(responseStream);
-            var jsonReader = new JsonTextReader(reader);
+            using var reader = new StreamReader(responseStream);
+            using var jsonReader = new JsonTextReader(reader);
 
             var jObject = Serializer.Deserialize<JObject>(jsonReader);
 

@@ -101,19 +101,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 // overhead by at all times even when counters aren't enabled.
                 // On disable, PollingCounters will stop polling for values so it should be fine to leave them around.
 
-                _activeDbContextsCounter ??= new PollingCounter("active-db-contexts", this, () => _activeDbContexts)
+                _activeDbContextsCounter ??= new PollingCounter("active-db-contexts", this, () => Interlocked.Read(ref _activeDbContexts))
                 {
                     DisplayName = "Active DbContexts"
                 };
 
-                _totalQueriesCounter ??= new PollingCounter("total-queries", this, () => _totalQueries) { DisplayName = "Queries (Total)" };
+                _totalQueriesCounter ??= new PollingCounter("total-queries", this, () => Interlocked.Read(ref _totalQueries)) { DisplayName = "Queries (Total)" };
 
                 _queriesPerSecondCounter ??= new IncrementingPollingCounter(
                     "queries-per-second",
                     this,
-                    () => _totalQueries) { DisplayName = "Queries", DisplayRateTimeScale = TimeSpan.FromSeconds(1) };
+                    () => Interlocked.Read(ref _totalQueries)) { DisplayName = "Queries", DisplayRateTimeScale = TimeSpan.FromSeconds(1) };
 
-                _totalSaveChangesCounter ??= new PollingCounter("total-save-changes", this, () => _totalSaveChanges)
+                _totalSaveChangesCounter ??= new PollingCounter("total-save-changes", this, () => Interlocked.Read(ref _totalSaveChanges))
                 {
                     DisplayName = "SaveChanges (Total)"
                 };
@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 _saveChangesPerSecondCounter ??= new IncrementingPollingCounter(
                     "save-changes-per-second",
                     this,
-                    () => _totalSaveChanges) { DisplayName = "SaveChanges", DisplayRateTimeScale = TimeSpan.FromSeconds(1) };
+                    () => Interlocked.Read(ref _totalSaveChanges)) { DisplayName = "SaveChanges", DisplayRateTimeScale = TimeSpan.FromSeconds(1) };
 
                 _compiledQueryCacheHitRateCounter ??= new PollingCounter(
                     "compiled-query-cache-hit-rate",
@@ -131,12 +131,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 _totalExecutionStrategyOperationFailuresCounter ??= new PollingCounter(
                     "total-execution-strategy-operation-failures",
                     this,
-                    () => _totalExecutionStrategyOperationFailures) { DisplayName = "Execution Strategy Operation Failures (Total)" };
+                    () => Interlocked.Read(ref _totalExecutionStrategyOperationFailures)) { DisplayName = "Execution Strategy Operation Failures (Total)" };
 
                 _executionStrategyOperationFailuresPerSecondCounter ??= new IncrementingPollingCounter(
                     "execution-strategy-operation-failures-per-second",
                     this,
-                    () => _totalExecutionStrategyOperationFailures)
+                    () => Interlocked.Read(ref _totalExecutionStrategyOperationFailures))
                 {
                     DisplayName = "Execution Strategy Operation Failures", DisplayRateTimeScale = TimeSpan.FromSeconds(1)
                 };
@@ -144,12 +144,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 _totalOptimisticConcurrencyFailuresCounter ??= new PollingCounter(
                     "total-optimistic-concurrency-failures",
                     this,
-                    () => _totalOptimisticConcurrencyFailures) { DisplayName = "Optimistic Concurrency Failures (Total)" };
+                    () => Interlocked.Read(ref _totalOptimisticConcurrencyFailures)) { DisplayName = "Optimistic Concurrency Failures (Total)" };
 
                 _optimisticConcurrencyFailuresPerSecondCounter ??= new IncrementingPollingCounter(
                     "optimistic-concurrency-failures-per-second",
                     this,
-                    () => _totalOptimisticConcurrencyFailures)
+                    () => Interlocked.Read(ref _totalOptimisticConcurrencyFailures))
                 {
                     DisplayName = "Optimistic Concurrency Failures", DisplayRateTimeScale = TimeSpan.FromSeconds(1)
                 };
@@ -173,8 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             /// </summary>
             internal double CalculateAndReset()
             {
-                var clone = new CacheInfo { _all = Volatile.Read(ref _all) };
-                Volatile.Write(ref _all, 0);
+                var clone = new CacheInfo { _all = Interlocked.Exchange(ref _all, 0) };
                 return ((double)clone.Hits / (clone.Hits + clone.Misses)) * 100;
             }
         }

@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                         returnType);
                 }
 
-                if (string.Equals(memberName, nameof(DateTime.Ticks)))
+                if (memberName == nameof(DateTime.Ticks))
                 {
                     return _sqlExpressionFactory.Convert(
                         _sqlExpressionFactory.Multiply(
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                         typeof(long));
                 }
 
-                if (string.Equals(memberName, nameof(DateTime.Millisecond)))
+                if (memberName == nameof(DateTime.Millisecond))
                 {
                     return _sqlExpressionFactory.Modulo(
                         _sqlExpressionFactory.Multiply(

@@ -181,5 +181,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             // TODO: this test can be ran with weak entities once #18191 is fixed and we can use query test infra properly
         }
+
+        [ConditionalTheory(Skip = "Issue#17803")]
+        public override Task Multiple_collection_FirstOrDefault_followed_by_member_access_in_projection(bool async)
+        {
+            return base.Multiple_collection_FirstOrDefault_followed_by_member_access_in_projection(async);
+        }
     }
 }

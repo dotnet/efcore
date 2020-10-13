@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         private bool Equals(ColumnExpression columnExpression)
             => base.Equals(columnExpression)
-                && string.Equals(Name, columnExpression.Name)
+                && Name == columnExpression.Name
                 && Table.Equals(columnExpression.Table)
                 && IsNullable == columnExpression.IsNullable;
 

@@ -1086,7 +1086,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 else
                 {
                     var innerColumn = (SqlExpression)mapping.Value;
-                    var outerColumn = subquery.GenerateOuterColumn(innerColumn);
+                    var outerColumn = subquery.GenerateOuterColumn(innerColumn, mapping.Key.Last?.Name);
                     projectionMap[innerColumn] = outerColumn;
                     _projectionMapping[mapping.Key] = outerColumn;
                 }
@@ -1641,9 +1641,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         if (!innerSelectProjectionExpressions.Contains(innerSelectIdentifier.Column)
                             && (selectExpression.GroupBy.Count == 0
                                 || !selectExpression.GroupBy.Contains(innerSelectIdentifier.Column)))
-
+                        {
                             throw new InvalidOperationException(RelationalStrings.MissingIdentifyingProjectionInDistinctGroupBySubquery(
                                 innerSelectIdentifier.Column.Table.Alias + "." + innerSelectIdentifier.Column.Name));
+                        }
                     }
                 }
             }
@@ -2046,7 +2047,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 }
             }
 
-            innerShaper = new EntityShaperNullableMarkingExpressionVisitor().Visit(innerShaper);
+            if (innerNullable)
+            {
+                innerShaper = new EntityShaperNullableMarkingExpressionVisitor().Visit(innerShaper);
+            }
 
             return New(
                 transparentIdentifierType.GetTypeInfo().DeclaredConstructors.Single(),

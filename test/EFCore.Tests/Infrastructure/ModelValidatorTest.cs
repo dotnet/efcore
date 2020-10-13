@@ -321,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<C>().HasOne<B>().WithOne().HasForeignKey<B>(a => a.Id).HasPrincipalKey<C>(b => b.Id).IsRequired();
 
             VerifyError(
-                CoreStrings.IdentifyingRelationshipCycle(nameof(A)),
+                CoreStrings.IdentifyingRelationshipCycle(nameof(A), "{'Id'}"),
                 modelBuilder.Model);
         }
 
@@ -513,7 +513,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var entityF = model.AddEntityType(typeof(F));
             SetBaseType(entityF, entityA);
 
-            VerifyError(CoreStrings.InconsistentInheritance(nameof(F), nameof(D)), model);
+            VerifyError(CoreStrings.InconsistentInheritance(nameof(F), nameof(A), nameof(D)), model);
         }
 
         [ConditionalFact]
@@ -706,7 +706,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ownedTypeBuilder.Ignore(nameof(ReferencedEntity.SampleEntityId), ConfigurationSource.Explicit);
 
             VerifyError(
-                CoreStrings.MultipleOwnerships(nameof(ReferencedEntity)),
+                CoreStrings.MultipleOwnerships(nameof(ReferencedEntity), "'SampleEntity.ReferencedEntity', 'SampleEntity.'"),
                 modelBuilder.Metadata);
         }
 

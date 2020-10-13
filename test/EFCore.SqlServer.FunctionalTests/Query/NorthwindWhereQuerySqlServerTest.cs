@@ -1679,7 +1679,7 @@ WHERE (
             await base.Time_of_day_datetime(async);
 
             AssertSql(
-                @"SELECT CAST([o].[OrderDate] AS time)
+                @"SELECT CONVERT(time, [o].[OrderDate])
 FROM [Orders] AS [o]");
         }
 
@@ -1775,7 +1775,7 @@ WHERE (
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE CONVERT(VARCHAR(11), [o].[OrderID]) LIKE N'%20%'");
+WHERE CONVERT(varchar(11), [o].[OrderID]) LIKE N'%20%'");
         }
 
         public override async Task Like_with_non_string_column_using_double_cast(bool async)

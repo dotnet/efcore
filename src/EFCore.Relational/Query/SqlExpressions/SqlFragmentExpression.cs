@@ -61,8 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         private bool Equals(SqlFragmentExpression sqlFragmentExpression)
             => base.Equals(sqlFragmentExpression)
-                && string.Equals(Sql, sqlFragmentExpression.Sql)
-                && !string.Equals(Sql, "*"); // We make star projection different because it could be coming from different table.
+                && Sql == sqlFragmentExpression.Sql
+                && Sql != "*"; // We make star projection different because it could be coming from different table.
 
         /// <inheritdoc />
         public override int GetHashCode()

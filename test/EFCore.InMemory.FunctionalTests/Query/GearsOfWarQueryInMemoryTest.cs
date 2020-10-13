@@ -72,5 +72,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory(Skip = "issue #17537")]
         public override Task SelectMany_predicate_with_non_equality_comparison_with_Take_doesnt_convert_to_join(bool async)
             => base.SelectMany_predicate_with_non_equality_comparison_with_Take_doesnt_convert_to_join(async);
+
+        [ConditionalTheory(Skip = "issue #19584")]
+        public override Task Cast_to_derived_followed_by_include_and_FirstOrDefault(bool async)
+            => base.Cast_to_derived_followed_by_include_and_FirstOrDefault(async);
     }
 }

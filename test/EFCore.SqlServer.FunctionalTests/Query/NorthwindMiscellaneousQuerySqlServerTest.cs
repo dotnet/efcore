@@ -2359,11 +2359,11 @@ WHERE [c].[CustomerID] LIKE N'A%'");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
-    SELECT DISTINCT [o].[CustomerID], [o].[OrderID]
+    SELECT DISTINCT [o].[CustomerID] AS [Id], [o].[OrderID] AS [Count]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10300
 ) AS [t]
-INNER JOIN [Customers] AS [c] ON [t].[CustomerID] = [c].[CustomerID]");
+INNER JOIN [Customers] AS [c] ON [t].[Id] = [c].[CustomerID]");
         }
 
         public override async Task Select_DTO_with_member_init_distinct_in_subquery_translated_to_server_2(bool async)
@@ -2373,11 +2373,11 @@ INNER JOIN [Customers] AS [c] ON [t].[CustomerID] = [c].[CustomerID]");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
-    SELECT DISTINCT [o].[CustomerID], [o].[OrderID]
+    SELECT DISTINCT [o].[CustomerID] AS [Id], [o].[OrderID] AS [Count]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10300
 ) AS [t]
-INNER JOIN [Customers] AS [c] ON [t].[CustomerID] = [c].[CustomerID]");
+INNER JOIN [Customers] AS [c] ON [t].[Id] = [c].[CustomerID]");
         }
 
         public override void Select_DTO_with_member_init_distinct_in_subquery_used_in_projection_translated_to_server()
@@ -2385,10 +2385,10 @@ INNER JOIN [Customers] AS [c] ON [t].[CustomerID] = [c].[CustomerID]");
             base.Select_DTO_with_member_init_distinct_in_subquery_used_in_projection_translated_to_server();
 
             AssertSql(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[CustomerID] AS [Id], [t].[OrderID] AS [Count]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[Id], [t].[Count]
 FROM [Customers] AS [c]
 CROSS JOIN (
-    SELECT DISTINCT [o].[CustomerID], [o].[OrderID]
+    SELECT DISTINCT [o].[CustomerID] AS [Id], [o].[OrderID] AS [Count]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10300
 ) AS [t]
@@ -3100,7 +3100,7 @@ ORDER BY (
             AssertSql(
                 @"SELECT [o].[CustomerID]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] IS NOT NULL AND (CONVERT(VARCHAR(10), [o].[EmployeeID]) LIKE N'%10%')");
+WHERE [o].[OrderDate] IS NOT NULL AND (CONVERT(varchar(10), [o].[EmployeeID]) LIKE N'%10%')");
         }
 
         public override async Task Select_expression_long_to_string(bool async)
@@ -3108,7 +3108,7 @@ WHERE [o].[OrderDate] IS NOT NULL AND (CONVERT(VARCHAR(10), [o].[EmployeeID]) LI
             await base.Select_expression_long_to_string(async);
 
             AssertSql(
-                @"SELECT CONVERT(VARCHAR(20), CAST([o].[OrderID] AS bigint)) AS [ShipName]
+                @"SELECT CONVERT(varchar(20), CAST([o].[OrderID] AS bigint)) AS [ShipName]
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] IS NOT NULL");
         }
@@ -3118,7 +3118,7 @@ WHERE [o].[OrderDate] IS NOT NULL");
             await base.Select_expression_int_to_string(async);
 
             AssertSql(
-                @"SELECT CONVERT(VARCHAR(11), [o].[OrderID]) AS [ShipName]
+                @"SELECT CONVERT(varchar(11), [o].[OrderID]) AS [ShipName]
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] IS NOT NULL");
         }
@@ -3142,7 +3142,7 @@ WHERE [o].[OrderDate] IS NOT NULL");
             await base.Select_expression_other_to_string(async);
 
             AssertSql(
-                @"SELECT CONVERT(VARCHAR(100), [o].[OrderDate]) AS [ShipName]
+                @"SELECT CONVERT(varchar(100), [o].[OrderDate]) AS [ShipName]
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] IS NOT NULL");
         }
@@ -3703,12 +3703,12 @@ WHERE ([c].[CustomerID] + COALESCE([c].[City], N'')) = N'ALFKIBerlin'");
             await base.Anonymous_complex_distinct_orderby(async);
 
             AssertSql(
-                @"SELECT [t].[c] AS [A]
+                @"SELECT [t].[A]
 FROM (
-    SELECT DISTINCT [c].[CustomerID] + COALESCE([c].[City], N'') AS [c]
+    SELECT DISTINCT [c].[CustomerID] + COALESCE([c].[City], N'') AS [A]
     FROM [Customers] AS [c]
 ) AS [t]
-ORDER BY [t].[c]");
+ORDER BY [t].[A]");
         }
 
         public override async Task Anonymous_complex_distinct_result(bool async)
@@ -3718,10 +3718,10 @@ ORDER BY [t].[c]");
             AssertSql(
                 @"SELECT COUNT(*)
 FROM (
-    SELECT DISTINCT [c].[CustomerID] + COALESCE([c].[City], N'') AS [c]
+    SELECT DISTINCT [c].[CustomerID] + COALESCE([c].[City], N'') AS [A]
     FROM [Customers] AS [c]
 ) AS [t]
-WHERE [t].[c] IS NOT NULL AND ([t].[c] LIKE N'A%')");
+WHERE [t].[A] IS NOT NULL AND ([t].[A] LIKE N'A%')");
         }
 
         public override async Task Anonymous_complex_orderby(bool async)
@@ -3771,12 +3771,12 @@ WHERE [c].[CustomerID] = N'ALFKI'");
             await base.DTO_member_distinct_orderby(async);
 
             AssertSql(
-                @"SELECT [t].[CustomerID] AS [Property]
+                @"SELECT [t].[Property]
 FROM (
-    SELECT DISTINCT [c].[CustomerID]
+    SELECT DISTINCT [c].[CustomerID] AS [Property]
     FROM [Customers] AS [c]
 ) AS [t]
-ORDER BY [t].[CustomerID]");
+ORDER BY [t].[Property]");
         }
 
         public override async Task DTO_member_distinct_result(bool async)
@@ -3786,10 +3786,10 @@ ORDER BY [t].[CustomerID]");
             AssertSql(
                 @"SELECT COUNT(*)
 FROM (
-    SELECT DISTINCT [c].[CustomerID]
+    SELECT DISTINCT [c].[CustomerID] AS [Property]
     FROM [Customers] AS [c]
 ) AS [t]
-WHERE [t].[CustomerID] LIKE N'A%'");
+WHERE [t].[Property] LIKE N'A%'");
         }
 
         public override async Task DTO_complex_distinct_where(bool async)
@@ -3807,12 +3807,12 @@ WHERE ([c].[CustomerID] + COALESCE([c].[City], N'')) = N'ALFKIBerlin'");
             await base.DTO_complex_distinct_orderby(async);
 
             AssertSql(
-                @"SELECT [t].[c] AS [Property]
+                @"SELECT [t].[Property]
 FROM (
-    SELECT DISTINCT [c].[CustomerID] + COALESCE([c].[City], N'') AS [c]
+    SELECT DISTINCT [c].[CustomerID] + COALESCE([c].[City], N'') AS [Property]
     FROM [Customers] AS [c]
 ) AS [t]
-ORDER BY [t].[c]");
+ORDER BY [t].[Property]");
         }
 
         public override async Task DTO_complex_distinct_result(bool async)
@@ -3822,10 +3822,10 @@ ORDER BY [t].[c]");
             AssertSql(
                 @"SELECT COUNT(*)
 FROM (
-    SELECT DISTINCT [c].[CustomerID] + COALESCE([c].[City], N'') AS [c]
+    SELECT DISTINCT [c].[CustomerID] + COALESCE([c].[City], N'') AS [Property]
     FROM [Customers] AS [c]
 ) AS [t]
-WHERE [t].[c] IS NOT NULL AND ([t].[c] LIKE N'A%')");
+WHERE [t].[Property] IS NOT NULL AND ([t].[Property] LIKE N'A%')");
         }
 
         public override async Task DTO_complex_orderby(bool async)
@@ -5280,7 +5280,7 @@ ORDER BY [c].[CustomerID]");
             AssertSql(
                 @"@__p_0='91'
 
-SELECT [t0].[City] AS [c1], [t1].[City], [t1].[City0] AS [c1]
+SELECT [t0].[City] AS [c1], [t1].[City], [t1].[c1]
 FROM (
     SELECT DISTINCT [t].[City]
     FROM (
@@ -5289,7 +5289,7 @@ FROM (
     ) AS [t]
 ) AS [t0]
 CROSS APPLY (
-    SELECT TOP(9) [e].[City], [t0].[City] AS [City0]
+    SELECT TOP(9) [e].[City], [t0].[City] AS [c1]
     FROM [Employees] AS [e]
     WHERE ([t0].[City] = [e].[City]) OR ([t0].[City] IS NULL AND [e].[City] IS NULL)
 ) AS [t1]

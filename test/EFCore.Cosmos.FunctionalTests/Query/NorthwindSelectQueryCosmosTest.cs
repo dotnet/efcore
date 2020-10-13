@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
@@ -1166,6 +1167,64 @@ ORDER BY c[""CustomerID""]");
         public override Task Select_nested_collection_deep(bool async)
         {
             return base.Select_nested_collection_deep(async);
+        }
+
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Projecting_Length_of_a_string_property_after_FirstOrDefault_on_correlated_collection(bool async)
+        {
+            return base.Projecting_Length_of_a_string_property_after_FirstOrDefault_on_correlated_collection(async);
+        }
+
+        public override async Task Projection_take_predicate_projection(bool async)
+        {
+            await base.Projection_take_predicate_projection(async);
+
+            AssertSql(@"@__p_0='10'
+
+SELECT VALUE {""Aggregate"" : ((c[""CustomerID""] || "" "") || c[""City""])}
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] != null) AND ((""A"" != null) AND STARTSWITH(c[""CustomerID""], ""A""))))
+ORDER BY c[""CustomerID""]
+OFFSET 0 LIMIT @__p_0");
+        }
+
+        public override async Task Projection_take_projection_doesnt_project_intermittent_column(bool async)
+        {
+            await base.Projection_take_projection_doesnt_project_intermittent_column(async);
+
+            AssertSql(@"@__p_0='10'
+
+SELECT VALUE {""Aggregate"" : ((c[""CustomerID""] || "" "") || c[""City""])}
+FROM root c
+WHERE (c[""Discriminator""] = ""Customer"")
+ORDER BY c[""CustomerID""]
+OFFSET 0 LIMIT @__p_0");
+        }
+
+        public override async Task Projection_skip_projection_doesnt_project_intermittent_column(bool async)
+        {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Projection_skip_projection_doesnt_project_intermittent_column(async))).Message;
+
+            Assert.Equal(CosmosStrings.OffsetRequiresLimit, message);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task Projection_Distinct_projection_preserves_columns_used_for_distinct_in_subquery(bool async)
+        {
+            return base.Projection_Distinct_projection_preserves_columns_used_for_distinct_in_subquery(async);
+        }
+
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Projecting_count_of_navigation_which_is_generic_collection(bool async)
+        {
+            return base.Projecting_count_of_navigation_which_is_generic_collection(async);
+        }
+
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Projecting_count_of_navigation_which_is_generic_list(bool async)
+        {
+            return base.Projecting_count_of_navigation_which_is_generic_list(async);
         }
 
         private void AssertSql(params string[] expected)

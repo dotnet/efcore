@@ -16,7 +16,7 @@
       "src\\EFCore.Sqlite\\EFCore.Sqlite.csproj",
       "src\\EFCore\\EFCore.csproj",
       "src\\Microsoft.Data.Sqlite.Core\\Microsoft.Data.Sqlite.Core.csproj",
-      "test\\EFCore.Analyzers.Tests\\EFCore.Analyzers.Test.csproj",
+      "test\\EFCore.Analyzers.Tests\\EFCore.Analyzers.Tests.csproj",
       "test\\EFCore.Cosmos.FunctionalTests\\EFCore.Cosmos.FunctionalTests.csproj",
       "test\\EFCore.Cosmos.Tests\\EFCore.Cosmos.Tests.csproj",
       "test\\EFCore.CrossStore.FunctionalTests\\EFCore.CrossStore.FunctionalTests.csproj",

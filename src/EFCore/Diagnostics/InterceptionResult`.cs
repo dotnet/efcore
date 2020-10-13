@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
     ///     <para>
-    ///         Represents a result from an <see cref="IInterceptor" /> such as an 'IDbCommandInterceptor' to allow
+    ///         Represents a result from an <see cref="IInterceptor" /> such as an <see cref="ISaveChangesInterceptor" /> to allow
     ///         suppression of the normal operation being intercepted.
     ///     </para>
     ///     <para>

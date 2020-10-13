@@ -8,7 +8,7 @@
 
     <IncludeDotNetCli>true</IncludeDotNetCli>
     <DotNetCliPackageType>sdk</DotNetCliPackageType>
-    <DotNetCliVersion>5.0.100-rc.1.20452.10</DotNetCliVersion>
+    <DotNetCliVersion>$(NETCoreSdkVersion)</DotNetCliVersion>
 
     <EnableAzurePipelinesReporter>true</EnableAzurePipelinesReporter>
     <FailOnTestFailure>true</FailOnTestFailure>
@@ -33,7 +33,7 @@
 
   <PropertyGroup>
     <HelixPreCommands Condition = "'$(HelixTargetQueue.StartsWith(`Windows`))'">$(HelixPreCommands); SqlLocalDB start</HelixPreCommands>
-    <XUnitPublishTargetFramework>netcoreapp5.0</XUnitPublishTargetFramework>
+    <XUnitPublishTargetFramework>net5.0</XUnitPublishTargetFramework>
     <XUnitRuntimeTargetFramework>netcoreapp2.0</XUnitRuntimeTargetFramework>
     <XUnitRunnerVersion>2.4.1</XUnitRunnerVersion>
     <XUnitArguments></XUnitArguments>

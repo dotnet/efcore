@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+
 namespace Microsoft.DotNet.Cli.CommandLine
 {
     internal static class CommandLineApplicationExtensions
@@ -10,7 +12,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 template,
                 description,
                 template.IndexOf('<') != -1
-                    ? template.EndsWith(">...")
+                    ? template.EndsWith(">...", StringComparison.Ordinal)
                         ? CommandOptionType.MultipleValue
                         : CommandOptionType.SingleValue
                     : CommandOptionType.NoValue);

@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Sqlite.Properties.SqliteNTSStrings", typeof(SqliteNTSStrings).Assembly);
 
         /// <summary>
-        ///     Invalid geometry type: {storeType}
+        ///     Invalid geometry type: {storeType}.
         /// </summary>
         public static string InvalidGeometryType([CanBeNull] object storeType)
             => string.Format(

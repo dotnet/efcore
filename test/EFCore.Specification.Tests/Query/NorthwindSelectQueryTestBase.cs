@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -1844,6 +1845,127 @@ namespace Microsoft.EntityFrameworkCore.Query
                     AssertEqual(e, a);
                     AssertEqual(e.Customer, a.Customer);
                 });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_Length_of_a_string_property_after_FirstOrDefault_on_correlated_collection(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => (int?)c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).FirstOrDefault().Length),
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).FirstOrDefault().MaybeScalar(x => x.Length)),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_count_of_navigation_which_is_generic_list(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => c.Orders.Count),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_count_of_navigation_which_is_generic_collection(bool async)
+        {
+            var collectionCount = typeof(ICollection<Order>).GetProperty("Count");
+
+            var prm = Expression.Parameter(typeof(Customer), "c");
+            var selector = Expression.Lambda<Func<Customer, int>>(
+                Expression.Property(
+                    Expression.Property(prm, "Orders"),
+                    collectionCount),
+                prm);
+
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(selector),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory(Skip = "issue #22701")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_count_of_navigation_which_is_generic_collection_using_convert(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => ((ICollection<Order>)c.Orders).Count),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projection_take_projection_doesnt_project_intermittent_column(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss
+                    .Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => new { c.CustomerID, c.City, c.CompanyName })
+                    .Take(10)
+                    .Select(x => new { Aggregate = x.CustomerID + " " + x.City }),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projection_skip_projection_doesnt_project_intermittent_column(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss
+                    .Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => new { c.CustomerID, c.City, c.CompanyName })
+                    .Skip(7)
+                    .Select(x => new { Aggregate = x.CustomerID + " " + x.City }),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projection_Distinct_projection_preserves_columns_used_for_distinct_in_subquery(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss
+                    .Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => new { c.CustomerID, FirstLetter = c.CustomerID.Substring(0, 1), Foo = "Foo" })
+                    .Distinct()
+                    .Select(x => new { Aggregate = x.FirstLetter + " " + x.Foo }),
+                elementSorter: e => e.Aggregate);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projection_take_predicate_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss
+                    .Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => new { c.CustomerID, c.City, c.CompanyName })
+                    .Take(10)
+                    .Where(x => x.CustomerID.StartsWith("A"))
+                    .Select(x => new { Aggregate = x.CustomerID + " " + x.City }),
+                assertOrder: true);
         }
     }
 }

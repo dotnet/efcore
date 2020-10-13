@@ -5930,6 +5930,122 @@ LEFT JOIN [LevelThree] AS [l0] ON [l].[Id] = [l0].[Level2_Optional_Id]
 LEFT JOIN [LevelOne] AS [l1] ON [l].[Level1_Optional_Id] = [l1].[Id]");
         }
 
+        public override async Task Composite_key_join_on_groupby_aggregate_projecting_only_grouping_key(bool async)
+        {
+            await base.Composite_key_join_on_groupby_aggregate_projecting_only_grouping_key(async);
+
+            AssertSql(
+                @"SELECT [t].[Key]
+FROM [LevelOne] AS [l]
+INNER JOIN (
+    SELECT [l0].[Id] % 3 AS [Key], COALESCE(SUM([l0].[Id]), 0) AS [Sum]
+    FROM [LevelTwo] AS [l0]
+    GROUP BY [l0].[Id] % 3
+) AS [t] ON ([l].[Id] = [t].[Key]) AND (CAST(1 AS bit) = CASE
+    WHEN [t].[Sum] > 10 THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END)");
+        }
+
+        public override async Task Multiple_joins_groupby_predicate(bool async)
+        {
+            await base.Multiple_joins_groupby_predicate(async);
+
+            AssertSql(
+                @"SELECT [l].[Id], [l].[Name], CASE
+    WHEN [l0].[Id] IS NULL THEN N'Foo'
+    ELSE N'Bar'
+END AS [Foo]
+FROM [LevelOne] AS [l]
+LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
+LEFT JOIN (
+    SELECT [l1].[Name] AS [Key], COUNT(*) AS [Count]
+    FROM [LevelThree] AS [l1]
+    GROUP BY [l1].[Name]
+) AS [t] ON [l].[Name] = [t].[Key]
+WHERE [l0].[Name] IS NOT NULL OR ([t].[Count] > 0)");
+        }
+
+        public override async Task Collection_FirstOrDefault_property_accesses_in_projection(bool async)
+        {
+            await base.Collection_FirstOrDefault_property_accesses_in_projection(async);
+
+            AssertSql(
+                @"SELECT [l0].[Id], (
+    SELECT TOP(1) [l].[Name]
+    FROM [LevelTwo] AS [l]
+    WHERE ([l0].[Id] = [l].[OneToMany_Optional_Inverse2Id]) AND ([l].[Name] = N'L2 02')) AS [Pushdown]
+FROM [LevelOne] AS [l0]
+WHERE [l0].[Id] < 3");
+        }
+
+        public override async Task Collection_FirstOrDefault_entity_reference_accesses_in_projection(bool async)
+        {
+            await base.Collection_FirstOrDefault_entity_reference_accesses_in_projection(async);
+
+            AssertSql(
+                @"SELECT [l].[Id], [t0].[Id], [t0].[Level2_Optional_Id], [t0].[Level2_Required_Id], [t0].[Name], [t0].[OneToMany_Optional_Inverse3Id], [t0].[OneToMany_Optional_Self_Inverse3Id], [t0].[OneToMany_Required_Inverse3Id], [t0].[OneToMany_Required_Self_Inverse3Id], [t0].[OneToOne_Optional_PK_Inverse3Id], [t0].[OneToOne_Optional_Self3Id]
+FROM [LevelOne] AS [l]
+LEFT JOIN (
+    SELECT [t].[Id], [t].[Level2_Optional_Id], [t].[Level2_Required_Id], [t].[Name], [t].[OneToMany_Optional_Inverse3Id], [t].[OneToMany_Optional_Self_Inverse3Id], [t].[OneToMany_Required_Inverse3Id], [t].[OneToMany_Required_Self_Inverse3Id], [t].[OneToOne_Optional_PK_Inverse3Id], [t].[OneToOne_Optional_Self3Id], [t].[OneToMany_Optional_Inverse2Id]
+    FROM (
+        SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Optional_Self_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToMany_Required_Self_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id], [l1].[OneToOne_Optional_Self3Id], [l0].[OneToMany_Optional_Inverse2Id], ROW_NUMBER() OVER(PARTITION BY [l0].[OneToMany_Optional_Inverse2Id] ORDER BY [l0].[Id], [l1].[Id]) AS [row]
+        FROM [LevelTwo] AS [l0]
+        LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Level2_Optional_Id]
+        WHERE [l0].[Name] = N'L2 02'
+    ) AS [t]
+    WHERE [t].[row] <= 1
+) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
+WHERE [l].[Id] < 3");
+        }
+
+        public override async Task Collection_FirstOrDefault_entity_collection_accesses_in_projection(bool async)
+        {
+            await base.Collection_FirstOrDefault_entity_collection_accesses_in_projection(async);
+
+            AssertSql(
+                @"");
+        }
+
+        public override async Task Multiple_collection_FirstOrDefault_followed_by_member_access_in_projection(bool async)
+        {
+            await base.Multiple_collection_FirstOrDefault_followed_by_member_access_in_projection(async);
+
+            AssertSql(
+                @"SELECT [l2].[Id], (
+    SELECT TOP(1) [l].[Name]
+    FROM [LevelThree] AS [l]
+    WHERE (
+        SELECT TOP(1) [l0].[Id]
+        FROM [LevelTwo] AS [l0]
+        WHERE ([l2].[Id] = [l0].[OneToMany_Optional_Inverse2Id]) AND ([l0].[Name] = N'L2 02')) IS NOT NULL AND (((
+        SELECT TOP(1) [l1].[Id]
+        FROM [LevelTwo] AS [l1]
+        WHERE ([l2].[Id] = [l1].[OneToMany_Optional_Inverse2Id]) AND ([l1].[Name] = N'L2 02')) = [l].[OneToMany_Optional_Inverse3Id]) OR ((
+        SELECT TOP(1) [l1].[Id]
+        FROM [LevelTwo] AS [l1]
+        WHERE ([l2].[Id] = [l1].[OneToMany_Optional_Inverse2Id]) AND ([l1].[Name] = N'L2 02')) IS NULL AND [l].[OneToMany_Optional_Inverse3Id] IS NULL))
+    ORDER BY [l].[Id]) AS [Pushdown]
+FROM [LevelOne] AS [l2]
+WHERE [l2].[Id] < 2");
+        }
+
+        public override async Task Projecting_columns_with_same_name_from_different_entities_making_sure_aliasing_works_after_Distinct(bool async)
+        {
+            await base.Projecting_columns_with_same_name_from_different_entities_making_sure_aliasing_works_after_Distinct(async);
+
+            AssertSql(
+                @"@__p_0='10'
+
+SELECT [t].[Id1] AS [Foo], [t].[Id2] AS [Bar], [t].[Id3] AS [Baz]
+FROM (
+    SELECT DISTINCT TOP(@__p_0) [l].[Id] AS [Id1], [l0].[Id] AS [Id2], [l1].[Id] AS [Id3], [l].[Name] AS [Name1], [l0].[Name] AS [Name2]
+    FROM [LevelOne] AS [l]
+    INNER JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
+    INNER JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Level2_Optional_Id]
+) AS [t]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

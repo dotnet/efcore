@@ -247,9 +247,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         CoreStrings.DerivedEntityTypeHasNoKey(this.DisplayName(), RootType().DisplayName()));
                 }
 
-                if (_keys.Any())
+                if (_keys.Count != 0)
                 {
-                    throw new InvalidOperationException(CoreStrings.KeylessTypeExistingKey(this.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.KeylessTypeExistingKey(
+                        this.DisplayName(), _keys.First().Value.Properties.Format()));
                 }
             }
 
@@ -1891,9 +1892,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 throw new InvalidOperationException(
                     CoreStrings.SkipNavigationInUseBySkipNavigation(
+                        navigation.DeclaringEntityType.DisplayName(),
                         navigation.Name,
-                        navigation.Inverse.Name,
-                        navigation.Inverse.DeclaringEntityType.DisplayName()));
+                        navigation.Inverse.DeclaringEntityType.DisplayName(),
+                        navigation.Inverse.Name));
             }
 
             var removed = _skipNavigations.Remove(navigation.Name);

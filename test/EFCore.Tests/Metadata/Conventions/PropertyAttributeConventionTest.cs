@@ -216,7 +216,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var propertyBuilder = derivedEntityTypeBuilder.Property(typeof(int), "Number", ConfigurationSource.Explicit);
 
             Assert.Equal(
-                CoreStrings.KeyAttributeOnDerivedEntity(derivedEntityTypeBuilder.Metadata.DisplayName(), propertyBuilder.Metadata.Name),
+                CoreStrings.KeyAttributeOnDerivedEntity(
+                    derivedEntityTypeBuilder.Metadata.DisplayName(), propertyBuilder.Metadata.Name, baseEntityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => Validate(derivedEntityTypeBuilder))
                     .Message);
         }

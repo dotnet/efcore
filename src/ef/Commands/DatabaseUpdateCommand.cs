@@ -8,7 +8,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
     {
         protected override int Execute(string[] args)
         {
-            CreateExecutor(args).UpdateDatabase(_migration.Value, _connection.Value(), Context.Value());
+            using var executor = CreateExecutor(args);
+
+            executor.UpdateDatabase(_migration.Value, _connection.Value(), Context.Value());
 
             return base.Execute(args);
         }

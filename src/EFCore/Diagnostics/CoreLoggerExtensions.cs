@@ -737,7 +737,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 {
                     if (newDebugInfo.TryGetValue(key, out var value))
                     {
-                        if (!value.Equals(cachedDebugInfo[key]))
+                        if (value != cachedDebugInfo[key])
                         {
                             conflicts.Add(CoreStrings.ServiceProviderConfigChanged(key));
                         }

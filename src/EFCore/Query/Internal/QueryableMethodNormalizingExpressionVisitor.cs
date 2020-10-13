@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (methodCallExpression.Method.DeclaringType.IsGenericType
                 && (methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(ICollection<>)
                     || methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(List<>))
-                && string.Equals(nameof(List<int>.Contains), methodCallExpression.Method.Name))
+                && methodCallExpression.Method.Name == nameof(List<int>.Contains))
             {
                 visitedExpression = TryConvertListContainsToQueryableContains(methodCallExpression);
             }
