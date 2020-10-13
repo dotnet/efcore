@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 #if NET5_0
-using System.Net;
+using System.IO;
 #endif
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 HttpRequestException re => re.InnerException is SocketException
 #if NET5_0
-                    || (re.InnerException is NetworkException networkException
+                    || (re.InnerException is IOException networkException
                         && networkException.InnerException is SocketException)
 #endif
                     ,
