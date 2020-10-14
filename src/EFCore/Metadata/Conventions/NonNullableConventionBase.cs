@@ -57,10 +57,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var state = GetOrInitializeState(modelBuilder);
 
             // First check for [MaybeNull] on the return value. If it exists, the member is nullable.
+            // Note: avoid using GetCustomAttribute<> below because of https://github.com/mono/mono/issues/17477
             var isMaybeNull = memberInfo switch
             {
-                FieldInfo f => f.GetCustomAttribute<CA.MaybeNullAttribute>() != null,
-                PropertyInfo p => p.GetMethod?.ReturnParameter?.GetCustomAttribute<CA.MaybeNullAttribute>() != null,
+                FieldInfo f
+                    => f.CustomAttributes.Any(a => a.AttributeType == typeof(CA.MaybeNullAttribute)),
+                PropertyInfo p
+                    => p.GetMethod?.ReturnParameter?.CustomAttributes?.Any(a => a.AttributeType == typeof(CA.MaybeNullAttribute)) == true,
                 _ => false
             };
 
