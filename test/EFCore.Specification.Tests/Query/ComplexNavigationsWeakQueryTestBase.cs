@@ -177,9 +177,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.Include_inside_subquery(async);
         }
 
-        public override void Filtered_include_outer_parameter_used_inside_filter()
+        [ConditionalTheory(Skip = "Issue#16752")]
+        public override Task Filtered_include_outer_parameter_used_inside_filter(bool async)
         {
-            // TODO: this test can be ran with weak entities once #18191 is fixed and we can use query test infra properly
+            return base.Filtered_include_outer_parameter_used_inside_filter(async);
         }
 
         [ConditionalTheory(Skip = "Issue#17803")]

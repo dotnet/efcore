@@ -400,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Preserve_includes_when_applying_skip_take_after_anonymous_type_select(bool async)
         {
             using var context = CreateContext();
-            var expectedQuery = QueryAsserter.ExpectedData.Set<OwnedPerson>().OrderBy(p => p.Id);
+            var expectedQuery = Fixture.GetExpectedData().Set<OwnedPerson>().OrderBy(p => p.Id);
             var expectedResult = expectedQuery.Select(q => new { Query = q, Count = expectedQuery.Count() }).Skip(0).Take(100).ToList();
 
             var baseQuery = context.Set<OwnedPerson>().OrderBy(p => p.Id);
@@ -908,7 +908,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public Func<DbContext> GetContextCreator()
                 => () => CreateContext();
 
-            public ISetSource GetExpectedData()
+            public virtual ISetSource GetExpectedData()
                 => new OwnedQueryData();
 
             public IReadOnlyDictionary<Type, object> GetEntitySorters()

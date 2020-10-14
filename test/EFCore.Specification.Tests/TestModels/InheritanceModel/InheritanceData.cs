@@ -42,7 +42,21 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceModel
                         EagleId = ((Bird)a).EagleId,
                         IsFlightless = ((Bird)a).IsFlightless,
                         FoundOn = ((Kiwi)a).FoundOn,
-                    }).ToList().AsReadOnly();
+                    }).ToList();
+        }
+
+        public InheritanceData(
+            IReadOnlyList<Animal> animals,
+            IReadOnlyList<AnimalQuery> animalQueries,
+            IReadOnlyList<Country> countries,
+            IReadOnlyList<Drink> drinks,
+            IReadOnlyList<Plant> plants)
+        {
+            Animals = animals;
+            AnimalQueries = animalQueries;
+            Countries = countries;
+            Drinks = drinks;
+            Plants = plants;
         }
 
         public virtual IQueryable<TEntity> Set<TEntity>()
