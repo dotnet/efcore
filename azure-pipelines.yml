@@ -50,7 +50,6 @@ stages:
           - job: Windows
             timeoutInMinutes: 90
             enablePublishTestResults: true
-            enableRichCodeNavigation: true
             pool:
               ${{ if eq(variables['System.TeamProject'], 'public') }}:
                 name: NetCorePublic-Pool

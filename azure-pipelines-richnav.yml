@@ -27,9 +27,6 @@ stages:
                   command: custom
                   arguments: 'locals all -clear'
 
-              - powershell: SqlLocalDB start
-                displayName: Start LocalDB
-
               - task: PowerShell@2
                 inputs:
                   filePath: $(Build.SourcesDirectory)\eng\common\build.ps1
