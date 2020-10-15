@@ -24,7 +24,7 @@
     <MicrosoftExtensionsConfigurationJsonVersion>5.0.0</MicrosoftExtensionsConfigurationJsonVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>5.0.0</MicrosoftExtensionsDependencyInjectionVersion>
     <MicrosoftExtensionsDependencyModelVersion>5.0.0</MicrosoftExtensionsDependencyModelVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesVersion>5.0.0-rtm.20514.6</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
+    <MicrosoftExtensionsHostFactoryResolverSourcesVersion>5.0.0-rtm.20515.3</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
     <MicrosoftExtensionsLoggingVersion>5.0.0</MicrosoftExtensionsLoggingVersion>
   </PropertyGroup>
   <PropertyGroup Label="Other dependencies">
