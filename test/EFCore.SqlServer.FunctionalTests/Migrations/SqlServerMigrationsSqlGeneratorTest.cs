@@ -3,7 +3,6 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -18,9 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class SqlServerMigrationsSqlGeneratorTest : MigrationsSqlGeneratorTestBase
     {
-        protected static string SQL_EOL
-            => string.Join(", ", EOL.Select(c => "NCHAR(" + (short)c + ")"));
-
         [ConditionalFact]
         public virtual void AddColumnOperation_identity_legacy()
         {
@@ -1017,7 +1013,9 @@ SELECT @@ROWCOUNT;
                 MigrationsSqlGenerationOptions.Idempotent);
 
             AssertSql(
-                @$"EXEC(CONCAT(N'DELETE FROM [Table1]', {SQL_EOL}, N'WHERE [Id] = 1;', {SQL_EOL}, N'SELECT @@ROWCOUNT'));
+                @$"EXEC(N'DELETE FROM [Table1]
+WHERE [Id] = 1;
+SELECT @@ROWCOUNT');
 ");
         }
 
@@ -1038,7 +1036,8 @@ SELECT @@ROWCOUNT;
             AssertSql(
                 @$"IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id') AND [object_id] = OBJECT_ID(N'[Table1]'))
     SET IDENTITY_INSERT [Table1] ON;
-EXEC(CONCAT(N'INSERT INTO [Table1] ([Id])', {SQL_EOL}, N'VALUES (1)'));
+EXEC(N'INSERT INTO [Table1] ([Id])
+VALUES (1)');
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id') AND [object_id] = OBJECT_ID(N'[Table1]'))
     SET IDENTITY_INSERT [Table1] OFF;
 ");
@@ -1066,7 +1065,9 @@ IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id') AND [o
                 MigrationsSqlGenerationOptions.Idempotent);
 
             AssertSql(
-                @$"EXEC(CONCAT(N'UPDATE [Table1] SET [Column1] = 2', {SQL_EOL}, N'WHERE [Id] = 1;', {SQL_EOL}, N'SELECT @@ROWCOUNT'));
+                @$"EXEC(N'UPDATE [Table1] SET [Column1] = 2
+WHERE [Id] = 1;
+SELECT @@ROWCOUNT');
 ");
         }
 
