@@ -1343,12 +1343,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             if (Options.HasFlag(MigrationsSqlGenerationOptions.Idempotent))
             {
-                var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
-
                 builder
-                    .Append("EXEC(")
-                    .Append(stringTypeMapping.GenerateSqlLiteral(sqlBuilder.ToString().TrimEnd('\n', '\r', ';')))
-                    .Append(")")
+                    .Append("EXEC(N'")
+                    .Append(sqlBuilder.ToString().TrimEnd('\n', '\r', ';').Replace("'", "''"))
+                    .Append("')")
                     .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             }
             else
@@ -2016,12 +2014,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 var subBuilder = new MigrationCommandListBuilder(Dependencies);
                 generate(subBuilder);
 
-                var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
                 var command = subBuilder.GetCommandList().Single();
                 builder
-                    .Append("EXEC(")
-                    .Append(stringTypeMapping.GenerateSqlLiteral(command.CommandText.TrimEnd('\n', '\r', ';')))
-                    .Append(")")
+                    .Append("EXEC(N'")
+                    .Append(command.CommandText.TrimEnd('\n', '\r', ';').Replace("'", "''"))
+                    .Append("')")
                     .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
                     .EndCommand(command.TransactionSuppressed);
 
