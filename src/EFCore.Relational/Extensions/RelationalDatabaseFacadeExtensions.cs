@@ -480,7 +480,7 @@ namespace Microsoft.EntityFrameworkCore
             CancellationToken cancellationToken = default)
             => databaseFacade.CreateExecutionStrategy().ExecuteAsync(
                 databaseFacade, (database, ct) =>
-                    GetFacadeDependencies(database).RelationalConnection.OpenAsync(cancellationToken), cancellationToken);
+                    GetFacadeDependencies(database).RelationalConnection.OpenAsync(ct), cancellationToken);
 
         /// <summary>
         ///     Closes the underlying <see cref="DbConnection" />.
