@@ -195,16 +195,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         /// <summary>
         ///     Unable to execute a ReadItem query since the partition key value is missing. Consider using the 'WithPartitionKey' method on the query to specify partition key to use.
         /// </summary>
-        public static string ParitionKeyMissing
-            => GetString("ParitionKeyMissing");
+        public static string PartitionKeyMissing
+            => GetString("PartitionKeyMissing");
 
         /// <summary>
-        ///     The partition key specified in the 'WithPartitionKey' call '{paritionKey1}' and the partition key specified in the 'Where' predicate '{paritionKey2}' must be identical. Remove one of them.
+        ///     The partition key specified in the 'WithPartitionKey' call '{partitionKey1}' and the partition key specified in the 'Where' predicate '{partitionKey2}' must be identical. Remove one of them.
         /// </summary>
-        public static string PartitionKeyMismatch([CanBeNull] object paritionKey1, [CanBeNull] object paritionKey2)
+        public static string PartitionKeyMismatch([CanBeNull] object partitionKey1, [CanBeNull] object partitionKey2)
             => string.Format(
-                GetString("PartitionKeyMismatch", nameof(paritionKey1), nameof(paritionKey2)),
-                paritionKey1, paritionKey2);
+                GetString("PartitionKeyMismatch", nameof(partitionKey1), nameof(partitionKey2)),
+                partitionKey1, partitionKey2);
 
         /// <summary>
         ///     The partition key for entity type '{entityType}' is set to '{property}', but there is no property with that name.
