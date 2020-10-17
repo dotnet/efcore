@@ -752,6 +752,15 @@ WHERE (c[""Discriminator""] = ""Order"")");
                 @"");
         }
 
+        [ConditionalTheory(Skip = "Issue#16146")]
+        public override async Task Count_after_client_projection(bool isAsync)
+        {
+            await base.Count_after_client_projection(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
         [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task OrderBy_client_Take(bool async)
         {

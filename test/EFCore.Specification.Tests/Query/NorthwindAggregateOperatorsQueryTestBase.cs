@@ -2009,5 +2009,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 });
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Count_after_client_projection(bool isAsync)
+        {
+            return AssertCount(
+                isAsync,
+                ss => ss.Set<Order>()
+                    .Select(o => new
+                    {
+                        o.OrderID,
+                        Customer = o.Customer is Customer ? new { o.Customer.ContactName } : null
+                    })
+                    .Take(1));
+        }
     }
 }
