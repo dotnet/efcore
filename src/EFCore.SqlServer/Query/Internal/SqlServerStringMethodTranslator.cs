@@ -211,22 +211,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return _sqlExpressionFactory.OrElse(
                     _sqlExpressionFactory.IsNull(argument),
                     _sqlExpressionFactory.Equal(
-                        _sqlExpressionFactory.Function(
-                            "LTRIM",
-                            new[]
-                            {
-                                _sqlExpressionFactory.Function(
-                                    "RTRIM",
-                                    new[] { argument },
-                                    nullable: true,
-                                    argumentsPropagateNullability: new[] { true },
-                                    argument.Type,
-                                    argument.TypeMapping)
-                            },
-                            nullable: true,
-                            argumentsPropagateNullability: new[] { true },
-                            argument.Type,
-                            argument.TypeMapping),
+                        argument,
                         _sqlExpressionFactory.Constant(string.Empty, argument.TypeMapping)));
             }
 
