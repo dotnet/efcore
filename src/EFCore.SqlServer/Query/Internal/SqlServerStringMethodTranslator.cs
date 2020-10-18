@@ -37,6 +37,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         private static readonly MethodInfo _substringMethodInfo
             = typeof(string).GetRuntimeMethod(nameof(string.Substring), new[] { typeof(int), typeof(int) });
 
+        private static readonly MethodInfo _isNullOrEmptyMethodInfo
+            = typeof(string).GetRuntimeMethod(nameof(string.IsNullOrEmpty), new[] { typeof(string) });
+
         private static readonly MethodInfo _isNullOrWhiteSpaceMethodInfo
             = typeof(string).GetRuntimeMethod(nameof(string.IsNullOrWhiteSpace), new[] { typeof(string) });
 
@@ -202,6 +205,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     argumentsPropagateNullability: new[] { true, true, true },
                     method.ReturnType,
                     instance.TypeMapping);
+            }
+
+            if (_isNullOrEmptyMethodInfo.Equals(method))
+            {
+                var argument = arguments[0];
+
+                return _sqlExpressionFactory.OrElse(
+                    _sqlExpressionFactory.IsNull(argument),
+                    _sqlExpressionFactory.Like(
+                        argument,
+                        _sqlExpressionFactory.Constant(string.Empty)));
             }
 
             if (_isNullOrWhiteSpaceMethodInfo.Equals(method))
