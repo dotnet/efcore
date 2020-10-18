@@ -30,18 +30,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             [NotNull] DbTransaction transaction,
             Guid transactionId,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger,
-            bool transactionOwned)
-            : base(connection, transaction, transactionId, logger, transactionOwned)
+            bool transactionOwned,
+            [NotNull] ISqlGenerationHelper sqlGenerationHelper)
+            : base(connection, transaction, transactionId, logger, transactionOwned, sqlGenerationHelper)
         {
         }
 
-        /// <inheritdoc />
-        protected override string GetCreateSavepointSql(string name)
-            => "SAVE TRANSACTION " + name;
-
-        /// <inheritdoc />
-        protected override string GetRollbackToSavepointSql(string name)
-            => "ROLLBACK TRANSACTION " + name;
+        // SQL Server doesn't support releasing savepoints. Override to do nothing.
 
         /// <inheritdoc />
         public override void ReleaseSavepoint(string name) { }

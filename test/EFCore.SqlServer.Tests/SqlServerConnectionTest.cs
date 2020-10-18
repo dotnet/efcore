@@ -81,7 +81,10 @@ namespace Microsoft.EntityFrameworkCore
                     new SqlServerLoggingDefinitions(),
                     new NullDbContextLogger()),
                 new NamedConnectionStringResolver(options),
-                new RelationalTransactionFactory(new RelationalTransactionFactoryDependencies()),
+                new RelationalTransactionFactory(
+                    new RelationalTransactionFactoryDependencies(
+                        new RelationalSqlGenerationHelper(
+                            new RelationalSqlGenerationHelperDependencies()))),
                 new CurrentDbContext(new FakeDbContext()));
         }
 
