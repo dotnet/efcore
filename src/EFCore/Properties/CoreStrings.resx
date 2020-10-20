@@ -179,6 +179,7 @@
   </data>
   <data name="CanConnectNotImplemented" xml:space="preserve">
     <value>The current database provider has not implemented the 'CanConnect' method.</value>
+    <comment>Obsolete</comment>
   </data>
   <data name="CannotBeNullable" xml:space="preserve">
     <value>The property '{1_entityType}.{0_property}' cannot be marked as nullable/optional because the type of the property is '{propertyType}' which is not a nullable type. Any property can be marked as non-nullable/required, but only properties of nullable types can be marked as nullable/optional.</value>
@@ -265,7 +266,7 @@
     <value>The entity type '{entityType}' has multiple properties with the [Key] attribute. Composite primary keys can only be set using 'HasKey' in 'OnModelCreating'.</value>
   </data>
   <data name="ConcurrentMethodInvocation" xml:space="preserve">
-    <value>A second operation was started on this context before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.</value>
+    <value>A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.</value>
   </data>
   <data name="ConflictingBackingFields" xml:space="preserve">
     <value>Property '{1_entityType}.{0_property}' matches both '{field1}' and '{field2}' by convention. Explicitly specify the backing field to use with 'HasField' in 'OnModelCreating'.</value>
@@ -370,7 +371,7 @@
     <value>The index named '{indexName}' defined on properties {indexProperties} cannot be added to the entity type '{entityType}' because an index with the same name already exists on entity type '{duplicateEntityType}'.</value>
   </data>
   <data name="DuplicatePropertiesOnBase" xml:space="preserve">
-    <value>The type '{entityType}' cannot have base type '{baseType}' because the properties '{derivedPropertyType}.{derivedProperty}' and '{basePropertyType}.{baseProperty}' are conflicting.</value>
+    <value>The type '{entityType}' cannot have base type '{baseType}' because the properties '{derivedPropertyType}.{derivedProperty}' and '{basePropertyType}.{baseProperty}' are in conflict.</value>
   </data>
   <data name="DuplicatePropertyInForeignKey" xml:space="preserve">
     <value>The properties {propertyList} cannot be used for a foreign key, because they contain a duplicate: '{property}'.</value>
@@ -469,7 +470,7 @@
     <value>The provided principal key {principalKeyProperties} is not a key on the entity type '{principalEntityType}'. Provide a key that's defined on the principal entity type.</value>
   </data>
   <data name="ForeignKeySelfReferencingDependentEntityType" xml:space="preserve">
-    <value>The foreign keys on entity type '{dependentType}' cannot target the same entity type because it is a weak entity type.</value>
+    <value>The foreign keys on entity type '{dependentType}' cannot target the same entity type because it has a defining navigation.</value>
   </data>
   <data name="ForeignKeyTypeMismatch" xml:space="preserve">
     <value>The types of the properties specified for the foreign key {foreignKeyProperties} on entity type '{dependentType}' do not match the types of the properties in the principal key {principalKeyProperties} on entity type '{principalType}'. Provide properties that use the same types in the same order. </value>
@@ -726,7 +727,7 @@
     <comment>Debug CoreEventId.DetectChangesStarting string</comment>
   </data>
   <data name="LogDuplicateDependentEntityTypeInstance" xml:space="preserve">
-    <value>The same entity is being tracked as different weak entity types '{dependent1}' and '{dependent2}'. If a property value changes, it will result in two store changes, which might not be the desired outcome.</value>
+    <value>The same entity is being tracked as different entity types '{dependent1}' and '{dependent2}' with defining navigations. If a property value changes, it will result in two store changes, which might not be the desired outcome.</value>
     <comment>Warning CoreEventId.DuplicateDependentEntityTypeInstanceWarning string string</comment>
   </data>
   <data name="LogExceptionDuringQueryIteration" xml:space="preserve">
@@ -1247,7 +1248,7 @@
     <value>Translation of the 'string.Equals' overload with a 'StringComparison' parameter is not supported. See https://go.microsoft.com/fwlink/?linkid=2129535 for more information.</value>
   </data>
   <data name="RecursiveOnConfiguring" xml:space="preserve">
-    <value>An attempt was made to use the context while it is being configured. A DbContext instance cannot be used inside 'OnConfiguring' since it is still being configured at this point. This can happen if a second operation is started on this context before a previous operation completed. Any instance members are not guaranteed to be thread safe.</value>
+    <value>An attempt was made to use the context instance while it is being configured. A DbContext instance cannot be used inside 'OnConfiguring' since it is still being configured at this point. This can happen if a second operation is started on this context instance before a previous operation completed. Any instance members are not guaranteed to be thread safe.</value>
   </data>
   <data name="RecursiveOnModelCreating" xml:space="preserve">
     <value>An attempt was made to use the model while it was being created. A DbContext instance cannot be used inside 'OnModelCreating' in any way that makes use of the model that is being created.</value>
@@ -1445,10 +1446,10 @@
     <value>An error was generated for warning '{eventName}': {message} This exception can be suppressed or logged by passing event ID '{eventId}' to the 'ConfigureWarnings' method in 'DbContext.OnConfiguring' or 'AddDbContext'.</value>
   </data>
   <data name="WeakBaseType" xml:space="preserve">
-    <value>The type '{entityType}' cannot have weak entity type '{baseType}' as the base type.</value>
+    <value>The type '{entityType}' cannot have entity type '{baseType}' as the base type because the latter has a defining navigation.</value>
   </data>
   <data name="WeakDerivedType" xml:space="preserve">
-    <value>The weak entity type '{entityType}' cannot have a base type.</value>
+    <value>The entity type '{entityType}' cannot have a base type because it has a defining navigation.</value>
   </data>
   <data name="WrongGenericPropertyType" xml:space="preserve">
     <value>Property '{1_entityType}.{0_property}' is of type '{actualType}' but the generic type provided is of type '{genericType}'.</value>
