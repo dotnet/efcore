@@ -357,8 +357,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null);
 
             Assert.Equal(
-                RelationalStrings.ModificationCommandInvalidEntityState(EntityState.Unchanged),
-                Assert.Throws<ArgumentException>(() => command.AddEntry(entry, true)).Message);
+                RelationalStrings.ModificationCommandInvalidEntityState("T1", EntityState.Unchanged),
+                Assert.Throws<InvalidOperationException>(() => command.AddEntry(entry, true)).Message);
         }
 
         [ConditionalFact]
@@ -369,8 +369,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null);
 
             Assert.Equal(
-                RelationalStrings.ModificationCommandInvalidEntityState(EntityState.Detached),
-                Assert.Throws<ArgumentException>(() => command.AddEntry(entry, true)).Message);
+                RelationalStrings.ModificationCommandInvalidEntityState("T1", EntityState.Detached),
+                Assert.Throws<InvalidOperationException>(() => command.AddEntry(entry, true)).Message);
         }
 
         [ConditionalFact]

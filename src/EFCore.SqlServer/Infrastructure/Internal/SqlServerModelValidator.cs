@@ -174,28 +174,37 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
                     if (notFound != null)
                     {
                         throw new InvalidOperationException(
-                            SqlServerStrings.IncludePropertyNotFound(index.DeclaringEntityType.DisplayName(), notFound));
+                            SqlServerStrings.IncludePropertyNotFound(
+                                notFound,
+                                index.Name == null ? index.Properties.Format() : "'" + index.Name + "'",
+                                index.DeclaringEntityType.DisplayName()));
                     }
 
-                    var duplicate = includeProperties
+                    var duplicateProperty = includeProperties
                         .GroupBy(i => i)
                         .Where(g => g.Count() > 1)
                         .Select(y => y.Key)
                         .FirstOrDefault();
 
-                    if (duplicate != null)
+                    if (duplicateProperty != null)
                     {
                         throw new InvalidOperationException(
-                            SqlServerStrings.IncludePropertyDuplicated(index.DeclaringEntityType.DisplayName(), duplicate));
+                            SqlServerStrings.IncludePropertyDuplicated(
+                                index.DeclaringEntityType.DisplayName(),
+                                duplicateProperty,
+                                index.Name == null ? index.Properties.Format() : "'" + index.Name + "'"));
                     }
 
-                    var inIndex = includeProperties
+                    var coveredProperty = includeProperties
                         .FirstOrDefault(i => index.Properties.Any(p => i == p.Name));
 
-                    if (inIndex != null)
+                    if (coveredProperty != null)
                     {
                         throw new InvalidOperationException(
-                            SqlServerStrings.IncludePropertyInIndex(index.DeclaringEntityType.DisplayName(), inIndex));
+                            SqlServerStrings.IncludePropertyInIndex(
+                                index.DeclaringEntityType.DisplayName(),
+                                coveredProperty,
+                                index.Name == null ? index.Properties.Format() : "'" + index.Name + "'"));
                     }
                 }
             }

@@ -180,7 +180,19 @@ namespace Microsoft.EntityFrameworkCore.Update
                 case EntityState.Added:
                     break;
                 default:
-                    throw new ArgumentException(RelationalStrings.ModificationCommandInvalidEntityState(entry.EntityState));
+                    if (_sensitiveLoggingEnabled)
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.ModificationCommandInvalidEntityStateSensitive(
+                                entry.EntityType.DisplayName(),
+                                entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties),
+                                entry.EntityState));
+                    }
+
+                    throw new InvalidOperationException(
+                        RelationalStrings.ModificationCommandInvalidEntityState(
+                            entry.EntityType.DisplayName(),
+                            entry.EntityState));
             }
 
             if (mainEntry)

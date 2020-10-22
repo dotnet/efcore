@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             if (commandTimeout.HasValue
                 && commandTimeout <= 0)
             {
-                throw new InvalidOperationException(RelationalStrings.InvalidCommandTimeout);
+                throw new InvalidOperationException(RelationalStrings.InvalidCommandTimeout(commandTimeout));
             }
 
             var clone = Clone();
@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             if (maxBatchSize.HasValue
                 && maxBatchSize <= 0)
             {
-                throw new InvalidOperationException(RelationalStrings.InvalidMaxBatchSize);
+                throw new InvalidOperationException(RelationalStrings.InvalidMaxBatchSize(maxBatchSize));
             }
 
             var clone = Clone();
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             if (minBatchSize.HasValue
                 && minBatchSize <= 0)
             {
-                throw new InvalidOperationException(RelationalStrings.InvalidMinBatchSize);
+                throw new InvalidOperationException(RelationalStrings.InvalidMinBatchSize(minBatchSize));
             }
 
             var clone = Clone();
