@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Throws_if_CommandTimeout_out_of_range()
         {
             Assert.Equal(
-                RelationalStrings.InvalidCommandTimeout,
+                RelationalStrings.InvalidCommandTimeout(-1),
                 Assert.Throws<InvalidOperationException>(
                     () => new FakeRelationalOptionsExtension().WithCommandTimeout(-1)).Message);
         }
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Throws_if_MaxBatchSize_out_of_range()
         {
             Assert.Equal(
-                RelationalStrings.InvalidMaxBatchSize,
+                RelationalStrings.InvalidMaxBatchSize(-1),
                 Assert.Throws<InvalidOperationException>(
                     () => new FakeRelationalOptionsExtension().WithMaxBatchSize(-1)).Message);
         }

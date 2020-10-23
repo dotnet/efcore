@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 entityType1, property1, entityType2, property2, columnName, table);
 
         /// <summary>
-        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different clustered configurations.
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different clustered configurations.
         /// </summary>
         public static string DuplicateIndexClusteredMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName)
             => string.Format(
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 index1, entityType1, index2, entityType2, table, indexName);
 
         /// <summary>
-        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different fill factor configurations.
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different fill factor configurations.
         /// </summary>
         public static string DuplicateIndexFillFactorMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName)
             => string.Format(
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 index1, entityType1, index2, entityType2, table, indexName);
 
         /// <summary>
-        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different included columns: {includedColumns1} and {includedColumns2}.
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different included columns: {includedColumns1} and {includedColumns2}.
         /// </summary>
         public static string DuplicateIndexIncludedMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName, [CanBeNull] object includedColumns1, [CanBeNull] object includedColumns2)
             => string.Format(
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 index1, entityType1, index2, entityType2, table, indexName, includedColumns1, includedColumns2);
 
         /// <summary>
-        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different online configurations.
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different online configurations.
         /// </summary>
         public static string DuplicateIndexOnlineMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName)
             => string.Format(
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 index1, entityType1, index2, entityType2, table, indexName);
 
         /// <summary>
-        ///     The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}', but with different clustering configurations.
+        ///     The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}', but have different clustering configurations.
         /// </summary>
         public static string DuplicateKeyMismatchedClustering([CanBeNull] object key1, [CanBeNull] object entityType1, [CanBeNull] object key2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object keyName)
             => string.Format(
@@ -122,28 +122,28 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 property, entityType, propertyType);
 
         /// <summary>
-        ///     Include property '{entityType}.{property}' cannot be defined multiple times.
+        ///     The include property '{entityType}.{property}' was specified multiple times for the index {index}.
         /// </summary>
-        public static string IncludePropertyDuplicated([CanBeNull] object entityType, [CanBeNull] object property)
+        public static string IncludePropertyDuplicated([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object index)
             => string.Format(
-                GetString("IncludePropertyDuplicated", nameof(entityType), nameof(property)),
-                entityType, property);
+                GetString("IncludePropertyDuplicated", nameof(entityType), nameof(property), nameof(index)),
+                entityType, property, index);
 
         /// <summary>
-        ///     Include property '{entityType}.{property}' is already included in the index.
+        ///     The include property '{entityType}.{property}' is already part of the index {index}.
         /// </summary>
-        public static string IncludePropertyInIndex([CanBeNull] object entityType, [CanBeNull] object property)
+        public static string IncludePropertyInIndex([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object index)
             => string.Format(
-                GetString("IncludePropertyInIndex", nameof(entityType), nameof(property)),
-                entityType, property);
+                GetString("IncludePropertyInIndex", nameof(entityType), nameof(property), nameof(index)),
+                entityType, property, index);
 
         /// <summary>
-        ///     Include property '{entityType}.{property}' not found.
+        ///     The include property '{property}' specified on the index {index} was not found on entity type '{entityType}'.
         /// </summary>
-        public static string IncludePropertyNotFound([CanBeNull] object entityType, [CanBeNull] object property)
+        public static string IncludePropertyNotFound([CanBeNull] object property, [CanBeNull] object index, [CanBeNull] object entityType)
             => string.Format(
-                GetString("IncludePropertyNotFound", nameof(entityType), nameof(property)),
-                entityType, property);
+                GetString("IncludePropertyNotFound", nameof(property), nameof(index), nameof(entityType)),
+                property, index, entityType);
 
         /// <summary>
         ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{memoryOptimizedEntityType}' is marked as memory-optimized, but entity type '{nonMemoryOptimizedEntityType}' is not.
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 table);
 
         /// <summary>
-        ///     The properties {properties} are configured to use 'Identity' value generation and are mapped to the same table '{table}', but only one column per table can be configured as 'Identity'. Call 'ValueGeneratedNever' for properties that should not use 'Identity'.
+        ///     The properties {properties} are configured to use 'Identity' value generation and are mapped to the same table '{table}', but only one column per table can be configured as 'Identity'. Call 'ValueGeneratedNever' in 'OnModelCreating' for properties that should not use 'Identity'.
         /// </summary>
         public static string MultipleIdentityColumns([CanBeNull] object properties, [CanBeNull] object table)
             => string.Format(
@@ -260,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Both the SqlServerValueGenerationStrategy '{generationStrategy}' and '{otherGenerationStrategy}' have been set on property '{propertyName}' on entity type '{entityName}'. Configuring two strategies is usually unintentional, only do this if you are sure you understand the consequences.
+        ///     Both the SqlServerValueGenerationStrategy '{generationStrategy}' and '{otherGenerationStrategy}' have been set on property '{propertyName}' on entity type '{entityName}'. Configuring two strategies is usually unintentional and will likely result in a database error.
         /// </summary>
         public static EventDefinition<string, string, string, string> LogConflictingValueGenerationStrategies([NotNull] IDiagnosticsLogger logger)
         {
@@ -308,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     No type was specified for the decimal property '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+        ///     No store type was specified for the decimal property '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
         /// </summary>
         public static EventDefinition<string, string> LogDefaultDecimalTypeColumn([NotNull] IDiagnosticsLogger logger)
         {

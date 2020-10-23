@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!--
-    Microsoft ResX Schema
-
+  <!-- 
+    Microsoft ResX Schema 
+    
     Version 2.0
-
-    The primary goals of this format is to allow a simple XML format
-    that is mostly human readable. The generation and parsing of the
-    various data types are done through the TypeConverter classes
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
     associated with the data types.
-
+    
     Example:
-
+    
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-
-    There are any number of "resheader" rows that contain simple
+                
+    There are any number of "resheader" rows that contain simple 
     name/value pairs.
-
-    Each data row contains a name, and value. The row also contains a
-    type or mimetype. Type corresponds to a .NET class that support
-    text/value conversion through the TypeConverter architecture.
-    Classes that don't support this are serialized and stored with the
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
     mimetype set.
-
-    The mimetype is used for serialized objects, and tells the
-    ResXResourceReader how to depersist the object. This is currently not
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
     extensible. For a given mimetype the value must be set accordingly:
-
-    Note - application/x-microsoft.net.object.binary.base64 is the format
-    that the ResXResourceWriter will generate, however the reader can
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
     read any of the formats listed below.
-
+    
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with
+    value   : The object must be serialized with 
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-
+    
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with
+    value   : The object must be serialized with 
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array
+    value   : The object must be serialized into a byte array 
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -136,7 +136,7 @@
     <value>An ambient transaction has been detected. The ambient transaction needs to be completed before starting a new transaction on this connection.</value>
   </data>
   <data name="ConflictingColumnServerGeneration" xml:space="preserve">
-    <value>{conflictingConfiguration} cannot be set for '{property}' at the same time as {existingConfiguration}. Remove one of these values.</value>
+    <value>{conflictingConfiguration} cannot be set for '{property}' at the same time as {existingConfiguration}. Remove one of these configurations.</value>
   </data>
   <data name="ConflictingEnlistedTransaction" xml:space="preserve">
     <value>The connection is currently enlisted in a transaction. The enlisted transaction needs to be completed before starting a new transaction.</value>
@@ -160,7 +160,7 @@
     <value>Instances of entity types '{firstEntityType}' and '{secondEntityType}' are mapped to the same row with the key value '{keyValue}', but have different property values '{firstConflictingValue}' and '{secondConflictingValue}' for the column '{column}'.</value>
   </data>
   <data name="DatabaseModelMissing" xml:space="preserve">
-    <value>The database model hasn't been initialized. The model needs to be finalized before the database model can be accessed.</value>
+    <value>The database model hasn't been initialized. The model needs to be finalized and processed with 'RelationalModelConvention' before the database model can be accessed.</value>
   </data>
   <data name="DataOperationNoProperty" xml:space="preserve">
     <value>There is no property mapped to the column '{table}.{column}' which is used in a data operation. Either add a property mapped to this column, or specify the column types in the data operation.</value>
@@ -224,13 +224,13 @@
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured to use different collations ('{collation1}' and '{collation2}').</value>
   </data>
   <data name="DuplicateColumnNameCommentMismatch" xml:space="preserve">
-    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured to use different comments ('{comment1}' and '{comment2}').</value>
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different comments ('{comment1}' and '{comment2}').</value>
   </data>
   <data name="DuplicateColumnNameComputedSqlMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured to use different computed values ('{value1}' and '{value2}').</value>
   </data>
   <data name="DuplicateColumnNameConcurrencyTokenMismatch" xml:space="preserve">
-    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different concurrency token configurations.</value>
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but have different concurrency token configurations.</value>
   </data>
   <data name="DuplicateColumnNameDataTypeMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured to use different data types ('{dataType1}' and '{dataType2}').</value>
@@ -239,7 +239,7 @@
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured to use different default values ('{value1}' and '{value2}').</value>
   </data>
   <data name="DuplicateColumnNameFixedLengthMismatch" xml:space="preserve">
-    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different fixed length configuration.</value>
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but have different fixed length configuration.</value>
   </data>
   <data name="DuplicateColumnNameIsStoredMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured to use different stored computed column settings ('{value1}' and '{value2}').</value>
@@ -257,13 +257,13 @@
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different scales ('{scale1}' and '{scale2}').</value>
   </data>
   <data name="DuplicateColumnNameUnicodenessMismatch" xml:space="preserve">
-    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different unicode configurations.</value>
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but have different unicode configurations.</value>
   </data>
   <data name="DuplicateForeignKeyColumnMismatch" xml:space="preserve">
     <value>The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}', but use different columns ({columnNames1} and {columnNames2}).</value>
   </data>
   <data name="DuplicateForeignKeyDeleteBehaviorMismatch" xml:space="preserve">
-    <value>The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}', but with different delete behavior ('{deleteBehavior1}' and '{deleteBehavior2}').</value>
+    <value>The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}', but configured with different delete behavior ('{deleteBehavior1}' and '{deleteBehavior2}').</value>
   </data>
   <data name="DuplicateForeignKeyPrincipalColumnMismatch" xml:space="preserve">
     <value>The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}', but referencing different principal columns ({principalColumnNames1} and {principalColumnNames2}).</value>
@@ -275,7 +275,7 @@
     <value>The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{foreignKeyName}', but are declared on different tables ('{table1}' and '{table2}').</value>
   </data>
   <data name="DuplicateForeignKeyUniquenessMismatch" xml:space="preserve">
-    <value>The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}', but with different uniqueness settings.</value>
+    <value>The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}', but with different uniqueness configurations.</value>
   </data>
   <data name="DuplicateIndexColumnMismatch" xml:space="preserve">
     <value>The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different columns ({columnNames1} and {columnNames2}).</value>
@@ -284,7 +284,7 @@
     <value>The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{indexName}', but are declared on different tables ('{table1}' and '{table2}').</value>
   </data>
   <data name="DuplicateIndexUniquenessMismatch" xml:space="preserve">
-    <value>The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different uniqueness settings.</value>
+    <value>The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different uniqueness configurations.</value>
   </data>
   <data name="DuplicateKeyColumnMismatch" xml:space="preserve">
     <value>The keys {keyProperties1} on '{entityType1}' and {keyProperties2} on '{entityType2}' are both mapped to '{table}.{keyName}', but with different columns ({columnNames1} and {columnNames2}).</value>
@@ -332,7 +332,7 @@
     <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the name '{keyName}' of the primary key {primaryKey} does not match the name '{otherName}' of the primary key {otherPrimaryKey}.</value>
   </data>
   <data name="IncompatibleTableNoRelationship" xml:space="preserve">
-    <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and potentially other entity types, but there is no linking relationship. Add a foreign key to '{entityType}' on the primary key properties and pointing to the primary key on another entity typed mapped to '{table}'.</value>
+    <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and potentially other entity types, but there is no linking relationship. Add a foreign key to '{entityType}' on the primary key properties and pointing to the primary key on another entity type mapped to '{table}'.</value>
   </data>
   <data name="IncompatibleViewDerivedRelationship" xml:space="preserve">
     <value>Cannot use view '{view}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and there is a relationship between their primary keys in which '{entityType}' is the dependent, but '{entityType}' has a base entity type mapped to a different view. Either map '{otherEntityType}' to a different view, or invert the relationship between '{entityType}' and '{otherEntityType}'.</value>
@@ -356,7 +356,7 @@
     <value>Unable to translate a collection subquery in a projection since the parent query doesn't project the key columns of all tables required to generate results on the client side. This can happen when trying to correlate on keyless entity or when using 'Distinct' or 'GroupBy' operations without projecting all of the key columns.</value>
   </data>
   <data name="InvalidCommandTimeout" xml:space="preserve">
-    <value>The specified CommandTimeout value is not valid. It must be a positive number.</value>
+    <value>The specified 'CommandTimeout' value '{value}' is not valid. It must be a positive number.</value>
   </data>
   <data name="InvalidDerivedTypeInEntityProjection" xml:space="preserve">
     <value>The specified entity type '{derivedType}' is not derived from '{entityType}'.</value>
@@ -365,22 +365,22 @@
     <value>The grouping key '{keySelector}' is of type '{keyType}' which is not valid key.</value>
   </data>
   <data name="InvalidMappedFunctionDerivedType" xml:space="preserve">
-    <value>The entity type '{entityType}' is mapped to the DbFunction named '{functionName}', but is derived from '{baseEntityType}'. Derived entity types cannot be mapped to a function.</value>
+    <value>The entity type '{entityType}' is mapped to the 'DbFunction' named '{functionName}', but is derived from '{baseEntityType}'. Derived entity types cannot be mapped to a function.</value>
   </data>
   <data name="InvalidMappedFunctionUnmatchedReturn" xml:space="preserve">
-    <value>The entity type '{entityType}' is mapped to the DbFunction named '{functionName}' with return type '{returnType}'. Ensure that the mapped function returns 'IQueryable&lt;{clrType}&gt;'.</value>
+    <value>The entity type '{entityType}' is mapped to the 'DbFunction' named '{functionName}' with return type '{returnType}'. Ensure that the mapped function returns 'IQueryable&lt;{clrType}&gt;'.</value>
   </data>
   <data name="InvalidMappedFunctionWithParameters" xml:space="preserve">
-    <value>The entity type '{entityType}' is mapped to the DbFunction named '{functionName}' with parameters {parameters}. Ensure that the mapped function doesn't have any parameters.</value>
+    <value>The entity type '{entityType}' is mapped to the 'DbFunction' named '{functionName}' with parameters {parameters}. Ensure that the mapped function doesn't have any parameters.</value>
   </data>
   <data name="InvalidMappedSqlQueryDerivedType" xml:space="preserve">
-    <value>The entity type '{entityType}' is mapped to a SQL query, but is derived from '{baseEntityType}'. Derived entity types cannot be mapped to a different SQL query.</value>
+    <value>The entity type '{entityType}' is mapped to a SQL query, but is derived from '{baseEntityType}'. Derived entity types cannot be mapped to a different SQL query than the base entity type.</value>
   </data>
   <data name="InvalidMaxBatchSize" xml:space="preserve">
-    <value>The specified MaxBatchSize value is not valid. It must be a positive number.</value>
+    <value>The specified 'MaxBatchSize' value '{value}' is not valid. It must be a positive number.</value>
   </data>
   <data name="InvalidMinBatchSize" xml:space="preserve">
-    <value>The specified MinBatchSize value is not valid. It must be a positive number.</value>
+    <value>The specified 'MinBatchSize' value '{value}' is not valid. It must be a positive number.</value>
   </data>
   <data name="LastUsedWithoutOrderBy" xml:space="preserve">
     <value>Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an 'OrderBy' operation on the sequence before calling '{method}'.</value>
@@ -398,11 +398,11 @@
     <comment>Information RelationalEventId.MigrationApplying string</comment>
   </data>
   <data name="LogBatchExecutorFailedToReleaseSavepoint" xml:space="preserve">
-    <value>An error occurred while the batch executor was releasing a transaction savepoint.</value>
+    <value>An error occurred while releasing a transaction savepoint during `SaveChanges`.</value>
     <comment>Debug RelationalEventId.BatchExecutorFailedToReleaseSavepoint</comment>
   </data>
   <data name="LogBatchExecutorFailedToRollbackToSavepoint" xml:space="preserve">
-    <value>An error occurred while the batch executor was rolling back the transaction to a savepoint, after an exception occured.</value>
+    <value>An error occurred while rolling back the transaction to a savepoint, after an exception occured during `SaveChanges`.</value>
     <comment>Debug RelationalEventId.BatchExecutorFailedToRollbackToSavepoint</comment>
   </data>
   <data name="LogBatchReadyForExecution" xml:space="preserve">
@@ -623,7 +623,10 @@
     <value>No value was provided for the required parameter '{parameter}'.</value>
   </data>
   <data name="ModificationCommandInvalidEntityState" xml:space="preserve">
-    <value>Cannot save changes for an entity in state '{entityState}'.</value>
+    <value>Cannot save changes for an entity of type '{entityType}' in state '{entityState}'. This may indicate a bug in Entity Framework, please open an issue at https://go.microsoft.com/fwlink/?linkid=2142044. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values of the entity.</value>
+  </data>
+  <data name="ModificationCommandInvalidEntityStateSensitive" xml:space="preserve">
+    <value>Cannot save changes for an entity of type '{entityType}' with primary key values {keyValues} in state '{entityState}'. This may indicate a bug in Entity Framework, please open an issue at https://go.microsoft.com/fwlink/?linkid=2142044.</value>
   </data>
   <data name="MultipleProvidersConfigured" xml:space="preserve">
     <value>Multiple relational database provider configurations found. A context can only be configured to use a single database provider.</value>
@@ -632,7 +635,7 @@
     <value>A named connection string was used, but the name '{name}' was not found in the application's configuration. Note that named connection strings are only supported when using 'IConfiguration' and a service provider, such as in a typical ASP.NET Core application. See https://go.microsoft.com/fwlink/?linkid=850912 for more information.</value>
   </data>
   <data name="NestedAmbientTransactionError" xml:space="preserve">
-    <value>A root ambient transaction was completed before the nested transaction. The more nested transactions should be completed first.</value>
+    <value>A root ambient transaction was completed before the nested transaction. The nested transactions should be completed first.</value>
   </data>
   <data name="NoActiveTransaction" xml:space="preserve">
     <value>The connection does not have any active transactions.</value>
@@ -677,7 +680,7 @@
     <value>The property '{property}' on entity type '{entityType}' is not mapped to the table '{table}'.</value>
   </data>
   <data name="ReadonlyEntitySaved" xml:space="preserve">
-    <value>The entity type '{entityType}' is not mapped to a table, therefore the entities cannot be persisted to the database. Use 'ToTable' in 'OnModelCreating' to map it.</value>
+    <value>The entity type '{entityType}' is not mapped to a table, therefore the entities cannot be persisted to the database. Call 'ToTable' in 'OnModelCreating' to map it to a table.</value>
   </data>
   <data name="RelationalNotInUse" xml:space="preserve">
     <value>Relational-specific methods can only be used when the context is using a relational database provider.</value>
@@ -746,13 +749,13 @@
     <value>Unsupported operator '{nodeType}' specified for expression of type '{expressionType}'.</value>
   </data>
   <data name="UnsupportedPropertyType" xml:space="preserve">
-    <value>No mapping to a relational type can be found for property '{entity}.{property}' with the CLR type '{clrType}'.</value>
+    <value>No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'. </value>
   </data>
   <data name="UnsupportedStoreType" xml:space="preserve">
     <value>The store type '{type}' is not supported by the current provider.</value>
   </data>
   <data name="UnsupportedType" xml:space="preserve">
-    <value>No mapping to a relational type could be found for the CLR type '{clrType}'.</value>
+    <value>The current provider doesn't have a store type mapping for properties of type '{clrType}'.</value>
   </data>
   <data name="UpdateConcurrencyException" xml:space="preserve">
     <value>The database operation was expected to affect {expectedRows} row(s), but actually affected {actualRows} row(s); data may have been modified or deleted since entities were loaded. See http://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.</value>
@@ -776,10 +779,10 @@
     <value>The number of values ({valuesCount}) doesn't match the number of columns ({columnsCount}) for the data modification operation on '{table}'. Provide the same number of values and columns.</value>
   </data>
   <data name="UpdateStoreException" xml:space="preserve">
-    <value>An error occurred while updating the entries. See the inner exception for details.</value>
+    <value>An error occurred while saving the entity changes. See the inner exception for details.</value>
   </data>
   <data name="ViewOverrideMismatch" xml:space="preserve">
-    <value>The property '{propertySpecification}' has specific configuration for the view '{table}', however it isn't mapped to a column on that view. Remove the specific configuration or map an entity type that contains this property to '{table}'.</value>
+    <value>The property '{propertySpecification}' has specific configuration for the view '{view}', however it isn't mapped to a column on that view. Remove the specific configuration or map an entity type that contains this property to '{view}'.</value>
   </data>
   <data name="VisitChildrenMustBeOverridden" xml:space="preserve">
     <value>'VisitChildren' must be overridden in the class deriving from 'SqlExpression'.</value>

@@ -1541,7 +1541,7 @@ namespace Microsoft.EntityFrameworkCore
                         });
 
                     Assert.Equal(
-                        "An error occurred while updating the entries. See the inner exception for details.",
+                        "An error occurred while saving the entity changes. See the inner exception for details.",
                         Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
                 });
         }
@@ -2293,7 +2293,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.Set<BookDetails>().Add(new BookDetails());
 
                     Assert.Equal(
-                        "An error occurred while updating the entries. See the inner exception for details.",
+                        "An error occurred while saving the entity changes. See the inner exception for details.",
                         Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
                 });
         }
@@ -2329,7 +2329,7 @@ namespace Microsoft.EntityFrameworkCore
                         });
 
                     Assert.Equal(
-                        "An error occurred while updating the entries. See the inner exception for details.",
+                        "An error occurred while saving the entity changes. See the inner exception for details.",
                         Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
                 });
         }
@@ -2353,7 +2353,7 @@ namespace Microsoft.EntityFrameworkCore
                         new Two { Data = "ValidButLongString" });
 
                     Assert.Equal(
-                        "An error occurred while updating the entries. See the inner exception for details.",
+                        "An error occurred while saving the entity changes. See the inner exception for details.",
                         Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
                 });
         }

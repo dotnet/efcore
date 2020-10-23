@@ -257,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 if (value.HasValue
                     && value < 0)
                 {
-                    throw new ArgumentException(RelationalStrings.InvalidCommandTimeout);
+                    throw new ArgumentException(RelationalStrings.InvalidCommandTimeout(value));
                 }
 
                 _commandTimeout = value;

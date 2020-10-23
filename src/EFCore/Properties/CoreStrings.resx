@@ -473,7 +473,7 @@
     <value>The foreign keys on entity type '{dependentType}' cannot target the same entity type because it has a defining navigation.</value>
   </data>
   <data name="ForeignKeyTypeMismatch" xml:space="preserve">
-    <value>The types of the properties specified for the foreign key {foreignKeyProperties} on entity type '{dependentType}' do not match the types of the properties in the principal key {principalKeyProperties} on entity type '{principalType}'. Provide properties that use the same types in the same order. </value>
+    <value>The types of the properties specified for the foreign key {foreignKeyProperties} on entity type '{dependentType}' do not match the types of the properties in the principal key {principalKeyProperties} on entity type '{principalType}'. Provide properties that use the same types in the same order.</value>
   </data>
   <data name="ForeignKeyWrongType" xml:space="preserve">
     <value>The foreign key {foreignKeyProperties} targeting the key {keyProperties} on '{principalType}' cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.</value>

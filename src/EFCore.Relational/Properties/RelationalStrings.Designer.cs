@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("ConflictingAmbientTransaction");
 
         /// <summary>
-        ///     {conflictingConfiguration} cannot be set for '{property}' at the same time as {existingConfiguration}. Remove one of these values.
+        ///     {conflictingConfiguration} cannot be set for '{property}' at the same time as {existingConfiguration}. Remove one of these configurations.
         /// </summary>
         public static string ConflictingColumnServerGeneration([CanBeNull] object conflictingConfiguration, [CanBeNull] object property, [CanBeNull] object existingConfiguration)
             => string.Format(
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 firstEntityType, secondEntityType, keyValue, firstConflictingValue, secondConflictingValue, column);
 
         /// <summary>
-        ///     The database model hasn't been initialized. The model needs to be finalized before the database model can be accessed.
+        ///     The database model hasn't been initialized. The model needs to be finalized and processed with 'RelationalModelConvention' before the database model can be accessed.
         /// </summary>
         public static string DatabaseModelMissing
             => GetString("DatabaseModelMissing");
@@ -292,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType1, property1, entityType2, property2, columnName, table, collation1, collation2);
 
         /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured to use different comments ('{comment1}' and '{comment2}').
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different comments ('{comment1}' and '{comment2}').
         /// </summary>
         public static string DuplicateColumnNameCommentMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table, [CanBeNull] object comment1, [CanBeNull] object comment2)
             => string.Format(
@@ -308,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType1, property1, entityType2, property2, columnName, table, value1, value2);
 
         /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different concurrency token configurations.
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but have different concurrency token configurations.
         /// </summary>
         public static string DuplicateColumnNameConcurrencyTokenMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table)
             => string.Format(
@@ -332,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType1, property1, entityType2, property2, columnName, table, value1, value2);
 
         /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different fixed length configuration.
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but have different fixed length configuration.
         /// </summary>
         public static string DuplicateColumnNameFixedLengthMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table)
             => string.Format(
@@ -380,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType1, property1, entityType2, property2, columnName, table, scale1, scale2);
 
         /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different unicode configurations.
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but have different unicode configurations.
         /// </summary>
         public static string DuplicateColumnNameUnicodenessMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table)
             => string.Format(
@@ -396,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 foreignKeyProperties1, entityType1, foreignKeyProperties2, entityType2, table, foreignKeyName, columnNames1, columnNames2);
 
         /// <summary>
-        ///     The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}', but with different delete behavior ('{deleteBehavior1}' and '{deleteBehavior2}').
+        ///     The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}', but configured with different delete behavior ('{deleteBehavior1}' and '{deleteBehavior2}').
         /// </summary>
         public static string DuplicateForeignKeyDeleteBehaviorMismatch([CanBeNull] object foreignKeyProperties1, [CanBeNull] object entityType1, [CanBeNull] object foreignKeyProperties2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName, [CanBeNull] object deleteBehavior1, [CanBeNull] object deleteBehavior2)
             => string.Format(
@@ -428,7 +428,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 foreignKeyProperties1, entityType1, foreignKeyProperties2, entityType2, foreignKeyName, table1, table2);
 
         /// <summary>
-        ///     The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}', but with different uniqueness settings.
+        ///     The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}', but with different uniqueness configurations.
         /// </summary>
         public static string DuplicateForeignKeyUniquenessMismatch([CanBeNull] object foreignKeyProperties1, [CanBeNull] object entityType1, [CanBeNull] object foreignKeyProperties2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName)
             => string.Format(
@@ -452,7 +452,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 indexProperties1, entityType1, indexProperties2, entityType2, indexName, table1, table2);
 
         /// <summary>
-        ///     The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different uniqueness settings.
+        ///     The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different uniqueness configurations.
         /// </summary>
         public static string DuplicateIndexUniquenessMismatch([CanBeNull] object indexProperties1, [CanBeNull] object entityType1, [CanBeNull] object indexProperties2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName)
             => string.Format(
@@ -576,7 +576,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 table, entityType, otherEntityType, keyName, primaryKey, otherName, otherPrimaryKey);
 
         /// <summary>
-        ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and potentially other entity types, but there is no linking relationship. Add a foreign key to '{entityType}' on the primary key properties and pointing to the primary key on another entity typed mapped to '{table}'.
+        ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and potentially other entity types, but there is no linking relationship. Add a foreign key to '{entityType}' on the primary key properties and pointing to the primary key on another entity type mapped to '{table}'.
         /// </summary>
         public static string IncompatibleTableNoRelationship([CanBeNull] object table, [CanBeNull] object entityType, [CanBeNull] object otherEntityType)
             => string.Format(
@@ -638,10 +638,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("InsufficientInformationToIdentifyOuterElementOfCollectionJoin");
 
         /// <summary>
-        ///     The specified CommandTimeout value is not valid. It must be a positive number.
+        ///     The specified 'CommandTimeout' value '{value}' is not valid. It must be a positive number.
         /// </summary>
-        public static string InvalidCommandTimeout
-            => GetString("InvalidCommandTimeout");
+        public static string InvalidCommandTimeout([CanBeNull] object value)
+            => string.Format(
+                GetString("InvalidCommandTimeout", nameof(value)),
+                value);
 
         /// <summary>
         ///     The specified entity type '{derivedType}' is not derived from '{entityType}'.
@@ -660,7 +662,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 keySelector, keyType);
 
         /// <summary>
-        ///     The entity type '{entityType}' is mapped to the DbFunction named '{functionName}', but is derived from '{baseEntityType}'. Derived entity types cannot be mapped to a function.
+        ///     The entity type '{entityType}' is mapped to the 'DbFunction' named '{functionName}', but is derived from '{baseEntityType}'. Derived entity types cannot be mapped to a function.
         /// </summary>
         public static string InvalidMappedFunctionDerivedType([CanBeNull] object entityType, [CanBeNull] object functionName, [CanBeNull] object baseEntityType)
             => string.Format(
@@ -668,7 +670,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, functionName, baseEntityType);
 
         /// <summary>
-        ///     The entity type '{entityType}' is mapped to the DbFunction named '{functionName}' with return type '{returnType}'. Ensure that the mapped function returns `IQueryable&lt;{clrType}&gt;`.
+        ///     The entity type '{entityType}' is mapped to the 'DbFunction' named '{functionName}' with return type '{returnType}'. Ensure that the mapped function returns 'IQueryable&lt;{clrType}&gt;'.
         /// </summary>
         public static string InvalidMappedFunctionUnmatchedReturn([CanBeNull] object entityType, [CanBeNull] object functionName, [CanBeNull] object returnType, [CanBeNull] object clrType)
             => string.Format(
@@ -676,7 +678,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, functionName, returnType, clrType);
 
         /// <summary>
-        ///     The entity type '{entityType}' is mapped to the DbFunction named '{functionName}' with parameters {parameters}. Ensure that the mapped function doesn't have any parameters.
+        ///     The entity type '{entityType}' is mapped to the 'DbFunction' named '{functionName}' with parameters {parameters}. Ensure that the mapped function doesn't have any parameters.
         /// </summary>
         public static string InvalidMappedFunctionWithParameters([CanBeNull] object entityType, [CanBeNull] object functionName, [CanBeNull] object parameters)
             => string.Format(
@@ -684,7 +686,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, functionName, parameters);
 
         /// <summary>
-        ///     The entity type '{entityType}' is mapped to a SQL query, but is derived from '{baseEntityType}'. Derived entity types cannot be mapped to a different SQL query.
+        ///     The entity type '{entityType}' is mapped to a SQL query, but is derived from '{baseEntityType}'. Derived entity types cannot be mapped to a different SQL query than the base entity type.
         /// </summary>
         public static string InvalidMappedSqlQueryDerivedType([CanBeNull] object entityType, [CanBeNull] object baseEntityType)
             => string.Format(
@@ -692,16 +694,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, baseEntityType);
 
         /// <summary>
-        ///     The specified MaxBatchSize value is not valid. It must be a positive number.
+        ///     The specified 'MaxBatchSize' value '{value}' is not valid. It must be a positive number.
         /// </summary>
-        public static string InvalidMaxBatchSize
-            => GetString("InvalidMaxBatchSize");
+        public static string InvalidMaxBatchSize([CanBeNull] object value)
+            => string.Format(
+                GetString("InvalidMaxBatchSize", nameof(value)),
+                value);
 
         /// <summary>
-        ///     The specified MinBatchSize value is not valid. It must be a positive number.
+        ///     The specified 'MinBatchSize' value '{value}' is not valid. It must be a positive number.
         /// </summary>
-        public static string InvalidMinBatchSize
-            => GetString("InvalidMinBatchSize");
+        public static string InvalidMinBatchSize([CanBeNull] object value)
+            => string.Format(
+                GetString("InvalidMinBatchSize", nameof(value)),
+                value);
 
         /// <summary>
         ///     Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an 'OrderBy' operation on the sequence before calling '{method}'.
@@ -752,7 +758,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 column);
 
         /// <summary>
-        ///     'Reverse' could not be translated because there is no ordering on the server side.
+        ///     'Reverse' could not be translated to the server because there is no ordering on the server side.
         /// </summary>
         public static string MissingOrderingInSelectExpression
             => GetString("MissingOrderingInSelectExpression");
@@ -766,12 +772,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 parameter);
 
         /// <summary>
-        ///     Cannot save changes for an entity in state '{entityState}'.
+        ///     Cannot save changes for an entity of type '{entityType}' in state '{entityState}'. This may indicate a bug in Entity Framework, please open an issue at https://go.microsoft.com/fwlink/?linkid=2142044. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values of the entity.
         /// </summary>
-        public static string ModificationCommandInvalidEntityState([CanBeNull] object entityState)
+        public static string ModificationCommandInvalidEntityState([CanBeNull] object entityType, [CanBeNull] object entityState)
             => string.Format(
-                GetString("ModificationCommandInvalidEntityState", nameof(entityState)),
-                entityState);
+                GetString("ModificationCommandInvalidEntityState", nameof(entityType), nameof(entityState)),
+                entityType, entityState);
+
+        /// <summary>
+        ///     Cannot save changes for an entity of type '{entityType}' with primary key values {keyValues} in state '{entityState}'. This may indicate a bug in Entity Framework, please open an issue at https://go.microsoft.com/fwlink/?linkid=2142044.
+        /// </summary>
+        public static string ModificationCommandInvalidEntityStateSensitive([CanBeNull] object entityType, [CanBeNull] object keyValues, [CanBeNull] object entityState)
+            => string.Format(
+                GetString("ModificationCommandInvalidEntityStateSensitive", nameof(entityType), nameof(keyValues), nameof(entityState)),
+                entityType, keyValues, entityState);
 
         /// <summary>
         ///     Multiple relational database provider configurations found. A context can only be configured to use a single database provider.
@@ -788,7 +802,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 name);
 
         /// <summary>
-        ///     A root ambient transaction was completed before the nested transaction. The more nested transactions should be completed first.
+        ///     A root ambient transaction was completed before the nested transaction. The nested transactions should be completed first.
         /// </summary>
         public static string NestedAmbientTransactionError
             => GetString("NestedAmbientTransactionError");
@@ -892,7 +906,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, table);
 
         /// <summary>
-        ///     The entity type '{entityType}' is not mapped to a table, therefore the entities cannot be persisted to the database. Use 'ToTable' in 'OnModelCreating' to map it.
+        ///     The entity type '{entityType}' is not mapped to a table, therefore the entities cannot be persisted to the database. Call 'ToTable' in 'OnModelCreating' to map it to a table.
         /// </summary>
         public static string ReadonlyEntitySaved([CanBeNull] object entityType)
             => string.Format(
@@ -1064,7 +1078,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 nodeType, expressionType);
 
         /// <summary>
-        ///     No mapping to a relational type can be found for property '{entity}.{property}' with the CLR type '{clrType}'.
+        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'. 
         /// </summary>
         public static string UnsupportedPropertyType([CanBeNull] object entity, [CanBeNull] object property, [CanBeNull] object clrType)
             => string.Format(
@@ -1080,7 +1094,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type);
 
         /// <summary>
-        ///     No mapping to a relational type could be found for the CLR type '{clrType}'.
+        ///     The current provider doesn't have a store type mapping for properties of type '{clrType}'.
         /// </summary>
         public static string UnsupportedType([CanBeNull] object clrType)
             => string.Format(
@@ -1144,18 +1158,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 valuesCount, columnsCount, table);
 
         /// <summary>
-        ///     An error occurred while updating the entries. See the inner exception for details.
+        ///     An error occurred while saving the entity changes. See the inner exception for details.
         /// </summary>
         public static string UpdateStoreException
             => GetString("UpdateStoreException");
 
         /// <summary>
-        ///     The property '{propertySpecification}' has specific configuration for the view '{table}', but isn't mapped to a column on that view. Remove the specific configuration, or map an entity type that contains this property to '{table}'.
+        ///     The property '{propertySpecification}' has specific configuration for the view '{view}', however it isn't mapped to a column on that view. Remove the specific configuration or map an entity type that contains this property to '{view}'.
         /// </summary>
-        public static string ViewOverrideMismatch([CanBeNull] object propertySpecification, [CanBeNull] object table)
+        public static string ViewOverrideMismatch([CanBeNull] object propertySpecification, [CanBeNull] object view)
             => string.Format(
-                GetString("ViewOverrideMismatch", nameof(propertySpecification), nameof(table)),
-                propertySpecification, table);
+                GetString("ViewOverrideMismatch", nameof(propertySpecification), nameof(view)),
+                propertySpecification, view);
 
         /// <summary>
         ///     'VisitChildren' must be overridden in the class deriving from 'SqlExpression'.
@@ -1262,7 +1276,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     An error occurred while the batch executor was releasing a transaction savepoint.
+        ///     An error occurred while releasing a transaction savepoint during `SaveChanges`.
         /// </summary>
         public static EventDefinition LogBatchExecutorFailedToReleaseSavepoint([NotNull] IDiagnosticsLogger logger)
         {
@@ -1286,7 +1300,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     An error occurred while the batch executor was rolling back the transaction to a savepoint, after an exception occured.
+        ///     An error occurred while rolling back the transaction to a savepoint, after an exception occured during `SaveChanges`.
         /// </summary>
         public static EventDefinition LogBatchExecutorFailedToRollbackToSavepoint([NotNull] IDiagnosticsLogger logger)
         {

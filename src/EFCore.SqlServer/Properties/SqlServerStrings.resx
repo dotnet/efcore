@@ -139,31 +139,31 @@
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different hi-lo sequences.</value>
   </data>
   <data name="DuplicateIndexClusteredMismatch" xml:space="preserve">
-    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different clustered configurations.</value>
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different clustered configurations.</value>
   </data>
   <data name="DuplicateIndexFillFactorMismatch" xml:space="preserve">
-    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different fill factor configurations.</value>
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different fill factor configurations.</value>
   </data>
   <data name="DuplicateIndexIncludedMismatch" xml:space="preserve">
-    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different included columns: {includedColumns1} and {includedColumns2}.</value>
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different included columns: {includedColumns1} and {includedColumns2}.</value>
   </data>
   <data name="DuplicateIndexOnlineMismatch" xml:space="preserve">
-    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different online configurations.</value>
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different online configurations.</value>
   </data>
   <data name="DuplicateKeyMismatchedClustering" xml:space="preserve">
-    <value>The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}', but with different clustering configurations.</value>
+    <value>The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}', but have different clustering configurations.</value>
   </data>
   <data name="IdentityBadType" xml:space="preserve">
     <value>Identity value generation cannot be used for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Identity value generation can only be used with signed integer properties.</value>
   </data>
   <data name="IncludePropertyDuplicated" xml:space="preserve">
-    <value>Include property '{entityType}.{property}' cannot be defined multiple times.</value>
+    <value>The include property '{entityType}.{property}' was specified multiple times for the index {index}.</value>
   </data>
   <data name="IncludePropertyInIndex" xml:space="preserve">
-    <value>Include property '{entityType}.{property}' is already included in the index.</value>
+    <value>The include property '{entityType}.{property}' is already part of the index {index}.</value>
   </data>
   <data name="IncludePropertyNotFound" xml:space="preserve">
-    <value>Include property '{entityType}.{property}' not found.</value>
+    <value>The include property '{property}' specified on the index {index} was not found on entity type '{entityType}'.</value>
   </data>
   <data name="IncompatibleTableMemoryOptimizedMismatch" xml:space="preserve">
     <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{memoryOptimizedEntityType}' is marked as memory-optimized, but entity type '{nonMemoryOptimizedEntityType}' is not.</value>
@@ -182,7 +182,7 @@
     <comment>Warning SqlServerEventId.ByteIdentityColumnWarning string string</comment>
   </data>
   <data name="LogConflictingValueGenerationStrategies" xml:space="preserve">
-    <value>Both the SqlServerValueGenerationStrategy '{generationStrategy}' and '{otherGenerationStrategy}' have been set on property '{propertyName}' on entity type '{entityName}'. Configuring two strategies is usually unintentional, only do this if you are sure you understand the consequences.</value>
+    <value>Both the SqlServerValueGenerationStrategy '{generationStrategy}' and '{otherGenerationStrategy}' have been set on property '{propertyName}' on entity type '{entityName}'. Configuring two strategies is usually unintentional and will likely result in a database error.</value>
     <comment>Warning SqlServerEventId.ConflictingValueGenerationStrategiesWarning string string string string</comment>
   </data>
   <data name="LogDecimalTypeKey" xml:space="preserve">
@@ -190,7 +190,7 @@
     <comment>Warning SqlServerEventId.DecimalTypeKeyWarning string string</comment>
   </data>
   <data name="LogDefaultDecimalTypeColumn" xml:space="preserve">
-    <value>No type was specified for the decimal property '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.</value>
+    <value>No store type was specified for the decimal property '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.</value>
     <comment>Warning SqlServerEventId.DecimalTypeDefaultWarning string string</comment>
   </data>
   <data name="LogFoundColumn" xml:space="preserve">
@@ -250,7 +250,7 @@
     <comment>Debug SqlServerEventId.ReflexiveConstraintIgnored string string</comment>
   </data>
   <data name="MultipleIdentityColumns" xml:space="preserve">
-    <value>The properties {properties} are configured to use 'Identity' value generation and are mapped to the same table '{table}', but only one column per table can be configured as 'Identity'. Call 'ValueGeneratedNever' for properties that should not use 'Identity'.</value>
+    <value>The properties {properties} are configured to use 'Identity' value generation and are mapped to the same table '{table}', but only one column per table can be configured as 'Identity'. Call 'ValueGeneratedNever' in 'OnModelCreating' for properties that should not use 'Identity'.</value>
   </data>
   <data name="NoInitialCatalog" xml:space="preserve">
     <value>The database name could not be determined. To use 'EnsureDeleted', the connection string must specify 'Initial Catalog'.</value>
