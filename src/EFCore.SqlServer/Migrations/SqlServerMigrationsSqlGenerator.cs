@@ -291,6 +291,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 return;
             }
 
+            var columnType = operation.ColumnType
+                ?? GetColumnType(
+                    operation.Schema,
+                    operation.Table,
+                    operation.Name,
+                    operation,
+                    model);
+
             var narrowed = false;
             var oldColumnSupported = IsOldColumnSupported(model);
             if (oldColumnSupported)
@@ -299,14 +307,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     throw new InvalidOperationException(SqlServerStrings.AlterIdentityColumn);
                 }
-
-                var type = operation.ColumnType
-                    ?? GetColumnType(
-                        operation.Schema,
-                        operation.Table,
-                        operation.Name,
-                        operation,
-                        model);
                 var oldType = operation.OldColumn.ColumnType
                     ?? GetColumnType(
                         operation.Schema,
@@ -314,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         operation.Name,
                         operation.OldColumn,
                         model);
-                narrowed = type != oldType
+                narrowed = columnType != oldType
                     || operation.Collation != operation.OldColumn.Collation
                     || !operation.IsNullable && operation.OldColumn.IsNullable;
             }
@@ -328,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var alterStatementNeeded = narrowed
                 || !oldColumnSupported
                 || operation.ClrType != operation.OldColumn.ClrType
-                || operation.ColumnType != operation.OldColumn.ColumnType
+                || columnType != operation.OldColumn.ColumnType
                 || operation.IsUnicode != operation.OldColumn.IsUnicode
                 || operation.IsFixedLength != operation.OldColumn.IsFixedLength
                 || operation.MaxLength != operation.OldColumn.MaxLength
