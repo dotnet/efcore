@@ -90,6 +90,11 @@ namespace Microsoft.Data.Sqlite
 
                 _connectionString = value ?? string.Empty;
                 _connectionOptions = null;
+
+                if (ConnectionOptions.DefaultTimeout.HasValue)
+                {
+                    DefaultTimeout = ConnectionOptions.DefaultTimeout.Value;
+                }
             }
         }
 

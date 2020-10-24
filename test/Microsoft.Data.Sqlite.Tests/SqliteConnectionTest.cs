@@ -471,6 +471,28 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void Open_works_when_default_timeout()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:;Default Timeout=100"))
+            {
+                connection.Open();
+
+                Assert.Equal(100, connection.DefaultTimeout);
+            }
+        }
+
+        [Fact]
+        public void Open_works_when_command_timeout()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:;Command Timeout=100"))
+            {
+                connection.Open();
+
+                Assert.Equal(100, connection.DefaultTimeout);
+            }
+        }
+
+        [Fact]
         public void Close_works()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))

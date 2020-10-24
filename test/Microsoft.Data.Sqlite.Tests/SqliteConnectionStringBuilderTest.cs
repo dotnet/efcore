@@ -117,13 +117,14 @@ namespace Microsoft.Data.Sqlite
             var keys = (ICollection<string>)new SqliteConnectionStringBuilder().Keys;
 
             Assert.True(keys.IsReadOnly);
-            Assert.Equal(6, keys.Count);
+            Assert.Equal(7, keys.Count);
             Assert.Contains("Data Source", keys);
             Assert.Contains("Mode", keys);
             Assert.Contains("Cache", keys);
             Assert.Contains("Password", keys);
             Assert.Contains("Foreign Keys", keys);
             Assert.Contains("Recursive Triggers", keys);
+            Assert.Contains("Default Timeout", keys);
         }
 
         [Fact]
@@ -132,7 +133,7 @@ namespace Microsoft.Data.Sqlite
             var values = (ICollection<object>)new SqliteConnectionStringBuilder().Values;
 
             Assert.True(values.IsReadOnly);
-            Assert.Equal(6, values.Count);
+            Assert.Equal(7, values.Count);
         }
 
         [Fact]
@@ -229,6 +230,27 @@ namespace Microsoft.Data.Sqlite
             var builder = new SqliteConnectionStringBuilder();
 
             Assert.ThrowsAny<FormatException>(() => builder["Foreign Keys"] = value);
+        }
+
+        [Theory]
+        [InlineData("250", 250)]
+        public void Item_converts_to_int_on_set(object value, int? expected)
+        {
+            var builder = new SqliteConnectionStringBuilder();
+
+            builder["Default Timeout"] = value;
+
+            Assert.Equal(expected, builder["Default Timeout"]);
+        }
+
+        [Theory]
+        [InlineData("test")]
+        [InlineData("Unknown")]
+        public void Item_throws_when_cannot_convert_to_int_on_set(object value)
+        {
+            var builder = new SqliteConnectionStringBuilder();
+
+            Assert.ThrowsAny<FormatException>(() => builder["Default Timeout"] = value);
         }
 
         [Fact]
