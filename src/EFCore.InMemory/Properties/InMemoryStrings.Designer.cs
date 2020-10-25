@@ -42,6 +42,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
             => GetString("NoQueryStrings");
 
         /// <summary>
+        ///     Required properties '{requiredProperties}' are missing for instance of entity type '{entityType}' with the key value '{keyValue}'
+        /// </summary>
+        public static string NullabilityErrorException([CanBeNull] object requiredProperties, [CanBeNull] object entityType, [CanBeNull] object keyValue)
+            => string.Format(
+                GetString("NullabilityErrorException", nameof(requiredProperties), nameof(entityType), nameof(keyValue)),
+                requiredProperties, entityType, keyValue);
+
+        /// <summary>
         ///     Unable to bind '{memberType}' '{member}' to entity projection of '{entityType}'.
         /// </summary>
         public static string UnableToBindMemberToEntityProjection([CanBeNull] object memberType, [CanBeNull] object member, [CanBeNull] object entityType)

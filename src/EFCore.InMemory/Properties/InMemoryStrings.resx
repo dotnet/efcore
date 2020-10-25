@@ -134,6 +134,9 @@
   <data name="NoQueryStrings" xml:space="preserve">
     <value>There is no query string because the in-memory provider does not use a string-based query language.</value>
   </data>
+  <data name="NullabilityErrorException" xml:space="preserve">
+    <value>Required properties '{requiredProperties}' are missing for instance of entity type '{entityType}' with the key value '{keyValue}'</value>
+  </data>
   <data name="UnableToBindMemberToEntityProjection" xml:space="preserve">
     <value>Unable to bind '{memberType}' '{member}' to entity projection of '{entityType}'.</value>
   </data>

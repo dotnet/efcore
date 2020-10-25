@@ -16,6 +16,9 @@ namespace Microsoft.EntityFrameworkCore
         public static IServiceProvider DefaultSensitiveServiceProvider { get; }
             = BuildServiceProvider();
 
+        public static IServiceProvider DefaultNullabilityCheckProvider { get; }
+            = BuildServiceProvider();
+
         public readonly IServiceProvider ServiceProvider;
 
         public InMemoryFixture()
