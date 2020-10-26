@@ -271,6 +271,47 @@ CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);
         }
 
         [ConditionalFact]
+        public virtual void AlterColumnOperation_with_added_index_no_oldType()
+        {
+            Generate(
+                modelBuilder => modelBuilder
+                    .HasAnnotation(CoreAnnotationNames.ProductVersion, "2.1.0")
+                    .Entity<Person>(
+                        x =>
+                        {
+                            x.Property<string>("Name");
+                            x.HasIndex("Name");
+                        }),
+                new AlterColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Name",
+                    ClrType = typeof(string),
+                    IsNullable = true,
+                    OldColumn = new AddColumnOperation { ClrType = typeof(string), IsNullable = true }
+                },
+                new CreateIndexOperation
+                {
+                    Name = "IX_Person_Name",
+                    Table = "Person",
+                    Columns = new[] { "Name" }
+                });
+
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(450) NULL;
+GO
+
+CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);
+");
+        }
+
+        [ConditionalFact]
         public virtual void AlterColumnOperation_identity_legacy()
         {
             Generate(

@@ -1018,8 +1018,6 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                         index[SqlServerAnnotationNames.FillFactor] = indexGroup.Key.FillFactor;
                     }
 
-                    var includedColumns = new List<string>();
-
                     foreach (var dataRecord in indexGroup)
                     {
                         var columnName = dataRecord.GetValueOrDefault<string>("column_name");
@@ -1027,8 +1025,6 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                         var isIncludedColumn = dataRecord.GetValueOrDefault<bool>("is_included_column");
                         if (isIncludedColumn)
                         {
-                            includedColumns.Add(columnName!);
-
                             continue;
                         }
 
@@ -1038,11 +1034,6 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                         Check.DebugAssert(column != null, "column is null.");
 
                         index.Columns.Add(column);
-                    }
-
-                    if (includedColumns.Count != 0)
-                    {
-                        index[SqlServerAnnotationNames.Include] = includedColumns.ToArray();
                     }
 
                     table.Indexes.Add(index);

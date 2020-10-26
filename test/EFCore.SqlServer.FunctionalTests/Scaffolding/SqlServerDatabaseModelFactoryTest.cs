@@ -1961,7 +1961,7 @@ CREATE INDEX IX_INCLUDE ON IncludeIndexTable(IndexProperty) INCLUDE (IncludeProp
                 {
                     var index = Assert.Single(dbModel.Tables.Single().Indexes);
                     Assert.Equal(new[] { "IndexProperty" }, index.Columns.Select(ic => ic.Name).ToList());
-                    Assert.Equal(new[] { "IncludeProperty" }, (IReadOnlyList<string>)index[SqlServerAnnotationNames.Include]);
+                    Assert.Null(index[SqlServerAnnotationNames.Include]);
                 },
                 "DROP TABLE IncludeIndexTable;");
         }
