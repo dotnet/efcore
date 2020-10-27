@@ -1233,7 +1233,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 throw new InvalidOperationException(
                     RelationalStrings.PropertyNotMappedToTable(
-                        property.Name, property.DeclaringEntityType, storeObject.DisplayName()));
+                        property.Name, property.DeclaringEntityType.DisplayName(), storeObject.DisplayName()));
             }
 
             var rootProperty = property;

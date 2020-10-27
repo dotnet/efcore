@@ -507,6 +507,7 @@
   </data>
   <data name="ImmediateConventionScopeCannotBeRunAgain" xml:space="preserve">
     <value>Immediate convention scope cannot be run again.</value>
+    <comment>Obsolete</comment>
   </data>
   <data name="ImplementationTypeRequired" xml:space="preserve">
     <value>The implementation type for the registration of the '{service}' service could not be determined. Specific implementation types must be used for services that expect multiple registrations so as to avoid duplicates.</value>

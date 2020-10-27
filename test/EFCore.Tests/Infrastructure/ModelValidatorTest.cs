@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
@@ -622,6 +623,26 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             VerifyError(
                 CoreStrings.SkipNavigationNoInverse(nameof(Order.Products), nameof(Order)),
+                model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_nonCollection_skip_navigations()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            var model = modelBuilder.Model;
+            var customerEntity = model.AddEntityType(typeof(Customer));
+            var orderEntity = model.FindEntityType(typeof(Order));
+            var orderDetailsEntity = model.FindEntityType(typeof(OrderDetails));
+            new EntityTypeBuilder<OrderDetails>(orderDetailsEntity).Ignore(e => e.Customer);
+
+            var productsNavigation = orderDetailsEntity.AddSkipNavigation(
+                nameof(OrderDetails.Customer), null, customerEntity, false, false);
+            orderDetailsEntity.RemoveIgnored(nameof(OrderDetails.Customer));
+
+            VerifyError(
+                CoreStrings.SkipNavigationNonCollection(nameof(OrderDetails.Customer), nameof(OrderDetails)),
                 model);
         }
 

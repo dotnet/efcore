@@ -16,6 +16,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class RelationalModelTest
     {
+        [ConditionalFact]
+        public void GetRelationalModel_throws_if_convention_has_not_run()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            Assert.Equal(
+                RelationalStrings.DatabaseModelMissing,
+                Assert.Throws<InvalidOperationException>(
+                    () => modelBuilder.Model.GetRelationalModel()).Message);
+        }
+
         [ConditionalTheory]
         [InlineData(true, Mapping.TPH)]
         [InlineData(true, Mapping.TPT)]
@@ -449,6 +460,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                 var specialityColumn = specialCustomerTable.Columns.Single(c => c.Name == nameof(SpecialCustomer.Speciality));
                 Assert.False(specialityColumn.IsNullable);
+
+                var specialityProperty = specialityColumn.PropertyMappings.First().Property;
+
+                Assert.Equal(
+                    RelationalStrings.PropertyNotMappedToTable(
+                        nameof(SpecialCustomer.Speciality), nameof(SpecialCustomer), "Customer"),
+                    Assert.Throws<InvalidOperationException>(() =>
+                    specialityProperty.IsColumnNullable(StoreObjectIdentifier.Table(customerTable.Name, customerTable.Schema))).Message);
 
                 Assert.Equal(3, customerPk.GetMappedConstraints().Count());
                 var specialCustomerPkConstraint = specialCustomerTable.PrimaryKey;

@@ -1733,6 +1733,31 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            public virtual void IsRequired_throws_principal_end_is_ambiguous()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Ignore<Customer>();
+                modelBuilder.Ignore<CustomerDetails>();
+                modelBuilder.Entity<Order>().Property<int>("OrderDetailsId");
+
+                Assert.Equal(
+                    CoreStrings.AmbiguousEndRequiredDependentNavigation(
+                        nameof(OrderDetails),
+                        nameof(OrderDetails.Order),
+                        "{'OrderId'}"),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder
+                        .Entity<OrderDetails>().Navigation(e => e.Order).IsRequired()).Message);
+
+                Assert.Equal(
+                    CoreStrings.AmbiguousEndRequiredDependentNavigation(
+                        nameof(Order),
+                        nameof(Order.Details),
+                        "{'OrderId'}"),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder
+                        .Entity<Order>().Navigation(e => e.Details).IsRequired()).Message);
+            }
+
+            [ConditionalFact]
             public virtual void Throws_if_not_principal_or_dependent_specified()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -3427,8 +3452,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(
                     CoreStrings.AmbiguousEndRequiredInverted("{'NobId11', 'NobId21'}", typeof(Hob).Name, typeof(Nob).Name),
                     Assert.Throws<InvalidOperationException>(
-                        () =>
-                            foreignKeyBuilder.HasForeignKey<Nob>()).Message);
+                        () => foreignKeyBuilder.HasForeignKey<Nob>()).Message);
             }
 
             [ConditionalFact]

@@ -262,6 +262,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Detects_duplicate_index_names_within_hierarchy_different_fill_factor()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>().HasIndex(c => c.Name).HasDatabaseName("IX_Animal_Name");
+            modelBuilder.Entity<Dog>().HasIndex(d => d.Name).HasDatabaseName("IX_Animal_Name").HasFillFactor(30);
+
+            VerifyError(
+                SqlServerStrings.DuplicateIndexFillFactorMismatch(
+                    "{'" + nameof(Dog.Name) + "'}", nameof(Dog),
+                    "{'" + nameof(Cat.Name) + "'}", nameof(Cat),
+                    nameof(Animal), "IX_Animal_Name"),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
         public virtual void Detects_duplicate_index_names_within_hierarchy_differently_online()
         {
             var modelBuilder = CreateConventionalModelBuilder();
