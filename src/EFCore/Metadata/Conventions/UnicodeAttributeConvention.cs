@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             MemberInfo clrMember,
             IConventionContext context)
         {
-            propertyBuilder.IsUnicode(unicode: attribute.IsUnicode, fromDataAnnotation: true);
+            propertyBuilder.IsUnicode(attribute.IsUnicode, fromDataAnnotation: true);
         }
     }
 }

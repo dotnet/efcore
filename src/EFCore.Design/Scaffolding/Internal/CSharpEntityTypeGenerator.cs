@@ -373,18 +373,19 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateUnicodeAttribute(IProperty property)
         {
-            CoreTypeMapping typeMapping = property.FindTypeMapping();
-            if (property.ClrType != typeof(string) && typeMapping.Converter?.ProviderClrType != typeof(string))
+            if (property.ClrType != typeof(string))
             {
                 return;
             }
 
-            var isUnicode = property.IsUnicode();
-
-            if (isUnicode.HasValue && !isUnicode.Value)
+            var unicode = property.IsUnicode();
+            if (unicode.HasValue)
             {
                 var unicodeAttribute = new AttributeWriter(nameof(UnicodeAttribute));
-                unicodeAttribute.AddParameter(_code.Literal(false));
+                if (!unicode.Value)
+                {
+                    unicodeAttribute.AddParameter(_code.Literal(false));
+                }
                 _sb.AppendLine(unicodeAttribute.ToString());
             }
         }

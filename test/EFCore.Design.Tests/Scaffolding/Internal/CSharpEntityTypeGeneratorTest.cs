@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
@@ -859,8 +860,6 @@ namespace TestNamespace
                             x.Property<string>("A").HasMaxLength(34).IsUnicode();
                             x.Property<string>("B").HasMaxLength(34).IsUnicode(false);
                             x.Property<string>("C").HasMaxLength(34);
-                            x.Property<System.DateTimeOffset>("D").HasConversion<string>();
-                            x.Property<System.DateTimeOffset>("E").HasConversion<string>().IsUnicode(false);
                         }),
                 new ModelCodeGenerationOptions { UseDataAnnotations = true },
                 code =>
@@ -881,15 +880,13 @@ namespace TestNamespace
         [Key]
         public int Id { get; set; }
         [StringLength(34)]
+        [Unicode]
         public string A { get; set; }
         [StringLength(34)]
         [Unicode(false)]
         public string B { get; set; }
         [StringLength(34)]
         public string C { get; set; }
-        public DateTimeOffset D { get; set; }
-        [Unicode(false)]
-        public DateTimeOffset E { get; set; }
     }
 }
 ",
@@ -901,8 +898,6 @@ namespace TestNamespace
                     Assert.True(entitType.GetProperty("A").IsUnicode());
                     Assert.False(entitType.GetProperty("B").IsUnicode());
                     Assert.Null(entitType.GetProperty("C").IsUnicode());
-                    Assert.Null(entitType.GetProperty("D").IsUnicode());
-                    Assert.False(entitType.GetProperty("E").IsUnicode());
                 });
         }
 

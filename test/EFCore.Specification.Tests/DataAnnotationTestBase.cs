@@ -2379,29 +2379,22 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void Unicode_annotation_is_enabled()
+        public virtual void UnicodeAttribute_sets_unicode_for_properties_and_fields()
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<UnicodeAnnotationClass>();
+            modelBuilder.Entity<UnicodeAnnotationClass>(b =>
+            {
+                b.Property(e => e.PersonMiddleName);
+                b.Property(e => e.PersonAddress);
+            });
 
             Validate(modelBuilder);
 
             Assert.True(GetProperty<UnicodeAnnotationClass>(modelBuilder, "PersonFirstName").IsUnicode());
             Assert.False(GetProperty<UnicodeAnnotationClass>(modelBuilder, "PersonLastName").IsUnicode());
-        }
 
-        [ConditionalFact]
-        public virtual void Unicode_is_configured_explicitly_for_fields()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder.Entity<UnicodeAnnotationClass>().Property(n => n.PersonMiddleName);
-            modelBuilder.Entity<UnicodeAnnotationClass>().Property(n => n.PersonAddress);
-
-            Validate(modelBuilder);
-
-            Assert.Null(GetProperty<UnicodeAnnotationClass>(modelBuilder, "PersonMiddleName").IsUnicode());
+            Assert.True(GetProperty<UnicodeAnnotationClass>(modelBuilder, "PersonMiddleName").IsUnicode());
             Assert.False(GetProperty<UnicodeAnnotationClass>(modelBuilder, "PersonAddress").IsUnicode());
         }
 
@@ -2415,6 +2408,7 @@ namespace Microsoft.EntityFrameworkCore
             [Unicode(false)]
             public string PersonLastName { get; set; }
 
+            [Unicode]
             public string PersonMiddleName;
 
             [Unicode(false)]
