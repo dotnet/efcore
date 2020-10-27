@@ -778,6 +778,10 @@ namespace Microsoft.EntityFrameworkCore
                 await service.ResetStateAsync(cancellationToken).ConfigureAwait(false);
             }
 
+            SavingChanges = null;
+            SavedChanges = null;
+            SaveChangesFailed = null;
+
             _disposed = true;
         }
 
