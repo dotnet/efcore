@@ -206,6 +206,33 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Single(sesameBunFk.GetMappedConstraints());
             }
 
+            [ConditionalFact]
+            public virtual void TPT_index_can_use_inherited_properties()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<BigMak>()
+                    .Ignore(b => b.Bun)
+                    .Ignore(b => b.Pickles);
+                modelBuilder.Entity<Ingredient>(b =>
+                {
+                    b.ToTable("Ingredients");
+                    b.Property<int?>("NullableProp");
+                    b.Ignore(i => i.BigMak);
+                });
+                modelBuilder.Entity<Bun>(b =>
+                {
+                    b.ToTable("Buns");
+                    b.HasIndex(bun => bun.BurgerId);
+                    b.HasIndex("NullableProp");
+                    b.HasOne(i => i.BigMak).WithOne().HasForeignKey<Bun>(i => i.Id);
+                });
+
+                var model = modelBuilder.FinalizeModel();
+
+                var bunType = model.FindEntityType(typeof(Bun));
+                Assert.All(bunType.GetIndexes(), i => Assert.Null(i.GetFilter()));
+            }
+
             public class Parent
             {
                 public int Id { get; set; }
