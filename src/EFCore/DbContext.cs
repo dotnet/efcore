@@ -65,6 +65,7 @@ namespace Microsoft.EntityFrameworkCore
         private IServiceScope _serviceScope;
         private DbContextLease _lease = DbContextLease.InactiveLease;
         private DbContextPoolConfigurationSnapshot _configurationSnapshot;
+        private List<IResettableService> _resettableServices;
         private bool _initializing;
         private bool _disposed;
 
@@ -766,7 +767,7 @@ namespace Microsoft.EntityFrameworkCore
         [EntityFrameworkInternal]
         void IResettableService.ResetState()
         {
-            foreach (var service in GetResettableServices())
+            foreach (var service in _resettableServices ??= GetResettableServices())
             {
                 service.ResetState();
             }
@@ -785,7 +786,7 @@ namespace Microsoft.EntityFrameworkCore
         [EntityFrameworkInternal]
         async Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
         {
-            foreach (var service in GetResettableServices())
+            foreach (var service in _resettableServices ??= GetResettableServices())
             {
                 await service.ResetStateAsync(cancellationToken).ConfigureAwait(false);
             }
@@ -795,30 +796,25 @@ namespace Microsoft.EntityFrameworkCore
             _disposed = true;
         }
 
-        private IEnumerable<IResettableService> GetResettableServices()
+        private List<IResettableService> GetResettableServices()
         {
-            var resettableServices
-                = _contextServices?.InternalServiceProvider?
-                    .GetService<IEnumerable<IResettableService>>()?.ToList();
+            var resettableServices = new List<IResettableService>();
 
-            if (resettableServices != null)
+            var services
+                = _contextServices?.InternalServiceProvider?
+                    .GetService<IEnumerable<IResettableService>>();
+
+            if (services != null)
             {
-                foreach (var service in resettableServices)
-                {
-                    yield return service;
-                }
+                resettableServices.AddRange(services);
             }
 
             if (_sets != null)
             {
-                foreach (var set in _sets.Values)
-                {
-                    if (set is IResettableService resettable)
-                    {
-                        yield return resettable;
-                    }
-                }
+                resettableServices.AddRange((_sets.Values.OfType<IResettableService>()));
             }
+
+            return resettableServices;
         }
 
         /// <summary>
