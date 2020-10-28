@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -201,12 +202,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return null;
             }
 
+            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23092_2", out var isEnabled) && isEnabled;
             var nullableColumns = new List<string>();
             var table = StoreObjectIdentifier.Table(tableName, index.DeclaringEntityType.GetSchema());
             foreach (var property in index.Properties)
             {
                 var columnName = property.GetColumnName(table);
-                if (columnName == null)
+                if (columnName == null
+                    && !useOldBehavior)
                 {
                     return null;
                 }

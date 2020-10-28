@@ -129,12 +129,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionForeignKeyBuilder relationshipBuilder,
             IConventionContext context)
         {
+            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23092_1", out var isEnabled) && isEnabled;
+
             var foreignKey = relationshipBuilder.Metadata;
             var foreignKeyProperties = FindCandidateForeignKeyProperties(relationshipBuilder.Metadata, onDependent: true);
             var propertiesConfigurationSource = foreignKey.GetPropertiesConfigurationSource();
             if (!ConfigurationSource.Convention.OverridesStrictly(propertiesConfigurationSource)
                 && (propertiesConfigurationSource != ConfigurationSource.Convention
-                    || (foreignKey.Properties.All(p => !p.IsImplicitlyCreated())
+                    || (!useOldBehavior
+                        && foreignKey.Properties.All(p => !p.IsImplicitlyCreated())
                         && (foreignKeyProperties == null
                             || !foreignKey.Properties.SequenceEqual(foreignKeyProperties)))))
             {
