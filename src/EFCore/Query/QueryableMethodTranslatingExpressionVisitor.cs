@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -57,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Detailed information about errors encountered during translation.
         /// </summary>
-        public virtual string TranslationErrorDetails { get; private set; }
+        public virtual string? TranslationErrorDetails { get; private set; }
 
         /// <summary>
         ///     Adds detailed information about errors encountered during translation.
@@ -96,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression? VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
@@ -493,7 +495,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             return _subquery
-                ? (Expression)null
+                ? (Expression?)null
                 : throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
         }
 
@@ -598,7 +600,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return extensionExpression is ProjectionBindingExpression projectionBindingExpression
                     ? new ProjectionBindingExpression(
                         _queryExpression,
-                        projectionBindingExpression.ProjectionMember.Prepend(_memberShift),
+                        // ProjectionMember would be non-null here as we are shifting members
+                        projectionBindingExpression.ProjectionMember!.Prepend(_memberShift),
                         projectionBindingExpression.Type)
                     : base.VisitExtension(extensionExpression);
             }
@@ -629,7 +632,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="expression"> The subquery expression to translate. </param>
         /// <returns> The translation of the given subquery. </returns>
-        public virtual ShapedQueryExpression TranslateSubquery([NotNull] Expression expression)
+        public virtual ShapedQueryExpression? TranslateSubquery([NotNull] Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
 
@@ -680,7 +683,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> The shaped query after translation. </returns>
         protected abstract ShapedQueryExpression TranslateAny(
             [NotNull] ShapedQueryExpression source,
-            [CanBeNull] LambdaExpression predicate);
+            [CanBeNull] LambdaExpression? predicate);
 
         /// <summary>
         ///     Translates <see cref="Queryable.Average(IQueryable{decimal})" /> method and other overloads over the given source.
@@ -691,7 +694,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> The shaped query after translation. </returns>
         protected abstract ShapedQueryExpression TranslateAverage(
             [NotNull] ShapedQueryExpression source,
-            [CanBeNull] LambdaExpression selector,
+            [CanBeNull] LambdaExpression? selector,
             [NotNull] Type resultType);
 
         /// <summary>
@@ -728,7 +731,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> The shaped query after translation. </returns>
         protected abstract ShapedQueryExpression TranslateCount(
             [NotNull] ShapedQueryExpression source,
-            [CanBeNull] LambdaExpression predicate);
+            [CanBeNull] LambdaExpression? predicate);
 
         /// <summary>
         ///     Translates <see cref="Queryable.DefaultIfEmpty{TSource}(IQueryable{TSource})" /> method and other overloads over the given source.
@@ -738,7 +741,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> The shaped query after translation. </returns>
         protected abstract ShapedQueryExpression TranslateDefaultIfEmpty(
             [NotNull] ShapedQueryExpression source,
-            [CanBeNull] Expression defaultValue);
+            [CanBeNull] Expression? defaultValue);
 
         /// <summary>
         ///     Translates <see cref="Queryable.Distinct{TSource}(IQueryable{TSource})" /> method over the given source.
@@ -781,7 +784,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> The shaped query after translation. </returns>
         protected abstract ShapedQueryExpression TranslateFirstOrDefault(
             [NotNull] ShapedQueryExpression source,
-            [CanBeNull] LambdaExpression predicate,
+            [CanBeNull] LambdaExpression? predicate,
             [NotNull] Type returnType,
             bool returnDefault);
 
@@ -797,8 +800,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected abstract ShapedQueryExpression TranslateGroupBy(
             [NotNull] ShapedQueryExpression source,
             [NotNull] LambdaExpression keySelector,
-            [CanBeNull] LambdaExpression elementSelector,
-            [CanBeNull] LambdaExpression resultSelector);
+            [CanBeNull] LambdaExpression? elementSelector,
+            [CanBeNull] LambdaExpression? resultSelector);
 
         /// <summary>
         ///     Translates
@@ -844,8 +847,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected abstract ShapedQueryExpression TranslateJoin(
             [NotNull] ShapedQueryExpression outer,
             [NotNull] ShapedQueryExpression inner,
-            [CanBeNull] LambdaExpression outerKeySelector,
-            [CanBeNull] LambdaExpression innerKeySelector,
+            [NotNull] LambdaExpression outerKeySelector,
+            [NotNull] LambdaExpression innerKeySelector,
             [NotNull] LambdaExpression resultSelector);
 
         /// <summary>
@@ -866,8 +869,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected abstract ShapedQueryExpression TranslateLeftJoin(
             [NotNull] ShapedQueryExpression outer,
             [NotNull] ShapedQueryExpression inner,
-            [CanBeNull] LambdaExpression outerKeySelector,
-            [CanBeNull] LambdaExpression innerKeySelector,
+            [NotNull] LambdaExpression outerKeySelector,
+            [NotNull] LambdaExpression innerKeySelector,
             [NotNull] LambdaExpression resultSelector);
 
         /// <summary>
@@ -881,7 +884,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> The shaped query after translation. </returns>
         protected abstract ShapedQueryExpression TranslateLastOrDefault(
             [NotNull] ShapedQueryExpression source,
-            [CanBeNull] LambdaExpression predicate,
+            [CanBeNull] LambdaExpression? predicate,
             [NotNull] Type returnType,
             bool returnDefault);
 
@@ -893,7 +896,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> The shaped query after translation. </returns>
         protected abstract ShapedQueryExpression TranslateLongCount(
             [NotNull] ShapedQueryExpression source,
-            [CanBeNull] LambdaExpression predicate);
+            [CanBeNull] LambdaExpression? predicate);
 
         /// <summary>
         ///     Translates <see cref="Queryable.Max{TSource}(IQueryable{TSource})" /> method and other overloads over the given source.
@@ -904,7 +907,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> The shaped query after translation. </returns>
         protected abstract ShapedQueryExpression TranslateMax(
             [NotNull] ShapedQueryExpression source,
-            [CanBeNull] LambdaExpression selector,
+            [CanBeNull] LambdaExpression? selector,
             [NotNull] Type resultType);
 
         /// <summary>
@@ -916,7 +919,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> The shaped query after translation. </returns>
         protected abstract ShapedQueryExpression TranslateMin(
             [NotNull] ShapedQueryExpression source,
-            [CanBeNull] LambdaExpression selector,
+            [CanBeNull] LambdaExpression? selector,
             [NotNull] Type resultType);
 
         /// <summary>
@@ -997,7 +1000,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> The shaped query after translation. </returns>
         protected abstract ShapedQueryExpression TranslateSingleOrDefault(
             [NotNull] ShapedQueryExpression source,
-            [CanBeNull] LambdaExpression predicate,
+            [CanBeNull] LambdaExpression? predicate,
             [NotNull] Type returnType,
             bool returnDefault);
 
@@ -1031,7 +1034,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> The shaped query after translation. </returns>
         protected abstract ShapedQueryExpression TranslateSum(
             [NotNull] ShapedQueryExpression source,
-            [CanBeNull] LambdaExpression selector,
+            [CanBeNull] LambdaExpression? selector,
             [NotNull] Type resultType);
 
         /// <summary>

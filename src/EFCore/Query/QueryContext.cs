@@ -14,6 +14,8 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -28,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class QueryContext : IParameterValues
     {
         private readonly IDictionary<string, object> _parameterValues = new Dictionary<string, object>();
-        private IStateManager _stateManager;
+        private IStateManager? _stateManager;
 
         /// <summary>
         ///     <para>
@@ -69,7 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(entity, nameof(entity));
             Check.NotNull(navigation, nameof(navigation));
 
-            _stateManager.TryGetEntry(entity).SetIsLoaded(navigation);
+            // InitializeStateManager will populate the field before calling here
+            _stateManager!.TryGetEntry(entity).SetIsLoaded(navigation);
         }
 
         /// <summary>
@@ -154,7 +157,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] object[] keyValues,
             bool throwOnNullKey,
             out bool hasNullKey)
-            => _stateManager.TryGetEntry(key, keyValues, throwOnNullKey, out hasNullKey);
+            // InitializeStateManager will populate the field before calling here
+            => _stateManager!.TryGetEntry(key, keyValues, throwOnNullKey, out hasNullKey);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -167,6 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] IEntityType entityType,
             [NotNull] object entity,
             ValueBuffer valueBuffer)
-            => _stateManager.StartTrackingFromQuery(entityType, entity, valueBuffer);
+            // InitializeStateManager will populate the field before calling here
+            => _stateManager!.StartTrackingFromQuery(entityType, entity, valueBuffer);
     }
 }

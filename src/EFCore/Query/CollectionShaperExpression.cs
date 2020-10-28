@@ -8,6 +8,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -31,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public CollectionShaperExpression(
             [NotNull] Expression projection,
             [NotNull] Expression innerShaper,
-            [CanBeNull] INavigationBase navigation,
-            [CanBeNull] Type elementType)
+            [CanBeNull] INavigationBase? navigation,
+            [NotNull] Type elementType)
         {
             Check.NotNull(projection, nameof(projection));
             Check.NotNull(innerShaper, nameof(innerShaper));
@@ -40,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Projection = projection;
             InnerShaper = innerShaper;
             Navigation = navigation;
-            ElementType = elementType ?? navigation.ClrType.TryGetSequenceType();
+            ElementType = elementType;
         }
 
         /// <summary>
@@ -56,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The navigation if associated with the collection.
         /// </summary>
-        public virtual INavigationBase Navigation { get; }
+        public virtual INavigationBase? Navigation { get; }
 
         /// <summary>
         ///     The clr type of elements of the collection.

@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         Loading entities from the database using
         ///         <see cref="EntityFrameworkQueryableExtensions.Include{TEntity,TProperty}" /> or
         ///         <see
-        ///             cref="EntityFrameworkQueryableExtensions.ThenInclude{TEntity,TPreviousProperty,TProperty}(EntityFrameworkCore.Query.IIncludableQueryable{TEntity,IEnumerable{TPreviousProperty}},System.Linq.Expressions.Expression{System.Func{TPreviousProperty,TProperty}})" />
+        ///             cref="EntityFrameworkQueryableExtensions.ThenInclude{TEntity,TPreviousProperty,TProperty}(Query.IIncludableQueryable{TEntity,IEnumerable{TPreviousProperty}},System.Linq.Expressions.Expression{Func{TPreviousProperty,TProperty}})" />
         ///         , <see cref="Load" />, or <see cref="LoadAsync" /> will set this flag. Subsequent calls to <see cref="Load" />
         ///         or <see cref="LoadAsync" /> will then be a no-op.
         ///     </para>

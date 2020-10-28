@@ -586,6 +586,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(outer, nameof(outer));
             Check.NotNull(inner, nameof(inner));
+            Check.NotNull(outerKeySelector, nameof(outerKeySelector));
+            Check.NotNull(innerKeySelector, nameof(innerKeySelector));
             Check.NotNull(resultSelector, nameof(resultSelector));
 
             var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);
@@ -611,6 +613,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(outer, nameof(outer));
             Check.NotNull(inner, nameof(inner));
+            Check.NotNull(outerKeySelector, nameof(outerKeySelector));
+            Check.NotNull(innerKeySelector, nameof(innerKeySelector));
             Check.NotNull(resultSelector, nameof(resultSelector));
 
             var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);

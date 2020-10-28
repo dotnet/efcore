@@ -1547,7 +1547,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Entity<EntityWithTwoProperties>(b =>
                     {
                         b.ToTable("EntityWithProperties");
-                        b.Property<int>(e => e.AlternateId).HasColumnName("AlternateId");
+                        b.Property(e => e.AlternateId).HasColumnName("AlternateId");
                         b.HasOne(e => e.EntityWithOneProperty).WithOne(e => e.EntityWithTwoProperties)
                             .HasForeignKey<EntityWithTwoProperties>(e => e.Id);
                     });

@@ -560,6 +560,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             Check.NotNull(outer, nameof(outer));
             Check.NotNull(inner, nameof(inner));
+            Check.NotNull(outerKeySelector, nameof(outerKeySelector));
+            Check.NotNull(innerKeySelector, nameof(innerKeySelector));
             Check.NotNull(resultSelector, nameof(resultSelector));
 
             (outerKeySelector, innerKeySelector) = ProcessJoinKeySelector(outer, inner, outerKeySelector, innerKeySelector);
@@ -726,6 +728,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             Check.NotNull(outer, nameof(outer));
             Check.NotNull(inner, nameof(inner));
+            Check.NotNull(outerKeySelector, nameof(outerKeySelector));
+            Check.NotNull(innerKeySelector, nameof(innerKeySelector));
             Check.NotNull(resultSelector, nameof(resultSelector));
 
             (outerKeySelector, innerKeySelector) = ProcessJoinKeySelector(outer, inner, outerKeySelector, innerKeySelector);

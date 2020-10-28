@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         and <see cref="EntityFrameworkQueryableExtensions.AsTracking{TEntity}(IQueryable{TEntity})" /> methods.
         ///     </para>
         ///     <para>
-        ///         The default value is <see cref="EntityFrameworkCore.QueryTrackingBehavior.TrackAll" />. This means the change tracker will
+        ///         The default value is <see cref="QueryTrackingBehavior.TrackAll" />. This means the change tracker will
         ///         keep track of changes for all entities that are returned from a LINQ query.
         ///     </para>
         /// </summary>
@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     <para>
         ///         Checks if any new, deleted, or changed entities are being tracked
         ///         such that these changes will be sent to the database if <see cref="DbContext.SaveChanges()" />
-        ///         or <see cref="DbContext.SaveChangesAsync(System.Threading.CancellationToken)" /> is called.
+        ///         or <see cref="DbContext.SaveChangesAsync(CancellationToken)" /> is called.
         ///     </para>
         ///     <para>
         ///         Note that this method calls <see cref="DetectChanges" /> unless

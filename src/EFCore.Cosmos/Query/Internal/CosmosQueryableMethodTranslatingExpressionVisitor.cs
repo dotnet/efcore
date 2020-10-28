@@ -565,6 +565,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             Check.NotNull(outer, nameof(outer));
             Check.NotNull(inner, nameof(inner));
+            Check.NotNull(outerKeySelector, nameof(outerKeySelector));
+            Check.NotNull(innerKeySelector, nameof(innerKeySelector));
             Check.NotNull(resultSelector, nameof(resultSelector));
 
             return null;
@@ -618,6 +620,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             Check.NotNull(outer, nameof(outer));
             Check.NotNull(inner, nameof(inner));
+            Check.NotNull(outerKeySelector, nameof(outerKeySelector));
+            Check.NotNull(innerKeySelector, nameof(innerKeySelector));
             Check.NotNull(resultSelector, nameof(resultSelector));
 
             return null;

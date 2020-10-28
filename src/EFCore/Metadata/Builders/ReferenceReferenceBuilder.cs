@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         of the entity class.
         ///     </para>
         ///     <para>
-        ///         If <see cref="HasPrincipalKey(System.Type,string[])" /> is not specified, then an attempt will be made to
+        ///         If <see cref="HasPrincipalKey(Type,string[])" /> is not specified, then an attempt will be made to
         ///         match the data type and order of foreign key properties against the primary key of the principal
         ///         entity type. If they do not match, new shadow state properties that form a unique index will be
         ///         added to the principal entity type to serve as the reference key.
@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         of the entity class.
         ///     </para>
         ///     <para>
-        ///         If <see cref="HasPrincipalKey(System.Type,string[])" /> is not specified, then an attempt will be made to
+        ///         If <see cref="HasPrincipalKey(Type,string[])" /> is not specified, then an attempt will be made to
         ///         match the data type and order of foreign key properties against the primary key of the principal
         ///         entity type. If they do not match, new shadow state properties that form a unique index will be
         ///         added to the principal entity type to serve as the reference key.

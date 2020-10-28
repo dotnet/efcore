@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                 _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
                                     materializeCollectionNavigationExpression.Subquery),
                                 materializeCollectionNavigationExpression.Navigation,
-                                null);
+                                materializeCollectionNavigationExpression.Navigation.ClrType.TryGetSequenceType());
 
                         case MethodCallExpression methodCallExpression:
                         {

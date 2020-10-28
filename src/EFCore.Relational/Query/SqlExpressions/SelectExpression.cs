@@ -1332,7 +1332,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public CollectionShaperExpression AddCollectionProjection(
             [NotNull] ShapedQueryExpression shapedQueryExpression,
             [CanBeNull] INavigationBase navigation,
-            [CanBeNull] Type elementType)
+            [NotNull] Type elementType)
         {
             Check.NotNull(shapedQueryExpression, nameof(shapedQueryExpression));
 
