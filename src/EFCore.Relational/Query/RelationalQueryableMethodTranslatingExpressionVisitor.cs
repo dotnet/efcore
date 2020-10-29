@@ -1220,9 +1220,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private sealed class WeakEntityExpandingExpressionVisitor : ExpressionVisitor
         {
-            private SelectExpression _selectExpression;
+            private static readonly MethodInfo _objectEqualsMethodInfo
+                = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) });
+
             private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;
             private readonly ISqlExpressionFactory _sqlExpressionFactory;
+
+            private SelectExpression _selectExpression;
 
             public WeakEntityExpandingExpressionVisitor(
                 RelationalSqlTranslatingExpressionVisitor sqlTranslator,
@@ -1347,15 +1351,39 @@ namespace Microsoft.EntityFrameworkCore.Query
                             : foreignKey.Properties,
                         makeNullable);
 
-                    var outerKeyFirstProperty = outerKey is NewExpression newExpression
-                        ? ((UnaryExpression)((NewArrayExpression)newExpression.Arguments[0]).Expressions[0]).Operand
-                        : outerKey;
+                    Expression predicate = null;
+                    if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23130", out var isEnabled) && isEnabled)
+                    {
+                        var outerKeyFirstProperty = outerKey is NewExpression newExpression
+                            ? ((UnaryExpression)((NewArrayExpression)newExpression.Arguments[0]).Expressions[0]).Operand
+                            : outerKey;
 
-                    var predicate = outerKeyFirstProperty.Type.IsNullableType()
-                        ? Expression.AndAlso(
-                            Expression.NotEqual(outerKeyFirstProperty, Expression.Constant(null, outerKeyFirstProperty.Type)),
-                            Expression.Equal(outerKey, innerKey))
-                        : Expression.Equal(outerKey, innerKey);
+                        predicate = outerKeyFirstProperty.Type.IsNullableType()
+                            ? Expression.AndAlso(
+                                Expression.NotEqual(outerKeyFirstProperty, Expression.Constant(null, outerKeyFirstProperty.Type)),
+                                Expression.Equal(outerKey, innerKey))
+                            : Expression.Equal(outerKey, innerKey);
+                    }
+                    else
+                    {
+                        var keyComparison = Expression.Call(_objectEqualsMethodInfo, AddConvertToObject(outerKey), AddConvertToObject(innerKey));
+
+                        predicate = makeNullable
+                            ? Expression.AndAlso(
+                                outerKey is NewArrayExpression newArrayExpression
+                                    ? newArrayExpression.Expressions
+                                        .Select(
+                                            e =>
+                                            {
+                                                var left = (e as UnaryExpression)?.Operand ?? e;
+
+                                                return Expression.NotEqual(left, Expression.Constant(null, left.Type));
+                                            })
+                                        .Aggregate((l, r) => Expression.AndAlso(l, r))
+                                    : Expression.NotEqual(outerKey, Expression.Constant(null, outerKey.Type)),
+                                keyComparison)
+                            : (Expression)keyComparison;
+                    }
 
                     var correlationPredicate = Expression.Lambda(predicate, correlationPredicateParameter);
 
@@ -1445,6 +1473,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 return innerShaper;
             }
+
+            private static Expression AddConvertToObject(Expression expression)
+                => expression.Type.IsValueType
+                    ? Expression.Convert(expression, typeof(object))
+                    : expression;
 
             private static IDictionary<IProperty, ColumnExpression> GetPropertyExpressionFromSameTable(
                 IEntityType entityType,
