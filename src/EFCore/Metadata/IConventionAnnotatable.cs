@@ -6,6 +6,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -23,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this object.
         /// </summary>
-        IConventionAnnotatableBuilder Builder { get; }
+        IConventionAnnotatableBuilder? Builder { get; }
 
         /// <summary>
         ///     Gets all annotations on the current object.
@@ -37,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly added annotation. </returns>
-        IConventionAnnotation AddAnnotation([NotNull] string name, [CanBeNull] object value, bool fromDataAnnotation = false);
+        IConventionAnnotation AddAnnotation([NotNull] string name, [CanBeNull] object? value, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the annotation stored under the given name. Overwrites the existing annotation if an
@@ -47,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new annotation. </returns>
-        IConventionAnnotation SetAnnotation([NotNull] string name, [CanBeNull] object value, bool fromDataAnnotation = false);
+        IConventionAnnotation SetAnnotation([NotNull] string name, [CanBeNull] object? value, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Gets the annotation with the given name, returning <see langword="null" /> if it does not exist.
@@ -56,13 +58,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
         /// </returns>
-        new IConventionAnnotation FindAnnotation([NotNull] string name);
+        new IConventionAnnotation? FindAnnotation([NotNull] string name);
 
         /// <summary>
         ///     Removes the annotation with the given name from this object.
         /// </summary>
         /// <param name="name"> The name of the annotation to remove. </param>
         /// <returns> The annotation that was removed. </returns>
-        IConventionAnnotation RemoveAnnotation([NotNull] string name);
+        IConventionAnnotation? RemoveAnnotation([NotNull] string name);
     }
 }

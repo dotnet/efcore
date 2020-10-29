@@ -7,6 +7,8 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -29,12 +31,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets or sets the base type of this entity type. Returns <see langword="null" /> if this is not a derived type in an inheritance
         ///     hierarchy.
         /// </summary>
-        new IMutableEntityType BaseType { get; [param: CanBeNull] set; }
+        new IMutableEntityType? BaseType { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     Gets the defining entity type.
         /// </summary>
-        new IMutableEntityType DefiningEntityType { get; }
+        new IMutableEntityType? DefiningEntityType { get; }
 
         /// <summary>
         ///     Gets or sets a value indicating whether the entity type has no keys.
@@ -47,28 +49,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="properties"> The properties that make up the primary key. </param>
         /// <returns> The newly created key. </returns>
-        IMutableKey SetPrimaryKey([CanBeNull] IReadOnlyList<IMutableProperty> properties);
+        IMutableKey? SetPrimaryKey([CanBeNull] IReadOnlyList<IMutableProperty>? properties);
 
         /// <summary>
         ///     Sets the primary key for this entity type.
         /// </summary>
         /// <param name="property"> The primary key property. </param>
         /// <returns> The newly created key. </returns>
-        IMutableKey SetPrimaryKey([CanBeNull] IMutableProperty property)
+        IMutableKey? SetPrimaryKey([CanBeNull] IMutableProperty? property)
             => SetPrimaryKey(property == null ? null : new[] { property });
 
         /// <summary>
         ///     Gets primary key for this entity type. Returns <see langword="null" /> if no primary key is defined.
         /// </summary>
         /// <returns> The primary key, or <see langword="null" /> if none is defined. </returns>
-        new IMutableKey FindPrimaryKey();
+        new IMutableKey? FindPrimaryKey();
 
         /// <summary>
         ///     Adds a new alternate key to this entity type.
         /// </summary>
         /// <param name="properties"> The properties that make up the alternate key. </param>
         /// <returns> The newly created key. </returns>
-        IMutableKey AddKey([NotNull] IReadOnlyList<IMutableProperty> properties);
+        IMutableKey? AddKey([NotNull] IReadOnlyList<IMutableProperty> properties);
 
         /// <summary>
         ///     Gets the primary or alternate key that is defined on the given properties.
@@ -76,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="properties"> The properties that make up the key. </param>
         /// <returns> The key, or <see langword="null" /> if none is defined. </returns>
-        new IMutableKey FindKey([NotNull] IReadOnlyList<IProperty> properties);
+        new IMutableKey? FindKey([NotNull] IReadOnlyList<IProperty> properties);
 
         /// <summary>
         ///     Gets the primary and alternate keys for this entity type.
@@ -89,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="key"> The key to be removed. </param>
         /// <returns> The removed key. </returns>
-        IMutableKey RemoveKey([NotNull] IMutableKey key);
+        IMutableKey? RemoveKey([NotNull] IMutableKey key);
 
         /// <summary>
         ///     Adds a new relationship to this entity type.
@@ -102,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     base type of the hierarchy).
         /// </param>
         /// <returns> The newly created foreign key. </returns>
-        IMutableForeignKey AddForeignKey(
+        IMutableForeignKey? AddForeignKey(
             [NotNull] IReadOnlyList<IMutableProperty> properties,
             [NotNull] IMutableKey principalKey,
             [NotNull] IMutableEntityType principalEntityType);
@@ -119,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     base type of the hierarchy).
         /// </param>
         /// <returns> The foreign key, or <see langword="null" /> if none is defined. </returns>
-        new IMutableForeignKey FindForeignKey(
+        new IMutableForeignKey? FindForeignKey(
             [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] IKey principalKey,
             [NotNull] IEntityType principalEntityType);
@@ -135,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="foreignKey"> The foreign key to be removed. </param>
         /// <returns> The removed foreign key. </returns>
-        IMutableForeignKey RemoveForeignKey([NotNull] IMutableForeignKey foreignKey);
+        IMutableForeignKey? RemoveForeignKey([NotNull] IMutableForeignKey foreignKey);
 
         /// <summary>
         ///     Adds a new skip navigation properties to this entity type.
@@ -155,9 +157,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Whether the navigation property is defined on the dependent side of the underlying foreign key.
         /// </param>
         /// <returns> The newly created skip navigation property. </returns>
-        IMutableSkipNavigation AddSkipNavigation(
+        IMutableSkipNavigation? AddSkipNavigation(
             [NotNull] string name,
-            [CanBeNull] MemberInfo memberInfo,
+            [CanBeNull] MemberInfo? memberInfo,
             [NotNull] IMutableEntityType targetEntityType,
             bool collection,
             bool onDependent);
@@ -167,15 +169,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="memberInfo"> The navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
-        new IMutableSkipNavigation FindSkipNavigation([NotNull] MemberInfo memberInfo)
-            => (IMutableSkipNavigation)((IEntityType)this).FindSkipNavigation(memberInfo);
+        new IMutableSkipNavigation? FindSkipNavigation([NotNull] MemberInfo memberInfo)
+            => (IMutableSkipNavigation?)((IEntityType)this).FindSkipNavigation(memberInfo);
 
         /// <summary>
         ///     Gets a skip navigation property on this entity type. Returns <see langword="null" /> if no skip navigation property is found.
         /// </summary>
         /// <param name="name"> The name of the navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
-        new IMutableSkipNavigation FindSkipNavigation([NotNull] string name);
+        new IMutableSkipNavigation? FindSkipNavigation([NotNull] string name);
 
         /// <summary>
         ///     Gets a skip navigation property on this entity type. Does not return skip navigation properties defined on a base type.
@@ -183,8 +185,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
-        new IMutableSkipNavigation FindDeclaredSkipNavigation([NotNull] string name)
-            => (IMutableSkipNavigation)((IEntityType)this).FindDeclaredSkipNavigation(name);
+        new IMutableSkipNavigation? FindDeclaredSkipNavigation([NotNull] string name)
+            => (IMutableSkipNavigation?)((IEntityType)this).FindDeclaredSkipNavigation(name);
 
         /// <summary>
         ///     <para>
@@ -211,14 +213,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="navigation"> The skip navigation to be removed. </param>
         /// <returns> The removed skip navigation. </returns>
-        IMutableSkipNavigation RemoveSkipNavigation([NotNull] IMutableSkipNavigation navigation);
+        IMutableSkipNavigation? RemoveSkipNavigation([NotNull] IMutableSkipNavigation navigation);
 
         /// <summary>
         ///     Adds an unnamed index to this entity type.
         /// </summary>
         /// <param name="properties"> The properties that are to be indexed. </param>
         /// <returns> The newly created index. </returns>
-        IMutableIndex AddIndex([NotNull] IReadOnlyList<IMutableProperty> properties);
+        IMutableIndex? AddIndex([NotNull] IReadOnlyList<IMutableProperty> properties);
 
         /// <summary>
         ///     Adds a named index to this entity type.
@@ -226,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="properties"> The properties that are to be indexed. </param>
         /// <param name="name"> The name of the index. </param>
         /// <returns> The newly created index. </returns>
-        IMutableIndex AddIndex(
+        IMutableIndex? AddIndex(
             [NotNull] IReadOnlyList<IMutableProperty> properties,
             [NotNull] string name);
 
@@ -240,14 +242,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="properties"> The properties to find the index on. </param>
         /// <returns> The index, or <see langword="null" /> if none is found. </returns>
-        new IMutableIndex FindIndex([NotNull] IReadOnlyList<IProperty> properties);
+        new IMutableIndex? FindIndex([NotNull] IReadOnlyList<IProperty> properties);
 
         /// <summary>
         ///     Gets the index with the given name. Returns <see langword="null" /> if no such index exists.
         /// </summary>
         /// <param name="name"> The name of the index. </param>
         /// <returns> The index, or <see langword="null" /> if none is found. </returns>
-        new IMutableIndex FindIndex([NotNull] string name);
+        new IMutableIndex? FindIndex([NotNull] string name);
 
         /// <summary>
         ///     Gets the indexes defined on this entity type.
@@ -260,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="index"> The index to remove. </param>
         /// <returns> The removed index. </returns>
-        IMutableIndex RemoveIndex([NotNull] IMutableIndex index);
+        IMutableIndex? RemoveIndex([NotNull] IMutableIndex index);
 
         /// <summary>
         ///     Adds a property to this entity type.
@@ -276,7 +278,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     </para>
         /// </param>
         /// <returns> The newly created property. </returns>
-        IMutableProperty AddProperty([NotNull] string name, [NotNull] Type propertyType, [CanBeNull] MemberInfo memberInfo);
+        IMutableProperty? AddProperty([NotNull] string name, [NotNull] Type propertyType, [CanBeNull] MemberInfo? memberInfo);
 
         /// <summary>
         ///     <para>
@@ -290,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the property. </param>
         /// <returns> The property, or <see langword="null" /> if none is found. </returns>
-        new IMutableProperty FindProperty([NotNull] string name);
+        new IMutableProperty? FindProperty([NotNull] string name);
 
         /// <summary>
         ///     <para>
@@ -310,14 +312,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="property"> The property to remove. </param>
         /// <returns> The removed property. </returns>
-        IMutableProperty RemoveProperty([NotNull] IMutableProperty property);
+        IMutableProperty? RemoveProperty([NotNull] IMutableProperty property);
 
         /// <summary>
         ///     Adds a <see cref="IMutableServiceProperty" /> to this entity type.
         /// </summary>
         /// <param name="memberInfo"> The <see cref="PropertyInfo" /> or <see cref="FieldInfo" /> of the property to add. </param>
         /// <returns> The newly created property. </returns>
-        IMutableServiceProperty AddServiceProperty([NotNull] MemberInfo memberInfo);
+        IMutableServiceProperty? AddServiceProperty([NotNull] MemberInfo memberInfo);
 
         /// <summary>
         ///     <para>
@@ -330,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the property. </param>
         /// <returns> The service property, or <see langword="null" /> if none is found. </returns>
-        new IMutableServiceProperty FindServiceProperty([NotNull] string name);
+        new IMutableServiceProperty? FindServiceProperty([NotNull] string name);
 
         /// <summary>
         ///     <para>
@@ -348,6 +350,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the property to remove. </param>
         /// <returns> The property that was removed. </returns>
-        IMutableServiceProperty RemoveServiceProperty([NotNull] string name);
+        IMutableServiceProperty? RemoveServiceProperty([NotNull] string name);
     }
 }

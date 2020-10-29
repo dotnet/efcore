@@ -747,7 +747,7 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(max) NULL;");
                     var index = Assert.Single(table.Indexes);
                     Assert.Equal(1, index.Columns.Count);
                     Assert.Contains(table.Columns.Single(c => c.Name == "SomeColumn"), index.Columns);
-                    var includedColumns = (IReadOnlyList<string>)index[SqlServerAnnotationNames.Include];
+                    var includedColumns = (IReadOnlyList<string>?)index[SqlServerAnnotationNames.Include];
                     Assert.Null(includedColumns);
                 });
 
@@ -851,7 +851,7 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;");
                     Assert.Equal(2, index.Columns.Count);
                     Assert.Contains(table.Columns.Single(c => c.Name == "FirstName"), index.Columns);
                     Assert.Contains(table.Columns.Single(c => c.Name == "LastName"), index.Columns);
-                    var includedColumns = (IReadOnlyList<string>)index[SqlServerAnnotationNames.Include];
+                    var includedColumns = (IReadOnlyList<string>?)index[SqlServerAnnotationNames.Include];
                     Assert.Null(includedColumns);
                 });
 
@@ -1066,7 +1066,7 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
                 {
                     var table = Assert.Single(model.Tables);
                     var index = Assert.Single(table.Indexes);
-                    Assert.True((bool)index[SqlServerAnnotationNames.Clustered]);
+                    Assert.True((bool?)index[SqlServerAnnotationNames.Clustered]);
                     Assert.False(index.IsUnique);
                 });
 
@@ -1095,7 +1095,7 @@ ALTER TABLE [People] ALTER COLUMN [FirstName] nvarchar(450) NULL;",
                 {
                     var table = Assert.Single(model.Tables);
                     var index = Assert.Single(table.Indexes);
-                    Assert.True((bool)index[SqlServerAnnotationNames.Clustered]);
+                    Assert.True((bool?)index[SqlServerAnnotationNames.Clustered]);
                     Assert.True(index.IsUnique);
                 });
 
@@ -1132,7 +1132,7 @@ ALTER TABLE [People] ALTER COLUMN [FirstName] nvarchar(450) NULL;",
                     var index = Assert.Single(table.Indexes);
                     Assert.Equal(1, index.Columns.Count);
                     Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
-                    var includedColumns = (IReadOnlyList<string>)index[SqlServerAnnotationNames.Include];
+                    var includedColumns = (IReadOnlyList<string>?)index[SqlServerAnnotationNames.Include];
                     Assert.Null(includedColumns);
                 });
 
@@ -1171,7 +1171,7 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
                     Assert.Equal("([Name] IS NOT NULL)", index.Filter);
                     Assert.Equal(1, index.Columns.Count);
                     Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
-                    var includedColumns = (IReadOnlyList<string>)index[SqlServerAnnotationNames.Include];
+                    var includedColumns = (IReadOnlyList<string>?)index[SqlServerAnnotationNames.Include];
                     Assert.Null(includedColumns);
                 });
 
@@ -1210,7 +1210,7 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
                     Assert.True(index.IsUnique);
                     Assert.Equal(1, index.Columns.Count);
                     Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
-                    var includedColumns = (IReadOnlyList<string>)index[SqlServerAnnotationNames.Include];
+                    var includedColumns = (IReadOnlyList<string>?)index[SqlServerAnnotationNames.Include];
                     Assert.Null(includedColumns);
                 });
 
@@ -1251,7 +1251,7 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;",
                     Assert.Equal("([Name] IS NOT NULL)", index.Filter);
                     Assert.Equal(1, index.Columns.Count);
                     Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
-                    var includedColumns = (IReadOnlyList<string>)index[SqlServerAnnotationNames.Include];
+                    var includedColumns = (IReadOnlyList<string>?)index[SqlServerAnnotationNames.Include];
                     Assert.Null(includedColumns);
                 });
 
@@ -1294,7 +1294,7 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;",
                     Assert.Equal("([Name] IS NOT NULL)", index.Filter);
                     Assert.Equal(1, index.Columns.Count);
                     Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
-                    var includedColumns = (IReadOnlyList<string>)index[SqlServerAnnotationNames.Include];
+                    var includedColumns = (IReadOnlyList<string>?)index[SqlServerAnnotationNames.Include];
                     Assert.Null(includedColumns);
                     // TODO: Online index not scaffolded?
                 });
@@ -1339,7 +1339,7 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;",
                     Assert.Equal("([Name] IS NOT NULL)", index.Filter);
                     Assert.Equal(1, index.Columns.Count);
                     Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
-                    var includedColumns = (IReadOnlyList<string>)index[SqlServerAnnotationNames.Include];
+                    var includedColumns = (IReadOnlyList<string>?)index[SqlServerAnnotationNames.Include];
                     Assert.Null(includedColumns);
                     // TODO: Online index not scaffolded?
                 });
@@ -1382,7 +1382,7 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;",
                     Assert.Equal("([Name] IS NOT NULL)", index.Filter);
                     Assert.Equal(1, index.Columns.Count);
                     Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
-                    var includedColumns = (IReadOnlyList<string>)index[SqlServerAnnotationNames.Include];
+                    var includedColumns = (IReadOnlyList<string>?)index[SqlServerAnnotationNames.Include];
                     Assert.Null(includedColumns);
                     // TODO: Online index not scaffolded?
                 });
@@ -1545,7 +1545,7 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
                     var table = Assert.Single(model.Tables);
                     var primaryKey = table.PrimaryKey;
                     Assert.NotNull(primaryKey);
-                    Assert.False((bool)primaryKey![SqlServerAnnotationNames.Clustered]);
+                    Assert.False((bool?)primaryKey![SqlServerAnnotationNames.Clustered]);
                 });
 
             AssertSql(

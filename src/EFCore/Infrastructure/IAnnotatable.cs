@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -24,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>
         ///     The value of the existing annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
         /// </returns>
-        object this[[NotNull] string name] { get; }
+        object? this[[NotNull] string name] { get; }
 
         /// <summary>
         ///     Gets the annotation with the given name, returning <see langword="null" /> if it does not exist.
@@ -33,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>
         ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
         /// </returns>
-        IAnnotation FindAnnotation([NotNull] string name);
+        IAnnotation? FindAnnotation([NotNull] string name);
 
         /// <summary>
         ///     Gets all annotations on the current object.
