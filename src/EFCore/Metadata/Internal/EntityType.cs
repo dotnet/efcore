@@ -654,10 +654,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            if (properties?.Count > 0)
+            if (properties?.Count > 0 && newKey != null)
             {
-                // TODO-NULLABLE: Potential bug if AddKey returns null above (because of convention)?
-                foreach (var property in newKey!.Properties)
+                foreach (var property in newKey.Properties)
                 {
                     _properties.Remove(property.Name);
                     property.PrimaryKey = newKey;
@@ -1034,7 +1033,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             removed = foreignKey.PrincipalKey.ReferencingForeignKeys.Remove(foreignKey);
             Check.DebugAssert(removed, "removed is false");
-            // TODO-NULLABLE: Potential bug?
             removed = foreignKey.PrincipalEntityType.DeclaredReferencingForeignKeys!.Remove(foreignKey);
             Check.DebugAssert(removed, "removed is false");
         }
@@ -1908,7 +1906,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             removed = navigation.ForeignKey?.ReferencingSkipNavigations.Remove(navigation) ?? true;
             Check.DebugAssert(removed, "removed is false");
 
-            // TODO-NULLABLE: Potential bug?
             removed = navigation.TargetEntityType.DeclaredReferencingSkipNavigations!.Remove(navigation);
             Check.DebugAssert(removed, "removed is false");
 

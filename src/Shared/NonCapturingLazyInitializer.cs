@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -51,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         public static TValue EnsureInitialized<TValue>(
-            [CanBeNull, CA.AllowNull] ref TValue? target,
+            [CanBeNull, CA.NotNull] ref TValue? target,
             [NotNull] TValue value)
             where TValue : class
         {
@@ -68,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         public static TValue EnsureInitialized<TParam, TValue>(
-            [CanBeNull, CA.AllowNull] ref TValue? target,
+            [CanBeNull, CA.NotNull] ref TValue? target,
             [CanBeNull] TParam param,
             [NotNull] Action<TParam> valueFactory)
             where TValue : class
@@ -81,7 +82,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             valueFactory(param);
 
-            return Volatile.Read(ref target)!;
+            var tmp = Volatile.Read(ref target);
+            Check.DebugAssert(target != null && tmp != null,
+                $"{nameof(valueFactory)} did not initialize {nameof(target)} in {nameof(EnsureInitialized)}");
+            return tmp;
         }
     }
 }
