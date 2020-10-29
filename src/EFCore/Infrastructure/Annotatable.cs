@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -23,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public class Annotatable : IMutableAnnotatable
     {
-        private SortedDictionary<string, Annotation> _annotations;
+        private SortedDictionary<string, Annotation>? _annotations;
 
         /// <summary>
         ///     Gets all annotations on the current object.
@@ -37,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="name"> The key of the annotation to be added. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The newly added annotation. </returns>
-        public virtual Annotation AddAnnotation([NotNull] string name, [CanBeNull] object value)
+        public virtual Annotation AddAnnotation([NotNull] string name, [CanBeNull] object? value)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -70,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="name"> The key of the annotation to be added. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
-        public virtual void SetAnnotation(string name, object value)
+        public virtual void SetAnnotation(string name, object? value)
         {
             var oldAnnotation = FindAnnotation(name);
             if (oldAnnotation != null
@@ -90,10 +92,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="annotation"> The annotation to be set. </param>
         /// <param name="oldAnnotation"> The annotation being replaced. </param>
         /// <returns> The annotation that was set. </returns>
-        protected virtual Annotation SetAnnotation(
+        protected virtual Annotation? SetAnnotation(
             [NotNull] string name,
             [NotNull] Annotation annotation,
-            [CanBeNull] Annotation oldAnnotation)
+            [CanBeNull] Annotation? oldAnnotation)
         {
             if (_annotations == null)
             {
@@ -112,10 +114,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="annotation"> The annotation set. </param>
         /// <param name="oldAnnotation"> The old annotation. </param>
         /// <returns> The annotation that was set. </returns>
-        protected virtual Annotation OnAnnotationSet(
+        protected virtual Annotation? OnAnnotationSet(
             [NotNull] string name,
-            [CanBeNull] Annotation annotation,
-            [CanBeNull] Annotation oldAnnotation)
+            [CanBeNull] Annotation? annotation,
+            [CanBeNull] Annotation? oldAnnotation)
             => annotation;
 
         /// <summary>
@@ -125,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>
         ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
         /// </returns>
-        public virtual Annotation FindAnnotation([NotNull] string name)
+        public virtual Annotation? FindAnnotation([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -141,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="name"> The annotation to remove. </param>
         /// <returns> The annotation that was removed. </returns>
-        public virtual Annotation RemoveAnnotation([NotNull] string name)
+        public virtual Annotation? RemoveAnnotation([NotNull] string name)
         {
             Check.NotNull(name, nameof(name));
 
@@ -151,7 +153,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 return null;
             }
 
-            _annotations.Remove(name);
+            // TODO-NULLABLE: Put MemberNotNull on FindAnnotation when we target net5.0
+            _annotations!.Remove(name);
 
             if (_annotations.Count == 0)
             {
@@ -171,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The value of the existing annotation if an annotation with the specified name already exists.
         ///     Otherwise, <see langword="null" />.
         /// </returns>
-        public virtual object this[string name]
+        public virtual object? this[string name]
         {
             get => FindAnnotation(name)?.Value;
             set
@@ -195,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="name"> The key of the annotation. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The newly created annotation. </returns>
-        protected virtual Annotation CreateAnnotation([NotNull] string name, [CanBeNull] object value)
+        protected virtual Annotation CreateAnnotation([NotNull] string name, [CanBeNull] object? value)
             => new Annotation(name, value);
 
         /// <inheritdoc />
@@ -205,17 +208,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IAnnotation IAnnotatable.FindAnnotation(string name)
+        IAnnotation? IAnnotatable.FindAnnotation(string name)
             => FindAnnotation(name);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IAnnotation IMutableAnnotatable.AddAnnotation(string name, object value)
+        IAnnotation IMutableAnnotatable.AddAnnotation(string name, object? value)
             => AddAnnotation(name, value);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IAnnotation IMutableAnnotatable.RemoveAnnotation(string name)
+        IAnnotation? IMutableAnnotatable.RemoveAnnotation(string name)
             => RemoveAnnotation(name);
     }
 }
