@@ -31,7 +31,7 @@ public class NorthwindDbFunctionsQuerySqliteTest : NorthwindDbFunctionsQueryRela
 """
 SELECT COUNT(*)
 FROM "Customers" AS "c"
-WHERE glob('*M*', "c"."ContactName")
+WHERE "c"."ContactName" GLOB '*M*'
 """);
     }
 

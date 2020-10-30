@@ -812,7 +812,7 @@ WHERE trim("c"."ContactTitle", 'Or') = 'wne'
 """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE regexp('^T', "c"."CustomerID")
+WHERE "c"."CustomerID" REGEXP '^T'
 """);
     }
 
@@ -824,7 +824,7 @@ WHERE regexp('^T', "c"."CustomerID")
 """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE regexp("c"."CustomerID", 'ALFKI')
+WHERE 'ALFKI' REGEXP "c"."CustomerID"
 """);
     }
 

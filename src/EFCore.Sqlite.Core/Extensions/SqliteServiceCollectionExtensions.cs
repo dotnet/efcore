@@ -124,6 +124,7 @@ public static class SqliteServiceCollectionExtensions
                         : new SqliteUpdateSqlGenerator(dependencies);
                 })
             .TryAdd<ISqlExpressionFactory, SqliteSqlExpressionFactory>()
+            .TryAdd<IRelationalParameterBasedSqlProcessorFactory, SqliteParameterBasedSqlProcessorFactory>()
             .TryAddProviderSpecificServices(
                 b => b.TryAddScoped<ISqliteRelationalConnection, SqliteRelationalConnection>());
 

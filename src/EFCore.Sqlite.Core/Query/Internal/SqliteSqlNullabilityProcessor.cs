@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqliteQuerySqlGenerator : QuerySqlGenerator
+public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -20,8 +20,10 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
-        : base(dependencies)
+    public SqliteSqlNullabilityProcessor(
+        RelationalParameterBasedSqlProcessorDependencies dependencies,
+        bool useRelationalNulls)
+        : base(dependencies, useRelationalNulls)
     {
     }
 
@@ -31,12 +33,15 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitExtension(Expression extensionExpression)
-        => extensionExpression switch
+    protected override SqlExpression VisitCustomSqlExpression(
+        SqlExpression sqlExpression,
+        bool allowOptimizedExpansion,
+        out bool nullable)
+        => sqlExpression switch
         {
-            GlobExpression globExpression => VisitGlob(globExpression),
-            RegexpExpression regexpExpression => VisitRegexp(regexpExpression),
-            _ => base.VisitExtension(extensionExpression)
+            GlobExpression globExpression => VisitGlob(globExpression, allowOptimizedExpansion, out nullable),
+            RegexpExpression regexpExpression => VisitRegexp(regexpExpression, allowOptimizedExpansion, out nullable),
+            _ => base.VisitCustomSqlExpression(sqlExpression, allowOptimizedExpansion, out nullable)
         };
 
     /// <summary>
@@ -45,37 +50,17 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override string GetOperator(SqlBinaryExpression binaryExpression)
-        => binaryExpression.OperatorType == ExpressionType.Add
-            && binaryExpression.Type == typeof(string)
-                ? " || "
-                : base.GetOperator(binaryExpression);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected override void GenerateLimitOffset(SelectExpression selectExpression)
+    protected virtual SqlExpression VisitGlob(
+        GlobExpression globExpression,
+        bool allowOptimizedExpansion,
+        out bool nullable)
     {
-        if (selectExpression.Limit != null
-            || selectExpression.Offset != null)
-        {
-            Sql.AppendLine()
-                .Append("LIMIT ");
+        var match = Visit(globExpression.Match, out var matchNullable);
+        var pattern = Visit(globExpression.Pattern, out var patternNullable);
 
-            Visit(
-                selectExpression.Limit
-                ?? new SqlConstantExpression(Expression.Constant(-1), selectExpression.Offset!.TypeMapping));
+        nullable = matchNullable || patternNullable;
 
-            if (selectExpression.Offset != null)
-            {
-                Sql.Append(" OFFSET ");
-
-                Visit(selectExpression.Offset);
-            }
-        }
+        return globExpression.Update(match, pattern);
     }
 
     /// <summary>
@@ -84,25 +69,18 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override void GenerateSetOperationOperand(SetOperationBase setOperation, SelectExpression operand)
-        // Sqlite doesn't support parentheses around set operation operands
-        => Visit(operand);
-
-    private Expression VisitGlob(GlobExpression globExpression)
+    protected virtual SqlExpression VisitRegexp(
+        RegexpExpression regexpExpression,
+        bool allowOptimizedExpansion,
+        out bool nullable)
     {
-        Visit(globExpression.Match);
-        Sql.Append(" GLOB ");
-        Visit(globExpression.Pattern);
+        Check.NotNull(regexpExpression, nameof(regexpExpression));
 
-        return globExpression;
-    }
+        var match = Visit(regexpExpression.Match, out var matchNullable);
+        var pattern = Visit(regexpExpression.Pattern, out var patternNullable);
 
-    private Expression VisitRegexp(RegexpExpression regexpExpression)
-    {
-        Visit(regexpExpression.Match);
-        Sql.Append(" REGEXP ");
-        Visit(regexpExpression.Pattern);
+        nullable = matchNullable || patternNullable;
 
-        return regexpExpression;
+        return regexpExpression.Update(match, pattern);
     }
 }
