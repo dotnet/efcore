@@ -17,11 +17,6 @@ namespace Microsoft.EntityFrameworkCore
             //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        public override void Object_to_string_conversion()
-        {
-            // Return values are not string
-        }
-
         public class ConvertToProviderTypesSqliteFixture : ConvertToProviderTypesFixtureBase
         {
             public override bool StrictEquality
