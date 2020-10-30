@@ -163,7 +163,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             return _selectExpression.AddCollectionProjection(
                                 _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
                                     materializeCollectionNavigationExpression.Subquery),
-                                materializeCollectionNavigationExpression.Navigation, null);
+                                materializeCollectionNavigationExpression.Navigation,
+                                materializeCollectionNavigationExpression.Navigation.ClrType.TryGetSequenceType());
 
                         case MethodCallExpression methodCallExpression:
                         {

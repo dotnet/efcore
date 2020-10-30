@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => _command;
 
         /// <summary>
-        ///     Calls <see cref="System.Data.Common.DbDataReader.Read()" /> on the underlying <see cref="System.Data.Common.DbDataReader" />.
+        ///     Calls <see cref="DbDataReader.Read()" /> on the underlying <see cref="System.Data.Common.DbDataReader" />.
         /// </summary>
         /// <returns> <see langword="true" /> if there are more rows; otherwise <see langword="false" />. </returns>
         public virtual bool Read()
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Calls <see cref="System.Data.Common.DbDataReader.ReadAsync(CancellationToken)" /> on the underlying
+        ///     Calls <see cref="DbDataReader.ReadAsync(CancellationToken)" /> on the underlying
         ///     <see cref="System.Data.Common.DbDataReader" />.
         /// </summary>
         /// <returns> <see langword="true" /> if there are more rows; otherwise <see langword="false" />. </returns>

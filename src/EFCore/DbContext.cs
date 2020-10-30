@@ -448,9 +448,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         Saves all changes made in this context to the database.
         ///     </para>
         ///     <para>
-        ///         This method will automatically call <see cref="ChangeTracking.ChangeTracker.DetectChanges" /> to discover any
+        ///         This method will automatically call <see cref="ChangeTracker.DetectChanges" /> to discover any
         ///         changes to entity instances before saving to the underlying database. This can be disabled via
-        ///         <see cref="ChangeTracking.ChangeTracker.AutoDetectChangesEnabled" />.
+        ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
         ///     </para>
         /// </summary>
         /// <returns>
@@ -472,13 +472,13 @@ namespace Microsoft.EntityFrameworkCore
         ///         Saves all changes made in this context to the database.
         ///     </para>
         ///     <para>
-        ///         This method will automatically call <see cref="ChangeTracking.ChangeTracker.DetectChanges" /> to discover any
+        ///         This method will automatically call <see cref="ChangeTracker.DetectChanges" /> to discover any
         ///         changes to entity instances before saving to the underlying database. This can be disabled via
-        ///         <see cref="ChangeTracking.ChangeTracker.AutoDetectChangesEnabled" />.
+        ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
         ///     </para>
         /// </summary>
         /// <param name="acceptAllChangesOnSuccess">
-        ///     Indicates whether <see cref="ChangeTracking.ChangeTracker.AcceptAllChanges" /> is called after the changes have
+        ///     Indicates whether <see cref="ChangeTracker.AcceptAllChanges" /> is called after the changes have
         ///     been sent successfully to the database.
         /// </param>
         /// <returns>
@@ -555,9 +555,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         Saves all changes made in this context to the database.
         ///     </para>
         ///     <para>
-        ///         This method will automatically call <see cref="ChangeTracking.ChangeTracker.DetectChanges" /> to discover any
+        ///         This method will automatically call <see cref="ChangeTracker.DetectChanges" /> to discover any
         ///         changes to entity instances before saving to the underlying database. This can be disabled via
-        ///         <see cref="ChangeTracking.ChangeTracker.AutoDetectChangesEnabled" />.
+        ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
         ///     </para>
         ///     <para>
         ///         Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
@@ -585,9 +585,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         Saves all changes made in this context to the database.
         ///     </para>
         ///     <para>
-        ///         This method will automatically call <see cref="ChangeTracking.ChangeTracker.DetectChanges" /> to discover any
+        ///         This method will automatically call <see cref="ChangeTracker.DetectChanges" /> to discover any
         ///         changes to entity instances before saving to the underlying database. This can be disabled via
-        ///         <see cref="ChangeTracking.ChangeTracker.AutoDetectChangesEnabled" />.
+        ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
         ///     </para>
         ///     <para>
         ///         Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
@@ -595,7 +595,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="acceptAllChangesOnSuccess">
-        ///     Indicates whether <see cref="ChangeTracking.ChangeTracker.AcceptAllChanges" /> is called after the changes have
+        ///     Indicates whether <see cref="ChangeTracker.AcceptAllChanges" /> is called after the changes have
         ///     been sent successfully to the database.
         /// </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
@@ -1010,7 +1010,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         when a different state will be used.
         ///     </para>
         ///     <para>
-        ///         Generally, no database interaction will be performed until <see cref="DbContext.SaveChanges()" /> is called.
+        ///         Generally, no database interaction will be performed until <see cref="SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         A recursive search of the navigation properties will be performed to find reachable entities
@@ -1053,7 +1053,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         when a different state will be used.
         ///     </para>
         ///     <para>
-        ///         Generally, no database interaction will be performed until <see cref="DbContext.SaveChanges()" /> is called.
+        ///         Generally, no database interaction will be performed until <see cref="SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         A recursive search of the navigation properties will be performed to find reachable entities
@@ -1215,7 +1215,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         when a different state will be used.
         ///     </para>
         ///     <para>
-        ///         Generally, no database interaction will be performed until <see cref="DbContext.SaveChanges()" /> is called.
+        ///         Generally, no database interaction will be performed until <see cref="SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         A recursive search of the navigation properties will be performed to find reachable entities
@@ -1256,7 +1256,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         when a different state will be used.
         ///     </para>
         ///     <para>
-        ///         Generally, no database interaction will be performed until <see cref="DbContext.SaveChanges()" /> is called.
+        ///         Generally, no database interaction will be performed until <see cref="SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         A recursive search of the navigation properties will be performed to find reachable entities
@@ -1387,7 +1387,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         when a different state will be used.
         ///     </para>
         ///     <para>
-        ///         Generally, no database interaction will be performed until <see cref="DbContext.SaveChanges()" /> is called.
+        ///         Generally, no database interaction will be performed until <see cref="SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         A recursive search of the navigation properties will be performed to find reachable entities
@@ -1424,7 +1424,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         when a different state will be used.
         ///     </para>
         ///     <para>
-        ///         Generally, no database interaction will be performed until <see cref="DbContext.SaveChanges()" /> is called.
+        ///         Generally, no database interaction will be performed until <see cref="SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         A recursive search of the navigation properties will be performed to find reachable entities
@@ -1543,7 +1543,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         when a different state will be used.
         ///     </para>
         ///     <para>
-        ///         Generally, no database interaction will be performed until <see cref="DbContext.SaveChanges()" /> is called.
+        ///         Generally, no database interaction will be performed until <see cref="SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         A recursive search of the navigation properties will be performed to find reachable entities
@@ -1580,7 +1580,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         when a different state will be used.
         ///     </para>
         ///     <para>
-        ///         Generally, no database interaction will be performed until <see cref="DbContext.SaveChanges()" /> is called.
+        ///         Generally, no database interaction will be performed until <see cref="SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         A recursive search of the navigation properties will be performed to find reachable entities

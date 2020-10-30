@@ -639,7 +639,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         This is a sugar method allowing a <see cref="TimeSpan" /> to be used to set the value. It delegates to
-        ///         <see cref="SetCommandTimeout(DatabaseFacade,Nullable{int})" />.
+        ///         <see cref="SetCommandTimeout(DatabaseFacade,int?)" />.
         ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>

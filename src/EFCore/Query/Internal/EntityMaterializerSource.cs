@@ -16,6 +16,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
@@ -33,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class EntityMaterializerSource : IEntityMaterializerSource
     {
-        private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>> _materializers;
+        private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>>? _materializers;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -66,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 throw new InvalidOperationException(CoreStrings.CannotMaterializeAbstractType(entityType));
             }
 
-            var constructorBinding = (InstantiationBinding)entityType[CoreAnnotationNames.ConstructorBinding];
+            var constructorBinding = (InstantiationBinding?)entityType[CoreAnnotationNames.ConstructorBinding];
 
             if (constructorBinding == null)
             {
@@ -149,7 +151,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>> Materializers
             => LazyInitializer.EnsureInitialized(
-                ref _materializers,
+                // TODO: Even though we should be able to pass nullable here for some reason it is inferring generic type incorrectly
+                ref _materializers!,
                 () => new ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>>());
 
         /// <summary>

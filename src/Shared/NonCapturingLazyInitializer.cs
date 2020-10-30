@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     {
         public static TValue EnsureInitialized<TParam, TValue>(
             [CanBeNull, CA.NotNull] ref TValue? target,
-            [CanBeNull] TParam param,
+            [NotNull] TParam param,
             [NotNull] Func<TParam, TValue> valueFactory)
             where TValue : class
         {
@@ -34,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         public static TValue EnsureInitialized<TParam1, TParam2, TValue>(
             [CanBeNull, CA.NotNull] ref TValue? target,
-            [CanBeNull] TParam1 param1,
-            [CanBeNull] TParam2 param2,
+            [NotNull] TParam1 param1,
+            [NotNull] TParam2 param2,
             [NotNull] Func<TParam1, TParam2, TValue> valueFactory)
             where TValue : class
         {
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             Interlocked.CompareExchange(ref target, valueFactory(param1, param2), null);
 
-            return target!;
+            return target;
         }
 
         public static TValue EnsureInitialized<TValue>(
@@ -65,27 +65,28 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             Interlocked.CompareExchange(ref target, value, null);
 
-            return target!;
+            return target;
         }
 
         public static TValue EnsureInitialized<TParam, TValue>(
             [CanBeNull, CA.NotNull] ref TValue? target,
-            [CanBeNull] TParam param,
+            [NotNull] TParam param,
             [NotNull] Action<TParam> valueFactory)
             where TValue : class
         {
-            if (Volatile.Read(ref target) != null)
+            var tmp = Volatile.Read(ref target);
+            if (tmp != null)
             {
                 Check.DebugAssert(target != null, $"target was null in {nameof(EnsureInitialized)} after check");
-                return target!;
+                return tmp;
             }
 
             valueFactory(param);
 
-            var tmp = Volatile.Read(ref target);
-            Check.DebugAssert(target != null && tmp != null,
+            var tmp2 = Volatile.Read(ref target);
+            Check.DebugAssert(target != null && tmp2 != null,
                 $"{nameof(valueFactory)} did not initialize {nameof(target)} in {nameof(EnsureInitialized)}");
-            return tmp;
+            return tmp2;
         }
     }
 }

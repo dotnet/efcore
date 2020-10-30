@@ -12,6 +12,9 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -81,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="joinAction"> A join action to use when joining printout of individual item in the collection. </param>
         public virtual void VisitCollection<T>(
             [NotNull] IReadOnlyCollection<T> items,
-            [CanBeNull] Action<ExpressionPrinter> joinAction = null)
+            [CanBeNull] Action<ExpressionPrinter>? joinAction = null)
             where T : Expression
         {
             Check.NotNull(items, nameof(items));
@@ -216,7 +219,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        public override Expression Visit(Expression expression)
+        [return: CA.NotNullIfNotNull("expression")]
+        public override Expression? Visit(Expression? expression)
         {
             if (expression == null)
             {
@@ -697,7 +701,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             : method.GetParameters().Select(p => p.Name).ToList()
                         : new List<string>();
 
-                IDisposable indent = null;
+                IDisposable? indent = null;
 
                 if (!isSimpleMethodOrProperty)
                 {
@@ -779,7 +783,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 appendAction("{ ");
             }
 
-            IDisposable indent = null;
+            IDisposable? indent = null;
             if (isComplex)
             {
                 indent = _stringBuilder.Indent();
@@ -819,12 +823,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(newArrayExpression, nameof(newArrayExpression));
 
             var isComplex = newArrayExpression.Expressions.Count > 1;
-            var appendAction = isComplex ? (Func<string, ExpressionVisitor>)AppendLine : Append;
+            var appendAction = isComplex ? s => AppendLine(s) : (Action<string>)(s => Append(s));
 
             appendAction("new " + newArrayExpression.Type.GetElementType().ShortDisplayName() + "[]");
             appendAction("{ ");
 
-            IDisposable indent = null;
+            IDisposable? indent = null;
             if (isComplex)
             {
                 indent = _stringBuilder.Indent();
@@ -994,7 +998,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 indexExpression.Arguments, s =>
                 {
                     _stringBuilder.Append(s);
-                    return null;
                 });
             _stringBuilder.Append("]");
 
@@ -1075,7 +1078,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private void VisitArguments(
             IReadOnlyList<Expression> arguments,
-            Func<string, ExpressionVisitor> appendAction,
+            Action<string> appendAction,
             string lastSeparator = "",
             bool areConnected = false)
         {
