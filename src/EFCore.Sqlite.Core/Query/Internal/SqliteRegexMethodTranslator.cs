@@ -19,10 +19,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class SqliteRegexTranslator : IMethodCallTranslator
+    public class SqliteRegexMethodTranslator : IMethodCallTranslator
     {
+        private readonly static MethodInfo _regexIsMatchMethodInfo
+            = typeof(Regex).GetRuntimeMethod(nameof(Regex.IsMatch), new Type[] { typeof(string), typeof(string) });
+
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
-        private readonly static MethodInfo regexIsMatchMethod = typeof(Regex).GetMethod(nameof(Regex.IsMatch), new Type[] { typeof(string), typeof(string) });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -30,17 +32,21 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqliteRegexTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
+        public SqliteRegexMethodTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
+            Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
+
             _sqlExpressionFactory = sqlExpressionFactory;
         }
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(SqlExpression instance,
+        public virtual SqlExpression Translate(
+            SqlExpression instance,
             MethodInfo method,
             IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
@@ -49,15 +55,22 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             Check.NotNull(arguments, nameof(arguments));
             Check.NotNull(logger, nameof(logger));
 
-
-            if (method.Equals(regexIsMatchMethod))
+            if (method.Equals(_regexIsMatchMethodInfo))
             {
-                return _sqlExpressionFactory.Function("regexp",
-                    new[] { arguments[1], arguments[0] },
-                    false,
-                    new[] { false, false },
-                    typeof(bool),
-                    arguments[0].TypeMapping);
+                var input = arguments[0];
+                var pattern = arguments[1];
+                var stringTypeMapping = ExpressionExtensions.InferTypeMapping(input, pattern);
+
+                return _sqlExpressionFactory.Function(
+                    "regexp",
+                    new[]
+                    {
+                        _sqlExpressionFactory.ApplyTypeMapping(pattern, stringTypeMapping),
+                        _sqlExpressionFactory.ApplyTypeMapping(input, stringTypeMapping)
+                    },
+                    nullable: true,
+                    argumentsPropagateNullability: new[] { true, true },
+                    typeof(bool));
             }
 
             return null;

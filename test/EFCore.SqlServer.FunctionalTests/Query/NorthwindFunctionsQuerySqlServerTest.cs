@@ -1548,9 +1548,15 @@ WHERE 0 = 1");
             //WHERE [o].[OrderID] < 10250
             //ORDER BY [A] DESC");
         }
+
         public override Task Regex_IsMatch_MethodCall(bool async)
         {
             return AssertTranslationFailed(() => base.Regex_IsMatch_MethodCall(async));
+        }
+
+        public override Task Regex_IsMatch_MethodCall_constant_input(bool async)
+        {
+            return AssertTranslationFailed(() => base.Regex_IsMatch_MethodCall_constant_input(async));
         }
 
         private void AssertSql(params string[] expected)

@@ -115,13 +115,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                     sqliteConnection.DefaultTimeout = _commandTimeout.Value;
                 }
 
-                sqliteConnection.CreateFunction<string, string, bool>(
+                sqliteConnection.CreateFunction<string, string, bool?>(
                     "regexp",
                     (pattern, input) =>
                     {
-                        if (input == null || pattern == null)
+                        if (input == null
+                            || pattern == null)
                         {
-                            return false;
+                            return null;
                         }
 
                         return Regex.IsMatch(input, pattern);
@@ -146,7 +147,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
 
                         return Convert.ToDouble(dividend, CultureInfo.InvariantCulture)
                             % Convert.ToDouble(divisor, CultureInfo.InvariantCulture);
-                    });
+                    },
+                    isDeterministic: true);
 
                 sqliteConnection.CreateFunction(
                     name: "ef_add",
@@ -176,7 +178,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                     isDeterministic: true);
             }
             else
-
             {
                 _logger.UnexpectedConnectionTypeWarning(connection.GetType());
             }

@@ -1590,9 +1590,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Regex_IsMatch_MethodCall(bool async)
         {
-            return AssertQuery(async,
-                ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, @"^T")),
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T")),
                 entryCount: 6);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Regex_IsMatch_MethodCall_constant_input(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(o => Regex.IsMatch("ALFKI", o.CustomerID)),
+                entryCount: 1);
         }
     }
 }
