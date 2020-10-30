@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Removes a primary or alternate key from this entity type.
         /// </summary>
         /// <param name="key"> The key to be removed. </param>
-        /// <returns> The removed key. </returns>
+        /// <returns> The removed key, or <see langword="null" /> if the key was not found. </returns>
         IConventionKey? RemoveKey([NotNull] IConventionKey key);
 
         /// <summary>
@@ -214,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Removes a foreign key from this entity type.
         /// </summary>
         /// <param name="foreignKey"> The foreign key to be removed. </param>
-        /// <returns> The removed foreign key. </returns>
+        /// <returns> The removed foreign key, or <see langword="null" /> if the index was not found. </returns>
         IConventionForeignKey? RemoveForeignKey([NotNull] IConventionForeignKey foreignKey);
 
         /// <summary>
@@ -292,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Removes a skip navigation property from this entity type.
         /// </summary>
         /// <param name="navigation"> The skip navigation to be removed. </param>
-        /// <returns> The removed skip navigation. </returns>
+        /// <returns> The removed skip navigation, or <see langword="null" /> if the skip navigation was not found. </returns>
         IConventionSkipNavigation? RemoveSkipNavigation([NotNull] IConventionSkipNavigation navigation);
 
         /// <summary>
@@ -346,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Removes an index from this entity type.
         /// </summary>
         /// <param name="index"> The index to remove. </param>
-        /// <returns> The removed index. </returns>
+        /// <returns> The removed index, or <see langword="null" /> if the index was not found. </returns>
         IConventionIndex? RemoveIndex([NotNull] IConventionIndex index);
 
         /// <summary>
@@ -403,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Removes a property from this entity type.
         /// </summary>
         /// <param name="property"> The property to remove. </param>
-        /// <returns> The removed property. </returns>
+        /// <returns> The removed property, or <see langword="null" /> if the property was not found. </returns>
         IConventionProperty? RemoveProperty([NotNull] IConventionProperty property);
 
         /// <summary>

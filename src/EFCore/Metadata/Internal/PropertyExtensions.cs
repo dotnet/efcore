@@ -7,6 +7,8 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -59,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IProperty GetGenerationProperty([NotNull] this IProperty property)
+        public static IProperty? FindGenerationProperty([NotNull] this IProperty property)
         {
             var traversalList = new List<IProperty> { property };
 
@@ -144,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (property.IsKey()
                 || property.IsForeignKey())
             {
-                var generationProperty = property.GetGenerationProperty();
+                var generationProperty = property.FindGenerationProperty();
                 return (generationProperty != null)
                     && (generationProperty.ValueGenerated != ValueGenerated.Never);
             }

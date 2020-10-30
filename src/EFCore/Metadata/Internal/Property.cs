@@ -15,6 +15,9 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -29,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private bool? _isConcurrencyToken;
         private bool? _isNullable;
         private ValueGenerated? _valueGenerated;
-        private CoreTypeMapping _typeMapping;
+        private CoreTypeMapping? _typeMapping;
 
         private ConfigurationSource? _typeConfigurationSource;
         private ConfigurationSource? _isNullableConfigurationSource;
@@ -46,8 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public Property(
             [NotNull] string name,
             [NotNull] Type clrType,
-            [CanBeNull] PropertyInfo propertyInfo,
-            [CanBeNull] FieldInfo fieldInfo,
+            [CanBeNull] PropertyInfo? propertyInfo,
+            [CanBeNull] FieldInfo? fieldInfo,
             [NotNull] EntityType declaringEntityType,
             ConfigurationSource configurationSource,
             ConfigurationSource? typeConfigurationSource)
@@ -97,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalPropertyBuilder Builder { get; [param: CanBeNull] set; }
+        public virtual InternalPropertyBuilder? Builder { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -194,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override FieldInfo OnFieldInfoSet(FieldInfo newFieldInfo, FieldInfo oldFieldInfo)
+        protected override FieldInfo? OnFieldInfoSet(FieldInfo? newFieldInfo, FieldInfo? oldFieldInfo)
             => DeclaringEntityType.Model.ConventionDispatcher.OnPropertyFieldChanged(Builder, newFieldInfo, oldFieldInfo);
 
         /// <summary>
@@ -395,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string CheckAfterSaveBehavior(PropertySaveBehavior behavior)
+        public virtual string? CheckAfterSaveBehavior(PropertySaveBehavior behavior)
             => behavior != PropertySaveBehavior.Throw
                 && this.IsKey()
                     ? CoreStrings.KeyPropertyMustBeReadOnly(Name, DeclaringEntityType.DisplayName())
@@ -407,8 +410,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Func<IProperty, IEntityType, ValueGenerator> SetValueGeneratorFactory(
-            [CanBeNull] Func<IProperty, IEntityType, ValueGenerator> factory,
+        public virtual Func<IProperty, IEntityType, ValueGenerator>? SetValueGeneratorFactory(
+            [CanBeNull] Func<IProperty, IEntityType, ValueGenerator>? factory,
             ConfigurationSource configurationSource)
         {
             SetAnnotation(CoreAnnotationNames.ValueGeneratorFactory, factory, configurationSource);
@@ -422,8 +425,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ValueConverter SetValueConverter(
-            [CanBeNull] ValueConverter converter,
+        public virtual ValueConverter? SetValueConverter(
+            [CanBeNull] ValueConverter? converter,
             ConfigurationSource configurationSource)
         {
             var errorString = CheckValueConverter(converter);
@@ -443,7 +446,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string CheckValueConverter([CanBeNull] ValueConverter converter)
+        public virtual string? CheckValueConverter([CanBeNull] ValueConverter? converter)
             => converter != null
                 && converter.ModelClrType.UnwrapNullableType() != ClrType.UnwrapNullableType()
                     ? CoreStrings.ConverterPropertyMismatch(
@@ -459,7 +462,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Type SetProviderClrType([CanBeNull] Type providerClrType, ConfigurationSource configurationSource)
+        public virtual Type? SetProviderClrType([CanBeNull] Type? providerClrType, ConfigurationSource configurationSource)
         {
             this.SetOrRemoveAnnotation(CoreAnnotationNames.ProviderClrType, providerClrType, configurationSource);
 
@@ -472,7 +475,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CoreTypeMapping TypeMapping
+        [CA.DisallowNull]
+        public virtual CoreTypeMapping? TypeMapping
         {
             get => _typeMapping;
             [param: NotNull]
@@ -488,9 +492,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual CoreTypeMapping SetTypeMapping([NotNull] CoreTypeMapping typeMapping, ConfigurationSource configurationSource)
         {
             _typeMapping = typeMapping;
-            _typeMappingConfigurationSource = typeMapping == null
-                ? (ConfigurationSource?)null
-                : configurationSource.Max(_typeMappingConfigurationSource);
+            _typeMappingConfigurationSource = configurationSource.Max(_typeMappingConfigurationSource);
 
             return typeMapping;
         }
@@ -510,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ValueComparer SetValueComparer([CanBeNull] ValueComparer comparer, ConfigurationSource configurationSource)
+        public virtual ValueComparer? SetValueComparer([CanBeNull] ValueComparer? comparer, ConfigurationSource configurationSource)
         {
             var errorString = CheckValueComparer(comparer);
             if (errorString != null)
@@ -529,7 +531,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string CheckValueComparer([CanBeNull] ValueComparer comparer)
+        public virtual string? CheckValueComparer([CanBeNull] ValueComparer? comparer)
             => comparer != null
                 && comparer.Type != ClrType
                     ? CoreStrings.ComparerPropertyMismatch(
@@ -545,7 +547,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IKey PrimaryKey { get; [param: CanBeNull] set; }
+        public virtual IKey? PrimaryKey { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -553,7 +555,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual List<Key> Keys { get; [param: CanBeNull] set; }
+        public virtual List<Key>? Keys { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -570,7 +572,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual List<ForeignKey> ForeignKeys { get; [param: CanBeNull] set; }
+        public virtual List<ForeignKey>? ForeignKeys { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -587,7 +589,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual List<Index> Indexes { get; [param: CanBeNull] set; }
+        public virtual List<Index>? Indexes { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -605,10 +607,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <param name="annotation"> The annotation set. </param>
         /// <param name="oldAnnotation"> The old annotation. </param>
         /// <returns> The annotation that was set. </returns>
-        protected override IConventionAnnotation OnAnnotationSet(
+        protected override IConventionAnnotation? OnAnnotationSet(
             string name,
-            IConventionAnnotation annotation,
-            IConventionAnnotation oldAnnotation)
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation)
             => DeclaringType.Model.ConventionDispatcher.OnPropertyAnnotationChanged(Builder, name, annotation, oldAnnotation);
 
         /// <summary>
@@ -640,9 +642,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     property.IsShadowProperty()
                     || (entityType.HasClrType()
                         && ((property.PropertyInfo != null
-                                && entityType.GetRuntimeProperties().ContainsKey(property.Name))
+                                && entityType.GetRuntimeProperties()!.ContainsKey(property.Name))
                             || (property.FieldInfo != null
-                                && entityType.GetRuntimeFields().ContainsKey(property.Name)))));
+                                && entityType.GetRuntimeFields()!.ContainsKey(property.Name)))));
         }
 
         /// <summary>
@@ -671,7 +673,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionPropertyBuilder IConventionProperty.Builder
+        IConventionPropertyBuilder? IConventionProperty.Builder
         {
             [DebuggerStepThrough] get => Builder;
         }
@@ -682,7 +684,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionAnnotatableBuilder IConventionAnnotatable.Builder
+        IConventionAnnotatableBuilder? IConventionAnnotatable.Builder
         {
             [DebuggerStepThrough]
             get => Builder;

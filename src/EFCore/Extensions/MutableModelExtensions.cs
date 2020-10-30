@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -25,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to find the entity type in. </param>
         /// <param name="type"> The type to find the corresponding entity type for. </param>
         /// <returns> The entity type, or <see langword="null" /> if none if found. </returns>
-        public static IMutableEntityType FindEntityType([NotNull] this IMutableModel model, [NotNull] Type type)
+        public static IMutableEntityType? FindEntityType([NotNull] this IMutableModel model, [NotNull] Type type)
             => ((Model)model).FindEntityType(type);
 
         /// <summary>
@@ -37,12 +39,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
         /// <returns> The entity type, or <see langword="null" /> if none are found. </returns>
-        public static IMutableEntityType FindEntityType(
+        public static IMutableEntityType? FindEntityType(
             [NotNull] this IMutableModel model,
             [NotNull] Type type,
             [NotNull] string definingNavigationName,
             [NotNull] IMutableEntityType definingEntityType)
-            => (IMutableEntityType)((IModel)model).FindEntityType(type, definingNavigationName, definingEntityType);
+            => (IMutableEntityType?)((IModel)model).FindEntityType(type, definingNavigationName, definingEntityType);
 
         /// <summary>
         ///     Gets the entity types matching the given type.
@@ -70,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to remove the entity type from. </param>
         /// <param name="type"> The entity type to be removed. </param>
         /// <returns> The entity type that was removed. </returns>
-        public static IMutableEntityType RemoveEntityType([NotNull] this IMutableModel model, [NotNull] Type type)
+        public static IMutableEntityType? RemoveEntityType([NotNull] this IMutableModel model, [NotNull] Type type)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(type, nameof(type));
@@ -86,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="definingNavigationName"> The defining navigation. </param>
         /// <param name="definingEntityType"> The defining entity type. </param>
         /// <returns> The entity type that was removed. </returns>
-        public static IMutableEntityType RemoveEntityType(
+        public static IMutableEntityType? RemoveEntityType(
             [NotNull] this IMutableModel model,
             [NotNull] Type type,
             [NotNull] string definingNavigationName,
@@ -102,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to remove the entity type from. </param>
         /// <param name="name"> The name of the entity type to be removed. </param>
         /// <returns> The entity type that was removed. </returns>
-        public static IMutableEntityType RemoveEntityType(
+        public static IMutableEntityType? RemoveEntityType(
             [NotNull] this IMutableModel model,
             [NotNull] string name)
         {
@@ -120,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="definingNavigationName"> The defining navigation. </param>
         /// <param name="definingEntityType"> The defining entity type. </param>
         /// <returns> The entity type that was removed. </returns>
-        public static IMutableEntityType RemoveEntityType(
+        public static IMutableEntityType? RemoveEntityType(
             [NotNull] this IMutableModel model,
             [NotNull] string name,
             [NotNull] string definingNavigationName,
@@ -144,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore
         public static IReadOnlyList<IMutableEntityType> FindLeastDerivedEntityTypes(
             [NotNull] this IMutableModel model,
             [NotNull] Type type,
-            [CanBeNull] Func<IMutableEntityType, bool> condition = null)
+            [CanBeNull] Func<IMutableEntityType, bool>? condition = null)
             => Check.NotNull((Model)model, nameof(model))
                 .FindLeastDerivedEntityTypes(type, condition);
 
@@ -154,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to remove the ignored entity type from. </param>
         /// <param name="type"> The ignored entity type to be removed. </param>
         /// <returns> The name of the removed ignored type. </returns>
-        public static string RemoveIgnored([NotNull] this IMutableModel model, [NotNull] Type type)
+        public static string? RemoveIgnored([NotNull] this IMutableModel model, [NotNull] Type type)
             => Check.NotNull((Model)model, nameof(model)).RemoveIgnored(
                 Check.NotNull(type, nameof(type)));
 
@@ -206,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The name of the ignored type. </returns>
         public static string AddIgnored([NotNull] this IMutableModel model, [NotNull] Type type)
             => Check.NotNull((Model)model, nameof(model)).AddIgnored(
-                Check.NotNull(type, nameof(type)), ConfigurationSource.Explicit);
+                Check.NotNull(type, nameof(type)), ConfigurationSource.Explicit)!;
 
         /// <summary>
         ///     Returns a value indicating whether the entity types using the given type should be configured
@@ -239,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to remove the owned type name from. </param>
         /// <param name="type"> The type of the entity type that should not be owned. </param>
         /// <returns> The name of the removed owned type. </returns>
-        public static string RemoveOwned([NotNull] this IMutableModel model, [NotNull] Type type)
+        public static string? RemoveOwned([NotNull] this IMutableModel model, [NotNull] Type type)
             => Check.NotNull((Model)model, nameof(model)).RemoveOwned(
                 Check.NotNull(type, nameof(type)));
 
@@ -261,6 +263,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to finalize. </param>
         /// <returns> The finalized <see cref="IModel" />. </returns>
         public static IModel FinalizeModel([NotNull] this IMutableModel model)
-            => ((Model)model).FinalizeModel();
+            => ((Model)model).FinalizeModel()!;
     }
 }

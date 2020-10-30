@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -20,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this key.
         /// </summary>
-        new IConventionKeyBuilder Builder { get; }
+        new IConventionKeyBuilder? Builder { get; }
 
         /// <summary>
         ///     Gets the properties that make up the key.

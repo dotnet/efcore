@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -49,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
         public static void SetOrRemoveAnnotation(
             [NotNull] this IMutableAnnotatable annotatable,
             [NotNull] string name,
-            [CanBeNull] object value)
+            [CanBeNull] object? value)
             => ((ConventionAnnotatable)annotatable).SetOrRemoveAnnotation(name, value, ConfigurationSource.Explicit);
     }
 }
