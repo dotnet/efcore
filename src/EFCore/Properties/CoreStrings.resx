@@ -1024,6 +1024,9 @@
   <data name="NavigationToKeylessType" xml:space="preserve">
     <value>The navigation '{navigation}' cannot be added because it targets the keyless entity type '{entityType}'. Navigations can only target entity types with keys.</value>
   </data>
+  <data name="NavigationFromShadowEntity" xml:space="preserve">
+    <value>The navigation '{navigation}' cannot be added to the entity type '{entityType}' because it is defined in shadow state, and navigations properties cannot originate from shadow state entities.</value>
+  </data>
   <data name="NavigationToShadowEntity" xml:space="preserve">
     <value>The navigation '{navigation}' cannot be added to the entity type '{entityType}' because the target entity type '{targetType}' is defined in shadow state, and navigations properties cannot point to shadow state entities.</value>
   </data>

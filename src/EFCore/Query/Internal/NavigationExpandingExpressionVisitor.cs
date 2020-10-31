@@ -1646,9 +1646,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             else
             {
                 foreach (var derivedNavigation in entityType.GetDerivedTypes()
-                    .Select(et => et.FindDeclaredNavigation(navigationName)).Where(n => n != null))
+                    .Select(et => et.FindDeclaredNavigation(navigationName)))
                 {
-                    yield return derivedNavigation;
+                    if (derivedNavigation != null)
+                    {
+                        yield return derivedNavigation;
+                    }
                 }
             }
 

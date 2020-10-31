@@ -17,6 +17,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -47,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
-        public static CoreTypeMapping FindTypeMapping([NotNull] this IProperty property)
+        public static CoreTypeMapping? FindTypeMapping([NotNull] this IProperty property)
             => ((Property)property).TypeMapping;
 
         /// <summary>
@@ -56,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The foreign key property. </param>
         /// <returns> The first associated principal property, or <see langword="null" /> if none exists. </returns>
-        public static IProperty FindFirstPrincipal([NotNull] this IProperty property)
+        public static IProperty? FindFirstPrincipal([NotNull] this IProperty property)
         {
             Check.NotNull(property, nameof(property));
 
@@ -181,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to get primary key for. </param>
         /// <returns> The primary that use this property, or <see langword="null" /> if it is not part of the primary key. </returns>
-        public static IKey FindContainingPrimaryKey([NotNull] this IProperty property)
+        public static IKey? FindContainingPrimaryKey([NotNull] this IProperty property)
             => Check.NotNull((Property)property, nameof(property)).PrimaryKey;
 
         /// <summary>
@@ -294,8 +296,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to get the value generator factory for. </param>
         /// <returns> The factory, or <see langword="null" /> if no factory has been set. </returns>
-        public static Func<IProperty, IEntityType, ValueGenerator> GetValueGeneratorFactory([NotNull] this IProperty property)
-            => (Func<IProperty, IEntityType, ValueGenerator>)
+        public static Func<IProperty, IEntityType, ValueGenerator>? GetValueGeneratorFactory([NotNull] this IProperty property)
+            => (Func<IProperty, IEntityType, ValueGenerator>?)
                 Check.NotNull(property, nameof(property))[CoreAnnotationNames.ValueGeneratorFactory];
 
         /// <summary>
@@ -303,27 +305,27 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The converter, or <see langword="null" /> if none has been set. </returns>
-        public static ValueConverter GetValueConverter([NotNull] this IProperty property)
-            => (ValueConverter)Check.NotNull(property, nameof(property))[CoreAnnotationNames.ValueConverter];
+        public static ValueConverter? GetValueConverter([NotNull] this IProperty property)
+            => (ValueConverter?)Check.NotNull(property, nameof(property))[CoreAnnotationNames.ValueConverter];
 
         /// <summary>
         ///     Gets the type that the property value will be converted to before being sent to the database provider.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The provider type, or <see langword="null" /> if none has been set. </returns>
-        public static Type GetProviderClrType([NotNull] this IProperty property)
-            => (Type)Check.NotNull(property, nameof(property))[CoreAnnotationNames.ProviderClrType];
+        public static Type? GetProviderClrType([NotNull] this IProperty property)
+            => (Type?)Check.NotNull(property, nameof(property))[CoreAnnotationNames.ProviderClrType];
 
         /// <summary>
         ///     Gets the <see cref="ValueComparer" /> for this property, or <see langword="null" /> if none is set.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The comparer, or <see langword="null" /> if none has been set. </returns>
-        public static ValueComparer GetValueComparer([NotNull] this IProperty property)
+        public static ValueComparer? GetValueComparer([NotNull] this IProperty property)
         {
             Check.NotNull(property, nameof(property));
 
-            return (ValueComparer)property[CoreAnnotationNames.ValueComparer]
+            return (ValueComparer?)property[CoreAnnotationNames.ValueComparer]
                 ?? property.FindTypeMapping()?.Comparer;
         }
 
@@ -332,11 +334,11 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The comparer, or <see langword="null" /> if none has been set. </returns>
-        public static ValueComparer GetKeyValueComparer([NotNull] this IProperty property)
+        public static ValueComparer? GetKeyValueComparer([NotNull] this IProperty property)
         {
             Check.NotNull(property, nameof(property));
 
-            return (ValueComparer)property[CoreAnnotationNames.ValueComparer]
+            return (ValueComparer?)property[CoreAnnotationNames.ValueComparer]
                 ?? property.FindTypeMapping()?.KeyComparer;
         }
 
@@ -346,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The comparer, or <see langword="null" /> if none has been set. </returns>
         [Obsolete("Use GetKeyValueComparer. A separate structural comparer is no longer supported.")]
-        public static ValueComparer GetStructuralValueComparer([NotNull] this IProperty property)
+        public static ValueComparer? GetStructuralValueComparer([NotNull] this IProperty property)
             => property.GetKeyValueComparer();
 
         /// <summary>
@@ -357,7 +359,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> A new equality comparer. </returns>
         public static IEqualityComparer<TProperty> CreateKeyEqualityComparer<TProperty>([NotNull] this IProperty property)
         {
-            var comparer = property.GetKeyValueComparer();
+            // TODO-NULLABLE: #22031
+            var comparer = property.GetKeyValueComparer()!;
 
             return comparer is IEqualityComparer<TProperty> nullableComparer
                 ? nullableComparer

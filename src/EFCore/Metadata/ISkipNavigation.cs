@@ -4,6 +4,8 @@
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -15,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the join type used by the foreign key.
         /// </summary>
-        IEntityType JoinEntityType
+        IEntityType? JoinEntityType
             => IsOnDependent ? ForeignKey?.PrincipalEntityType : ForeignKey?.DeclaringEntityType;
 
         /// <summary>

@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var exception = CreateUnableToDiscriminateExceptionExpression(entityType, discriminatorValueVariable);
 
-                var discriminatorComparer = discriminatorProperty.GetKeyValueComparer();
+                var discriminatorComparer = discriminatorProperty.GetKeyValueComparer()!;
                 if (discriminatorComparer.IsDefault())
                 {
                     var switchCases = new SwitchCase[concreteEntityTypes.Length];

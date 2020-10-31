@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new annotation. </returns>
-        IConventionAnnotation SetAnnotation([NotNull] string name, [CanBeNull] object? value, bool fromDataAnnotation = false);
+        IConventionAnnotation? SetAnnotation([NotNull] string name, [CanBeNull] object? value, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Gets the annotation with the given name, returning <see langword="null" /> if it does not exist.

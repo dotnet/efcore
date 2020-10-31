@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -34,8 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Removes the ignored member name.
         /// </summary>
         /// <param name="memberName"> The name of the member to be removed. </param>
-        /// <returns> The removed ignored member name. </returns>
-        string RemoveIgnored([NotNull] string memberName);
+        /// <returns> The removed ignored member name, or <see langword="null" /> if the member name was not found. </returns>
+        string? RemoveIgnored([NotNull] string memberName);
 
         /// <summary>
         ///     Indicates whether the given member name is ignored.

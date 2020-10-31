@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -86,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the entity type to find. </param>
         /// <returns> The entity type, or <see langword="null" /> if none are found. </returns>
-        new IMutableEntityType FindEntityType([NotNull] string name);
+        new IMutableEntityType? FindEntityType([NotNull] string name);
 
         /// <summary>
         ///     Gets the entity type for the given name, defining navigation name
@@ -96,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
         /// <returns> The entity type, or <see langword="null" /> if none are found. </returns>
-        IMutableEntityType FindEntityType(
+        IMutableEntityType? FindEntityType(
             [NotNull] string name,
             [NotNull] string definingNavigationName,
             [NotNull] IMutableEntityType definingEntityType);
@@ -105,8 +107,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Removes an entity type from the model.
         /// </summary>
         /// <param name="entityType"> The entity type to be removed. </param>
-        /// <returns> The removed entity type. </returns>
-        IMutableEntityType RemoveEntityType([NotNull] IMutableEntityType entityType);
+        /// <returns> The removed entity type, or <see langword="null" /> if the entity type was not found. </returns>
+        IMutableEntityType? RemoveEntityType([NotNull] IMutableEntityType entityType);
 
         /// <summary>
         ///     Gets all entity types defined in the model.
@@ -126,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="typeName"> The name of the ignored entity type to be removed. </param>
         /// <returns> The removed ignored type name. </returns>
-        string RemoveIgnored([NotNull] string typeName);
+        string? RemoveIgnored([NotNull] string typeName);
 
         /// <summary>
         ///     Indicates whether the given entity type name is ignored.

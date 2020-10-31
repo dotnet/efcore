@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -40,12 +42,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the navigation property on the dependent entity type that points to the principal entity.
         /// </summary>
-        INavigation DependentToPrincipal { get; }
+        INavigation? DependentToPrincipal { get; }
 
         /// <summary>
         ///     Gets the navigation property on the principal entity type that points to the dependent entity.
         /// </summary>
-        INavigation PrincipalToDependent { get; }
+        INavigation? PrincipalToDependent { get; }
 
         /// <summary>
         ///     Gets a value indicating whether the values assigned to the foreign key properties are unique.

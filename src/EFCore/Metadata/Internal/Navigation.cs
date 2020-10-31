@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -22,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     public class Navigation : PropertyBase, IMutableNavigation, IConventionNavigation
     {
         // Warning: Never access these fields directly as access needs to be thread-safe
-        private IClrCollectionAccessor _collectionAccessor;
+        private IClrCollectionAccessor? _collectionAccessor;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -32,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public Navigation(
             [NotNull] string name,
-            [CanBeNull] PropertyInfo propertyInfo,
-            [CanBeNull] FieldInfo fieldInfo,
+            [CanBeNull] PropertyInfo? propertyInfo,
+            [CanBeNull] FieldInfo? fieldInfo,
             [NotNull] ForeignKey foreignKey)
             : base(name, propertyInfo, fieldInfo, ConfigurationSource.Convention)
         {
@@ -67,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalNavigationBuilder Builder { get; [param: CanBeNull] set; }
+        public virtual InternalNavigationBuilder? Builder { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -126,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public override ConfigurationSource GetConfigurationSource()
             => (ConfigurationSource)(IsOnDependent
                 ? ForeignKey.GetDependentToPrincipalConfigurationSource()
-                : ForeignKey.GetPrincipalToDependentConfigurationSource());
+                : ForeignKey.GetPrincipalToDependentConfigurationSource())!;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -163,12 +165,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static bool IsCompatible(
             [NotNull] string navigationName,
-            [CanBeNull] MemberInfo navigationProperty,
+            [CanBeNull] MemberInfo? navigationProperty,
             [NotNull] EntityType sourceType,
             [NotNull] EntityType targetType,
             bool? shouldBeCollection,
             bool shouldThrow)
         {
+            var sourceClrType = sourceType.ClrType;
+            if (sourceClrType == null)
+            {
+                if (shouldThrow)
+                {
+                    throw new InvalidOperationException(CoreStrings.NavigationFromShadowEntity(navigationName, sourceType.DisplayName()));
+                }
+
+                return false;
+            }
+
             var targetClrType = targetType.ClrType;
             if (targetClrType == null)
             {
@@ -182,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return navigationProperty == null
-                || IsCompatible(navigationProperty, sourceType.ClrType, targetClrType, shouldBeCollection, shouldThrow);
+                || IsCompatible(navigationProperty, sourceClrType, targetClrType, shouldBeCollection, shouldThrow);
         }
 
         /// <summary>
@@ -265,7 +278,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Navigation SetInverse([CanBeNull] string inverseName, ConfigurationSource configurationSource)
+        public virtual Navigation? SetInverse([CanBeNull] string? inverseName, ConfigurationSource configurationSource)
             => IsOnDependent
                 ? ForeignKey.HasPrincipalToDependent(inverseName, configurationSource)
                 : ForeignKey.SetDependentToPrincipal(inverseName, configurationSource);
@@ -276,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Navigation SetInverse([CanBeNull] MemberInfo inverse, ConfigurationSource configurationSource)
+        public virtual Navigation? SetInverse([CanBeNull] MemberInfo? inverse, ConfigurationSource configurationSource)
             => IsOnDependent
                 ? ForeignKey.HasPrincipalToDependent(inverse, configurationSource)
                 : ForeignKey.SetDependentToPrincipal(inverse, configurationSource);
@@ -311,8 +324,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <returns> The annotation that was set. </returns>
         protected override IConventionAnnotation OnAnnotationSet(
             string name,
-            IConventionAnnotation annotation,
-            IConventionAnnotation oldAnnotation)
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation)
             => DeclaringType.Model.ConventionDispatcher.OnNavigationAnnotationChanged(
                 ForeignKey.Builder, this, name, annotation, oldAnnotation);
 
@@ -348,22 +361,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [DebuggerStepThrough]
-        IMutableNavigation IMutableNavigation.SetInverse([CanBeNull] string inverseName)
+        IMutableNavigation? IMutableNavigation.SetInverse(string? inverseName)
             => SetInverse(inverseName, ConfigurationSource.Explicit);
 
         [DebuggerStepThrough]
-        IMutableNavigation IMutableNavigation.SetInverse([CanBeNull] MemberInfo inverse)
+        IMutableNavigation? IMutableNavigation.SetInverse(MemberInfo? inverse)
             => SetInverse(inverse, ConfigurationSource.Explicit);
 
         [DebuggerStepThrough]
-        IConventionNavigation IConventionNavigation.SetInverse([CanBeNull] string inverseName, bool fromDataAnnotation)
+        IConventionNavigation? IConventionNavigation.SetInverse(string? inverseName, bool fromDataAnnotation)
             => SetInverse(inverseName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         [DebuggerStepThrough]
-        IConventionNavigation IConventionNavigation.SetInverse([CanBeNull] MemberInfo inverse, bool fromDataAnnotation)
+        IConventionNavigation? IConventionNavigation.SetInverse(MemberInfo? inverse, bool fromDataAnnotation)
             => SetInverse(inverse, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        IConventionNavigationBuilder IConventionNavigation.Builder
+        IConventionNavigationBuilder? IConventionNavigation.Builder
         {
             [DebuggerStepThrough] get => Builder;
         }
@@ -374,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionAnnotatableBuilder IConventionAnnotatable.Builder
+        IConventionAnnotatableBuilder? IConventionAnnotatable.Builder
         {
             [DebuggerStepThrough] get => Builder;
         }

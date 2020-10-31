@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var readValueExpression
                     = property is IServiceProperty serviceProperty
-                        ? serviceProperty.GetParameterBinding().BindToParameter(bindingInfo)
+                        ? serviceProperty.GetParameterBinding()!.BindToParameter(bindingInfo)
                         : valueBufferExpression.CreateValueBufferReadValueExpression(
                             memberInfo.GetMemberType(),
                             property.GetIndex(),
@@ -151,9 +151,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>> Materializers
             => LazyInitializer.EnsureInitialized(
-                // TODO: Even though we should be able to pass nullable here for some reason it is inferring generic type incorrectly
-                ref _materializers!,
-                () => new ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>>());
+                // TODO-NULLABLE: LazyInitializer not yet null-annotated in netstandard2.1, can remove bang after targeting net5.0
+                ref _materializers,
+                () => new ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>>())!;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -1620,6 +1620,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigation, entityType);
 
         /// <summary>
+        ///     The navigation '{navigation}' cannot be added to the entity type '{entityType}' because it is defined in shadow state, and navigations properties cannot originate from shadow state entities.
+        /// </summary>
+        public static string NavigationFromShadowEntity([CanBeNull] object navigation, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("NavigationFromShadowEntity", nameof(navigation), nameof(entityType)),
+                navigation, entityType);
+
+        /// <summary>
         ///     The navigation '{navigation}' cannot be added to the entity type '{entityType}' because the target entity type '{targetType}' is defined in shadow state, and navigations properties cannot point to shadow state entities.
         /// </summary>
         public static string NavigationToShadowEntity([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object targetType)
