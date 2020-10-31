@@ -1495,6 +1495,60 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(SqliteStrings.OrderByNotSupported("ulong"), ex.Message);
         }
 
+        [ConditionalFact]
+        public virtual void Can_query_using_hex_function()
+        {
+            using var context = CreateContext();
+
+            var results = context.Set<ObjectBackedDataTypes>()
+                .Select(e => EF.Functions.Hex(e.Bytes)).ToList();
+
+            AssertSql(
+                @"SELECT hex(""o"".""Bytes"")
+FROM ""ObjectBackedDataTypes"" AS ""o""");
+
+            var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
+                .Select(e => string.Concat(e.Bytes.Select(b => b.ToString("X2")))).ToList();
+
+            Assert.Equal(expectedResults, results);
+        }
+
+        [ConditionalFact]
+        public virtual void Can_query_using_substr_function()
+        {
+            using var context = CreateContext();
+
+            var results = context.Set<ObjectBackedDataTypes>()
+                .Select(e => EF.Functions.Substr(e.Bytes, 2)).ToList();
+
+            AssertSql(
+                @"SELECT substr(""o"".""Bytes"", 2)
+FROM ""ObjectBackedDataTypes"" AS ""o""");
+
+            var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
+                .Select(e => e.Bytes.Skip(1).ToArray()).ToList();
+
+            Assert.Equal(expectedResults, results);
+        }
+
+        [ConditionalFact]
+        public virtual void Can_query_using_substr_function_with_length()
+        {
+            using var context = CreateContext();
+
+            var results = context.Set<ObjectBackedDataTypes>()
+                .Select(e => EF.Functions.Substr(e.Bytes, 1, 1)).ToList();
+
+            AssertSql(
+                @"SELECT substr(""o"".""Bytes"", 1, 1)
+FROM ""ObjectBackedDataTypes"" AS ""o""");
+
+            var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
+                .Select(e => e.Bytes.Take(1).ToArray()).ToList();
+
+            Assert.Equal(expectedResults, results);
+        }
+
         public override void Object_to_string_conversion()
         {
             base.Object_to_string_conversion();
