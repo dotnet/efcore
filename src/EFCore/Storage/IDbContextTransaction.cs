@@ -86,15 +86,27 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => throw new NotSupportedException();
 
         /// <summary>
-        ///     Destroys a savepoint previously defined in the current transaction. This allows the system to
-        ///     reclaim some resources before the transaction ends.
+        ///     <para>
+        ///         Destroys a savepoint previously defined in the current transaction. This allows the system to
+        ///         reclaim some resources before the transaction ends.
+        ///     </para>
+        ///     <para>
+        ///         If savepoint release isn't supported, <see cref="ReleaseSavepoint " /> and <see cref="ReleaseSavepointAsync " /> should
+        ///         do nothing rather than throw. This is the default behavior.
+        ///     </para>
         /// </summary>
         /// <param name="name"> The name of the savepoint to release. </param>
         void ReleaseSavepoint([NotNull] string name) { }
 
         /// <summary>
-        ///     Destroys a savepoint previously defined in the current transaction. This allows the system to
-        ///     reclaim some resources before the transaction ends.
+        ///     <para>
+        ///         Destroys a savepoint previously defined in the current transaction. This allows the system to
+        ///         reclaim some resources before the transaction ends.
+        ///     </para>
+        ///     <para>
+        ///         If savepoint release isn't supported, <see cref="ReleaseSavepoint " /> and <see cref="ReleaseSavepointAsync " /> should
+        ///         do nothing rather than throw. This is the default behavior.
+        ///     </para>
         /// </summary>
         /// <param name="name"> The name of the savepoint to release. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>

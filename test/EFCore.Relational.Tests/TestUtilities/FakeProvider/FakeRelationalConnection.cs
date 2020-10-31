@@ -36,7 +36,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
                         new TestRelationalLoggingDefinitions(),
                         new NullDbContextLogger()),
                     new NamedConnectionStringResolver(options ?? CreateOptions()),
-                    new RelationalTransactionFactory(new RelationalTransactionFactoryDependencies()),
+                    new RelationalTransactionFactory(
+                        new RelationalTransactionFactoryDependencies(
+                            new RelationalSqlGenerationHelper(
+                                new RelationalSqlGenerationHelperDependencies()))),
                     new CurrentDbContext(new FakeDbContext())))
         {
         }

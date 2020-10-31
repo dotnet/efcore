@@ -3,8 +3,10 @@
 
 using System;
 using System.Data.Common;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
@@ -17,6 +19,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
     public class SqlServerTransactionFactory : IRelationalTransactionFactory
     {
         /// <summary>
+        ///     Initializes a new instance of the <see cref="RelationalTransactionFactory" /> class.
+        /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        public SqlServerTransactionFactory([NotNull] RelationalTransactionFactoryDependencies dependencies)
+        {
+            Check.NotNull(dependencies, nameof(dependencies));
+
+            Dependencies = dependencies;
+        }
+
+        /// <summary>
+        ///     Parameter object containing dependencies for this service.
+        /// </summary>
+        protected virtual RelationalTransactionFactoryDependencies Dependencies { get; }
+
+        /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
@@ -28,6 +46,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             Guid transactionId,
             IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger,
             bool transactionOwned)
-            => new SqlServerTransaction(connection, transaction, transactionId, logger, transactionOwned);
+            => new SqlServerTransaction(connection, transaction, transactionId, logger, transactionOwned, Dependencies.SqlGenerationHelper);
     }
 }
