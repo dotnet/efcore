@@ -8,6 +8,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 
+#nullable enable
+
 // ReSharper disable CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Internal
 {

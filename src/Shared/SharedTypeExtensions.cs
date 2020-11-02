@@ -172,11 +172,13 @@ namespace System
             return sequenceType;
         }
 
-        public static Type TryGetSequenceType(this Type type)
+#nullable enable
+
+        public static Type? TryGetSequenceType(this Type type)
             => type.TryGetElementType(typeof(IEnumerable<>))
                 ?? type.TryGetElementType(typeof(IAsyncEnumerable<>));
 
-        public static Type TryGetElementType(this Type type, Type interfaceOrBaseType)
+        public static Type? TryGetElementType(this Type type, Type interfaceOrBaseType)
         {
             if (type.IsGenericTypeDefinition)
             {
@@ -185,7 +187,7 @@ namespace System
 
             var types = GetGenericTypeImplementations(type, interfaceOrBaseType);
 
-            Type singleImplementation = null;
+            Type? singleImplementation = null;
             foreach (var implementation in types)
             {
                 if (singleImplementation == null)
@@ -201,6 +203,8 @@ namespace System
 
             return singleImplementation?.GenericTypeArguments.FirstOrDefault();
         }
+
+#nullable disable
 
         public static bool IsCompatibleWith(this Type propertyType, Type fieldType)
         {
