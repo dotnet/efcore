@@ -119,6 +119,7 @@
   </resheader>
   <data name="BadSequenceString" xml:space="preserve">
     <value>Unable to deserialize a sequence from model metadata. See inner exception for details.</value>
+    <comment>Obsolete</comment>
   </data>
   <data name="BadSequenceType" xml:space="preserve">
     <value>Invalid type for sequence. Valid types are long (the default), int, short, byte and decimal.</value>
@@ -677,7 +678,7 @@
     <value>Unable to translate set operations when both sides don't assign values to the same properties in the nominal type. Please make sure that the same properties are included on both sides, and consider assigning default values if a property doesn't require a specific value.</value>
   </data>
   <data name="PropertyNotMappedToTable" xml:space="preserve">
-    <value>The property '{property}' on entity type '{entityType}' is not mapped to the table '{table}'.</value>
+    <value>The property '{property}' on entity type '{entityType}' is not mapped to '{table}'.</value>
   </data>
   <data name="ReadonlyEntitySaved" xml:space="preserve">
     <value>The entity type '{entityType}' is not mapped to a table, therefore the entities cannot be persisted to the database. Call 'ToTable' in 'OnModelCreating' to map it to a table.</value>
@@ -689,7 +690,7 @@
     <value>Cannot create a 'SelectExpression' with a custom 'TableExpressionBase' since the result type '{entityType}' is part of a hierarchy and does not contain a discriminator property.</value>
   </data>
   <data name="SetOperationsNotAllowedAfterClientEvaluation" xml:space="preserve">
-    <value>Unable to  translate set operation after client projection has been applied. Consider moving the set operation before the last 'Select' call.</value>
+    <value>Unable to translate set operation after client projection has been applied. Consider moving the set operation before the last 'Select' call.</value>
   </data>
   <data name="SetOperationsOnDifferentStoreTypes" xml:space="preserve">
     <value>Unable to translate set operation when matching columns on both sides have different store types.</value>

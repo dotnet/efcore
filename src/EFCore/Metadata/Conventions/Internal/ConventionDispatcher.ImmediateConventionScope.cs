@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             public override void Run(ConventionDispatcher dispatcher)
-                => throw new NotImplementedException(CoreStrings.ImmediateConventionScopeCannotBeRunAgain);
+                => Check.DebugAssert(false, "Immediate convention scope cannot be run again.");
 
             public IConventionModelBuilder OnModelFinalizing([NotNull] IConventionModelBuilder modelBuilder)
             {

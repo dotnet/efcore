@@ -882,6 +882,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotEmpty(properties, nameof(properties));
 
+            var wrongEntityTypeProperty = properties.FirstOrDefault(p => !p.DeclaringEntityType.IsAssignableFrom(this));
+            if (wrongEntityTypeProperty != null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.KeyWrongType(
+                        properties.Format(), this.DisplayName(), wrongEntityTypeProperty.DeclaringEntityType.DisplayName()));
+            }
+
             var key = FindDeclaredKey(properties);
             return key == null
                 ? null
@@ -1697,14 +1705,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     collection,
                     shouldThrow: true);
             }
-
-            Navigation.IsCompatible(
-                name,
-                memberInfo,
-                this,
-                targetEntityType,
-                collection,
-                shouldThrow: true);
 
             var skipNavigation = new SkipNavigation(
                 name,

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
@@ -14,7 +15,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     public class ConventionDispatcherTest
     {
-        // Use public API to add conventions, issue #214
+        // TODO: Use public API to add conventions, issue #214
+
+        [ConditionalFact]
+        public void Infinite_recursion_throws()
+        {
+            var conventions = new ConventionSet();
+
+            conventions.PropertyAddedConventions.Add(new InfinitePropertyAddedConvention());
+
+            var builder = new InternalModelBuilder(new Model(conventions));
+            var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
+            var shadowPropertyName = "ShadowProperty";
+
+            Assert.Equal(
+                CoreStrings.ConventionsInfiniteLoop,
+                Assert.Throws<InvalidOperationException>(() =>
+                    entityBuilder.Property(typeof(int), shadowPropertyName, ConfigurationSource.Convention)).Message);
+        }
+
+        private class InfinitePropertyAddedConvention : IPropertyAddedConvention
+        {
+            private int _count;
+
+            public void ProcessPropertyAdded(
+                IConventionPropertyBuilder propertyBuilder,
+                IConventionContext<IConventionPropertyBuilder> context)
+            {
+                propertyBuilder.Metadata.DeclaringEntityType.AddProperty("TempProperty" + _count++, typeof(int));
+            }
+        }
 
         [InlineData(false)]
         [InlineData(true)]

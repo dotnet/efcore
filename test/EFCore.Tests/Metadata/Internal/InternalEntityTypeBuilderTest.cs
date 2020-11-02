@@ -485,6 +485,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
+        public void Removing_a_relationship_from_the_wrong_entity_type_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var relationshipBuilder = dependentEntityBuilder.HasRelationship(
+                principalEntityBuilder.Metadata,
+                new[]
+                {
+                    dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata
+                },
+                ConfigurationSource.DataAnnotation);
+            Assert.NotNull(relationshipBuilder);
+
+            Assert.Equal(CoreStrings.ForeignKeyWrongType(
+                "{'" + Order.CustomerIdProperty.Name + "'}", "{'TempId'}", nameof(Customer), nameof(Customer), nameof(Order)),
+                Assert.Throws<InvalidOperationException>(() =>
+                    Assert.Null(principalEntityBuilder.HasNoRelationship(relationshipBuilder.Metadata, ConfigurationSource.DataAnnotation)))
+                .Message);
+        }
+
+        [ConditionalFact]
         public void Removing_relationship_removes_unused_contained_shadow_properties()
         {
             var modelBuilder = CreateModelBuilder();

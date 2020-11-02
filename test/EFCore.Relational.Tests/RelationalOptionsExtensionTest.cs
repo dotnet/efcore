@@ -79,5 +79,14 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Throws<InvalidOperationException>(
                     () => new FakeRelationalOptionsExtension().WithMaxBatchSize(-1)).Message);
         }
+
+        [ConditionalFact]
+        public void Throws_if_MinBatchSize_out_of_range()
+        {
+            Assert.Equal(
+                RelationalStrings.InvalidMinBatchSize(-1),
+                Assert.Throws<InvalidOperationException>(
+                    () => new FakeRelationalOptionsExtension().WithMinBatchSize(-1)).Message);
+        }
     }
 }

@@ -180,6 +180,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Set_throws_for_owned_type(bool async)
         {
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(async, ss => ss.Set<Order>()));
+
+            Assert.Equal(
+                CoreStrings.InvalidSetTypeOwned(nameof(Order), nameof(OwnedPerson)),
+                exception.Message);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Set_throws_for_owned_type_with_defining_navigation(bool async)
+        {
             var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(async, ss => ss.Set<OwnedAddress>()));
 
             Assert.Equal(

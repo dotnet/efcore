@@ -694,6 +694,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [ConditionalFact]
+        public void IsNullable_throws_for_nonScalar()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var queryableNoParams
+                = typeof(MyDerivedContext)
+                    .GetRuntimeMethod(nameof(MyDerivedContext.QueryableNoParams), Array.Empty<Type>());
+
+            Assert.Equal(
+                RelationalStrings.NonScalarFunctionCannotBeNullable(nameof(MyDerivedContext.QueryableNoParams)),
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.HasDbFunction(queryableNoParams).IsNullable()).Message);
+        }
+
+        [ConditionalFact]
+        public void PropagatesNullability_throws_for_nonScalar()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var queryableSingleParam = typeof(MyDerivedContext)
+                    .GetRuntimeMethod(nameof(MyDerivedContext.QueryableSingleParam), new[] { typeof(int) });
+
+            var function = modelBuilder.HasDbFunction(queryableSingleParam);
+            var parameter = function.HasParameter("i");
+
+            Assert.Equal(
+                RelationalStrings.NonScalarFunctionParameterCannotPropagatesNullability("i", nameof(MyDerivedContext.QueryableSingleParam)),
+                Assert.Throws<InvalidOperationException>(() => parameter.PropagatesNullability()).Message);
+        }
+
+        [ConditionalFact]
         public void DbParameters_invalid_parameter_name_throws()
         {
             var modelBuilder = GetModelBuilder();

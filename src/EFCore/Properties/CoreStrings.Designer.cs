@@ -1040,6 +1040,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Immediate convention scope cannot be run again.
         /// </summary>
+        [Obsolete]
         public static string ImmediateConventionScopeCannotBeRunAgain
             => GetString("ImmediateConventionScopeCannotBeRunAgain");
 

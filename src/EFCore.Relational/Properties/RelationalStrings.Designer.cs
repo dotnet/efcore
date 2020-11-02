@@ -27,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Unable to deserialize a sequence from model metadata. See inner exception for details.
         /// </summary>
+        [Obsolete]
         public static string BadSequenceString
             => GetString("BadSequenceString");
 
@@ -898,7 +899,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("ProjectionMappingCountMismatch");
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' is not mapped to the table '{table}'.
+        ///     The property '{property}' on entity type '{entityType}' is not mapped to '{table}'.
         /// </summary>
         public static string PropertyNotMappedToTable([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object table)
             => string.Format(
@@ -928,7 +929,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     Unable to  translate set operation after client projection has been applied. Consider moving the set operation before the last 'Select' call.
+        ///     Unable to translate set operation after client projection has been applied. Consider moving the set operation before the last 'Select' call.
         /// </summary>
         public static string SetOperationsNotAllowedAfterClientEvaluation
             => GetString("SetOperationsNotAllowedAfterClientEvaluation");

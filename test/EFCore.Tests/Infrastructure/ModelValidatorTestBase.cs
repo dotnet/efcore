@@ -222,6 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Owned]
         protected class OrderDetails
         {
+            public Customer Customer { get; set; }
             public string ShippingAddress { get; set; }
         }
 

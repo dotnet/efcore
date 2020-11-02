@@ -426,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (!IsScalar)
             {
-                new InvalidOperationException(RelationalStrings.NonScalarFunctionCannotBeNullable(Name));
+                throw new InvalidOperationException(RelationalStrings.NonScalarFunctionCannotBeNullable(Name));
             }
 
             _nullable = nullable;
