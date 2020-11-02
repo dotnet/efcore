@@ -1339,6 +1339,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IForeignKeyConstraint source, [NotNull] DiffContext diffContext)
         {
             var sourceTable = source.Table;
+            if (sourceTable.IsExcludedFromMigrations)
+            {
+                yield break;
+            }
 
             var dropTableOperation = diffContext.FindDrop(sourceTable);
             if (dropTableOperation == null)
@@ -2173,7 +2177,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 InsertDataOperation batchInsertOperation = null;
                 foreach (var command in commandBatch.ModificationCommands)
                 {
-                    if (diffContext.FindDrop(model.FindTable(command.TableName, command.Schema)) != null)
+                    var table = model.FindTable(command.TableName, command.Schema);
+                    if (diffContext.FindDrop(table) != null
+                        || table.IsExcludedFromMigrations)
                     {
                         continue;
                     }
@@ -2269,8 +2275,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 break;
                             }
 
-                            var table = command.Entries.First().EntityType.GetTableMappings().Select(m => m.Table)
-                                .First(t => t.Name == command.TableName && t.Schema == command.Schema);
                             var keyColumns = command.ColumnModifications.Where(col => col.IsKey)
                                 .Select(c => table.FindColumn(c.ColumnName));
                             var anyKeyColumnDropped = keyColumns.Any(c => diffContext.FindDrop(c) != null);

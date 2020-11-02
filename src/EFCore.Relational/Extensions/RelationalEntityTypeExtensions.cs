@@ -833,11 +833,6 @@ namespace Microsoft.EntityFrameworkCore
                 return excluded.Value;
             }
 
-            if (entityType.FindAnnotation(RelationalAnnotationNames.TableName) != null)
-            {
-                return false;
-            }
-
             if (entityType.BaseType != null)
             {
                 return entityType.GetRootType().IsTableExcludedFromMigrations();

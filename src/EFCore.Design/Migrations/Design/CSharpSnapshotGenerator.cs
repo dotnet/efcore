@@ -826,10 +826,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     var isExcludedAnnotation = annotations.Find(RelationalAnnotationNames.IsTableExcludedFromMigrations);
                     if (isExcludedAnnotation != null)
                     {
+                        
                         if (((bool?)isExcludedAnnotation.Value) == true)
                         {
-                            stringBuilder
-                                .Append(", t => t.ExcludeFromMigrations()");
+                            if (entityType.IsOwned())
+                            {
+                                // Issue #23173
+                                stringBuilder
+                                    .Append(", excludedFromMigrations: true");
+                            }
+                            else
+                            {
+                                stringBuilder
+                                    .Append(", t => t.ExcludeFromMigrations()");
+                            }
                         }
 
                         annotations.Remove(isExcludedAnnotation.Name);
