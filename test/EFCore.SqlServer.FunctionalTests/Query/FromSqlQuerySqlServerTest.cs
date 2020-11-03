@@ -55,7 +55,7 @@ FROM (
 WHERE [c].[ContactName] LIKE N'%z%'";
 
             AssertSql(expected);
-            Assert.Equal(expected, queryString);
+            Assert.Equal(expected, queryString, ignoreLineEndingDifferences: true);
 
             return null;
         }
@@ -355,7 +355,7 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM (
     SELECT * FROM ""Customers"" WHERE ""City"" = @p0
 ) AS [c]
-WHERE [c].[ContactTitle] = @__contactTitle_1", queryString);
+WHERE [c].[ContactTitle] = @__contactTitle_1", queryString, ignoreLineEndingDifferences: true);
 
             return null;
         }
