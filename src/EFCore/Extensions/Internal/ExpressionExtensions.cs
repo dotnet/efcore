@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -31,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static Expression MakeHasDefaultValue(
             [NotNull] this Expression currentValueExpression,
-            [CanBeNull] IPropertyBase propertyBase)
+            [CanBeNull] IPropertyBase? propertyBase)
         {
             if (!currentValueExpression.Type.IsValueType)
             {
@@ -67,9 +69,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IReadOnlyList<TMemberInfo> MatchMemberAccessList<TMemberInfo>(
+        public static IReadOnlyList<TMemberInfo>? MatchMemberAccessList<TMemberInfo>(
             [NotNull] this LambdaExpression lambdaExpression,
-            [NotNull] Func<Expression, Expression, TMemberInfo> memberMatcher)
+            [NotNull] Func<Expression, Expression, TMemberInfo?> memberMatcher)
             where TMemberInfo : MemberInfo
         {
             Check.DebugAssert(lambdaExpression.Body != null, "lambdaExpression.Body is null");
@@ -82,11 +84,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
             if (RemoveConvert(lambdaExpression.Body) is NewExpression newExpression)
             {
                 var memberInfos
-                    = newExpression
+                    = (List<TMemberInfo>)newExpression
                         .Arguments
                         .Select(a => memberMatcher(a, parameterExpression))
                         .Where(p => p != null)
-                        .ToList();
+                        .ToList()!;
 
                 return memberInfos.Count != newExpression.Arguments.Count ? null : memberInfos;
             }
@@ -102,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static TMemberInfo MatchSimpleMemberAccess<TMemberInfo>(
+        public static TMemberInfo? MatchSimpleMemberAccess<TMemberInfo>(
             [NotNull] this Expression parameterExpression,
             [NotNull] Expression memberAccessExpression)
             where TMemberInfo : MemberInfo
@@ -112,14 +114,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return memberInfos?.Count == 1 ? memberInfos[0] : null;
         }
 
-        private static IReadOnlyList<TMemberInfo> MatchMemberAccess<TMemberInfo>(
+        private static IReadOnlyList<TMemberInfo>? MatchMemberAccess<TMemberInfo>(
             this Expression parameterExpression,
             Expression memberAccessExpression)
             where TMemberInfo : MemberInfo
         {
             var memberInfos = new List<TMemberInfo>();
 
-            MemberExpression memberExpression;
+            MemberExpression? memberExpression;
 
             do
             {
@@ -145,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static Expression RemoveTypeAs([CanBeNull] this Expression expression)
+        public static Expression? RemoveTypeAs([CanBeNull] this Expression? expression)
         {
             while (expression?.NodeType == ExpressionType.TypeAs)
             {
@@ -175,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static LambdaExpression GetLambdaOrNull([NotNull] this Expression expression)
+        public static LambdaExpression? GetLambdaOrNull([NotNull] this Expression expression)
             => expression is LambdaExpression lambda
                 ? lambda
                 : expression is UnaryExpression unary && expression.NodeType == ExpressionType.Quote

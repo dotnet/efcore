@@ -16,6 +16,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -3158,7 +3160,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Func<TSource, TKey> keySelector,
             [NotNull] Func<TSource, TElement> elementSelector,
-            [NotNull] IEqualityComparer<TKey> comparer,
+            [CanBeNull] IEqualityComparer<TKey>? comparer,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -3256,7 +3258,7 @@ namespace Microsoft.EntityFrameworkCore
         private static TResult ExecuteAsync<TSource, TResult>(
             MethodInfo operatorMethodInfo,
             IQueryable<TSource> source,
-            Expression expression,
+            Expression? expression,
             CancellationToken cancellationToken = default)
         {
             if (source.Provider is IAsyncQueryProvider provider)
@@ -3295,7 +3297,7 @@ namespace Microsoft.EntityFrameworkCore
             IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
             => ExecuteAsync<TSource, TResult>(
-                operatorMethodInfo, source, (Expression)null, cancellationToken);
+                operatorMethodInfo, source, (Expression?)null, cancellationToken);
 
         #endregion
     }

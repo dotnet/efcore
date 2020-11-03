@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     /// <summary>
@@ -26,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlParameterExpression([NotNull] ParameterExpression parameterExpression, [CanBeNull] CoreTypeMapping typeMapping)
+        public SqlParameterExpression([NotNull] ParameterExpression parameterExpression, [CanBeNull] CoreTypeMapping? typeMapping)
             : base(parameterExpression.Type, typeMapping)
         {
             _parameterExpression = parameterExpression;
@@ -47,8 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlExpression ApplyTypeMapping([CanBeNull] CoreTypeMapping typeMapping)
-            => new SqlParameterExpression(_parameterExpression, typeMapping);
+        public SqlExpression ApplyTypeMapping([CanBeNull] CoreTypeMapping? typeMapping)
+            => new SqlParameterExpression(_parameterExpression, typeMapping ?? TypeMapping);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -82,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is SqlParameterExpression sqlParameterExpression

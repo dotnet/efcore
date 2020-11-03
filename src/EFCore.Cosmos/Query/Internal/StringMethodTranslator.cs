@@ -9,6 +9,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     /// <summary>
@@ -57,8 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(
-            SqlExpression instance,
+        public virtual SqlExpression? Translate(
+            SqlExpression? instance,
             MethodInfo method,
             IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
@@ -67,9 +69,22 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             Check.NotNull(arguments, nameof(arguments));
             Check.NotNull(logger, nameof(logger));
 
-            if (_containsMethodInfo.Equals(method))
+            if (instance != null)
             {
-                return TranslateSystemFunction("CONTAINS", instance, arguments[0], typeof(bool));
+                if (_containsMethodInfo.Equals(method))
+                {
+                    return TranslateSystemFunction("CONTAINS", instance, arguments[0], typeof(bool));
+                }
+
+                if (_startsWithMethodInfo.Equals(method))
+                {
+                    return TranslateSystemFunction("STARTSWITH", instance, arguments[0], typeof(bool));
+                }
+
+                if (_endsWithMethodInfo.Equals(method))
+                {
+                    return TranslateSystemFunction("ENDSWITH", instance, arguments[0], typeof(bool));
+                }
             }
 
             if (_firstOrDefaultMethodInfoWithoutArgs.Equals(method))
@@ -80,16 +95,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             if (_lastOrDefaultMethodInfoWithoutArgs.Equals(method))
             {
                 return TranslateSystemFunction("RIGHT", arguments[0], _sqlExpressionFactory.Constant(1), typeof(char));
-            }
-
-            if (_startsWithMethodInfo.Equals(method))
-            {
-                return TranslateSystemFunction("STARTSWITH", instance, arguments[0], typeof(bool));
-            }
-
-            if (_endsWithMethodInfo.Equals(method))
-            {
-                return TranslateSystemFunction("ENDSWITH", instance, arguments[0], typeof(bool));
             }
 
             return null;

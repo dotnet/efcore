@@ -451,7 +451,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             return ProcessCastOfType(
                                 source,
                                 genericMethod,
-                                methodCallExpression.Type.TryGetSequenceType());
+                                // Known to be sequence type
+                                methodCallExpression.Type.TryGetSequenceType()!);
 
                         case nameof(EntityFrameworkQueryableExtensions.Include):
                         case nameof(EntityFrameworkQueryableExtensions.ThenInclude):
@@ -1139,7 +1140,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 collectionSource = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(collectionSource);
                 var innerTree = new NavigationTreeExpression(SnapshotExpression(collectionSource.PendingSelector));
                 collectionSelector = GenerateLambda(collectionSource, source.CurrentParameter);
-                var collectionElementType = collectionSelector.ReturnType.TryGetSequenceType();
+                // Known to be sequence type
+                var collectionElementType = collectionSelector.ReturnType.TryGetSequenceType()!;
 
                 // Collection selector body is IQueryable, we need to adjust the type to IEnumerable, to match the SelectMany signature
                 // therefore the delegate type is specified explicitly
@@ -1208,8 +1210,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var outerQueryable = Reduce(outerSource);
             var innerQueryable = Reduce(innerSource);
 
-            var outerType = outerQueryable.Type.TryGetSequenceType();
-            var innerType = innerQueryable.Type.TryGetSequenceType();
+            // Known to be sequence type
+            var outerType = outerQueryable.Type.TryGetSequenceType()!;
+            var innerType = innerQueryable.Type.TryGetSequenceType()!;
 
             var result = Expression.Call(
                 genericMethod.MakeGenericMethod(outerType.IsAssignableFrom(innerType) ? outerType : innerType),

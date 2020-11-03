@@ -4,6 +4,8 @@
 using System.Diagnostics;
 using JetBrains.Annotations;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace System.Linq.Expressions
 {
@@ -19,7 +21,7 @@ namespace System.Linq.Expressions
                 ? unary.Operand
                 : expression);
 
-        public static Expression UnwrapTypeConversion(this Expression expression, out Type convertedType)
+        public static Expression UnwrapTypeConversion(this Expression expression, out Type? convertedType)
         {
             convertedType = null;
             while (expression is UnaryExpression unaryExpression

@@ -3,6 +3,8 @@
 
 using System.ComponentModel;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
