@@ -833,6 +833,12 @@ namespace Microsoft.EntityFrameworkCore
                 return excluded.Value;
             }
 
+            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23137", out var isEnabled) && isEnabled;
+            if (useOldBehavior && entityType.FindAnnotation(RelationalAnnotationNames.TableName) != null)
+            {
+                return false;
+            }
+
             if (entityType.BaseType != null)
             {
                 return entityType.GetRootType().IsTableExcludedFromMigrations();

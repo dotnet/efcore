@@ -1339,7 +1339,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IForeignKeyConstraint source, [NotNull] DiffContext diffContext)
         {
             var sourceTable = source.Table;
-            if (sourceTable.IsExcludedFromMigrations)
+
+            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23137", out var isEnabled) && isEnabled;
+            if (!useOldBehavior && sourceTable.IsExcludedFromMigrations)
             {
                 yield break;
             }
@@ -2178,8 +2180,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 foreach (var command in commandBatch.ModificationCommands)
                 {
                     var table = model.FindTable(command.TableName, command.Schema);
+                    var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23137", out var isEnabled) && isEnabled;
                     if (diffContext.FindDrop(table) != null
-                        || table.IsExcludedFromMigrations)
+                        || (!useOldBehavior && table.IsExcludedFromMigrations))
                     {
                         continue;
                     }

@@ -826,7 +826,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     var isExcludedAnnotation = annotations.Find(RelationalAnnotationNames.IsTableExcludedFromMigrations);
                     if (isExcludedAnnotation != null)
                     {
-                        
                         if (((bool?)isExcludedAnnotation.Value) == true)
                         {
                             if (entityType.IsOwned())

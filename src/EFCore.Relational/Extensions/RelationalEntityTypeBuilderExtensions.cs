@@ -197,7 +197,10 @@ namespace Microsoft.EntityFrameworkCore
         public static OwnedNavigationBuilder ToTable(
             [NotNull] this OwnedNavigationBuilder referenceOwnershipBuilder,
             [CanBeNull] string name)
-            => ToTable(referenceOwnershipBuilder, name, schema: null, excludedFromMigrations: null);
+            => ToTable(referenceOwnershipBuilder, name, schema: null, excludedFromMigrations:
+                    AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23137", out var isEnabled) && isEnabled
+                    ? false
+                    : (bool?)null);
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
@@ -226,7 +229,10 @@ namespace Microsoft.EntityFrameworkCore
             where TEntity : class
             where TRelatedEntity : class
             => (OwnedNavigationBuilder<TEntity, TRelatedEntity>)ToTable(
-                referenceOwnershipBuilder, name, schema: null, excludedFromMigrations: null);
+                referenceOwnershipBuilder, name, schema: null, excludedFromMigrations:
+                    AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23137", out var isEnabled) && isEnabled
+                    ? false
+                    : (bool?)null);
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
@@ -257,7 +263,10 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this OwnedNavigationBuilder referenceOwnershipBuilder,
             [CanBeNull] string name,
             [CanBeNull] string schema)
-            => ToTable(referenceOwnershipBuilder, name, schema, excludedFromMigrations: null);
+            => ToTable(referenceOwnershipBuilder, name, schema, excludedFromMigrations:
+                    AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23137", out var isEnabled) && isEnabled
+                    ? false
+                    : (bool?)null);
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
@@ -313,7 +322,10 @@ namespace Microsoft.EntityFrameworkCore
             where TEntity : class
             where TRelatedEntity : class
             => (OwnedNavigationBuilder<TEntity, TRelatedEntity>)ToTable(
-                referenceOwnershipBuilder, name, schema, excludedFromMigrations: null);
+                referenceOwnershipBuilder, name, schema, excludedFromMigrations:
+                    AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23137", out var isEnabled) && isEnabled
+                    ? false
+                    : (bool?)null);
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
