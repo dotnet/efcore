@@ -8,6 +8,8 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     /// <summary>
@@ -32,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public CaseExpression(
             [NotNull] SqlExpression operand,
             [NotNull] IReadOnlyList<CaseWhenClause> whenClauses,
-            [CanBeNull] SqlExpression elseResult = null)
+            [CanBeNull] SqlExpression? elseResult = null)
             : base(Check.NotEmpty(whenClauses, nameof(whenClauses))[0].Result.Type, whenClauses[0].Result.TypeMapping)
         {
             Check.NotNull(operand, nameof(operand));
@@ -49,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="elseResult"> A value to return if no <see cref="WhenClauses" /> matches, if any. </param>
         public CaseExpression(
             [NotNull] IReadOnlyList<CaseWhenClause> whenClauses,
-            [CanBeNull] SqlExpression elseResult = null)
+            [CanBeNull] SqlExpression? elseResult = null)
             : base(Check.NotEmpty(whenClauses, nameof(whenClauses))[0].Result.Type, whenClauses[0].Result.TypeMapping)
         {
             _whenClauses.AddRange(whenClauses);
@@ -59,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     The value to compare in <see cref="WhenClauses" />.
         /// </summary>
-        public virtual SqlExpression Operand { get; }
+        public virtual SqlExpression? Operand { get; }
 
         /// <summary>
         ///     The list of <see cref="CaseWhenClause" /> to match <see cref="Operand" /> or evaluate condition to get result.
@@ -70,14 +72,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     The value to return if none of the <see cref="WhenClauses" /> matches.
         /// </summary>
-        public virtual SqlExpression ElseResult { get; }
+        public virtual SqlExpression? ElseResult { get; }
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
 
-            var operand = (SqlExpression)visitor.Visit(Operand);
+            var operand = (SqlExpression?)visitor.Visit(Operand);
             var changed = operand != Operand;
             var whenClauses = new List<CaseWhenClause>();
             foreach (var whenClause in WhenClauses)
@@ -97,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 }
             }
 
-            var elseResult = (SqlExpression)visitor.Visit(ElseResult);
+            var elseResult = (SqlExpression?)visitor.Visit(ElseResult);
             changed |= elseResult != ElseResult;
 
             return changed
@@ -116,11 +118,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="elseResult"> The <see cref="ElseResult" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual CaseExpression Update(
-            [CanBeNull] SqlExpression operand,
+            [CanBeNull] SqlExpression? operand,
             [NotNull] IReadOnlyList<CaseWhenClause> whenClauses,
-            [CanBeNull] SqlExpression elseResult)
+            [CanBeNull] SqlExpression? elseResult)
             => operand != Operand || !whenClauses.SequenceEqual(WhenClauses) || elseResult != ElseResult
-                ? (Operand == null
+                ? (operand == null
                     ? new CaseExpression(whenClauses, elseResult)
                     : new CaseExpression(operand, whenClauses, elseResult))
                 : this;
@@ -158,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is CaseExpression caseExpression

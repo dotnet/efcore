@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
     /// <summary>
@@ -18,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     /// </summary>
     public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExpressionVisitor
     {
-        private static readonly HashSet<string> _dateTimeDataTypes
-            = new HashSet<string>
+        private static readonly HashSet<string?> _dateTimeDataTypes
+            = new HashSet<string?>
             {
                 "time",
                 "date",
@@ -58,13 +60,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        protected override Expression? VisitBinary(BinaryExpression binaryExpression)
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
             return !(base.VisitBinary(binaryExpression) is SqlExpression visitedExpression)
                 ? null
-                : (Expression)(visitedExpression is SqlBinaryExpression sqlBinary
+                : (Expression?)(visitedExpression is SqlBinaryExpression sqlBinary
                     && _arithmeticOperatorTypes.Contains(sqlBinary.OperatorType)
                     && (_dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Left))
                         || _dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Right)))
@@ -78,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override Expression VisitUnary(UnaryExpression unaryExpression)
+        protected override Expression? VisitUnary(UnaryExpression unaryExpression)
         {
             if (unaryExpression.NodeType == ExpressionType.ArrayLength
                 && unaryExpression.Operand.Type == typeof(byte[]))
@@ -110,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override SqlExpression TranslateLongCount(SqlExpression sqlExpression)
+        public override SqlExpression? TranslateLongCount(SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
 
@@ -123,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     typeof(long)));
         }
 
-        private static string GetProviderType(SqlExpression expression)
+        private static string? GetProviderType(SqlExpression expression)
             => expression.TypeMapping?.StoreType;
     }
 }

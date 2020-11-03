@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     /// <summary>
@@ -46,6 +48,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
             _expressionTranslatingExpressionVisitor = expressionTranslatingExpressionVisitor;
+            _queryExpression = null!;
         }
 
         /// <summary>
@@ -75,11 +78,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
 
             _queryExpression.ReplaceProjectionMapping(_projectionMapping);
-            _queryExpression = null;
+            _queryExpression = null!;
             _projectionMapping.Clear();
             _projectionMembers.Clear();
 
-            result = MatchTypes(result, expression.Type);
+            result = MatchTypes(result!, expression.Type);
 
             return result;
         }
@@ -90,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override Expression Visit(Expression expression)
+        public override Expression? Visit(Expression? expression)
         {
             if (expression == null)
             {
@@ -120,9 +123,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         case MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression:
                             return AddCollectionProjection(
                                 _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
-                                    materializeCollectionNavigationExpression.Subquery),
+                                    materializeCollectionNavigationExpression.Subquery)!,
                                 materializeCollectionNavigationExpression.Navigation,
-                                materializeCollectionNavigationExpression.Navigation.ClrType.TryGetSequenceType());
+                                materializeCollectionNavigationExpression.Navigation.ClrType.TryGetSequenceType()!);
 
                         case MethodCallExpression methodCallExpression:
                         {
@@ -196,8 +199,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            var left = MatchTypes(Visit(binaryExpression.Left), binaryExpression.Left.Type);
-            var right = MatchTypes(Visit(binaryExpression.Right), binaryExpression.Right.Type);
+            var left = MatchTypes(Visit(binaryExpression.Left)!, binaryExpression.Left.Type);
+            var right = MatchTypes(Visit(binaryExpression.Right)!, binaryExpression.Right.Type);
 
             return binaryExpression.Update(left, VisitAndConvert(binaryExpression.Conversion, "VisitBinary"), right);
         }
@@ -210,9 +213,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
         {
-            var test = Visit(conditionalExpression.Test);
-            var ifTrue = Visit(conditionalExpression.IfTrue);
-            var ifFalse = Visit(conditionalExpression.IfFalse);
+            var test = Visit(conditionalExpression.Test)!;
+            var ifTrue = Visit(conditionalExpression.IfTrue)!;
+            var ifFalse = Visit(conditionalExpression.IfFalse)!;
 
             if (test.Type == typeof(bool?))
             {
@@ -228,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override Expression VisitExtension(Expression extensionExpression)
+        protected override Expression? VisitExtension(Expression extensionExpression)
         {
             Check.NotNull(extensionExpression, nameof(extensionExpression));
 
@@ -237,6 +240,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 EntityProjectionExpression entityProjectionExpression;
                 if (entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression)
                 {
+                    if (projectionBindingExpression.ProjectionMember == null)
+                    {
+                        // We don't process binding with client projection
+                        return null;
+                    }
+
                     entityProjectionExpression = (EntityProjectionExpression)((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
                         .GetMappedProjection(projectionBindingExpression.ProjectionMember);
                 }
@@ -274,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override ElementInit VisitElementInit(ElementInit elementInit)
-            => elementInit.Update(elementInit.Arguments.Select(e => MatchTypes(Visit(e), e.Type)));
+            => elementInit.Update(elementInit.Arguments.Select(e => MatchTypes(Visit(e)!, e.Type)));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -311,10 +320,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override MemberAssignment VisitMemberAssignment(MemberAssignment memberAssignment)
+        protected override MemberAssignment? VisitMemberAssignment(MemberAssignment memberAssignment)
         {
             var expression = memberAssignment.Expression;
-            Expression visitedExpression;
+            Expression? visitedExpression;
             if (_clientEval)
             {
                 visitedExpression = Visit(memberAssignment.Expression);
@@ -333,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 _projectionMembers.Pop();
             }
 
-            visitedExpression = MatchTypes(visitedExpression, expression.Type);
+            visitedExpression = MatchTypes(visitedExpression!, expression.Type);
 
             return memberAssignment.Update(visitedExpression);
         }
@@ -344,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
+        protected override Expression? VisitMemberInit(MemberInitExpression memberInitExpression)
         {
             Check.NotNull(memberInitExpression, nameof(memberInitExpression));
 
@@ -385,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             for (var i = 0; i < methodCallExpression.Arguments.Count; i++)
             {
                 var argument = methodCallExpression.Arguments[i];
-                arguments[i] = MatchTypes(Visit(argument), argument.Type);
+                arguments[i] = MatchTypes(Visit(argument)!, argument.Type);
             }
 
             Expression updatedMethodCallExpression = methodCallExpression.Update(
@@ -416,7 +425,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override Expression VisitNew(NewExpression newExpression)
+        protected override Expression? VisitNew(NewExpression newExpression)
         {
             Check.NotNull(newExpression, nameof(newExpression));
 
@@ -435,7 +444,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             for (var i = 0; i < newArguments.Length; i++)
             {
                 var argument = newExpression.Arguments[i];
-                Expression visitedArgument;
+                Expression? visitedArgument;
                 if (_clientEval)
                 {
                     visitedArgument = Visit(argument);
@@ -453,7 +462,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     _projectionMembers.Pop();
                 }
 
-                newArguments[i] = MatchTypes(visitedArgument, argument.Type);
+                newArguments[i] = MatchTypes(visitedArgument!, argument.Type);
             }
 
             return newExpression.Update(newArguments);
@@ -466,7 +475,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
-            => newArrayExpression.Update(newArrayExpression.Expressions.Select(e => MatchTypes(Visit(e), e.Type)));
+            => newArrayExpression.Update(newArrayExpression.Expressions.Select(e => MatchTypes(Visit(e)!, e.Type)));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -476,7 +485,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
-            var operand = Visit(unaryExpression.Operand);
+            var operand = Visit(unaryExpression.Operand)!;
 
             return (unaryExpression.NodeType == ExpressionType.Convert
                     || unaryExpression.NodeType == ExpressionType.ConvertChecked)
@@ -487,7 +496,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         private CollectionShaperExpression AddCollectionProjection(
             ShapedQueryExpression subquery,
-            INavigationBase navigation,
+            INavigationBase? navigation,
             Type elementType)
             => new CollectionShaperExpression(
                 new ProjectionBindingExpression(

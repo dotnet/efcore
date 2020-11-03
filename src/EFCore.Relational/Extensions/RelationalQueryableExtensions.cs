@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             return new FromSqlQueryRootExpression(
-                queryRootExpression.QueryProvider,
+                queryRootExpression.QueryProvider!,
                 entityType,
                 sql,
                 Expression.Constant(arguments));

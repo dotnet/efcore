@@ -14,6 +14,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -53,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] IEntityType entityType,
             [NotNull] Expression valueBufferExpression,
             bool nullable,
-            [CanBeNull] LambdaExpression materializationCondition)
+            [CanBeNull] LambdaExpression? materializationCondition)
             : base(entityType, valueBufferExpression, nullable, materializationCondition)
         {
         }
@@ -106,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     // Optional dependent
                     var body = baseCondition.Body;
                     var valueBufferParameter = baseCondition.Parameters[0];
-                    Expression condition = null;
+                    Expression? condition = null;
                     var requiredNonPkProperties = entityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
                     if (requiredNonPkProperties.Count > 0)
                     {

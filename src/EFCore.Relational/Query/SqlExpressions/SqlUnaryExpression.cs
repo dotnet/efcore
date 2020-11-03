@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     /// <summary>
@@ -46,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             ExpressionType operatorType,
             [NotNull] SqlExpression operand,
             [NotNull] Type type,
-            [CanBeNull] RelationalTypeMapping typeMapping)
+            [CanBeNull] RelationalTypeMapping? typeMapping)
             : base(type, typeMapping)
         {
             Check.NotNull(operand, nameof(operand));
@@ -101,7 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 
-            if (OperatorType == ExpressionType.Convert)
+            if (OperatorType == ExpressionType.Convert
+                && TypeMapping != null)
             {
                 expressionPrinter.Append("CAST(");
                 expressionPrinter.Visit(Operand);
@@ -120,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is SqlUnaryExpression sqlUnaryExpression

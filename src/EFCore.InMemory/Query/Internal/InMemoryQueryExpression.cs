@@ -16,6 +16,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     /// <summary>
@@ -40,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private readonly ParameterExpression _valueBufferParameter;
 
         private IDictionary<ProjectionMember, Expression> _projectionMapping = new Dictionary<ProjectionMember, Expression>();
-        private ParameterExpression _groupingParameter;
+        private ParameterExpression? _groupingParameter;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -98,6 +100,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             ServerQueryExpression = new InMemoryTableExpression(entityType);
             var readExpressionMap = new Dictionary<IProperty, Expression>();
             var discriminatorProperty = entityType.GetDiscriminatorProperty();
+            var keyValueComparer = discriminatorProperty?.GetKeyValueComparer();
             foreach (var property in entityType.GetAllBaseTypesInclusive().SelectMany(et => et.GetDeclaredProperties()))
             {
                 readExpressionMap[property] = CreateReadValueExpression(property.ClrType, property.GetIndex(), property);
@@ -107,9 +110,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             {
                 var entityCheck = derivedEntityType.GetConcreteDerivedTypesInclusive()
                     .Select(
-                        e => discriminatorProperty.GetKeyValueComparer().ExtractEqualsBody(
-                            readExpressionMap[discriminatorProperty],
-                            Constant(e.GetDiscriminatorValue(), discriminatorProperty.ClrType)))
+                        e => keyValueComparer!.ExtractEqualsBody(
+                            readExpressionMap[discriminatorProperty!],
+                            Constant(e.GetDiscriminatorValue(), discriminatorProperty!.ClrType)))
                     .Aggregate((l, r) => OrElse(l, r));
 
                 foreach (var property in derivedEntityType.GetDeclaredProperties())
@@ -436,7 +439,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             _valueBufferSlots.Clear();
         }
 
-        private static IPropertyBase InferPropertyFromInner(Expression expression)
+        private static IPropertyBase? InferPropertyFromInner(Expression expression)
             => expression is MethodCallExpression methodCallExpression
                 && methodCallExpression.Method.IsGenericMethod
                 && methodCallExpression.Method.GetGenericMethodDefinition() == ExpressionExtensions.ValueBufferTryReadValueMethod
@@ -576,7 +579,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
         }
 
-        private Expression CreateReadValueExpression(Type type, int index, IPropertyBase property)
+        private Expression CreateReadValueExpression(Type type, int index, IPropertyBase? property)
             => _valueBufferParameter.CreateValueBufferReadValueExpression(type, index, property);
 
         /// <summary>

@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
     /// <summary>
@@ -55,8 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(
-            SqlExpression instance,
+        public virtual SqlExpression? Translate(
+            SqlExpression? instance,
             MethodInfo method,
             IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
@@ -65,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             Check.NotNull(arguments, nameof(arguments));
             Check.NotNull(logger, nameof(logger));
 
-            SqlExpression modifier = null;
+            SqlExpression? modifier = null;
             if (_addMilliseconds.Equals(method))
             {
                 modifier = _sqlExpressionFactory.Add(
@@ -107,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                                     _sqlExpressionFactory,
                                     method.ReturnType,
                                     "%Y-%m-%d %H:%M:%f",
-                                    instance,
+                                    instance!,
                                     new[] { modifier }),
                                 _sqlExpressionFactory.Constant("0")
                             },

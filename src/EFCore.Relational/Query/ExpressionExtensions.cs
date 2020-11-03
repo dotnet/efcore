@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -25,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="expressions"> Expressions to search for to find the type mapping. </param>
         /// <returns> A relational type mapping inferred from the expressions. </returns>
-        public static RelationalTypeMapping InferTypeMapping([NotNull] params SqlExpression[] expressions)
+        public static RelationalTypeMapping? InferTypeMapping([NotNull] params SqlExpression[] expressions)
         {
             Check.NotNull(expressions, nameof(expressions));
 

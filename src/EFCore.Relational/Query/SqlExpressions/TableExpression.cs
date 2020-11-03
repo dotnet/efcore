@@ -6,6 +6,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     /// <summary>
@@ -38,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 expressionPrinter.Append(Schema).Append(".");
             }
 
-            expressionPrinter.Append(Name).Append(" AS ").Append(Alias);
+            expressionPrinter.Append(Name).Append(" AS ").Append(Alias!);
         }
 
         /// <summary>
@@ -57,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public ITableBase Table { get; }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             // This should be reference equal only.
             => obj != null && ReferenceEquals(this, obj);
 

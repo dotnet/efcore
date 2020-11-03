@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using NetTopologySuite.Geometries;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
     /// <summary>
@@ -55,8 +57,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(
-            SqlExpression instance,
+        public virtual SqlExpression? Translate(
+            SqlExpression? instance,
             MemberInfo member,
             Type returnType,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
@@ -67,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             if (_memberToFunctionName.TryGetValue(member, out var functionName))
             {
-                Check.DebugAssert(instance.TypeMapping != null, "Instance must have typeMapping assigned.");
+                Check.DebugAssert(instance!.TypeMapping != null, "Instance must have typeMapping assigned.");
                 var storeType = instance.TypeMapping.StoreType;
                 var isGeography = storeType == "geography";
 

@@ -9,6 +9,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     /// <summary>
@@ -50,10 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     The list of arguments of this function.
         /// </summary>
-        public virtual IReadOnlyList<SqlExpression> Arguments
-        {
-            get;
-        }
+        public virtual IReadOnlyList<SqlExpression> Arguments { get; }
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -69,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             return changed
-                ? new TableValuedFunctionExpression(Alias, StoreFunction, arguments)
+                ? new TableValuedFunctionExpression(Alias!, StoreFunction, arguments)
                 : this;
         }
 
@@ -84,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Check.NotNull(arguments, nameof(arguments));
 
             return !arguments.SequenceEqual(Arguments)
-                ? new TableValuedFunctionExpression(Alias, StoreFunction, arguments)
+                ? new TableValuedFunctionExpression(Alias!, StoreFunction, arguments)
                 : this;
         }
 
@@ -100,11 +99,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             expressionPrinter.Append("(");
             expressionPrinter.VisitCollection(Arguments);
             expressionPrinter.Append(") AS ");
-            expressionPrinter.Append(Alias);
+            expressionPrinter.Append(Alias!);
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is TableValuedFunctionExpression tableValuedFunctionExpression

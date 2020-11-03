@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     /// <summary>
@@ -41,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         internal ColumnExpression(ProjectionExpression subqueryProjection, TableExpressionBase table)
             : this(
                 subqueryProjection.Alias, table,
-                subqueryProjection.Type, subqueryProjection.Expression.TypeMapping,
+                subqueryProjection.Type, subqueryProjection.Expression.TypeMapping!,
                 IsNullableProjection(subqueryProjection))
         {
         }
@@ -94,19 +96,19 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <returns> A new expression which has <see cref="IsNullable" /> property set to true. </returns>
         public ColumnExpression MakeNullable()
-            => new ColumnExpression(Name, Table, Type, TypeMapping, true);
+            => new ColumnExpression(Name, Table, Type, TypeMapping!, true);
 
         /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 
-            expressionPrinter.Append(Table.Alias).Append(".");
+            expressionPrinter.Append(Table.Alias!).Append(".");
             expressionPrinter.Append(Name);
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is ColumnExpression columnExpression

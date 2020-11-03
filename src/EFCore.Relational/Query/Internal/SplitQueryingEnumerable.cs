@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
@@ -130,9 +132,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly bool _standAloneStateManager;
             private readonly bool _detailedErrorsEnabled;
 
-            private RelationalDataReader _dataReader;
-            private SplitQueryResultCoordinator _resultCoordinator;
-            private IExecutionStrategy _executionStrategy;
+            private RelationalDataReader? _dataReader;
+            private SplitQueryResultCoordinator? _resultCoordinator;
+            private IExecutionStrategy? _executionStrategy;
 
             public Enumerator(SplitQueryingEnumerable<T> queryingEnumerable)
             {
@@ -144,12 +146,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _queryLogger = queryingEnumerable._queryLogger;
                 _standAloneStateManager = queryingEnumerable._standAloneStateManager;
                 _detailedErrorsEnabled = queryingEnumerable._detailedErrorsEnabled;
+                Current = default!;
             }
 
             public T Current { get; private set; }
 
             object IEnumerator.Current
-                => Current;
+                => Current!;
 
             public bool MoveNext()
             {
@@ -167,15 +170,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             _executionStrategy.Execute(true, InitializeReader, null);
                         }
 
-                        var hasNext = _dataReader.Read();
-                        Current = default;
+                        var hasNext = _dataReader!.Read();
+                        Current = default!;
 
                         if (hasNext)
                         {
-                            _resultCoordinator.ResultContext.Values = null;
+                            _resultCoordinator!.ResultContext.Values = null;
                             _shaper(
                                 _relationalQueryContext, _dataReader.DbDataReader, _resultCoordinator.ResultContext, _resultCoordinator);
-                            _relatedDataLoaders?.Invoke(_relationalQueryContext, _executionStrategy, _resultCoordinator);
+                            _relatedDataLoaders?.Invoke(_relationalQueryContext, _executionStrategy!, _resultCoordinator);
                             Current = _shaper(
                                 _relationalQueryContext, _dataReader.DbDataReader, _resultCoordinator.ResultContext, _resultCoordinator);
                         }
@@ -216,12 +219,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public void Dispose()
             {
                 _dataReader?.Dispose();
-                foreach (var dataReader in _resultCoordinator.DataReaders)
+                if (_resultCoordinator != null)
                 {
-                    dataReader?.DataReader.Dispose();
-                }
+                    foreach (var dataReader in _resultCoordinator.DataReaders)
+                    {
+                        dataReader?.DataReader.Dispose();
+                    }
 
-                _resultCoordinator.DataReaders.Clear();
+                    _resultCoordinator.DataReaders.Clear();
+
+                    _resultCoordinator = null;
+                }
 
                 _dataReader = null;
             }
@@ -241,9 +249,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly bool _standAloneStateManager;
             private readonly bool _detailedErrorEnabled;
 
-            private RelationalDataReader _dataReader;
-            private SplitQueryResultCoordinator _resultCoordinator;
-            private IExecutionStrategy _executionStrategy;
+            private RelationalDataReader? _dataReader;
+            private SplitQueryResultCoordinator? _resultCoordinator;
+            private IExecutionStrategy? _executionStrategy;
 
             public AsyncEnumerator(SplitQueryingEnumerable<T> queryingEnumerable)
             {
@@ -255,6 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _queryLogger = queryingEnumerable._queryLogger;
                 _standAloneStateManager = queryingEnumerable._standAloneStateManager;
                 _detailedErrorEnabled = queryingEnumerable._detailedErrorsEnabled;
+                Current = default!;
             }
 
             public T Current { get; private set; }
@@ -276,17 +285,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 true, InitializeReaderAsync, null, _relationalQueryContext.CancellationToken).ConfigureAwait(false);
                         }
 
-                        var hasNext = await _dataReader.ReadAsync(_relationalQueryContext.CancellationToken).ConfigureAwait(false);
-                        Current = default;
+                        var hasNext = await _dataReader!.ReadAsync(_relationalQueryContext.CancellationToken).ConfigureAwait(false);
+                        Current = default!;
 
                         if (hasNext)
                         {
-                            _resultCoordinator.ResultContext.Values = null;
+                            _resultCoordinator!.ResultContext.Values = null;
                             _shaper(
                                 _relationalQueryContext, _dataReader.DbDataReader, _resultCoordinator.ResultContext, _resultCoordinator);
                             if (_relatedDataLoaders != null)
                             {
-                                await _relatedDataLoaders(_relationalQueryContext, _executionStrategy, _resultCoordinator)
+                                await _relatedDataLoaders(_relationalQueryContext, _executionStrategy!, _resultCoordinator)
                                     .ConfigureAwait(false);
                             }
 
@@ -334,16 +343,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (_dataReader != null)
                 {
                     await _dataReader.DisposeAsync().ConfigureAwait(false);
-                    foreach (var dataReader in _resultCoordinator.DataReaders)
+                    if (_resultCoordinator != null)
                     {
-                        if (dataReader != null)
+                        foreach (var dataReader in _resultCoordinator.DataReaders)
                         {
-                            await dataReader.DataReader.DisposeAsync().ConfigureAwait(false);
+                            if (dataReader != null)
+                            {
+                                await dataReader.DataReader.DisposeAsync().ConfigureAwait(false);
+                            }
                         }
+
+                        _resultCoordinator.DataReaders.Clear();
+                        _resultCoordinator = null;
                     }
-
-                    _resultCoordinator.DataReaders.Clear();
-
                     _dataReader = null;
                 }
             }

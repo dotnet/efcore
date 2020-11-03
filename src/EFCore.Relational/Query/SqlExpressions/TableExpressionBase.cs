@@ -6,6 +6,8 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     /// <summary>
@@ -23,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new instance of the <see cref="TableExpressionBase" /> class.
         /// </summary>
         /// <param name="alias"> A string alias for the table source. </param>
-        protected TableExpressionBase([CanBeNull] string alias)
+        protected TableExpressionBase([CanBeNull] string? alias)
         {
             Check.NullButNotEmpty(alias, nameof(alias));
 
@@ -33,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     The alias assigned to this table source.
         /// </summary>
-        public virtual string Alias { get; internal set; }
+        public virtual string? Alias { get; internal set; }
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -62,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             => Print(expressionPrinter);
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is TableExpressionBase tableExpressionBase

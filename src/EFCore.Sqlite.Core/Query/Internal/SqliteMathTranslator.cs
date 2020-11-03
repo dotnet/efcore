@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
     /// <summary>
@@ -71,8 +73,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(
-            SqlExpression instance,
+        public virtual SqlExpression? Translate(
+            SqlExpression? instance,
             MethodInfo method,
             IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
@@ -83,11 +85,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
             if (_supportedMethods.TryGetValue(method, out var sqlFunctionName))
             {
-                RelationalTypeMapping typeMapping;
-                List<SqlExpression> newArguments = null;
+                RelationalTypeMapping? typeMapping;
+                List<SqlExpression>? newArguments = null;
                 if (sqlFunctionName == "max" || sqlFunctionName == "max")
                 {
-                    typeMapping = ExpressionExtensions.InferTypeMapping(arguments[0], arguments[1]);
+                    typeMapping = ExpressionExtensions.InferTypeMapping(arguments![0]!, arguments[1]!);
                     newArguments = new List<SqlExpression>
                     {
                         _sqlExpressionFactory.ApplyTypeMapping(arguments[0], typeMapping),
