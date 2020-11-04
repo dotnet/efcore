@@ -81,21 +81,6 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            [ConditionalFact(Skip = "Issue #22582")]
-            public override void Can_add_multiple_dependents_when_multiple_possible_principal_sides()
-            {
-            }
-
-            [ConditionalFact(Skip = "Issue #22582")]
-            public override void Can_add_valid_first_dependent_when_multiple_possible_principal_sides()
-            {
-            }
-
-            [ConditionalFact(Skip = "Issue #22582")]
-            public override void Can_add_valid_second_dependent_when_multiple_possible_principal_sides()
-            {
-            }
-
             protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
                 => facade.UseTransaction(transaction.GetDbTransaction());
 
@@ -152,9 +137,6 @@ namespace Microsoft.EntityFrameworkCore
                     modelBuilder.Entity<OptionalOverlapping2>().ToTable(nameof(OptionalOverlapping2));
                     modelBuilder.Entity<BadCustomer>().ToTable(nameof(BadCustomer));
                     modelBuilder.Entity<BadOrder>().ToTable(nameof(BadOrder));
-                    modelBuilder.Entity<QuestTask>().ToTable(nameof(QuestTask));
-                    modelBuilder.Entity<QuizTask>().ToTable(nameof(QuizTask));
-                    modelBuilder.Entity<HiddenAreaTask>().ToTable(nameof(HiddenAreaTask));
                     modelBuilder.Entity<TaskChoice>().ToTable(nameof(TaskChoice));
                     modelBuilder.Entity<ParentAsAChild>().ToTable(nameof(ParentAsAChild));
                     modelBuilder.Entity<ChildAsAParent>().ToTable(nameof(ChildAsAParent));

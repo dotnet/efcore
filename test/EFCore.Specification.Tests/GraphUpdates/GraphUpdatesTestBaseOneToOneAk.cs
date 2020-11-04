@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never)]
         [InlineData(null)]
-        public virtual void Optional_One_to_one_with_AK_relationships_are_one_to_one(
+        public virtual void Optional_one_to_one_with_AK_relationships_are_one_to_one(
             CascadeTiming? deleteOrphansTiming)
         {
             ExecuteWithStrategyInTransaction(
@@ -959,7 +959,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never)]
         [InlineData(null)]
-        public virtual void Required_One_to_one_with_AK_relationships_are_one_to_one(
+        public virtual void Required_one_to_one_with_AK_relationships_are_one_to_one(
             CascadeTiming? deleteOrphansTiming)
         {
             ExecuteWithStrategyInTransaction(

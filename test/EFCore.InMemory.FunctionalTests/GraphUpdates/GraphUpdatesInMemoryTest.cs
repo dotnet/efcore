@@ -43,13 +43,13 @@ namespace Microsoft.EntityFrameworkCore
             // FK uniqueness not enforced in in-memory database
         }
 
-        public override void Optional_One_to_one_relationships_are_one_to_one(
+        public override void Optional_one_to_one_relationships_are_one_to_one(
             CascadeTiming? deleteOrphansTiming)
         {
             // FK uniqueness not enforced in in-memory database
         }
 
-        public override void Required_One_to_one_relationships_are_one_to_one(
+        public override void Required_one_to_one_relationships_are_one_to_one(
             CascadeTiming? deleteOrphansTiming)
         {
             // FK uniqueness not enforced in in-memory database
@@ -104,13 +104,13 @@ namespace Microsoft.EntityFrameworkCore
             // FK uniqueness not enforced in in-memory database
         }
 
-        public override void Optional_One_to_one_with_AK_relationships_are_one_to_one(
+        public override void Optional_one_to_one_with_AK_relationships_are_one_to_one(
             CascadeTiming? deleteOrphansTiming)
         {
             // FK uniqueness not enforced in in-memory database
         }
 
-        public override void Required_One_to_one_with_AK_relationships_are_one_to_one(
+        public override void Required_one_to_one_with_AK_relationships_are_one_to_one(
             CascadeTiming? deleteOrphansTiming)
         {
             // FK uniqueness not enforced in in-memory database

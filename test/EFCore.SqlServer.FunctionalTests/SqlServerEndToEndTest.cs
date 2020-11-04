@@ -330,6 +330,49 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public async Task Can_insert_TPT_dependents_with_identity()
+        {
+            using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+
+            var options = Fixture.CreateOptions(testDatabase);
+            using (var context = new CarContext(options))
+            {
+                context.Database.EnsureCreatedResiliently();
+
+                var ferrari = new Ferrari { Special = new Car() };
+                context.Add(ferrari);
+
+                await context.SaveChangesAsync();
+
+                Assert.NotNull(ferrari.Special);
+            }
+        }
+
+        private class CarContext : DbContext
+        {
+            public CarContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Car>().ToTable("Car");
+                modelBuilder.Entity<Ferrari>().ToTable("Ferrari");
+            }
+        }
+
+        private class Car
+        {
+            public int Id { get; set; }
+        }
+
+        private class Ferrari : Car
+        {
+            public Car Special { get; set; }
+        }
+
+        [ConditionalFact]
         public void Can_run_linq_query_on_entity_set()
         {
             using var testStore = SqlServerTestStore.GetNorthwindStore();

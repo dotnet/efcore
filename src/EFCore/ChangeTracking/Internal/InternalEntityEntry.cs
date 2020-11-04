@@ -1271,7 +1271,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     if (storeGeneratedIndex != -1
                         && _storeGeneratedValues.TryGetValue(storeGeneratedIndex, out var value))
                     {
-                        this[property] = value;
+                        var equals = ValuesEqualFunc(property);
+                        var defaultValue = property.ClrType.GetDefaultValue();
+                        if (!equals(value, defaultValue))
+                        {
+                            this[property] = value;
+                        }
                     }
                 }
 
