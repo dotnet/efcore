@@ -1265,6 +1265,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (!_storeGeneratedValues.IsEmpty)
             {
+                var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23180", out var isEnabled)
+                    && isEnabled;
                 foreach (var property in EntityType.GetProperties())
                 {
                     var storeGeneratedIndex = property.GetStoreGeneratedIndex();
@@ -1273,7 +1275,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         var equals = ValuesEqualFunc(property);
                         var defaultValue = property.ClrType.GetDefaultValue();
-                        if (!equals(value, defaultValue))
+                        if (!equals(value, defaultValue)
+                            && !useOldBehavior)
                         {
                             this[property] = value;
                         }
