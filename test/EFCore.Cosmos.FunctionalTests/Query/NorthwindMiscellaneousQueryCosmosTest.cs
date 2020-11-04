@@ -4202,6 +4202,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"
             return base.First_on_collection_in_projection(async);
         }
 
+        [ConditionalTheory(Skip = "Non embedded collection subquery Issue#17246")]
+        public override Task Skip_0_Take_0_works_when_constant(bool async)
+        {
+            return base.Skip_0_Take_0_works_when_constant(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

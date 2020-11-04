@@ -48,6 +48,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             var optimizedSelectExpression = base.Optimize(selectExpression, parametersValues, out canCache);
 
+            optimizedSelectExpression = new SkipTakeCollapsingExpressionVisitor(Dependencies.SqlExpressionFactory)
+                .Process(optimizedSelectExpression, parametersValues, out var canCache2);
+
+            canCache &= canCache2;
+
             return (SelectExpression)new SearchConditionConvertingExpressionVisitor(Dependencies.SqlExpressionFactory)
                 .Visit(optimizedSelectExpression);
         }
