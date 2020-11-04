@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     public partial class InMemoryShapedQueryCompilingExpressionVisitor
@@ -65,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 if (methodCallExpression.Method.IsGenericMethod
                     && methodCallExpression.Method.GetGenericMethodDefinition() == ExpressionExtensions.ValueBufferTryReadValueMethod)
                 {
-                    var property = (IProperty)((ConstantExpression)methodCallExpression.Arguments[2]).Value;
+                    var property = (IProperty?)((ConstantExpression)methodCallExpression.Arguments[2]).Value;
                     var (indexMap, valueBuffer) =
                         _materializationContextBindings[
                             (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object];
@@ -76,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     return Expression.Call(
                         methodCallExpression.Method,
                         valueBuffer,
-                        Expression.Constant(indexMap[property]),
+                        Expression.Constant(indexMap[property!]),
                         methodCallExpression.Arguments[2]);
                 }
 
@@ -105,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 return base.VisitExtension(extensionExpression);
             }
 
-            private IPropertyBase InferPropertyFromInner(Expression expression)
+            private IPropertyBase? InferPropertyFromInner(Expression expression)
             {
                 if (expression is MethodCallExpression methodCallExpression
                     && methodCallExpression.Method.IsGenericMethod
@@ -125,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     ? ((ConstantExpression)queryExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember)).Value
                     : (projectionBindingExpression.Index != null
                         ? (object)projectionBindingExpression.Index
-                        : projectionBindingExpression.IndexMap);
+                        : projectionBindingExpression.IndexMap!);
             }
         }
     }

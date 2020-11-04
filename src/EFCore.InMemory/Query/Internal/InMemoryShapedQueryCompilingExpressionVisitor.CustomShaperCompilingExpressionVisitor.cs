@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     public partial class InMemoryShapedQueryCompilingExpressionVisitor
@@ -145,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 ValueBuffer valueBuffer,
                 Func<QueryContext, ValueBuffer, TResult> innerShaper)
                 => valueBuffer.IsEmpty
-                    ? default
+                    ? default!
                     : innerShaper(queryContext, valueBuffer);
 
             protected override Expression VisitExtension(Expression extensionExpression)
@@ -155,9 +157,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 if (extensionExpression is IncludeExpression includeExpression)
                 {
                     var entityClrType = includeExpression.EntityExpression.Type;
-                    var includingClrType = includeExpression.Navigation.DeclaringEntityType.ClrType;
+                    var includingClrType = includeExpression.Navigation.DeclaringEntityType.ClrType!;
                     var inverseNavigation = includeExpression.Navigation.Inverse;
-                    var relatedEntityClrType = includeExpression.Navigation.TargetEntityType.ClrType;
+                    var relatedEntityClrType = includeExpression.Navigation.TargetEntityType.ClrType!;
                     if (includingClrType != entityClrType
                         && includingClrType.IsAssignableFrom(entityClrType))
                     {

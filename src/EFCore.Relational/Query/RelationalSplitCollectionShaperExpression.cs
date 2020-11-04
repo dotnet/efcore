@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -42,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] IReadOnlyList<ValueComparer> identifierValueComparers,
             [NotNull] SelectExpression selectExpression,
             [NotNull] Expression innerShaper,
-            [CanBeNull] INavigationBase navigation,
+            [CanBeNull] INavigationBase? navigation,
             [NotNull] Type elementType)
         {
             Check.NotNull(parentIdentifier, nameof(parentIdentifier));
@@ -94,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The navigation if associated with the collection.
         /// </summary>
-        public virtual INavigationBase Navigation { get; }
+        public virtual INavigationBase? Navigation { get; }
 
         /// <summary>
         ///     The clr type of elements of the collection.

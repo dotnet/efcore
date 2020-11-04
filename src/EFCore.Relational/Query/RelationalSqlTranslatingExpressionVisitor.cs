@@ -15,6 +15,9 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -78,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Detailed information about errors encountered during translation.
         /// </summary>
-        public virtual string TranslationErrorDetails { get; private set; }
+        public virtual string? TranslationErrorDetails { get; private set; }
 
         /// <summary>
         ///     Adds detailed information about error encountered during translation.
@@ -108,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="expression"> An expression to translate. </param>
         /// <returns> A SQL translation of the given expression. </returns>
-        public virtual SqlExpression Translate([NotNull] Expression expression)
+        public virtual SqlExpression? Translate([NotNull] Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
 
@@ -117,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return TranslateInternal(expression);
         }
 
-        private SqlExpression TranslateInternal(Expression expression)
+        private SqlExpression? TranslateInternal(Expression expression)
         {
             var result = Visit(expression);
 
@@ -151,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="sqlExpression"> An expression to translate Average over. </param>
         /// <returns> A SQL translation of Average over the given expression. </returns>
-        public virtual SqlExpression TranslateAverage([NotNull] SqlExpression sqlExpression)
+        public virtual SqlExpression? TranslateAverage([NotNull] SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
 
@@ -191,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="sqlExpression"> An expression to translate Count over. </param>
         /// <returns> A SQL translation of Count over the given expression. </returns>
-        public virtual SqlExpression TranslateCount([NotNull] SqlExpression sqlExpression)
+        public virtual SqlExpression? TranslateCount([NotNull] SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
 
@@ -209,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="sqlExpression"> An expression to translate LongCount over. </param>
         /// <returns> A SQL translation of LongCount over the given expression. </returns>
-        public virtual SqlExpression TranslateLongCount([NotNull] SqlExpression sqlExpression)
+        public virtual SqlExpression? TranslateLongCount([NotNull] SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
 
@@ -227,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="sqlExpression"> An expression to translate Max over. </param>
         /// <returns> A SQL translation of Max over the given expression. </returns>
-        public virtual SqlExpression TranslateMax([NotNull] SqlExpression sqlExpression)
+        public virtual SqlExpression? TranslateMax([NotNull] SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
 
@@ -247,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="sqlExpression"> An expression to translate Min over. </param>
         /// <returns> A SQL translation of Min over the given expression. </returns>
-        public virtual SqlExpression TranslateMin([NotNull] SqlExpression sqlExpression)
+        public virtual SqlExpression? TranslateMin([NotNull] SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
 
@@ -267,7 +270,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="sqlExpression"> An expression to translate Sum over. </param>
         /// <returns> A SQL translation of Sum over the given expression. </returns>
-        public virtual SqlExpression TranslateSum([NotNull] SqlExpression sqlExpression)
+        public virtual SqlExpression? TranslateSum([NotNull] SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
 
@@ -293,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        protected override Expression? VisitBinary(BinaryExpression binaryExpression)
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
@@ -331,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     || binaryExpression.NodeType == ExpressionType.NotEqual)
                 // Visited expression could be null, We need to pass MemberInitExpression
                 && TryRewriteEntityEquality(
-                    binaryExpression.NodeType, visitedLeft ?? left, visitedRight ?? right, equalsMethod: false, out var result))
+                    binaryExpression.NodeType, visitedLeft ?? left!, visitedRight ?? right!, equalsMethod: false, out var result))
             {
                 return result;
             }
@@ -348,14 +351,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 || TranslationFailed(binaryExpression.Right, visitedRight, out var sqlRight)
                     ? null
                     : uncheckedNodeTypeVariant == ExpressionType.Coalesce
-                        ? _sqlExpressionFactory.Coalesce(sqlLeft, sqlRight)
-                        : (Expression)_sqlExpressionFactory.MakeBinary(
+                        ? _sqlExpressionFactory.Coalesce(sqlLeft!, sqlRight!)
+                        : (Expression?)_sqlExpressionFactory.MakeBinary(
                             uncheckedNodeTypeVariant,
-                            sqlLeft,
-                            sqlRight,
+                            sqlLeft!,
+                            sqlRight!,
                             null);
 
-            static bool TryUnwrapConvertToObject(Expression expression, out Expression operand)
+            static bool TryUnwrapConvertToObject(Expression expression, out Expression? operand)
             {
                 if (expression is UnaryExpression convertExpression
                     && (convertExpression.NodeType == ExpressionType.Convert
@@ -372,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
+        protected override Expression? VisitConditional(ConditionalExpression conditionalExpression)
         {
             Check.NotNull(conditionalExpression, nameof(conditionalExpression));
 
@@ -384,15 +387,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 || TranslationFailed(conditionalExpression.IfTrue, ifTrue, out var sqlIfTrue)
                 || TranslationFailed(conditionalExpression.IfFalse, ifFalse, out var sqlIfFalse)
                     ? null
-                    : _sqlExpressionFactory.Case(new[] { new CaseWhenClause(sqlTest, sqlIfTrue) }, sqlIfFalse);
+                    : _sqlExpressionFactory.Case(new[] { new CaseWhenClause(sqlTest!, sqlIfTrue!) }, sqlIfFalse);
         }
 
         /// <inheritdoc />
-        protected override Expression VisitConstant(ConstantExpression constantExpression)
+        protected override Expression? VisitConstant(ConstantExpression constantExpression)
             => new SqlConstantExpression(Check.NotNull(constantExpression, nameof(constantExpression)), null);
 
         /// <inheritdoc />
-        protected override Expression VisitExtension(Expression extensionExpression)
+        protected override Expression? VisitExtension(Expression extensionExpression)
         {
             Check.NotNull(extensionExpression, nameof(extensionExpression));
 
@@ -421,19 +424,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        protected override Expression VisitInvocation(InvocationExpression invocationExpression)
+        protected override Expression? VisitInvocation(InvocationExpression invocationExpression)
             => null;
 
         /// <inheritdoc />
-        protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
+        protected override Expression? VisitLambda<T>(Expression<T> lambdaExpression)
             => null;
 
         /// <inheritdoc />
-        protected override Expression VisitListInit(ListInitExpression listInitExpression)
+        protected override Expression? VisitListInit(ListInitExpression listInitExpression)
             => null;
 
         /// <inheritdoc />
-        protected override Expression VisitMember(MemberExpression memberExpression)
+        protected override Expression? VisitMember(MemberExpression memberExpression)
         {
             Check.NotNull(memberExpression, nameof(memberExpression));
 
@@ -447,11 +450,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
+        protected override Expression? VisitMemberInit(MemberInitExpression memberInitExpression)
             => GetConstantOrNull(Check.NotNull(memberInitExpression, nameof(memberInitExpression)));
 
         /// <inheritdoc />
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression? VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
@@ -476,7 +479,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (methodCallExpression.Arguments[0].Type.TryGetElementType(typeof(IQueryable<>)) == null
                     && Visit(methodCallExpression.Arguments[0]) is GroupingElementExpression groupingElementExpression)
                 {
-                    Expression result;
+                    Expression? result;
                     switch (methodCallExpression.Method.Name)
                     {
                         case nameof(Enumerable.Average):
@@ -494,16 +497,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                         case nameof(Enumerable.Count):
                             if (methodCallExpression.Arguments.Count == 2)
                             {
-                                groupingElementExpression = ApplyPredicate(
+                                var newGroupingElementExpression = ApplyPredicate(
                                     groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
-                                if (groupingElementExpression == null)
+                                if (newGroupingElementExpression == null)
                                 {
                                     result = null;
                                     break;
                                 }
+                                groupingElementExpression = newGroupingElementExpression;
                             }
 
-                            result = TranslateCount(GetExpressionForAggregation(groupingElementExpression, starProjection: true));
+                            result = TranslateCount(GetExpressionForAggregation(groupingElementExpression, starProjection: true)!);
                             break;
 
                         case nameof(Enumerable.Distinct):
@@ -517,16 +521,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                         case nameof(Enumerable.LongCount):
                             if (methodCallExpression.Arguments.Count == 2)
                             {
-                                groupingElementExpression = ApplyPredicate(
+                                var newGroupingElementExpression = ApplyPredicate(
                                     groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
-                                if (groupingElementExpression == null)
+                                if (newGroupingElementExpression == null)
                                 {
                                     result = null;
                                     break;
                                 }
+                                groupingElementExpression = newGroupingElementExpression;
                             }
 
-                            result = TranslateLongCount(GetExpressionForAggregation(groupingElementExpression, starProjection: true));
+                            result = TranslateLongCount(GetExpressionForAggregation(groupingElementExpression, starProjection: true)!);
                             break;
 
                         case nameof(Enumerable.Max):
@@ -580,7 +585,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     return result ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
 
-                    GroupingElementExpression ApplyPredicate(GroupingElementExpression groupingElement, LambdaExpression lambdaExpression)
+                    GroupingElementExpression? ApplyPredicate(GroupingElementExpression groupingElement, LambdaExpression lambdaExpression)
                     {
                         var predicate = TranslateInternal(RemapLambda(groupingElement, lambdaExpression));
 
@@ -602,7 +607,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         => ReplacingExpressionVisitor.Replace(
                             lambdaExpression.Parameters[0], groupingElement.Element, lambdaExpression.Body);
 
-                    SqlExpression GetExpressionForAggregation(GroupingElementExpression groupingElement, bool starProjection = false)
+                    SqlExpression? GetExpressionForAggregation(GroupingElementExpression groupingElement, bool starProjection = false)
                     {
                         var selector = TranslateInternal(groupingElement.Element);
                         if (selector == null)
@@ -668,7 +673,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var shaperExpression = subqueryTranslation.ShaperExpression;
                 var innerExpression = shaperExpression;
-                Type convertedType = null;
+                Type? convertedType = null;
                 if (shaperExpression is UnaryExpression unaryExpression
                     && unaryExpression.NodeType == ExpressionType.Convert)
                 {
@@ -720,7 +725,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return scalarSubqueryExpression;
             }
 
-            SqlExpression sqlObject = null;
+            SqlExpression? sqlObject = null;
             SqlExpression[] arguments;
             var method = methodCallExpression.Method;
 
@@ -846,7 +851,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         return null;
                     }
 
-                    arguments[i] = sqlArgument;
+                    arguments[i] = sqlArgument!;
                 }
             }
 
@@ -873,21 +878,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        protected override Expression VisitNew(NewExpression newExpression)
+        protected override Expression? VisitNew(NewExpression newExpression)
             => GetConstantOrNull(Check.NotNull(newExpression, nameof(newExpression)));
 
         /// <inheritdoc />
-        protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
+        protected override Expression? VisitNewArray(NewArrayExpression newArrayExpression)
             => null;
 
         /// <inheritdoc />
-        protected override Expression VisitParameter(ParameterExpression parameterExpression)
+        protected override Expression? VisitParameter(ParameterExpression parameterExpression)
             => parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true
                 ? new SqlParameterExpression(Check.NotNull(parameterExpression, nameof(parameterExpression)), null)
                 : null;
 
         /// <inheritdoc />
-        protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
+        protected override Expression? VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
         {
             Check.NotNull(typeBinaryExpression, nameof(typeBinaryExpression));
 
@@ -953,10 +958,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                             return discriminatorValues.Count == 1
                                 ? _sqlExpressionFactory.Equal(
-                                    entityProjectionExpression.DiscriminatorExpression,
+                                    entityProjectionExpression.DiscriminatorExpression!,
                                     _sqlExpressionFactory.Constant(discriminatorValues[0]))
                                 : (SqlExpression)_sqlExpressionFactory.In(
-                                    entityProjectionExpression.DiscriminatorExpression,
+                                    entityProjectionExpression.DiscriminatorExpression!,
                                     _sqlExpressionFactory.Constant(discriminatorValues),
                                     negated: false);
                         }
@@ -997,7 +1002,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        protected override Expression VisitUnary(UnaryExpression unaryExpression)
+        protected override Expression? VisitUnary(UnaryExpression unaryExpression)
         {
             Check.NotNull(unaryExpression, nameof(unaryExpression));
 
@@ -1019,11 +1024,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             switch (unaryExpression.NodeType)
             {
                 case ExpressionType.Not:
-                    return _sqlExpressionFactory.Not(sqlOperand);
+                    return _sqlExpressionFactory.Not(sqlOperand!);
 
                 case ExpressionType.Negate:
                 case ExpressionType.NegateChecked:
-                    return _sqlExpressionFactory.Negate(sqlOperand);
+                    return _sqlExpressionFactory.Negate(sqlOperand!);
 
                 case ExpressionType.Convert:
                 case ExpressionType.ConvertChecked:
@@ -1043,7 +1048,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         sqlOperand = _sqlExpressionFactory.ApplyDefaultTypeMapping(sqlOperand);
 
-                        return _sqlExpressionFactory.Convert(sqlOperand, unaryExpression.Type);
+                        return _sqlExpressionFactory.Convert(sqlOperand!, unaryExpression.Type);
                     }
 
                     break;
@@ -1055,7 +1060,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return null;
         }
 
-        private Expression TryBindMember(Expression source, MemberIdentity member)
+        private Expression? TryBindMember(Expression source, MemberIdentity member)
         {
             if (!(source is EntityReferenceExpression entityReferenceExpression))
             {
@@ -1080,7 +1085,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return null;
         }
 
-        private SqlExpression BindProperty(EntityReferenceExpression entityReferenceExpression, IProperty property)
+        private SqlExpression? BindProperty(EntityReferenceExpression entityReferenceExpression, IProperty property)
         {
             if (entityReferenceExpression.ParameterEntity != null)
             {
@@ -1104,7 +1109,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 else
                 {
                     // This has to be index map since entities cannot map to just integer index
-                    var index = projectionBindingExpression.IndexMap[property];
+                    var index = projectionBindingExpression.IndexMap![property];
                     innerProjection = subSelectExpression.Projection[index].Expression;
                     subSelectExpression.ClearProjection();
                 }
@@ -1164,7 +1169,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Aggregate((a, b) => Expression.AndAlso(a, b));
         }
 
-        private static SqlConstantExpression GetConstantOrNull(Expression expression)
+        private static SqlConstantExpression? GetConstantOrNull(Expression expression)
             => CanEvaluate(expression)
                 ? new SqlConstantExpression(
                     Expression.Constant(
@@ -1173,7 +1178,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     null)
                 : null;
 
-        private bool TryRewriteContainsEntity(Expression source, Expression item, out Expression result)
+        private bool TryRewriteContainsEntity(Expression source, Expression item, [CA.NotNullWhen(true)] out Expression? result)
         {
             result = null;
 
@@ -1244,7 +1249,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return true;
         }
 
-        private bool TryRewriteEntityEquality(ExpressionType nodeType, Expression left, Expression right, bool equalsMethod, out Expression result)
+        private bool TryRewriteEntityEquality(
+            ExpressionType nodeType, Expression left, Expression right, bool equalsMethod, [CA.NotNullWhen(true)] out Expression? result)
         {
             var leftEntityReference = left as EntityReferenceExpression;
             var rightEntityReference = right as EntityReferenceExpression;
@@ -1259,7 +1265,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (IsNullSqlConstantExpression(left)
                 || IsNullSqlConstantExpression(right))
             {
-                var nonNullEntityReference = IsNullSqlConstantExpression(left) ? rightEntityReference : leftEntityReference;
+                var nonNullEntityReference = (IsNullSqlConstantExpression(left) ? rightEntityReference : leftEntityReference)!;
                 var entityType1 = nonNullEntityReference.EntityType;
 
                 if (entityType1.GetViewOrTableMappings().FirstOrDefault()?.Table.IsOptional(entityType1) == true)
@@ -1424,6 +1430,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+#nullable disable
         private static T ParameterValueExtractor<T>(QueryContext context, string baseParameterName, IProperty property)
         {
             var baseParameter = context.ParameterValues[baseParameterName];
@@ -1443,6 +1450,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var getter = property.GetGetter();
             return baseListParameter.Select(e => e != null ? (TProperty)getter.GetClrValue(e) : (TProperty)(object)null).ToList();
         }
+#nullable enable
 
         private static bool CanEvaluate(Expression expression)
         {
@@ -1470,7 +1478,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             => expression is SqlConstantExpression sqlConstant && sqlConstant.Value == null;
 
         [DebuggerStepThrough]
-        private static bool TranslationFailed(Expression original, Expression translation, out SqlExpression castTranslation)
+        private static bool TranslationFailed(Expression? original, Expression? translation, out SqlExpression? castTranslation)
         {
             if (original != null
                 && !(translation is SqlExpression))
@@ -1504,17 +1512,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 EntityType = entityType;
             }
 
-            public EntityShaperExpression ParameterEntity { get; }
-            public ShapedQueryExpression SubqueryEntity { get; }
+            public EntityShaperExpression? ParameterEntity { get; }
+            public ShapedQueryExpression? SubqueryEntity { get; }
             public IEntityType EntityType { get; }
 
             public override Type Type
-                => EntityType.ClrType;
+                => EntityType.ClrType!;
 
             public override ExpressionType NodeType
                 => ExpressionType.Extension;
 
-            public Expression Convert(Type type)
+            public Expression? Convert(Type type)
             {
                 if (type == typeof(object) // Ignore object conversion
                     || type.IsAssignableFrom(Type)) // Ignore casting to base type/interface
@@ -1537,7 +1545,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             public Expression Element { get; private set; }
             public bool IsDistinct { get; private set; }
-            public SqlExpression Predicate { get; private set; }
+            public SqlExpression? Predicate { get; private set; }
 
             public GroupingElementExpression ApplyDistinct()
             {

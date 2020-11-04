@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -31,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="returnType"> The return type from <see cref="P:MemberExpression.Type" />. </param>
         /// <param name="logger"> The query logger to use. </param>
         /// <returns> A SQL translation of the <see cref="MemberExpression" />. </returns>
-        SqlExpression Translate(
-            [CanBeNull] SqlExpression instance,
+        SqlExpression? Translate(
+            [CanBeNull] SqlExpression? instance,
             [NotNull] MemberInfo member,
             [NotNull] Type returnType,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger);

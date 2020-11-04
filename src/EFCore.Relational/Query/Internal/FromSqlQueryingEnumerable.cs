@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
@@ -154,8 +156,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly bool _standAloneStateManager;
             private readonly bool _detailedErrorsEnabled;
 
-            private RelationalDataReader _dataReader;
-            private int[] _indexMap;
+            private RelationalDataReader? _dataReader;
+            private int[]? _indexMap;
 
             public Enumerator(FromSqlQueryingEnumerable<T> queryingEnumerable)
             {
@@ -167,12 +169,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _queryLogger = queryingEnumerable._queryLogger;
                 _standAloneStateManager = queryingEnumerable._standAloneStateManager;
                 _detailedErrorsEnabled = queryingEnumerable._detailedErrorsEnabled;
+                Current = default!;
             }
 
             public T Current { get; private set; }
 
             object IEnumerator.Current
-                => Current;
+                => Current!;
 
             public bool MoveNext()
             {
@@ -186,11 +189,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 .Execute(true, InitializeReader, null);
                         }
 
-                        var hasNext = _dataReader.Read();
+                        var hasNext = _dataReader!.Read();
 
                         Current = hasNext
-                            ? _shaper(_relationalQueryContext, _dataReader.DbDataReader, _indexMap)
-                            : default;
+                            ? _shaper(_relationalQueryContext, _dataReader.DbDataReader, _indexMap!)
+                            : default!;
 
                         return hasNext;
                     }
@@ -246,8 +249,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly bool _standAloneStateManager;
             private readonly bool _detailedErrorsEnabled;
 
-            private RelationalDataReader _dataReader;
-            private int[] _indexMap;
+            private RelationalDataReader? _dataReader;
+            private int[]? _indexMap;
 
             public AsyncEnumerator(FromSqlQueryingEnumerable<T> queryingEnumerable)
             {
@@ -259,6 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _queryLogger = queryingEnumerable._queryLogger;
                 _standAloneStateManager = queryingEnumerable._standAloneStateManager;
                 _detailedErrorsEnabled = queryingEnumerable._detailedErrorsEnabled;
+                Current = default!;
             }
 
             public T Current { get; private set; }
@@ -275,11 +279,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 .ExecuteAsync(true, InitializeReaderAsync, null, _relationalQueryContext.CancellationToken).ConfigureAwait(false);
                         }
 
-                        var hasNext = await _dataReader.ReadAsync(_relationalQueryContext.CancellationToken).ConfigureAwait(false);
+                        var hasNext = await _dataReader!.ReadAsync(_relationalQueryContext.CancellationToken).ConfigureAwait(false);
 
                         Current = hasNext
-                            ? _shaper(_relationalQueryContext, _dataReader.DbDataReader, _indexMap)
-                            : default;
+                            ? _shaper(_relationalQueryContext, _dataReader.DbDataReader, _indexMap!)
+                            : default!;
 
                         return hasNext;
                     }

@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
     /// <summary>
@@ -86,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                             : ExpressionType.Equal,
                         sqlBinaryOperand.Left,
                         sqlBinaryOperand.Right,
-                        sqlBinaryOperand.TypeMapping)
+                        sqlBinaryOperand.TypeMapping)!
                     : sqlExpression;
 
         /// <summary>
@@ -448,10 +450,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             var parentSearchCondition = _isSearchCondition;
             _isSearchCondition = false;
             var instance = (SqlExpression)Visit(sqlFunctionExpression.Instance);
-            SqlExpression[] arguments = default;
+            SqlExpression[]? arguments = default;
             if (!sqlFunctionExpression.IsNiladic)
             {
-                arguments = new SqlExpression[sqlFunctionExpression.Arguments.Count];
+                arguments = new SqlExpression[sqlFunctionExpression.Arguments!.Count];
                 for (var i = 0; i < arguments.Length; i++)
                 {
                     arguments[i] = (SqlExpression)Visit(sqlFunctionExpression.Arguments[i]);

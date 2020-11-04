@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     /// <summary>
@@ -26,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="type"> The <see cref="System.Type" /> of the expression. </param>
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
-        protected SqlExpression([NotNull] Type type, [CanBeNull] RelationalTypeMapping typeMapping)
+        protected SqlExpression([NotNull] Type type, [CanBeNull] RelationalTypeMapping? typeMapping)
         {
             Check.NotNull(type, nameof(type));
 
@@ -42,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     The <see cref="RelationalTypeMapping" /> associated with this expression.
         /// </summary>
-        public virtual RelationalTypeMapping TypeMapping { get; }
+        public virtual RelationalTypeMapping? TypeMapping { get; }
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -63,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             => Print(expressionPrinter);
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is SqlExpression sqlExpression

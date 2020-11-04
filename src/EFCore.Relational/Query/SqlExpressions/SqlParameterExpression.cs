@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     /// <summary>
@@ -23,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     {
         private readonly ParameterExpression _parameterExpression;
 
-        internal SqlParameterExpression(ParameterExpression parameterExpression, RelationalTypeMapping typeMapping)
+        internal SqlParameterExpression(ParameterExpression parameterExpression, RelationalTypeMapping? typeMapping)
             : base(parameterExpression.Type.UnwrapNullableType(), typeMapping)
         {
             _parameterExpression = parameterExpression;
@@ -46,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="typeMapping"> A relational type mapping to apply. </param>
         /// <returns> A new expression which has supplied type mapping. </returns>
-        public SqlExpression ApplyTypeMapping([CanBeNull] RelationalTypeMapping typeMapping)
+        public SqlExpression ApplyTypeMapping([CanBeNull] RelationalTypeMapping? typeMapping)
             => new SqlParameterExpression(_parameterExpression, typeMapping);
 
         /// <inheritdoc />
@@ -66,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is SqlParameterExpression sqlParameterExpression

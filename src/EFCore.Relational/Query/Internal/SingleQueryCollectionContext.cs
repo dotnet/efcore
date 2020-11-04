@@ -3,6 +3,8 @@
 
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
@@ -20,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SingleQueryCollectionContext(
-            [CanBeNull] object parent,
-            [NotNull] object collection,
+            [CanBeNull] object? parent,
+            [CanBeNull] object? collection,
             [NotNull] object[] parentIdentifier,
             [NotNull] object[] outerIdentifier)
         {
@@ -30,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             ParentIdentifier = parentIdentifier;
             OuterIdentifier = outerIdentifier;
             ResultContext = new ResultContext();
+            SelfIdentifier = null!;
         }
 
         /// <summary>
@@ -46,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual object Parent { get; }
+        public virtual object? Parent { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -54,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual object Collection { get; }
+        public virtual object? Collection { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -78,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual object[] SelfIdentifier { get; private set; }
+        public virtual object[]? SelfIdentifier { get; private set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -86,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void UpdateSelfIdentifier([NotNull] object[] selfIdentifier)
+        public virtual void UpdateSelfIdentifier([CanBeNull] object[]? selfIdentifier)
         {
             SelfIdentifier = selfIdentifier;
         }

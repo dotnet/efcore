@@ -9,6 +9,9 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -68,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return base.VisitExtension(extensionExpression);
         }
 
-        private bool IsCompareTo(CaseExpression caseExpression)
+        private bool IsCompareTo([CA.NotNullWhen(true)] CaseExpression? caseExpression)
         {
             if (caseExpression != null
                 && caseExpression.Operand == null
@@ -233,10 +236,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso
                 || sqlBinaryExpression.OperatorType == ExpressionType.OrElse)
             {
-                var leftCandidateInfo = GetInExressionCandidateInfo(left);
-                var rightCandidateInfo = GetInExressionCandidateInfo(right);
-                if (leftCandidateInfo.OptimizeCandidate
-                    && rightCandidateInfo.OptimizeCandidate
+                if (TryGetInExressionCandidateInfo(left, out var leftCandidateInfo)
+                    && TryGetInExressionCandidateInfo(right, out var rightCandidateInfo)
                     && leftCandidateInfo.ColumnExpression == rightCandidateInfo.ColumnExpression
                     && leftCandidateInfo.OperationType == rightCandidateInfo.OperationType)
                 {
@@ -374,29 +375,32 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return result;
         }
 
-        private (bool OptimizeCandidate, ColumnExpression ColumnExpression, object ConstantValue, RelationalTypeMapping TypeMapping,
-            ExpressionType OperationType) GetInExressionCandidateInfo(SqlExpression sqlExpression)
+        private bool TryGetInExressionCandidateInfo(
+            SqlExpression sqlExpression,
+            [CA.MaybeNullWhen(false)] out (ColumnExpression ColumnExpression, object ConstantValue, RelationalTypeMapping TypeMapping, ExpressionType OperationType) candidateInfo)
         {
             if (sqlExpression is SqlUnaryExpression sqlUnaryExpression
                 && sqlUnaryExpression.OperatorType == ExpressionType.Not)
             {
-                var result = GetInExressionCandidateInfo(sqlUnaryExpression.Operand);
-                if (result.OptimizeCandidate)
+                if (TryGetInExressionCandidateInfo(sqlUnaryExpression.Operand, out var inner))
                 {
-                    return (result.OptimizeCandidate, result.ColumnExpression, result.ConstantValue, result.TypeMapping,
-                        result.OperationType == ExpressionType.Equal ? ExpressionType.NotEqual : ExpressionType.Equal);
+                    candidateInfo = (inner.ColumnExpression, inner.ConstantValue, inner.TypeMapping,
+                        inner.OperationType == ExpressionType.Equal ? ExpressionType.NotEqual : ExpressionType.Equal);
+
+                    return true;
                 }
             }
             else if (sqlExpression is SqlBinaryExpression sqlBinaryExpression
                 && (sqlBinaryExpression.OperatorType == ExpressionType.Equal
                     || sqlBinaryExpression.OperatorType == ExpressionType.NotEqual))
             {
-                var column = sqlBinaryExpression.Left as ColumnExpression ?? sqlBinaryExpression.Right as ColumnExpression;
-                var constant = sqlBinaryExpression.Left as SqlConstantExpression ?? sqlBinaryExpression.Right as SqlConstantExpression;
+                var column = (sqlBinaryExpression.Left as ColumnExpression ?? sqlBinaryExpression.Right as ColumnExpression)!;
+                var constant = (sqlBinaryExpression.Left as SqlConstantExpression ?? sqlBinaryExpression.Right as SqlConstantExpression)!;
 
                 if (column != null && constant != null)
                 {
-                    return (true, column, constant.Value, constant.TypeMapping, sqlBinaryExpression.OperatorType);
+                    candidateInfo = (column, constant.Value, constant.TypeMapping!, sqlBinaryExpression.OperatorType);
+                    return true;
                 }
             }
             else if (sqlExpression is InExpression inExpression
@@ -404,11 +408,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && inExpression.Subquery == null
                 && inExpression.Values is SqlConstantExpression valuesConstant)
             {
-                return (true, column, valuesConstant.Value, valuesConstant.TypeMapping,
+                candidateInfo = (column, valuesConstant.Value, valuesConstant.TypeMapping!,
                     inExpression.IsNegated ? ExpressionType.NotEqual : ExpressionType.Equal);
+
+                return true;
             }
 
-            return (false, default, default, default, default);
+            candidateInfo = default;
+            return false;
         }
     }
 }

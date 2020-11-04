@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
@@ -138,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 sqlUnaryExpression.OperatorType,
                 newOperand,
                 sqlUnaryExpression.Type,
-                sqlUnaryExpression.TypeMapping);
+                sqlUnaryExpression.TypeMapping!);
         }
 
         private SqlExpression SimplifyUnaryExpression(
@@ -198,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                         : ExpressionType.AndAlso,
                                     newLeft,
                                     newRight,
-                                    binaryOperand.TypeMapping);
+                                    binaryOperand.TypeMapping!);
                             }
 
                             // those optimizations are only valid in 2-value logic
@@ -211,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     negated,
                                     binaryOperand.Left,
                                     binaryOperand.Right,
-                                    binaryOperand.TypeMapping);
+                                    binaryOperand.TypeMapping!);
                             }
                         }
                             break;
@@ -229,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         typeMapping);
             }
 
-            return _sqlExpressionFactory.MakeUnary(operatorType, operand, type, typeMapping);
+            return _sqlExpressionFactory.MakeUnary(operatorType, operand, type, typeMapping)!;
         }
 
         private SqlExpression SimplifyNullNotNullExpression(
@@ -304,6 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                         case SqlFunctionExpression sqlFunctionExpression
                             when sqlFunctionExpression.IsBuiltIn
+                            && sqlFunctionExpression.Arguments != null
                             && string.Equals("COALESCE", sqlFunctionExpression.Name, StringComparison.OrdinalIgnoreCase):
                             // for coalesce:
                             // (a ?? b) == null -> a == null && b == null
@@ -325,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     break;
             }
 
-            return _sqlExpressionFactory.MakeUnary(operatorType, operand, type, typeMapping);
+            return _sqlExpressionFactory.MakeUnary(operatorType, operand, type, typeMapping)!;
         }
 
         private Expression VisitSqlBinary([NotNull] SqlBinaryExpression sqlBinaryExpression)
@@ -337,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 sqlBinaryExpression.OperatorType,
                 newLeft,
                 newRight,
-                sqlBinaryExpression.TypeMapping);
+                sqlBinaryExpression.TypeMapping!);
         }
 
         private SqlExpression SimplifyBinaryExpression(
@@ -418,7 +421,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     break;
             }
 
-            return _sqlExpressionFactory.MakeBinary(operatorType, left, right, typeMapping);
+            return _sqlExpressionFactory.MakeBinary(operatorType, left, right, typeMapping)!;
         }
 
         private SqlExpression SimplifyNullComparisonExpression(
@@ -448,15 +451,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
 
-            return _sqlExpressionFactory.MakeBinary(operatorType, left, right, typeMapping);
+            return _sqlExpressionFactory.MakeBinary(operatorType, left, right, typeMapping)!;
         }
 
         private SqlExpression SimplifyBoolConstantComparisonExpression(
             ExpressionType operatorType,
             SqlExpression left,
             SqlExpression right,
-            SqlConstantExpression leftBoolConstant,
-            SqlConstantExpression rightBoolConstant,
+            SqlConstantExpression? leftBoolConstant,
+            SqlConstantExpression? rightBoolConstant,
             RelationalTypeMapping typeMapping)
         {
             if (leftBoolConstant != null && rightBoolConstant != null)
@@ -500,7 +503,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         : right;
             }
 
-            return _sqlExpressionFactory.MakeBinary(operatorType, left, right, typeMapping);
+            return _sqlExpressionFactory.MakeBinary(operatorType, left, right, typeMapping)!;
 
             static bool CanOptimize(SqlExpression operand)
                 => operand is LikeExpression
@@ -547,7 +550,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         : left;
             }
 
-            return _sqlExpressionFactory.MakeBinary(operatorType, left, right, typeMapping);
+            return _sqlExpressionFactory.MakeBinary(operatorType, left, right, typeMapping)!;
         }
     }
 }
