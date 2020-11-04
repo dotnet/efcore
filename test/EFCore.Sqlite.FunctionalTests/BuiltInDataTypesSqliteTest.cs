@@ -1495,6 +1495,42 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(SqliteStrings.OrderByNotSupported("ulong"), ex.Message);
         }
 
+        [ConditionalFact]
+        public virtual void Can_query_using_char_ToLower()
+        {
+            using var context = CreateContext();
+
+            var results = context.Set<ObjectBackedDataTypes>()
+                .Select(e => char.ToLower(e.Character)).ToList();
+
+            AssertSql(
+                @"SELECT lower(""o"".""Character"")
+FROM ""ObjectBackedDataTypes"" AS ""o""");
+
+            var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
+                .Select(e => char.ToLower(e.Character)).ToList();
+
+            Assert.Equal(expectedResults, results);
+        }
+
+        [ConditionalFact]
+        public virtual void Can_query_using_char_ToUpper()
+        {
+            using var context = CreateContext();
+
+            var results = context.Set<ObjectBackedDataTypes>()
+                .Select(e => char.ToUpper(e.Character)).ToList();
+
+            AssertSql(
+                @"SELECT upper(""o"".""Character"")
+FROM ""ObjectBackedDataTypes"" AS ""o""");
+
+            var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
+                .Select(e => char.ToUpper(e.Character)).ToList();
+
+            Assert.Equal(expectedResults, results);
+        }
+
         public override void Object_to_string_conversion()
         {
             base.Object_to_string_conversion();
