@@ -240,11 +240,5 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             protected override TestModelBuilder CreateModelBuilder()
                 => CreateTestModelBuilder(InMemoryTestHelpers.Instance);
         }
-
-        public class InMemoryGenericKeylessEntities : GenericKeylessEntities
-        {
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(InMemoryTestHelpers.Instance);
-        }
     }
 }
