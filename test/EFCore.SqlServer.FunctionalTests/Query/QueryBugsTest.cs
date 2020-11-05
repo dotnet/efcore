@@ -9310,7 +9310,7 @@ FROM [Blogs] AS [b]");
             {
                 using var context = new MyContext10295(_options);
                 var result = context.Entities.ToList();
-                Assert.Equal(1, result.Count);
+                Assert.Single(result);
 
                 AssertSql(
                     @"SELECT [e].[Id], [e].[Name]
