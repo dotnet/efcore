@@ -182,9 +182,6 @@ OFFSET 0 LIMIT 1";
             protected override string StoreName
                 => DatabaseName;
 
-            protected override bool UsePooling
-                => false;
-
             protected override ITestStoreFactory TestStoreFactory
                 => CosmosTestStoreFactory.Instance;
 
