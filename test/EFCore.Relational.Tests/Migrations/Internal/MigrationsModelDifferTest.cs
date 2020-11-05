@@ -337,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     var createBankTableOperation = Assert.IsType<CreateTableOperation>(result[0]);
                     Assert.Equal("Banks", createBankTableOperation.Name);
-                    Assert.Equal(0, createBankTableOperation.ForeignKeys.Count);
+                    Assert.Empty(createBankTableOperation.ForeignKeys);
 
                     Assert.Equal(4, result.OfType<AddForeignKeyOperation>().Count());
                 });

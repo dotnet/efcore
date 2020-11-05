@@ -50,8 +50,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using var context = new ChangeContext<ChangeNonVirtualIndexerNotUsed>();
 
-            Assert.False(
-                context.Model.FindEntityType(typeof(ChangeNonVirtualIndexerNotUsed)).GetProperties().Any(e => e.IsIndexerProperty()));
+            Assert.DoesNotContain(
+                context.Model.FindEntityType(typeof(ChangeNonVirtualIndexerNotUsed)).GetProperties(), e => e.IsIndexerProperty());
         }
 
         [ConditionalFact]
@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore
         private class ChangeContext<TEntity> : TestContext<TEntity>
             where TEntity : class
         {
-            private  Action<EntityTypeBuilder<TEntity>> _entityBuilderAction;
+            private readonly Action<EntityTypeBuilder<TEntity>> _entityBuilderAction;
 
             public ChangeContext(
                 bool useLazyLoading = false,
@@ -343,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore
         private class SharedChangeContext<TEntity> : DbContext
             where TEntity : class
         {
-            private  Action<EntityTypeBuilder<TEntity>> _entityBuilderAction;
+            private readonly Action<EntityTypeBuilder<TEntity>> _entityBuilderAction;
 
             public SharedChangeContext(Action<EntityTypeBuilder<TEntity>> entityBuilderAction = null)
             {
