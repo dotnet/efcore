@@ -5300,6 +5300,40 @@ CROSS APPLY (
 ) AS [t2]");
         }
 
+        public override async Task Skip_0_Take_0_works_when_parameter(bool async)
+        {
+            await base.Skip_0_Take_0_works_when_parameter(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE 0 = 1",
+                //
+                @"@__p_0='1'
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
+OFFSET @__p_0 ROWS FETCH NEXT @__p_0 ROWS ONLY");
+        }
+
+        public override async Task Skip_0_Take_0_works_when_constant(bool async)
+        {
+            await base.Skip_0_Take_0_works_when_constant(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o]
+        WHERE 0 = 1) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

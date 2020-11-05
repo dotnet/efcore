@@ -2327,6 +2327,32 @@ INNER JOIN (
 ) AS [t0] ON [t].[Key] = [t0].[Key]");
         }
 
+        public override async Task GroupBy_aggregate_after_skip_0_take_0(bool async)
+        {
+            await base.GroupBy_aggregate_after_skip_0_take_0(async);
+
+            AssertSql(
+                @"SELECT [t].[CustomerID] AS [Key], COUNT(*) AS [Total]
+FROM (
+    SELECT [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE 0 = 1
+) AS [t]
+GROUP BY [t].[CustomerID]");
+        }
+
+        public override async Task GroupBy_skip_0_take_0_aggregate(bool async)
+        {
+            await base.GroupBy_skip_0_take_0_aggregate(async);
+
+            AssertSql(
+                @"SELECT [o].[CustomerID] AS [Key], COUNT(*) AS [Total]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] > 10500
+GROUP BY [o].[CustomerID]
+HAVING 0 = 1");
+        }
+
         public override async Task GroupBy_with_grouping_key_using_Like(bool async)
         {
             await base.GroupBy_with_grouping_key_using_Like(async);

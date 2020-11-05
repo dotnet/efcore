@@ -3105,12 +3105,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         // This does not take internal states since when using this method SelectExpression should be finalized
         [Obsolete("Use the overload which does not require distinct & alias parameter.")]
         public SelectExpression Update(
-            [NotNull] List<ProjectionExpression> projections,
-            [NotNull] List<TableExpressionBase> tables,
+            [NotNull] IReadOnlyList<ProjectionExpression> projections,
+            [NotNull] IReadOnlyList<TableExpressionBase> tables,
             [CanBeNull] SqlExpression predicate,
-            [CanBeNull] List<SqlExpression> groupBy,
+            [NotNull] IReadOnlyList<SqlExpression> groupBy,
             [CanBeNull] SqlExpression having,
-            [CanBeNull] List<OrderingExpression> orderings,
+            [NotNull] IReadOnlyList<OrderingExpression> orderings,
             [CanBeNull] SqlExpression limit,
             [CanBeNull] SqlExpression offset,
             bool distinct,
@@ -3118,6 +3118,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
             Check.NotNull(projections, nameof(projections));
             Check.NotNull(tables, nameof(tables));
+            Check.NotNull(groupBy, nameof(groupBy));
+            Check.NotNull(orderings, nameof(orderings));
 
             var projectionMapping = new Dictionary<ProjectionMember, Expression>();
             foreach (var kvp in _projectionMapping)
@@ -3125,7 +3127,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 projectionMapping[kvp.Key] = kvp.Value;
             }
 
-            return new SelectExpression(alias, projections, tables, groupBy, orderings)
+            return new SelectExpression(alias, projections.ToList(), tables.ToList(), groupBy.ToList(), orderings.ToList())
             {
                 _projectionMapping = projectionMapping,
                 Predicate = predicate,
@@ -3152,12 +3154,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         // This does not take internal states since when using this method SelectExpression should be finalized
         public SelectExpression Update(
-            [NotNull] List<ProjectionExpression> projections,
-            [NotNull] List<TableExpressionBase> tables,
+            [NotNull] IReadOnlyList<ProjectionExpression> projections,
+            [NotNull] IReadOnlyList<TableExpressionBase> tables,
             [CanBeNull] SqlExpression? predicate,
-            [NotNull] List<SqlExpression> groupBy,
+            [NotNull] IReadOnlyList<SqlExpression> groupBy,
             [CanBeNull] SqlExpression? having,
-            [NotNull] List<OrderingExpression> orderings,
+            [NotNull] IReadOnlyList<OrderingExpression> orderings,
             [CanBeNull] SqlExpression? limit,
             [CanBeNull] SqlExpression? offset)
         {
@@ -3172,7 +3174,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 projectionMapping[kvp.Key] = kvp.Value;
             }
 
-            return new SelectExpression(Alias, projections, tables, groupBy, orderings)
+            return new SelectExpression(Alias, projections.ToList(), tables.ToList(), groupBy.ToList(), orderings.ToList())
             {
                 _projectionMapping = projectionMapping,
                 Predicate = predicate,
