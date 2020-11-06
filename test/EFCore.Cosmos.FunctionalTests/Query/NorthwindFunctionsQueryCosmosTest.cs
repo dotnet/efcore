@@ -128,20 +128,20 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND CONTAINS(c[""ContactName""], c[""ContactName""]))");
         }
 
-        [ConditionalTheory(Skip = "Issue #16919")]
         public override async Task String_FirstOrDefault_MethodCall(bool async)
         {
             await base.String_FirstOrDefault_MethodCall(async);
+
             AssertSql(
                 @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (LEFT(c[""ContactName""], 1) = ""A""))");
         }
 
-        [ConditionalTheory(Skip = "Issue #16919")]
         public override async Task String_LastOrDefault_MethodCall(bool async)
         {
             await base.String_LastOrDefault_MethodCall(async);
+
             AssertSql(
                 @"SELECT c
 FROM root c

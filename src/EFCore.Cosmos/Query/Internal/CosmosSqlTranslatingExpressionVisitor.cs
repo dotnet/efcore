@@ -701,7 +701,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             || innerType == typeof(sbyte)
                             || innerType == typeof(char)
                             || innerType == typeof(short)
-                            || innerType == typeof(ushort))))
+                            || innerType == typeof(ushort)))
+                    || (convertedType == typeof(double)
+                        && (innerType == typeof(float))))
                 {
                     return TryRemoveImplicitConvert(unaryExpression.Operand);
                 }
