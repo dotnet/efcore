@@ -7534,7 +7534,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return AssertQuery(
                 async,
-                ss => ss.Set<Weapon>().Where(w => prm == (int)w.AmmunitionType),
+                ss => ss.Set<Weapon>().Where(w => prm == (int?)w.AmmunitionType),
                 ss => ss.Set<Weapon>().Where(w => w.AmmunitionType != null && prm == (int)w.AmmunitionType));
         }
 
