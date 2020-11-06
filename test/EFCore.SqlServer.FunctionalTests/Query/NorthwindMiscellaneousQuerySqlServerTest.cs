@@ -3229,6 +3229,17 @@ FROM [Orders] AS [o]
 WHERE [o].[OrderDate] IS NOT NULL");
         }
 
+        public override async Task Add_minutes_on_constant_value(bool async)
+        {
+            await base.Add_minutes_on_constant_value(async);
+
+            AssertSql(
+                @"SELECT DATEADD(minute, CAST(CAST(([o].[OrderID] % 25) AS float) AS int), '1900-01-01T00:00:00.000') AS [Test]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10500
+ORDER BY [o].[OrderID]");
+        }
+
         public override async Task Select_expression_references_are_updated_correctly_with_subquery(bool async)
         {
             await base.Select_expression_references_are_updated_correctly_with_subquery(async);

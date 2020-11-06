@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     new SqlServerConvertTranslator(sqlExpressionFactory),
                     new SqlServerDataLengthFunctionTranslator(sqlExpressionFactory),
                     new SqlServerDateDiffFunctionsTranslator(sqlExpressionFactory),
-                    new SqlServerDateTimeMethodTranslator(sqlExpressionFactory),
+                    new SqlServerDateTimeMethodTranslator(sqlExpressionFactory, typeMappingSource),
                     new SqlServerFromPartsFunctionTranslator(sqlExpressionFactory, typeMappingSource),
                     new SqlServerFullTextSearchFunctionsTranslator(sqlExpressionFactory),
                     new SqlServerIsDateFunctionTranslator(sqlExpressionFactory),

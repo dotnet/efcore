@@ -4196,6 +4196,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Add_minutes_on_constant_value(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().Where(c => c.OrderID < 10500)
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => new { Test = new DateTime(1900, 1, 1).AddMinutes(o.OrderID % 25) }),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertEqual(e.Test, a.Test));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_expression_references_are_updated_correctly_with_subquery(bool async)
         {
             var nextYear = 2017;
