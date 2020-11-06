@@ -3429,12 +3429,7 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL");
 
         #region Bug11923
 
-#pragma warning disable IDE0060 // Remove unused parameter
-        private static bool ClientMethod11923(int id)
-            => true;
-#pragma warning restore IDE0060 // Remove unused parameter
-
-        [ConditionalFact(Skip = "Issue #17244")]
+        [ConditionalFact]
         public virtual void Collection_without_setter_materialized_correctly()
         {
             using (CreateDatabase11923())
@@ -3458,44 +3453,15 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL");
                             Collection3 = b.Posts3.OrderBy(p => p.Id).First().Comments.Count
                         }).ToList();
 
-                var query3 = context.Blogs
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Blogs
                     .Select(
                         b => new
                         {
                             Collection1 = b.Posts1.OrderBy(p => p.Id),
                             Collection2 = b.Posts2.OrderBy(p => p.Id),
                             Collection3 = b.Posts3.OrderBy(p => p.Id)
-                        }).ToList();
-
-                var query4 = context.Blogs
-                    .Where(b => ClientMethod11923(b.Id))
-                    .Select(
-                        b => new
-                        {
-                            Collection1 = b.Posts1,
-                            Collection2 = b.Posts2,
-                            Collection3 = b.Posts3
-                        }).ToList();
-
-                var query5 = context.Blogs
-                    .Where(b => ClientMethod11923(b.Id))
-                    .Select(
-                        b => new
-                        {
-                            Collection1 = b.Posts1.OrderBy(p => p.Id).First().Comments.Count,
-                            Collection2 = b.Posts2.OrderBy(p => p.Id).First().Comments.Count,
-                            Collection3 = b.Posts3.OrderBy(p => p.Id).First().Comments.Count
-                        }).ToList();
-
-                var query6 = context.Blogs
-                    .Where(b => ClientMethod11923(b.Id))
-                    .Select(
-                        b => new
-                        {
-                            Collection1 = b.Posts1.OrderBy(p => p.Id),
-                            Collection2 = b.Posts2.OrderBy(p => p.Id),
-                            Collection3 = b.Posts3.OrderBy(p => p.Id)
-                        }).ToList();
+                        }).ToList());
             }
         }
 
@@ -3759,7 +3725,7 @@ FROM [Prices] AS [p]");
 
         #region Bug12582
 
-        [ConditionalFact(Skip = "Issue #17244")]
+        [ConditionalFact]
         public virtual void Include_collection_with_OfType_base()
         {
             using (CreateDatabase12582())
