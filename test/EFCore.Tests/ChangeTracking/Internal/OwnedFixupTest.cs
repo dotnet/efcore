@@ -2845,6 +2845,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             principal2.Child1 = dependent;
             principal1.Child2 = null;
 
+            if (entityState != EntityState.Added)
+            {                
+                Assert.Equal(CoreStrings.KeyReadOnly("ParentId", "Parent.Child2#Child"),
+                    Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
+                return;
+            }
+
             context.ChangeTracker.DetectChanges();
 
             Assert.True(context.ChangeTracker.HasChanges());
@@ -3043,6 +3050,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             principal2.ChildCollection1 = principal1.ChildCollection2;
             principal1.ChildCollection2 = null;
 
+            if (entityState != EntityState.Added)
+            {
+                Assert.Equal(CoreStrings.KeyReadOnly("ParentId", "Parent.ChildCollection2#Child"),
+                    Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
+                return;
+            }
+
             context.ChangeTracker.DetectChanges();
 
             Assert.True(context.ChangeTracker.HasChanges());
@@ -3211,6 +3225,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             principal2.Child1 = dependent1;
             principal1.Child2 = dependent2;
+
+            if (entityState != EntityState.Added)
+            {
+                Assert.Equal(CoreStrings.KeyReadOnly("ParentId", "Parent.Child2#Child"),
+                    Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
+                return;
+            }
 
             context.ChangeTracker.DetectChanges();
 
@@ -3499,6 +3520,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var newSubDependentEntry2 = newDependentEntry2.Collection(p => p.SubChildCollection)
                 .FindEntry(subDependent2);
             newSubDependentEntry2.Property<int>("Id").CurrentValue = subDependentEntry2.Property<int>("Id").CurrentValue;
+
+            if (entityState != EntityState.Added)
+            {
+                Assert.Equal(CoreStrings.KeyReadOnly("ParentId", "Parent.ChildCollection2#Child"),
+                    Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
+                return;
+            }
 
             context.ChangeTracker.DetectChanges();
 

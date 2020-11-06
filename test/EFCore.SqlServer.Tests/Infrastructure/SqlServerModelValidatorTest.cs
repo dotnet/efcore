@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Dog>(
                 db =>
                 {
-                    db.Property(d => d.Identity).ValueGeneratedNever().HasColumnName(nameof(Dog.Identity));
+                    db.Property(d => d.Identity).UseHiLo().HasColumnName(nameof(Dog.Identity));
                 });
 
             VerifyError(
