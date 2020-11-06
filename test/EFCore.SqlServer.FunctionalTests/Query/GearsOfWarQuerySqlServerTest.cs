@@ -6949,7 +6949,7 @@ CROSS APPLY (
             await base.Enum_closure_typed_as_underlying_type_generates_correct_parameter_type(async);
 
             AssertSql(
-                @"@__prm_0='1'
+                @"@__prm_0='1' (Nullable = true)
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
