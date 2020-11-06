@@ -388,7 +388,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 var unwrappedType = typeMapping.ClrType.UnwrapNullableType();
                 value = unwrappedType.IsEnum
                     ? Enum.ToObject(unwrappedType, value)
-                    : value;
+                    : unwrappedType == typeof(char)
+                        ? Convert.ChangeType(value, unwrappedType)
+                        : value;
             }
 
             var converter = typeMapping.Converter;
