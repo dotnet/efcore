@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 #nullable enable
@@ -41,6 +42,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         };
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
+        private readonly IRelationalTypeMappingSource _typeMappingSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -48,9 +50,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlServerDateTimeMethodTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
+        public SqlServerDateTimeMethodTranslator(
+            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
+            [NotNull] IRelationalTypeMappingSource typeMappingSource)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
+            _typeMappingSource = typeMappingSource;
         }
 
         /// <summary>
@@ -74,24 +79,32 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             {
                 // DateAdd does not accept number argument outside of int range
                 // AddYears/AddMonths take int argument so no need to check for range
-                return datePart != "year"
+                if (datePart != "year"
                     && datePart != "month"
                     && arguments[0] is SqlConstantExpression sqlConstant
                     && ((double)sqlConstant.Value >= int.MaxValue
-                        || (double)sqlConstant.Value <= int.MinValue)
-                        ? null
-                        : _sqlExpressionFactory.Function(
-                            "DATEADD",
-                            new[]
-                            {
-                                _sqlExpressionFactory.Fragment(datePart),
-                                _sqlExpressionFactory.Convert(arguments[0], typeof(int)),
-                                instance
-                            },
-                            nullable: true,
-                            argumentsPropagateNullability: new[] { false, true, true },
-                            instance.Type,
-                            instance.TypeMapping);
+                        || (double)sqlConstant.Value <= int.MinValue))
+                {
+                    return null;
+                }
+
+                if (instance is SqlConstantExpression instanceConstant)
+                {
+                    instance = instanceConstant.ApplyTypeMapping(_typeMappingSource.FindMapping(typeof(DateTime), "datetime"));
+                }
+
+                return _sqlExpressionFactory.Function(
+                    "DATEADD",
+                    new[]
+                    {
+                        _sqlExpressionFactory.Fragment(datePart),
+                        _sqlExpressionFactory.Convert(arguments[0], typeof(int)),
+                        instance
+                    },
+                    nullable: true,
+                    argumentsPropagateNullability: new[] { false, true, true },
+                    instance.Type,
+                    instance.TypeMapping);
             }
 
             return null;

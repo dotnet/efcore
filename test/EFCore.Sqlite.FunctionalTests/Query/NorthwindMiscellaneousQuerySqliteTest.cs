@@ -172,6 +172,17 @@ FROM ""Orders"" AS ""o""
 WHERE ""o"".""OrderDate"" IS NOT NULL");
         }
 
+        public override async Task Add_minutes_on_constant_value(bool async)
+        {
+            await base.Add_minutes_on_constant_value(async);
+
+            AssertSql(
+                @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', '1900-01-01 00:00:00', CAST(CAST((""o"".""OrderID"" % 25) AS REAL) AS TEXT) || ' minutes'), '0'), '.') AS ""Test""
+FROM ""Orders"" AS ""o""
+WHERE ""o"".""OrderID"" < 10500
+ORDER BY ""o"".""OrderID""");
+        }
+
         public override async Task Select_distinct_long_count(bool async)
         {
             await base.Select_distinct_long_count(async);
