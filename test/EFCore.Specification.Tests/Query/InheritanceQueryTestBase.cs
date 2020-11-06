@@ -76,6 +76,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_use_is_kiwi_with_cast(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Animal>().Select(a => new { Value = a is Kiwi ? ((Kiwi)a).FoundOn : default }));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Can_use_backwards_is_animal(bool async)
         {
             return AssertQuery(

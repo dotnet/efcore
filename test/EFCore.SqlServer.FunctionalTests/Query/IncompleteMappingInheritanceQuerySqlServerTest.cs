@@ -115,6 +115,19 @@ FROM [Animals] AS [a]
 WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND ([a].[Discriminator] = N'Kiwi')");
         }
 
+        public override async Task Can_use_is_kiwi_with_cast(bool async)
+        {
+            await base.Can_use_is_kiwi_with_cast(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [a].[Discriminator] = N'Kiwi' THEN [a].[FoundOn]
+    ELSE CAST(0 AS tinyint)
+END AS [Value]
+FROM [Animals] AS [a]
+WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi')");
+        }
+
         public override async Task Can_use_is_kiwi_with_other_predicate(bool async)
         {
             await base.Can_use_is_kiwi_with_other_predicate(async);
