@@ -160,11 +160,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
+        [Obsolete("Use MakeNullable() instead.")]
         public override EntityShaperExpression MarkAsNullable()
-            => !IsNullable
+            => MakeNullable();
+
+        /// <inheritdoc />
+        public override EntityShaperExpression MakeNullable(bool nullable = true)
+        {
+            return IsNullable != nullable
                 // Marking nullable requires recomputation of Discriminator condition
                 ? new RelationalEntityShaperExpression(EntityType, ValueBufferExpression, true)
                 : this;
+        }
 
         /// <inheritdoc />
         public override EntityShaperExpression Update(Expression valueBufferExpression)
