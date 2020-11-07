@@ -744,6 +744,67 @@ WHERE CAST(ISDATE(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nchar(
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual async Task IsNumeric_not_valid(bool async)
+        {
+            await AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => !EF.Functions.IsNumeric(o.OrderDate.Value.ToString()))
+                    .Select(o => EF.Functions.IsNumeric(o.OrderDate.Value.ToString())),
+                ss => ss.Set<Order>().Select(c => false));
+
+            AssertSql(
+                @"SELECT CAST(ISNUMERIC(CONVERT(varchar(100), [o].[OrderDate])) AS bit)
+FROM [Orders] AS [o]
+WHERE CAST(ISNUMERIC(CONVERT(varchar(100), [o].[OrderDate])) AS bit) <> CAST(1 AS bit)");
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task IsNummeric_valid(bool async)
+        {
+            await AssertQueryScalar(
+                async,
+                ss => ss.Set<OrderDetail>()
+                    .Where(o => EF.Functions.IsNumeric(o.UnitPrice.ToString()))
+                    .Select(o => EF.Functions.IsNumeric(o.UnitPrice.ToString())),
+                ss => ss.Set<OrderDetail>().Select(o => true));
+
+            AssertSql(
+                @"SELECT CAST(ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) AS bit)
+FROM [Order Details] AS [o]
+WHERE CAST(ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) AS bit) = CAST(1 AS bit)");
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task IsNumeric_join_fields(bool async)
+        {
+            await AssertCount(
+                async,
+                ss => ss.Set<Order>(),
+                ss => ss.Set<Order>(),
+                c => EF.Functions.IsNumeric(c.CustomerID + c.OrderID),
+                c => false);
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE CAST(ISNUMERIC(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nchar(5))) AS bit) = CAST(1 AS bit)");
+        }
+
+        [ConditionalFact]
+        public void IsNumeric_should_throw_on_client_eval()
+        {
+            var exIsDate = Assert.Throws<InvalidOperationException>(() => EF.Functions.IsNumeric("#ISNUMERIC#"));
+
+            Assert.Equal(
+                CoreStrings.FunctionOnClient(nameof(SqlServerDbFunctionsExtensions.IsNumeric)),
+                exIsDate.Message);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task DateTimeFromParts_column_compare(bool async)
         {
             await AssertCount(

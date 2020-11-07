@@ -41,7 +41,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     new SqlServerMathTranslator(sqlExpressionFactory),
                     new SqlServerNewGuidTranslator(sqlExpressionFactory),
                     new SqlServerObjectToStringTranslator(sqlExpressionFactory),
-                    new SqlServerStringMethodTranslator(sqlExpressionFactory)
+                    new SqlServerStringMethodTranslator(sqlExpressionFactory),
+                    new SqlServerIsNumericFunctionTranslator(sqlExpressionFactory)
                 });
         }
     }
