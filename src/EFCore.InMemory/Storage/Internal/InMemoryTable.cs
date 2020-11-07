@@ -6,7 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
@@ -187,16 +186,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         /// </summary>
         public virtual void Create(IUpdateEntry entry)
         {
-            var row = entry.EntityType.GetProperties()
-                .Select(p => SnapshotValue(p, p.GetKeyValueComparer(), entry))
-                .ToArray();
-
             var properties = entry.EntityType.GetProperties().ToList();
+            var rows = new object[properties.Count];
             var nullabilityErrors = new List<IProperty>();
 
             for (var index = 0; index < properties.Count; index++)
             {
-                HasNullabilityError(properties[index], row[index], nullabilityErrors);
+                var row = SnapshotValue(properties[index], properties[index].GetKeyValueComparer(), entry);
+
+                rows[index] = row;
+                HasNullabilityError(properties[index], row, nullabilityErrors);
             }
 
             if (nullabilityErrors.Count > 0)
@@ -204,9 +203,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 ThrowNullabilityErrorException(entry, nullabilityErrors);
             }
 
-            _rows.Add(CreateKey(entry), row);
+            _rows.Add(CreateKey(entry), rows);
 
-            BumpValueGenerators(row);
+            BumpValueGenerators(rows);
         }
 
         /// <summary>
@@ -390,11 +389,20 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             Check.NotNull(entry, nameof(entry));
             Check.NotNull(nullabilityErrors, nameof(nullabilityErrors));
 
+            if (_sensitiveLoggingEnabled)
+            {
+                throw new DbUpdateException(
+                    InMemoryStrings.NullabilityErrorExceptionSensitive(
+                        nullabilityErrors.Format(),
+                        entry.EntityType.DisplayName(),
+                        entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties)),
+                    new[] { entry });
+            }
+
             throw new DbUpdateException(
                 InMemoryStrings.NullabilityErrorException(
                     nullabilityErrors.Format(),
-                    entry.EntityType.DisplayName(),
-                    entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties)),
+                    entry.EntityType.DisplayName()),
                 new[] { entry });
         }
 
