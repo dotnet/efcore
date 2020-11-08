@@ -187,15 +187,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         public virtual void Create(IUpdateEntry entry)
         {
             var properties = entry.EntityType.GetProperties().ToList();
-            var rows = new object[properties.Count];
+            var row = new object[properties.Count];
             var nullabilityErrors = new List<IProperty>();
 
             for (var index = 0; index < properties.Count; index++)
             {
-                var row = SnapshotValue(properties[index], properties[index].GetKeyValueComparer(), entry);
+                var propertyValue = SnapshotValue(properties[index], properties[index].GetKeyValueComparer(), entry);
 
-                rows[index] = row;
-                HasNullabilityError(properties[index], row, nullabilityErrors);
+                row[index] = propertyValue;
+                HasNullabilityError(properties[index], propertyValue, nullabilityErrors);
             }
 
             if (nullabilityErrors.Count > 0)
@@ -203,9 +203,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 ThrowNullabilityErrorException(entry, nullabilityErrors);
             }
 
-            _rows.Add(CreateKey(entry), rows);
+            _rows.Add(CreateKey(entry), row);
 
-            BumpValueGenerators(rows);
+            BumpValueGenerators(row);
         }
 
         /// <summary>
@@ -364,7 +364,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
         private bool HasNullabilityError(
             IProperty property,
-            object rowValue,
+            object propertyValue,
             IList<IProperty> nullabilityErrors)
         {
             if (!_nullabilityCheckEnabled)
@@ -372,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 return false;
             }
 
-            if (!property.IsNullable && rowValue == null)
+            if (!property.IsNullable && propertyValue == null)
             {
                 nullabilityErrors.Add(property);
 
