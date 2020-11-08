@@ -1085,7 +1085,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>true for valid numeric and false otherwise.</returns>
         public static bool IsNumeric(
             [CanBeNull] this DbFunctions _,
-            string expression)
+            [NotNull] string expression)
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(IsNumeric)));
     }
 }
