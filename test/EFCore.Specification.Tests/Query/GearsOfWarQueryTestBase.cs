@@ -1487,7 +1487,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Gear>().Where(g => g.HasSoulPatch && g.Weapons.Distinct().OrderBy(w => w.Id).FirstOrDefault().IsAutomatic));
         }
 
-        [ConditionalTheory(Skip = "Issue#17759")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_union_firstordefault_boolean(bool async)
         {
@@ -1499,13 +1499,36 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Where_subquery_concat_firstordefault_boolean(bool async)
+        public virtual Task Where_subquery_join_firstordefault_boolean(bool async)
         {
-            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Gear>().Where(
-                        g => g.HasSoulPatch && g.Weapons.Concat(g.Weapons).OrderBy(w => w.Id).FirstOrDefault().IsAutomatic)))).Message;
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>().Where(
+                    g => g.HasSoulPatch && g.Weapons.Join(g.Weapons, e => e.Id, e => e.Id, (e1, e2) => e1).OrderBy(w => w.Id).FirstOrDefault().IsAutomatic));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_subquery_left_join_firstordefault_boolean(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>().Where(
+                    g => g.HasSoulPatch
+                        && (from o in g.Weapons
+                            join i in g.Weapons on o.Id equals i.Id into grouping
+                            from i in grouping.DefaultIfEmpty()
+                            select o).OrderBy(w => w.Id).FirstOrDefault().IsAutomatic));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_subquery_concat_firstordefault_boolean(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>().Where(
+                    g => g.HasSoulPatch && g.Weapons.Concat(g.Weapons).OrderBy(w => w.Id).FirstOrDefault().IsAutomatic));
         }
 
         [ConditionalTheory]
@@ -1551,78 +1574,29 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Select_navigation_with_concat_and_count(bool async)
+        public virtual Task Select_navigation_with_concat_and_count(bool async)
         {
-            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => AssertQueryScalar(
-                    async,
-                    ss => ss.Set<Gear>().Where(g => !g.HasSoulPatch).Select(g => g.Weapons.Concat(g.Weapons).Count())))).Message;
-
-            Assert.Equal(
-                CoreStrings.TranslationFailed(
-                    @"MaterializeCollectionNavigation(
-    Navigation: Gear.Weapons,
-    subquery: DbSet<Weapon>()
-        .Where(w => EF.Property<string>(g, ""FullName"") != null && object.Equals(
-            objA: EF.Property<string>(g, ""FullName""), 
-            objB: EF.Property<string>(w, ""OwnerFullName"")))
-        .Where(i => EF.Property<string>(g, ""FullName"") != null && object.Equals(
-            objA: EF.Property<string>(g, ""FullName""), 
-            objB: EF.Property<string>(i, ""OwnerFullName"")))
-    .AsQueryable()
-    .Concat(MaterializeCollectionNavigation(
-        Navigation: Gear.Weapons,
-        subquery: DbSet<Weapon>()
-            .Where(w0 => EF.Property<string>(g, ""FullName"") != null && object.Equals(
-                objA: EF.Property<string>(g, ""FullName""), 
-                objB: EF.Property<string>(w0, ""OwnerFullName"")))
-            .Where(i => EF.Property<string>(g, ""FullName"") != null && object.Equals(
-                objA: EF.Property<string>(g, ""FullName""), 
-                objB: EF.Property<string>(i, ""OwnerFullName""))))"),
-                message, ignoreLineEndingDifferences: true);
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Gear>().Where(g => !g.HasSoulPatch).Select(g => g.Weapons.Concat(g.Weapons).Count()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Concat_with_collection_navigations(bool async)
+        public virtual Task Concat_with_collection_navigations(bool async)
         {
-            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => AssertQueryScalar(
-                    async,
-                    ss => ss.Set<Gear>().Where(g => g.HasSoulPatch).Select(g => g.Weapons.Union(g.Weapons).Count())))).Message;
-
-            Assert.Equal(
-                CoreStrings.TranslationFailed(
-                    @"MaterializeCollectionNavigation(
-    Navigation: Gear.Weapons,
-    subquery: DbSet<Weapon>()
-        .Where(w => EF.Property<string>(g, ""FullName"") != null && object.Equals(
-            objA: EF.Property<string>(g, ""FullName""), 
-            objB: EF.Property<string>(w, ""OwnerFullName"")))
-        .Where(i => EF.Property<string>(g, ""FullName"") != null && object.Equals(
-            objA: EF.Property<string>(g, ""FullName""), 
-            objB: EF.Property<string>(i, ""OwnerFullName"")))
-    .AsQueryable()
-    .Union(MaterializeCollectionNavigation(
-        Navigation: Gear.Weapons,
-        subquery: DbSet<Weapon>()
-            .Where(w0 => EF.Property<string>(g, ""FullName"") != null && object.Equals(
-                objA: EF.Property<string>(g, ""FullName""), 
-                objB: EF.Property<string>(w0, ""OwnerFullName"")))
-            .Where(i => EF.Property<string>(g, ""FullName"") != null && object.Equals(
-                objA: EF.Property<string>(g, ""FullName""), 
-                objB: EF.Property<string>(i, ""OwnerFullName""))))"),
-                message, ignoreLineEndingDifferences: true);
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Gear>().Where(g => g.HasSoulPatch).Select(g => g.Weapons.Union(g.Weapons).Count()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Union_with_collection_navigations(bool async)
+        public virtual Task Union_with_collection_navigations(bool async)
         {
-            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => AssertQueryScalar(
-                    async,
-                    ss => ss.Set<Gear>().OfType<Officer>().Select(o => o.Reports.Union(o.Reports).Count())))).Message;
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Gear>().OfType<Officer>().Select(o => o.Reports.Union(o.Reports).Count()));
         }
 
         [ConditionalTheory]

@@ -382,6 +382,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             when genericMethod == QueryableMethods.Join:
                         {
                             var secondArgument = Visit(methodCallExpression.Arguments[1]);
+                            secondArgument = UnwrapCollectionMaterialization(secondArgument);
                             if (secondArgument is NavigationExpansionExpression innerSource)
                             {
                                 return ProcessJoin(
@@ -399,6 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             when genericMethod == QueryableExtensions.LeftJoinMethodInfo:
                         {
                             var secondArgument = Visit(methodCallExpression.Arguments[1]);
+                            secondArgument = UnwrapCollectionMaterialization(secondArgument);
                             if (secondArgument is NavigationExpansionExpression innerSource)
                             {
                                 return ProcessLeftJoin(
@@ -436,6 +438,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             when genericMethod == QueryableMethods.Union:
                         {
                             var secondArgument = Visit(methodCallExpression.Arguments[1]);
+                            secondArgument = UnwrapCollectionMaterialization(secondArgument);
                             if (secondArgument is NavigationExpansionExpression innerSource)
                             {
                                 return ProcessSetOperation(source, genericMethod, innerSource);
@@ -1130,10 +1133,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             LambdaExpression? resultSelector)
         {
             var collectionSelectorBody = ExpandNavigationsForSource(source, RemapLambdaExpression(source, collectionSelector));
-            if (collectionSelectorBody is MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression)
-            {
-                collectionSelectorBody = materializeCollectionNavigationExpression.Subquery;
-            }
+            collectionSelectorBody = UnwrapCollectionMaterialization(collectionSelectorBody);
 
             if (collectionSelectorBody is NavigationExpansionExpression collectionSource)
             {
