@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
@@ -1195,7 +1194,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 // true != a -> !a
                 // false != a -> a
                 return sqlBinaryExpression.OperatorType == ExpressionType.Equal ^ leftBoolValue
-                    ? _sqlExpressionFactory.Not(right)
+                    ? OptimizeNonNullableNotExpression(_sqlExpressionFactory.Not(right))
                     : right;
             }
 

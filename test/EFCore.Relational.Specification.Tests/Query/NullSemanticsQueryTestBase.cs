@@ -725,7 +725,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Where(e => names.Contains(e.NullableStringA))
                 .Select(e => e.NullableStringA).ToList();
 
-            Assert.Equal(0, result.Count);
+            Assert.Empty(result);
         }
 
         [ConditionalFact]
@@ -737,7 +737,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Where(e => names.Contains(e.NullableStringA))
                 .Select(e => e.NullableStringA).ToList();
 
-            Assert.Equal(0, result.Count);
+            Assert.Empty(result);
         }
 
         [ConditionalTheory]
@@ -1526,6 +1526,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<NullSemanticsEntity1>().Where(e => 0 != e.NullableStringA.CompareTo(e.NullableStringB).CompareTo(0)),
                 ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA != e.NullableStringB));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task False_compared_to_negated_is_null(bool async)
+        {
+            await AssertQuery(
+                async,
+                ss => ss.Set<NullSemanticsEntity1>().Where(e => false == (!(e.NullableStringA == null))));
         }
 
         private string NormalizeDelimitersInRawString(string sql)
