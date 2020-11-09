@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore
             IQueryable source,
             string sql,
             object[] arguments,
-            [CallerMemberName] string memberName = null)
+            [CallerMemberName] string memberName = null!)
         {
             var queryRootExpression = (QueryRootExpression)source.Expression;
 

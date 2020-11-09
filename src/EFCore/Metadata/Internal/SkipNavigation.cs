@@ -166,7 +166,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var oldForeignKey = ForeignKey;
             var isChanging = foreignKey != ForeignKey;
 
-            oldForeignKey?.ReferencingSkipNavigations!.Remove(this);
+            if (oldForeignKey != null)
+            {
+                oldForeignKey.ReferencingSkipNavigations!.Remove(this);
+            }
 
             if (foreignKey == null)
             {
