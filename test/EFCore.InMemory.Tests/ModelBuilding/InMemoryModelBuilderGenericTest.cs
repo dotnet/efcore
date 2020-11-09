@@ -45,8 +45,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var contextOptions = new DbContextOptionsBuilder()
                     .UseModel(modelBuilder.Model.FinalizeModel())
-                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultNullabilityCheckProvider)
                     .UseInMemoryDatabase("Can_use_self_referencing_overlapping_FK_PK")
+                    .EnableNullabilityCheck(false)
                     .Options;
 
                 using (var context = new DbContext(contextOptions))

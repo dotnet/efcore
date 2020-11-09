@@ -3,9 +3,12 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -20,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
     public class InMemoryTableFactory : IInMemoryTableFactory
     {
         private readonly bool _sensitiveLoggingEnabled;
+        private readonly bool _nullabilityCheckEnabled;
 
         private readonly ConcurrentDictionary<(IEntityType EntityType, IInMemoryTable BaseTable), Func<IInMemoryTable>> _factories
             = new ConcurrentDictionary<(IEntityType, IInMemoryTable), Func<IInMemoryTable>>();
@@ -30,11 +34,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public InMemoryTableFactory([NotNull] ILoggingOptions loggingOptions)
+        public InMemoryTableFactory(
+            [NotNull] ILoggingOptions loggingOptions,
+            [NotNull] IInMemorySingletonOptions options)
         {
             Check.NotNull(loggingOptions, nameof(loggingOptions));
+            Check.NotNull(options, nameof(options));
 
             _sensitiveLoggingEnabled = loggingOptions.IsSensitiveDataLoggingEnabled;
+            _nullabilityCheckEnabled = options.IsNullabilityCheckEnabled;
         }
 
         /// <summary>
@@ -50,13 +58,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             => (Func<IInMemoryTable>)typeof(InMemoryTableFactory).GetTypeInfo()
                 .GetDeclaredMethod(nameof(CreateFactory))
                 .MakeGenericMethod(entityType.FindPrimaryKey().GetKeyType())
-                .Invoke(null, new object[] { entityType, baseTable, _sensitiveLoggingEnabled });
+                .Invoke(null, new object[] { entityType, baseTable, _sensitiveLoggingEnabled, _nullabilityCheckEnabled });
 
         [UsedImplicitly]
         private static Func<IInMemoryTable> CreateFactory<TKey>(
             IEntityType entityType,
             IInMemoryTable baseTable,
-            bool sensitiveLoggingEnabled)
-            => () => new InMemoryTable<TKey>(entityType, baseTable, sensitiveLoggingEnabled);
+            bool sensitiveLoggingEnabled,
+            bool nullabilityCheckEnabled)
+            => () => new InMemoryTable<TKey>(entityType, baseTable, sensitiveLoggingEnabled, nullabilityCheckEnabled);
     }
 }
