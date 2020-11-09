@@ -158,14 +158,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                 "Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault",
                 "Only one expression can be specified in the select list when the subquery is not introduced with EXISTS."); // 12580
 
-            AddExpectedFailure("Optional_navigation_type_compensation_works_with_DTOs", "Value cannot be null."); // 12591
-            AddExpectedFailure("ToString_with_formatter_is_evaluated_on_the_client", "Value cannot be null."); // 12591
-            AddExpectedFailure("Select_expression_datetime_add_hour", "Value cannot be null."); // 12591
-            AddExpectedFailure("Select_expression_long_to_string", "Value cannot be null."); // 12591
-            AddExpectedFailure("Query_expression_with_to_string_and_contains", "Value cannot be null."); // 12591
-            AddExpectedFailure("Queryable_reprojection", "Value cannot be null."); // 12591
-            AddExpectedFailure("Queryable_simple_anonymous_subquery", "Value cannot be null."); // 12591
-
             AddExpectedFailure(
                 "Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault",
                 "Object reference not set to an instance of an object."); // 12597
