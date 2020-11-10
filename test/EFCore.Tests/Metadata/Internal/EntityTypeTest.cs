@@ -431,6 +431,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
+        public void Removing_a_key_from_wrong_type_throws()
+        {
+            var model = CreateModel();
+
+            var customerType = model.AddEntityType(typeof(Customer));
+            var customerKey = customerType.AddKey(customerType.AddProperty(Customer.IdProperty));
+
+            var orderType = model.AddEntityType(typeof(Order));
+
+            Assert.Equal(
+                CoreStrings.KeyWrongType(
+                    "{'" + Customer.IdProperty.Name + "'}",
+                    nameof(Order),
+                    nameof(Customer)),
+                Assert.Throws<InvalidOperationException>(() => orderType.RemoveKey(customerKey)).Message);
+
+            Assert.Equal(
+                CoreStrings.KeyWrongType(
+                    "{'" + Customer.IdProperty.Name + "'}",
+                    nameof(Order),
+                    nameof(Customer)),
+                Assert.Throws<InvalidOperationException>(() => orderType.RemoveKey(customerKey.Properties)).Message);
+        }
+
+        [ConditionalFact]
         public void Removing_a_key_throws_if_it_referenced_from_a_foreign_key_in_the_model()
         {
             var model = CreateModel();
@@ -520,6 +545,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(PropertySaveBehavior.Throw, nameProperty.GetBeforeSaveBehavior());
             Assert.Equal(PropertySaveBehavior.Throw, nameProperty.GetAfterSaveBehavior());
+        }
+
+        [ConditionalFact]
+        public void Key_properties_must_throw_after_save()
+        {
+            var model = CreateModel();
+            var entityType = model.AddEntityType(typeof(Customer));
+            var nameProperty = entityType.AddProperty(Customer.NameProperty);
+            nameProperty.IsNullable = false;
+            entityType.AddKey(nameProperty);
+
+            Assert.Equal(PropertySaveBehavior.Save, nameProperty.GetBeforeSaveBehavior());
+            Assert.Equal(PropertySaveBehavior.Throw, nameProperty.GetAfterSaveBehavior());
+
+            Assert.Equal(
+                CoreStrings.KeyPropertyMustBeReadOnly(Customer.NameProperty.Name, typeof(Customer).Name),
+                Assert.Throws<InvalidOperationException>(() => nameProperty.SetAfterSaveBehavior(PropertySaveBehavior.Save)).Message);
         }
 
         [ConditionalFact]
@@ -1763,6 +1805,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
+        public void AddProperty_throws_for_wrong_entity_type()
+        {
+            var entityType = CreateModel().AddEntityType(typeof(Order));
+
+            Assert.Equal(
+                CoreStrings.PropertyWrongEntityClrType(
+                    nameof(Customer.Name), nameof(Order), nameof(Customer)),
+                Assert.Throws<InvalidOperationException>(
+                    () => entityType.AddProperty(Customer.NameProperty)).Message);
+        }
+
+        [ConditionalFact]
         public void AddProperty_throws_if_shadow_entity_type()
         {
             var entityType = CreateModel().AddEntityType("Customer");
@@ -1793,8 +1847,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 CoreStrings.PropertyWrongClrType(
                     nameof(Customer.Name), nameof(Customer), typeof(string).DisplayName(), typeof(int).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(
-                    () =>
-                        entityType.AddProperty(nameof(Customer.Name), typeof(int))).Message);
+                    () => entityType.AddProperty(nameof(Customer.Name), typeof(int))).Message);
         }
 
         [ConditionalFact]
@@ -1818,6 +1871,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var property = entityType.AddProperty(nameof(Customer.Name), typeof(int), setTypeConfigurationSource: false);
 
             Assert.Equal(typeof(string), property.ClrType);
+        }
+
+        [ConditionalFact]
+        public void RemoveProperty_throws_when_called_on_wrong_entity_type()
+        {
+            var model = CreateModel();
+            var customerType = model.AddEntityType(typeof(Customer));
+            var customerPk = customerType.AddProperty(Customer.IdProperty);
+
+            var orderType = model.AddEntityType(typeof(Order));
+
+            Assert.Equal(
+                CoreStrings.PropertyWrongType("Id", typeof(Order).Name, typeof(Customer).Name),
+                Assert.Throws<InvalidOperationException>(() => orderType.RemoveProperty(customerPk)).Message);
         }
 
         [ConditionalFact]

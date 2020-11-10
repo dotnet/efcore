@@ -2580,6 +2580,17 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
         }
 
+        public override async Task Add_minutes_on_constant_value(bool async)
+        {
+            await base.Add_minutes_on_constant_value(async);
+
+            AssertSql(
+                @"SELECT VALUE {""c"" : (c[""OrderID""] % 25)}
+FROM root c
+WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10500))
+ORDER BY c[""OrderID""]");
+        }
+
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Select_expression_references_are_updated_correctly_with_subquery(bool async)
         {
@@ -4200,6 +4211,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"
         public override Task First_on_collection_in_projection(bool async)
         {
             return base.First_on_collection_in_projection(async);
+        }
+
+        [ConditionalTheory(Skip = "Non embedded collection subquery Issue#17246")]
+        public override Task Skip_0_Take_0_works_when_constant(bool async)
+        {
+            return base.Skip_0_Take_0_works_when_constant(async);
         }
 
         private void AssertSql(params string[] expected)

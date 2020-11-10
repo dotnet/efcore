@@ -6,6 +6,8 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     /// <summary>
@@ -35,8 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(
-            SqlExpression instance,
+        public virtual SqlExpression? Translate(
+            SqlExpression? instance,
             MethodInfo method,
             IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
@@ -50,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             if (arguments.Count == 1
                 && method.IsContainsMethod()
+                && instance != null
                 && ValidateValues(instance))
             {
                 return _sqlExpressionFactory.In(arguments[0], instance, false);

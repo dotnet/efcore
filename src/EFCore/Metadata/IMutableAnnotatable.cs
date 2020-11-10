@@ -4,6 +4,8 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -25,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     The value of the existing annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
         /// </returns>
-        new object this[[NotNull] string name] { get; [param: CanBeNull] set; }
+        new object? this[[NotNull] string name] { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     Adds an annotation to this object. Throws if an annotation with the specified name already exists.
@@ -33,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The name of the annotation to be added. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The newly added annotation. </returns>
-        IAnnotation AddAnnotation([NotNull] string name, [CanBeNull] object value);
+        IAnnotation AddAnnotation([NotNull] string name, [CanBeNull] object? value);
 
         /// <summary>
         ///     Sets the annotation stored under the given key. Overwrites the existing annotation if an
@@ -41,13 +43,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the annotation to be added. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
-        void SetAnnotation([NotNull] string name, [CanBeNull] object value);
+        void SetAnnotation([NotNull] string name, [CanBeNull] object? value);
 
         /// <summary>
         ///     Removes the given annotation from this object.
         /// </summary>
         /// <param name="name"> The name of the annotation to remove. </param>
         /// <returns> The annotation that was removed. </returns>
-        IAnnotation RemoveAnnotation([NotNull] string name);
+        IAnnotation? RemoveAnnotation([NotNull] string name);
     }
 }

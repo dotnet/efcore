@@ -88,12 +88,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => new GenericTestModelBuilder(testHelpers);
         }
 
-        public class GenericKeylessEntities : KeylessEntitiesTestBase
-        {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
-                => new GenericTestModelBuilder(testHelpers);
-        }
-
         public class GenericOneToMany : OneToManyTestBase
         {
             protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)

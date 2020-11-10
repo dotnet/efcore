@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {

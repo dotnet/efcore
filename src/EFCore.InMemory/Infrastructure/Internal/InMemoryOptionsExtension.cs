@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
     public class InMemoryOptionsExtension : IDbContextOptionsExtension
     {
         private string _storeName;
+        private bool _nullabilityCheckEnabled;
         private InMemoryDatabaseRoot _databaseRoot;
         private DbContextOptionsExtensionInfo _info;
 
@@ -78,11 +79,35 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual bool IsNullabilityCheckEnabled
+            => _nullabilityCheckEnabled;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual InMemoryOptionsExtension WithStoreName([NotNull] string storeName)
         {
             var clone = Clone();
 
             clone._storeName = storeName;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InMemoryOptionsExtension WithNullabilityCheckEnabled(bool nullabilityCheckEnabled)
+        {
+            var clone = Clone();
+
+            clone._nullabilityCheckEnabled = nullabilityCheckEnabled;
 
             return clone;
         }

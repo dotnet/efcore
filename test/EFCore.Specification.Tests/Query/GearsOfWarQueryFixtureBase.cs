@@ -18,8 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public Func<DbContext> GetContextCreator()
             => () => CreateContext();
 
-        public ISetSource GetExpectedData()
-            => new GearsOfWarData();
+        public virtual ISetSource GetExpectedData()
+            =>  new GearsOfWarData();
 
         public IReadOnlyDictionary<Type, object> GetEntitySorters()
             => new Dictionary<Type, Func<object, object>>

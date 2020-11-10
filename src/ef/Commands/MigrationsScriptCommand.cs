@@ -12,7 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
     {
         protected override int Execute(string[] args)
         {
-            var sql = CreateExecutor(args).ScriptMigration(
+            using var executor = CreateExecutor(args);
+
+            var sql = executor.ScriptMigration(
                 _from.Value,
                 _to.Value,
                 _idempotent.HasValue(),

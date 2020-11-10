@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+using Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -391,9 +392,21 @@ SELECT
     CAST([s].[scale] AS int) AS [scale],
     [s].[is_cycling],
     CAST([s].[increment] AS int) AS [increment],
-    CAST([s].[start_value] AS bigint) AS [start_value],
-    CAST([s].[minimum_value] AS bigint) AS [minimum_value],
-    CAST([s].[maximum_value] AS bigint) AS [maximum_value]
+    CAST(CASE 
+        WHEN [s].[start_value] >  9223372036854775807 THEN  9223372036854775807
+        WHEN [s].[start_value] < -9223372036854775808 THEN -9223372036854775808
+        ELSE [s].[start_value] 
+        END AS bigint) AS start_value,
+    CAST(CASE 
+        WHEN [s].[minimum_value] >  9223372036854775807 THEN  9223372036854775807
+        WHEN [s].[minimum_value] < -9223372036854775808 THEN -9223372036854775808 
+        ELSE [s].[minimum_value] 
+        END AS bigint) AS minimum_value,
+    CAST(CASE 
+        WHEN [s].[maximum_value] >  9223372036854775807 THEN  9223372036854775807
+        WHEN [s].[maximum_value] < -9223372036854775808 THEN -9223372036854775808
+        ELSE [s].[maximum_value] 
+        END AS bigint) AS maximum_value
 FROM [sys].[sequences] AS [s]
 JOIN [sys].[types] AS [t] ON [s].[user_type_id] = [t].[user_type_id]";
 

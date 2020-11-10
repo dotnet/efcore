@@ -13,6 +13,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -24,17 +27,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase, IConventionPropertyBase
     {
-        private FieldInfo _fieldInfo;
+        private FieldInfo? _fieldInfo;
+        private ConfigurationSource _configurationSource;
         private ConfigurationSource? _fieldInfoConfigurationSource;
 
         // Warning: Never access these fields directly as access needs to be thread-safe
-        private IClrPropertyGetter _getter;
-        private IClrPropertySetter _setter;
-        private IClrPropertySetter _materializationSetter;
-        private PropertyAccessors _accessors;
-        private PropertyIndexes _indexes;
-        private ConfigurationSource _configurationSource;
-        private IComparer<IUpdateEntry> _currentValueComparer;
+        private IClrPropertyGetter? _getter;
+        private IClrPropertySetter? _setter;
+        private IClrPropertySetter? _materializationSetter;
+        private PropertyAccessors? _accessors;
+        private PropertyIndexes? _indexes;
+        private IComparer<IUpdateEntry>? _currentValueComparer;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -44,8 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         protected PropertyBase(
             [NotNull] string name,
-            [CanBeNull] PropertyInfo propertyInfo,
-            [CanBeNull] FieldInfo fieldInfo,
+            [CanBeNull] PropertyInfo? propertyInfo,
+            [CanBeNull] FieldInfo? fieldInfo,
             ConfigurationSource configurationSource)
         {
             Check.NotEmpty(name, nameof(name));
@@ -78,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual PropertyInfo PropertyInfo { [DebuggerStepThrough] get; }
+        public virtual PropertyInfo? PropertyInfo { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -86,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual FieldInfo FieldInfo
+        public virtual FieldInfo? FieldInfo
         {
             [DebuggerStepThrough] get => _fieldInfo;
             [DebuggerStepThrough] set => SetFieldInfo(value, ConfigurationSource.Explicit);
@@ -129,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual FieldInfo SetField([CanBeNull] string fieldName, ConfigurationSource configurationSource)
+        public virtual FieldInfo? SetField([CanBeNull] string? fieldName, ConfigurationSource configurationSource)
         {
             if (fieldName == null)
             {
@@ -159,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.DebugAssert(propertyName != null || !shouldThrow, "propertyName is null");
 
-            if (!type.GetRuntimeFields().TryGetValue(fieldName, out var fieldInfo)
+            if (!type.GetRuntimeFields()!.TryGetValue(fieldName, out var fieldInfo)
                 && shouldThrow)
             {
                 throw new InvalidOperationException(
@@ -175,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual FieldInfo SetFieldInfo([CanBeNull] FieldInfo fieldInfo, ConfigurationSource configurationSource)
+        public virtual FieldInfo? SetFieldInfo([CanBeNull] FieldInfo? fieldInfo, ConfigurationSource configurationSource)
         {
             if (Equals(FieldInfo, fieldInfo))
             {
@@ -241,9 +244,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static bool IsCompatible(
             [NotNull] FieldInfo fieldInfo,
-            [CanBeNull] Type propertyType,
-            [CanBeNull] Type entityType,
-            [CanBeNull] string propertyName,
+            [CanBeNull] Type? propertyType,
+            [CanBeNull] Type? entityType,
+            [CanBeNull] string? propertyName,
             bool shouldThrow)
         {
             Check.DebugAssert(propertyName != null || !shouldThrow, "propertyName is null");
@@ -287,6 +290,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [CA.AllowNull]
         public virtual PropertyIndexes PropertyIndexes
         {
             get
@@ -319,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual FieldInfo OnFieldInfoSet([CanBeNull] FieldInfo newFieldInfo, [CanBeNull] FieldInfo oldFieldInfo)
+        protected virtual FieldInfo? OnFieldInfoSet([CanBeNull] FieldInfo? newFieldInfo, [CanBeNull] FieldInfo? oldFieldInfo)
             => newFieldInfo;
 
         /// <summary>
@@ -465,7 +469,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        FieldInfo IConventionPropertyBase.SetFieldInfo(FieldInfo fieldInfo, bool fromDataAnnotation)
+        FieldInfo? IConventionPropertyBase.SetFieldInfo(FieldInfo fieldInfo, bool fromDataAnnotation)
             => SetFieldInfo(fieldInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

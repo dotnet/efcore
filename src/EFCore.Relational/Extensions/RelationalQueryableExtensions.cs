@@ -15,6 +15,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -150,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore
             IQueryable source,
             string sql,
             object[] arguments,
-            [CallerMemberName] string memberName = null)
+            [CallerMemberName] string memberName = null!)
         {
             var queryRootExpression = (QueryRootExpression)source.Expression;
 
@@ -162,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             return new FromSqlQueryRootExpression(
-                queryRootExpression.QueryProvider,
+                queryRootExpression.QueryProvider!,
                 entityType,
                 sql,
                 Expression.Constant(arguments));

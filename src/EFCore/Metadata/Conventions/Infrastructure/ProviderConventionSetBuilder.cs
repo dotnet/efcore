@@ -113,6 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             var stringLengthAttributeConvention = new StringLengthAttributeConvention(Dependencies);
             var timestampAttributeConvention = new TimestampAttributeConvention(Dependencies);
             var backingFieldAttributeConvention = new BackingFieldAttributeConvention(Dependencies);
+            var unicodeAttributeConvention = new UnicodeAttributeConvention(Dependencies);
 
             conventionSet.PropertyAddedConventions.Add(backingFieldAttributeConvention);
             conventionSet.PropertyAddedConventions.Add(backingFieldConvention);
@@ -126,6 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.PropertyAddedConventions.Add(keyAttributeConvention);
             conventionSet.PropertyAddedConventions.Add(keyDiscoveryConvention);
             conventionSet.PropertyAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
+            conventionSet.PropertyAddedConventions.Add(unicodeAttributeConvention);
 
             conventionSet.EntityTypePrimaryKeyChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.EntityTypePrimaryKeyChangedConventions.Add(valueGeneratorConvention);

@@ -235,6 +235,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
+        public void Using_invalid_entity_type_throws()
+        {
+            var model = CreateModel();
+
+            Assert.Equal(
+                CoreStrings.InvalidEntityType(typeof(IReadOnlyList<int>)),
+                Assert.Throws<ArgumentException>(() => model.AddEntityType(typeof(IReadOnlyList<int>))).Message);
+        }
+
+        [ConditionalFact]
         public void Adding_duplicate_entity_by_type_throws()
         {
             var model = CreateModel();
@@ -258,6 +268,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(
                 CoreStrings.DuplicateEntityType(typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Customer).FullName)).Message);
+        }
+
+        [ConditionalFact]
+        public void Adding_duplicate_shared_type_throws()
+        {
+            var model = (Model)CreateModel();
+            Assert.Null(model.RemoveEntityType(typeof(Customer).FullName));
+
+            model.AddEntityType(typeof(Customer), ConfigurationSource.Explicit);
+
+            Assert.Equal(
+                CoreStrings.CannotMarkShared(nameof(Customer)),
+                Assert.Throws<InvalidOperationException>(() => model.AddShared(typeof(Customer), ConfigurationSource.Explicit)).Message);
         }
 
         [ConditionalFact]

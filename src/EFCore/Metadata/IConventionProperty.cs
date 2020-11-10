@@ -3,6 +3,8 @@
 
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -19,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this property.
         /// </summary>
-        new IConventionPropertyBuilder Builder { get; }
+        new IConventionPropertyBuilder? Builder { get; }
 
         /// <summary>
         ///     Gets the type that this property belongs to.

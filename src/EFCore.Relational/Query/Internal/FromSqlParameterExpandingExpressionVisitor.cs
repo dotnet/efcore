@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
@@ -47,6 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _sqlExpressionFactory = dependencies.SqlExpressionFactory;
             _typeMappingSource = dependencies.TypeMappingSource;
             _parameterNameGeneratorFactory = dependencies.ParameterNameGeneratorFactory;
+            _parametersValues = default!;
+            _parameterNameGenerator = default!;
         }
 
         /// <summary>

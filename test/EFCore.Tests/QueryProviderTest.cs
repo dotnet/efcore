@@ -22,17 +22,6 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(0, (int)q.Provider.Execute(expr));
         }
 
-        [ConditionalFact(Skip = "issue #15835")]
-        public void Non_generic_ExecuteQuery_does_not_throw_incorrect_pattern()
-        {
-            var context = new TestContext();
-            Func<IQueryable<TestEntity>, int> func = Queryable.Count;
-            IQueryable q = context.TestEntities;
-            var expr = Expression.Call(null, func.GetMethodInfo(), Expression.Constant(q));
-            Assert.Equal(0, q.Provider.Execute<int>(expr));
-            Assert.Equal(0, (int)q.Provider.Execute(expr));
-        }
-
         #region Fixture
 
         private class TestEntity

@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 using Xunit.Abstractions;
@@ -52,6 +53,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 "Sequence contains no elements",
                 Assert.Throws<InvalidOperationException>(
                     () => context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Min(o => o.OrderID)).ToList()).Message);
+        }
+
+        public override async Task Average_on_nav_subquery_in_projection(bool isAsync)
+        {
+            Assert.Equal(
+                "Sequence contains no elements",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Average_on_nav_subquery_in_projection(isAsync))).Message);
         }
 
         public override Task Collection_Last_member_access_in_projection_translated(bool async)

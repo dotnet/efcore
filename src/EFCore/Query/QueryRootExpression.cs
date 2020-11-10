@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -53,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The query provider associated with this query root.
         /// </summary>
-        public virtual IAsyncQueryProvider QueryProvider { get; }
+        public virtual IAsyncQueryProvider? QueryProvider { get; }
 
         /// <summary>
         ///     The entity type reprenseted by this query root.
@@ -105,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             => Print(expressionPrinter);
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is QueryRootExpression queryRootExpression

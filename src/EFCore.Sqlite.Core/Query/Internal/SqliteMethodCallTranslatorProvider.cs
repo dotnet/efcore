@@ -4,6 +4,8 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
     /// <summary>
@@ -31,6 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     new SqliteByteArrayMethodTranslator(sqlExpressionFactory),
                     new SqliteDateTimeAddTranslator(sqlExpressionFactory),
                     new SqliteMathTranslator(sqlExpressionFactory),
+                    new SqliteObjectToStringTranslator(sqlExpressionFactory),
+                    new SqliteRegexMethodTranslator(sqlExpressionFactory),
                     new SqliteStringMethodTranslator(sqlExpressionFactory)
                 });
         }

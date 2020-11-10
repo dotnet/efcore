@@ -27,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
     {
         private readonly IPrincipalKeyValueFactory<TKey> _keyValueFactory;
         private readonly bool _sensitiveLoggingEnabled;
+        private readonly bool _nullabilityCheckEnabled;
         private readonly Dictionary<TKey, object[]> _rows;
         private readonly IList<(int, ValueConverter)> _valueConverters;
         private readonly IList<(int, ValueComparer)> _valueComparers;
@@ -39,12 +40,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public InMemoryTable([NotNull] IEntityType entityType, [CanBeNull] IInMemoryTable baseTable, bool sensitiveLoggingEnabled)
+        public InMemoryTable([NotNull] IEntityType entityType, [CanBeNull] IInMemoryTable baseTable, bool sensitiveLoggingEnabled, bool nullabilityCheckEnabled)
         {
             EntityType = entityType;
             BaseTable = baseTable;
             _keyValueFactory = entityType.FindPrimaryKey().GetPrincipalKeyValueFactory<TKey>();
             _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
+            _nullabilityCheckEnabled = nullabilityCheckEnabled;
             _rows = new Dictionary<TKey, object[]>(_keyValueFactory.EqualityComparer);
 
             foreach (var property in entityType.GetProperties())
@@ -184,9 +186,22 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         /// </summary>
         public virtual void Create(IUpdateEntry entry)
         {
-            var row = entry.EntityType.GetProperties()
-                .Select(p => SnapshotValue(p, p.GetKeyValueComparer(), entry))
-                .ToArray();
+            var properties = entry.EntityType.GetProperties().ToList();
+            var row = new object[properties.Count];
+            var nullabilityErrors = new List<IProperty>();
+
+            for (var index = 0; index < properties.Count; index++)
+            {
+                var propertyValue = SnapshotValue(properties[index], properties[index].GetKeyValueComparer(), entry);
+
+                row[index] = propertyValue;
+                HasNullabilityError(properties[index], propertyValue, nullabilityErrors);
+            }
+
+            if (nullabilityErrors.Count > 0)
+            {
+                ThrowNullabilityErrorException(entry, nullabilityErrors);
+            }
 
             _rows.Add(CreateKey(entry), row);
 
@@ -265,10 +280,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 var comparers = GetKeyComparers(properties);
                 var valueBuffer = new object[properties.Count];
                 var concurrencyConflicts = new Dictionary<IProperty, object>();
+                var nullabilityErrors = new List<IProperty>();
 
                 for (var index = 0; index < valueBuffer.Length; index++)
                 {
                     if (IsConcurrencyConflict(entry, properties[index], row[index], concurrencyConflicts))
+                    {
+                        continue;
+                    }
+
+                    if (HasNullabilityError(properties[index], row[index], nullabilityErrors))
                     {
                         continue;
                     }
@@ -281,6 +302,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 if (concurrencyConflicts.Count > 0)
                 {
                     ThrowUpdateConcurrencyException(entry, concurrencyConflicts);
+                }
+
+                if (nullabilityErrors.Count > 0)
+                {
+                    ThrowNullabilityErrorException(entry, nullabilityErrors);
                 }
 
                 _rows[key] = valueBuffer;
@@ -335,6 +361,50 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
         private static object SnapshotValue(ValueComparer comparer, object value)
             => comparer == null ? value : comparer.Snapshot(value);
+
+        private bool HasNullabilityError(
+            IProperty property,
+            object propertyValue,
+            IList<IProperty> nullabilityErrors)
+        {
+            if (!_nullabilityCheckEnabled)
+            {
+                return false;
+            }
+
+            if (!property.IsNullable && propertyValue == null)
+            {
+                nullabilityErrors.Add(property);
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private void ThrowNullabilityErrorException(
+            [NotNull] IUpdateEntry entry,
+            [NotNull] IList<IProperty> nullabilityErrors)
+        {
+            Check.NotNull(entry, nameof(entry));
+            Check.NotNull(nullabilityErrors, nameof(nullabilityErrors));
+
+            if (_sensitiveLoggingEnabled)
+            {
+                throw new DbUpdateException(
+                    InMemoryStrings.NullabilityErrorExceptionSensitive(
+                        nullabilityErrors.Format(),
+                        entry.EntityType.DisplayName(),
+                        entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties)),
+                    new[] { entry });
+            }
+
+            throw new DbUpdateException(
+                InMemoryStrings.NullabilityErrorException(
+                    nullabilityErrors.Format(),
+                    entry.EntityType.DisplayName()),
+                new[] { entry });
+        }
 
         /// <summary>
         ///     Throws an exception indicating that concurrency conflicts were detected.

@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
@@ -321,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<C>().HasOne<B>().WithOne().HasForeignKey<B>(a => a.Id).HasPrincipalKey<C>(b => b.Id).IsRequired();
 
             VerifyError(
-                CoreStrings.IdentifyingRelationshipCycle(nameof(A)),
+                CoreStrings.IdentifyingRelationshipCycle(nameof(A), "{'Id'}"),
                 modelBuilder.Model);
         }
 
@@ -513,7 +514,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var entityF = model.AddEntityType(typeof(F));
             SetBaseType(entityF, entityA);
 
-            VerifyError(CoreStrings.InconsistentInheritance(nameof(F), nameof(D)), model);
+            VerifyError(CoreStrings.InconsistentInheritance(nameof(F), nameof(A), nameof(D)), model);
         }
 
         [ConditionalFact]
@@ -626,6 +627,26 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Detects_nonCollection_skip_navigations()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            var model = modelBuilder.Model;
+            var customerEntity = model.AddEntityType(typeof(Customer));
+            var orderEntity = model.FindEntityType(typeof(Order));
+            var orderDetailsEntity = model.FindEntityType(typeof(OrderDetails));
+            new EntityTypeBuilder<OrderDetails>(orderDetailsEntity).Ignore(e => e.Customer);
+
+            var productsNavigation = orderDetailsEntity.AddSkipNavigation(
+                nameof(OrderDetails.Customer), null, customerEntity, false, false);
+            orderDetailsEntity.RemoveIgnored(nameof(OrderDetails.Customer));
+
+            VerifyError(
+                CoreStrings.SkipNavigationNonCollection(nameof(OrderDetails.Customer), nameof(OrderDetails)),
+                model);
+        }
+
+        [ConditionalFact]
         public virtual void Passes_on_valid_owned_entity_types()
         {
             var modelBuilder = CreateConventionlessInternalModelBuilder();
@@ -706,7 +727,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ownedTypeBuilder.Ignore(nameof(ReferencedEntity.SampleEntityId), ConfigurationSource.Explicit);
 
             VerifyError(
-                CoreStrings.MultipleOwnerships(nameof(ReferencedEntity)),
+                CoreStrings.MultipleOwnerships(nameof(ReferencedEntity), "'SampleEntity.ReferencedEntity', 'SampleEntity.'"),
                 modelBuilder.Metadata);
         }
 

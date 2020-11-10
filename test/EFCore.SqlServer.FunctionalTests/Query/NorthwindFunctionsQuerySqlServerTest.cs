@@ -1359,7 +1359,7 @@ WHERE [c].[CustomerID] = N'ALFKI'");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[Region] IS NULL OR ([c].[Region] = N'')");
+WHERE [c].[Region] IS NULL OR ([c].[Region] LIKE N'')");
         }
 
         public override void IsNullOrEmpty_in_projection()
@@ -1368,7 +1368,7 @@ WHERE [c].[Region] IS NULL OR ([c].[Region] = N'')");
 
             AssertSql(
                 @"SELECT [c].[CustomerID] AS [Id], CASE
-    WHEN [c].[Region] IS NULL OR (([c].[Region] = N'') AND [c].[Region] IS NOT NULL) THEN CAST(1 AS bit)
+    WHEN [c].[Region] IS NULL OR ([c].[Region] LIKE N'') THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Value]
 FROM [Customers] AS [c]");
@@ -1380,7 +1380,7 @@ FROM [Customers] AS [c]");
 
             AssertSql(
                 @"SELECT [c].[CustomerID] AS [Id], CASE
-    WHEN [c].[Region] IS NOT NULL AND (([c].[Region] <> N'') OR [c].[Region] IS NULL) THEN CAST(1 AS bit)
+    WHEN NOT ([c].[Region] IS NULL OR ([c].[Region] LIKE N'')) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Value]
 FROM [Customers] AS [c]");
@@ -1393,7 +1393,7 @@ FROM [Customers] AS [c]");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[Region] IS NULL OR (LTRIM(RTRIM([c].[Region])) = N'')");
+WHERE [c].[Region] IS NULL OR ([c].[Region] = N'')");
         }
 
         public override async Task IsNullOrWhiteSpace_in_predicate_on_non_nullable_column(bool async)
@@ -1403,7 +1403,7 @@ WHERE [c].[Region] IS NULL OR (LTRIM(RTRIM([c].[Region])) = N'')");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE LTRIM(RTRIM([c].[CustomerID])) = N''");
+WHERE [c].[CustomerID] = N''");
         }
 
         public override async Task TrimStart_without_arguments_in_predicate(bool async)
@@ -1547,6 +1547,16 @@ WHERE 0 = 1");
             //FROM [Orders] AS [o]
             //WHERE [o].[OrderID] < 10250
             //ORDER BY [A] DESC");
+        }
+
+        public override Task Regex_IsMatch_MethodCall(bool async)
+        {
+            return AssertTranslationFailed(() => base.Regex_IsMatch_MethodCall(async));
+        }
+
+        public override Task Regex_IsMatch_MethodCall_constant_input(bool async)
+        {
+            return AssertTranslationFailed(() => base.Regex_IsMatch_MethodCall_constant_input(async));
         }
 
         private void AssertSql(params string[] expected)

@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -26,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private ConfigurationSource? _inverseConfigurationSource;
 
         // Warning: Never access these fields directly as access needs to be thread-safe
-        private IClrCollectionAccessor _collectionAccessor;
-        private ICollectionLoader _manyToManyLoader;
+        private IClrCollectionAccessor? _collectionAccessor;
+        private ICollectionLoader? _manyToManyLoader;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -37,8 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public SkipNavigation(
             [NotNull] string name,
-            [CanBeNull] PropertyInfo propertyInfo,
-            [CanBeNull] FieldInfo fieldInfo,
+            [CanBeNull] PropertyInfo? propertyInfo,
+            [CanBeNull] FieldInfo? fieldInfo,
             [NotNull] EntityType declaringEntityType,
             [NotNull] EntityType targetEntityType,
             bool collection,
@@ -77,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override Type ClrType
-            => this.GetIdentifyingMemberInfo()?.GetMemberType();
+            => this.GetIdentifyingMemberInfo().GetMemberType();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -85,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalSkipNavigationBuilder Builder { get; [param: CanBeNull] set; }
+        public virtual InternalSkipNavigationBuilder? Builder { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -118,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual EntityType JoinEntityType
+        public virtual EntityType? JoinEntityType
             => IsOnDependent ? ForeignKey?.PrincipalEntityType : ForeignKey?.DeclaringEntityType;
 
         /// <summary>
@@ -127,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ForeignKey ForeignKey { get; [param: CanBeNull] private set; }
+        public virtual ForeignKey? ForeignKey { get; [param: CanBeNull] private set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -135,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SkipNavigation Inverse { get; [param: CanBeNull] private set; }
+        public virtual SkipNavigation? Inverse { get; [param: CanBeNull] private set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -159,14 +161,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ForeignKey SetForeignKey([CanBeNull] ForeignKey foreignKey, ConfigurationSource configurationSource)
+        public virtual ForeignKey? SetForeignKey([CanBeNull] ForeignKey? foreignKey, ConfigurationSource configurationSource)
         {
             var oldForeignKey = ForeignKey;
             var isChanging = foreignKey != ForeignKey;
 
             if (oldForeignKey != null)
             {
-                oldForeignKey.ReferencingSkipNavigations.Remove(this);
+                oldForeignKey.ReferencingSkipNavigations!.Remove(this);
             }
 
             if (foreignKey == null)
@@ -175,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 _foreignKeyConfigurationSource = null;
 
                 return isChanging
-                    ? (ForeignKey)DeclaringEntityType.Model.ConventionDispatcher
+                    ? (ForeignKey?)DeclaringEntityType.Model.ConventionDispatcher
                         .OnSkipNavigationForeignKeyChanged(Builder, foreignKey, oldForeignKey)
                     : foreignKey;
             }
@@ -185,9 +187,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 var message = IsOnDependent
                     ? CoreStrings.SkipNavigationForeignKeyWrongDependentType(
-                        foreignKey.Properties.Format(), Name, DeclaringEntityType.DisplayName(), expectedEntityType.DisplayName())
+                        foreignKey.Properties.Format(), DeclaringEntityType.DisplayName(), Name, expectedEntityType.DisplayName())
                     : CoreStrings.SkipNavigationForeignKeyWrongPrincipalType(
-                        foreignKey.Properties.Format(), Name, DeclaringEntityType.DisplayName(), expectedEntityType.DisplayName());
+                        foreignKey.Properties.Format(), DeclaringEntityType.DisplayName(), Name, expectedEntityType.DisplayName());
                 throw new InvalidOperationException(message);
             }
 
@@ -200,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new InvalidOperationException(
                     CoreStrings.SkipInverseMismatchedForeignKey(
                         foreignKey.Properties.Format(),
-                        Name, JoinEntityType.DisplayName(),
+                        Name, JoinEntityType!.DisplayName(),
                         Inverse.Name, Inverse.JoinEntityType.DisplayName()));
             }
 
@@ -234,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SkipNavigation SetInverse([CanBeNull] SkipNavigation inverse, ConfigurationSource configurationSource)
+        public virtual SkipNavigation? SetInverse([CanBeNull] SkipNavigation? inverse, ConfigurationSource configurationSource)
         {
             var oldInverse = Inverse;
             var isChanging = inverse != Inverse;
@@ -310,8 +312,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <returns> The annotation that was set. </returns>
         protected override IConventionAnnotation OnAnnotationSet(
             string name,
-            IConventionAnnotation annotation,
-            IConventionAnnotation oldAnnotation)
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation)
             => DeclaringType.Model.ConventionDispatcher.OnSkipNavigationAnnotationChanged(
                 Builder, name, annotation, oldAnnotation);
 
@@ -357,14 +359,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <inheritdoc />
-        IConventionSkipNavigationBuilder IConventionSkipNavigation.Builder
+        IConventionSkipNavigationBuilder? IConventionSkipNavigation.Builder
         {
             [DebuggerStepThrough]
             get => Builder;
         }
 
         /// <inheritdoc />
-        IConventionAnnotatableBuilder IConventionAnnotatable.Builder
+        IConventionAnnotatableBuilder? IConventionAnnotatable.Builder
         {
             [DebuggerStepThrough]
             get => Builder;
@@ -387,39 +389,41 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <inheritdoc />
         IForeignKey ISkipNavigation.ForeignKey
         {
+            // ModelValidator makes sure ForeignKey isn't null, so we expose it as non-nullable.
             [DebuggerStepThrough]
-            get => ForeignKey;
+            get => ForeignKey!;
         }
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        void IMutableSkipNavigation.SetForeignKey([CanBeNull] IMutableForeignKey foreignKey)
-            => SetForeignKey((ForeignKey)foreignKey, ConfigurationSource.Explicit);
+        void IMutableSkipNavigation.SetForeignKey(IMutableForeignKey? foreignKey)
+            => SetForeignKey((ForeignKey?)foreignKey, ConfigurationSource.Explicit);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionForeignKey IConventionSkipNavigation.SetForeignKey([CanBeNull] IConventionForeignKey foreignKey, bool fromDataAnnotation)
+        IConventionForeignKey? IConventionSkipNavigation.SetForeignKey(IConventionForeignKey? foreignKey, bool fromDataAnnotation)
             => SetForeignKey(
-                (ForeignKey)foreignKey, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+                (ForeignKey?)foreignKey, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         ISkipNavigation ISkipNavigation.Inverse
         {
+            // ModelValidator makes sure ForeignKey isn't null, so we expose it as non-nullable.
             [DebuggerStepThrough]
-            get => Inverse;
+            get => Inverse!;
         }
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IMutableSkipNavigation IMutableSkipNavigation.SetInverse([CanBeNull] IMutableSkipNavigation inverse)
-            => SetInverse((SkipNavigation)inverse, ConfigurationSource.Explicit);
+        IMutableSkipNavigation? IMutableSkipNavigation.SetInverse(IMutableSkipNavigation? inverse)
+            => SetInverse((SkipNavigation?)inverse, ConfigurationSource.Explicit);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionSkipNavigation IConventionSkipNavigation.SetInverse(
-            [CanBeNull] IConventionSkipNavigation inverse,
+        IConventionSkipNavigation? IConventionSkipNavigation.SetInverse(
+            IConventionSkipNavigation? inverse,
             bool fromDataAnnotation)
             => SetInverse(
-                (SkipNavigation)inverse, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+                (SkipNavigation?)inverse, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

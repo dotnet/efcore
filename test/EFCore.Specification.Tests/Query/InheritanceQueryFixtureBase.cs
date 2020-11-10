@@ -10,8 +10,10 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<InheritanceContext>, IQueryFixtureBase
+    public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<InheritanceContext>, IFilteredQueryFixtureBase
     {
+        private readonly Dictionary<bool, ISetSource> _expectedDataCache = new Dictionary<bool, ISetSource>();
+
         protected override string StoreName { get; } = "InheritanceTest";
 
         protected virtual bool EnableFilters
@@ -26,8 +28,28 @@ namespace Microsoft.EntityFrameworkCore.Query
         public Func<DbContext> GetContextCreator()
             => () => CreateContext();
 
-        public ISetSource GetExpectedData()
+        public virtual ISetSource GetExpectedData()
             => new InheritanceData();
+
+        public virtual ISetSource GetFilteredExpectedData(DbContext context)
+        {
+            if (_expectedDataCache.TryGetValue(EnableFilters, out var cachedResult))
+            {
+                return cachedResult;
+            }
+
+            var expectedData = new InheritanceData();
+            if (EnableFilters)
+            {
+                var animals = expectedData.Animals.Where(a => a.CountryId == 1).ToList();
+                var animalQueries = expectedData.AnimalQueries.Where(a => a.CountryId == 1).ToList();
+                expectedData = new InheritanceData(animals, animalQueries, expectedData.Countries, expectedData.Drinks, expectedData.Plants);
+            }
+
+            _expectedDataCache[EnableFilters] = expectedData;
+
+            return expectedData;
+        }
 
         public IReadOnlyDictionary<Type, object> GetEntitySorters()
             => new Dictionary<Type, Func<object, object>>

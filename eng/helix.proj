@@ -31,9 +31,21 @@
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.Relational.Specification.Tests/*.csproj"/>
   </ItemGroup>
 
+  <!-- Start LocalDb instance for test projects which uses SqlServer on windows -->
+  <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`Windows`))'">
+    <XUnitProject Update="$(RepoRoot)/test/EFCore.SqlServer.FunctionalTests/*.csproj">
+      <PreCommands>$(PreCommands); SqlLocalDB start</PreCommands>
+    </XUnitProject>
+    <XUnitProject Update="$(RepoRoot)/test/EFCore.CrossStore.FunctionalTests/*.csproj">
+      <PreCommands>$(PreCommands); SqlLocalDB start</PreCommands>
+    </XUnitProject>
+    <XUnitProject Update="$(RepoRoot)/test/EFCore.OData.FunctionalTests/*.csproj">
+      <PreCommands>$(PreCommands); SqlLocalDB start</PreCommands>
+    </XUnitProject>
+  </ItemGroup>
+
   <PropertyGroup>
-    <HelixPreCommands Condition = "'$(HelixTargetQueue.StartsWith(`Windows`))'">$(HelixPreCommands); SqlLocalDB start</HelixPreCommands>
-    <XUnitPublishTargetFramework>netcoreapp5.0</XUnitPublishTargetFramework>
+    <XUnitPublishTargetFramework>net5.0</XUnitPublishTargetFramework>
     <XUnitRuntimeTargetFramework>netcoreapp2.0</XUnitRuntimeTargetFramework>
     <XUnitRunnerVersion>2.4.1</XUnitRunnerVersion>
     <XUnitArguments></XUnitArguments>

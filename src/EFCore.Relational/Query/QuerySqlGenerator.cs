@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -60,6 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _relationalCommandBuilderFactory = dependencies.RelationalCommandBuilderFactory;
             _sqlGenerationHelper = dependencies.SqlGenerationHelper;
+            _relationalCommandBuilder = default!;
         }
 
         /// <summary>
@@ -163,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return selectExpression;
             }
 
-            IDisposable subQueryIndent = null;
+            IDisposable? subQueryIndent = null;
 
             if (selectExpression.Alias != null)
             {
@@ -226,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (selectExpression.Alias != null)
             {
-                subQueryIndent.Dispose();
+                subQueryIndent!.Dispose();
 
                 _relationalCommandBuilder.AppendLine()
                     .Append(")" + AliasSeparator + _sqlGenerationHelper.DelimitIdentifier(selectExpression.Alias));
@@ -249,9 +252,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Visit(projectionExpression.Expression);
 
-            if (!string.Equals(string.Empty, projectionExpression.Alias)
-                && !(projectionExpression.Expression is ColumnExpression column
-                    && string.Equals(column.Name, projectionExpression.Alias)))
+            if (projectionExpression.Alias != string.Empty
+                && !(projectionExpression.Expression is ColumnExpression column && column.Name == projectionExpression.Alias))
             {
                 _relationalCommandBuilder.Append(AliasSeparator + _sqlGenerationHelper.DelimitIdentifier(projectionExpression.Alias));
             }
@@ -290,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (!sqlFunctionExpression.IsNiladic)
             {
                 _relationalCommandBuilder.Append("(");
-                GenerateList(sqlFunctionExpression.Arguments, e => Visit(e));
+                GenerateList(sqlFunctionExpression.Arguments!, e => Visit(e));
                 _relationalCommandBuilder.Append(")");
             }
 
@@ -352,7 +354,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private void GenerateFromSql(FromSqlExpression fromSqlExpression)
         {
             var sql = fromSqlExpression.Sql;
-            string[] substitutions = null;
+            string[]? substitutions = null;
 
             switch (fromSqlExpression.Arguments)
             {
@@ -385,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
                         else if (value is SqlConstantExpression sqlConstantExpression)
                         {
-                            substitutions[i] = sqlConstantExpression.TypeMapping.GenerateSqlLiteral(sqlConstantExpression.Value);
+                            substitutions[i] = sqlConstantExpression.TypeMapping!.GenerateSqlLiteral(sqlConstantExpression.Value);
                         }
                     }
 
@@ -552,7 +554,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(sqlConstantExpression, nameof(sqlConstantExpression));
 
             _relationalCommandBuilder
-                .Append(sqlConstantExpression.TypeMapping.GenerateSqlLiteral(sqlConstantExpression.Value));
+                .Append(sqlConstantExpression.TypeMapping!.GenerateSqlLiteral(sqlConstantExpression.Value));
 
             return sqlConstantExpression;
         }
@@ -711,7 +713,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
 
                     _relationalCommandBuilder.Append(" AS ");
-                    _relationalCommandBuilder.Append(sqlUnaryExpression.TypeMapping.StoreType);
+                    _relationalCommandBuilder.Append(sqlUnaryExpression.TypeMapping!.StoreType);
                     _relationalCommandBuilder.Append(")");
                     break;
                 }
@@ -925,7 +927,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private void GenerateList<T>(
             IReadOnlyList<T> items,
             Action<T> generationAction,
-            Action<IRelationalCommandBuilder> joinAction = null)
+            Action<IRelationalCommandBuilder>? joinAction = null)
         {
             joinAction ??= (isb => isb.Append(", "));
 

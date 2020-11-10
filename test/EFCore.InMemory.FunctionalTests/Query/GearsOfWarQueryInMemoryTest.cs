@@ -45,10 +45,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             => base.Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(
                 async);
 
-        [ConditionalTheory(Skip = "issue #18284")]
-        public override Task GroupBy_with_boolean_groupin_key_thru_navigation_access(bool async)
-            => GroupBy_with_boolean_groupin_key_thru_navigation_access(async);
-
         [ConditionalTheory(Skip = "issue #17620")]
         public override Task Select_subquery_projecting_single_constant_inside_anonymous(bool async)
             => base.Select_subquery_projecting_single_constant_inside_anonymous(async);
@@ -56,10 +52,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory(Skip = "issue #19683")]
         public override Task Group_by_on_StartsWith_with_null_parameter_as_argument(bool async)
             => base.Group_by_on_StartsWith_with_null_parameter_as_argument(async);
-
-        [ConditionalTheory(Skip = "issue #18284")]
-        public override Task Enum_closure_typed_as_underlying_type_generates_correct_parameter_type(bool async)
-            => base.Enum_closure_typed_as_underlying_type_generates_correct_parameter_type(async);
 
         [ConditionalTheory(Skip = "issue #17386")]
         public override Task Client_member_and_unsupported_string_Equals_in_the_same_query(bool async)
@@ -72,5 +64,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory(Skip = "issue #17537")]
         public override Task SelectMany_predicate_with_non_equality_comparison_with_Take_doesnt_convert_to_join(bool async)
             => base.SelectMany_predicate_with_non_equality_comparison_with_Take_doesnt_convert_to_join(async);
+
+        [ConditionalTheory(Skip = "issue #19584")]
+        public override Task Cast_to_derived_followed_by_include_and_FirstOrDefault(bool async)
+            => base.Cast_to_derived_followed_by_include_and_FirstOrDefault(async);
     }
 }

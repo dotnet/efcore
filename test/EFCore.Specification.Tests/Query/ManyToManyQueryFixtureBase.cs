@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public Func<DbContext> GetContextCreator()
             => () => CreateContext();
 
-        public ISetSource GetExpectedData()
+        public virtual ISetSource GetExpectedData()
             => new ManyToManyData();
 
         public IReadOnlyDictionary<Type, object> GetEntitySorters()

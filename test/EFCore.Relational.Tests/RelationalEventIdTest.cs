@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore
             var property = entityType.AddProperty("A", typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention);
             var key = entityType.AddKey(property, ConfigurationSource.Convention);
             var foreignKey = new ForeignKey(new List<Property> { property }, key, entityType, entityType, ConfigurationSource.Convention);
-            var index = new Metadata.Internal.Index(new List<Property> { property }, "IndexName", entityType, ConfigurationSource.Convention);
+            var index = new Index(new List<Property> { property }, "IndexName", entityType, ConfigurationSource.Convention);
             var contextServices = RelationalTestHelpers.Instance.CreateContextServices(model.FinalizeModel());
 
             var fakeFactories = new Dictionary<Type, Func<object>>

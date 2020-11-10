@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Cosmos.Properties.CosmosStrings", typeof(CosmosStrings).Assembly);
 
         /// <summary>
-        ///     Both the connection string and account key or account endpoint were specified. Only specify one set of connection details.
+        ///     Both the connection string and account key or account endpoint were specified. Specify only one set of connection details.
         /// </summary>
         public static string ConnectionStringConflictingConfiguration
             => GetString("ConnectionStringConflictingConfiguration");
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("CosmosNotInUse");
 
         /// <summary>
-        ///     The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type mapped to the container '{container}' needs to have a unique discriminator value.
+        ///     The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type mapped to the container '{container}' must have a unique discriminator value.
         /// </summary>
         public static string DuplicateDiscriminatorValue([CanBeNull] object entityType1, [CanBeNull] object discriminatorValue, [CanBeNull] object entityType2, [CanBeNull] object container)
             => string.Format(
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType1, discriminatorValue, entityType2, container);
 
         /// <summary>
-        ///     The type of the etag property '{property}' on '{entityType}' is '{propertyType}'. All etag properties need to be strings or have a string converter.
+        ///     The type of the etag property '{property}' on '{entityType}' is '{propertyType}'. All etag properties must be strings or have a string value converter.
         /// </summary>
         public static string ETagNonStringStoreType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)
             => string.Format(
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 property, entityType, propertyType);
 
         /// <summary>
-        ///     The type of the '{idProperty}' property on '{entityType}' is '{propertyType}'. All 'id' properties need to be strings or have a string converter.
+        ///     The type of the '{idProperty}' property on '{entityType}' is '{propertyType}'. All 'id' properties must be strings or have a string value converter.
         /// </summary>
         public static string IdNonStringStoreType([CanBeNull] object idProperty, [CanBeNull] object entityType, [CanBeNull] object propertyType)
             => string.Format(
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 derivedType, entityType);
 
         /// <summary>
-        ///     Unable to generate a valid 'id' value to execute ReadItem query. This usually happens when value provided for one of the properties is null or empty string. Please supply a value that's not null or empty.
+        ///     Unable to generate a valid 'id' value to execute a 'ReadItem' query. This usually happens when the value provided for one of the properties is 'null' or an empty string. Please supply a value that's not 'null' or an empty string.
         /// </summary>
         public static string InvalidResourceId
             => GetString("InvalidResourceId");
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, navigationName);
 
         /// <summary>
-        ///     The entity type '{entityType}' is sharing the container '{container}' with other types, but does not have a discriminator property configured.
+        ///     The entity type '{entityType}' is sharing the container '{container}' with other types, but does not have a discriminator property configured. Configure a discriminator property and assign a unique value for this entity type.
         /// </summary>
         public static string NoDiscriminatorProperty([CanBeNull] object entityType, [CanBeNull] object container)
             => string.Format(
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, container);
 
         /// <summary>
-        ///     The entity type '{entityType}' is sharing the container '{container}' with other types, but does not have a discriminator value configured.
+        ///     The entity type '{entityType}' is sharing the container '{container}' with other types, but does not have a discriminator value configured. Configure a unique discriminator value for this entity type.
         /// </summary>
         public static string NoDiscriminatorValue([CanBeNull] object entityType, [CanBeNull] object container)
             => string.Format(
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, idProperty);
 
         /// <summary>
-        ///     The entity type '{entityType}' does not have a property mapped to the 'id' property in the database. Add a property mapped as 'id'.
+        ///     The entity type '{entityType}' does not have a property mapped to the 'id' property in the database. Add a property mapped to 'id'.
         /// </summary>
         public static string NoIdProperty([CanBeNull] object entityType)
             => string.Format(
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 navigation);
 
         /// <summary>
-        ///     The entity type '{entityType}' has property '{property}' as its concurrency token, but only '_etag' is supported. Consider using 'EntityTypeBuilder.UseETagConcurrency'.
+        ///     The entity type '{entityType}' has property '{property}' configured as a concurrency token, but only a property mapped to '_etag' is supported as a concurrency token. Consider using 'PropertyBuilder.IsETagConcurrency'.
         /// </summary>
         public static string NonETagConcurrencyToken([CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, property);
 
         /// <summary>
-        ///     The entity type '{entityType}' does not have a partition key set, but it is mapped to the container '{container}' shared by entity types with partition keys. Configure a partition key on '{entityType}'.
+        ///     The entity type '{entityType}' does not have a partition key set, but is mapped to the container '{container}' shared by entity types with partition keys. Configure a compatible partition key on '{entityType}'.
         /// </summary>
         public static string NoPartitionKey([CanBeNull] object entityType, [CanBeNull] object container)
             => string.Format(
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 resourceId, partitionKey);
 
         /// <summary>
-        ///     Expression '{sqlExpression}' in SQL tree does not have type mapping assigned.
+        ///     The expression '{sqlExpression}' in the SQL tree does not have a type mapping assigned.
         /// </summary>
         public static string NullTypeMappingInSqlTree([CanBeNull] object sqlExpression)
             => string.Format(
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 sqlExpression);
 
         /// <summary>
-        ///     Cosmos SQL does not allow Offset without Limit. Consider specifying 'Take' operation on the query.
+        ///     Cosmos SQL does not allow Offset without Limit. Consider specifying a 'Take' operation on the query.
         /// </summary>
         public static string OffsetRequiresLimit
             => GetString("OffsetRequiresLimit");
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, missingEntityType);
 
         /// <summary>
-        ///     The entity of type '{entityType}' is mapped as a part of the document mapped to '{missingEntityType}', but there is no tracked entity of this type with the key value '{keyValue}'.
+        ///     The entity of type '{entityType}' is mapped as part of the document mapped to '{missingEntityType}', but there is no tracked entity of this type with the key value '{keyValue}'.
         /// </summary>
         public static string OrphanedNestedDocumentSensitive([CanBeNull] object entityType, [CanBeNull] object missingEntityType, [CanBeNull] object keyValue)
             => string.Format(
@@ -193,18 +193,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, missingEntityType, keyValue);
 
         /// <summary>
-        ///     Unable to execute a ReadItem query since the partition key value is missing. Consider using 'WithPartitionKey' method on the query to specify partition key to use.
+        ///     The partition key specified in the 'WithPartitionKey' call '{partitionKey1}' and the partition key specified in the 'Where' predicate '{partitionKey2}' must be identical to return any results. Remove one of them.
         /// </summary>
-        public static string ParitionKeyMissing
-            => GetString("ParitionKeyMissing");
+        public static string PartitionKeyMismatch([CanBeNull] object partitionKey1, [CanBeNull] object partitionKey2)
+            => string.Format(
+                GetString("PartitionKeyMismatch", nameof(partitionKey1), nameof(partitionKey2)),
+                partitionKey1, partitionKey2);
 
         /// <summary>
-        ///     Partition key specified in the WithPartitionKey call '{paritionKey1}' and the partition key specified in the Where predicate '{paritionKey2}' must be identical. Remove one of them .
+        ///     Unable to execute a 'ReadItem' query since the partition key value is missing. Consider using the 'WithPartitionKey' method on the query to specify partition key to use.
         /// </summary>
-        public static string PartitionKeyMismatch([CanBeNull] object paritionKey1, [CanBeNull] object paritionKey2)
-            => string.Format(
-                GetString("PartitionKeyMismatch", nameof(paritionKey1), nameof(paritionKey2)),
-                paritionKey1, paritionKey2);
+        public static string PartitionKeyMissing
+            => GetString("PartitionKeyMissing");
 
         /// <summary>
         ///     The partition key for entity type '{entityType}' is set to '{property}', but there is no property with that name.
@@ -215,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, property);
 
         /// <summary>
-        ///     The type of the partition key property '{property}' on '{entityType}' is '{propertyType}'. All partition key properties need to be strings or have a string converter.
+        ///     The type of the partition key property '{property}' on '{entityType}' is '{propertyType}'. All partition key properties need to be strings or have a string value converter.
         /// </summary>
         public static string PartitionKeyNonStringStoreType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)
             => string.Format(
@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 property, entityType, propertyType);
 
         /// <summary>
-        ///     The partition key property '{property1}' on '{entityType1}' is mapped as '{storeName1}', but the partition key property '{property2}' on '{entityType2}' is mapped as '{storeName2}'. All partition key properties need to be mapped to the same store property.
+        ///     The partition key property '{property1}' on '{entityType1}' is mapped as '{storeName1}', but the partition key property '{property2}' on '{entityType2}' is mapped as '{storeName2}'. All partition key properties need to be mapped to the same store property for entity types mapped to the same container.
         /// </summary>
         public static string PartitionKeyStoreNameMismatch([CanBeNull] object property1, [CanBeNull] object entityType1, [CanBeNull] object storeName1, [CanBeNull] object property2, [CanBeNull] object entityType2, [CanBeNull] object storeName2)
             => string.Format(
@@ -231,19 +231,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 property1, entityType1, storeName1, property2, entityType2, storeName2);
 
         /// <summary>
-        ///     Unable to execute a ReadItem query since the 'id' value is missing and cannot be generated.
+        ///     Unable to execute a 'ReadItem' query since the 'id' value is missing and cannot be generated.
         /// </summary>
         public static string ResourceIdMissing
             => GetString("ResourceIdMissing");
 
         /// <summary>
-        ///     Reversing the ordering in 'SelectExpression' is not supported when limit or offset are already applied.
+        ///     Reversing the ordering is not supported when limit or offset are already applied.
         /// </summary>
         public static string ReverseAfterSkipTakeNotSupported
             => GetString("ReverseAfterSkipTakeNotSupported");
 
         /// <summary>
-        ///     Unable to bind '{memberType}' '{member}' to entity projection of '{entityType}'.
+        ///     Unable to bind '{memberType}' '{member}' to an entity projection of '{entityType}'.
         /// </summary>
         public static string UnableToBindMemberToEntityProjection([CanBeNull] object memberType, [CanBeNull] object member, [CanBeNull] object entityType)
             => string.Format(

@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 dictionaryType, entityType, interfaceType);
 
         /// <summary>
-        ///     The type '{clrType}' is configured as a shared-type entity type, but the entity type name is not known. Ensure that CreateProxy is called on a DbSet created specifically for the shared-type entity type through use of a `DbContext.Set` overload that accepts an entity type name.
+        ///     The type '{clrType}' is configured as a shared-type entity type, but the entity type name is not known. Ensure that CreateProxy is called on a DbSet created specifically for the shared-type entity type through use of a 'DbContext.Set' overload that accepts an entity type name.
         /// </summary>
         public static string EntityTypeNotFoundShared([CanBeNull] object clrType)
             => string.Format(

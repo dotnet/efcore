@@ -7,7 +7,9 @@ using System.Linq;
 using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
@@ -2725,8 +2727,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private class CustomInMemoryTableFactory : InMemoryTableFactory
         {
-            public CustomInMemoryTableFactory(ILoggingOptions loggingOptions)
-                : base(loggingOptions)
+            public CustomInMemoryTableFactory(ILoggingOptions loggingOptions, IInMemorySingletonOptions options)
+                : base(loggingOptions, options)
             {
             }
         }

@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 using NetTopologySuite.Geometries;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
     internal class SqlServerPointMemberTranslator : IMemberTranslator
@@ -36,8 +38,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
-        public SqlExpression Translate(
-            SqlExpression instance,
+        public SqlExpression? Translate(
+            SqlExpression? instance,
             MemberInfo member,
             Type returnType,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
@@ -48,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             if (typeof(Point).IsAssignableFrom(member.DeclaringType))
             {
-                Check.DebugAssert(instance.TypeMapping != null, "Instance must have typeMapping assigned.");
+                Check.DebugAssert(instance!.TypeMapping != null, "Instance must have typeMapping assigned.");
                 var storeType = instance.TypeMapping.StoreType;
                 var isGeography = string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);
 

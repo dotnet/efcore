@@ -1209,6 +1209,136 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(ConnectionState.Closed, connection.State);
         }
 
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Savepoint_can_be_rolled_back(bool async)
+        {
+            using (var context = CreateContext())
+            {
+                await using var transaction = await context.Database.BeginTransactionAsync();
+
+                context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).First()).State = EntityState.Deleted;
+                await context.SaveChangesAsync();
+
+                if (async)
+                {
+                    await transaction.CreateSavepointAsync("FooSavepoint");
+                }
+                else
+                {
+                    transaction.CreateSavepoint("FooSavepoint");
+                }
+
+                context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).First()).State = EntityState.Deleted;
+                await context.SaveChangesAsync();
+
+                if (async)
+                {
+                    await transaction.RollbackToSavepointAsync("FooSavepoint");
+                }
+                else
+                {
+                    transaction.RollbackToSavepoint("FooSavepoint");
+                }
+
+                await transaction.CommitAsync();
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal(Customers.Count - 1, context.Set<TransactionCustomer>().Count());
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Savepoint_can_be_released(bool async)
+        {
+            using (var context = CreateContext())
+            {
+                await using var transaction = await context.Database.BeginTransactionAsync();
+
+                context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).First()).State = EntityState.Deleted;
+                await context.SaveChangesAsync();
+
+                if (async)
+                {
+                    await transaction.CreateSavepointAsync("FooSavepoint");
+                }
+                else
+                {
+                    transaction.CreateSavepoint("FooSavepoint");
+                }
+
+                context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).First()).State = EntityState.Deleted;
+                await context.SaveChangesAsync();
+
+                if (async)
+                {
+                    await transaction.ReleaseSavepointAsync("FooSavepoint");
+                    await Assert.ThrowsAnyAsync<DbException>(
+                        async () => await transaction.ReleaseSavepointAsync("FooSavepoint"));
+                }
+                else
+                {
+                    transaction.ReleaseSavepoint("FooSavepoint");
+                    Assert.ThrowsAny<DbException>(
+                        () => transaction.ReleaseSavepoint("FooSavepoint"));
+                }
+
+                await transaction.CommitAsync();
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal(Customers.Count - 2, context.Set<TransactionCustomer>().Count());
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Savepoint_name_is_quoted(bool async)
+        {
+            using (var context = CreateContext())
+            {
+                await using var transaction = await context.Database.BeginTransactionAsync();
+
+                context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).First()).State = EntityState.Deleted;
+                await context.SaveChangesAsync();
+
+                if (async)
+                {
+                    await transaction.CreateSavepointAsync("Name with spaces");
+                }
+                else
+                {
+                    transaction.CreateSavepoint("Name with spaces");
+                }
+
+                context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).First()).State = EntityState.Deleted;
+                await context.SaveChangesAsync();
+
+                if (async)
+                {
+                    await transaction.RollbackToSavepointAsync("Name with spaces");
+                }
+                else
+                {
+                    transaction.RollbackToSavepoint("Name with spaces");
+                }
+
+                await transaction.CommitAsync();
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal(Customers.Count - 1, context.Set<TransactionCustomer>().Count());
+            }
+        }
+
         protected virtual void AssertStoreInitialState()
         {
             using var context = CreateContext();

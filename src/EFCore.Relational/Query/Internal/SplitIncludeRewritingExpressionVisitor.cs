@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
@@ -76,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             var selectorParameter = selector.Parameters[0];
             var selectorBody = selector.Body;
-            var sourceElementType = source.Type.TryGetSequenceType();
+            var sourceElementType = source.Type.TryGetSequenceType()!;
 
             if (reverseOrdering)
             {

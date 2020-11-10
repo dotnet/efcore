@@ -671,11 +671,5 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             protected override TestModelBuilder CreateModelBuilder()
                 => CreateTestModelBuilder(SqlServerTestHelpers.Instance);
         }
-
-        public class SqlServerGenericKeylessEntities : GenericKeylessEntities
-        {
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(SqlServerTestHelpers.Instance);
-        }
     }
 }

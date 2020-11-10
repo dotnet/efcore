@@ -377,7 +377,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<B>().ToTable("Table");
 
             VerifyError(
-                CoreStrings.IdentifyingRelationshipCycle(nameof(A)),
+                CoreStrings.IdentifyingRelationshipCycle(nameof(A), "{'Id'}"),
                 modelBuilder.Model);
         }
 
@@ -567,6 +567,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_stored_setting()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").HasComputedColumnSql("1", true);
+            modelBuilder.Entity<Dog>().Property(c => c.Breed).HasColumnName("Breed").HasComputedColumnSql("1");
+
+            VerifyError(
+                RelationalStrings.DuplicateColumnNameIsStoredMismatch(
+                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "True", ""),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
         public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_DefaultValue()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -623,6 +637,48 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_collations()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").UseCollation("UTF8");
+            modelBuilder.Entity<Dog>().Property(c => c.Breed).HasColumnName("Breed");
+
+            VerifyError(
+                RelationalStrings.DuplicateColumnNameCollationMismatch(
+                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "UTF8", ""),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_precision()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").HasPrecision(1);
+            modelBuilder.Entity<Dog>().Property(c => c.Breed).HasColumnName("Breed");
+
+            VerifyError(
+                RelationalStrings.DuplicateColumnNamePrecisionMismatch(
+                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "", "1"),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_scale()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").HasPrecision(1, 2);
+            modelBuilder.Entity<Dog>().Property(c => c.Breed).HasColumnName("Breed").HasPrecision(1);
+
+            VerifyError(
+                RelationalStrings.DuplicateColumnNameScaleMismatch(
+                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "", "2"),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
         public virtual void Passes_for_compatible_duplicate_column_names_within_hierarchy()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -658,6 +714,27 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Dog>();
 
             Validate(modelBuilder.Model);
+        }
+
+        [ConditionalFact(Skip = "Issue #23144")]
+        public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_on_different_tables()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey("FriendId").HasConstraintName("FK");
+            modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey("FriendId").HasConstraintName("FK");
+
+            modelBuilder.Entity<Cat>().ToTable("Cats");
+            modelBuilder.Entity<Dog>().ToTable("Dogs");
+
+            VerifyError(
+                RelationalStrings.DuplicateForeignKeyTableMismatch(
+                    "{'FriendId'}", nameof(Dog),
+                    "{'FriendId'}", nameof(Cat),
+                    "FK",
+                    "Cats",
+                    "Dogs"),
+                modelBuilder.Model);
         }
 
         [ConditionalFact]

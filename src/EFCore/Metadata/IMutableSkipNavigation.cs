@@ -4,6 +4,8 @@
 using System.Diagnostics;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -39,19 +41,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the join type used by the foreign key.
         /// </summary>
-        new IMutableEntityType JoinEntityType
+        new IMutableEntityType? JoinEntityType
         {
             [DebuggerStepThrough]
-            get => (IMutableEntityType)((ISkipNavigation)this).JoinEntityType;
+            get => (IMutableEntityType?)((ISkipNavigation)this).JoinEntityType;
         }
 
         /// <summary>
         ///     Gets the foreign key to the join type.
         /// </summary>
-        new IMutableForeignKey ForeignKey
+        new IMutableForeignKey? ForeignKey
         {
             [DebuggerStepThrough]
-            get => (IMutableForeignKey)((ISkipNavigation)this).ForeignKey;
+            get => (IMutableForeignKey?)((ISkipNavigation)this).ForeignKey;
         }
 
         /// <summary>
@@ -60,15 +62,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="foreignKey">
         ///     The foreign key. Passing <see langword="null" /> will result in there being no foreign key associated.
         /// </param>
-        void SetForeignKey([CanBeNull] IMutableForeignKey foreignKey);
+        void SetForeignKey([CanBeNull] IMutableForeignKey? foreignKey);
 
         /// <summary>
         ///     Gets the inverse skip navigation.
         /// </summary>
-        new IMutableSkipNavigation Inverse
+        new IMutableSkipNavigation? Inverse
         {
             [DebuggerStepThrough]
-            get => (IMutableSkipNavigation)((ISkipNavigation)this).Inverse;
+            get => (IMutableSkipNavigation?)((ISkipNavigation)this).Inverse;
         }
 
         /// <summary>
@@ -78,6 +80,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The inverse skip navigation. Passing <see langword="null" /> will result in there being no inverse navigation property defined.
         /// </param>
         [DebuggerStepThrough]
-        IMutableSkipNavigation SetInverse([CanBeNull] IMutableSkipNavigation inverse);
+        IMutableSkipNavigation? SetInverse([CanBeNull] IMutableSkipNavigation? inverse);
     }
 }

@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -51,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public EntityProjectionExpression(
             [NotNull] IEntityType entityType,
             [NotNull] IDictionary<IProperty, ColumnExpression> propertyExpressionMap,
-            [CanBeNull] SqlExpression discriminatorExpression = null)
+            [CanBeNull] SqlExpression? discriminatorExpression = null)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(propertyExpressionMap, nameof(propertyExpressionMap));
@@ -69,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     A <see cref="SqlExpression" /> to generate discriminator for entity type.
         /// </summary>
-        public virtual SqlExpression DiscriminatorExpression { get; }
+        public virtual SqlExpression? DiscriminatorExpression { get; }
 
         /// <inheritdoc />
         public sealed override ExpressionType NodeType
@@ -77,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <inheritdoc />
         public override Type Type
-            => EntityType.ClrType;
+            => EntityType.ClrType!;
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -204,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="navigation"> A navigation to bind. </param>
         /// <returns> An entity shaper expression for the target entity type of the navigation. </returns>
-        public virtual EntityShaperExpression BindNavigation([NotNull] INavigation navigation)
+        public virtual EntityShaperExpression? BindNavigation([NotNull] INavigation navigation)
         {
             Check.NotNull(navigation, nameof(navigation));
 

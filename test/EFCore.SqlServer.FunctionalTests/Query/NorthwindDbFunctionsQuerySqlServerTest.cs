@@ -486,7 +486,7 @@ WHERE CONTAINS([e0].[Title], N'President') AND CONTAINS([e].[Title], N'""Ins*""'
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(YEAR, [o].[OrderDate], GETDATE()) = 0");
+WHERE DATEDIFF(year, [o].[OrderDate], GETDATE()) = 0");
         }
 
         [ConditionalTheory]
@@ -504,7 +504,7 @@ WHERE DATEDIFF(YEAR, [o].[OrderDate], GETDATE()) = 0");
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(MONTH, [o].[OrderDate], GETDATE()) = 0");
+WHERE DATEDIFF(month, [o].[OrderDate], GETDATE()) = 0");
         }
 
         [ConditionalTheory]
@@ -521,7 +521,7 @@ WHERE DATEDIFF(MONTH, [o].[OrderDate], GETDATE()) = 0");
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(DAY, [o].[OrderDate], GETDATE()) = 0");
+WHERE DATEDIFF(day, [o].[OrderDate], GETDATE()) = 0");
         }
 
         [ConditionalTheory]
@@ -538,7 +538,7 @@ WHERE DATEDIFF(DAY, [o].[OrderDate], GETDATE()) = 0");
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(HOUR, [o].[OrderDate], GETDATE()) = 0");
+WHERE DATEDIFF(hour, [o].[OrderDate], GETDATE()) = 0");
         }
 
         [ConditionalTheory]
@@ -555,7 +555,7 @@ WHERE DATEDIFF(HOUR, [o].[OrderDate], GETDATE()) = 0");
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(MINUTE, [o].[OrderDate], GETDATE()) = 0");
+WHERE DATEDIFF(minute, [o].[OrderDate], GETDATE()) = 0");
         }
 
         [ConditionalTheory]
@@ -572,7 +572,7 @@ WHERE DATEDIFF(MINUTE, [o].[OrderDate], GETDATE()) = 0");
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(SECOND, [o].[OrderDate], GETDATE()) = 0");
+WHERE DATEDIFF(second, [o].[OrderDate], GETDATE()) = 0");
         }
 
         [ConditionalTheory]
@@ -589,7 +589,7 @@ WHERE DATEDIFF(SECOND, [o].[OrderDate], GETDATE()) = 0");
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(MILLISECOND, GETDATE(), DATEADD(day, CAST(1.0E0 AS int), GETDATE())) = 0");
+WHERE DATEDIFF(millisecond, GETDATE(), DATEADD(day, CAST(1.0E0 AS int), GETDATE())) = 0");
         }
 
         [ConditionalTheory]
@@ -606,7 +606,7 @@ WHERE DATEDIFF(MILLISECOND, GETDATE(), DATEADD(day, CAST(1.0E0 AS int), GETDATE(
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(MICROSECOND, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDATE())) = 0");
+WHERE DATEDIFF(microsecond, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDATE())) = 0");
         }
 
         [ConditionalTheory]
@@ -623,7 +623,7 @@ WHERE DATEDIFF(MICROSECOND, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDA
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(NANOSECOND, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDATE())) = 0");
+WHERE DATEDIFF(nanosecond, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDATE())) = 0");
         }
 
         [ConditionalFact]
@@ -642,7 +642,7 @@ WHERE DATEDIFF(NANOSECOND, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDAT
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(WEEK, [o].[OrderDate], '1998-05-06T00:00:00.000') = 5");
+WHERE DATEDIFF(week, [o].[OrderDate], '1998-05-06T00:00:00.000') = 5");
         }
 
         [ConditionalFact]
@@ -661,7 +661,7 @@ WHERE DATEDIFF(WEEK, [o].[OrderDate], '1998-05-06T00:00:00.000') = 5");
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(WEEK, CAST([o].[OrderDate] AS datetimeoffset), '1998-05-06T00:00:00.0000000+00:00') = 5");
+WHERE DATEDIFF(week, CAST([o].[OrderDate] AS datetimeoffset), '1998-05-06T00:00:00.0000000+00:00') = 5");
         }
 
         [ConditionalFact]
@@ -680,7 +680,7 @@ WHERE DATEDIFF(WEEK, CAST([o].[OrderDate] AS datetimeoffset), '1998-05-06T00:00:
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(WEEK, NULL, [o].[OrderDate]) = 5");
+WHERE DATEDIFF(week, NULL, [o].[OrderDate]) = 5");
         }
 
         [ConditionalTheory]
@@ -710,9 +710,9 @@ WHERE CAST(ISDATE([o].[CustomerID]) AS bit) <> CAST(1 AS bit)");
                 ss => ss.Set<Order>().Select(o => true));
 
             AssertSql(
-                @"SELECT CAST(ISDATE(CONVERT(VARCHAR(100), [o].[OrderDate])) AS bit)
+                @"SELECT CAST(ISDATE(CONVERT(varchar(100), [o].[OrderDate])) AS bit)
 FROM [Orders] AS [o]
-WHERE CAST(ISDATE(CONVERT(VARCHAR(100), [o].[OrderDate])) AS bit) = CAST(1 AS bit)");
+WHERE CAST(ISDATE(CONVERT(varchar(100), [o].[OrderDate])) AS bit) = CAST(1 AS bit)");
         }
 
         [ConditionalTheory]

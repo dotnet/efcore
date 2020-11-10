@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -54,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private readonly ExpressionPrinter _expressionPrinter;
 
-        private Dictionary<string, LambdaExpression> _runtimeParameters;
+        private Dictionary<string, LambdaExpression>? _runtimeParameters;
 
         /// <summary>
         ///     Creates a new instance of the <see cref="QueryCompilationContext" /> class.

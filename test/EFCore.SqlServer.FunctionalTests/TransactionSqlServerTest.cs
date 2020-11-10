@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -13,6 +14,10 @@ namespace Microsoft.EntityFrameworkCore
             : base(fixture)
         {
         }
+
+        // Savepoints cannot be released in SQL Server
+        public override Task Savepoint_can_be_released(bool async)
+            => Task.CompletedTask;
 
         protected override bool SnapshotSupported
             => true;

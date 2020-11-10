@@ -5,6 +5,7 @@ using System;
 using System.Data.Common;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -114,6 +115,20 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                     sqliteConnection.DefaultTimeout = _commandTimeout.Value;
                 }
 
+                sqliteConnection.CreateFunction<string, string, bool?>(
+                    "regexp",
+                    (pattern, input) =>
+                    {
+                        if (input == null
+                            || pattern == null)
+                        {
+                            return null;
+                        }
+
+                        return Regex.IsMatch(input, pattern);
+                    },
+                    isDeterministic: true);
+
                 sqliteConnection.CreateFunction<object, object, object>(
                     "ef_mod",
                     (dividend, divisor) =>
@@ -132,7 +147,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
 
                         return Convert.ToDouble(dividend, CultureInfo.InvariantCulture)
                             % Convert.ToDouble(divisor, CultureInfo.InvariantCulture);
-                    });
+                    },
+                    isDeterministic: true);
 
                 sqliteConnection.CreateFunction(
                     name: "ef_add",
@@ -162,7 +178,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                     isDeterministic: true);
             }
             else
-
             {
                 _logger.UnexpectedConnectionTypeWarning(connection.GetType());
             }

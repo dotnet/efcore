@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
     /// <summary>
@@ -45,6 +47,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             Check.NotNull(parametersValues, nameof(parametersValues));
 
             var optimizedSelectExpression = base.Optimize(selectExpression, parametersValues, out canCache);
+
+            optimizedSelectExpression = new SkipTakeCollapsingExpressionVisitor(Dependencies.SqlExpressionFactory)
+                .Process(optimizedSelectExpression, parametersValues, out var canCache2);
+
+            canCache &= canCache2;
 
             return (SelectExpression)new SearchConditionConvertingExpressionVisitor(Dependencies.SqlExpressionFactory)
                 .Visit(optimizedSelectExpression);

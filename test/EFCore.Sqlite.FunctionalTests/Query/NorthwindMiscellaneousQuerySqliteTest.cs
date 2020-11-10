@@ -25,8 +25,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        public override Task Query_expression_with_to_string_and_contains(bool async)
-            => AssertTranslationFailed(() => base.Query_expression_with_to_string_and_contains(async));
+        public override async Task Query_expression_with_to_string_and_contains(bool async)
+        {
+            await base.Query_expression_with_to_string_and_contains(async);
+
+            AssertSql(
+                @"SELECT ""o"".""CustomerID""
+FROM ""Orders"" AS ""o""
+WHERE ""o"".""OrderDate"" IS NOT NULL AND (('10' = '') OR (instr(CAST(""o"".""EmployeeID"" AS TEXT), '10') > 0))");
+        }
 
         public override async Task Take_Skip(bool async)
         {
@@ -163,6 +170,17 @@ WHERE ""o"".""OrderDate"" IS NOT NULL");
 SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", COALESCE(CAST(CAST((CAST(((CAST(strftime('%f', ""o"".""OrderDate"") AS REAL) * 1000.0) % 1000.0) AS INTEGER) / @__millisecondsPerDay_0) AS REAL) AS TEXT), '') || ' days', COALESCE(CAST((CAST((CAST(((CAST(strftime('%f', ""o"".""OrderDate"") AS REAL) * 1000.0) % 1000.0) AS INTEGER) % @__millisecondsPerDay_0) AS REAL) / 1000.0) AS TEXT), '') || ' seconds'), '0'), '.') AS ""OrderDate""
 FROM ""Orders"" AS ""o""
 WHERE ""o"".""OrderDate"" IS NOT NULL");
+        }
+
+        public override async Task Add_minutes_on_constant_value(bool async)
+        {
+            await base.Add_minutes_on_constant_value(async);
+
+            AssertSql(
+                @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', '1900-01-01 00:00:00', CAST(CAST((""o"".""OrderID"" % 25) AS REAL) AS TEXT) || ' minutes'), '0'), '.') AS ""Test""
+FROM ""Orders"" AS ""o""
+WHERE ""o"".""OrderID"" < 10500
+ORDER BY ""o"".""OrderID""");
         }
 
         public override async Task Select_distinct_long_count(bool async)

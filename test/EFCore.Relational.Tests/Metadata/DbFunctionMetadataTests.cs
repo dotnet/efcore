@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -690,6 +691,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var mapping = function.StoreFunction.EntityTypeMappings.Single();
             Assert.False(mapping.IsDefaultFunctionMapping);
             Assert.Same(entityType, mapping.EntityType);
+        }
+
+        [ConditionalFact]
+        public void IsNullable_throws_for_nonScalar()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var queryableNoParams
+                = typeof(MyDerivedContext)
+                    .GetRuntimeMethod(nameof(MyDerivedContext.QueryableNoParams), Array.Empty<Type>());
+
+            Assert.Equal(
+                RelationalStrings.NonScalarFunctionCannotBeNullable(nameof(MyDerivedContext.QueryableNoParams)),
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.HasDbFunction(queryableNoParams).IsNullable()).Message);
+        }
+
+        [ConditionalFact]
+        public void PropagatesNullability_throws_for_nonScalar()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var queryableSingleParam = typeof(MyDerivedContext)
+                    .GetRuntimeMethod(nameof(MyDerivedContext.QueryableSingleParam), new[] { typeof(int) });
+
+            var function = modelBuilder.HasDbFunction(queryableSingleParam);
+            var parameter = function.HasParameter("i");
+
+            Assert.Equal(
+                RelationalStrings.NonScalarFunctionParameterCannotPropagatesNullability("i", nameof(MyDerivedContext.QueryableSingleParam)),
+                Assert.Throws<InvalidOperationException>(() => parameter.PropagatesNullability()).Message);
         }
 
         [ConditionalFact]

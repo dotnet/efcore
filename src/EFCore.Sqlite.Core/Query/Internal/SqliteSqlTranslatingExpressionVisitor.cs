@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
     /// <summary>
@@ -93,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override Expression VisitUnary(UnaryExpression unaryExpression)
+        protected override Expression? VisitUnary(UnaryExpression unaryExpression)
         {
             Check.NotNull(unaryExpression, nameof(unaryExpression));
 
@@ -145,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        protected override Expression? VisitBinary(BinaryExpression binaryExpression)
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
@@ -196,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override SqlExpression TranslateAverage(SqlExpression sqlExpression)
+        public override SqlExpression? TranslateAverage(SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
 
@@ -217,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override SqlExpression TranslateMax(SqlExpression sqlExpression)
+        public override SqlExpression? TranslateMax(SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
 
@@ -241,13 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override SqlExpression TranslateMin(SqlExpression sqlExpression)
+        public override SqlExpression? TranslateMin(SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
 
@@ -271,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override SqlExpression TranslateSum(SqlExpression sqlExpression)
+        public override SqlExpression? TranslateSum(SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
 
@@ -286,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             return visitedExpression;
         }
 
-        private static Type GetProviderType(SqlExpression expression)
+        private static Type? GetProviderType(SqlExpression? expression)
             => expression == null
                 ? null
                 : expression.TypeMapping?.Converter?.ProviderClrType

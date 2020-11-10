@@ -16,12 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        // InMemory can throw server side exception
-        public override Task Average_on_nav_subquery_in_projection()
-        {
-            return Assert.ThrowsAsync<InvalidOperationException>(() => base.Average_on_nav_subquery_in_projection());
-        }
-
         // mapping to view not supported on InMemory
         public override Task Query_backed_by_database_view()
             => Task.CompletedTask;

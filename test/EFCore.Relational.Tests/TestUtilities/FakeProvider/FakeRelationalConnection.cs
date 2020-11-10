@@ -6,7 +6,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Logging;
@@ -36,7 +36,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
                         new TestRelationalLoggingDefinitions(),
                         new NullDbContextLogger()),
                     new NamedConnectionStringResolver(options ?? CreateOptions()),
-                    new RelationalTransactionFactory(new RelationalTransactionFactoryDependencies()),
+                    new RelationalTransactionFactory(
+                        new RelationalTransactionFactoryDependencies(
+                            new RelationalSqlGenerationHelper(
+                                new RelationalSqlGenerationHelperDependencies()))),
                     new CurrentDbContext(new FakeDbContext())))
         {
         }

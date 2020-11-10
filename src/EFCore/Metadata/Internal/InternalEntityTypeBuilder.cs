@@ -1734,7 +1734,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     foreach (var detachedKeyTuple in detachedKeys)
                     {
-                        detachedKeyTuple.Item1.Attach(Metadata.RootType().Builder, detachedKeyTuple.Item2);
+                        var newKeyBuilder = detachedKeyTuple.Item1.Attach(Metadata.RootType().Builder, detachedKeyTuple.Item2);
+                        if (newKeyBuilder == null
+                            && detachedKeyTuple.Item1.Metadata.GetConfigurationSource() == ConfigurationSource.Explicit)
+                        {
+                            throw new InvalidOperationException(CoreStrings.DerivedEntityCannotHaveKeys(Metadata.DisplayName()));
+                        }
                     }
                 }
 
@@ -1848,7 +1853,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var configurationSourceForRemoval = ConfigurationSource.DataAnnotation.Max(configurationSource);
-            if (Metadata.GetDeclaredKeys().Any(k => !configurationSourceForRemoval.Overrides(k.GetConfigurationSource()))
+            if (Metadata.GetDeclaredKeys().Any(k => !configurationSourceForRemoval.Overrides(k.GetConfigurationSource())
+                && k.Properties.Any(p => baseEntityType.FindProperty(p.Name) == null))
                 || (Metadata.IsKeyless && !configurationSource.Overrides(Metadata.GetIsKeylessConfigurationSource())))
             {
                 return false;
@@ -2738,6 +2744,45 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     Metadata, null, navigationToTarget, !setTargetAsPrincipal, configurationSource, required);
             }
 
+            if (configurationSource == ConfigurationSource.Explicit
+                && setTargetAsPrincipal.HasValue)
+            {
+                if (setTargetAsPrincipal.Value)
+                {
+                    if (targetEntityType.IsKeyless
+                        && targetEntityType.GetIsKeylessConfigurationSource() == ConfigurationSource.Explicit)
+                    {
+                        throw new InvalidOperationException(CoreStrings.PrincipalKeylessType(
+                            targetEntityType.DisplayName(),
+                            targetEntityType.DisplayName()
+                            + (inverseNavigation == null
+                                ? ""
+                                : "." + inverseNavigation.Value.Name),
+                            Metadata.DisplayName()
+                            + (navigationToTarget == null
+                                ? ""
+                                : "." + navigationToTarget.Value.Name)));
+                    }
+                }
+                else
+                {
+                    if (Metadata.IsKeyless
+                        && Metadata.GetIsKeylessConfigurationSource() == ConfigurationSource.Explicit)
+                    {
+                        throw new InvalidOperationException(CoreStrings.PrincipalKeylessType(
+                            Metadata.DisplayName(),
+                            Metadata.DisplayName()
+                            + (navigationToTarget == null
+                                ? ""
+                                : "." + navigationToTarget.Value.Name),
+                            targetEntityType.DisplayName()
+                            + (inverseNavigation == null
+                                ? ""
+                                : "." + inverseNavigation.Value.Name)));
+                    }
+                }
+            }
+
             var existingRelationship = InternalForeignKeyBuilder.FindCurrentForeignKeyBuilder(
                 targetEntityType,
                 Metadata,
@@ -2902,6 +2947,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
 
                     relationship = newRelationship;
+
+                    if (relationship == null)
+                    {
+                        return null;
+                    }
                 }
 
                 if (setTargetAsPrincipal == true)
@@ -3610,7 +3660,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         1, null, new[] { typeof(int) }, new[] { "TempId" }, isRequired: true, baseName: "").Item2;
 
                     principalKey = principalBaseEntityTypeBuilder.HasKeyInternal(
-                        principalKeyProperties, ConfigurationSource.Convention).Metadata;
+                        principalKeyProperties, ConfigurationSource.Convention)?.Metadata;
+
+                    if (principalKey == null)
+                    {
+                        return null;
+                    }
                 }
 
                 if (foreignKey != null)

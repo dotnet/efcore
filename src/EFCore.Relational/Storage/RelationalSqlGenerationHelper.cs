@@ -199,5 +199,29 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             return builder.ToString();
         }
+
+        /// <summary>
+        ///     Generates an SQL statement which creates a savepoint with the given name.
+        /// </summary>
+        /// <param name="name"> The name of the savepoint to be created. </param>
+        /// <returns> An SQL string to create the savepoint. </returns>
+        public virtual string GenerateCreateSavepointStatement(string name)
+            => "SAVEPOINT " + DelimitIdentifier(name) + StatementTerminator;
+
+        /// <summary>
+        ///     Generates an SQL statement which which rolls back to a savepoint with the given name.
+        /// </summary>
+        /// <param name="name"> The name of the savepoint to be rolled back to. </param>
+        /// <returns> An SQL string to roll back the savepoint. </returns>
+        public virtual string GenerateRollbackToSavepointStatement(string name)
+            => "ROLLBACK TO " + DelimitIdentifier(name) + StatementTerminator;
+
+        /// <summary>
+        ///     Generates an SQL statement which which releases a savepoint with the given name.
+        /// </summary>
+        /// <param name="name"> The name of the savepoint to be released. </param>
+        /// <returns> An SQL string to release the savepoint. </returns>
+        public virtual string GenerateReleaseSavepointStatement(string name)
+            => "RELEASE SAVEPOINT " + DelimitIdentifier(name) + StatementTerminator;
     }
 }

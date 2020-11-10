@@ -28,13 +28,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("AlterIdentityColumn");
 
         /// <summary>
-        ///     To set memory-optimized on a table on or off the table needs to be dropped and recreated.
+        ///     To change the memory-optimized setting on a table, the table needs to be dropped and recreated.
         /// </summary>
         public static string AlterMemoryOptimizedTable
             => GetString("AlterMemoryOptimizedTable");
 
         /// <summary>
-        ///     When generating migrations SQL for {operation}, can't produce unterminated SQL with comments.
+        ///     Can't produce unterminated SQL with comments when generating migrations SQL for {operation}, .
         /// </summary>
         public static string CannotProduceUnterminatedSQLWithComments([CanBeNull] object operation)
             => string.Format(
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 operation);
 
         /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different identity increment.
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different identity increment values.
         /// </summary>
         public static string DuplicateColumnIdentityIncrementMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table)
             => string.Format(
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 entityType1, property1, entityType2, property2, columnName, table);
 
         /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different identity seed.
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different identity seed values.
         /// </summary>
         public static string DuplicateColumnIdentitySeedMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table)
             => string.Format(
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 entityType1, property1, entityType2, property2, columnName, table);
 
         /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different value generation strategies.
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different value generation strategies.
         /// </summary>
         public static string DuplicateColumnNameValueGenerationStrategyMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table)
             => string.Format(
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 entityType1, property1, entityType2, property2, columnName, table);
 
         /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different hi-lo sequences.
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different hi-lo sequences.
         /// </summary>
         public static string DuplicateColumnSequenceMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table)
             => string.Format(
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 entityType1, property1, entityType2, property2, columnName, table);
 
         /// <summary>
-        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different clustered configuration.
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different clustered configurations.
         /// </summary>
         public static string DuplicateIndexClusteredMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName)
             => string.Format(
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 index1, entityType1, index2, entityType2, table, indexName);
 
         /// <summary>
-        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different fill factor configuration.
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different fill factor configurations.
         /// </summary>
         public static string DuplicateIndexFillFactorMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName)
             => string.Format(
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 index1, entityType1, index2, entityType2, table, indexName);
 
         /// <summary>
-        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different included columns {includedColumns1} and {includedColumns2}.
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different included columns: {includedColumns1} and {includedColumns2}.
         /// </summary>
         public static string DuplicateIndexIncludedMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName, [CanBeNull] object includedColumns1, [CanBeNull] object includedColumns2)
             => string.Format(
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 index1, entityType1, index2, entityType2, table, indexName, includedColumns1, includedColumns2);
 
         /// <summary>
-        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different online configuration.
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different online configurations.
         /// </summary>
         public static string DuplicateIndexOnlineMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName)
             => string.Format(
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 index1, entityType1, index2, entityType2, table, indexName);
 
         /// <summary>
-        ///     The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}' but with different clustering.
+        ///     The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}', but have different clustering configurations.
         /// </summary>
         public static string DuplicateKeyMismatchedClustering([CanBeNull] object key1, [CanBeNull] object entityType1, [CanBeNull] object key2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object keyName)
             => string.Format(
@@ -122,28 +122,28 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 property, entityType, propertyType);
 
         /// <summary>
-        ///     Include property '{entityType}.{property}' cannot be defined multiple times.
+        ///     The include property '{entityType}.{property}' was specified multiple times for the index {index}.
         /// </summary>
-        public static string IncludePropertyDuplicated([CanBeNull] object entityType, [CanBeNull] object property)
+        public static string IncludePropertyDuplicated([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object index)
             => string.Format(
-                GetString("IncludePropertyDuplicated", nameof(entityType), nameof(property)),
-                entityType, property);
+                GetString("IncludePropertyDuplicated", nameof(entityType), nameof(property), nameof(index)),
+                entityType, property, index);
 
         /// <summary>
-        ///     Include property '{entityType}.{property}' is already included in the index.
+        ///     The include property '{entityType}.{property}' is already part of the index {index}.
         /// </summary>
-        public static string IncludePropertyInIndex([CanBeNull] object entityType, [CanBeNull] object property)
+        public static string IncludePropertyInIndex([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object index)
             => string.Format(
-                GetString("IncludePropertyInIndex", nameof(entityType), nameof(property)),
-                entityType, property);
+                GetString("IncludePropertyInIndex", nameof(entityType), nameof(property), nameof(index)),
+                entityType, property, index);
 
         /// <summary>
-        ///     Include property '{entityType}.{property}' not found.
+        ///     The include property '{property}' specified on the index {index} was not found on entity type '{entityType}'.
         /// </summary>
-        public static string IncludePropertyNotFound([CanBeNull] object entityType, [CanBeNull] object property)
+        public static string IncludePropertyNotFound([CanBeNull] object property, [CanBeNull] object index, [CanBeNull] object entityType)
             => string.Format(
-                GetString("IncludePropertyNotFound", nameof(entityType), nameof(property)),
-                entityType, property);
+                GetString("IncludePropertyNotFound", nameof(property), nameof(index), nameof(entityType)),
+                property, index, entityType);
 
         /// <summary>
         ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{memoryOptimizedEntityType}' is marked as memory-optimized, but entity type '{nonMemoryOptimizedEntityType}' is not.
@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("IndexTableRequired");
 
         /// <summary>
-        ///     The expression passed to the 'propertyReference' parameter of the 'FreeText' method is not a valid reference to a property. The expression should represent a reference to a full-text indexed property on the object referenced in the from clause: 'from e in context.Entities where EF.Functions.FreeText(e.SomeProperty, textToSearchFor) select e'
+        ///     The expression passed to the 'propertyReference' parameter of the 'FreeText' method is not a valid reference to a property. The expression must represent a reference to a full-text indexed property on the object referenced in the from clause: 'from e in context.Entities where EF.Functions.FreeText(e.SomeProperty, textToSearchFor) select e'
         /// </summary>
         public static string InvalidColumnNameForFreeText
             => GetString("InvalidColumnNameForFreeText");
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 table);
 
         /// <summary>
-        ///     The properties {properties} are configured to use 'Identity' value generator and are mapped to the same table '{table}'. Only one column per table can be configured as 'Identity'. Call 'ValueGeneratedNever' for properties that should not use 'Identity'.
+        ///     The properties {properties} are configured to use 'Identity' value generation and are mapped to the same table '{table}', but only one column per table can be configured as 'Identity'. Call 'ValueGeneratedNever' in 'OnModelCreating' for properties that should not use 'Identity'.
         /// </summary>
         public static string MultipleIdentityColumns([CanBeNull] object properties, [CanBeNull] object table)
             => string.Format(
@@ -182,13 +182,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 properties, table);
 
         /// <summary>
-        ///     The database name could not be determined. To use EnsureDeleted, the connection string must specify Initial Catalog.
+        ///     The database name could not be determined. To use 'EnsureDeleted', the connection string must specify 'Initial Catalog'.
         /// </summary>
         public static string NoInitialCatalog
             => GetString("NoInitialCatalog");
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' is configured to use 'SequenceHiLo' value generator, which is only intended for keys. If this was intentional configure an alternate key on the property, otherwise call 'ValueGeneratedNever' or configure store generation for this property.
+        ///     The property '{property}' on entity type '{entityType}' is configured to use 'SequenceHiLo' value generator, which is only intended for keys. If this was intentional, configure an alternate key on the property, otherwise call 'ValueGeneratedNever' or configure store generation for this property.
         /// </summary>
         public static string NonKeyValueGeneration([CanBeNull] object property, [CanBeNull] object entityType)
             => string.Format(
@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 property, entityType, propertyType);
 
         /// <summary>
-        ///     An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure()' to the 'UseSqlServer' call.
+        ///     An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure' to the 'UseSqlServer' call.
         /// </summary>
         public static string TransientExceptionDetected
             => GetString("TransientExceptionDetected");
@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.SqlServer.Properties.SqlServerStrings", typeof(SqlServerResources).Assembly);
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' is of type 'byte', but is set up to use a SQL Server identity column. This requires that values starting at 255 and counting down will be used for temporary key values. A temporary key value is needed for every entity inserted in a single call to 'SaveChanges'. Care must be taken that these values do not collide with real key values.
+        ///     The property '{property}' on entity type '{entityType}' is of type 'byte', but is set up to use a SQL Server identity column; this requires that values starting at 255 and counting down will be used for temporary key values. A temporary key value is needed for every entity inserted in a single call to 'SaveChanges'. Care must be taken that these values do not collide with real key values.
         /// </summary>
         public static EventDefinition<string, string> LogByteIdentityColumn([NotNull] IDiagnosticsLogger logger)
         {
@@ -260,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Both the SqlServerValueGenerationStrategy '{generationStrategy}' and '{otherGenerationStrategy}' have been set on property '{propertyName}' on entity type '{entityName}'. Usually this is a mistake. Only use these at the same time if you are sure you understand the consequences.
+        ///     Both the SqlServerValueGenerationStrategy '{generationStrategy}' and '{otherGenerationStrategy}' have been set on property '{propertyName}' on entity type '{entityName}'. Configuring two strategies is usually unintentional and will likely result in a database error.
         /// </summary>
         public static EventDefinition<string, string, string, string> LogConflictingValueGenerationStrategies([NotNull] IDiagnosticsLogger logger)
         {
@@ -284,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     The decimal property '{property}' is part of a key on entity type '{entityType}'. If the configured precision and scale don't match the column type in the database this will cause values to be silently truncated if they do not fit in the default precision and scale. Consider using a different property as the key or make sure that the database column type matches the model configuration and enable decimal rounding warnings using 'SET NUMERIC_ROUNDABORT ON'.
+        ///     The decimal property '{property}' is part of a key on entity type '{entityType}'. If the configured precision and scale don't match the column type in the database, this will cause values to be silently truncated if they do not fit in the default precision and scale. Consider using a different property as the key, or make sure that the database column type matches the model configuration and enable decimal rounding warnings using 'SET NUMERIC_ROUNDABORT ON'.
         /// </summary>
         public static EventDefinition<string, string> LogDecimalTypeKey([NotNull] IDiagnosticsLogger logger)
         {
@@ -308,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     No type was specified for the decimal property '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType()', specify precision and scale using 'HasPrecision()' or configure a value converter using 'HasConversion()'.
+        ///     No store type was specified for the decimal property '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
         /// </summary>
         public static EventDefinition<string, string> LogDefaultDecimalTypeColumn([NotNull] IDiagnosticsLogger logger)
         {
@@ -332,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Found column with table: {tableName}, column name: {columnName}, ordinal: {ordinal}, data type: {dataType}, maximum length: {maxLength}, precision: {precision}, scale: {scale}, nullable: {nullable}, identity: {identity}, default value: {defaultValue}, computed value: {computedValue}, computed value is stored: {stored}
+        ///     Found column with table: {tableName}, column name: {columnName}, ordinal: {ordinal}, data type: {dataType}, maximum length: {maxLength}, precision: {precision}, scale: {scale}, nullable: {nullable}, identity: {identity}, default value: {defaultValue}, computed value: {computedValue}, computed value is stored: {stored}.
         /// </summary>
         public static FallbackEventDefinition LogFoundColumn([NotNull] IDiagnosticsLogger logger)
         {
@@ -377,7 +377,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Found foreign key on table: {tableName}, name: {foreignKeyName}, principal table: {principalTableName}, delete action: {deleteAction}.
+        ///     Found foreign key on table '{tableName}' with name '{foreignKeyName}', principal table '{principalTableName}', delete action {deleteAction}.
         /// </summary>
         public static EventDefinition<string, string, string, string> LogFoundForeignKey([NotNull] IDiagnosticsLogger logger)
         {
@@ -401,7 +401,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Found index with name: {indexName}, table: {tableName}, is unique: {unique}.
+        ///     Found index on table '{tableName}' with name '{indexName}', is unique: {isUnique}.
         /// </summary>
         public static EventDefinition<string, string, bool> LogFoundIndex([NotNull] IDiagnosticsLogger logger)
         {
@@ -425,7 +425,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Found primary key with name: {primaryKeyName}, table: {tableName}.
+        ///     Found primary key on table '{tableName}' with name '{primaryKeyName}'.
         /// </summary>
         public static EventDefinition<string, string> LogFoundPrimaryKey([NotNull] IDiagnosticsLogger logger)
         {
@@ -449,7 +449,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Found sequence name: {name}, data type: {dataType}, cyclic: {cyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}.
+        ///     Found sequence with '{name}', data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}.
         /// </summary>
         public static FallbackEventDefinition LogFoundSequence([NotNull] IDiagnosticsLogger logger)
         {
@@ -470,7 +470,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Found table with name: {name}.
+        ///     Found table with name '{name}'.
         /// </summary>
         public static EventDefinition<string> LogFoundTable([NotNull] IDiagnosticsLogger logger)
         {
@@ -494,7 +494,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Found type alias with name: {alias} which maps to underlying data type {dataType}.
+        ///     Found type alias with name '{alias}' which maps to underlying data type {dataType}.
         /// </summary>
         public static EventDefinition<string, string> LogFoundTypeAlias([NotNull] IDiagnosticsLogger logger)
         {
@@ -518,7 +518,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Found unique constraint with name: {uniqueConstraintName}, table: {tableName}.
+        ///     Found unique constraint on table '{tableName}' with name '{uniqueConstraintName}'.
         /// </summary>
         public static EventDefinition<string, string> LogFoundUniqueConstraint([NotNull] IDiagnosticsLogger logger)
         {
@@ -590,7 +590,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Skipping foreign key '{foreignKeyName}' on table '{tableName}' since the principal column called '{principalColumnName}' on the foreign key's principal table, '{principalTableName}' was not found in the model.
+        ///     Skipping foreign key with identity '{id}' on table '{tableName}', since the principal column '{principalColumnName}' on the foreign key's principal table, '{principalTableName}', was not found in the model.
         /// </summary>
         public static EventDefinition<string, string, string, string> LogPrincipalColumnNotFound([NotNull] IDiagnosticsLogger logger)
         {
@@ -614,7 +614,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Skipping foreign key '{foreignKeyName}' on table '{tableName}' since principal table '{principalTableName}' was not found in the model. This usually happens if the principal table was not included in the selection set.
+        ///     Skipping foreign key '{foreignKeyName}' on table '{tableName}' since principal table '{principalTableName}' was not found in the model. This usually happens when the principal table was not included in the selection set.
         /// </summary>
         public static EventDefinition<string, string, string> LogPrincipalTableNotInSelectionSet([NotNull] IDiagnosticsLogger logger)
         {

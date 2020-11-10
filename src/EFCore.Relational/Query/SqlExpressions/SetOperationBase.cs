@@ -5,6 +5,8 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     /// <summary>
@@ -56,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public virtual SelectExpression Source2 { get; }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is SetOperationBase setOperationBase

@@ -1541,7 +1541,7 @@ namespace Microsoft.EntityFrameworkCore
                         });
 
                     Assert.Equal(
-                        "An error occurred while updating the entries. See the inner exception for details.",
+                        "An error occurred while saving the entity changes. See the inner exception for details.",
                         Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
                 });
         }
@@ -2293,7 +2293,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.Set<BookDetails>().Add(new BookDetails());
 
                     Assert.Equal(
-                        "An error occurred while updating the entries. See the inner exception for details.",
+                        "An error occurred while saving the entity changes. See the inner exception for details.",
                         Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
                 });
         }
@@ -2329,7 +2329,7 @@ namespace Microsoft.EntityFrameworkCore
                         });
 
                     Assert.Equal(
-                        "An error occurred while updating the entries. See the inner exception for details.",
+                        "An error occurred while saving the entity changes. See the inner exception for details.",
                         Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
                 });
         }
@@ -2353,7 +2353,7 @@ namespace Microsoft.EntityFrameworkCore
                         new Two { Data = "ValidButLongString" });
 
                     Assert.Equal(
-                        "An error occurred while updating the entries. See the inner exception for details.",
+                        "An error occurred while saving the entity changes. See the inner exception for details.",
                         Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
                 });
         }
@@ -2376,6 +2376,43 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges());
                 });
+        }
+
+        [ConditionalFact]
+        public virtual void UnicodeAttribute_sets_unicode_for_properties_and_fields()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<UnicodeAnnotationClass>(b =>
+            {
+                b.Property(e => e.PersonMiddleName);
+                b.Property(e => e.PersonAddress);
+            });
+
+            Validate(modelBuilder);
+
+            Assert.True(GetProperty<UnicodeAnnotationClass>(modelBuilder, "PersonFirstName").IsUnicode());
+            Assert.False(GetProperty<UnicodeAnnotationClass>(modelBuilder, "PersonLastName").IsUnicode());
+
+            Assert.True(GetProperty<UnicodeAnnotationClass>(modelBuilder, "PersonMiddleName").IsUnicode());
+            Assert.False(GetProperty<UnicodeAnnotationClass>(modelBuilder, "PersonAddress").IsUnicode());
+        }
+
+        protected class UnicodeAnnotationClass
+        {
+            public int Id { get; set; }
+
+            [Unicode]
+            public string PersonFirstName { get; set; }
+
+            [Unicode(false)]
+            public string PersonLastName { get; set; }
+
+            [Unicode]
+            public string PersonMiddleName;
+
+            [Unicode(false)]
+            public string PersonAddress;
         }
 
         [ConditionalFact]

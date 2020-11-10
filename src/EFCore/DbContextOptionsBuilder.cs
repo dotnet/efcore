@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         This overload allows the minimum level of logging and the log formatting to be controlled.
         ///         Use the
         ///         <see
-        ///             cref="LogTo(Action{string},System.Collections.Generic.IEnumerable{Microsoft.Extensions.Logging.EventId},LogLevel,DbContextLoggerOptions?)" />
+        ///             cref="LogTo(Action{string},IEnumerable{EventId},LogLevel,DbContextLoggerOptions?)" />
         ///         overload to log only specific events.
         ///         Use the <see cref="LogTo(Action{string},IEnumerable{string},LogLevel,DbContextLoggerOptions?)" />
         ///         overload to log only events in specific categories.
@@ -459,7 +459,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         and <see cref="EntityFrameworkQueryableExtensions.AsTracking{TEntity}(IQueryable{TEntity})" /> methods.
         ///     </para>
         ///     <para>
-        ///         The default value is <see cref="EntityFrameworkCore.QueryTrackingBehavior.TrackAll" />. This means
+        ///         The default value is <see cref="QueryTrackingBehavior.TrackAll" />. This means
         ///         the change tracker will keep track of changes for all entities that are returned from a LINQ query.
         ///     </para>
         /// </summary>

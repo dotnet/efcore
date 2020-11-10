@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 if (value < 0
                     || (int)value > _maxEntityState)
                 {
-                    throw new ArgumentException(CoreStrings.InvalidEnumValue(nameof(value), typeof(EntityState)));
+                    throw new ArgumentException(CoreStrings.InvalidEnumValue(value, nameof(value), typeof(EntityState)));
                 }
 
                 InternalEntry.SetEntityState(value);

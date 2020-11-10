@@ -6,6 +6,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -37,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the entity type to find. </param>
         /// <returns> The entity type, or null if none are found. </returns>
-        IEntityType FindEntityType([NotNull] string name);
+        IEntityType? FindEntityType([NotNull] string name);
 
         /// <summary>
         ///     Gets the entity type for the given name, defining navigation name
@@ -47,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
         /// <returns> The entity type, or null if none are found. </returns>
-        IEntityType FindEntityType(
+        IEntityType? FindEntityType(
             [NotNull] string name,
             [NotNull] string definingNavigationName,
             [NotNull] IEntityType definingEntityType);

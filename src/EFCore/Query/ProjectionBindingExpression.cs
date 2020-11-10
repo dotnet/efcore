@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -87,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The projection member to bind if binding is via projection member.
         /// </summary>
-        public virtual ProjectionMember ProjectionMember { get; }
+        public virtual ProjectionMember? ProjectionMember { get; }
 
         /// <summary>
         ///     The projection member to bind if binding is via projection index.
@@ -97,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The projection member to bind if binding is via index map for a value buffer.
         /// </summary>
-        public virtual IDictionary<IProperty, int> IndexMap { get; }
+        public virtual IDictionary<IProperty, int>? IndexMap { get; }
 
         /// <inheritdoc />
         public override Type Type { get; }
@@ -128,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 expressionPrinter.Append(Index.ToString());
             }
-            else
+            else if (IndexMap != null)
             {
                 using (expressionPrinter.Indent())
                 {
@@ -141,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is ProjectionBindingExpression projectionBindingExpression

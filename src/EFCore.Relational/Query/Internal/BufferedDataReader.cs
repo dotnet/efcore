@@ -16,6 +16,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
@@ -26,8 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class BufferedDataReader : DbDataReader
     {
-        private DbDataReader _underlyingReader;
         private readonly bool _detailedErrorsEnabled;
+
+        private DbDataReader? _underlyingReader;
         private List<BufferedDataRecord> _bufferedDataRecords = new List<BufferedDataRecord>();
         private BufferedDataRecord _currentResultSet;
         private int _currentResultSetNumber;
@@ -45,6 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             _underlyingReader = reader;
             _detailedErrorsEnabled = detailedErrorsEnabled;
+            _currentResultSet = null!;
         }
 
         /// <summary>
@@ -261,7 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public override void Close()
         {
-            _bufferedDataRecords = null;
+            _bufferedDataRecords = null!;
             _isClosed = true;
 
             var reader = _underlyingReader;
@@ -612,7 +616,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return true;
             }
 
-            _currentResultSet = null;
+            _currentResultSet = null!;
             return false;
         }
 
@@ -713,6 +717,38 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public BufferedDataRecord(bool detailedErrorsEnabled)
             {
                 _detailedErrorsEnabled = detailedErrorsEnabled;
+                _dataTypeNames = null!;
+                _columnNames = null!;
+                _columns = null!;
+                _columnTypeCases = null!;
+                _fieldNameLookup = null!;
+                _fieldTypes = null!;
+                _indexMap = null!;
+                _nullOrdinalToIndexMap = null!;
+                _ordinalToIndexMap = null!;
+                _underlyingReader = null!;
+
+                _bools = null!;
+                _bytes = null!;
+                _chars = null!;
+                _dateTimeOffsets = null!;
+                _dateTimes = null!;
+                _decimals = null!;
+                _doubles = null!;
+                _floats = null!;
+                _guids = null!;
+                _ints = null!;
+                _longs = null!;
+                _longs = null!;
+                _nulls = null!;
+                _objects = null!;
+                _sbytes = null!;
+                _shorts = null!;
+                _tempBools = null!;
+                _tempNulls = null!;
+                _uints = null!;
+                _ulongs = null!;
+                _ushorts = null!;
             }
 
             public bool IsDataReady { get; private set; }
@@ -876,13 +912,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
 
                 _bools = new BitArray(_tempBools);
-                _tempBools = null;
+                _tempBools = null!;
                 _nulls = new BitArray(_tempNulls);
-                _tempNulls = null;
+                _tempNulls = null!;
                 _rowCount = _currentRowNumber + 1;
                 _currentRowNumber = -1;
-                _underlyingReader = null;
-                _columns = null;
+                _underlyingReader = null!;
+                _columns = null!;
 
                 return this;
             }
@@ -904,13 +940,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
 
                 _bools = new BitArray(_tempBools);
-                _tempBools = null;
+                _tempBools = null!;
                 _nulls = new BitArray(_tempNulls);
-                _tempNulls = null;
+                _tempNulls = null!;
                 _rowCount = _currentRowNumber + 1;
                 _currentRowNumber = -1;
-                _underlyingReader = null;
-                _columns = null;
+                _underlyingReader = null!;
+                _columns = null!;
 
                 return this;
             }

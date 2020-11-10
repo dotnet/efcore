@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -19,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public class ServiceProperty : PropertyBase, IMutableServiceProperty, IConventionServiceProperty
     {
-        private ServiceParameterBinding _parameterBinding;
+        private ServiceParameterBinding? _parameterBinding;
 
         private ConfigurationSource? _parameterBindingConfigurationSource;
 
@@ -31,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public ServiceProperty(
             [NotNull] string name,
-            [CanBeNull] PropertyInfo propertyInfo,
-            [CanBeNull] FieldInfo fieldInfo,
+            [CanBeNull] PropertyInfo? propertyInfo,
+            [CanBeNull] FieldInfo? fieldInfo,
             [NotNull] EntityType declaringEntityType,
             ConfigurationSource configurationSource)
             : base(name, propertyInfo, fieldInfo, configurationSource)
@@ -40,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(declaringEntityType, nameof(declaringEntityType));
 
             DeclaringEntityType = declaringEntityType;
-            ClrType = propertyInfo?.PropertyType ?? fieldInfo?.FieldType;
+            ClrType = (propertyInfo?.PropertyType ?? fieldInfo?.FieldType)!;
 
             Builder = new InternalServicePropertyBuilder(this, declaringEntityType.Model.Builder);
         }
@@ -78,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalServicePropertyBuilder Builder
+        public virtual InternalServicePropertyBuilder? Builder
         {
             get;
             [param: CanBeNull] set;
@@ -90,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ServiceParameterBinding ParameterBinding
+        public virtual ServiceParameterBinding? ParameterBinding
         {
             get => _parameterBinding;
             set => SetParameterBinding(value, ConfigurationSource.Explicit);
@@ -102,8 +104,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ServiceParameterBinding SetParameterBinding(
-            [CanBeNull] ServiceParameterBinding parameterBinding,
+        public virtual ServiceParameterBinding? SetParameterBinding(
+            [CanBeNull] ServiceParameterBinding? parameterBinding,
             ConfigurationSource configurationSource)
         {
             _parameterBinding = parameterBinding;
@@ -119,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        ServiceParameterBinding IConventionServiceProperty.SetParameterBinding(
+        ServiceParameterBinding? IConventionServiceProperty.SetParameterBinding(
             ServiceParameterBinding parameterBinding,
             bool fromDataAnnotation)
             => SetParameterBinding(
@@ -165,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionServicePropertyBuilder IConventionServiceProperty.Builder
+        IConventionServicePropertyBuilder? IConventionServiceProperty.Builder
         {
             [DebuggerStepThrough] get => Builder;
         }
@@ -176,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionAnnotatableBuilder IConventionAnnotatable.Builder
+        IConventionAnnotatableBuilder? IConventionAnnotatable.Builder
         {
             [DebuggerStepThrough] get => Builder;
         }

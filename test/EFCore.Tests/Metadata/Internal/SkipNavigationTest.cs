@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.SkipNavigationForeignKeyWrongDependentType(
-                    "{'" + nameof(OrderProduct.OrderId) + "'}", nameof(Order.Products), nameof(Order), nameof(OrderProduct)),
+                    "{'" + nameof(OrderProduct.OrderId) + "'}", nameof(Order), nameof(Order.Products), nameof(OrderProduct)),
                 Assert.Throws<InvalidOperationException>(() => navigation.SetForeignKey(orderProductForeignKey)).Message);
         }
 
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.SkipNavigationForeignKeyWrongPrincipalType(
-                    "{'" + nameof(OrderProduct.OrderId) + "'}", nameof(OrderProduct.Order), nameof(OrderProduct), nameof(Order)),
+                    "{'" + nameof(OrderProduct.OrderId) + "'}", nameof(OrderProduct), nameof(OrderProduct.Order), nameof(Order)),
                 Assert.Throws<InvalidOperationException>(() => navigation.SetForeignKey(orderProductForeignKey)).Message);
         }
 
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(ConfigurationSource.Explicit, ((IConventionSkipNavigation)ordersNavigation).GetInverseConfigurationSource());
 
             Assert.Equal(
-                CoreStrings.SkipNavigationInUseBySkipNavigation(nameof(Order.Products), nameof(Product.Orders), nameof(Product)),
+                CoreStrings.SkipNavigationInUseBySkipNavigation(nameof(Order), nameof(Order.Products), nameof(Product), nameof(Product.Orders)),
                 Assert.Throws<InvalidOperationException>(() => orderEntity.RemoveSkipNavigation(productsNavigation)).Message);
 
             productsNavigation.SetInverse(null);

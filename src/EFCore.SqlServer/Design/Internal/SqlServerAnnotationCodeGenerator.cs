@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
 
             if (annotation.Name == RelationalAnnotationNames.DefaultSchema)
             {
-                return string.Equals("dbo", (string)annotation.Value);
+                return (string)annotation.Value == "dbo";
             }
 
             return annotation.Name == SqlServerAnnotationNames.ValueGenerationStrategy

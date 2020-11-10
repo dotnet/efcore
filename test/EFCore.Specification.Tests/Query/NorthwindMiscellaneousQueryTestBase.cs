@@ -1385,7 +1385,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Select(o => new OrderCountDTO())
                 .Distinct().ToList().OrderBy(e => e.Id).ToList();
 
-            var expected = QueryAsserter.ExpectedData.Set<Order>()
+            var expected = Fixture.GetExpectedData().Set<Order>()
                 .Where(o => o.OrderID < 10300)
                 .Select(o => new OrderCountDTO())
                 .Distinct().ToList().OrderBy(e => e.Id).ToList();
@@ -1407,7 +1407,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Select(o => new OrderCountDTO(o.CustomerID))
                 .Distinct().ToList().OrderBy(e => e.Id).ToList();
 
-            var expected = QueryAsserter.ExpectedData.Set<Order>()
+            var expected = Fixture.GetExpectedData().Set<Order>()
                 .Where(o => o.OrderID < 10300)
                 .Select(o => new OrderCountDTO(o.CustomerID))
                 .Distinct().ToList().OrderBy(e => e.Id).ToList();
@@ -1429,7 +1429,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Select(o => new OrderCountDTO(o.Customer.City))
                 .Distinct().ToList().OrderBy(e => e.Id).ToList();
 
-            var expected = QueryAsserter.ExpectedData.Set<Order>()
+            var expected = Fixture.GetExpectedData().Set<Order>()
                 .Where(o => o.OrderID < 10300)
                 .Select(o => new OrderCountDTO(o.Customer.City))
                 .Distinct().ToList().OrderBy(e => e.Id).ToList();
@@ -1452,7 +1452,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
                 .Distinct().ToList().OrderBy(e => e.Count).ToList();
 
-            var expected = QueryAsserter.ExpectedData.Set<Order>()
+            var expected = Fixture.GetExpectedData().Set<Order>()
                 .Where(o => o.OrderID < 10300)
                 .Select(
                     o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
@@ -1476,7 +1476,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     c => new OrderCountDTO { Id = c.CustomerID, Count = c.Orders.Count })
                 .ToList().OrderBy(e => e.Id).ToList();
 
-            var expected = QueryAsserter.ExpectedData.Set<Customer>()
+            var expected = Fixture.GetExpectedData().Set<Customer>()
                 .Where(c => c.CustomerID.StartsWith("A"))
                 .Select(
                     c => new OrderCountDTO { Id = c.CustomerID, Count = c.Orders.Count })
@@ -1532,8 +1532,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                               .Distinct()
                           select new { c, o }).ToList().OrderBy(e => e.c.CustomerID + " " + e.o.Count).ToList();
 
-            var expected = (from c in QueryAsserter.ExpectedData.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
-                            from o in QueryAsserter.ExpectedData.Set<Order>().Where(o => o.OrderID < 10300)
+            var expected = (from c in Fixture.GetExpectedData().Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
+                            from o in Fixture.GetExpectedData().Set<Order>().Where(o => o.OrderID < 10300)
                                 .Select(
                                     o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
                                 .Distinct()
@@ -4196,6 +4196,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Add_minutes_on_constant_value(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().Where(c => c.OrderID < 10500)
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => new { Test = new DateTime(1900, 1, 1).AddMinutes(o.OrderID % 25) }),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertEqual(e.Test, a.Test));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_expression_references_are_updated_correctly_with_subquery(bool async)
         {
             var nextYear = 2017;
@@ -6325,6 +6338,42 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(e.CustomerID, a.CustomerID);
                     Assert.Equal(e.OrderDate, a.OrderDate);
                 });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SkipWhile_throws_meaningful_exception(bool async)
+        {
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    async,
+                    ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).SkipWhile(c => c.CustomerID != "Foo").Skip(1)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Skip_0_Take_0_works_when_parameter(bool async)
+        {
+            await AssertQuery(
+                async,
+                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Skip(0).Take(0));
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Skip(1).Take(1),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Skip_0_Take_0_works_when_constant(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                        .OrderBy(c => c.CustomerID)
+                        .Select(e => e.Orders.OrderBy(o => o.OrderID).Skip(0).Take(0).Any()),
+                assertOrder: true);
         }
     }
 }

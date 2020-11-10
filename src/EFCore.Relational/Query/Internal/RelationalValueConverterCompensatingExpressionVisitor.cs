@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
@@ -152,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private SqlExpression TryCompensateForBoolWithValueConverter(SqlExpression sqlExpression)
         {
             if (sqlExpression is ColumnExpression columnExpression
-                && columnExpression.TypeMapping.ClrType == typeof(bool)
+                && columnExpression.TypeMapping!.ClrType == typeof(bool)
                 && columnExpression.TypeMapping.Converter != null)
             {
                 return _sqlExpressionFactory.Equal(

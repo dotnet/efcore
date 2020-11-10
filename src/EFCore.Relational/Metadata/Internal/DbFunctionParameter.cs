@@ -193,7 +193,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (!Function.IsScalar)
             {
-                new InvalidOperationException(RelationalStrings.NonScalarFunctionParameterCannotPropagatesNullability(Name, Function.Name));
+                throw new InvalidOperationException(
+                    RelationalStrings.NonScalarFunctionParameterCannotPropagatesNullability(Name, Function.Name));
             }
 
             _propagatesNullability = propagatesNullability;

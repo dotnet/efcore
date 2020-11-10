@@ -39,6 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
             => new RelationalQueryAsserter(
-                fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+                fixture,
+                RewriteExpectedQueryExpression,
+                RewriteServerQueryExpression,
+                canExecuteQueryString: CanExecuteQueryString);
     }
 }

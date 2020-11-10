@@ -309,6 +309,19 @@ LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
 WHERE [k].[Species] IS NOT NULL");
         }
 
+        public override async Task Can_use_is_kiwi_with_cast(bool async)
+        {
+            await base.Can_use_is_kiwi_with_cast(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [k].[Species] IS NOT NULL THEN [k].[FoundOn]
+    ELSE CAST(0 AS tinyint)
+END AS [Value]
+FROM [Animals] AS [a]
+LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]");
+        }
+
         public override async Task Can_use_is_kiwi_in_projection(bool async)
         {
             await base.Can_use_is_kiwi_in_projection(async);

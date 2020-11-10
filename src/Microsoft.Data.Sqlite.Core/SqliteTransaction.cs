@@ -4,6 +4,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Text;
 using Microsoft.Data.Sqlite.Properties;
 using static SQLitePCL.raw;
 
@@ -111,6 +112,97 @@ namespace Microsoft.Data.Sqlite
             }
 
             RollbackInternal();
+        }
+
+#if NET
+        /// <inheritdoc />
+        public override bool SupportsSavepoints => true;
+#endif
+
+        /// <summary>
+        /// Creates a savepoint in the transaction. This allows all commands that are executed after the savepoint was
+        /// established to be rolled back, restoring the transaction state to what it was at the time of the savepoint.
+        /// </summary>
+        /// <param name="savepointName">The name of the savepoint to be created.</param>
+#if NET
+        public override void Save(string savepointName)
+#else
+        public void Save(string savepointName)
+#endif
+        {
+            if (savepointName is null)
+            {
+                throw new ArgumentNullException(nameof(savepointName));
+            }
+
+            if (_completed || _connection.State != ConnectionState.Open)
+            {
+                throw new InvalidOperationException(Resources.TransactionCompleted);
+            }
+
+            _connection.ExecuteNonQuery(
+                new StringBuilder()
+                    .Append("SAVEPOINT \"")
+                    .Append(savepointName.Replace("\"", "\"\""))
+                    .Append("\";")
+                    .ToString());
+        }
+
+        /// <summary>
+        /// Rolls back all commands that were executed after the specified savepoint was established.
+        /// </summary>
+        /// <param name="savepointName">The name of the savepoint to roll back to.</param>
+#if NET
+        public override void Rollback(string savepointName)
+#else
+        public void Rollback(string savepointName)
+#endif
+        {
+            if (savepointName is null)
+            {
+                throw new ArgumentNullException(nameof(savepointName));
+            }
+
+            if (_completed || _connection.State != ConnectionState.Open)
+            {
+                throw new InvalidOperationException(Resources.TransactionCompleted);
+            }
+
+            _connection.ExecuteNonQuery(
+                new StringBuilder()
+                    .Append("ROLLBACK TO SAVEPOINT \"")
+                    .Append(savepointName.Replace("\"", "\"\""))
+                    .Append("\";")
+                    .ToString());
+        }
+
+        /// <summary>
+        /// Destroys a savepoint previously defined in the current transaction. This allows the system to
+        /// reclaim some resources before the transaction ends.
+        /// </summary>
+        /// <param name="savepointName">The name of the savepoint to release.</param>
+#if NET
+        public override void Release(string savepointName)
+#else
+        public void Release(string savepointName)
+#endif
+        {
+            if (savepointName is null)
+            {
+                throw new ArgumentNullException(nameof(savepointName));
+            }
+
+            if (_completed || _connection.State != ConnectionState.Open)
+            {
+                throw new InvalidOperationException(Resources.TransactionCompleted);
+            }
+
+            _connection.ExecuteNonQuery(
+                new StringBuilder()
+                    .Append("RELEASE SAVEPOINT \"")
+                    .Append(savepointName.Replace("\"", "\"\""))
+                    .Append("\";")
+                    .ToString());
         }
 
         /// <summary>

@@ -4,6 +4,9 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -73,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return base.VisitConditional(conditionalExpression);
         }
 
-        private Expression TryOptimizeConditionalEquality(Expression expression)
+        private Expression? TryOptimizeConditionalEquality(Expression expression)
         {
             // Simplify (a ? b : null) == null => !a || b == null
             // Simplify (a ? null : b) == null => a || b == null
@@ -89,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
                 else
                 {
-                    conditionalExpression = binaryExpression.Right as ConditionalExpression;
+                    conditionalExpression = (ConditionalExpression)binaryExpression.Right;
                     comparedExpression = binaryExpression.Left;
                 }
 
@@ -126,7 +129,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return _nullSafeAccesses.Contains(result);
             }
 
-            public override Expression Visit(Expression expression)
+            [return: CA.NotNullIfNotNull("expression")]
+            public override Expression? Visit(Expression? expression)
                 => expression == null || _nullSafeAccesses.Contains(expression)
                     ? expression
                     : base.Visit(expression);

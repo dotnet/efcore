@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
     /// <summary>
@@ -30,21 +32,21 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             [NotNull] Type returnType,
             [NotNull] string format,
             [NotNull] SqlExpression timestring,
-            [CanBeNull] IEnumerable<SqlExpression> modifiers = null,
-            [CanBeNull] RelationalTypeMapping typeMapping = null)
+            [CanBeNull] IEnumerable<SqlExpression>? modifiers = null,
+            [CanBeNull] RelationalTypeMapping? typeMapping = null)
         {
             modifiers ??= Enumerable.Empty<SqlExpression>();
 
             // If the inner call is another strftime then shortcut a double call
             if (timestring is SqlFunctionExpression rtrimFunction
                 && rtrimFunction.Name == "rtrim"
-                && rtrimFunction.Arguments.Count == 2
+                && rtrimFunction.Arguments!.Count == 2
                 && rtrimFunction.Arguments[0] is SqlFunctionExpression rtrimFunction2
                 && rtrimFunction2.Name == "rtrim"
-                && rtrimFunction2.Arguments.Count == 2
+                && rtrimFunction2.Arguments!.Count == 2
                 && rtrimFunction2.Arguments[0] is SqlFunctionExpression strftimeFunction
                 && strftimeFunction.Name == "strftime"
-                && strftimeFunction.Arguments.Count > 1)
+                && strftimeFunction.Arguments!.Count > 1)
             {
                 // Use its timestring parameter directly in place of ours
                 timestring = strftimeFunction.Arguments[1];

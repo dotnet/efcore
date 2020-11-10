@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
@@ -61,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return expression;
             }
 
-            Expression visitedExpression = null;
+            Expression? visitedExpression = null;
             if (method.DeclaringType == typeof(Enumerable))
             {
                 visitedExpression = TryConvertEnumerableToQueryable(methodCallExpression);
@@ -70,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (methodCallExpression.Method.DeclaringType.IsGenericType
                 && (methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(ICollection<>)
                     || methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(List<>))
-                && string.Equals(nameof(List<int>.Contains), methodCallExpression.Method.Name))
+                && methodCallExpression.Method.Name == nameof(List<int>.Contains))
             {
                 visitedExpression = TryConvertListContainsToQueryableContains(methodCallExpression);
             }
@@ -173,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private Expression ExtractQueryMetadata(MethodCallExpression methodCallExpression)
+        private Expression? ExtractQueryMetadata(MethodCallExpression methodCallExpression)
         {
             // We visit innerQueryable first so that we can get information in the same order operators are applied.
             var genericMethodDefinition = methodCallExpression.Method.GetGenericMethodDefinition();
@@ -251,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var enumerableMethod = methodCallExpression.Method;
             var enumerableParameters = enumerableMethod.GetParameters();
-            Type[] genericTypeArguments = null;
+            Type[] genericTypeArguments = Array.Empty<Type>();
             if (enumerableMethod.Name == nameof(Enumerable.Min)
                 || enumerableMethod.Name == nameof(Enumerable.Max))
             {
@@ -633,7 +635,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly List<ParameterExpression> _allowedParameters = new List<ParameterExpression>();
             private readonly ISet<string> _allowedMethods = new HashSet<string> { nameof(Queryable.Where), nameof(Queryable.AsQueryable) };
 
-            private ParameterExpression _rootParameter;
+            private ParameterExpression? _rootParameter;
             private int _rootParameterCount;
             private bool _correlated;
 

@@ -4,6 +4,8 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
     /// <summary>

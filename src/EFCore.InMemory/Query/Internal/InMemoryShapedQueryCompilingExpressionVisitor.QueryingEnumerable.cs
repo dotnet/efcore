@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     /// <summary>
@@ -61,7 +63,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             private sealed class Enumerator : IEnumerator<T>, IAsyncEnumerator<T>
             {
-                private IEnumerator<ValueBuffer> _enumerator;
                 private readonly QueryContext _queryContext;
                 private readonly IEnumerable<ValueBuffer> _innerEnumerable;
                 private readonly Func<QueryContext, ValueBuffer, T> _shaper;
@@ -69,6 +70,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
                 private readonly bool _standAloneStateManager;
                 private readonly CancellationToken _cancellationToken;
+
+                private IEnumerator<ValueBuffer>? _enumerator;
 
                 public Enumerator(QueryingEnumerable<T> queryingEnumerable, CancellationToken cancellationToken = default)
                 {
@@ -79,12 +82,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     _queryLogger = queryingEnumerable._queryLogger;
                     _standAloneStateManager = queryingEnumerable._standAloneStateManager;
                     _cancellationToken = cancellationToken;
+                    Current = default!;
                 }
 
                 public T Current { get; private set; }
 
                 object IEnumerator.Current
-                    => Current;
+                    => Current!;
 
                 public bool MoveNext()
                 {
@@ -136,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                     Current = hasNext
                         ? _shaper(_queryContext, _enumerator.Current)
-                        : default;
+                        : default!;
 
                     return hasNext;
                 }
