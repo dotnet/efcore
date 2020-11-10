@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Dependencies>
-  <ToolsetDependencies>
+  <ProductDependencies>
     <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="5.0.0">
       <Uri>https://github.com/dotnet/runtime</Uri>
       <Sha>7ef6d50b312217d2f7c17b9697891fa8ab98a19d</Sha>
@@ -49,6 +49,8 @@
       <Uri>https://github.com/dotnet/runtime</Uri>
       <Sha>7ef6d50b312217d2f7c17b9697891fa8ab98a19d</Sha>
     </Dependency>
+  </ProductDependencies>
+  <ToolsetDependencies>
     <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="5.0.0-beta.20560.3">
       <Uri>https://github.com/dotnet/arcade</Uri>
       <Sha>6f54e001de0c52e52578e5252cb279f5bc9a2eb6</Sha>
