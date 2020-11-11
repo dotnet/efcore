@@ -621,7 +621,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             var propertyNames = uniqueConstraint.Columns.Select(GetPropertyName).ToArray();
-            var indexBuilder = builder.HasIndex(propertyNames, uniqueConstraint.Name).IsUnique();
+            var indexBuilder = string.IsNullOrEmpty(uniqueConstraint.Name)
+                ? builder.HasIndex(propertyNames)
+                : builder.HasIndex(propertyNames, uniqueConstraint.Name);
+            indexBuilder = indexBuilder.IsUnique();
             indexBuilder.Metadata.AddAnnotations(uniqueConstraint.GetAnnotations());
 
             return indexBuilder;
@@ -671,11 +674,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             var propertyNames = index.Columns.Select(GetPropertyName).ToArray();
-            var indexBuilder =
-                index.Name == null
-                    ? builder.HasIndex(propertyNames)
-                    : builder.HasIndex(propertyNames, index.Name)
-                        .IsUnique(index.IsUnique);
+            var indexBuilder = string.IsNullOrEmpty(index.Name)
+                ? builder.HasIndex(propertyNames)
+                : builder.HasIndex(propertyNames, index.Name);
+
+            indexBuilder = indexBuilder.IsUnique(index.IsUnique);
 
             if (index.Filter != null)
             {
