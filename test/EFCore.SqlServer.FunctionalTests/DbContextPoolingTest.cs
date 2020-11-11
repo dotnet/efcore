@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -496,8 +497,19 @@ namespace Microsoft.EntityFrameworkCore
             context1.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
             context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
             context1.Database.AutoTransactionsEnabled = true;
+            context1.SavingChanges += (sender, args) => { };
+            context1.SavedChanges += (sender, args) => { };
+            context1.SaveChangesFailed += (sender, args) => { };
+
+            Assert.NotNull(GetContextEventField(context1, nameof(DbContext.SavingChanges)));
+            Assert.NotNull(GetContextEventField(context1, nameof(DbContext.SavedChanges)));
+            Assert.NotNull(GetContextEventField(context1, nameof(DbContext.SaveChangesFailed)));
 
             await Dispose(serviceScope, async);
+
+            Assert.Null(GetContextEventField(context1, nameof(DbContext.SavingChanges)));
+            Assert.Null(GetContextEventField(context1, nameof(DbContext.SavedChanges)));
+            Assert.Null(GetContextEventField(context1, nameof(DbContext.SaveChangesFailed)));
 
             serviceScope = serviceProvider.CreateScope();
             scopedProvider = serviceScope.ServiceProvider;
@@ -531,8 +543,19 @@ namespace Microsoft.EntityFrameworkCore
             context1.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
             context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
             context1.Database.AutoTransactionsEnabled = true;
+            context1.SavingChanges += (sender, args) => { };
+            context1.SavedChanges += (sender, args) => { };
+            context1.SaveChangesFailed += (sender, args) => { };
+
+            Assert.NotNull(GetContextEventField(context1, nameof(DbContext.SavingChanges)));
+            Assert.NotNull(GetContextEventField(context1, nameof(DbContext.SavedChanges)));
+            Assert.NotNull(GetContextEventField(context1, nameof(DbContext.SaveChangesFailed)));
 
             await Dispose(context1, async);
+
+            Assert.Null(GetContextEventField(context1, nameof(DbContext.SavingChanges)));
+            Assert.Null(GetContextEventField(context1, nameof(DbContext.SavedChanges)));
+            Assert.Null(GetContextEventField(context1, nameof(DbContext.SaveChangesFailed)));
 
             var context2 = factory.CreateDbContext();
 
@@ -553,6 +576,10 @@ namespace Microsoft.EntityFrameworkCore
                 new DbContextOptionsBuilder().UseSqlServer(
                     SqlServerNorthwindTestStoreFactory.NorthwindConnectionString).Options);
 
+            Assert.Null(GetContextEventField(context, nameof(DbContext.SavingChanges)));
+            Assert.Null(GetContextEventField(context, nameof(DbContext.SavedChanges)));
+            Assert.Null(GetContextEventField(context, nameof(DbContext.SaveChangesFailed)));
+
             context.ChangeTracker.AutoDetectChangesEnabled = true;
             context.ChangeTracker.LazyLoadingEnabled = true;
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
@@ -561,6 +588,9 @@ namespace Microsoft.EntityFrameworkCore
             context.Database.AutoTransactionsEnabled = true;
             context.ChangeTracker.Tracked += ChangeTracker_OnTracked;
             context.ChangeTracker.StateChanged += ChangeTracker_OnStateChanged;
+            context.SavingChanges += (sender, args) => { };
+            context.SavedChanges += (sender, args) => { };
+            context.SaveChangesFailed += (sender, args) => { };
 
             context.ChangeTracker.Clear();
 
@@ -579,8 +609,16 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.True(_changeTracker_OnTracked);
             Assert.True(_changeTracker_OnStateChanged);
+
+            Assert.NotNull(GetContextEventField(context, nameof(DbContext.SavingChanges)));
+            Assert.NotNull(GetContextEventField(context, nameof(DbContext.SavedChanges)));
+            Assert.NotNull(GetContextEventField(context, nameof(DbContext.SaveChangesFailed)));
         }
 
+        private object GetContextEventField(DbContext context, string eventName)
+            => typeof(DbContext)
+                .GetField(eventName, BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.Instance)
+                .GetValue(context);
         private bool _changeTracker_OnTracked;
 
         private void ChangeTracker_OnTracked(object sender, EntityTrackedEventArgs e)
