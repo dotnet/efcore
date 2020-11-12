@@ -775,7 +775,10 @@ namespace Microsoft.EntityFrameworkCore
                 await service.ResetStateAsync(cancellationToken).ConfigureAwait(false);
             }
 
-            ClearEvents();
+            if (!_dontClearEvents)
+            {
+                ClearEvents();
+            }
 
             _disposed = true;
         }
@@ -825,7 +828,10 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     _disposed = true;
 
-                    ClearEvents();
+                    if (!_dontClearEvents)
+                    {
+                        ClearEvents();
+                    }
 
                     _lease = DbContextLease.InactiveLease;
                 }
@@ -844,7 +850,10 @@ namespace Microsoft.EntityFrameworkCore
                 _changeTracker = null;
                 _database = null;
 
-                ClearEvents();
+                if (!_dontClearEvents)
+                {
+                    ClearEvents();
+                }
 
                 return true;
             }
@@ -858,6 +867,9 @@ namespace Microsoft.EntityFrameworkCore
         public virtual ValueTask DisposeAsync()
             => DisposeSync() ? _serviceScope.DisposeAsyncIfAvailable() : default;
 
+
+        private static readonly bool _dontClearEvents
+            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23108", out var isEnabled) && isEnabled;
 
         private void ClearEvents()
         {
