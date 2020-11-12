@@ -23,6 +23,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.Geometries;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -9287,6 +9288,94 @@ ORDER BY [t].[Id]");
 
                     ClearLog();
                 });
+
+        #endregion
+
+        #region Issue23282
+
+        [ConditionalFact]
+        public virtual void Can_query_point_with_buffered_data_reader()
+        {
+            var (options, testSqlLoggerFactory) = CreateOptions23282();
+            using var context = new MyContext23282(options);
+
+            var testUser = context.Locations.FirstOrDefault(x => x.Name == "My Location");
+
+            Assert.NotNull(testUser);
+
+            testSqlLoggerFactory.AssertBaseline(
+                new[] {
+                    @"SELECT TOP(1) [l].[Id], [l].[Name], [l].[Address_County], [l].[Address_Line1], [l].[Address_Line2], [l].[Address_Point], [l].[Address_Postcode], [l].[Address_Town]
+FROM [Locations] AS [l]
+WHERE [l].[Name] = N'My Location'" });
+            }
+
+        [Owned]
+        private class Address23282
+        {
+            public string Line1 { get; set; }
+            public string Line2 { get; set; }
+            public string Town { get; set; }
+            public string County { get; set; }
+            public string Postcode { get; set; }
+
+            public Point Point { get; set; }
+        }
+
+        private class Location23282
+        {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            public Guid Id { get; set; }
+
+            public string Name { get; set; }
+            public Address23282 Address { get; set; }
+        }
+
+        private class MyContext23282 : DbContext
+        {
+            public DbSet<Location23282> Locations { get; set; }
+
+            public MyContext23282(DbContextOptions options)
+                : base(options)
+            {
+            }
+        }
+
+        private (DbContextOptions, TestSqlLoggerFactory) CreateOptions23282()
+        {
+            var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest");
+            var testSqlLoggerFactory = new TestSqlLoggerFactory();
+            var serviceProvider = new ServiceCollection().AddSingleton<ILoggerFactory>(testSqlLoggerFactory).BuildServiceProvider();
+
+            var optionsBuilder = Fixture.AddOptions(new DbContextOptionsBuilder()
+                    .UseSqlServer(testStore.ConnectionString, b => b.EnableRetryOnFailure().UseNetTopologySuite()))
+                .EnableDetailedErrors()
+                .EnableServiceProviderCaching(false)
+                .UseApplicationServiceProvider(serviceProvider);
+
+            var context = new MyContext23282(optionsBuilder.Options);
+            if (context.Database.EnsureCreatedResiliently())
+            {
+                context.Locations.Add(new Location23282
+                {
+                    Name = "My Location",
+                    Address = new Address23282
+                    {
+                        Line1 = "1 Fake Street",
+                        Town = "Fake Town",
+                        County = "Fakeshire",
+                        Postcode = "PO57 0DE",
+                        Point = new Point(115.7930, 37.2431) { SRID = 4326 }
+                    }
+                });
+                context.SaveChanges();
+            }
+
+            testSqlLoggerFactory.Clear();
+
+            return (optionsBuilder.Options, testSqlLoggerFactory);
+        }
 
         #endregion
 
