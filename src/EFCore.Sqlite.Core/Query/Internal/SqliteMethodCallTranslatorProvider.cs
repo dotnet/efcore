@@ -31,6 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 new IMethodCallTranslator[]
                 {
                     new SqliteByteArrayMethodTranslator(sqlExpressionFactory),
+                    new SqliteCharMethodTranslator(sqlExpressionFactory),
                     new SqliteDateTimeAddTranslator(sqlExpressionFactory),
                     new SqliteMathTranslator(sqlExpressionFactory),
                     new SqliteObjectToStringTranslator(sqlExpressionFactory),
