@@ -52,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore
             drivers.Add(
                 new Driver
                 {
+                    Id = 43,
                     Name = "Pedro de la Rosa",
                     TeamId = AddedTeam,
                     CarNumber = 13
@@ -59,6 +60,7 @@ namespace Microsoft.EntityFrameworkCore
             drivers.Add(
                 new Driver
                 {
+                    Id = 44,
                     Name = "Kamui Kobayashi",
                     TeamId = AddedTeam,
                     CarNumber = null
