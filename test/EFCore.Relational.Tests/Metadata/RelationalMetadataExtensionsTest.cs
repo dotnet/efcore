@@ -160,6 +160,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [ConditionalFact]
+        public void Can_get_and_set_view_schema_name_on_entity_type()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            var entityType = modelBuilder
+                .Entity<Customer>()
+                .Metadata;
+
+            Assert.Null(entityType.GetViewSchema());
+
+            modelBuilder.HasDefaultSchema("dbo");
+
+            Assert.Null(entityType.GetViewSchema());
+
+            entityType.SetViewName("CustomerView");
+
+            Assert.Equal("dbo", entityType.GetViewSchema());
+
+            entityType.SetViewSchema(null);
+
+            Assert.Equal("dbo", entityType.GetViewSchema());
+
+            entityType.SetViewSchema("db0");
+
+            Assert.Equal("db0", entityType.GetViewSchema());
+
+            entityType.SetViewName(null);
+
+            Assert.Equal("db0", entityType.GetViewSchema());
+
+            entityType.SetViewSchema(null);
+
+            Assert.Null(entityType.GetViewSchema());
+        }
+
+        [ConditionalFact]
         public void Can_get_and_set_column_type()
         {
             var modelBuilder = new ModelBuilder();

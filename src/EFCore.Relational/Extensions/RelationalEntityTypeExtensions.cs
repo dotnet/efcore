@@ -373,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore
                 return ownership.PrincipalEntityType.GetViewSchema();
             }
 
-            return null;
+            return GetViewName(entityType) != null ? entityType.Model.GetDefaultSchema() : null;
         }
 
         /// <summary>
