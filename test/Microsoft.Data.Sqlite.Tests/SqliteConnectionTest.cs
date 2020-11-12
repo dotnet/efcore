@@ -5,11 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Microsoft.Data.Sqlite.Properties;
-using Microsoft.Data.Sqlite.Utilities;
 using Xunit;
 using static SQLitePCL.raw;
 
@@ -314,7 +312,7 @@ namespace Microsoft.Data.Sqlite
                 // NB: The file is only encrypted after writing
                 connection1.ExecuteNonQuery("CREATE TABLE IF NOT EXISTS dual (dummy)");
 
-                using (var connection2 = new SqliteConnection("Data Source=encrypted.db"))
+                using (var connection2 = new SqliteConnection("Data Source=encrypted.db;Password=wrong"))
                 {
                     var stateChangeRaised = false;
                     connection2.StateChange += (sender, e) => stateChangeRaised = true;
@@ -333,6 +331,34 @@ namespace Microsoft.Data.Sqlite
             using var connection = new SqliteConnection("Data Source=encrypted.db;Password=password");
             connection.Open();
         }
+
+#if E_SQLCIPHER || SQLCIPHER
+        [Fact]
+        public void Open_decrypts_lazily_when_no_password()
+        {
+            try
+            {
+                using var connection1 = new SqliteConnection("Data Source=encrypted2.db;Password=password");
+                connection1.Open();
+
+                // NB: The file is only encrypted after writing
+                connection1.ExecuteNonQuery(
+                    "CREATE TABLE IF NOT EXISTS data (value); INSERT INTO data (value) VALUES (1);");
+
+                using var connection2 = new SqliteConnection("Data Source=encrypted2.db");
+                connection2.Open();
+                connection2.ExecuteNonQuery("PRAGMA key = 'password';");
+
+                var value = connection2.ExecuteScalar<long>("SELECT value FROM data;");
+
+                Assert.Equal(1L, value);
+            }
+            finally
+            {
+                File.Delete("encrypted2.db");
+            }
+        }
+#endif
 
         [Theory]
         [InlineData("True", 1L)]
