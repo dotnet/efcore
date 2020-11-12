@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     The constant value.
         /// </summary>
-        public virtual object Value
+        public virtual object? Value
             => _constantExpression.Value;
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Print(Value, expressionPrinter);
         }
 
-        private void Print(object value, ExpressionPrinter expressionPrinter)
+        private void Print(object? value, ExpressionPrinter expressionPrinter)
             => expressionPrinter.Append(TypeMapping?.GenerateSqlLiteral(value) ?? Value?.ToString() ?? "NULL");
 
         /// <inheritdoc />
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             => base.Equals(sqlConstantExpression)
                 && ValueEquals(Value, sqlConstantExpression.Value);
 
-        private bool ValueEquals(object value1, object value2)
+        private bool ValueEquals(object? value1, object? value2)
         {
             if (value1 == null)
             {

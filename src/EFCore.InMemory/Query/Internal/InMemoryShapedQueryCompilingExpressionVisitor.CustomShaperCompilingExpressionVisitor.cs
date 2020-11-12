@@ -27,20 +27,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
 
             private static readonly MethodInfo _includeReferenceMethodInfo
-                = typeof(CustomShaperCompilingExpressionVisitor).GetTypeInfo()
-                    .GetDeclaredMethod(nameof(IncludeReference));
+                = typeof(CustomShaperCompilingExpressionVisitor).GetRequiredDeclaredMethod(nameof(IncludeReference));
 
             private static readonly MethodInfo _includeCollectionMethodInfo
-                = typeof(CustomShaperCompilingExpressionVisitor).GetTypeInfo()
-                    .GetDeclaredMethod(nameof(IncludeCollection));
+                = typeof(CustomShaperCompilingExpressionVisitor).GetRequiredDeclaredMethod(nameof(IncludeCollection));
 
             private static readonly MethodInfo _materializeCollectionMethodInfo
-                = typeof(CustomShaperCompilingExpressionVisitor).GetTypeInfo()
-                    .GetDeclaredMethod(nameof(MaterializeCollection));
+                = typeof(CustomShaperCompilingExpressionVisitor).GetRequiredDeclaredMethod(nameof(MaterializeCollection));
 
             private static readonly MethodInfo _materializeSingleResultMethodInfo
-                = typeof(CustomShaperCompilingExpressionVisitor).GetTypeInfo()
-                    .GetDeclaredMethod(nameof(MaterializeSingleResult));
+                = typeof(CustomShaperCompilingExpressionVisitor).GetRequiredDeclaredMethod(nameof(MaterializeSingleResult));
 
             private static void IncludeReference<TEntity, TIncludingEntity, TIncludedEntity>(
                 QueryContext queryContext,
@@ -271,8 +267,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     Expression.Constant(true));
 
             private static readonly MethodInfo _collectionAccessorAddMethodInfo
-                = typeof(IClrCollectionAccessor).GetTypeInfo()
-                    .GetDeclaredMethod(nameof(IClrCollectionAccessor.Add));
+                = typeof(IClrCollectionAccessor).GetRequiredDeclaredMethod(nameof(IClrCollectionAccessor.Add));
         }
     }
 }

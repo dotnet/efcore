@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///         This method is generally used to get last memberInfo to generate an alias for projection.
         ///     </para>
         /// </summary>
-        public MemberInfo Last
+        public MemberInfo? Last
             => _memberChain.LastOrDefault();
 
         /// <inheritdoc />

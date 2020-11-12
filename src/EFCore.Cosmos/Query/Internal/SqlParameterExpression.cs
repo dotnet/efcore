@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     public sealed class SqlParameterExpression : SqlExpression
     {
         private readonly ParameterExpression _parameterExpression;
+        private readonly string _name;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -31,7 +32,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         public SqlParameterExpression([NotNull] ParameterExpression parameterExpression, [CanBeNull] CoreTypeMapping? typeMapping)
             : base(parameterExpression.Type, typeMapping)
         {
+            Check.DebugAssert(parameterExpression.Name != null, "Parameter must have name.");
+
             _parameterExpression = parameterExpression;
+            _name = parameterExpression.Name;
         }
 
         /// <summary>
@@ -41,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public string Name
-            => _parameterExpression.Name;
+            => _name;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

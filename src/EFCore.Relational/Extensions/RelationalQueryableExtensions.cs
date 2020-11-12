@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore
         private static FromSqlQueryRootExpression GenerateFromSqlQueryRoot(
             IQueryable source,
             string sql,
-            object[] arguments,
+            object?[] arguments,
             [CallerMemberName] string memberName = null!)
         {
             var queryRootExpression = (QueryRootExpression)source.Expression;
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         internal static readonly MethodInfo AsSingleQueryMethodInfo
-            = typeof(RelationalQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(AsSingleQuery));
+            = typeof(RelationalQueryableExtensions).GetRequiredDeclaredMethod(nameof(AsSingleQuery));
 
         /// <summary>
         ///     <para>
@@ -233,6 +233,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         internal static readonly MethodInfo AsSplitQueryMethodInfo
-            = typeof(RelationalQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(AsSplitQuery));
+            = typeof(RelationalQueryableExtensions).GetRequiredDeclaredMethod(nameof(AsSplitQuery));
     }
 }

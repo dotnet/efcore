@@ -14,7 +14,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyModel;
-using RuntimeEnvironment = Microsoft.DotNet.PlatformAbstractions.RuntimeEnvironment;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -127,11 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             if (hasDependencyContext)
             {
                 var candidateAssets = new Dictionary<(string, string), int>();
-#if NET5_0
-#error Update to use RuntimeEnvironment.RuntimeIdentifier instead
-#endif
-                var rid = AppContext.GetData("RUNTIME_IDENTIFIER") as string
-                    ?? RuntimeEnvironment.GetRuntimeIdentifier();
+                var rid = RuntimeInformation.RuntimeIdentifier;
                 var rids = DependencyContext.Default.RuntimeGraph.FirstOrDefault(g => g.Runtime == rid)?.Fallbacks.ToList()
                     ?? new List<string>();
                 rids.Insert(0, rid);

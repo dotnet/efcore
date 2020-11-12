@@ -153,7 +153,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 return null;
             }
 
-            // TODO-NULLABLE: Put MemberNotNull on FindAnnotation when we target net5.0
             _annotations!.Remove(name);
 
             if (_annotations.Count == 0)

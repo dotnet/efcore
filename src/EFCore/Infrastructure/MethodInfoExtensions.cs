@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public static class MethodInfoExtensions
     {
-        private static readonly string _efTypeName = typeof(EF).FullName;
+        private static readonly string _efTypeName = typeof(EF).FullName!;
 
         /// <summary>
         ///     Returns <see langword="true" /> if the given method is <see cref="EF.Property{TProperty}" />.

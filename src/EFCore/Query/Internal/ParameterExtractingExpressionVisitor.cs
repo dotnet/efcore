@@ -270,7 +270,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return base.VisitExtension(extensionExpression);
         }
 
-        private static Expression GenerateConstantExpression(object value, Type returnType)
+        private static Expression GenerateConstantExpression(object? value, Type returnType)
         {
             var constantExpression = Expression.Constant(value, value?.GetType() ?? returnType);
 
@@ -355,7 +355,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public ParameterExpression ContextParameterExpression { get; }
 
-            public override Expression Visit(Expression expression)
+            [return: CA.NotNullIfNotNull("expression")]
+            public override Expression? Visit(Expression? expression)
                 => expression?.Type != typeof(object)
                     && expression?.Type.IsAssignableFrom(_contextType) == true
                         ? ContextParameterExpression
@@ -374,7 +375,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return expression;
         }
 
-        [return: CA.NotNullIfNotNull("expression")]
         private object? GetValue(Expression? expression, out string? parameterName)
         {
             parameterName = null;
@@ -498,7 +498,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return _evaluatableExpressions;
             }
 
-            public override Expression Visit(Expression expression)
+            [return: CA.NotNullIfNotNull("expression")]
+            public override Expression? Visit(Expression? expression)
             {
                 if (expression == null)
                 {

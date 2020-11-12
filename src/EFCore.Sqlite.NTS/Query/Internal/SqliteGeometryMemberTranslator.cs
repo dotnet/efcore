@@ -25,24 +25,24 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     {
         private static readonly IDictionary<MemberInfo, string> _memberToFunctionName = new Dictionary<MemberInfo, string>
         {
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.Area)), "Area" },
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.Boundary)), "Boundary" },
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.Centroid)), "Centroid" },
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.Dimension)), "Dimension" },
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.Envelope)), "Envelope" },
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.InteriorPoint)), "PointOnSurface" },
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.IsEmpty)), "IsEmpty" },
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.IsSimple)), "IsSimple" },
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.IsValid)), "IsValid" },
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.Length)), "GLength" },
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.NumGeometries)), "NumGeometries" },
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.NumPoints)), "NumPoints" },
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.PointOnSurface)), "PointOnSurface" },
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.SRID)), "SRID" }
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.Area)), "Area" },
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.Boundary)), "Boundary" },
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.Centroid)), "Centroid" },
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.Dimension)), "Dimension" },
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.Envelope)), "Envelope" },
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.InteriorPoint)), "PointOnSurface" },
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.IsEmpty)), "IsEmpty" },
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.IsSimple)), "IsSimple" },
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.IsValid)), "IsValid" },
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.Length)), "GLength" },
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.NumGeometries)), "NumGeometries" },
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.NumPoints)), "NumPoints" },
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.PointOnSurface)), "PointOnSurface" },
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.SRID)), "SRID" }
         };
 
-        private static readonly MemberInfo _geometryType = typeof(Geometry).GetRuntimeProperty(nameof(Geometry.GeometryType));
-        private static readonly MemberInfo _ogcGeometryType = typeof(Geometry).GetRuntimeProperty(nameof(Geometry.OgcGeometryType));
+        private static readonly MemberInfo _geometryType = typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.GeometryType));
+        private static readonly MemberInfo _ogcGeometryType = typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.OgcGeometryType));
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         /// <summary>

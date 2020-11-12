@@ -25,54 +25,54 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     public class SqlServerStringMethodTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo _indexOfMethodInfo
-            = typeof(string).GetRuntimeMethod(nameof(string.IndexOf), new[] { typeof(string) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.IndexOf), new[] { typeof(string) });
 
         private static readonly MethodInfo _replaceMethodInfo
-            = typeof(string).GetRuntimeMethod(nameof(string.Replace), new[] { typeof(string), typeof(string) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Replace), new[] { typeof(string), typeof(string) });
 
         private static readonly MethodInfo _toLowerMethodInfo
-            = typeof(string).GetRuntimeMethod(nameof(string.ToLower), Array.Empty<Type>());
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.ToLower), Array.Empty<Type>());
 
         private static readonly MethodInfo _toUpperMethodInfo
-            = typeof(string).GetRuntimeMethod(nameof(string.ToUpper), Array.Empty<Type>());
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.ToUpper), Array.Empty<Type>());
 
         private static readonly MethodInfo _substringMethodInfo
-            = typeof(string).GetRuntimeMethod(nameof(string.Substring), new[] { typeof(int), typeof(int) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Substring), new[] { typeof(int), typeof(int) });
 
         private static readonly MethodInfo _isNullOrEmptyMethodInfo
-            = typeof(string).GetRuntimeMethod(nameof(string.IsNullOrEmpty), new[] { typeof(string) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.IsNullOrEmpty), new[] { typeof(string) });
 
         private static readonly MethodInfo _isNullOrWhiteSpaceMethodInfo
-            = typeof(string).GetRuntimeMethod(nameof(string.IsNullOrWhiteSpace), new[] { typeof(string) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.IsNullOrWhiteSpace), new[] { typeof(string) });
 
         // Method defined in netcoreapp2.0 only
         private static readonly MethodInfo _trimStartMethodInfoWithoutArgs
-            = typeof(string).GetRuntimeMethod(nameof(string.TrimStart), Array.Empty<Type>());
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimStart), Array.Empty<Type>());
 
         private static readonly MethodInfo _trimEndMethodInfoWithoutArgs
-            = typeof(string).GetRuntimeMethod(nameof(string.TrimEnd), Array.Empty<Type>());
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimEnd), Array.Empty<Type>());
 
         private static readonly MethodInfo _trimMethodInfoWithoutArgs
-            = typeof(string).GetRuntimeMethod(nameof(string.Trim), Array.Empty<Type>());
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Trim), Array.Empty<Type>());
 
         // Method defined in netstandard2.0
         private static readonly MethodInfo _trimStartMethodInfoWithCharArrayArg
-            = typeof(string).GetRuntimeMethod(nameof(string.TrimStart), new[] { typeof(char[]) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimStart), new[] { typeof(char[]) });
 
         private static readonly MethodInfo _trimEndMethodInfoWithCharArrayArg
-            = typeof(string).GetRuntimeMethod(nameof(string.TrimEnd), new[] { typeof(char[]) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimEnd), new[] { typeof(char[]) });
 
         private static readonly MethodInfo _trimMethodInfoWithCharArrayArg
-            = typeof(string).GetRuntimeMethod(nameof(string.Trim), new[] { typeof(char[]) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Trim), new[] { typeof(char[]) });
 
         private static readonly MethodInfo _startsWithMethodInfo
-            = typeof(string).GetRuntimeMethod(nameof(string.StartsWith), new[] { typeof(string) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.StartsWith), new[] { typeof(string) });
 
         private static readonly MethodInfo _containsMethodInfo
-            = typeof(string).GetRuntimeMethod(nameof(string.Contains), new[] { typeof(string) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Contains), new[] { typeof(string) });
 
         private static readonly MethodInfo _endsWithMethodInfo
-            = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) });
 
         private static readonly MethodInfo _firstOrDefaultMethodInfoWithoutArgs
             = typeof(Enumerable).GetRuntimeMethods().Single(

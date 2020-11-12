@@ -825,7 +825,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(sql, nameof(sql));
 
             var tableExpression = new FromSqlExpression(
-                entityType.GetDefaultMappings().SingleOrDefault().Table.Name.Substring(0, 1).ToLowerInvariant(), sql, sqlArguments);
+                entityType.GetDefaultMappings().Single().Table.Name.Substring(0, 1).ToLowerInvariant(), sql, sqlArguments);
             var selectExpression = new SelectExpression(entityType, tableExpression);
             AddConditions(selectExpression, entityType);
 

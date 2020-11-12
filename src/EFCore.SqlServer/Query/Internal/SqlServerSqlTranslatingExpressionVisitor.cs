@@ -60,18 +60,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override Expression? VisitBinary(BinaryExpression binaryExpression)
+        protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
             return !(base.VisitBinary(binaryExpression) is SqlExpression visitedExpression)
-                ? null
-                : (Expression?)(visitedExpression is SqlBinaryExpression sqlBinary
+                ? QueryCompilationContext.NotTranslatedExpression
+                : visitedExpression is SqlBinaryExpression sqlBinary
                     && _arithmeticOperatorTypes.Contains(sqlBinary.OperatorType)
                     && (_dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Left))
                         || _dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Right)))
-                        ? null
-                        : visitedExpression);
+                        ? QueryCompilationContext.NotTranslatedExpression
+                        : visitedExpression;
         }
 
         /// <summary>
@@ -80,14 +80,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override Expression? VisitUnary(UnaryExpression unaryExpression)
+        protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
             if (unaryExpression.NodeType == ExpressionType.ArrayLength
                 && unaryExpression.Operand.Type == typeof(byte[]))
             {
                 if (!(base.Visit(unaryExpression.Operand) is SqlExpression sqlExpression))
                 {
-                    return null;
+                    return QueryCompilationContext.NotTranslatedExpression;
                 }
 
                 var isBinaryMaxDataType = GetProviderType(sqlExpression) == "varbinary(max)" || sqlExpression is SqlParameterExpression;

@@ -122,7 +122,6 @@ namespace Microsoft.EntityFrameworkCore
         {
             Assert.False(ignoreLoops, "BCL doesn't support ignoring loops.");
 
-#if NET5_0
             var options = new JsonSerializerOptions
             {
                 ReferenceHandler = ReferenceHandler.Preserve,
@@ -131,9 +130,6 @@ namespace Microsoft.EntityFrameworkCore
             };
 
             return JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(collection, options), options);
-#else
-            return collection;
-#endif
         }
 
         private static T RoundtripThroughNewtonsoftJson<T>(T collection, bool ignoreLoops, bool writeIndented)

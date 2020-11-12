@@ -55,12 +55,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         reverseOrdering);
 
                     source = selectMethodCall.Update(
-                        selectMethodCall.Object,
+                        selectMethodCall.Object!,
                         new[] { selectMethodCall.Arguments[0], Expression.Quote(selector) });
 
                     if (singleResult)
                     {
-                        source = methodCallExpression.Update(methodCallExpression.Object, new[] { source });
+                        source = methodCallExpression.Update(methodCallExpression.Object!, new[] { source });
                     }
 
                     return source;
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             var selectorParameter = selector.Parameters[0];
             var selectorBody = selector.Body;
-            var sourceElementType = source.Type.TryGetSequenceType()!;
+            var sourceElementType = source.Type.GetSequenceType();
 
             if (reverseOrdering)
             {
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         && subqueryMethodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.Select)
                     {
                         subquery = RewriteSubqueryToSelectMany(subqueryMethodCallExpression.Arguments[0]);
-                        subquery = subqueryMethodCallExpression.Update(null, new[] { subquery, subqueryMethodCallExpression.Arguments[1] });
+                        subquery = subqueryMethodCallExpression.Update(null!, new[] { subquery, subqueryMethodCallExpression.Arguments[1] });
                         subquery = _parentVisitor.Visit(subquery);
                     }
                     else
@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private Expression RewriteSubqueryToSelectMany(Expression subquery)
             {
-                var collectionElementType = subquery.Type.TryGetSequenceType();
+                var collectionElementType = subquery.Type.GetSequenceType();
                 if (subquery.Type.GetGenericTypeDefinition() == typeof(IOrderedQueryable<>))
                 {
                     subquery = Expression.Call(
@@ -180,7 +180,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var newParameters = CopyParameters(lambdaExpression.Parameters);
                     body = new ReplacingExpressionVisitor(lambdaExpression.Parameters, newParameters).Visit(body);
 
-                    return lambdaExpression.Update(body, newParameters);
+                    // TODO-Nullable bug
+                    return lambdaExpression.Update(body, newParameters)!;
                 }
 
                 private static IReadOnlyList<ParameterExpression> CopyParameters(IReadOnlyList<ParameterExpression> parameters)

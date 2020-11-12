@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IRelationalCommand GetRelationalCommand([NotNull] IReadOnlyDictionary<string, object> parameters)
+        public virtual IRelationalCommand GetRelationalCommand([NotNull] IReadOnlyDictionary<string, object?> parameters)
         {
             var cacheKey = new CommandCacheKey(_selectExpression, parameters);
 
@@ -123,9 +123,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly struct CommandCacheKey : IEquatable<CommandCacheKey>
         {
             private readonly SelectExpression _selectExpression;
-            private readonly IReadOnlyDictionary<string, object> _parameterValues;
+            private readonly IReadOnlyDictionary<string, object?> _parameterValues;
 
-            public CommandCacheKey(SelectExpression selectExpression, IReadOnlyDictionary<string, object> parameterValues)
+            public CommandCacheKey(SelectExpression selectExpression, IReadOnlyDictionary<string, object?> parameterValues)
             {
                 _selectExpression = selectExpression;
                 _parameterValues = parameterValues;

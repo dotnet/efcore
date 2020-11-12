@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Check.NotNull(returnType, nameof(returnType));
             Check.NotNull(logger, nameof(logger));
 
-            if (member.DeclaringType.IsNullableValueType()
+            if (member.DeclaringType?.IsNullableValueType() == true
                 && instance != null)
             {
                 switch (member.Name)

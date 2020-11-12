@@ -175,6 +175,7 @@ namespace Microsoft.EntityFrameworkCore
         public static bool IsIndexerMethod([NotNull] this IModel model, [NotNull] MethodInfo methodInfo)
             => !methodInfo.IsStatic
                 && methodInfo.IsSpecialName
+                && methodInfo.DeclaringType != null
                 && model.AsModel().FindIndexerPropertyInfo(methodInfo.DeclaringType) is PropertyInfo indexerProperty
                 && (methodInfo == indexerProperty.GetMethod || methodInfo == indexerProperty.SetMethod);
 
