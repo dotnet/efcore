@@ -373,7 +373,9 @@ namespace Microsoft.EntityFrameworkCore
                 return ownership.PrincipalEntityType.GetViewSchema();
             }
 
-            return GetViewName(entityType) != null ? entityType.Model.GetDefaultSchema() : null;
+            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23274", out var isEnabled)
+                && isEnabled;
+            return !useOldBehavior && GetViewName(entityType) != null ? entityType.Model.GetDefaultSchema() : null;
         }
 
         /// <summary>
