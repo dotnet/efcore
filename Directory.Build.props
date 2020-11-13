@@ -27,6 +27,10 @@
     <PackageProjectUrl>https://docs.microsoft.com/ef/core/</PackageProjectUrl>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(DeveloperBuild)' == 'true'">
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);CS1591;SA1636</WarningsNotAsErrors>
+  </PropertyGroup>
+
   <!-- HACK: Work around #15093 -->
   <PropertyGroup>
     <NoWarn>$(NoWarn.Replace(';1591', ''))</NoWarn>
