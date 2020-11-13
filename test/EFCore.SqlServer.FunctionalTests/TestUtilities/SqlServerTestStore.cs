@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 #pragma warning disable IDE0022 // Use block body for methods
 // ReSharper disable SuggestBaseTypeForParameter
@@ -98,7 +99,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
-            => builder.UseSqlServer(Connection, b => b.ApplyConfiguration());
+            => builder
+                .UseSqlServer(Connection, b => b.ApplyConfiguration())
+                .ConfigureWarnings(b => b.Ignore(SqlServerEventId.SavepointsDisabledBecauseOfMARS));
 
         private bool CreateDatabase(Action<DbContext> clean)
         {

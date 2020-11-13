@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
                 if (_explicitBehaviors != null)
                 {
-                    hashCode = _explicitBehaviors.Aggregate(
+                    hashCode = _explicitBehaviors.OrderBy(b => b.Key).Aggregate(
                         hashCode,
                         (t, e) => (t * 397) ^ (((long)e.Value.GetHashCode() * 3163) ^ (long)e.Key.GetHashCode()));
                 }

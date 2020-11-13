@@ -29,6 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ConflictingValueGenerationStrategiesWarning,
             DecimalTypeKeyWarning,
 
+            // Transaction events
+            SavepointsDisabledBecauseOfMARS,
+
             // Scaffolding events
             ColumnFound = CoreEventId.ProviderDesignBaseId,
             ColumnNotNamedWarning,
@@ -120,6 +123,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static readonly EventId ConflictingValueGenerationStrategiesWarning =
             MakeValidationId(Id.ConflictingValueGenerationStrategiesWarning);
+
+        private static readonly string _transactionPrefix = DbLoggerCategory.Database.Transaction.Name + ".";
+
+        private static EventId MakeTransactionId(Id id)
+            => new EventId((int)id, _transactionPrefix + id);
+
+        /// <summary>
+        ///     <para>
+        ///         Savepoints have been disabled when saving changes with an external transaction, because Multiple Active Result Sets is
+        ///         enabled.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId SavepointsDisabledBecauseOfMARS = MakeTransactionId(Id.SavepointsDisabledBecauseOfMARS);
 
         private static readonly string _scaffoldingPrefix = DbLoggerCategory.Scaffolding.Name + ".";
 
