@@ -463,6 +463,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotNull(model, nameof(model));
 
+            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23289", out var isEnabled)
+                    && isEnabled;
+            if (useOldBehavior)
+            {
+                return;
+            }
+
             var graph = new Multigraph<IEntityType, IForeignKey>();
             foreach (var entityType in model.GetEntityTypes())
             {
