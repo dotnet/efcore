@@ -2456,5 +2456,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                     c => (c.Region != "WA" && c.Region != "OR" && c.Region != null) || (c.Region != "WA" && c.Region != null)),
                 entryCount: 28);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Filter_with_property_compared_to_null_wrapped_in_explicit_convert_to_object(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => (object)c.Region == null),
+                entryCount: 60);
+        }
     }
 }
