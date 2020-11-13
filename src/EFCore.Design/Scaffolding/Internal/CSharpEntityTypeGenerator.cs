@@ -76,6 +76,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             _sb.AppendLine();
+            _sb.AppendLine("// Code scaffolded by EF Core assumes nullable reference types (NRTs) are not used or disabled.");
+            _sb.AppendLine("// If you have enabled NRTs for your project, then un-comment the following line:");
+            _sb.AppendLine("// #nullable disable");
+
+            _sb.AppendLine();
             _sb.AppendLine($"namespace {@namespace}");
             _sb.AppendLine("{");
 

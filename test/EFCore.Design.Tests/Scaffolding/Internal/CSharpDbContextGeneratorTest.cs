@@ -26,6 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+// Code scaffolded by EF Core assumes nullable reference types (NRTs) are not used or disabled.
+// If you have enabled NRTs for your project, then un-comment the following line:
+// #nullable disable
+
 namespace TestNamespace
 {
     public partial class TestDbContext : DbContext
@@ -79,6 +83,10 @@ namespace TestNamespace
                         @"using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+
+// Code scaffolded by EF Core assumes nullable reference types (NRTs) are not used or disabled.
+// If you have enabled NRTs for your project, then un-comment the following line:
+// #nullable disable
 
 namespace TestNamespace
 {
