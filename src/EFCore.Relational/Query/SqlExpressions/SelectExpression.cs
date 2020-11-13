@@ -1285,7 +1285,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 }
 
                 shaperExpression = remapper.RemapIndex(shaperExpression, indexMap, pendingCollectionOffset);
-                _projectionMapping.Clear();
+                if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23266", out var isEnabled) && isEnabled)
+                {
+                    _projectionMapping.Clear();
+                }
             }
             else
             {
