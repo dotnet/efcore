@@ -130,7 +130,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionContext context)
         {
             var foreignKey = relationshipBuilder.Metadata;
-            if (!ConfigurationSource.Convention.Overrides(foreignKey.GetPropertiesConfigurationSource()))
+            var foreignKeyProperties = FindCandidateForeignKeyProperties(relationshipBuilder.Metadata, onDependent: true);
+            var propertiesConfigurationSource = foreignKey.GetPropertiesConfigurationSource();
+            if (!ConfigurationSource.Convention.OverridesStrictly(propertiesConfigurationSource)
+                && (propertiesConfigurationSource != ConfigurationSource.Convention
+                    || (foreignKey.Properties.All(p => !p.IsImplicitlyCreated())
+                        && (foreignKeyProperties == null
+                            || !foreignKey.Properties.SequenceEqual(foreignKeyProperties)))))
             {
                 var batch = context.DelayConventions();
                 using var foreignKeyReference = batch.Track(foreignKey);
@@ -184,7 +190,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
             }
 
-            var foreignKeyProperties = FindCandidateForeignKeyProperties(relationshipBuilder.Metadata, onDependent: true);
             if (foreignKeyProperties == null)
             {
                 if (invertible

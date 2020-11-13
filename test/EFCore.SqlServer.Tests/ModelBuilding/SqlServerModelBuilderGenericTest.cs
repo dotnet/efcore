@@ -206,6 +206,33 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Single(sesameBunFk.GetMappedConstraints());
             }
 
+            [ConditionalFact]
+            public virtual void TPT_index_can_use_inherited_properties()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<BigMak>()
+                    .Ignore(b => b.Bun)
+                    .Ignore(b => b.Pickles);
+                modelBuilder.Entity<Ingredient>(b =>
+                {
+                    b.ToTable("Ingredients");
+                    b.Property<int?>("NullableProp");
+                    b.Ignore(i => i.BigMak);
+                });
+                modelBuilder.Entity<Bun>(b =>
+                {
+                    b.ToTable("Buns");
+                    b.HasIndex(bun => bun.BurgerId);
+                    b.HasIndex("NullableProp");
+                    b.HasOne(i => i.BigMak).WithOne().HasForeignKey<Bun>(i => i.Id);
+                });
+
+                var model = modelBuilder.FinalizeModel();
+
+                var bunType = model.FindEntityType(typeof(Bun));
+                Assert.All(bunType.GetIndexes(), i => Assert.Null(i.GetFilter()));
+            }
+
             public class Parent
             {
                 public int Id { get; set; }
@@ -412,7 +439,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<Book>(
                     bb =>
                     {
-                        bb.ToTable("BT", "BS");
+                        bb.ToTable("BT", "BS", t => t.ExcludeFromMigrations());
                         bb.OwnsOne(
                             b => b.AlternateLabel, tb =>
                             {
@@ -425,7 +452,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                                     l => l.AnotherBookLabel, ab =>
                                     {
                                         ab.Ignore(l => l.Book);
-                                        ab.ToTable("AT1", "AS1");
+                                        ab.ToTable("AT1", "AS1", excludedFromMigrations: false);
                                         ab.OwnsOne(s => s.SpecialBookLabel)
                                             .ToTable("ST11", "SS11")
                                             .Ignore(l => l.Book)
@@ -493,18 +520,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal("BS", book.GetSchema());
                 Assert.Equal("BT", book.GetTableName());
+                Assert.True(book.IsTableExcludedFromMigrations());
                 Assert.Equal("LS", bookOwnership1.DeclaringEntityType.GetSchema());
                 Assert.Equal("LT", bookOwnership1.DeclaringEntityType.GetTableName());
                 Assert.False(bookOwnership1.DeclaringEntityType.IsMemoryOptimized());
+                Assert.True(bookOwnership1.DeclaringEntityType.IsTableExcludedFromMigrations());
                 Assert.Equal("TS", bookOwnership2.DeclaringEntityType.GetSchema());
                 Assert.Equal("TT", bookOwnership2.DeclaringEntityType.GetTableName());
                 Assert.True(bookOwnership2.DeclaringEntityType.IsMemoryOptimized());
+                Assert.True(bookOwnership2.DeclaringEntityType.IsTableExcludedFromMigrations());
                 Assert.Equal("AS2", bookLabel1Ownership1.DeclaringEntityType.GetSchema());
                 Assert.Equal("AT2", bookLabel1Ownership1.DeclaringEntityType.GetTableName());
                 Assert.Equal("SS1", bookLabel1Ownership2.DeclaringEntityType.GetSchema());
                 Assert.Equal("ST1", bookLabel1Ownership2.DeclaringEntityType.GetTableName());
                 Assert.Equal("AS1", bookLabel2Ownership1.DeclaringEntityType.GetSchema());
                 Assert.Equal("AT1", bookLabel2Ownership1.DeclaringEntityType.GetTableName());
+                Assert.False(bookLabel2Ownership1.DeclaringEntityType.IsTableExcludedFromMigrations());
                 Assert.Equal("SS2", bookLabel2Ownership2.DeclaringEntityType.GetSchema());
                 Assert.Equal("ST2", bookLabel2Ownership2.DeclaringEntityType.GetTableName());
                 Assert.Equal("SS21", bookLabel1Ownership11.DeclaringEntityType.GetSchema());

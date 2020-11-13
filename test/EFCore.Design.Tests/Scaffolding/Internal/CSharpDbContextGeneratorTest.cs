@@ -239,9 +239,16 @@ namespace TestNamespace
             Test(
                 modelBuilder => modelBuilder.Entity("Vista").ToView("Vista"),
                 new ModelCodeGenerationOptions { UseDataAnnotations = true },
-                code => Assert.Contains(".ToView(\"Vista\")", code.ContextFile.Code),
-                model => Assert.NotNull(
-                    model.FindEntityType("TestNamespace.Vista").FindAnnotation(RelationalAnnotationNames.ViewDefinitionSql)));
+                code => Assert.Contains("entity.ToView(\"Vista\");", code.ContextFile.Code),
+                model => {
+                    var entityType = model.FindEntityType("TestNamespace.Vista");
+
+                    Assert.NotNull(entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinitionSql));
+                    Assert.Equal("Vista", entityType.GetViewName());
+                    Assert.Null(entityType.GetViewSchema());
+                    Assert.Null(entityType.GetTableName());
+                    Assert.Null(entityType.GetSchema());
+                });
         }
 
         [ConditionalFact]

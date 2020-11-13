@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore
         public static OwnedNavigationBuilder ToTable(
             [NotNull] this OwnedNavigationBuilder referenceOwnershipBuilder,
             [CanBeNull] string name)
-            => referenceOwnershipBuilder.ToTable(name, excludedFromMigrations: false);
+            => ToTable(referenceOwnershipBuilder, name, schema: null, excludedFromMigrations: null);
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
@@ -226,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore
             where TEntity : class
             where TRelatedEntity : class
             => (OwnedNavigationBuilder<TEntity, TRelatedEntity>)ToTable(
-                (OwnedNavigationBuilder)referenceOwnershipBuilder, name, excludedFromMigrations: false);
+                referenceOwnershipBuilder, name, schema: null, excludedFromMigrations: null);
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
@@ -257,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this OwnedNavigationBuilder referenceOwnershipBuilder,
             [CanBeNull] string name,
             [CanBeNull] string schema)
-            => referenceOwnershipBuilder.ToTable(name, schema, excludedFromMigrations: false);
+            => ToTable(referenceOwnershipBuilder, name, schema, excludedFromMigrations: null);
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
@@ -277,9 +277,22 @@ namespace Microsoft.EntityFrameworkCore
             Check.NullButNotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
+            return ToTable(referenceOwnershipBuilder, name, schema, (bool?)excludedFromMigrations);
+        }
+
+        private static OwnedNavigationBuilder ToTable(
+            OwnedNavigationBuilder referenceOwnershipBuilder,
+            string name,
+            string schema,
+            bool? excludedFromMigrations)
+        {
             referenceOwnershipBuilder.OwnedEntityType.SetTableName(name);
             referenceOwnershipBuilder.OwnedEntityType.SetSchema(schema);
-            referenceOwnershipBuilder.OwnedEntityType.SetIsTableExcludedFromMigrations(excludedFromMigrations);
+
+            if (excludedFromMigrations.HasValue)
+            {
+                referenceOwnershipBuilder.OwnedEntityType.SetIsTableExcludedFromMigrations(excludedFromMigrations.Value);
+            }
 
             return referenceOwnershipBuilder;
         }
@@ -300,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore
             where TEntity : class
             where TRelatedEntity : class
             => (OwnedNavigationBuilder<TEntity, TRelatedEntity>)ToTable(
-                (OwnedNavigationBuilder)referenceOwnershipBuilder, name, schema, excludedFromMigrations: false);
+                referenceOwnershipBuilder, name, schema, excludedFromMigrations: null);
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.

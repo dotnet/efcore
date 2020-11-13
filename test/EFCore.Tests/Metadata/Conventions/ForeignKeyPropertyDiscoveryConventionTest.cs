@@ -578,6 +578,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         [ConditionalFact]
+        public void Does_not_match_for_convention_identifying_FK()
+        {
+            var derivedType = PrincipalType.Builder.ModelBuilder.Entity(typeof(DerivedPrincipalEntity), ConfigurationSource.Convention);
+            derivedType.HasBaseType(PrincipalType, ConfigurationSource.Convention);
+
+            PrincipalType.Builder.Property(typeof(int), nameof(PrincipalEntity.PrincipalEntityId), ConfigurationSource.Convention);
+            var relationshipBuilder = derivedType.HasRelationship(
+                PrincipalType, PrincipalType.FindPrimaryKey().Properties, ConfigurationSource.Convention)
+                .IsUnique(true, ConfigurationSource.DataAnnotation);
+
+            var newRelationshipBuilder = RunConvention(relationshipBuilder);
+            Assert.Same(relationshipBuilder, newRelationshipBuilder);
+
+            var fk = (IForeignKey)relationshipBuilder.Metadata;
+            Assert.Equal(nameof(PrincipalEntity.PeeKay), fk.Properties.Single().Name);
+            Assert.Same(fk, derivedType.Metadata.GetForeignKeys().Single());
+            Assert.True(fk.IsUnique);
+            Assert.True(fk.IsRequired);
+
+            ValidateModel();
+        }
+
+        [ConditionalFact]
         public void Matches_composite_dependent_PK_for_unique_FK()
         {
             var dependentTypeBuilder = DependentTypeWithCompositeKey.Builder;
@@ -1192,11 +1215,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             public static readonly PropertyInfo DependentEntityKayPeeProperty =
                 typeof(PrincipalEntity).GetProperty("DependentEntityKayPee");
 
+            public int PrincipalEntityId { get; set; }
             public int PeeKay { get; set; }
             public int? DependentEntityKayPee { get; set; }
             public IEnumerable<DependentEntity> InverseNav { get; set; }
             public DependentEntity InverseReferenceNav { get; set; }
             public PrincipalEntity SelfRef { get; set; }
+        }
+
+        private class DerivedPrincipalEntity : PrincipalEntity
+        {
         }
 
         private class DependentEntity

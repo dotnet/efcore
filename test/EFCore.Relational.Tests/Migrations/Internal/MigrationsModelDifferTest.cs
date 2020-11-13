@@ -9629,6 +9629,105 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
+        public void SeedData_type_with_excluded_owned_collection()
+        {
+            Execute(
+                common =>
+                {
+                    common.Entity<Customer>(
+                        c =>
+                        {
+                            c.Ignore(x => x.Mailing);
+
+                            c.HasKey(x => x.Id);
+                            c.HasData(new Customer { Id = 1 });
+
+                            c.OwnsMany(
+                                y => y.Orders, x =>
+                                {
+                                    x.Ignore(o => o.Billing);
+                                    x.Ignore(o => o.Shipping);
+
+                                    x.WithOwner()
+                                        .HasForeignKey("CustomerId");
+
+                                    x.HasKey("CustomerId", "Id");
+                                    x.HasData(new { Id = 2, CustomerId = 1 });
+                                });
+                        });
+                },
+                _ => { },
+                target => {
+                    target.Entity<Customer>(
+                        c =>
+                        {
+                            c.OwnsMany(
+                                y => y.Orders, x =>
+                                {
+                                    x.ToTable("Order", excludedFromMigrations: true);
+                                });
+                            c.ToTable("Customer", t => t.ExcludeFromMigrations());
+                        });
+                },
+                Assert.Empty,
+                Assert.Empty,
+                skipSourceConventions: true);
+        }
+
+        [ConditionalFact]
+        public void SeedData_type_with_owned_collection_excluded()
+        {
+            Execute(
+                common =>
+                {
+                    common.Entity<Customer>(
+                        c =>
+                        {
+                            c.Ignore(x => x.Mailing);
+
+                            c.HasKey(x => x.Id);
+                            c.HasData(new Customer { Id = 1 });
+
+                            c.OwnsMany(
+                                y => y.Orders, x =>
+                                {
+                                    x.Ignore(o => o.Billing);
+                                    x.Ignore(o => o.Shipping);
+
+                                    x.WithOwner()
+                                        .HasForeignKey("CustomerId");
+
+                                    x.HasKey("CustomerId", "Id");
+                                    x.HasData(new { Id = 2, CustomerId = 1 });
+
+                                    x.ToTable("Order", excludedFromMigrations: true);
+                                });
+
+                            c.ToTable("Customer", t => t.ExcludeFromMigrations());
+                        });
+                },
+                _ => { },
+                _ => { },
+                Assert.Empty,
+                Assert.Empty,
+                skipSourceConventions: true);
+        }
+
+        public class Parent
+        {
+            public Guid Id { get; set; }
+            public string Name { get; set; }
+
+            public IEnumerable<Child> Children { get; set; }
+        }
+
+        public class Child
+        {
+            public Guid Id { get; set; }
+            public string ChildName { get; set; }
+        }
+
+        [ConditionalFact]
         public void Old_style_ownership_to_new_style()
         {
             Execute(

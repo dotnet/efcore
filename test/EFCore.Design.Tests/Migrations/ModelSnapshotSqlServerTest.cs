@@ -1949,6 +1949,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Null(owned1index2.GetFilter());
                     Assert.Equal(new object[] { 1, -1 }, ownedType1.GetSeedData().Single().Values);
                     Assert.Equal(nameof(EntityWithOneProperty), ownedType1.GetTableName());
+                    Assert.False(ownedType1.IsTableExcludedFromMigrations());
 
                     var entityWithStringKey = o.FindEntityType(typeof(EntityWithStringKey));
                     Assert.Same(
@@ -1973,6 +1974,233 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.False(owned2index2.IsUnique);
                     Assert.Null(owned2index2.GetFilter());
                     Assert.Equal(nameof(EntityWithStringProperty), ownedType2.GetTableName());
+                    Assert.False(ownedType2.IsTableExcludedFromMigrations());
+
+                    Assert.Same(entityWithOneProperty, ownedType2.GetNavigations().Single().TargetEntityType);
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Owned_types_are_stored_in_snapshot_when_excluded()
+        {
+            Test(
+                builder =>
+                {
+                    builder.Entity<EntityWithOneProperty>(
+                        b =>
+                        {
+                            b.HasKey(e => e.Id).HasName("PK_Custom");
+
+                            b.OwnsOne(
+                                eo => eo.EntityWithTwoProperties, eb =>
+                                {
+                                    eb.HasKey(e => e.AlternateId).HasName("PK_Custom");
+                                    eb.WithOwner(e => e.EntityWithOneProperty)
+                                        .HasForeignKey(e => e.AlternateId)
+                                        .HasConstraintName("FK_Custom");
+                                    eb.HasIndex(e => e.Id);
+
+                                    eb.HasOne(e => e.EntityWithStringKey).WithOne();
+
+                                    eb.HasData(
+                                        new EntityWithTwoProperties { AlternateId = 1, Id = -1 });
+                                });
+
+                            b.HasData(
+                                new EntityWithOneProperty { Id = 1 });
+
+                            b.ToTable("EntityWithOneProperty", e => e.ExcludeFromMigrations());
+                        });
+
+                    builder.Entity<EntityWithStringKey>(
+                        b => {
+                            b.OwnsMany(
+                              es => es.Properties, es =>
+                              {
+                                  es.HasKey(e => e.Id);
+                                  es.HasOne(e => e.EntityWithOneProperty).WithOne();
+
+                                  es.ToTable("EntityWithStringProperty", excludedFromMigrations: true);
+                              });
+
+                            b.ToTable("EntityWithStringKey", e => e.ExcludeFromMigrations());
+                        });
+                },
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"")
+                        .UseIdentityColumn();
+
+                    b.HasKey(""Id"")
+                        .HasName(""PK_Custom"");
+
+                    b.ToTable(""EntityWithOneProperty"", t => t.ExcludeFromMigrations());
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1
+                        });
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", b =>
+                {
+                    b.Property<string>(""Id"")
+                        .HasColumnType(""nvarchar(450)"");
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""EntityWithStringKey"", t => t.ExcludeFromMigrations());
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
+                {
+                    b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"", b1 =>
+                        {
+                            b1.Property<int>(""AlternateId"")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType(""int"")
+                                .UseIdentityColumn();
+
+                            b1.Property<string>(""EntityWithStringKeyId"")
+                                .HasColumnType(""nvarchar(450)"");
+
+                            b1.Property<int>(""Id"")
+                                .HasColumnType(""int"");
+
+                            b1.HasKey(""AlternateId"")
+                                .HasName(""PK_Custom"");
+
+                            b1.HasIndex(""EntityWithStringKeyId"")
+                                .IsUnique()
+                                .HasFilter(""[EntityWithTwoProperties_EntityWithStringKeyId] IS NOT NULL"");
+
+                            b1.HasIndex(""Id"");
+
+                            b1.ToTable(""EntityWithOneProperty"");
+
+                            b1.WithOwner(""EntityWithOneProperty"")
+                                .HasForeignKey(""AlternateId"")
+                                .HasConstraintName(""FK_Custom"");
+
+                            b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", ""EntityWithStringKey"")
+                                .WithOne()
+                                .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithStringKeyId"");
+
+                            b1.Navigation(""EntityWithOneProperty"");
+
+                            b1.Navigation(""EntityWithStringKey"");
+
+                            b1.HasData(
+                                new
+                                {
+                                    AlternateId = 1,
+                                    Id = -1
+                                });
+                        });
+
+                    b.Navigation(""EntityWithTwoProperties"");
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", b =>
+                {
+                    b.OwnsMany(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", ""Properties"", b1 =>
+                        {
+                            b1.Property<int>(""Id"")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType(""int"")
+                                .UseIdentityColumn();
+
+                            b1.Property<int?>(""EntityWithOnePropertyId"")
+                                .HasColumnType(""int"");
+
+                            b1.Property<string>(""EntityWithStringKeyId"")
+                                .IsRequired()
+                                .HasColumnType(""nvarchar(450)"");
+
+                            b1.Property<string>(""Name"")
+                                .HasColumnType(""nvarchar(max)"");
+
+                            b1.HasKey(""Id"");
+
+                            b1.HasIndex(""EntityWithOnePropertyId"")
+                                .IsUnique()
+                                .HasFilter(""[EntityWithOnePropertyId] IS NOT NULL"");
+
+                            b1.HasIndex(""EntityWithStringKeyId"");
+
+                            b1.ToTable(""EntityWithStringProperty"", excludedFromMigrations: true);
+
+                            b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
+                                .WithOne()
+                                .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", ""EntityWithOnePropertyId"");
+
+                            b1.WithOwner()
+                                .HasForeignKey(""EntityWithStringKeyId"");
+
+                            b1.Navigation(""EntityWithOneProperty"");
+                        });
+
+                    b.Navigation(""Properties"");
+                });", usingSystem: true),
+                o =>
+                {
+                    var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty));
+                    Assert.Equal("PK_Custom", entityWithOneProperty.GetKeys().Single().GetName());
+                    Assert.Equal(new object[] { 1 }, entityWithOneProperty.GetSeedData().Single().Values);
+
+                    var ownership1 = entityWithOneProperty.FindNavigation(nameof(EntityWithOneProperty.EntityWithTwoProperties))
+                        .ForeignKey;
+                    Assert.Equal(nameof(EntityWithTwoProperties.AlternateId), ownership1.Properties[0].Name);
+                    Assert.Equal(nameof(EntityWithTwoProperties.EntityWithOneProperty), ownership1.DependentToPrincipal.Name);
+                    Assert.True(ownership1.IsRequired);
+                    Assert.Equal("FK_Custom", ownership1.GetConstraintName());
+                    var ownedType1 = ownership1.DeclaringEntityType;
+                    Assert.Equal(nameof(EntityWithTwoProperties.AlternateId), ownedType1.FindPrimaryKey().Properties[0].Name);
+                    Assert.Equal("PK_Custom", ownedType1.GetKeys().Single().GetName());
+                    Assert.Equal(2, ownedType1.GetIndexes().Count());
+                    var owned1index1 = ownedType1.GetIndexes().First();
+                    Assert.Equal("EntityWithStringKeyId", owned1index1.Properties[0].Name);
+                    Assert.True(owned1index1.IsUnique);
+                    Assert.Equal("[EntityWithTwoProperties_EntityWithStringKeyId] IS NOT NULL", owned1index1.GetFilter());
+                    var owned1index2 = ownedType1.GetIndexes().Last();
+                    Assert.Equal("Id", owned1index2.Properties[0].Name);
+                    Assert.False(owned1index2.IsUnique);
+                    Assert.Null(owned1index2.GetFilter());
+                    Assert.Equal(new object[] { 1, -1 }, ownedType1.GetSeedData().Single().Values);
+                    Assert.Equal(nameof(EntityWithOneProperty), ownedType1.GetTableName());
+                    Assert.True(ownedType1.IsTableExcludedFromMigrations());
+
+                    var entityWithStringKey = o.FindEntityType(typeof(EntityWithStringKey));
+                    Assert.Same(
+                        entityWithStringKey,
+                        ownedType1.FindNavigation(nameof(EntityWithTwoProperties.EntityWithStringKey)).TargetEntityType);
+                    Assert.Equal(nameof(EntityWithStringKey), entityWithStringKey.GetTableName());
+                    Assert.True(entityWithStringKey.IsTableExcludedFromMigrations());
+
+                    var ownership2 = entityWithStringKey.FindNavigation(nameof(EntityWithStringKey.Properties)).ForeignKey;
+                    Assert.Equal("EntityWithStringKeyId", ownership2.Properties[0].Name);
+                    Assert.Null(ownership2.DependentToPrincipal);
+                    Assert.True(ownership2.IsRequired);
+                    var ownedType2 = ownership2.DeclaringEntityType;
+                    Assert.Equal(nameof(EntityWithStringProperty.Id), ownedType2.FindPrimaryKey().Properties[0].Name);
+                    Assert.Single(ownedType2.GetKeys());
+                    Assert.Equal(2, ownedType2.GetIndexes().Count());
+                    var owned2index1 = ownedType2.GetIndexes().First();
+                    Assert.Equal("EntityWithOnePropertyId", owned2index1.Properties[0].Name);
+                    Assert.True(owned2index1.IsUnique);
+                    Assert.Equal("[EntityWithOnePropertyId] IS NOT NULL", owned2index1.GetFilter());
+                    var owned2index2 = ownedType2.GetIndexes().Last();
+                    Assert.Equal("EntityWithStringKeyId", owned2index2.Properties[0].Name);
+                    Assert.False(owned2index2.IsUnique);
+                    Assert.Null(owned2index2.GetFilter());
+                    Assert.Equal(nameof(EntityWithStringProperty), ownedType2.GetTableName());
+                    Assert.True(ownedType2.IsTableExcludedFromMigrations());
 
                     Assert.Same(entityWithOneProperty, ownedType2.GetNavigations().Single().TargetEntityType);
                 });

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -147,6 +148,49 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             return builder;
         }
 
+        public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> ToTable<TEntity>(
+            this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+            string name,
+            Action<RelationalModelBuilderTest.TestTableBuilder<TEntity>> buildAction)
+            where TEntity : class
+        {
+            switch (builder)
+            {
+                case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                    genericBuilder.Instance.ToTable(name,
+                        b => buildAction(new RelationalModelBuilderTest.GenericTestTableBuilder<TEntity>(b)));
+                    break;
+                case IInfrastructure<EntityTypeBuilder> nongenericBuilder:
+                    nongenericBuilder.Instance.ToTable(name,
+                        b => buildAction(new RelationalModelBuilderTest.NonGenericTestTableBuilder<TEntity>(b)));
+                    break;
+            }
+
+            return builder;
+        }
+
+        public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> ToTable<TEntity>(
+            this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+            string name,
+            string schema,
+            Action<RelationalModelBuilderTest.TestTableBuilder<TEntity>> buildAction)
+            where TEntity : class
+        {
+            switch (builder)
+            {
+                case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                    genericBuilder.Instance.ToTable(name, schema,
+                        b => buildAction(new RelationalModelBuilderTest.GenericTestTableBuilder<TEntity>(b)));
+                    break;
+                case IInfrastructure<EntityTypeBuilder> nongenericBuilder:
+                    nongenericBuilder.Instance.ToTable(name, schema,
+                        b => buildAction(new RelationalModelBuilderTest.NonGenericTestTableBuilder<TEntity>(b)));
+                    break;
+            }
+
+            return builder;
+        }
+
         public static ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TRelatedEntity> ToTable<TEntity, TRelatedEntity>(
             this ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TRelatedEntity> builder,
             string name)
@@ -180,6 +224,47 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     break;
                 case IInfrastructure<OwnedNavigationBuilder> nongenericBuilder:
                     nongenericBuilder.Instance.ToTable(name, schema);
+                    break;
+            }
+
+            return builder;
+        }
+
+        public static ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TRelatedEntity> ToTable<TEntity, TRelatedEntity>(
+            this ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TRelatedEntity> builder,
+            string name,
+            bool excludedFromMigrations)
+            where TEntity : class
+            where TRelatedEntity : class
+        {
+            switch (builder)
+            {
+                case IInfrastructure<OwnedNavigationBuilder<TEntity, TRelatedEntity>> genericBuilder:
+                    genericBuilder.Instance.ToTable(name, excludedFromMigrations);
+                    break;
+                case IInfrastructure<OwnedNavigationBuilder> nongenericBuilder:
+                    nongenericBuilder.Instance.ToTable(name, excludedFromMigrations);
+                    break;
+            }
+
+            return builder;
+        }
+
+        public static ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TRelatedEntity> ToTable<TEntity, TRelatedEntity>(
+            this ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TRelatedEntity> builder,
+            string name,
+            string schema,
+            bool excludedFromMigrations)
+            where TEntity : class
+            where TRelatedEntity : class
+        {
+            switch (builder)
+            {
+                case IInfrastructure<OwnedNavigationBuilder<TEntity, TRelatedEntity>> genericBuilder:
+                    genericBuilder.Instance.ToTable(name, schema, excludedFromMigrations);
+                    break;
+                case IInfrastructure<OwnedNavigationBuilder> nongenericBuilder:
+                    nongenericBuilder.Instance.ToTable(name, schema, excludedFromMigrations);
                     break;
             }
 
