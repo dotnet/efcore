@@ -96,11 +96,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 configuration.MaxRequestsPerTcpConnection = options.MaxRequestsPerTcpConnection.Value;
             }
 
-            if (options.EnableContentResponseOnWrite != null)
-            {
-                configuration.EnableTcpConnectionEndpointRediscovery = options.EnableContentResponseOnWrite.Value;
-            }
-
             _options = configuration;
         }
 
