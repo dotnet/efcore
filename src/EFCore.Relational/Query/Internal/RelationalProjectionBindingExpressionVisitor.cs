@@ -279,6 +279,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 test = Expression.Equal(test, Expression.Constant(true, typeof(bool?)));
             }
 
+            if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23309", out var isEnabled) && isEnabled))
+            {
+                ifTrue = MatchTypes(ifTrue, conditionalExpression.IfTrue.Type);
+                ifFalse = MatchTypes(ifFalse, conditionalExpression.IfFalse.Type);
+            }
+
             return conditionalExpression.Update(test, ifTrue, ifFalse);
         }
 
