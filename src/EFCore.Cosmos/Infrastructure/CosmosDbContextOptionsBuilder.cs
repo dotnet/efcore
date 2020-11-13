@@ -121,6 +121,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => WithOption(e => e.WithMaxRequestsPerTcpConnection(Check.NotNull(requestLimit, nameof(requestLimit))));
 
         /// <summary>
+        /// Sets the boolean to only return the headers and status code in the Cosmos DB response for write item operation 
+        /// like Create, Upsert, Patch and Replace. Setting the option to false will cause the response to have a null resource.
+        /// This reduces networking and CPU load by not sending the resource back over the network and serializing it on the client.
+        /// </summary>
+        /// <param name="enabled"><see langword="false" /> to have null resource</param>
+        public virtual CosmosDbContextOptionsBuilder ContentResponseOnWriteEnabled(bool enabled = false)
+            => WithOption(e => e.ContentResponseOnWriteEnabled(Check.NotNull(enabled, nameof(enabled))));
+
+        /// <summary>
         ///     Sets an option by cloning the extension used to store the settings. This ensures the builder
         ///     does not modify options that are already in use elsewhere.
         /// </summary>

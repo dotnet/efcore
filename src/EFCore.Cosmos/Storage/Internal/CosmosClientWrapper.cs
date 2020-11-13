@@ -292,7 +292,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
             var entry = parameters.Entry;
             var container = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
-            var itemRequestOptions = CreateItemRequestOptions(entry);
+            var enableContentResponseOnWrite = ((ICosmosSingletonOptions)Client.ClientOptions).EnableContentResponseOnWrite;
+            var itemRequestOptions = CreateItemRequestOptions(entry, enableContentResponseOnWrite);
             var partitionKey = CreatePartitionKey(entry);
 
             using var response = await container.CreateItemStreamAsync(stream, partitionKey, itemRequestOptions, cancellationToken)
@@ -354,7 +355,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
             var entry = parameters.Entry;
             var container = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
-            var itemRequestOptions = CreateItemRequestOptions(entry);
+
+            var enableContentResponseOnWrite = ((ICosmosSingletonOptions)Client.ClientOptions).EnableContentResponseOnWrite;
+            var itemRequestOptions = CreateItemRequestOptions(entry, enableContentResponseOnWrite);
+
             var partitionKey = CreatePartitionKey(entry);
 
             using var response = await container.ReplaceItemStreamAsync(
@@ -416,7 +420,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             var entry = parameters.Entry;
             var items = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
-            var itemRequestOptions = CreateItemRequestOptions(entry);
+
+            var enableContentResponseOnWrite = ((ICosmosSingletonOptions)Client.ClientOptions).EnableContentResponseOnWrite; 
+            
+            var itemRequestOptions = CreateItemRequestOptions(entry, enableContentResponseOnWrite);
             var partitionKey = CreatePartitionKey(entry);
 
             using var response = await items.DeleteItemStreamAsync(
@@ -427,7 +434,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             return response.StatusCode == HttpStatusCode.NoContent;
         }
 
-        private static ItemRequestOptions CreateItemRequestOptions(IUpdateEntry entry)
+        private static ItemRequestOptions CreateItemRequestOptions(IUpdateEntry entry, bool? enableContentResponseOnWrite)
         {
             var etagProperty = entry.EntityType.GetETagProperty();
             if (etagProperty == null)
@@ -442,7 +449,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 etag = converter.ConvertToProvider(etag);
             }
 
-            return new ItemRequestOptions { IfMatchEtag = (string)etag };
+            
+
+            return new ItemRequestOptions { IfMatchEtag = (string)etag, EnableContentResponseOnWrite = enableContentResponseOnWrite };
         }
 
         private static PartitionKey CreatePartitionKey(IUpdateEntry entry)

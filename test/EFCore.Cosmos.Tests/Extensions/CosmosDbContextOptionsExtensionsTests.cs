@@ -191,5 +191,20 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(requestLimit, extension.MaxRequestsPerTcpConnection);
         }
+
+        [ConditionalFact]
+        public void Can_create_options_with_content_response_on_write_enabled()
+        {
+            var enabled = true;
+            var options = new DbContextOptionsBuilder().UseCosmos(
+                "serviceEndPoint",
+                "authKeyOrResourceToken",
+                "databaseName",
+                o => { o.ContentResponseOnWriteEnabled(enabled); });
+
+            var extension = options.Options.FindExtension<CosmosOptionsExtension>();
+
+            Assert.Equal(enabled, extension.EnableContentResponseOnWrite);
+        }
     }
 }
