@@ -33,10 +33,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     new SqliteByteArrayMethodTranslator(sqlExpressionFactory),
                     new SqliteCharMethodTranslator(sqlExpressionFactory),
                     new SqliteDateTimeAddTranslator(sqlExpressionFactory),
+                    new SqliteGlobMethodTranslator(sqlExpressionFactory),
+                    new SqliteHexMethodTranslator(sqlExpressionFactory),
                     new SqliteMathTranslator(sqlExpressionFactory),
                     new SqliteObjectToStringTranslator(sqlExpressionFactory),
                     new SqliteRegexMethodTranslator(sqlExpressionFactory),
-                    new SqliteStringMethodTranslator(sqlExpressionFactory)
+                    new SqliteStringMethodTranslator(sqlExpressionFactory),
+                    new SqliteSubstrMethodTranslator(sqlExpressionFactory)
                 });
         }
     }
