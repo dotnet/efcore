@@ -756,9 +756,7 @@ namespace Microsoft.EntityFrameworkCore
                 service.ResetState();
             }
 
-            SavingChanges = null;
-            SavedChanges = null;
-            SaveChangesFailed = null;
+            ClearEvents();
 
             _disposed = true;
         }
@@ -769,13 +767,17 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         [EntityFrameworkInternal]
         async Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
         {
             foreach (var service in GetResettableServices())
             {
                 await service.ResetStateAsync(cancellationToken).ConfigureAwait(false);
+            }
+
+            if (!_dontClearEvents)
+            {
+                ClearEvents();
             }
 
             _disposed = true;
@@ -825,6 +827,12 @@ namespace Microsoft.EntityFrameworkCore
                 if (_lease.ContextDisposed())
                 {
                     _disposed = true;
+
+                    if (!_dontClearEvents)
+                    {
+                        ClearEvents();
+                    }
+
                     _lease = DbContextLease.InactiveLease;
                 }
             }
@@ -842,6 +850,11 @@ namespace Microsoft.EntityFrameworkCore
                 _changeTracker = null;
                 _database = null;
 
+                if (!_dontClearEvents)
+                {
+                    ClearEvents();
+                }
+
                 return true;
             }
 
@@ -853,6 +866,17 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         public virtual ValueTask DisposeAsync()
             => DisposeSync() ? _serviceScope.DisposeAsyncIfAvailable() : default;
+
+
+        private static readonly bool _dontClearEvents
+            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23108", out var isEnabled) && isEnabled;
+
+        private void ClearEvents()
+        {
+            SavingChanges = null;
+            SavedChanges = null;
+            SaveChangesFailed = null;
+        }
 
         /// <summary>
         ///     Gets an <see cref="EntityEntry{TEntity}" /> for the given entity. The entry provides
