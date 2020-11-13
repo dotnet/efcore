@@ -997,7 +997,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("HiLoBadBlockSize");
 
         /// <summary>
-        ///     The entity type '{entityType}' is part of a relationship cycle involving its primary key.
+        ///     A relationship cycle involving the primary keys of the following enitity types was detected: '{entityType}'. This would prevent any entity to be inserted without violating the store constraints. Review the foreign keys defined on the primary keys and either remove or use other properties for at least one of them.
         /// </summary>
         public static string IdentifyingRelationshipCycle([CanBeNull] object entityType)
             => string.Format(

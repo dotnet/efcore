@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -463,50 +463,35 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotNull(model, nameof(model));
 
-            var typesToValidate = new Queue<IEntityType>();
-            var reachableTypes = new HashSet<IEntityType>();
-            var unvalidatedEntityTypes = new HashSet<IEntityType>(model.GetEntityTypes());
-            while (unvalidatedEntityTypes.Count > 0)
+            var graph = new Multigraph<IEntityType, IForeignKey>();
+            foreach (var entityType in model.GetEntityTypes())
             {
-                var rootEntityType = unvalidatedEntityTypes.First();
-                reachableTypes.Clear();
-                reachableTypes.Add(rootEntityType);
-                typesToValidate.Enqueue(rootEntityType);
-
-                while (typesToValidate.Count > 0)
+                var primaryKey = entityType.FindPrimaryKey();
+                if (primaryKey == null)
                 {
-                    var entityType = typesToValidate.Dequeue();
-                    var primaryKey = entityType.FindPrimaryKey();
-                    if (primaryKey == null)
+                    continue;
+                }
+
+                foreach (var foreignKey in entityType.GetForeignKeys())
+                {
+                    var principalType = foreignKey.PrincipalEntityType;
+                    if (!foreignKey.PrincipalKey.IsPrimaryKey()
+                        || !PropertyListComparer.Instance.Equals(foreignKey.Properties, primaryKey.Properties)
+                        || foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
                     {
                         continue;
                     }
 
-                    foreach (var foreignKey in entityType.GetForeignKeys())
-                    {
-                        var principalType = foreignKey.PrincipalEntityType;
-                        if (!foreignKey.PrincipalKey.IsPrimaryKey()
-                            || !unvalidatedEntityTypes.Contains(principalType)
-                            || foreignKey.PrincipalEntityType.IsAssignableFrom(entityType)
-                            || !PropertyListComparer.Instance.Equals(foreignKey.Properties, primaryKey.Properties))
-                        {
-                            continue;
-                        }
-
-                        if (!reachableTypes.Add(principalType))
-                        {
-                            throw new InvalidOperationException(CoreStrings.IdentifyingRelationshipCycle(rootEntityType.DisplayName()));
-                        }
-
-                        typesToValidate.Enqueue(principalType);
-                    }
-                }
-
-                foreach (var entityType in reachableTypes)
-                {
-                    unvalidatedEntityTypes.Remove(entityType);
+                    graph.AddVertex(entityType);
+                    graph.AddVertex(principalType);
+                    graph.AddEdge(entityType, principalType, foreignKey);
                 }
             }
+
+            graph.TopologicalSort(
+                tryBreakEdge: null,
+                formatCycle: c => c.Select(d => d.Item1.DisplayName()).Join(" -> "),
+                c => CoreStrings.IdentifyingRelationshipCycle(c));
         }
 
         /// <summary>

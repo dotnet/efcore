@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -321,8 +321,23 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<C>().HasOne<B>().WithOne().HasForeignKey<B>(a => a.Id).HasPrincipalKey<C>(b => b.Id).IsRequired();
 
             VerifyError(
-                CoreStrings.IdentifyingRelationshipCycle(nameof(A)),
+                CoreStrings.IdentifyingRelationshipCycle("A -> B -> C"),
                 modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Passes_on_multiple_relationship_paths()
+        {
+            var modelBuilder = base.CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<A>();
+            modelBuilder.Entity<B>();
+            modelBuilder.Entity<C>().HasBaseType((string)null);
+            modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
+            modelBuilder.Entity<A>().HasOne<C>().WithOne().HasForeignKey<A>(a => a.Id).HasPrincipalKey<C>(b => b.Id).IsRequired();
+            modelBuilder.Entity<C>().HasOne<B>().WithOne().HasForeignKey<B>(a => a.Id).HasPrincipalKey<C>(b => b.Id).IsRequired();
+
+            Validate(modelBuilder.Model);
         }
 
         [ConditionalFact]
