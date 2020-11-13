@@ -754,9 +754,12 @@ WHERE CAST(ISDATE(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nchar(
                 ss => ss.Set<Order>().Select(c => false));
 
             AssertSql(
-                @"SELECT CAST(ISNUMERIC(CONVERT(varchar(100), [o].[OrderDate])) AS bit)
+                @"SELECT CASE
+    WHEN ISNUMERIC(CONVERT(varchar(100), [o].[OrderDate])) = 1 THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
 FROM [Orders] AS [o]
-WHERE CAST(ISNUMERIC(CONVERT(varchar(100), [o].[OrderDate])) AS bit) <> CAST(1 AS bit)");
+WHERE ISNUMERIC(CONVERT(varchar(100), [o].[OrderDate])) <> 1");
         }
 
         [ConditionalTheory]
@@ -771,9 +774,12 @@ WHERE CAST(ISNUMERIC(CONVERT(varchar(100), [o].[OrderDate])) AS bit) <> CAST(1 A
                 ss => ss.Set<OrderDetail>().Select(o => true));
 
             AssertSql(
-                @"SELECT CAST(ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) AS bit)
+                @"SELECT CASE
+    WHEN ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) = 1 THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
 FROM [Order Details] AS [o]
-WHERE CAST(ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) AS bit) = CAST(1 AS bit)");
+WHERE ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) = 1");
         }
 
         [ConditionalTheory]
@@ -790,7 +796,7 @@ WHERE CAST(ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) AS bit) = CAST(1 AS
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE CAST(ISNUMERIC(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nchar(5))) AS bit) = CAST(1 AS bit)");
+WHERE ISNUMERIC(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nchar(5))) = 1");
         }
 
         [ConditionalFact]

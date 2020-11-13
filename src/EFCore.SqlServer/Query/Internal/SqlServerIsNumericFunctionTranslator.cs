@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
     /// <summary>
@@ -39,8 +41,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(
-            SqlExpression instance,
+        public virtual SqlExpression? Translate(
+            SqlExpression? instance,
             MethodInfo method,
             IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
@@ -50,14 +52,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             Check.NotNull(logger, nameof(logger));
 
             return _methodInfo.Equals(method)
-                ? _sqlExpressionFactory.Convert(
-                    _sqlExpressionFactory.Function(
+                ? _sqlExpressionFactory.Equal(
+                     _sqlExpressionFactory.Function(
                         "ISNUMERIC",
                         new[] { arguments[1] },
-                        nullable: true,
-                        argumentsPropagateNullability: new[] { true },
-                        _methodInfo.ReturnType),
-                    _methodInfo.ReturnType)
+                        nullable: false,
+                        argumentsPropagateNullability: new[] { false },
+                        typeof(int)),
+                     _sqlExpressionFactory.Constant(1))
                 : null;
         }
     }
