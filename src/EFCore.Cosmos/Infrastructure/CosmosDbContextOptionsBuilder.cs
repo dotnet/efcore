@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// This reduces networking and CPU load by not sending the resource back over the network and serializing it on the client.
         /// </summary>
         /// <param name="enabled"><see langword="false" /> to have null resource</param>
-        public virtual CosmosDbContextOptionsBuilder ContentResponseOnWriteEnabled(bool enabled = false)
+        public virtual CosmosDbContextOptionsBuilder ContentResponseOnWriteEnabled(bool enabled = true)
             => WithOption(e => e.ContentResponseOnWriteEnabled(Check.NotNull(enabled, nameof(enabled))));
 
 
