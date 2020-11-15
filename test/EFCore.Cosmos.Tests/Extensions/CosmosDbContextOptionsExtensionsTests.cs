@@ -192,7 +192,6 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(requestLimit, extension.MaxRequestsPerTcpConnection);
         }
 
-
         [ConditionalFact]
         public void Can_create_options_with_content_response_on_write_enabled()
         {
