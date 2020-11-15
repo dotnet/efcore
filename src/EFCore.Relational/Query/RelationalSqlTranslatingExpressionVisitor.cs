@@ -1034,8 +1034,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case ExpressionType.ConvertChecked:
                 case ExpressionType.TypeAs:
                     // Object convert needs to be converted to explicit cast when mismatching types
-                    if (operand.Type.IsInterface
-                        && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
+                    if ((unaryExpression.Type.IsInterface && operand.Type.GetInterfaces().Any(e => e == unaryExpression.Type))
                         || unaryExpression.Type.UnwrapNullableType() == operand.Type.UnwrapNullableType()
                         || unaryExpression.Type.UnwrapNullableType() == typeof(Enum))
                     {
