@@ -750,6 +750,21 @@ FROM [PointEntity] AS [p]");
 FROM [PointEntity] AS [p]");
         }
 
+        public override async Task XY_with_collection_join(bool async)
+        {
+            await base.XY_with_collection_join(async);
+
+            AssertSql(
+                @"SELECT [t].[Id], [t].[c], [t].[c0], [p0].[Id], [p0].[Geometry], [p0].[Point], [p0].[PointM], [p0].[PointZ], [p0].[PointZM]
+FROM (
+    SELECT TOP(1) [p].[Id], [p].[Point].STX AS [c], [p].[Point].STY AS [c0]
+    FROM [PointEntity] AS [p]
+    ORDER BY [p].[Id]
+) AS [t]
+LEFT JOIN [PointEntity] AS [p0] ON [t].[Id] = [p0].[Id]
+ORDER BY [t].[Id], [p0].[Id]");
+        }
+
         public override async Task IsEmpty_equal_to_null(bool async)
         {
             await base.IsEmpty_equal_to_null(async);

@@ -1245,6 +1245,36 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task XY_with_collection_join(bool async)
+        {
+            return AssertFirstOrDefault(
+                async,
+                ss => ss.Set<PointEntity>()
+                    .OrderBy(e => e.Id)
+                    .Select(e => new
+                    {
+                        e.Id,
+                        I = new
+                        {
+                            X = e.Point == null ? (double?)null : e.Point.X,
+                            Y = e.Point == null ? (double?)null : e.Point.Y
+                        },
+                        List = ss.Set<PointEntity>().Where(i => i.Id == e.Id).ToList()
+                    }),
+                asserter: (e, a) =>
+                {
+                    AssertEqual(e.Id, a.Id);
+                    AssertEqual(e.I, a.I);
+                    AssertCollection(e.List, a.List, elementSorter: e=> e.Id, elementAsserter: (ei, ai) =>
+                    {
+                        Assert.Equal(ei.Geometry, ai.Geometry, GeometryComparer.Instance);
+                        Assert.Equal(ei.Point, ai.Point, GeometryComparer.Instance);
+                    });
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task IsEmpty_equal_to_null(bool async)
         {
             return AssertQueryScalar(
