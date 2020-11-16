@@ -9,7 +9,7 @@
   </PropertyGroup>  
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OData" Version="7.5.1" />
+    <PackageReference Include="Microsoft.AspNetCore.OData" Version="7.5.2" />
   </ItemGroup>
 
   <ItemGroup>
