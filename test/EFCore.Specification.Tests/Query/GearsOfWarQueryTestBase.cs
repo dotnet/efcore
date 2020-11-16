@@ -7933,6 +7933,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Mission>().Where(m => m.CodeName == "Operation Foobar").Select(m => m.Rating));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task FirstOrDefault_on_empty_collection_of_DateTime_in_subquery(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from g in ss.Set<Gear>()
+                      let invalidTagIssueDate = (from t in ss.Set<CogTag>()
+                                                 where t.GearNickName == g.FullName
+                                                 orderby t.Id
+                                                 select t.IssueDate).FirstOrDefault()
+                      where g.Tag.IssueDate > invalidTagIssueDate
+                      select new { g.Nickname, invalidTagIssueDate });
+        }
+
         protected GearsOfWarContext CreateContext()
             => Fixture.CreateContext();
 

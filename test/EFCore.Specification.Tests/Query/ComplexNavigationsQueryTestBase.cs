@@ -5824,5 +5824,62 @@ namespace Microsoft.EntityFrameworkCore.Query
                        select new { Id1 = l1.Id, Id2 = l2.Id, Id3 = l3.Id, Name1 = l1.Name, Name2 = l2.Name }).Distinct().Select(x => new { Foo = x.Id1, Bar = x.Id2, Baz = x.Id3 }).Take(10),
                 elementSorter: e => (e.Foo, e.Bar, e.Baz));
         }
+
+        [ConditionalTheory(Skip = "issue #23302")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Queryable_in_subquery_works_when_final_projection_is_List(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from l1 in ss.Set<Level1>()
+                      orderby l1.Id
+                      let inner = (from l2 in l1.OneToMany_Optional1
+                                   where l2.Name != "Foo"
+                                   let innerL1s = from innerL1 in ss.Set<Level1>()
+                                                  where innerL1.OneToMany_Optional1.Any(innerL2 => innerL2.Id == l2.Id)
+                                                  select innerL1.Name
+                                   select innerL1s).FirstOrDefault()
+                      select inner.ToList(),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a));
+        }
+
+        [ConditionalTheory(Skip = "issue #23303")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Complex_query_with_let_collection_projection_FirstOrDefault_with_ToList_on_inner_and_outer(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from l1 in ss.Set<Level1>()
+                      orderby l1.Id
+                      let inner = (from l2 in l1.OneToMany_Optional1
+                                   where l2.Name != "Foo"
+                                   let innerL1s = from innerL1 in ss.Set<Level1>()
+                                                  where innerL1.OneToMany_Optional1.Any(innerL2 => innerL2.Id == l2.Id)
+                                                  select innerL1.Name
+                                   select innerL1s.ToList()).FirstOrDefault()
+                      select inner.ToList(),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Complex_query_with_let_collection_projection_FirstOrDefault(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from l1 in ss.Set<Level1>()
+                      orderby l1.Id
+                      let inner = (from l2 in l1.OneToMany_Optional1
+                                   where l2.Name != "Foo"
+                                   let innerL1s = from innerL1 in ss.Set<Level1>()
+                                                  where innerL1.OneToMany_Optional1.Any(innerL2 => innerL2.Id == l2.Id)
+                                                  select innerL1.Name
+                                   select innerL1s.ToList()).FirstOrDefault()
+                      select inner,
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a));
+        }
     }
 }
