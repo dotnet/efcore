@@ -418,8 +418,9 @@ namespace Microsoft.Data.Sqlite
         {
             for (var i = _commands.Count - 1; i >= 0; i--)
             {
-                if (_commands[i].TryGetTarget(out var item)
-                    && item == command)
+                if (_commands[i] == null
+                    || (_commands[i].TryGetTarget(out var item)
+                        && item == command))
                 {
                     _commands.RemoveAt(i);
                 }
