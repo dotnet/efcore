@@ -64,6 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         private readonly string _databaseId;
         private readonly IExecutionStrategyFactory _executionStrategyFactory;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _commandLogger;
+        private readonly bool? _enableContentResponseOnWrite;
 
         static CosmosClientWrapper()
         {
@@ -89,6 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             _databaseId = options.DatabaseName;
             _executionStrategyFactory = executionStrategyFactory;
             _commandLogger = commandLogger;
+            _enableContentResponseOnWrite = options.EnableContentResponseOnWrite;
         }
 
         private CosmosClient Client
@@ -416,6 +418,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             var entry = parameters.Entry;
             var items = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
+            
             var itemRequestOptions = CreateItemRequestOptions(entry);
             var partitionKey = CreatePartitionKey(entry);
 
@@ -427,7 +430,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             return response.StatusCode == HttpStatusCode.NoContent;
         }
 
-        private static ItemRequestOptions CreateItemRequestOptions(IUpdateEntry entry)
+        private ItemRequestOptions CreateItemRequestOptions(IUpdateEntry entry)
         {
             var etagProperty = entry.EntityType.GetETagProperty();
             if (etagProperty == null)
@@ -442,7 +445,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 etag = converter.ConvertToProvider(etag);
             }
 
-            return new ItemRequestOptions { IfMatchEtag = (string)etag };
+            var enabledContentResponse = _enableContentResponseOnWrite ?? entry.EntityType.FindProperty(StoreKeyConvention.JObjectPropertyName)?.ValueGenerated == ValueGenerated.OnAddOrUpdate;
+
+            return new ItemRequestOptions { IfMatchEtag = (string)etag, EnableContentResponseOnWrite = enabledContentResponse };
         }
 
         private static PartitionKey CreatePartitionKey(IUpdateEntry entry)
