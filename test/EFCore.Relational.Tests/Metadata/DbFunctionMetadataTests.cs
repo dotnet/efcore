@@ -731,7 +731,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi);
 
             Assert.Equal(
-                RelationalStrings.DbFunctionInvalidParameterName("q", dbFuncBuilder.Metadata.MethodInfo.DisplayName()),
+                RelationalStrings.DbFunctionInvalidParameterName(dbFuncBuilder.Metadata.MethodInfo.DisplayName(), "q"),
                 Assert.Throws<ArgumentException>(() => dbFuncBuilder.HasParameter("q")).Message);
         }
 

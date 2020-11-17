@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
             if (parameter == null)
             {
                 throw new ArgumentException(
-                    RelationalStrings.DbFunctionInvalidParameterName(name, Metadata.MethodInfo.DisplayName()));
+                    RelationalStrings.DbFunctionInvalidParameterName(Metadata.MethodInfo.DisplayName(), name));
             }
 
             return parameter.Builder;
