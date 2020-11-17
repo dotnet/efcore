@@ -998,12 +998,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("HiLoBadBlockSize");
 
         /// <summary>
-        ///     The entity type '{entityType}' is part of a relationship cycle involving its primary key {keyProperties}. This would prevent any values to be inserted without vialoating the store constraints. Review the foreign keys defined on the primary key and either remove or use other properties for at least one of them.
+        ///     A relationship cycle involving the primary keys of the following enitity types was detected: '{entityType}'. This would prevent any entity to be inserted without violating the store constraints. Review the foreign keys defined on the primary keys and either remove or use other properties for at least one of them.
         /// </summary>
-        public static string IdentifyingRelationshipCycle([CanBeNull] object entityType, [CanBeNull] object keyProperties)
+        public static string IdentifyingRelationshipCycle([CanBeNull] object entityType)
             => string.Format(
-                GetString("IdentifyingRelationshipCycle", nameof(entityType), nameof(keyProperties)),
-                entityType, keyProperties);
+                GetString("IdentifyingRelationshipCycle", nameof(entityType)),
+                entityType);
 
         /// <summary>
         ///     The instance of entity type '{entityType}' cannot be tracked because another instance with the same key value for {keyProperties} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
@@ -1581,6 +1581,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigation, entityType, targetForeignKeyProperties, actualForeignKeyProperties);
 
         /// <summary>
+        ///     The navigation '{navigation}' cannot be added to the entity type '{entityType}' because it is defined in shadow state, and navigations properties cannot originate from shadow state entities.
+        /// </summary>
+        public static string NavigationFromShadowEntity([CanBeNull] object navigation, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("NavigationFromShadowEntity", nameof(navigation), nameof(entityType)),
+                navigation, entityType);
+
+        /// <summary>
         ///     The property '{1_entityType}.{0_property}' is being accessed using the '{referenceMethod}' or '{collectionMethod}' method, but is defined in the model as a non-navigation. Use the '{propertyMethod}' method to access non-navigation properties.
         /// </summary>
         public static string NavigationIsProperty([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object referenceMethod, [CanBeNull] object collectionMethod, [CanBeNull] object propertyMethod)
@@ -1618,14 +1626,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static string NavigationToKeylessType([CanBeNull] object navigation, [CanBeNull] object entityType)
             => string.Format(
                 GetString("NavigationToKeylessType", nameof(navigation), nameof(entityType)),
-                navigation, entityType);
-
-        /// <summary>
-        ///     The navigation '{navigation}' cannot be added to the entity type '{entityType}' because it is defined in shadow state, and navigations properties cannot originate from shadow state entities.
-        /// </summary>
-        public static string NavigationFromShadowEntity([CanBeNull] object navigation, [CanBeNull] object entityType)
-            => string.Format(
-                GetString("NavigationFromShadowEntity", nameof(navigation), nameof(entityType)),
                 navigation, entityType);
 
         /// <summary>
