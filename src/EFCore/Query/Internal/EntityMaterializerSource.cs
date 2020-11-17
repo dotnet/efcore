@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             string entityInstanceName,
             Expression materializationContextExpression)
         {
-            if (!entityType.HasClrType())
+            if (!entityType.HasClrType)
             {
                 throw new InvalidOperationException(CoreStrings.NoClrType(entityType.DisplayName()));
             }

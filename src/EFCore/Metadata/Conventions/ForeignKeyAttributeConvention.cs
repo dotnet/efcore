@@ -324,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private MemberInfo FindForeignKeyAttributeOnProperty(IConventionEntityType entityType, string navigationName)
         {
             if (string.IsNullOrWhiteSpace(navigationName)
-                || !entityType.HasClrType())
+                || !entityType.HasClrType)
             {
                 return null;
             }

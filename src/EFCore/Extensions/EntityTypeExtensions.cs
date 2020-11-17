@@ -357,14 +357,14 @@ namespace Microsoft.EntityFrameworkCore
             var root = entityType;
             while (true)
             {
-                var definingNavigationName = root.DefiningNavigationName;
-                if (definingNavigationName == null)
+                if (!root.HasDefiningNavigation())
                 {
                     break;
                 }
 
-                // TODO-NULLABLE: Put MemberNotNull on DefiningNavigationName (or check HasDefiningNavigation) when we target net5.0
-                root = root.DefiningEntityType!;
+                var definingNavigationName = root.DefiningNavigationName;
+
+                root = root.DefiningEntityType;
                 path.Push("#");
                 path.Push(definingNavigationName);
                 path.Push(".");
@@ -410,7 +410,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if this entity type has a defining navigation. </returns>
         [DebuggerStepThrough]
         public static bool HasDefiningNavigation([NotNull] this IEntityType entityType)
-            => entityType.DefiningEntityType != null;
+            => entityType.HasDefiningNavigation();
 
         /// <summary>
         ///     Gets a value indicating whether this entity type is owned by another entity type.
@@ -585,8 +585,7 @@ namespace Microsoft.EntityFrameworkCore
                 return null;
             }
 
-            // TODO-NULLABLE: Put two MemberNotNulls on HasDefiningNavigation when we target net5.0
-            var definingNavigation = entityType.DefiningEntityType!.FindNavigation(entityType.DefiningNavigationName!);
+            var definingNavigation = entityType.DefiningEntityType.FindNavigation(entityType.DefiningNavigationName);
             return definingNavigation?.TargetEntityType == entityType ? definingNavigation : null;
         }
 

@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (navigationToPrincipalName != null
                 && navigationToPrincipal.Value.MemberInfo == null
-                && dependentEntityType.HasClrType())
+                && dependentEntityType.HasClrType)
             {
                 var navigationProperty = FindCompatibleClrMember(
                     navigationToPrincipalName, dependentEntityType, principalEntityType, shouldThrow);
@@ -214,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (navigationToDependentName != null
                 && navigationToDependent.Value.MemberInfo == null
-                && principalEntityType.HasClrType())
+                && principalEntityType.HasClrType)
             {
                 var navigationProperty = FindCompatibleClrMember(
                     navigationToDependentName, principalEntityType, dependentEntityType, shouldThrow);
@@ -2266,13 +2266,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.DebugAssert(
                 navigationToPrincipal?.Name == null
                 || navigationToPrincipal.Value.MemberInfo != null
-                || !dependentEntityTypeBuilder.Metadata.HasClrType(),
+                || !dependentEntityTypeBuilder.Metadata.HasClrType,
                 "Principal navigation check failed");
 
             Check.DebugAssert(
                 navigationToDependent?.Name == null
                 || navigationToDependent.Value.MemberInfo != null
-                || !principalEntityTypeBuilder.Metadata.HasClrType(),
+                || !principalEntityTypeBuilder.Metadata.HasClrType,
                 "Dependent navigation check failed");
 
             Check.DebugAssert(

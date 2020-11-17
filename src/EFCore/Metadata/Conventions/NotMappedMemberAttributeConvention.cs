@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
             var entityType = entityTypeBuilder.Metadata;
-            if (!entityType.HasClrType())
+            if (!entityType.HasClrType)
             {
                 return;
             }

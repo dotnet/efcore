@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
 
 #nullable enable
 
@@ -30,6 +31,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the defining entity type.
         /// </summary>
         IEntityType? DefiningEntityType { get; }
+
+        /// <summary>
+        ///     Gets a value indicating whether this entity type has a defining navigation.
+        /// </summary>
+        /// <returns> <see langword="true" /> if this entity type has a defining navigation. </returns>
+        [CA.MemberNotNullWhen(true, nameof(DefiningNavigationName), nameof(DefiningEntityType))]
+        public bool HasDefiningNavigation()
+        {
+            if (DefiningEntityType != null)
+            {
+                Check.DebugAssert(DefiningNavigationName != null,
+                    $"{nameof(DefiningEntityType)} is non-null but {nameof(DefiningNavigationName)} is null");
+                return true;
+            }
+            return false;
+        }
 
         /// <summary>
         ///     Gets primary key for this entity type. Returns <see langword="null" /> if no primary key is defined.
