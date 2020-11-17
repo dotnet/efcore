@@ -20,6 +20,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
     /// </summary>
     public class SqlServerTransaction : RelationalTransaction
     {
+        private static readonly bool _useOldBehavior
+            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23305", out var enabled) && enabled;
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -49,6 +52,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         {
             get
             {
+                if (_useOldBehavior)
+                {
+                    return base.SupportsSavepoints;
+                }
+
                 if (Connection is ISqlServerConnection sqlServerConnection && sqlServerConnection.IsMultipleActiveResultSetsEnabled)
                 {
                     Logger.SavepointsDisabledBecauseOfMARS();

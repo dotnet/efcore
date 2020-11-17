@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -21,6 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// </summary>
     public class WarningsConfiguration
     {
+        private static readonly bool _useOldBehavior
+            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23305", out var enabled) && enabled;
+
         private Dictionary<int, (WarningBehavior? Behavior, LogLevel? Level)> _explicitBehaviors
             = new Dictionary<int, (WarningBehavior? Behavior, LogLevel? Level)>();
 
@@ -172,7 +176,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
                 if (_explicitBehaviors != null)
                 {
-                    hashCode = _explicitBehaviors.OrderBy(b => b.Key).Aggregate(
+                    IEnumerable<KeyValuePair<int, (WarningBehavior? Behavior, LogLevel? Level)>> explicitBehaviors = _explicitBehaviors;
+
+                    if (!_useOldBehavior)
+                    {
+                        explicitBehaviors = _explicitBehaviors.OrderBy(b => b.Key);
+                    }
+
+                    hashCode = explicitBehaviors.Aggregate(
                         hashCode,
                         (t, e) => (t * 397) ^ (((long)e.Value.GetHashCode() * 3163) ^ (long)e.Key.GetHashCode()));
                 }
