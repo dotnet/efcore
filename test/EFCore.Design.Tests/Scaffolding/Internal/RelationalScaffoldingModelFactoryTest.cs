@@ -540,6 +540,87 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         [ConditionalFact]
+        public void Unique_constraint_without_name()
+        {
+            var myColumn = new DatabaseColumn
+            {
+                Table = Table,
+                Name = "MyColumn",
+                StoreType = "int"
+            };
+
+            var databaseModel = new DatabaseModel
+            {
+                Tables =
+                {
+                    new DatabaseTable
+                    {
+                        Database = Database,
+                        Name = "MyTable",
+                        Columns = { IdColumn, myColumn },
+                        PrimaryKey = IdPrimaryKey,
+                        UniqueConstraints =
+                        {
+                            new DatabaseUniqueConstraint
+                            {
+                                Table = Table,
+                                Columns = { myColumn }
+                            }
+                        }
+                    }
+                }
+            };
+
+            var entityType = (EntityType)_factory.Create(databaseModel, new ModelReverseEngineerOptions()).GetEntityTypes().Single();
+            var index = entityType.GetIndexes().Single();
+
+            Assert.True(index.IsUnique);
+            Assert.Equal("IX_MyTable_MyColumn", index.GetDatabaseName());
+            Assert.Same(entityType.FindProperty("MyColumn"), index.Properties.Single());
+        }
+
+        [ConditionalFact]
+        public void Unique_constraint_with_empty_string_name()
+        {
+            var myColumn = new DatabaseColumn
+            {
+                Table = Table,
+                Name = "MyColumn",
+                StoreType = "int"
+            };
+
+            var databaseModel = new DatabaseModel
+            {
+                Tables =
+                {
+                    new DatabaseTable
+                    {
+                        Database = Database,
+                        Name = "MyTable",
+                        Columns = { IdColumn, myColumn },
+                        PrimaryKey = IdPrimaryKey,
+                        UniqueConstraints =
+                        {
+                            new DatabaseUniqueConstraint
+                            {
+                                Table = Table,
+                                Name = "",
+                                Columns = { myColumn }
+                            }
+                        }
+                    }
+                }
+            };
+
+            var entityType = (EntityType)_factory.Create(databaseModel, new ModelReverseEngineerOptions()).GetEntityTypes().Single();
+            var index = entityType.GetIndexes().Single();
+
+            Assert.True(index.IsUnique);
+            Assert.Equal("IX_MyTable_MyColumn", index.GetDatabaseName());
+            Assert.Same(entityType.FindProperty("MyColumn"), index.Properties.Single());
+        }
+
+        [ConditionalFact]
         public void Indexes_and_alternate_keys()
         {
             var c1 = new DatabaseColumn
@@ -595,8 +676,23 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 new DatabaseIndex
                 {
                     Table = Table,
+                    Name = "",
+                    Columns = { table.Columns.ElementAt(2) },
+                    IsUnique = true
+                });
+            table.Indexes.Add(
+                new DatabaseIndex
+                {
+                    Table = Table,
                     Name = "IDX_C2_C1",
                     Columns = { table.Columns.ElementAt(1), table.Columns.ElementAt(0) },
+                    IsUnique = false
+                });
+            table.Indexes.Add(
+                new DatabaseIndex
+                {
+                    Table = Table,
+                    Columns = { table.Columns.ElementAt(1), table.Columns.ElementAt(2) },
                     IsUnique = false
                 });
             table.Indexes.Add(
@@ -614,26 +710,47 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             Assert.Collection(
                 entityType.GetIndexes(),
-                indexColumn1 =>
+                t =>
                 {
-                    Assert.False(indexColumn1.IsUnique);
-                    Assert.Equal("IDX_C1", indexColumn1.GetDatabaseName());
-                    Assert.Same(entityType.FindProperty("C1"), indexColumn1.Properties.Single());
+                    Assert.True(t.IsUnique);
+                    Assert.Null(t.Name);
+                    Assert.Equal("IX_T_C3", t.GetDatabaseName());
+                    Assert.Same(entityType.FindProperty("C3"), t.Properties.Single());
                 },
-                uniqueColumn2 =>
+                t =>
                 {
-                    Assert.True(uniqueColumn2.IsUnique);
-                    Assert.Same(entityType.FindProperty("C2"), uniqueColumn2.Properties.Single());
+                    Assert.False(t.IsUnique);
+                    Assert.Null(t.Name);
+                    Assert.Equal("IX_T_C2_C3", t.GetDatabaseName());
+                    Assert.Equal(new[] { "C2", "C3" }, t.Properties.Select(c => c.Name).ToArray());
                 },
-                indexColumn2Column1 =>
+                t =>
                 {
-                    Assert.False(indexColumn2Column1.IsUnique);
-                    Assert.Equal(new[] { "C2", "C1" }, indexColumn2Column1.Properties.Select(c => c.Name).ToArray());
+                    Assert.False(t.IsUnique);
+                    Assert.Equal("IDX_C1", t.Name);
+                    Assert.Equal("IDX_C1", t.GetDatabaseName());
+                    Assert.Same(entityType.FindProperty("C1"), t.Properties.Single());
                 },
-                uniqueColumn3Column1 =>
+                t =>
                 {
-                    Assert.True(uniqueColumn3Column1.IsUnique);
-                    Assert.Equal(new[] { "C3", "C1" }, uniqueColumn3Column1.Properties.Select(c => c.Name).ToArray());
+                    Assert.True(t.IsUnique);
+                    Assert.Equal("IDX_C2", t.Name);
+                    Assert.Equal("IDX_C2", t.GetDatabaseName());
+                    Assert.Same(entityType.FindProperty("C2"), t.Properties.Single());
+                },
+                t =>
+                {
+                    Assert.False(t.IsUnique);
+                    Assert.Equal("IDX_C2_C1", t.Name);
+                    Assert.Equal("IDX_C2_C1", t.GetDatabaseName());
+                    Assert.Equal(new[] { "C2", "C1" }, t.Properties.Select(c => c.Name).ToArray());
+                },
+                t =>
+                {
+                    Assert.True(t.IsUnique);
+                    Assert.Equal("UNQ_C3_C1", t.Name);
+                    Assert.Equal("UNQ_C3_C1", t.GetDatabaseName());
+                    Assert.Equal(new[] { "C3", "C1" }, t.Properties.Select(c => c.Name).ToArray());
                 }
             );
 
