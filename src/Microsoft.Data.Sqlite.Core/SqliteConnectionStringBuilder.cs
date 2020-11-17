@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Microsoft.Data.Sqlite.Properties;
 
@@ -87,17 +88,18 @@ namespace Microsoft.Data.Sqlite
         /// <param name="connectionString">
         ///     The initial connection string the builder will represent. Can be null.
         /// </param>
-        public SqliteConnectionStringBuilder(string connectionString)
+        public SqliteConnectionStringBuilder(string? connectionString)
             => ConnectionString = connectionString;
 
         /// <summary>
         ///     Gets or sets the database file.
         /// </summary>
         /// <value>The database file.</value>
+        [AllowNull]
         public virtual string DataSource
         {
             get => _dataSource;
-            set => base[DataSourceKeyword] = _dataSource = value;
+            set => base[DataSourceKeyword] = _dataSource = value ?? string.Empty;
         }
 
         /// <summary>
@@ -125,13 +127,13 @@ namespace Microsoft.Data.Sqlite
         {
             get
             {
-                var values = new object[_validKeywords.Count];
+                var values = new object?[_validKeywords.Count];
                 for (var i = 0; i < _validKeywords.Count; i++)
                 {
                     values[i] = GetAt((Keywords)i);
                 }
 
-                return new ReadOnlyCollection<object>(values);
+                return new ReadOnlyCollection<object?>(values);
             }
         }
 
@@ -151,10 +153,11 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <value>The encryption key.</value>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/encryption">Encryption</seealso>
+        [AllowNull]
         public string Password
         {
             get => _password;
-            set => base[PasswordKeyword] = _password = value;
+            set => base[PasswordKeyword] = _password = value ?? string.Empty;
         }
 
         /// <summary>
@@ -187,9 +190,11 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <param name="keyword">The key.</param>
         /// <returns>The value.</returns>
-        public override object this[string keyword]
+        public override object? this[string keyword]
         {
+#pragma warning disable CS8764 // NB: this["Foreign Keys"] may return null
             get => GetAt(GetIndex(keyword));
+#pragma warning restore CS8764
             set
             {
                 if (value == null)
@@ -329,7 +334,9 @@ namespace Microsoft.Data.Sqlite
         /// <param name="keyword">The key.</param>
         /// <param name="value">The value.</param>
         /// <returns><see langword="true" /> if the key was used; otherwise, <see langword="false" />. </returns>
-        public override bool TryGetValue(string keyword, out object value)
+#pragma warning disable CS8765 // NB: TryGetValue("Foreign Keys", out value) returns true, but value may be null
+        public override bool TryGetValue(string keyword, out object? value)
+#pragma warning restore CS8765
         {
             if (!_keywords.TryGetValue(keyword, out var index))
             {
@@ -343,7 +350,7 @@ namespace Microsoft.Data.Sqlite
             return true;
         }
 
-        private object GetAt(Keywords index)
+        private object? GetAt(Keywords index)
         {
             switch (index)
             {

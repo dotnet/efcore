@@ -87,7 +87,7 @@ namespace Microsoft.Data.Sqlite
             switch (sqliteType)
             {
                 case SQLITE_BLOB:
-                    var bytes = GetBlob(ordinal);
+                    var bytes = GetBlob(ordinal)!;
                     return bytes.Length == 16
                         ? new Guid(bytes)
                         : new Guid(Encoding.UTF8.GetString(bytes, 0, bytes.Length));
@@ -130,7 +130,7 @@ namespace Microsoft.Data.Sqlite
 
         protected abstract string GetStringCore(int ordinal);
 
-        public virtual T GetFieldValue<T>(int ordinal)
+        public virtual T? GetFieldValue<T>(int ordinal)
         {
             if (IsDBNull(ordinal)
                 && typeof(T).IsNullable())
@@ -151,7 +151,7 @@ namespace Microsoft.Data.Sqlite
 
             if (type == typeof(byte[]))
             {
-                return (T)(object)GetBlob(ordinal);
+                return (T)(object)GetBlob(ordinal)!;
             }
 
             if (type == typeof(char))
@@ -243,7 +243,7 @@ namespace Microsoft.Data.Sqlite
             return (T)GetValue(ordinal);
         }
 
-        public virtual object GetValue(int ordinal)
+        public virtual object? GetValue(int ordinal)
         {
             var sqliteType = GetSqliteType(ordinal);
             switch (sqliteType)
@@ -266,7 +266,7 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-        public virtual int GetValues(object[] values)
+        public virtual int GetValues(object?[] values)
         {
             int i;
             for (i = 0; i < FieldCount; i++)
@@ -277,14 +277,14 @@ namespace Microsoft.Data.Sqlite
             return i;
         }
 
-        protected byte[] GetBlob(int ordinal)
+        protected virtual byte[]? GetBlob(int ordinal)
             => IsDBNull(ordinal)
                 ? GetNull<byte[]>(ordinal)
                 : GetBlobCore(ordinal) ?? Array.Empty<byte>();
 
         protected abstract byte[] GetBlobCore(int ordinal);
 
-        protected virtual T GetNull<T>(int ordinal)
+        protected virtual T? GetNull<T>(int ordinal)
             => typeof(T) == typeof(DBNull)
                 ? (T)(object)DBNull.Value
                 : default;

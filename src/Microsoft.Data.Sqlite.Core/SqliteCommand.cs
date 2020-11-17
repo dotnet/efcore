@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,12 +24,13 @@ namespace Microsoft.Data.Sqlite
     /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/async">Async Limitations</seealso>
     public class SqliteCommand : DbCommand
     {
-        private SqliteParameterCollection _parameters;
+        private SqliteParameterCollection? _parameters;
 
         private readonly List<sqlite3_stmt> _preparedStatements = new List<sqlite3_stmt>();
-        private SqliteConnection _connection;
+        private SqliteConnection? _connection;
         private string _commandText = string.Empty;
         private bool _prepared;
+        private int? _commandTimeout;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="SqliteCommand" /> class.
@@ -41,7 +43,7 @@ namespace Microsoft.Data.Sqlite
         ///     Initializes a new instance of the <see cref="SqliteCommand" /> class.
         /// </summary>
         /// <param name="commandText">The SQL to execute against the database.</param>
-        public SqliteCommand(string commandText)
+        public SqliteCommand(string? commandText)
             => CommandText = commandText;
 
         /// <summary>
@@ -49,11 +51,10 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <param name="commandText">The SQL to execute against the database.</param>
         /// <param name="connection">The connection used by the command.</param>
-        public SqliteCommand(string commandText, SqliteConnection connection)
+        public SqliteCommand(string? commandText, SqliteConnection? connection)
             : this(commandText)
         {
             Connection = connection;
-            CommandTimeout = connection.DefaultTimeout;
         }
 
         /// <summary>
@@ -62,7 +63,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="commandText">The SQL to execute against the database.</param>
         /// <param name="connection">The connection used by the command.</param>
         /// <param name="transaction">The transaction within which the command executes.</param>
-        public SqliteCommand(string commandText, SqliteConnection connection, SqliteTransaction transaction)
+        public SqliteCommand(string? commandText, SqliteConnection? connection, SqliteTransaction? transaction)
             : this(commandText, connection)
             => Transaction = transaction;
 
@@ -88,6 +89,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <value>The SQL to execute against the database.</value>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/batching">Batching</seealso>
+        [AllowNull]
         public override string CommandText
         {
             get => _commandText;
@@ -110,7 +112,7 @@ namespace Microsoft.Data.Sqlite
         ///     Gets or sets the connection used by the command.
         /// </summary>
         /// <value>The connection used by the command.</value>
-        public new virtual SqliteConnection Connection
+        public new virtual SqliteConnection? Connection
         {
             get => _connection;
             set
@@ -135,26 +137,26 @@ namespace Microsoft.Data.Sqlite
         ///     Gets or sets the connection used by the command. Must be a <see cref="SqliteConnection" />.
         /// </summary>
         /// <value>The connection used by the command.</value>
-        protected override DbConnection DbConnection
+        protected override DbConnection? DbConnection
         {
             get => Connection;
-            set => Connection = (SqliteConnection)value;
+            set => Connection = (SqliteConnection?)value;
         }
 
         /// <summary>
         ///     Gets or sets the transaction within which the command executes.
         /// </summary>
         /// <value>The transaction within which the command executes.</value>
-        public new virtual SqliteTransaction Transaction { get; set; }
+        public new virtual SqliteTransaction? Transaction { get; set; }
 
         /// <summary>
         ///     Gets or sets the transaction within which the command executes. Must be a <see cref="SqliteTransaction" />.
         /// </summary>
         /// <value>The transaction within which the command executes.</value>
-        protected override DbTransaction DbTransaction
+        protected override DbTransaction? DbTransaction
         {
             get => Transaction;
-            set => Transaction = (SqliteTransaction)value;
+            set => Transaction = (SqliteTransaction?)value;
         }
 
         /// <summary>
@@ -181,7 +183,11 @@ namespace Microsoft.Data.Sqlite
         ///     The timeout is used when the command is waiting to obtain a lock on the table.
         /// </remarks>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/database-errors">Database Errors</seealso>
-        public override int CommandTimeout { get; set; } = 30;
+        public override int CommandTimeout
+        {
+            get => _commandTimeout ?? _connection?.DefaultTimeout ?? 30;
+            set => _commandTimeout = value;
+        }
 
         /// <summary>
         ///     Gets or sets a value indicating whether the command should be visible in an interface control.
@@ -199,7 +205,7 @@ namespace Microsoft.Data.Sqlite
         ///     Gets or sets the data reader currently being used by the command, or null if none.
         /// </summary>
         /// <value>The data reader currently being used by the command.</value>
-        protected internal virtual SqliteDataReader DataReader { get; set; }
+        protected internal virtual SqliteDataReader? DataReader { get; set; }
 
         /// <summary>
         ///     Releases any resources used by the connection and closes it.
@@ -244,11 +250,6 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(Prepare)));
             }
 
-            if (string.IsNullOrEmpty(_commandText))
-            {
-                throw new InvalidOperationException(Resources.CallRequiresSetCommandText(nameof(Prepare)));
-            }
-
             if (_prepared)
             {
                 return;
@@ -290,11 +291,6 @@ namespace Microsoft.Data.Sqlite
             if (_connection?.State != ConnectionState.Open)
             {
                 throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(ExecuteReader)));
-            }
-
-            if (string.IsNullOrEmpty(_commandText))
-            {
-                throw new InvalidOperationException(Resources.CallRequiresSetCommandText(nameof(ExecuteReader)));
             }
 
             if (Transaction != _connection.Transaction)
@@ -435,11 +431,6 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(ExecuteNonQuery)));
             }
 
-            if (string.IsNullOrEmpty(_commandText))
-            {
-                throw new InvalidOperationException(Resources.CallRequiresSetCommandText(nameof(ExecuteNonQuery)));
-            }
-
             var reader = ExecuteReader();
             reader.Dispose();
 
@@ -452,16 +443,11 @@ namespace Microsoft.Data.Sqlite
         /// <returns>The first column of the first row of the results, or null if no results.</returns>
         /// <exception cref="SqliteException">A SQLite error occurs during execution.</exception>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/database-errors">Database Errors</seealso>
-        public override object ExecuteScalar()
+        public override object? ExecuteScalar()
         {
             if (_connection?.State != ConnectionState.Open)
             {
                 throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(ExecuteScalar)));
-            }
-
-            if (string.IsNullOrEmpty(_commandText))
-            {
-                throw new InvalidOperationException(Resources.CallRequiresSetCommandText(nameof(ExecuteScalar)));
             }
 
             using var reader = ExecuteReader();
@@ -489,7 +475,7 @@ namespace Microsoft.Data.Sqlite
                 timer.Start();
 
                 string nextTail;
-                while (IsBusy(rc = sqlite3_prepare_v2(_connection.Handle, tail, out stmt, out nextTail)))
+                while (IsBusy(rc = sqlite3_prepare_v2(_connection!.Handle, tail, out stmt, out nextTail)))
                 {
                     if (CommandTimeout != 0
                         && timer.ElapsedMilliseconds >= CommandTimeout * 1000L)
@@ -508,7 +494,7 @@ namespace Microsoft.Data.Sqlite
                 // Statement was empty, white space, or a comment
                 if (stmt.IsInvalid)
                 {
-                    if (!string.IsNullOrEmpty(tail))
+                    if (tail.Length != 0)
                     {
                         continue;
                     }
@@ -520,7 +506,7 @@ namespace Microsoft.Data.Sqlite
 
                 yield return stmt;
             }
-            while (!string.IsNullOrEmpty(tail));
+            while (tail.Length != 0);
 
             _prepared = true;
         }

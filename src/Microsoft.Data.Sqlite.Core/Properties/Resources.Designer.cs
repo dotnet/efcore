@@ -3,6 +3,8 @@
 using System.Reflection;
 using System.Resources;
 
+#nullable enable
+
 namespace Microsoft.Data.Sqlite.Properties
 {
     internal static class Resources
@@ -16,14 +18,6 @@ namespace Microsoft.Data.Sqlite.Properties
         public static string CallRequiresOpenConnection(object methodName)
             => string.Format(
                 GetString("CallRequiresOpenConnection", nameof(methodName)),
-                methodName);
-
-        /// <summary>
-        /// CommandText must be set before {methodName} can be called.
-        /// </summary>
-        public static string CallRequiresSetCommandText(object methodName)
-            => string.Format(
-                GetString("CallRequiresSetCommandText", nameof(methodName)),
                 methodName);
 
         /// <summary>
@@ -85,12 +79,6 @@ namespace Microsoft.Data.Sqlite.Properties
         /// </summary>
         public static string NoData
             => GetString("NoData");
-
-        /// <summary>
-        /// ConnectionString must be set before Open can be called.
-        /// </summary>
-        public static string OpenRequiresSetConnectionString
-            => GetString("OpenRequiresSetConnectionString");
 
         /// <summary>
         /// SqliteConnection does not support nested transactions.
@@ -254,7 +242,7 @@ namespace Microsoft.Data.Sqlite.Properties
 
         private static string GetString(string name, params string[] formatterNames)
         {
-            var value = _resourceManager.GetString(name);
+            var value = _resourceManager.GetString(name)!;
             for (var i = 0; i < formatterNames.Length; i++)
             {
                 value = value.Replace("{" + formatterNames[i] + "}", "{" + i + "}");

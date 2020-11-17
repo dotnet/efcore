@@ -11,15 +11,15 @@ namespace Microsoft.Data.Sqlite
     // TODO: Make generic
     internal abstract class SqliteValueBinder
     {
-        private readonly object _value;
+        private readonly object? _value;
         private readonly SqliteType? _sqliteType;
 
-        protected SqliteValueBinder(object value)
+        protected SqliteValueBinder(object? value)
             : this(value, null)
         {
         }
 
-        protected SqliteValueBinder(object value, SqliteType? sqliteType)
+        protected SqliteValueBinder(object? value, SqliteType? sqliteType)
         {
             _value = value;
             _sqliteType = sqliteType;
@@ -230,7 +230,7 @@ namespace Microsoft.Data.Sqlite
                 { typeof(ushort), SqliteType.Integer }
             };
 
-        internal static SqliteType GetSqliteType(object value)
+        internal static SqliteType GetSqliteType(object? value)
         {
             if (value == null)
             {
