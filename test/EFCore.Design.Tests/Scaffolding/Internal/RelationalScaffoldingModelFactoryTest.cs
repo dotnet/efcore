@@ -1995,6 +1995,50 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Assert.Equal("An int column", column.GetComment());
         }
 
+        [ConditionalFact]
+        public void Database_collation()
+        {
+            var database = new DatabaseModel
+            {
+                Collation = "SomeDatabaseCollation"
+            };
+
+            var model = _factory.Create(database, new ModelReverseEngineerOptions());
+            Assert.Equal("SomeDatabaseCollation", model.GetCollation());
+        }
+
+        [ConditionalFact]
+        public void Column_collation()
+        {
+            var database = new DatabaseModel
+            {
+                Tables =
+                {
+                    new DatabaseTable
+                    {
+                        Database = Database,
+                        Name = "Table",
+                        Columns =
+                        {
+                            IdColumn,
+                            new DatabaseColumn
+                            {
+                                Table = Table,
+                                Name = "Column",
+                                StoreType = "int",
+                                Collation = "SomeColumnCollation"
+                            }
+                        }
+                    }
+                }
+            };
+
+            var model = _factory.Create(database, new ModelReverseEngineerOptions());
+
+            var column = model.FindEntityType("Table").GetProperty("Column");
+            Assert.Equal("SomeColumnCollation", column.GetCollation());
+        }
+
         [ConditionalTheory]
         [InlineData(false, false, false)]
         [InlineData(false, false, true)]
