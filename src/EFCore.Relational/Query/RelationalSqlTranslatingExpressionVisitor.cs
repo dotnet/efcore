@@ -1414,6 +1414,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             switch (target)
             {
+                // TODO-NULLABLE: Smit, take a look
                 case SqlConstantExpression sqlConstantExpression:
                     return Expression.Constant(
                         property.GetGetter().GetClrValue(sqlConstantExpression.Value), property.ClrType.MakeNullable());

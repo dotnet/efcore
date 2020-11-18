@@ -28,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public Column([NotNull] string name, [CanBeNull] string? type, [NotNull] Table table)
             : base(name, type, table)
         {
+            // TODO-NULLABLE: Seems like an annotation mismatch. Is it really OK for type to be null, in which cases?
         }
 
         /// <inheritdoc />

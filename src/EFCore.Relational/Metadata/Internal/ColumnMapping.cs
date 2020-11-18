@@ -31,6 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] TableMapping tableMapping)
             : base(property, column, typeMapping, tableMapping)
         {
+            // TODO-NULLABLE: As with type, nullability mismatch for typeMapping - what's the right annotation?
         }
 
         /// <inheritdoc />
