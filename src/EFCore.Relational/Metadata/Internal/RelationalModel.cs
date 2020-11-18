@@ -522,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var mappedQuery = StoreObjectIdentifier.SqlQuery(definingType);
                 if (!databaseModel.Queries.TryGetValue(mappedQuery.Name, out var sqlQuery))
                 {
-                    sqlQuery = new SqlQuery(mappedQuery.Name, databaseModel) { Sql = mappedTypeSqlQuery };
+                    sqlQuery = new SqlQuery(mappedQuery.Name, databaseModel, mappedTypeSqlQuery);
                     databaseModel.Queries.Add(mappedQuery.Name, sqlQuery);
                 }
 

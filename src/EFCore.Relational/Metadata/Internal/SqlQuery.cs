@@ -25,12 +25,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlQuery([NotNull] string name, [NotNull] RelationalModel model)
+        public SqlQuery([NotNull] string name, [NotNull] RelationalModel model, [NotNull] string sql)
             : base(name, null, model)
         {
+            Sql = sql;
         }
 
-        // TODO-NULLABLE: isn't Sql required (and so belongs in the ctor)?
         /// <inheritdoc />
         public virtual string Sql { get; [param: NotNull] set; }
 
