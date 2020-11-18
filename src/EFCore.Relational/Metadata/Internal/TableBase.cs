@@ -110,17 +110,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         public virtual bool IsOptional(IEntityType entityType)
-            => OptionalEntityTypes == null
-                ? GetMappedEntityType(entityType) == null
-                : !OptionalEntityTypes.TryGetValue(entityType, out var optional)
-                    ? throw new InvalidOperationException(RelationalStrings.TableNotMappedEntityType(entityType.DisplayName(), Name))
-                    : optional;
+        {
+            if (OptionalEntityTypes == null)
+            {
+                CheckMappedEntityType(entityType);
+                return false;
+            }
 
-        // TODO-NULLABLE: Doesn't look like this can return null, but invocations check
-        private IEntityType? GetMappedEntityType(IEntityType entityType)
-            => EntityTypeMappings.Any(m => m.EntityType == entityType)
-                ? entityType
-                : throw new InvalidOperationException(RelationalStrings.TableNotMappedEntityType(entityType.DisplayName(), Name));
+            return !OptionalEntityTypes.TryGetValue(entityType, out var optional)
+                ? throw new InvalidOperationException(RelationalStrings.TableNotMappedEntityType(entityType.DisplayName(), Name))
+                : optional;
+        }
+
+        private void CheckMappedEntityType(IEntityType entityType)
+        {
+            if (EntityTypeMappings.All(m => m.EntityType != entityType))
+            {
+                throw new InvalidOperationException(RelationalStrings.TableNotMappedEntityType(entityType.DisplayName(), Name));
+            }
+        }
 
         /// <inheritdoc />
         IRelationalModel ITableBase.Model
@@ -135,21 +143,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => Columns.Values;
 
         /// <inheritdoc />
-        IEnumerable<IForeignKey>? ITableBase.GetRowInternalForeignKeys(IEntityType entityType)
-            => RowInternalForeignKeys != null
-                && RowInternalForeignKeys.TryGetValue(entityType, out var foreignKeys)
-                    ? foreignKeys
-                    : (GetMappedEntityType(entityType) == null)
-                        ? null
-                        : Enumerable.Empty<IForeignKey>();
+        IEnumerable<IForeignKey> ITableBase.GetRowInternalForeignKeys(IEntityType entityType)
+        {
+            if (RowInternalForeignKeys != null
+                && RowInternalForeignKeys.TryGetValue(entityType, out var foreignKeys))
+            {
+                return foreignKeys;
+            }
+
+            CheckMappedEntityType(entityType);
+            return Enumerable.Empty<IForeignKey>();
+        }
 
         /// <inheritdoc />
-        IEnumerable<IForeignKey>? ITableBase.GetReferencingRowInternalForeignKeys(IEntityType entityType)
-            => ReferencingRowInternalForeignKeys != null
-                && ReferencingRowInternalForeignKeys.TryGetValue(entityType, out var foreignKeys)
-                    ? foreignKeys
-                    : (GetMappedEntityType(entityType) == null)
-                        ? null
-                        : Enumerable.Empty<IForeignKey>();
+        IEnumerable<IForeignKey> ITableBase.GetReferencingRowInternalForeignKeys(IEntityType entityType)
+        {
+            if (ReferencingRowInternalForeignKeys != null
+                && ReferencingRowInternalForeignKeys.TryGetValue(entityType, out var foreignKeys))
+            {
+                return foreignKeys;
+            }
+
+            CheckMappedEntityType(entityType);
+            return Enumerable.Empty<IForeignKey>();
+        }
     }
 }

@@ -57,12 +57,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the foreign keys for the given entity type that point to other entity types sharing this table.
         /// </summary>
-        IEnumerable<IForeignKey>? GetRowInternalForeignKeys([NotNull] IEntityType entityType);
+        IEnumerable<IForeignKey> GetRowInternalForeignKeys([NotNull] IEntityType entityType);
 
         /// <summary>
         ///     Gets the foreign keys referencing the given entity type from other entity types sharing this table.
         /// </summary>
-        IEnumerable<IForeignKey>? GetReferencingRowInternalForeignKeys([NotNull] IEntityType entityType);
+        IEnumerable<IForeignKey> GetReferencingRowInternalForeignKeys([NotNull] IEntityType entityType);
 
         /// <summary>
         ///     Gets the value indicating whether an entity of the given type might not be present in a row.

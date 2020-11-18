@@ -858,7 +858,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             table ??= entityType.GetViewOrTableMappings().FirstOrDefault()?.Table;
             if (table != null)
             {
-                // TODO-NULLABLE: GetMappedEntityType inside might not need to return nullable
                 var linkingFks = table.GetRowInternalForeignKeys(entityType);
                 var first = true;
                 foreach (var foreignKey in linkingFks)
