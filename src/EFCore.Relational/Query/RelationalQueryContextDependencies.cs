@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class RelationalQueryContextDependencies
+    public sealed record RelationalQueryContextDependencies
     {
         /// <summary>
         ///     <para>
@@ -71,27 +71,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The connection.
         /// </summary>
-        public IRelationalConnection RelationalConnection { get; }
+        public IRelationalConnection RelationalConnection { get; [param: NotNull] init; }
 
         /// <summary>
         ///     A factory for creating a readable query string from a <see cref="DbCommand" />
         /// </summary>
-        public IRelationalQueryStringFactory RelationalQueryStringFactory { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="relationalConnection"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalQueryContextDependencies With([NotNull] IRelationalConnection relationalConnection)
-            => new RelationalQueryContextDependencies(relationalConnection, RelationalQueryStringFactory);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="relationalQueryStringFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalQueryContextDependencies With([NotNull] IRelationalQueryStringFactory relationalQueryStringFactory)
-            => new RelationalQueryContextDependencies(RelationalConnection, relationalQueryStringFactory);
+        public IRelationalQueryStringFactory RelationalQueryStringFactory { get; [param: NotNull] init; }
     }
 }

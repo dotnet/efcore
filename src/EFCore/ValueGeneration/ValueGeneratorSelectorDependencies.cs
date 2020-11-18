@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class ValueGeneratorSelectorDependencies
+    public sealed record ValueGeneratorSelectorDependencies
     {
         /// <summary>
         ///     <para>
@@ -63,14 +63,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     The cache being used to store value generator instances.
         /// </summary>
-        public IValueGeneratorCache Cache { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="cache"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ValueGeneratorSelectorDependencies With([NotNull] IValueGeneratorCache cache)
-            => new ValueGeneratorSelectorDependencies(cache);
+        public IValueGeneratorCache Cache { get; [param: NotNull] init; }
     }
 }

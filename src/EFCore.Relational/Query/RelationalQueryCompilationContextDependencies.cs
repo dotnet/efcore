@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class RelationalQueryCompilationContextDependencies
+    public sealed record RelationalQueryCompilationContextDependencies
     {
         /// <summary>
         ///     <para>

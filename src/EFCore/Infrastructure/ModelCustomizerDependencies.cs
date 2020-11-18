@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class ModelCustomizerDependencies
+    public sealed record ModelCustomizerDependencies
     {
         /// <summary>
         ///     <para>
@@ -63,14 +63,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Gets the <see cref="IDbSetFinder" /> that will locate the <see cref="DbSet{TEntity}" /> properties
         ///     on the derived context.
         /// </summary>
-        public IDbSetFinder SetFinder { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="setFinder"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModelCustomizerDependencies With([NotNull] IDbSetFinder setFinder)
-            => new ModelCustomizerDependencies(setFinder);
+        public IDbSetFinder SetFinder { get; [param: NotNull] init; }
     }
 }

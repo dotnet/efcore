@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class ModelValidatorDependencies
+    public sealed record ModelValidatorDependencies
     {
         /// <summary>
         ///     <para>
@@ -72,29 +72,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The type mapper.
         /// </summary>
-        public ITypeMappingSource TypeMappingSource { get; }
+        public ITypeMappingSource TypeMappingSource { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The member classifier.
         /// </summary>
         [EntityFrameworkInternal]
-        public IMemberClassifier MemberClassifier { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModelValidatorDependencies With([NotNull] ITypeMappingSource typeMappingSource)
-            => new ModelValidatorDependencies(typeMappingSource, MemberClassifier);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="memberClassifier"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        [EntityFrameworkInternal]
-        public ModelValidatorDependencies With([NotNull] IMemberClassifier memberClassifier)
-            => new ModelValidatorDependencies(TypeMappingSource, memberClassifier);
+        public IMemberClassifier MemberClassifier { get; [param: NotNull] init; }
     }
 }

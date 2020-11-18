@@ -85,8 +85,8 @@ namespace Microsoft.EntityFrameworkCore
                     context,
                     new RuntimeConventionSetBuilder(
                         new ProviderConventionSetBuilder(
-                            serviceProvider.GetRequiredService<ProviderConventionSetBuilderDependencies>()
-                                .With(setFinder)), new List<IConventionSetPlugin>()),
+                            serviceProvider.GetRequiredService<ProviderConventionSetBuilderDependencies>() with { SetFinder = setFinder }),
+                        new List<IConventionSetPlugin>()),
                     serviceProvider.GetRequiredService<ModelDependencies>());
 
             Assert.Equal(

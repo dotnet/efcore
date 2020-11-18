@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class RelationalSqlTranslatingExpressionVisitorDependencies
+    public sealed record RelationalSqlTranslatingExpressionVisitorDependencies
     {
         /// <summary>
         ///     <para>
@@ -75,58 +75,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The expression factory.
         /// </summary>
-        public ISqlExpressionFactory SqlExpressionFactory { get; }
+        public ISqlExpressionFactory SqlExpressionFactory { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The relational type mapping souce.
         /// </summary>
-        public IRelationalTypeMappingSource TypeMappingSource { get; }
+        public IRelationalTypeMappingSource TypeMappingSource { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The member translation provider.
         /// </summary>
-        public IMemberTranslatorProvider MemberTranslatorProvider { get; }
+        public IMemberTranslatorProvider MemberTranslatorProvider { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The method-call translation provider.
         /// </summary>
-        public IMethodCallTranslatorProvider MethodCallTranslatorProvider { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="sqlExpressionFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalSqlTranslatingExpressionVisitorDependencies With([NotNull] ISqlExpressionFactory sqlExpressionFactory)
-            => new RelationalSqlTranslatingExpressionVisitorDependencies(
-                sqlExpressionFactory, TypeMappingSource, MemberTranslatorProvider, MethodCallTranslatorProvider);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalSqlTranslatingExpressionVisitorDependencies With([NotNull] IRelationalTypeMappingSource typeMappingSource)
-            => new RelationalSqlTranslatingExpressionVisitorDependencies(
-                SqlExpressionFactory, typeMappingSource, MemberTranslatorProvider, MethodCallTranslatorProvider);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="memberTranslatorProvider"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalSqlTranslatingExpressionVisitorDependencies With([NotNull] IMemberTranslatorProvider memberTranslatorProvider)
-            => new RelationalSqlTranslatingExpressionVisitorDependencies(
-                SqlExpressionFactory, TypeMappingSource, memberTranslatorProvider, MethodCallTranslatorProvider);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="methodCallTranslatorProvider"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalSqlTranslatingExpressionVisitorDependencies With(
-            [NotNull] IMethodCallTranslatorProvider methodCallTranslatorProvider)
-            => new RelationalSqlTranslatingExpressionVisitorDependencies(
-                SqlExpressionFactory, TypeMappingSource, MemberTranslatorProvider, methodCallTranslatorProvider);
+        public IMethodCallTranslatorProvider MethodCallTranslatorProvider { get; [param: NotNull] init; }
     }
 }
