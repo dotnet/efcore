@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ReturnType = returnType;
             Model = model;
             _configurationSource = configurationSource;
-            Builder = new InternalDbFunctionBuilder(this, ((IConventionModel)model).Builder!);
+            Builder = new InternalDbFunctionBuilder(this, ((IConventionModel)model).Builder);
             _parameters = parameters == null
                 ? new List<DbFunctionParameter>()
                 : parameters

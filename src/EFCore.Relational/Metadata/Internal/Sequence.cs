@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Name = name;
             _schema = schema;
             _configurationSource = configurationSource;
-            Builder = new InternalSequenceBuilder(this, ((IConventionModel)model).Builder!);
+            Builder = new InternalSequenceBuilder(this, ((IConventionModel)model).Builder);
         }
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _maxValue = data.MaxValue;
             _type = data.ClrType;
             _isCyclic = data.IsCyclic;
-            Builder = new InternalSequenceBuilder(this, ((IConventionModel)model).Builder!);
+            Builder = new InternalSequenceBuilder(this, ((IConventionModel)model).Builder);
         }
 
         /// <summary>
