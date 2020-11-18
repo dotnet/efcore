@@ -110,15 +110,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             while (true)
             {
                 hash.Add(obj.Name, StringComparer.Ordinal);
-                var definingNavigationName = obj.DefiningNavigationName;
-                if (definingNavigationName == null)
+                if (!obj.HasDefiningNavigation())
                 {
                     return hash.ToHashCode();
                 }
 
-                hash.Add(definingNavigationName, StringComparer.Ordinal);
-                // TODO-NULLABLE: Put MemberNotNull on HasDefiningNavigation when we target net5.0
-                obj = obj.DefiningEntityType!;
+                hash.Add(obj.DefiningNavigationName, StringComparer.Ordinal);
+                obj = obj.DefiningEntityType;
             }
         }
     }

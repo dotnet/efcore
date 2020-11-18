@@ -100,8 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <inheritdoc />
         public bool Equals(MemberIdentity other)
-        // TODO-NULLABLE: Bangs can be removed when targeting net5.0
-            => EqualityComparer<object>.Default.Equals(_nameOrMember!, other._nameOrMember!);
+            => EqualityComparer<object>.Default.Equals(_nameOrMember, other._nameOrMember);
 
         /// <inheritdoc />
         public override int GetHashCode()

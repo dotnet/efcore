@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Name = name;
             _schema = schema;
             _configurationSource = configurationSource;
-            Builder = new InternalSequenceBuilder(this, ((IConventionModel)model).Builder);
+            Builder = new InternalSequenceBuilder(this, ((IConventionModel)model).Builder!);
         }
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static Sequence AddSequence(
+        public static Sequence? AddSequence(
             [NotNull] IMutableModel model,
             [NotNull] string name,
             [CanBeNull] string? schema,

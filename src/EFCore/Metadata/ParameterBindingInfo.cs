@@ -22,10 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="materializationContextExpression"> The expression tree from which the parameter value will come. </param>
         public ParameterBindingInfo(
             [NotNull] IEntityType entityType,
-            // TODO-NULLABLE: Shouldn't this be [NotNull]?
-            [CanBeNull] Expression materializationContextExpression)
+            [NotNull] Expression materializationContextExpression)
         {
             Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(entityType, nameof(materializationContextExpression));
 
             EntityType = entityType;
             MaterializationContextExpression = materializationContextExpression;

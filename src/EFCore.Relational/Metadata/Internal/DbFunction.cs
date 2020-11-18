@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -127,12 +128,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private static string GetFunctionName(MethodInfo methodInfo, ParameterInfo[] parameters)
-            => methodInfo.DeclaringType!.FullName
-                + "."
-                + methodInfo.Name
-                + "("
-                + string.Join(",", parameters.Select(p => p.ParameterType.FullName))
-                + ")";
+        {
+            var builder = new StringBuilder();
+
+            if (methodInfo.DeclaringType != null)
+            {
+                builder
+                    .Append(methodInfo.DeclaringType.FullName)
+                    .Append(".");
+            }
+
+            builder
+                .Append(methodInfo.Name)
+                .Append('(')
+                .AppendJoin(',', parameters.Select(p => p.ParameterType.FullName))
+                .Append(')');
+
+            return builder.ToString();
+        }
 
         /// <inheritdoc />
         public virtual IMutableModel Model { get; }
@@ -186,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static DbFunction AddDbFunction(
+        public static DbFunction? AddDbFunction(
             [NotNull] IMutableModel model,
             [NotNull] MethodInfo methodInfo,
             ConfigurationSource configurationSource)
@@ -203,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static DbFunction AddDbFunction(
+        public static DbFunction? AddDbFunction(
             [NotNull] IMutableModel model,
             [NotNull] string name,
             [NotNull] Type returnType,
@@ -579,10 +592,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IStoreFunction? StoreFunction { get; [param: NotNull] set; }
 
-        // Relational model creation ensures StoreFunction is populated
-        IStoreFunction IDbFunction.StoreFunction
-            => StoreFunction!;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -691,5 +700,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Func<IReadOnlyCollection<SqlExpression>, SqlExpression>? translation,
             bool fromDataAnnotation)
             => SetTranslation(translation, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        IStoreFunction IDbFunction.StoreFunction
+            => StoreFunction!; // Relational model creation ensures StoreFunction is populated
     }
 }

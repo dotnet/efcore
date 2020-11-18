@@ -1333,9 +1333,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var navigation = member.MemberInfo != null
                     ? entityType.FindNavigation(member.MemberInfo)
-                    : member.Name is not null
-                        ? entityType.FindNavigation(member.Name)
-                        : null;
+                    : entityType.FindNavigation(member.Name!);
 
                 if (navigation == null)
                 {

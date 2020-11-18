@@ -844,10 +844,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             break;
                         }
 
-                        // TODO-NULLABLE: Can there be a keyless entity here?
                         if (entityTypeMapping.IncludesDerivedTypes
                             && foreignKey.DeclaringEntityType != entityType
-                            && foreignKey.Properties.SequenceEqual(entityType.FindPrimaryKey().Properties))
+                            && entityType.FindPrimaryKey() is IConventionKey primaryKey
+                            && foreignKey.Properties.SequenceEqual(primaryKey.Properties))
                         {
                             // The identifying FK constraint is needed to be created only on the table that corresponds
                             // to the declaring entity type

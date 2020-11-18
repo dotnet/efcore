@@ -1077,9 +1077,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var entityType = entityReferenceExpression.EntityType;
             var property = member.MemberInfo != null
                 ? entityType.FindProperty(member.MemberInfo)
-                : member.Name is not null
-                    ? entityType.FindProperty(member.Name)
-                    : null;
+                : entityType.FindProperty(member.Name!);
 
             if (property != null)
             {
@@ -1414,10 +1412,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             switch (target)
             {
-                // TODO-NULLABLE: Smit, take a look
                 case SqlConstantExpression sqlConstantExpression:
                     return Expression.Constant(
-                        property.GetGetter().GetClrValue(sqlConstantExpression.Value), property.ClrType.MakeNullable());
+                        sqlConstantExpression.Value is null
+                            ? null
+                            : property.GetGetter().GetClrValue(sqlConstantExpression.Value),
+                        property.ClrType.MakeNullable());
 
                 case SqlParameterExpression sqlParameterExpression
                     when sqlParameterExpression.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal):

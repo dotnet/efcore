@@ -29,11 +29,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal
                 property.DeclaringEntityType.IsOwned(), $"Expected {property.DeclaringEntityType.DisplayName()} to be owned.");
             Check.DebugAssert(property.GetJsonPropertyName().Length == 0, $"Expected {property.Name} to be non-persisted.");
 
-            return property.IsPrimaryKey()
+            return property.FindContainingPrimaryKey() is IKey key
+                && key.Properties.Count > 1
                 && !property.IsForeignKey()
                 && property.ClrType == typeof(int)
                 && property.ValueGenerated == ValueGenerated.OnAdd
-                && property.DeclaringEntityType.FindPrimaryKey().Properties.Count > 1;
+                && property.FindContainingPrimaryKey()!.Properties.Count > 1;
         }
     }
 }

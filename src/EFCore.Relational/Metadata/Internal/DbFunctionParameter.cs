@@ -117,10 +117,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             set => SetStoreType(value, ConfigurationSource.Explicit);
         }
 
-        // Model validation ensures all parameters have a type mapping
-        string IDbFunctionParameter.StoreType
-            => StoreType!;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -233,12 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => _typeMappingConfigurationSource;
 
         /// <inheritdoc />
-        [DebuggerStepThrough]
-        RelationalTypeMapping? IConventionDbFunctionParameter.SetTypeMapping(RelationalTypeMapping? typeMapping, bool fromDataAnnotation)
-            => SetTypeMapping(typeMapping, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-        /// <inheritdoc />
-        public virtual IStoreFunctionParameter? StoreFunctionParameter { get; [param: NotNull] set; }
+        public virtual IStoreFunctionParameter StoreFunctionParameter { get; [param: NotNull] set; } = default!;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -248,5 +239,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public override string ToString()
             => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        RelationalTypeMapping? IConventionDbFunctionParameter.SetTypeMapping(RelationalTypeMapping? typeMapping, bool fromDataAnnotation)
+            => SetTypeMapping(typeMapping, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        string IDbFunctionParameter.StoreType
+            => StoreType!; // Model validation ensures all parameters have a type mapping
     }
 }

@@ -124,9 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     var navigation = memberIdentity.MemberInfo != null
                         ? entityType.FindNavigation(memberIdentity.MemberInfo)
-                        : memberIdentity.Name is not null
-                            ? entityType.FindNavigation(memberIdentity.Name)
-                            : null;
+                        : entityType.FindNavigation(memberIdentity.Name!);
                     if (navigation != null)
                     {
                         return ExpandNavigation(root, entityReference, navigation, convertedType != null);
