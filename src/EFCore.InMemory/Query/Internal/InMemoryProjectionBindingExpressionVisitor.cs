@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     : QueryCompilationContext.NotTranslatedExpression;
             }
 
-            throw new InvalidOperationException(CoreStrings.QueryFailed(extensionExpression.Print(), GetType().Name));
+            throw new InvalidOperationException(CoreStrings.TranslationFailed(extensionExpression.Print()));
         }
 
         /// <summary>

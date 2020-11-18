@@ -2158,14 +2158,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     Processing of the LINQ expression '{expression}' by '{visitor}' failed. This may indicate either a bug or a limitation in Entity Framework. See https://go.microsoft.com/fwlink/?linkid=2101433 for more detailed information.
-        /// </summary>
-        public static string QueryFailed([CanBeNull] object expression, [CanBeNull] object visitor)
-            => string.Format(
-                GetString("QueryFailed", nameof(expression), nameof(visitor)),
-                expression, visitor);
-
-        /// <summary>
         ///     The query contains a projection '{projection}' of type '{queryableType}'. Collections in the final projection must be an 'IEnumerable&lt;T&gt;' type such as 'List&lt;T&gt;'. Consider using 'ToList' or some other mechanism to convert the 'IQueryable&lt;T&gt;' or 'IOrderedEnumerable&lt;T&gt;' into an 'IEnumerable&lt;T&gt;'.
         /// </summary>
         public static string QueryInvalidMaterializationType([CanBeNull] object projection, [CanBeNull] object queryableType)

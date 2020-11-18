@@ -1233,9 +1233,6 @@
   <data name="QueryEntityMaterializationConditionWrongShape" xml:space="preserve">
     <value>The materialization condition passed for entity shaper of entity type '{entityType}' is not of the correct shape. A materialization condition must be a 'LambdaExpression' of 'Func&lt;ValueBuffer, IEntityType&gt;'.</value>
   </data>
-  <data name="QueryFailed" xml:space="preserve">
-    <value>Processing of the LINQ expression '{expression}' by '{visitor}' failed. This may indicate either a bug or a limitation in Entity Framework. See https://go.microsoft.com/fwlink/?linkid=2101433 for more detailed information.</value>
-  </data>
   <data name="QueryInvalidMaterializationType" xml:space="preserve">
     <value>The query contains a projection '{projection}' of type '{queryableType}'. Collections in the final projection must be an 'IEnumerable&lt;T&gt;' type such as 'List&lt;T&gt;'. Consider using 'ToList' or some other mechanism to convert the 'IQueryable&lt;T&gt;' or 'IOrderedEnumerable&lt;T&gt;' into an 'IEnumerable&lt;T&gt;'.</value>
   </data>
