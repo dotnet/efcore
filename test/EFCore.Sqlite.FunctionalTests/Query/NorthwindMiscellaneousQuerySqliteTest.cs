@@ -319,6 +319,14 @@ FROM ""Orders"" AS ""o""");
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Select_correlated_subquery_ordered(async))).Message);
 
+        [ConditionalFact]
+        public async Task Single_Predicate_Cancellation()
+        {
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(
+                async () =>
+                    await Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
