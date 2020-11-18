@@ -134,10 +134,6 @@ FROM ""Orders"" AS ""o""");
 FROM ""Orders"" AS ""o""");
         }
 
-        [ConditionalTheory(Skip = "Issue#21541")]
-        public override Task Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_2(bool async)
-            => base.Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_2(async);
-
         public override async Task SelectMany_correlated_with_outer_1(bool async)
             => Assert.Equal(
                 SqliteStrings.ApplyNotSupported,
