@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private static InternalEntityEntry NewInternalEntityEntry(IStateManager stateManager, IEntityType entityType, object entity)
         {
-            if (!entityType.HasClrType())
+            if (!entityType.HasClrType)
             {
                 return new InternalShadowEntityEntry(stateManager, entityType);
             }
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             object entity,
             in ValueBuffer valueBuffer)
         {
-            return !entityType.HasClrType()
+            return !entityType.HasClrType
                 ? new InternalShadowEntityEntry(stateManager, entityType, valueBuffer)
                 : entityType.ShadowPropertyCount() > 0
                     ? (InternalEntityEntry)new InternalMixedEntityEntry(stateManager, entityType, entity, valueBuffer)

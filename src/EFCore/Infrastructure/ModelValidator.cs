@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             entityType.DisplayName(), unmappedProperty.Name, unmappedProperty.ClrType.ShortDisplayName()));
                 }
 
-                if (!entityType.HasClrType())
+                if (!entityType.HasClrType)
                 {
                     continue;
                 }
@@ -375,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotNull(model, nameof(model));
 
-            var firstShadowEntity = model.GetEntityTypes().FirstOrDefault(entityType => !entityType.HasClrType());
+            var firstShadowEntity = model.GetEntityTypes().FirstOrDefault(entityType => !entityType.HasClrType);
             if (firstShadowEntity != null)
             {
                 throw new InvalidOperationException(
@@ -745,7 +745,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 ownership.PrincipalEntityType.DisplayName()));
                     }
                 }
-                else if (entityType.HasClrType()
+                else if (entityType.HasClrType
                     && ((IMutableModel)model).IsOwned(entityType.ClrType))
                 {
                     throw new InvalidOperationException(CoreStrings.OwnerlessOwnedType(entityType.DisplayName()));

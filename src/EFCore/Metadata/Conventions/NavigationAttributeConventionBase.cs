@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionContext<IConventionEntityTypeBuilder> context)
         {
             var entityType = entityTypeBuilder.Metadata;
-            if (!entityType.HasClrType())
+            if (!entityType.HasClrType)
             {
                 return;
             }
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionContext<IConventionEntityType> context)
         {
             var entityType = entityTypeBuilder.Metadata;
-            if (!entityType.HasClrType()
+            if (!entityType.HasClrType
                 || entityTypeBuilder.Metadata.BaseType != newBaseType)
             {
                 return;
@@ -336,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             [NotNull] MemberInfo memberInfo)
             where TCustomAttribute : Attribute
         {
-            if (!entityType.HasClrType()
+            if (!entityType.HasClrType
                 || memberInfo == null)
             {
                 return Enumerable.Empty<TCustomAttribute>();

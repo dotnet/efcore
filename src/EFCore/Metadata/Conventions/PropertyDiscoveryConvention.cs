@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private void Process(IConventionEntityTypeBuilder entityTypeBuilder)
         {
             var entityType = entityTypeBuilder.Metadata;
-            if (entityType.HasClrType())
+            if (entityType.HasClrType)
             {
                 foreach (var propertyInfo in entityType.GetRuntimeProperties().Values)
                 {
