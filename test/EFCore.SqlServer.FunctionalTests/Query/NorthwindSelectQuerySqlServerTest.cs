@@ -1482,6 +1482,23 @@ WHERE [o].[OrderID] < 10350
 ORDER BY [o].[OrderID], [t0].[OrderID], [t0].[ProductID], [t0].[ProductID0], [t1].[OrderID], [t1].[ProductID], [t1].[ProductID0], [t2].[OrderID], [t2].[ProductID], [t2].[ProductID0]");
         }
 
+        public override async Task Ternary_in_client_eval_assigns_correct_types(bool async)
+        {
+            await base.Ternary_in_client_eval_assigns_correct_types(async);
+
+            AssertSql(
+                @"SELECT [o].[CustomerID], CASE
+    WHEN [o].[OrderDate] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [o].[OrderDate], [o].[OrderID] - 10000, CASE
+    WHEN [o].[OrderDate] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10300
+ORDER BY [o].[OrderID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
