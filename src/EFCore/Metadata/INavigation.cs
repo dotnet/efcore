@@ -4,6 +4,8 @@
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -32,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the inverse navigation.
         /// </summary>
-        new INavigation Inverse
+        new INavigation? Inverse
         {
             [DebuggerStepThrough]
             get => IsOnDependent ? ForeignKey.PrincipalToDependent : ForeignKey.DependentToPrincipal;
@@ -91,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the inverse navigation.
         /// </summary>
-        INavigationBase INavigationBase.Inverse
+        INavigationBase? INavigationBase.Inverse
         {
             [DebuggerStepThrough]
             get => Inverse;

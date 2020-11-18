@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -20,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the schema of the table in the database.
         /// </summary>
-        string Schema { get; }
+        string? Schema { get; }
 
         /// <summary>
         ///     Gets the database model.
@@ -45,22 +47,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the column with the given name. Returns <see langword="null" /> if no column with the given name is defined.
         /// </summary>
-        IColumnBase FindColumn([NotNull] string name);
+        IColumnBase? FindColumn([NotNull] string name);
 
         /// <summary>
         ///     Gets the column mapped to the given property. Returns <see langword="null" /> if no column is mapped to the given property.
         /// </summary>
-        IColumnBase FindColumn([NotNull] IProperty property);
+        IColumnBase? FindColumn([NotNull] IProperty property);
 
         /// <summary>
         ///     Gets the foreign keys for the given entity type that point to other entity types sharing this table.
         /// </summary>
-        IEnumerable<IForeignKey> GetRowInternalForeignKeys([NotNull] IEntityType entityType);
+        IEnumerable<IForeignKey>? GetRowInternalForeignKeys([NotNull] IEntityType entityType);
 
         /// <summary>
         ///     Gets the foreign keys referencing the given entity type from other entity types sharing this table.
         /// </summary>
-        IEnumerable<IForeignKey> GetReferencingRowInternalForeignKeys([NotNull] IEntityType entityType);
+        IEnumerable<IForeignKey>? GetReferencingRowInternalForeignKeys([NotNull] IEntityType entityType);
 
         /// <summary>
         ///     Gets the value indicating whether an entity of the given type might not be present in a row.

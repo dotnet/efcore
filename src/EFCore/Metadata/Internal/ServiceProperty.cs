@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         ServiceParameterBinding? IConventionServiceProperty.SetParameterBinding(
-            ServiceParameterBinding parameterBinding,
+            ServiceParameterBinding? parameterBinding,
             bool fromDataAnnotation)
             => SetParameterBinding(
                 parameterBinding, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);

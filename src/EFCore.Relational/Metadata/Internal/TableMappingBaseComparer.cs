@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -34,8 +36,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public int Compare(ITableMappingBase x, ITableMappingBase y)
+        public int Compare(ITableMappingBase? x, ITableMappingBase? y)
         {
+            if (ReferenceEquals(x, y))
+            {
+                return 0;
+            }
+
+            if (x is null)
+            {
+                return -1;
+            }
+
+            if (y is null)
+            {
+                return 1;
+            }
+
             var result = y.IsSharedTablePrincipal.CompareTo(x.IsSharedTablePrincipal);
             if (result != 0)
             {
@@ -93,11 +110,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public bool Equals(ITableMappingBase x, ITableMappingBase y)
-            => x.EntityType == y.EntityType
+        public bool Equals(ITableMappingBase? x, ITableMappingBase? y)
+            => ReferenceEquals(x, y) || x is not null && y is not null && (x.EntityType == y.EntityType
                 && x.Table == y.Table
                 && x.IncludesDerivedTypes == y.IncludesDerivedTypes
-                && x.ColumnMappings.SequenceEqual(y.ColumnMappings);
+                && x.ColumnMappings.SequenceEqual(y.ColumnMappings));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

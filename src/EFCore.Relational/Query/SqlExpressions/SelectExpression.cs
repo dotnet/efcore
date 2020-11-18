@@ -317,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             ITableBase table,
             TableExpressionBase tableExpression,
             bool nullable)
-            => new ColumnExpression(property, table.FindColumn(property), tableExpression, nullable);
+            => new ColumnExpression(property, table.FindColumn(property)!, tableExpression, nullable);
 
         /// <summary>
         ///     Checks whether this <see cref="SelectExpression" /> representes a <see cref="FromSqlExpression" /> which is not composed upon.

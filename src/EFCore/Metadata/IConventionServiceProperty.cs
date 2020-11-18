@@ -4,6 +4,8 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -21,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this service property.
         /// </summary>
-        new IConventionServicePropertyBuilder Builder { get; }
+        new IConventionServicePropertyBuilder? Builder { get; }
 
         /// <summary>
         ///     Gets the type that this property belongs to.
@@ -34,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="parameterBinding"> The parameter binding. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured binding. </returns>
-        ServiceParameterBinding SetParameterBinding([CanBeNull] ServiceParameterBinding parameterBinding, bool fromDataAnnotation = false);
+        ServiceParameterBinding? SetParameterBinding([CanBeNull] ServiceParameterBinding? parameterBinding, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IServiceProperty.ParameterBinding" />.

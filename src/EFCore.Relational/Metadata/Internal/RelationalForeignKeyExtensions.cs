@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -32,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var principalType = foreignKey.PrincipalKey.IsPrimaryKey()
                 ? foreignKey.PrincipalEntityType
                 : foreignKey.PrincipalKey.DeclaringEntityType;
-            var principalTable = StoreObjectIdentifier.Create(principalType, StoreObjectType.Table);
+            var principalTable = StoreObjectIdentifier.Create(principalType, StoreObjectType.Table)!;
 
             var duplicatePrincipalType = duplicateForeignKey.PrincipalKey.IsPrimaryKey()
                 ? duplicateForeignKey.PrincipalEntityType

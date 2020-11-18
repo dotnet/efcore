@@ -7,6 +7,8 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -28,11 +30,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
         }
 
+        // TODO-NULLABLE: isn't Sql required (and so belongs in the ctor)?
         /// <inheritdoc />
         public virtual string Sql { get; [param: NotNull] set; }
 
         /// <inheritdoc />
-        public override IColumnBase FindColumn(IProperty property)
+        public override IColumnBase? FindColumn(IProperty property)
             => property.GetSqlQueryColumnMappings()
                 .FirstOrDefault(cm => cm.TableMapping.Table == this)
                 ?.Column;
@@ -62,12 +65,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        ISqlQueryColumn ISqlQuery.FindColumn(string name)
-            => (ISqlQueryColumn)base.FindColumn(name);
+        ISqlQueryColumn? ISqlQuery.FindColumn(string name)
+            => (ISqlQueryColumn?)base.FindColumn(name);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        ISqlQueryColumn ISqlQuery.FindColumn(IProperty property)
-            => (ISqlQueryColumn)FindColumn(property);
+        ISqlQueryColumn? ISqlQuery.FindColumn(IProperty property)
+            => (ISqlQueryColumn?)FindColumn(property);
     }
 }

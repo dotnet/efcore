@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -23,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets or sets the schema of the function in the database.
         /// </summary>
-        new string Schema { get; [param: CanBeNull] set; }
+        new string? Schema { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     Gets or sets the value indicating whether the database function is built-in or not.
@@ -38,12 +40,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets or sets the store type of the function in the database.
         /// </summary>
-        new string StoreType { get; [param: CanBeNull] set; }
+        new string? StoreType { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     Gets or sets the type mapping of the function in the database.
         /// </summary>
-        new RelationalTypeMapping TypeMapping { get; [param: CanBeNull] set; }
+        new RelationalTypeMapping? TypeMapping { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     Gets the <see cref="IMutableModel" /> in which this function is defined.
@@ -58,6 +60,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets or sets the translation callback for performing custom translation of the method call into a SQL expression fragment.
         /// </summary>
-        new Func<IReadOnlyCollection<SqlExpression>, SqlExpression> Translation { get; [param: CanBeNull] set; }
+        new Func<IReadOnlyCollection<SqlExpression>, SqlExpression>? Translation { get; [param: CanBeNull] set; }
     }
 }

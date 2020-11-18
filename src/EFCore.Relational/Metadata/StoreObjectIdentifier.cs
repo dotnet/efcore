@@ -5,6 +5,8 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -12,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier>, IEquatable<StoreObjectIdentifier>
     {
-        private StoreObjectIdentifier(StoreObjectType storeObjectType, string name, string schema = null)
+        private StoreObjectIdentifier(StoreObjectType storeObjectType, string name, string? schema = null)
         {
             StoreObjectType = storeObjectType;
             Name = name;
@@ -54,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The table name. </param>
         /// <param name="schema"> The table schema. </param>
         /// <returns> The table id. </returns>
-        public static StoreObjectIdentifier Table([NotNull] string name, [CanBeNull] string schema)
+        public static StoreObjectIdentifier Table([NotNull] string name, [CanBeNull] string? schema)
         {
             Check.NotNull(name, nameof(name));
 
@@ -67,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The view name. </param>
         /// <param name="schema"> The view schema. </param>
         /// <returns> The view id. </returns>
-        public static StoreObjectIdentifier View([NotNull] string name, [CanBeNull] string schema)
+        public static StoreObjectIdentifier View([NotNull] string name, [CanBeNull] string? schema)
         {
             Check.NotNull(name, nameof(name));
 
@@ -123,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the table-like store object schema.
         /// </summary>
-        public string Schema { get; }
+        public string? Schema { get; }
 
         /// <inheritdoc />
         public int CompareTo(StoreObjectIdentifier other)
@@ -154,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => StoreObjectType + " " + DisplayName();
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj is StoreObjectIdentifier identifier && Equals(identifier);
 
         /// <inheritdoc />

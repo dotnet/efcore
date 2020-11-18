@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -25,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string name,
             [NotNull] Table table,
             [NotNull] IReadOnlyList<Column> columns,
-            [NotNull] string filter,
+            [CanBeNull] string filter,
             bool unique)
         {
             Name = name;
@@ -66,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool IsUnique { get; }
 
         /// <inheritdoc />
-        public virtual string Filter { get; }
+        public virtual string? Filter { get; }
 
         /// <inheritdoc />
         ITable ITableIndex.Table

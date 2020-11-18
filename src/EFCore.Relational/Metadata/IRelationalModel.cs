@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -48,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Returns the database collation.
         /// </summary>
-        string Collation
+        string? Collation
             => Model.GetCollation();
 
         /// <summary>
@@ -57,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The name of the table. </param>
         /// <param name="schema"> The schema of the table. </param>
         /// <returns> The table with a given name or <see langword="null" /> if no table with the given name is defined. </returns>
-        ITable FindTable([NotNull] string name, [CanBeNull] string schema);
+        ITable? FindTable([NotNull] string name, [CanBeNull] string? schema);
 
         /// <summary>
         ///     Gets the view with the given name. Returns <see langword="null" /> if no view with the given name is defined.
@@ -65,14 +67,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The name of the view. </param>
         /// <param name="schema"> The schema of the view. </param>
         /// <returns> The view with a given name or <see langword="null" /> if no view with the given name is defined. </returns>
-        IView FindView([NotNull] string name, [CanBeNull] string schema);
+        IView? FindView([NotNull] string name, [CanBeNull] string? schema);
 
         /// <summary>
         ///     Gets the SQL query with the given name. Returns <see langword="null" /> if no SQL query with the given name is defined.
         /// </summary>
         /// <param name="name"> The name of the SQL query. </param>
         /// <returns> The SQL query with a given name or <see langword="null" /> if no SQL query with the given name is defined. </returns>
-        ISqlQuery FindQuery([NotNull] string name);
+        ISqlQuery? FindQuery([NotNull] string name);
 
         /// <summary>
         ///     Finds an <see cref="ISequence" /> with the given name.
@@ -83,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The <see cref="ISequence" /> or <see langword="null" /> if no sequence with the given name in
         ///     the given schema was found.
         /// </returns>
-        ISequence FindSequence([NotNull] string name, [CanBeNull] string schema)
+        ISequence? FindSequence([NotNull] string name, [CanBeNull] string? schema)
             => Model.FindSequence(name, schema);
 
         /// <summary>
@@ -93,6 +95,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="schema"> The schema of the function. </param>
         /// <param name="parameters"> A list of parameter types. </param>
         /// <returns> The <see cref="IStoreFunction" /> or <see langword="null" /> if no function with the given name was defined. </returns>
-        IStoreFunction FindFunction([NotNull] string name, [CanBeNull] string schema, [NotNull] IReadOnlyList<string> parameters);
+        IStoreFunction? FindFunction([NotNull] string name, [CanBeNull] string? schema, [NotNull] IReadOnlyList<string> parameters);
     }
 }

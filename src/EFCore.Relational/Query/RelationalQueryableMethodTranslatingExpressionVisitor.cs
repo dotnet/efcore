@@ -1333,7 +1333,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var navigation = member.MemberInfo != null
                     ? entityType.FindNavigation(member.MemberInfo)
-                    : entityType.FindNavigation(member.Name);
+                    : member.Name is not null
+                        ? entityType.FindNavigation(member.Name)
+                        : null;
 
                 if (navigation == null)
                 {
@@ -1510,7 +1512,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .SelectMany(EntityTypeExtensions.GetDeclaredProperties))
                     {
                         propertyExpressions[property] = new ColumnExpression(
-                            property, table.FindColumn(property), tableExpression, nullable || !property.IsPrimaryKey());
+                            property, table.FindColumn(property)!, tableExpression, nullable || !property.IsPrimaryKey());
                     }
 
                     return propertyExpressions;
@@ -1553,7 +1555,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive()).SelectMany(EntityTypeExtensions.GetDeclaredProperties))
                 {
                     propertyExpressions[property] = new ColumnExpression(
-                        property, table.FindColumn(property), tableExpression, nullable: true);
+                        property, table.FindColumn(property)!, tableExpression, nullable: true);
                 }
 
                 return propertyExpressions;

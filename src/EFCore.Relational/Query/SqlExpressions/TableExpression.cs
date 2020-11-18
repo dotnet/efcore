@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     The schema of the table or view.
         /// </summary>
-        public string Schema { get; }
+        public string? Schema { get; }
 
         /// <summary>
         ///     The <see cref="ITableBase" /> associated with this table or view.

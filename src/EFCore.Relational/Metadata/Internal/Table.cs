@@ -6,6 +6,9 @@ using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -17,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public class Table : TableBase, ITable
     {
-        private UniqueConstraint _primaryKey;
+        private UniqueConstraint? _primaryKey;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -25,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public Table([NotNull] string name, [CanBeNull] string schema, [NotNull] RelationalModel model)
+        public Table([NotNull] string name, [CanBeNull] string? schema, [NotNull] RelationalModel model)
             : base(name, schema, model)
         {
             Columns = new SortedDictionary<string, IColumnBase>(new ColumnNameComparer(this));
@@ -46,10 +49,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual UniqueConstraint PrimaryKey
+        public virtual UniqueConstraint? PrimaryKey
         {
             get => _primaryKey;
-            [param: NotNull]
             set
             {
                 var oldPrimaryKey = _primaryKey;
@@ -104,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual UniqueConstraint FindUniqueConstraint([NotNull] string name)
+        public virtual UniqueConstraint? FindUniqueConstraint([NotNull] string name)
             => PrimaryKey != null && PrimaryKey.Name == name
                 ? PrimaryKey
                 : UniqueConstraints.TryGetValue(name, out var constraint)
@@ -124,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool IsExcludedFromMigrations { get; set; }
 
         /// <inheritdoc />
-        public override IColumnBase FindColumn(IProperty property)
+        public override IColumnBase? FindColumn(IProperty property)
             => property.GetTableColumnMappings()
                 .FirstOrDefault(cm => cm.TableMapping.Table == this)
                 ?.Column;
@@ -160,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <inheritdoc />
-        IPrimaryKeyConstraint ITable.PrimaryKey
+        IPrimaryKeyConstraint? ITable.PrimaryKey
         {
             [DebuggerStepThrough]
             get => PrimaryKey;
@@ -182,12 +184,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IColumn ITable.FindColumn(string name)
-            => (IColumn)base.FindColumn(name);
+        IColumn? ITable.FindColumn(string name)
+            => (IColumn?)base.FindColumn(name);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IColumn ITable.FindColumn(IProperty property)
-            => (IColumn)FindColumn(property);
+        IColumn? ITable.FindColumn(IProperty property)
+            => (IColumn?)FindColumn(property);
     }
 }

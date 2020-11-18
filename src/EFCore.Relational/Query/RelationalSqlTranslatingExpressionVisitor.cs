@@ -1077,7 +1077,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             var entityType = entityReferenceExpression.EntityType;
             var property = member.MemberInfo != null
                 ? entityType.FindProperty(member.MemberInfo)
-                : entityType.FindProperty(member.Name);
+                : member.Name is not null
+                    ? entityType.FindProperty(member.Name)
+                    : null;
 
             if (property != null)
             {

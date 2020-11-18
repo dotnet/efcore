@@ -964,7 +964,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         || property.IsForeignKey()
                         || property.IsUniqueIndex())
                     {
-                        var _ = property.GetCurrentValueComparer(); // Will throw if there is no way to compare
+                        _ = property.GetCurrentValueComparer(); // Will throw if there is no way to compare
                     }
                 }
             }

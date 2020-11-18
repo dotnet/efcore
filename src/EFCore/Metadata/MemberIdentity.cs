@@ -7,6 +7,8 @@ using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -15,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     [DebuggerDisplay("{DebuggerDisplay(),nq}")]
     public readonly struct MemberIdentity : IEquatable<MemberIdentity>
     {
-        private readonly object _nameOrMember;
+        private readonly object? _nameOrMember;
 
         /// <summary>
         ///     Constructs a new <see cref="MemberIdentity" /> from the given member name.
@@ -38,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [DebuggerStepThrough]
-        private MemberIdentity([CanBeNull] object nameOrMember)
+        private MemberIdentity([CanBeNull] object? nameOrMember)
         {
             _nameOrMember = nameOrMember;
         }
@@ -53,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     A <see cref="MemberIdentity" /> instance that does not represent any member.
         /// </summary>
-        public static readonly MemberIdentity None = new MemberIdentity((object)null);
+        public static readonly MemberIdentity None = new MemberIdentity((object?)null);
 
         /// <summary>
         ///     Creates a new <see cref="MemberIdentity" /> from the given member name.
@@ -61,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The member name. </param>
         /// <returns> The newly created identity, or <see cref="None" /> if the given name is <see langword="null" />. </returns>
         [DebuggerStepThrough]
-        public static MemberIdentity Create([CanBeNull] string name)
+        public static MemberIdentity Create([CanBeNull] string? name)
             => name == null ? None : new MemberIdentity(name);
 
         /// <summary>
@@ -70,21 +72,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="memberInfo"> The member. </param>
         /// <returns> The newly created identity, or <see cref="None" /> if the given name is <see langword="null" />. </returns>
         [DebuggerStepThrough]
-        public static MemberIdentity Create([CanBeNull] MemberInfo memberInfo)
+        public static MemberIdentity Create([CanBeNull] MemberInfo? memberInfo)
             => memberInfo == null ? None : new MemberIdentity(memberInfo);
 
         /// <summary>
         ///     The name of the member.
         /// </summary>
-        public string Name
+        public string? Name
         {
-            [DebuggerStepThrough] get => MemberInfo?.GetSimpleMemberName() ?? (string)_nameOrMember;
+            [DebuggerStepThrough] get => MemberInfo?.GetSimpleMemberName() ?? (string?)_nameOrMember;
         }
 
         /// <summary>
         ///     The <see cref="MemberInfo" /> representing the member, or <see langword="null" /> if not known.
         /// </summary>
-        public MemberInfo MemberInfo
+        public MemberInfo? MemberInfo
         {
             [DebuggerStepThrough] get => _nameOrMember as MemberInfo;
         }
@@ -93,12 +95,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => Name ?? "NONE";
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj is MemberIdentity identity && Equals(identity);
 
         /// <inheritdoc />
         public bool Equals(MemberIdentity other)
-            => EqualityComparer<object>.Default.Equals(_nameOrMember, other._nameOrMember);
+        // TODO-NULLABLE: Bangs can be removed when targeting net5.0
+            => EqualityComparer<object>.Default.Equals(_nameOrMember!, other._nameOrMember!);
 
         /// <inheritdoc />
         public override int GetHashCode()

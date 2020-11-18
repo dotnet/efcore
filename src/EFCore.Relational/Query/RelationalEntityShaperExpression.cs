@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     continue;
                 }
 
-                var propertyMappings = table.FindColumn(property).PropertyMappings;
+                var propertyMappings = table.FindColumn(property)!.PropertyMappings;
                 if (propertyMappings.Count() > 1
                     && propertyMappings.Any(pm => principalEntityTypes.Contains(pm.TableMapping.EntityType)))
                 {
@@ -203,6 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private void GetPrincipalEntityTypes(ITableBase table, IEntityType entityType, HashSet<IEntityType> entityTypes)
         {
+            // TODO-NULLABLE: GetMappedEntityType inside might not need to return nullable
             foreach (var linkingFk in table.GetRowInternalForeignKeys(entityType))
             {
                 entityTypes.Add(linkingFk.PrincipalEntityType);
