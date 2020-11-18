@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -569,6 +570,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     : unaryExpression.Update(MatchTypes(operand, unaryExpression.Operand.Type));
         }
 
+        [DebuggerStepThrough]
         private static Expression MatchTypes(Expression expression, Type targetType)
         {
             if (targetType != expression.Type

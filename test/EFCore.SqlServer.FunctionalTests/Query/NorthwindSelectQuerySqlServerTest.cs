@@ -1450,6 +1450,38 @@ FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]");
         }
 
+        public override async Task Do_not_erase_projection_mapping_when_adding_single_projection(bool async)
+        {
+            await base.Do_not_erase_projection_mapping_when_adding_single_projection(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t0].[OrderID], [t0].[ProductID], [t0].[Discount], [t0].[Quantity], [t0].[UnitPrice], [t0].[ProductID0], [t0].[Discontinued], [t0].[ProductName], [t0].[SupplierID], [t0].[UnitPrice0], [t0].[UnitsInStock], [t0].[c], [t1].[OrderID], [t1].[ProductID], [t1].[Discount], [t1].[Quantity], [t1].[UnitPrice], [t1].[ProductID0], [t1].[Discontinued], [t1].[ProductName], [t1].[SupplierID], [t1].[UnitPrice0], [t1].[UnitsInStock], [t2].[OrderID], [t2].[ProductID], [t2].[Discount], [t2].[Quantity], [t2].[UnitPrice], [t2].[ProductID0], [t2].[Discontinued], [t2].[ProductName], [t2].[SupplierID], [t2].[UnitPrice0], [t2].[UnitsInStock]
+FROM [Orders] AS [o]
+LEFT JOIN (
+    SELECT [t].[OrderID], [t].[ProductID], [t].[Discount], [t].[Quantity], [t].[UnitPrice], [t].[ProductID0], [t].[Discontinued], [t].[ProductName], [t].[SupplierID], [t].[UnitPrice0], [t].[UnitsInStock], [t].[c]
+    FROM (
+        SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [p].[ProductID] AS [ProductID0], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice] AS [UnitPrice0], [p].[UnitsInStock], 1 AS [c], ROW_NUMBER() OVER(PARTITION BY [o0].[OrderID] ORDER BY [o0].[OrderID], [o0].[ProductID], [p].[ProductID]) AS [row]
+        FROM [Order Details] AS [o0]
+        INNER JOIN [Products] AS [p] ON [o0].[ProductID] = [p].[ProductID]
+        WHERE [o0].[UnitPrice] > 10.0
+    ) AS [t]
+    WHERE [t].[row] <= 1
+) AS [t0] ON [o].[OrderID] = [t0].[OrderID]
+LEFT JOIN (
+    SELECT [o1].[OrderID], [o1].[ProductID], [o1].[Discount], [o1].[Quantity], [o1].[UnitPrice], [p0].[ProductID] AS [ProductID0], [p0].[Discontinued], [p0].[ProductName], [p0].[SupplierID], [p0].[UnitPrice] AS [UnitPrice0], [p0].[UnitsInStock]
+    FROM [Order Details] AS [o1]
+    INNER JOIN [Products] AS [p0] ON [o1].[ProductID] = [p0].[ProductID]
+) AS [t1] ON [o].[OrderID] = [t1].[OrderID]
+LEFT JOIN (
+    SELECT [o2].[OrderID], [o2].[ProductID], [o2].[Discount], [o2].[Quantity], [o2].[UnitPrice], [p1].[ProductID] AS [ProductID0], [p1].[Discontinued], [p1].[ProductName], [p1].[SupplierID], [p1].[UnitPrice] AS [UnitPrice0], [p1].[UnitsInStock]
+    FROM [Order Details] AS [o2]
+    INNER JOIN [Products] AS [p1] ON [o2].[ProductID] = [p1].[ProductID]
+    WHERE [o2].[UnitPrice] < 10.0
+) AS [t2] ON [o].[OrderID] = [t2].[OrderID]
+WHERE [o].[OrderID] < 10350
+ORDER BY [o].[OrderID], [t0].[OrderID], [t0].[ProductID], [t0].[ProductID0], [t1].[OrderID], [t1].[ProductID], [t1].[ProductID0], [t2].[OrderID], [t2].[ProductID], [t2].[ProductID0]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

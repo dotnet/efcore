@@ -1845,5 +1845,36 @@ namespace Microsoft.EntityFrameworkCore.Query
                     AssertEqual(e.Customer, a.Customer);
                 });
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Do_not_erase_projection_mapping_when_adding_single_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => o.OrderID < 10350)
+                    .Include(e => e.OrderDetails).ThenInclude(e => e.Product)
+                    .Select(
+                        o => new
+                        {
+                            OrderID = o.OrderID,
+                            Order = o,
+                            Property1 = o.OrderDetails.FirstOrDefault(e => e.UnitPrice > 10),
+                            Property2 = o.OrderDetails.Where(e => e.UnitPrice < 10),
+                        }),
+                elementSorter: e => e.OrderID,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.OrderID, a.OrderID);
+                    AssertInclude(e.Order, a.Order,
+                        new ExpectedInclude<Order>(e => e.OrderDetails),
+                        new ExpectedInclude<OrderDetail>(e => e.Product, "OrderDetails"));
+                    AssertInclude(e.Property1, a.Property1, new ExpectedInclude<OrderDetail>(e => e.Product));
+                    AssertCollection(e.Property2, a.Property2,
+                        elementAsserter: (ei, ai) => AssertInclude(ei, ai, new ExpectedInclude<OrderDetail>(e => e.Product)));
+                },
+                entryCount: 446);
+        }
     }
 }
