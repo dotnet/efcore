@@ -39,7 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Cannot create a proxy for '{typeName}' because it is mapped to multiple owned entity types. Proxy creation is not supported for owned types used more than once in the model.
         /// </summary>
-        public static string EntityTypeNotFoundWeak([CanBeNull] object? typeName)
+        [Obsolete]
+        public static string EntityTypeNotFoundWeak([CanBeNull] object typeName)
             => string.Format(
                 GetString("EntityTypeNotFoundWeak", nameof(typeName)),
                 typeName);

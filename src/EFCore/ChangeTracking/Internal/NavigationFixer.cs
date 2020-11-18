@@ -158,8 +158,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         // Clear the inverse reference, unless it has already been changed
                         if (inverse != null
                             && ReferenceEquals(oldTargetEntry[inverse], entry.Entity)
-                            && (!oldTargetEntry.EntityType.HasDefiningNavigation()
-                                || entry.EntityType.GetNavigations().All(
+                            && (entry.EntityType.GetNavigations().All(
                                     n => n == navigation
                                         || !ReferenceEquals(oldTargetEntry.Entity, entry[n]))))
                         {

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class ComplexNavigationsWeakQueryFixtureBase : ComplexNavigationsQueryFixtureBase, IQueryFixtureBase
+    public abstract class ComplexNavigationsSharedQueryFixtureBase : ComplexNavigationsQueryFixtureBase, IQueryFixtureBase
     {
         protected override string StoreName { get; } = "ComplexNavigationsOwned";
 

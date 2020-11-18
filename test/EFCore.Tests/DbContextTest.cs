@@ -96,23 +96,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Set_throws_for_weak_types()
-        {
-            var model = new Model();
-            var question = model.AddEntityType(typeof(Question), ConfigurationSource.Explicit);
-            model.AddEntityType(typeof(User), nameof(Question.Author), question, ConfigurationSource.Explicit);
-
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .UseInternalServiceProvider(InMemoryTestHelpers.Instance.CreateServiceProvider())
-                .UseModel(model.FinalizeModel());
-            using var context = new DbContext(optionsBuilder.Options);
-            var ex = Assert.Throws<InvalidOperationException>(() => context.Set<User>().Local);
-            Assert.Equal(CoreStrings.InvalidSetTypeWeak(nameof(User)), ex.Message);
-        }
-
-        [ConditionalFact]
         public void Set_throws_for_shared_types()
         {
             var model = new Model();

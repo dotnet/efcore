@@ -529,8 +529,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             if (unique.HasValue
-                && PrincipalEntityType.ClrType != null
-                && DeclaringEntityType.ClrType != null
+                && PrincipalEntityType.HasClrType
+                && DeclaringEntityType.HasClrType
+                && PrincipalEntityType.ClrType != Model.DefaultPropertyBagType
+                && DeclaringEntityType.ClrType != Model.DefaultPropertyBagType
                 && PrincipalToDependent != null)
             {
                 if (!Internal.Navigation.IsCompatible(
@@ -540,7 +542,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     !unique,
                     shouldThrow: false))
                 {
-                    // TODO-NULLABLE: Bug if PropertyInfo is null (FieldInfo?)
                     throw new InvalidOperationException(
                         CoreStrings.UnableToSetIsUnique(
                             unique.Value,
@@ -1271,18 +1272,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotNull(principalEntityType, nameof(principalEntityType));
             Check.NotNull(dependentEntityType, nameof(dependentEntityType));
-
-            if (principalEntityType.HasDefiningNavigation()
-                && principalEntityType == dependentEntityType)
-            {
-                if (shouldThrow)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.ForeignKeySelfReferencingDependentEntityType(dependentEntityType.DisplayName()));
-                }
-
-                return false;
-            }
 
             if (navigationToPrincipal != null
                 && !Internal.Navigation.IsCompatible(

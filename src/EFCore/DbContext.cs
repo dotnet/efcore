@@ -306,11 +306,6 @@ namespace Microsoft.EntityFrameworkCore
             var entityType = Model.FindEntityType(type);
             if (entityType == null)
             {
-                if (Model.HasEntityTypeWithDefiningNavigation(type))
-                {
-                    throw new InvalidOperationException(CoreStrings.InvalidSetTypeWeak(type.ShortDisplayName()));
-                }
-
                 if (Model.IsShared(type))
                 {
                     throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(type.ShortDisplayName()));

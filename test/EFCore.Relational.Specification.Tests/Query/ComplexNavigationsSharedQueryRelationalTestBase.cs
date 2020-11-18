@@ -10,10 +10,10 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class ComplexNavigationsWeakQueryRelationalTestBase<TFixture> : ComplexNavigationsWeakQueryTestBase<TFixture>
-        where TFixture : ComplexNavigationsWeakQueryRelationalFixtureBase, new()
+    public abstract class ComplexNavigationsSharedQueryRelationalTestBase<TFixture> : ComplexNavigationsSharedQueryTestBase<TFixture>
+        where TFixture : ComplexNavigationsSharedQueryRelationalFixtureBase, new()
     {
-        protected ComplexNavigationsWeakQueryRelationalTestBase(TFixture fixture)
+        protected ComplexNavigationsSharedQueryRelationalTestBase(TFixture fixture)
             : base(fixture)
         {
         }

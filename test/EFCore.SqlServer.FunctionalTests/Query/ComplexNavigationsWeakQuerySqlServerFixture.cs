@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ComplexNavigationsWeakQuerySqlServerFixture : ComplexNavigationsWeakQueryRelationalFixtureBase
+    public class ComplexNavigationsWeakQuerySqlServerFixture : ComplexNavigationsSharedQueryRelationalFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;

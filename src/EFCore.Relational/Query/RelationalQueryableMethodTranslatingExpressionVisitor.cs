@@ -1349,8 +1349,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var targetEntityType = navigation.TargetEntityType;
                 if (targetEntityType == null
-                    || (!targetEntityType.HasDefiningNavigation()
-                        && !targetEntityType.IsOwned()))
+                    || !targetEntityType.IsOwned())
                 {
                     return null;
                 }

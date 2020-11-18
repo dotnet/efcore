@@ -320,23 +320,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         private IQueryable BuildQueryRoot(IEntityType entityType)
-        {
-            return entityType.DefiningEntityType is IEntityType definingEntityType
-                ? BuildQueryRoot(definingEntityType, entityType, entityType.DefiningNavigationName)
-                : entityType.FindOwnership() is IForeignKey ownership
+            => entityType.FindOwnership() is IForeignKey ownership
                     ? BuildQueryRoot(ownership.PrincipalEntityType, entityType, ownership.PrincipalToDependent.Name)
                     : entityType.HasSharedClrType
                         ? (IQueryable)_setCache.GetOrAddSet(_setSource, entityType.Name, entityType.ClrType)
                         : (IQueryable)_setCache.GetOrAddSet(_setSource, entityType.ClrType);
-        }
 
-        private IQueryable BuildQueryRoot(IEntityType ownerOrDefiningEntityType, IEntityType entityType, string navigationName)
+        private IQueryable BuildQueryRoot(IEntityType ownerEntityType, IEntityType entityType, string navigationName)
         {
-            var queryRoot = BuildQueryRoot(ownerOrDefiningEntityType);
-            var collectionNavigation = ownerOrDefiningEntityType.FindNavigation(navigationName).IsCollection;
+            var queryRoot = BuildQueryRoot(ownerEntityType);
+            var collectionNavigation = ownerEntityType.FindNavigation(navigationName).IsCollection;
 
             return (IQueryable)(collectionNavigation ? _selectManyMethod : _selectMethod)
-                .MakeGenericMethod(ownerOrDefiningEntityType.ClrType, entityType.ClrType)
+                .MakeGenericMethod(ownerEntityType.ClrType, entityType.ClrType)
                 .Invoke(null, new object[] { queryRoot, navigationName });
         }
 

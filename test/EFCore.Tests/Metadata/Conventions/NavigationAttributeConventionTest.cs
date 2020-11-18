@@ -349,45 +349,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         [ConditionalFact]
-        public void InversePropertyAttribute_does_not_configure_non_defining_navigation()
-        {
-            var principalEntityTypeBuilder = CreateInternalEntityTypeBuilder<Principal>();
-
-            var dependentEntityTypeBuilder = principalEntityTypeBuilder.ModelBuilder.Metadata.AddEntityType(
-                    typeof(Dependent), nameof(Principal.Dependents), principalEntityTypeBuilder.Metadata, ConfigurationSource.Convention)
-                .Builder;
-
-            dependentEntityTypeBuilder.HasRelationship(
-                principalEntityTypeBuilder.Metadata,
-                nameof(Dependent.Principal),
-                nameof(Principal.Dependents),
-                ConfigurationSource.Convention);
-
-            Assert.Contains(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Principal.Dependents));
-            Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Principal.Dependent));
-            Assert.Contains(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Dependent.Principal));
-
-            var convention = new InversePropertyAttributeConvention(CreateDependencies());
-            convention.ProcessEntityTypeAdded(
-                dependentEntityTypeBuilder,
-                new ConventionContext<IConventionEntityTypeBuilder>(
-                    dependentEntityTypeBuilder.Metadata.Model.ConventionDispatcher));
-
-            var logEntry = ListLoggerFactory.Log.Single();
-            Assert.Equal(LogLevel.Warning, logEntry.Level);
-            Assert.Equal(
-                CoreResources.LogNonDefiningInverseNavigation(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
-                    nameof(Principal), nameof(Principal.Dependent), "Principal.Dependents#Dependent", nameof(Dependent.Principal),
-                    nameof(Principal.Dependents)), logEntry.Message);
-
-            Assert.Contains(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Principal.Dependents));
-            Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Principal.Dependent));
-            Assert.Contains(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Dependent.Principal));
-
-            Validate(dependentEntityTypeBuilder);
-        }
-
-        [ConditionalFact]
         public void InversePropertyAttribute_does_not_configure_non_ownership_navigation()
         {
             var principalEntityTypeBuilder = CreateInternalEntityTypeBuilder<Principal>();

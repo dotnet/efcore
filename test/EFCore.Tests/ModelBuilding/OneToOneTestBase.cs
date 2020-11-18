@@ -4095,7 +4095,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Navigation_to_shared_type_is_no_discovered_by_convention()
+            public virtual void Navigation_to_shared_type_is_not_discovered_by_convention()
             {
                 var modelBuilder = CreateModelBuilder();
 

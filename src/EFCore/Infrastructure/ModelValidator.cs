@@ -57,7 +57,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ValidateIgnoredMembers(model, logger);
             ValidatePropertyMapping(model, logger);
             ValidateRelationships(model, logger);
-            ValidateDefiningNavigations(model, logger);
             ValidateOwnership(model, logger);
             ValidateNonNullPrimaryKeys(model, logger);
             ValidateNoShadowKeys(model, logger);
@@ -199,37 +198,35 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     var propertyType = actualProperty.PropertyType;
                     var targetSequenceType = propertyType.TryGetSequenceType();
 
-                    if (conventionModel.FindIgnoredConfigurationSource(propertyType.DisplayName()) != null
+                    if (conventionModel.FindIgnoredConfigurationSource(propertyType) != null
                         || targetSequenceType != null
-                        && conventionModel.FindIgnoredConfigurationSource(targetSequenceType.DisplayName()) != null)
+                        && conventionModel.FindIgnoredConfigurationSource(targetSequenceType) != null)
                     {
                         continue;
-                    }
-
-                    if (model.IsShared(propertyType)
-                        || (targetSequenceType != null && model.IsShared(targetSequenceType)))
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.NonConfiguredNavigationToSharedType(actualProperty.Name, entityType.DisplayName()));
                     }
 
                     var targetType = FindCandidateNavigationPropertyType(actualProperty);
-
-                    if ((targetType == null // Not a navigation
-                            || targetSequenceType == null) // Not a collection navigation
-                        && actualProperty.FindSetterProperty() == null) // No setter property
+                    if (targetType == null
+                            || targetSequenceType == null)
                     {
-                        continue;
+                        if (actualProperty.FindSetterProperty() == null)
+                        {
+                            continue;
+                        }
+
+                        var sharedType = actualProperty.GetMemberType();
+                        if (conventionModel.IsShared(sharedType))
+                        {
+                            targetType = sharedType;
+                        }
                     }
 
-                    var isTargetWeakOrOwned
-                        = targetType != null
-                        && (conventionModel.HasEntityTypeWithDefiningNavigation(targetType)
+                    var isTargetSharedOrOwned = targetType != null
+                        && (conventionModel.IsShared(targetType)
                             || conventionModel.IsOwned(targetType));
 
                     if (targetType?.IsValidEntityType() == true
-                        && (isTargetWeakOrOwned
-                            || conventionModel.IsShared(targetType)
+                        && (isTargetSharedOrOwned
                             || conventionModel.FindEntityType(targetType) != null
                             || targetType.GetRuntimeProperties().Any(p => p.IsCandidateProperty())))
                     {
@@ -240,13 +237,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             && entityType.GetDerivedTypes().All(
                                 dt => dt.GetDeclaredNavigations().FirstOrDefault(n => n.Name == actualProperty.GetSimpleMemberName())
                                     == null)
-                            && (!isTargetWeakOrOwned
+                            && (!isTargetSharedOrOwned
                                 || (!targetType.Equals(entityType.ClrType)
                                     && (!entityType.IsInOwnershipPath(targetType)
                                         || (entityType.FindOwnership().PrincipalEntityType.ClrType.Equals(targetType)
-                                            && targetSequenceType == null))
-                                    && (!entityType.IsInDefinitionPath(targetType)
-                                        || (entityType.DefiningEntityType.ClrType.Equals(targetType)
                                             && targetSequenceType == null)))))
                         {
                             if (conventionModel.IsOwned(entityType.ClrType)
@@ -257,10 +251,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                         entityType.DisplayName() + "." + actualProperty.Name, targetType.ShortDisplayName()));
                             }
 
+                            if (model.IsShared(targetType))
+                            {
+                                throw new InvalidOperationException(
+                                    CoreStrings.NonConfiguredNavigationToSharedType(actualProperty.Name, entityType.DisplayName()));
+                            }
+
                             throw new InvalidOperationException(
                                 CoreStrings.NavigationNotAdded(
                                     entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
                         }
+
                         // ReSharper restore CheckForReferenceEqualityInstead.3
                         // ReSharper restore CheckForReferenceEqualityInstead.1
                     }
@@ -550,8 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 throw new InvalidOperationException(CoreStrings.SharedTypeDerivedType(entityType.DisplayName()));
             }
 
-            if (!entityType.HasDefiningNavigation()
-                && entityType.FindDeclaredOwnership() == null
+            if (entityType.FindDeclaredOwnership() == null
                 && entityType.BaseType != null)
             {
                 var baseClrType = entityType.ClrType?.BaseType;
@@ -822,51 +822,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="model"> The model to validate. </param>
         /// <param name="logger"> The logger to use. </param>
+        [Obsolete]
         protected virtual void ValidateDefiningNavigations(
             [NotNull] IModel model,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            Check.NotNull(model, nameof(model));
-
-            foreach (var entityType in model.GetEntityTypes())
-            {
-                if (entityType.DefiningEntityType != null)
-                {
-                    if (entityType.FindDefiningNavigation() == null
-                        || (entityType.DefiningEntityType as EntityType)?.Builder == null)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.NoDefiningNavigation(
-                                entityType.DefiningNavigationName, entityType.DisplayName(), entityType.DefiningEntityType.DisplayName()));
-                    }
-
-                    var ownership = entityType.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership);
-                    if (ownership != null)
-                    {
-                        if (ownership.PrincipalToDependent?.Name != entityType.DefiningNavigationName)
-                        {
-                            var ownershipNavigation = ownership.PrincipalToDependent == null
-                                ? ""
-                                : "." + ownership.PrincipalToDependent.Name;
-                            throw new InvalidOperationException(
-                                CoreStrings.NonDefiningOwnership(
-                                    ownership.PrincipalEntityType.DisplayName() + ownershipNavigation,
-                                    entityType.DefiningNavigationName,
-                                    entityType.DisplayName()));
-                        }
-
-                        foreach (var otherEntityType in model.GetEntityTypes()
-                            .Where(et => et.ClrType == entityType.ClrType && et != entityType))
-                        {
-                            if (!otherEntityType.GetForeignKeys().Any(fk => fk.IsOwnership))
-                            {
-                                throw new InvalidOperationException(
-                                    CoreStrings.InconsistentOwnership(entityType.DisplayName(), otherEntityType.DisplayName()));
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         /// <summary>

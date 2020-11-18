@@ -41,8 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var clrType = entityType.ClrType;
             if (clrType == null
                 || entityType.HasSharedClrType
-                || entityType.HasDefiningNavigation()
-                || entityType.Model.FindIsOwnedConfigurationSource(clrType) != null
+                || entityType.Model.IsOwned(clrType)
                 || entityType.FindDeclaredOwnership() != null)
             {
                 return;
@@ -103,7 +102,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
 
             if (!baseEntityType.HasSharedClrType
-                && !baseEntityType.HasDefiningNavigation()
                 && baseEntityType.FindOwnership() == null)
             {
                 entityTypeBuilder = entityTypeBuilder.HasBaseType(baseEntityType);

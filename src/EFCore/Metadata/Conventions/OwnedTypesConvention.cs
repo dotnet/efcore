@@ -1,11 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -13,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that configures owned entity types with defining navigation as owned entity types
     ///     without defining navigation if there's only one navigation of this type.
     /// </summary>
+    [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
     public class OwnedTypesConvention : IEntityTypeRemovedConvention
     {
         /// <summary>
@@ -40,22 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionEntityType entityType,
             IConventionContext<IConventionEntityType> context)
         {
-            if (!entityType.HasDefiningNavigation())
-            {
-                return;
-            }
-
-            var entityTypes = modelBuilder.Metadata.GetEntityTypes(entityType.Name);
-            var otherEntityType = entityTypes.FirstOrDefault();
-            if (otherEntityType?.HasDefiningNavigation() == true
-                && entityTypes.Count == 1
-                && otherEntityType.FindOwnership() is ForeignKey ownership)
-            {
-                using (context.DelayConventions())
-                {
-                    InternalEntityTypeBuilder.DetachRelationship(ownership).Attach(ownership.PrincipalEntityType.Builder);
-                }
-            }
         }
     }
 }

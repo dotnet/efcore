@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="type"> The type of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
         [DebuggerStepThrough]
-        public static IReadOnlyCollection<IMutableEntityType> GetEntityTypes([NotNull] this IMutableModel model, [NotNull] Type type)
+        public static IEnumerable<IMutableEntityType> GetEntityTypes([NotNull] this IMutableModel model, [NotNull] Type type)
             => ((Model)model).GetEntityTypes(type);
 
         /// <summary>
@@ -63,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
         [DebuggerStepThrough]
+        [Obsolete("Use GetEntityTypes(Type) or FindEntityType(string)")]
         public static IReadOnlyCollection<IMutableEntityType> GetEntityTypes([NotNull] this IMutableModel model, [NotNull] string name)
             => ((Model)model).GetEntityTypes(name);
 
@@ -88,6 +89,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="definingNavigationName"> The defining navigation. </param>
         /// <param name="definingEntityType"> The defining entity type. </param>
         /// <returns> The entity type that was removed. </returns>
+        [Obsolete("Use RemoveEntityType(string)")]
         public static IMutableEntityType? RemoveEntityType(
             [NotNull] this IMutableModel model,
             [NotNull] Type type,

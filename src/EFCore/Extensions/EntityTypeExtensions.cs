@@ -322,11 +322,6 @@ namespace Microsoft.EntityFrameworkCore
         public static IEnumerable<IIndex> GetDeclaredIndexes([NotNull] this IEntityType entityType)
             => entityType.AsEntityType().GetDeclaredIndexes();
 
-        private static string DisplayNameDefault(this ITypeBase type)
-            => type.ClrType != null && !type.HasSharedClrType
-                ? type.ClrType.ShortDisplayName()
-                : type.Name;
-
         /// <summary>
         ///     Gets the friendly display name for the given <see cref="ITypeBase" />.
         /// </summary>
@@ -334,51 +329,55 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The display name. </returns>
         [DebuggerStepThrough]
         public static string DisplayName([NotNull] this ITypeBase type)
-            => type.FullName() + (type is IEntityType entityType && entityType.HasSharedClrType
-            ? " (" + entityType.ClrType.ShortDisplayName() + ")"
-            : "");
+        {
+            if (type.ClrType == null)
+            {
+                return type.Name;
+            }
+
+            if (!type.HasSharedClrType)
+            {
+                return type.ClrType.ShortDisplayName();
+            }
+
+            var shortName = type.Name;
+            var hashIndex = shortName.IndexOf("#", StringComparison.Ordinal);
+            if (hashIndex == -1)
+            {
+                return type.Name + " (" + type.ClrType.ShortDisplayName() + ")";
+            }
+
+            var plusIndex = shortName.LastIndexOf("+", StringComparison.Ordinal);
+            if (plusIndex != -1)
+            {
+                shortName = shortName[(plusIndex + 1)..];
+            }
+            else
+            {
+                var length = shortName.Length;
+                var dotIndex = shortName.LastIndexOf(".", hashIndex, hashIndex + 1, StringComparison.Ordinal);
+                if (dotIndex != -1)
+                {
+                    dotIndex = shortName.LastIndexOf(".", dotIndex - 1, dotIndex, StringComparison.Ordinal);
+                    if (dotIndex != -1)
+                    {
+                        shortName = shortName[(dotIndex + 1)..];
+                    }
+                }
+            }
+
+            return shortName == type.Name
+                       ? shortName + " (" + type.ClrType.ShortDisplayName() + ")"
+                       : shortName;
+        }
 
         /// <summary>
         ///     Gets the unique name for the given <see cref="ITypeBase" />.
         /// </summary>
         /// <param name="type"> The entity type. </param>
-        /// <returns> The display name. </returns>
+        /// <returns> The full name. </returns>
         [DebuggerStepThrough]
-        public static string FullName([NotNull] this ITypeBase type)
-        {
-            if (!(type is IEntityType entityType)
-                || !entityType.HasDefiningNavigation())
-            {
-                return type.DisplayNameDefault();
-            }
-
-            var builder = new StringBuilder();
-            var path = new Stack<string>();
-            var root = entityType;
-            while (true)
-            {
-                if (!root.HasDefiningNavigation())
-                {
-                    break;
-                }
-
-                var definingNavigationName = root.DefiningNavigationName;
-
-                root = root.DefiningEntityType;
-                path.Push("#");
-                path.Push(definingNavigationName);
-                path.Push(".");
-                path.Push(root.DisplayNameDefault());
-            }
-
-            if (root != entityType)
-            {
-                builder.AppendJoin(path, "");
-            }
-
-            builder.Append(type.DisplayNameDefault());
-            return builder.ToString();
-        }
+        public static string FullName([NotNull] this ITypeBase type) => type.Name;
 
         /// <summary>
         ///     Gets a short name for the given <see cref="ITypeBase" /> that can be used in other identifiers.
@@ -394,13 +393,22 @@ namespace Microsoft.EntityFrameworkCore
                 return type.ClrType.ShortDisplayName();
             }
 
-            var plusIndex = type.Name.LastIndexOf("+", StringComparison.Ordinal);
-            var dotIndex = type.Name.LastIndexOf(".", StringComparison.Ordinal);
-            return plusIndex == -1
-                ? dotIndex == -1
-                    ? type.Name
-                    : type.Name.Substring(dotIndex + 1, type.Name.Length - dotIndex - 1)
-                : type.Name.Substring(plusIndex + 1, type.Name.Length - plusIndex - 1);
+            var hashIndex = type.Name.LastIndexOf("#", StringComparison.Ordinal);
+            if (hashIndex == -1)
+            {
+                var plusIndex = type.Name.LastIndexOf("+", StringComparison.Ordinal);
+                if (plusIndex == -1)
+                {
+                    var dotIndex = type.Name.LastIndexOf(".", StringComparison.Ordinal);
+                    return dotIndex == -1
+                            ? type.Name
+                            : type.Name[(dotIndex + 1)..];
+                }
+
+                return type.Name[(plusIndex + 1)..];
+            }
+
+            return type.Name[(hashIndex + 1)..];
         }
 
         /// <summary>
@@ -409,6 +417,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <returns> <see langword="true" /> if this entity type has a defining navigation. </returns>
         [DebuggerStepThrough]
+        [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
         public static bool HasDefiningNavigation([NotNull] this IEntityType entityType)
             => entityType.HasDefiningNavigation();
 
@@ -578,6 +587,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The defining navigation if one exists or <see langword="null" /> otherwise. </returns>
+        [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
         public static INavigation? FindDefiningNavigation([NotNull] this IEntityType entityType)
         {
             if (!entityType.HasDefiningNavigation())
@@ -585,7 +595,7 @@ namespace Microsoft.EntityFrameworkCore
                 return null;
             }
 
-            var definingNavigation = entityType.DefiningEntityType.FindNavigation(entityType.DefiningNavigationName);
+            var definingNavigation = entityType.DefiningEntityType!.FindNavigation(entityType.DefiningNavigationName!);
             return definingNavigation?.TargetEntityType == entityType ? definingNavigation : null;
         }
 

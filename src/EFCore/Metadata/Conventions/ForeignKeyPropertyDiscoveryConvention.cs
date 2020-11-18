@@ -163,8 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
 
             var invertible = true;
-            if (foreignKey.DeclaringEntityType.DefiningEntityType == foreignKey.PrincipalEntityType
-                || foreignKey.IsOwnership
+            if (foreignKey.IsOwnership
                 || foreignKey.DeclaringEntityType.IsKeyless
                 || (!foreignKey.IsUnique && !ConfigurationSource.Convention.Overrides(foreignKey.GetIsUniqueConfigurationSource()))
                 || foreignKey.PrincipalToDependent?.IsCollection == true
@@ -177,10 +176,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 invertible = false;
             }
             else if (ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource())
-                && (foreignKey.PrincipalEntityType.DefiningEntityType == foreignKey.DeclaringEntityType
-                    || (foreignKey.PrincipalEntityType.FindOwnership() != null
+                && (foreignKey.PrincipalEntityType.FindOwnership() != null
                         && foreignKey.PrincipalToDependent != null
-                        && foreignKey.DependentToPrincipal == null)))
+                        && foreignKey.DependentToPrincipal == null))
             {
                 var invertedRelationshipBuilder = relationshipBuilder.HasEntityTypes(
                     foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType);
@@ -219,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         // Try to use PK properties if principal end is not ambiguous
                         if (!foreignKey.IsOwnership
                             && (!ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource())
-                                || foreignKey.DeclaringEntityType.DefiningEntityType == foreignKey.PrincipalEntityType))
+                                || foreignKey.DeclaringEntityType.IsInOwnershipPath(foreignKey.PrincipalEntityType)))
                         {
                             foreignKeyProperties = GetCompatiblePrimaryKeyProperties(
                                 foreignKey.DeclaringEntityType,

@@ -683,41 +683,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
-        public virtual void Detects_weak_entity_type_without_defining_navigation()
-        {
-            var modelBuilder = CreateConventionlessInternalModelBuilder();
-            var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntityMinimal), ConfigurationSource.Convention);
-            entityTypeBuilder.PrimaryKey(new[] { nameof(SampleEntityMinimal.Id) }, ConfigurationSource.Convention);
-
-            var anotherEntityTypeBuilder = modelBuilder.Entity(typeof(AnotherSampleEntityMinimal), ConfigurationSource.Convention);
-            anotherEntityTypeBuilder.PrimaryKey(new[] { nameof(AnotherSampleEntityMinimal.Id) }, ConfigurationSource.Convention);
-
-            var anotherOwnershipBuilder = anotherEntityTypeBuilder.HasOwnership(
-                typeof(ReferencedEntityMinimal), nameof(AnotherSampleEntityMinimal.ReferencedEntity), ConfigurationSource.Convention);
-            anotherOwnershipBuilder.Metadata.DeclaringEntityType.Builder.PrimaryKey(
-                anotherOwnershipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
-
-            var ownershipBuilder = entityTypeBuilder.HasOwnership(
-                typeof(ReferencedEntityMinimal), nameof(SampleEntityMinimal.ReferencedEntity), ConfigurationSource.Convention);
-            var ownedTypeBuilder = ownershipBuilder.Metadata.DeclaringEntityType.Builder;
-            ownedTypeBuilder.PrimaryKey(ownershipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
-
-            entityTypeBuilder.Metadata.RemoveNavigation(nameof(SampleEntityMinimal.ReferencedEntity));
-            entityTypeBuilder.Ignore(nameof(SampleEntityMinimal.ReferencedEntity), ConfigurationSource.Explicit);
-
-            VerifyError(
-                CoreStrings.NoDefiningNavigation(
-                    nameof(SampleEntityMinimal.ReferencedEntity),
-                    nameof(SampleEntityMinimal)
-                    + "."
-                    + nameof(SampleEntityMinimal.ReferencedEntity)
-                    + "#"
-                    + nameof(ReferencedEntityMinimal),
-                    nameof(SampleEntityMinimal)),
-                modelBuilder.Metadata);
-        }
-
-        [ConditionalFact]
         public virtual void Detects_entity_type_with_multiple_ownerships()
         {
             var modelBuilder = CreateConventionlessInternalModelBuilder();
@@ -743,79 +708,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             VerifyError(
                 CoreStrings.MultipleOwnerships(nameof(ReferencedEntity), "'SampleEntity.ReferencedEntity', 'SampleEntity.'"),
-                modelBuilder.Metadata);
-        }
-
-        [ConditionalFact]
-        public virtual void Detects_weak_entity_type_with_non_defining_ownership()
-        {
-            var modelBuilder = CreateConventionlessInternalModelBuilder();
-            var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntityMinimal), ConfigurationSource.Convention);
-            entityTypeBuilder.PrimaryKey(new[] { nameof(SampleEntityMinimal.Id) }, ConfigurationSource.Convention);
-
-            var anotherEntityTypeBuilder = modelBuilder.Entity(typeof(AnotherSampleEntityMinimal), ConfigurationSource.Convention);
-            anotherEntityTypeBuilder.PrimaryKey(new[] { nameof(AnotherSampleEntityMinimal.Id) }, ConfigurationSource.Convention);
-
-            var anotherOwnershipBuilder = anotherEntityTypeBuilder.HasOwnership(
-                typeof(ReferencedEntityMinimal), nameof(AnotherSampleEntityMinimal.ReferencedEntity), ConfigurationSource.Convention);
-            anotherOwnershipBuilder.Metadata.DeclaringEntityType.Builder.PrimaryKey(
-                anotherOwnershipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
-
-            var ownershipBuilder = entityTypeBuilder.HasOwnership(
-                typeof(ReferencedEntityMinimal), nameof(SampleEntityMinimal.ReferencedEntity), ConfigurationSource.Convention);
-            var ownedTypeBuilder = ownershipBuilder.Metadata.DeclaringEntityType.Builder;
-            ownedTypeBuilder.PrimaryKey(ownershipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
-
-            ownershipBuilder.Metadata.IsOwnership = false;
-            ownedTypeBuilder.HasRelationship(
-                    entityTypeBuilder.Metadata, (string)null, null, ConfigurationSource.Convention, setTargetAsPrincipal: true)
-                .Metadata.IsOwnership = true;
-
-            VerifyError(
-                CoreStrings.NonDefiningOwnership(
-                    nameof(SampleEntityMinimal),
-                    nameof(SampleEntityMinimal.ReferencedEntity),
-                    nameof(SampleEntityMinimal)
-                    + "."
-                    + nameof(SampleEntityMinimal.ReferencedEntity)
-                    + "#"
-                    + nameof(ReferencedEntityMinimal)),
-                modelBuilder.Metadata);
-        }
-
-        [ConditionalFact]
-        public virtual void Detects_weak_entity_type_without_ownership()
-        {
-            var modelBuilder = CreateConventionlessInternalModelBuilder();
-            var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntityMinimal), ConfigurationSource.Convention);
-            entityTypeBuilder.PrimaryKey(new[] { nameof(SampleEntityMinimal.Id) }, ConfigurationSource.Convention);
-
-            var ownershipBuilder = entityTypeBuilder.HasOwnership(
-                typeof(ReferencedEntityMinimal), nameof(SampleEntityMinimal.ReferencedEntity), ConfigurationSource.Convention);
-            var ownedTypeBuilder = ownershipBuilder.Metadata.DeclaringEntityType.Builder;
-            ownedTypeBuilder.PrimaryKey(ownershipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
-
-            var anotherEntityTypeBuilder = modelBuilder.Entity(typeof(AnotherSampleEntityMinimal), ConfigurationSource.Convention);
-            anotherEntityTypeBuilder.PrimaryKey(new[] { nameof(AnotherSampleEntityMinimal.Id) }, ConfigurationSource.Convention);
-
-            var anotherOwnershipBuilder = anotherEntityTypeBuilder.HasOwnership(
-                typeof(ReferencedEntityMinimal), nameof(AnotherSampleEntityMinimal.ReferencedEntity), ConfigurationSource.Convention);
-            anotherOwnershipBuilder.Metadata.DeclaringEntityType.Builder.PrimaryKey(
-                anotherOwnershipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
-            anotherOwnershipBuilder.Metadata.IsOwnership = false;
-
-            VerifyError(
-                CoreStrings.InconsistentOwnership(
-                    nameof(SampleEntityMinimal)
-                    + "."
-                    + nameof(SampleEntityMinimal.ReferencedEntity)
-                    + "#"
-                    + nameof(ReferencedEntityMinimal),
-                    nameof(AnotherSampleEntityMinimal)
-                    + "."
-                    + nameof(AnotherSampleEntityMinimal.ReferencedEntity)
-                    + "#"
-                    + nameof(ReferencedEntityMinimal)),
                 modelBuilder.Metadata);
         }
 

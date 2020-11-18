@@ -929,34 +929,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         [ConditionalFact]
-        public void Does_not_invert_if_principal_entity_type_is_defining_the_weak_entity_type()
-        {
-            PrincipalType.Builder.Property(nameof(PrincipalEntity.DependentEntityKayPee), ConfigurationSource.Convention);
-            PrincipalType.Model.RemoveEntityType(typeof(DependentEntity));
-
-            var dependentType = PrincipalType.Model.AddEntityType(
-                typeof(DependentEntity), nameof(PrincipalEntity.InverseReferenceNav), PrincipalType,
-                ConfigurationSource.Convention);
-            var relationshipBuilder = dependentType.Builder.HasRelationship(
-                PrincipalType, null, nameof(PrincipalEntity.InverseReferenceNav), ConfigurationSource.Convention);
-            dependentType.Builder.PrimaryKey(new[] { nameof(DependentEntity.KayPee) }, ConfigurationSource.Convention);
-
-            var newRelationshipBuilder = RunConvention(relationshipBuilder);
-            Assert.Same(relationshipBuilder, newRelationshipBuilder);
-            Assert.Same(dependentType, newRelationshipBuilder.Metadata.DeclaringEntityType);
-
-            newRelationshipBuilder = RunConvention(newRelationshipBuilder);
-
-            var fk = (IForeignKey)dependentType.GetForeignKeys().Single();
-            Assert.Same(dependentType, fk.DeclaringEntityType);
-            Assert.Same(fk, newRelationshipBuilder.Metadata);
-            Assert.Same(PrimaryKey, fk.PrincipalKey.Properties.Single());
-            Assert.True(fk.IsUnique);
-
-            ValidateModel();
-        }
-
-        [ConditionalFact]
         public void Does_not_invert_if_principal_entity_type_owns_the_weak_entity_type()
         {
             PrincipalType.Builder.Property(nameof(PrincipalEntity.DependentEntityKayPee), ConfigurationSource.Convention);

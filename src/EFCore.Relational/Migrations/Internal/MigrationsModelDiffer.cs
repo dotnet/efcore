@@ -947,39 +947,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 return false;
             }
 
-            if (GetDefiningNavigationName(source) != GetDefiningNavigationName(target))
-            {
-                return false;
-            }
-
-            var nextSource = source.DefiningEntityType;
-            var nextTarget = target.DefiningEntityType;
+            var nextSource = GetLinkedPrincipal(source);
+            var nextTarget = GetLinkedPrincipal(target);
             return (nextSource == null && nextTarget == null)
                 || (nextSource != null
                     && nextTarget != null
                     && EntityTypePathEquals(nextSource, nextTarget, diffContext));
         }
 
-        private static string GetDefiningNavigationName(IEntityType entityType)
+        private static IEntityType GetLinkedPrincipal(IEntityType entityType)
         {
-            if (entityType.DefiningNavigationName != null)
+            var table = StoreObjectIdentifier.Create(entityType, StoreObjectType.Table);
+            if (table == null)
             {
-                return entityType.DefiningNavigationName;
+                return null;
             }
 
-            var primaryKey = entityType.BaseType == null ? entityType.FindPrimaryKey() : null;
-            if (primaryKey != null)
-            {
-                var definingForeignKey = entityType
-                    .FindForeignKeys(primaryKey.Properties)
-                    .FirstOrDefault(fk => fk.PrincipalEntityType.GetTableName() == entityType.GetTableName());
-                if (definingForeignKey?.DependentToPrincipal != null)
-                {
-                    return definingForeignKey.DependentToPrincipal.Name;
-                }
-            }
-
-            return entityType.Name;
+            var linkingForeignKey = entityType.FindRowInternalForeignKeys(table.Value).FirstOrDefault();
+            return linkingForeignKey?.PrincipalEntityType;
         }
 
         /// <summary>

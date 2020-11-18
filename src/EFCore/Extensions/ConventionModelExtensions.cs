@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="type"> The type of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
         [DebuggerStepThrough]
-        public static IReadOnlyCollection<IConventionEntityType> GetEntityTypes([NotNull] this IConventionModel model, [NotNull] Type type)
+        public static IEnumerable<IConventionEntityType> GetEntityTypes([NotNull] this IConventionModel model, [NotNull] Type type)
             => ((Model)model).GetEntityTypes(type);
 
         /// <summary>
@@ -59,6 +59,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
         [DebuggerStepThrough]
+        [Obsolete("Use GetEntityTypes(Type) or FindEntityType(string)")]
         public static IReadOnlyCollection<IConventionEntityType> GetEntityTypes(
             [NotNull] this IConventionModel model,
             [NotNull] string name)
@@ -88,6 +89,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="definingNavigationName"> The defining navigation. </param>
         /// <param name="definingEntityType"> The defining entity type. </param>
         /// <returns> The entity type that was removed. </returns>
+        [Obsolete("Use RemoveEntityType(string)")]
         public static IConventionEntityType RemoveEntityType(
             [NotNull] this IConventionModel model,
             [NotNull] string name,
@@ -124,6 +126,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="definingNavigationName"> The defining navigation. </param>
         /// <param name="definingEntityType"> The defining entity type. </param>
         /// <returns> The entity type that was removed. </returns>
+        [Obsolete("Use RemoveEntityType(string)")]
         public static IConventionEntityType RemoveEntityType(
             [NotNull] this IConventionModel model,
             [NotNull] Type type,
