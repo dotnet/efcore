@@ -454,7 +454,23 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(keySelector, nameof(keySelector));
 
             var selectExpression = (SelectExpression)source.QueryExpression;
-            selectExpression.PrepareForAggregate();
+            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23265", out var isEnabled) && isEnabled)
+            {
+                selectExpression.PrepareForAggregate();
+            }
+            else
+            {
+                // This has it's own set of condition since it is different scenario from below.
+                // Aggregate operators need pushdown for skip/limit/offset covered by selectExpression.PrepareForAggregate.
+                // Aggregate operators need special processing beyond pushdown when applying over group by for client eval.
+                if (selectExpression.Limit != null
+                    || selectExpression.Offset != null
+                    || selectExpression.IsDistinct
+                    || selectExpression.GroupBy.Count > 0)
+                {
+                    selectExpression.PushdownIntoSubquery();
+                }
+            }
 
             var remappedKeySelector = RemapLambdaBody(source, keySelector);
 

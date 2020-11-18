@@ -1288,9 +1288,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => from order in ss.Set<Order>()
                       group new
-                          {
-                              IsAlfki = order.CustomerID == "ALFKI", OrderId = order.OrderID > 1000 ? order.OrderID : -order.OrderID
-                          } by
+                      {
+                          IsAlfki = order.CustomerID == "ALFKI",
+                          OrderId = order.OrderID > 1000 ? order.OrderID : -order.OrderID
+                      } by
                           new { order.OrderID }
                       into g
                       select new { g.Key.OrderID, Aggregate = g.Sum(s => s.IsAlfki ? s.OrderId : -s.OrderId) });
@@ -2326,6 +2327,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: o => o.Key);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_aggregate_followed_another_GroupBy_aggregate(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .GroupBy(o => new { o.CustomerID, o.OrderDate.Value.Year })
+                    .Select(g => new { g.Key.CustomerID, g.Key.Year })
+                    .GroupBy(e => e.CustomerID)
+                    .Select(g => new { g.Key, Count = g.Count() }),
+                elementSorter: o => o.Key);
+        }
+
         #endregion
 
         #region GroupByAggregateChainComposition
@@ -2523,7 +2538,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         g =>
                             new
                             {
-                                g.Key, Max = g.Distinct().Select(e => e.OrderDate).Distinct().Max(),
+                                g.Key,
+                                Max = g.Distinct().Select(e => e.OrderDate).Distinct().Max(),
                             }),
                 elementSorter: e => e.Key);
         }
@@ -2540,7 +2556,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         g =>
                             new
                             {
-                                g.Key, Max = g.Where(e => e.OrderDate.HasValue).Select(e => e.OrderDate).Distinct().Max(),
+                                g.Key,
+                                Max = g.Where(e => e.OrderDate.HasValue).Select(e => e.OrderDate).Distinct().Max(),
                             }),
                 elementSorter: e => e.Key);
         }

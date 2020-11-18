@@ -2327,6 +2327,20 @@ INNER JOIN (
 ) AS [t0] ON [t].[CustomerID] = [t0].[CustomerID]");
         }
 
+        public override async Task GroupBy_aggregate_followed_another_GroupBy_aggregate(bool async)
+        {
+            await base.GroupBy_aggregate_followed_another_GroupBy_aggregate(async);
+
+            AssertSql(
+                @"SELECT [t].[CustomerID] AS [Key], COUNT(*) AS [Count]
+FROM (
+    SELECT [o].[CustomerID]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID], DATEPART(year, [o].[OrderDate])
+) AS [t]
+GROUP BY [t].[CustomerID]");
+        }
+
         public override async Task GroupBy_with_grouping_key_using_Like(bool async)
         {
             await base.GroupBy_with_grouping_key_using_Like(async);
