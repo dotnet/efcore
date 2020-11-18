@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// <summary>
     ///     A comparer which implements <see cref="IEqualityComparer{T}" /> for <see cref="Expression" />.
     /// </summary>
-    public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression>
+    public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
     {
         /// <summary>
         ///     Creates a new <see cref="ExpressionEqualityComparer" />.
@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 return hash.ToHashCode();
 
-                void AddToHashIfNotNull(object t)
+                void AddToHashIfNotNull(object? t)
                 {
                     if (t != null)
                     {
@@ -226,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 }
 
-                void AddExpressionToHashIfNotNull(Expression t)
+                void AddExpressionToHashIfNotNull(Expression? t)
                 {
                     if (t != null)
                     {
@@ -286,14 +286,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="x"> The left expression. </param>
         /// <param name="y"> The right expression. </param>
         /// <returns> <see langword="true" /> if the expressions are equal, <see langword="false" /> otherwise. </returns>
-        public bool Equals(Expression x, Expression y)
+        public bool Equals(Expression? x, Expression? y)
             => new ExpressionComparer().Compare(x, y);
 
         private struct ExpressionComparer
         {
             private Dictionary<ParameterExpression, ParameterExpression> _parameterScope;
 
-            public bool Compare(Expression left, Expression right)
+            public bool Compare(Expression? left, Expression? right)
             {
                 if (left == right)
                 {
@@ -512,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return true;
             }
 
-            private bool CompareMemberList(IReadOnlyList<MemberInfo> a, IReadOnlyList<MemberInfo> b)
+            private bool CompareMemberList(IReadOnlyList<MemberInfo>? a, IReadOnlyList<MemberInfo>? b)
             {
                 if (ReferenceEquals(a, b))
                 {

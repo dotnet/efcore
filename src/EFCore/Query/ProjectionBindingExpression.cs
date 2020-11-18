@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             else if (Index != null)
             {
-                expressionPrinter.Append(Index.ToString());
+                expressionPrinter.Append(Index.ToString()!);
             }
             else if (IndexMap != null)
             {

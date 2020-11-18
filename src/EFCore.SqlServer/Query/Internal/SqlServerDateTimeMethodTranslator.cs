@@ -25,20 +25,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     {
         private readonly Dictionary<MethodInfo, string> _methodInfoDatePartMapping = new Dictionary<MethodInfo, string>
         {
-            { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddYears), new[] { typeof(int) }), "year" },
-            { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMonths), new[] { typeof(int) }), "month" },
-            { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddDays), new[] { typeof(double) }), "day" },
-            { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddHours), new[] { typeof(double) }), "hour" },
-            { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMinutes), new[] { typeof(double) }), "minute" },
-            { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddSeconds), new[] { typeof(double) }), "second" },
-            { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMilliseconds), new[] { typeof(double) }), "millisecond" },
-            { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddYears), new[] { typeof(int) }), "year" },
-            { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMonths), new[] { typeof(int) }), "month" },
-            { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddDays), new[] { typeof(double) }), "day" },
-            { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddHours), new[] { typeof(double) }), "hour" },
-            { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMinutes), new[] { typeof(double) }), "minute" },
-            { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddSeconds), new[] { typeof(double) }), "second" },
-            { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMilliseconds), new[] { typeof(double) }), "millisecond" }
+            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddYears), new[] { typeof(int) }), "year" },
+            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddMonths), new[] { typeof(int) }), "month" },
+            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddDays), new[] { typeof(double) }), "day" },
+            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddHours), new[] { typeof(double) }), "hour" },
+            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddMinutes), new[] { typeof(double) }), "minute" },
+            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddSeconds), new[] { typeof(double) }), "second" },
+            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddMilliseconds), new[] { typeof(double) }), "millisecond" },
+            { typeof(DateTimeOffset).GetRequiredRuntimeMethod(nameof(DateTimeOffset.AddYears), new[] { typeof(int) }), "year" },
+            { typeof(DateTimeOffset).GetRequiredRuntimeMethod(nameof(DateTimeOffset.AddMonths), new[] { typeof(int) }), "month" },
+            { typeof(DateTimeOffset).GetRequiredRuntimeMethod(nameof(DateTimeOffset.AddDays), new[] { typeof(double) }), "day" },
+            { typeof(DateTimeOffset).GetRequiredRuntimeMethod(nameof(DateTimeOffset.AddHours), new[] { typeof(double) }), "hour" },
+            { typeof(DateTimeOffset).GetRequiredRuntimeMethod(nameof(DateTimeOffset.AddMinutes), new[] { typeof(double) }), "minute" },
+            { typeof(DateTimeOffset).GetRequiredRuntimeMethod(nameof(DateTimeOffset.AddSeconds), new[] { typeof(double) }), "second" },
+            { typeof(DateTimeOffset).GetRequiredRuntimeMethod(nameof(DateTimeOffset.AddMilliseconds), new[] { typeof(double) }), "millisecond" }
         };
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -82,8 +82,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 if (datePart != "year"
                     && datePart != "month"
                     && arguments[0] is SqlConstantExpression sqlConstant
-                    && ((double)sqlConstant.Value >= int.MaxValue
-                        || (double)sqlConstant.Value <= int.MinValue))
+                    && sqlConstant.Value is double doubleValue
+                    && (doubleValue >= int.MaxValue
+                        || doubleValue <= int.MinValue))
                 {
                     return null;
                 }

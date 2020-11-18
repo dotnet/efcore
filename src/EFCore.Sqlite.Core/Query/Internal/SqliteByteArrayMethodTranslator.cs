@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -57,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 var source = arguments[0];
 
                 var value = arguments[1] is SqlConstantExpression constantValue
-                    ? (SqlExpression)_sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value }, source.TypeMapping)
+                    ? (SqlExpression)_sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value! }, source.TypeMapping)
                     : _sqlExpressionFactory.Function(
                         "char",
                         new[] { arguments[1] },

@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 #nullable enable
@@ -32,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             = typeof(ValueBuffer).GetConstructors().Single(ci => ci.GetParameters().Length == 1);
 
         private static readonly PropertyInfo _valueBufferCountMemberInfo
-            = typeof(ValueBuffer).GetProperty(nameof(ValueBuffer.Count));
+            = typeof(ValueBuffer).GetRequiredProperty(nameof(ValueBuffer.Count));
 
         private readonly List<Expression> _valueBufferSlots = new List<Expression>();
 
@@ -248,8 +249,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 var terminatingMethodCall =
                     (MethodCallExpression)((LambdaExpression)((NewExpression)selectMethodCall.Arguments[0]).Arguments[0]).Body;
                 selectMethodCall = selectMethodCall.Update(
-                    null, new[] { terminatingMethodCall.Arguments[0], selectMethodCall.Arguments[1] });
-                serverQueryExpression = terminatingMethodCall.Update(null, new[] { selectMethodCall });
+                    null!, new[] { terminatingMethodCall.Arguments[0], selectMethodCall.Arguments[1] });
+                serverQueryExpression = terminatingMethodCall.Update(null!, new[] { selectMethodCall });
             }
 
             innerShaper = new ShaperRemappingExpressionVisitor(subquery._projectionMapping)
@@ -269,7 +270,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 _projectionMapping = projectionMapping;
             }
 
-            public override Expression Visit(Expression expression)
+            [return: CA.NotNullIfNotNull("expression")]
+            public override Expression? Visit(Expression? expression)
             {
                 if (expression is ProjectionBindingExpression projectionBindingExpression
                     && projectionBindingExpression.ProjectionMember != null)
@@ -358,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             _groupingParameter = null;
 
             ServerQueryExpression = Call(
-                EnumerableMethods.Select.MakeGenericMethod(ServerQueryExpression.Type.TryGetSequenceType(), typeof(ValueBuffer)),
+                EnumerableMethods.Select.MakeGenericMethod(ServerQueryExpression.Type.GetSequenceType(), typeof(ValueBuffer)),
                 ServerQueryExpression,
                 selectorLambda);
 
@@ -427,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             _groupingParameter = null;
 
             ServerQueryExpression = Call(
-                EnumerableMethods.Select.MakeGenericMethod(ServerQueryExpression.Type.TryGetSequenceType(), typeof(ValueBuffer)),
+                EnumerableMethods.Select.MakeGenericMethod(ServerQueryExpression.Type.GetSequenceType(), typeof(ValueBuffer)),
                 ServerQueryExpression,
                 selectorLambda);
 
@@ -443,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             => expression is MethodCallExpression methodCallExpression
                 && methodCallExpression.Method.IsGenericMethod
                 && methodCallExpression.Method.GetGenericMethodDefinition() == ExpressionExtensions.ValueBufferTryReadValueMethod
-                    ? (IPropertyBase)((ConstantExpression)methodCallExpression.Arguments[2]).Value
+                    ? methodCallExpression.Arguments[2].GetConstantValue<IPropertyBase>()
                     : null;
 
         /// <summary>
@@ -603,7 +605,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 new Expression[] { outerParameter, innerParameter });
 
             var index = 0;
-            var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
+            var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Outer");
             foreach (var projection in _projectionMapping)
             {
                 if (projection.Value is EntityProjectionExpression entityProjection)
@@ -627,7 +629,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 }
             }
 
-            var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
+            var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Inner");
             foreach (var projection in innerQueryExpression._projectionMapping)
             {
                 if (projection.Value is EntityProjectionExpression entityProjection)
@@ -691,8 +693,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 typeof(ValueBuffer), typeof(IEnumerable<ValueBuffer>));
             var outerParameter = Parameter(typeof(ValueBuffer), "outer");
             var innerParameter = Parameter(typeof(IEnumerable<ValueBuffer>), "inner");
-            var outerMemberInfo = groupTransparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
-            var innerMemberInfo = groupTransparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
+            var outerMemberInfo = groupTransparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Outer");
+            var innerMemberInfo = groupTransparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Inner");
             var resultSelector = Lambda(
                 New(
                     groupTransparentIdentifierType.GetTypeInfo().DeclaredConstructors.Single(),
@@ -722,7 +724,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 new Expression[] { MakeMemberAccess(outerParameter, outerMemberInfo), innerParameter });
 
             var index = 0;
-            outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
+            outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Outer");
             foreach (var projection in _projectionMapping)
             {
                 if (projection.Value is EntityProjectionExpression entityProjection)
@@ -748,7 +750,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
 
             var outerIndex = index;
-            innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
+            innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Inner");
             var nullableReadValueExpressionVisitor = new NullableReadValueExpressionVisitor();
             foreach (var projection in innerQueryExpression._projectionMapping)
             {
@@ -828,7 +830,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 new Expression[] { outerParameter, innerParameter });
 
             var index = 0;
-            var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
+            var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Outer");
             foreach (var projection in _projectionMapping)
             {
                 if (projection.Value is EntityProjectionExpression entityProjection)
@@ -852,7 +854,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 }
             }
 
-            var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
+            var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Inner");
             var nullableReadValueExpressionVisitor = new NullableReadValueExpressionVisitor();
             foreach (var projection in innerQueryExpression._projectionMapping)
             {
@@ -927,8 +929,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 typeof(ValueBuffer), typeof(IEnumerable<ValueBuffer>));
             var outerParameter = Parameter(typeof(ValueBuffer), "outer");
             var innerParameter = Parameter(typeof(IEnumerable<ValueBuffer>), "inner");
-            var outerMemberInfo = groupTransparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
-            var innerMemberInfo = groupTransparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
+            var outerMemberInfo = groupTransparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Outer");
+            var innerMemberInfo = groupTransparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Inner");
             var resultSelector = Lambda(
                 New(
                     groupTransparentIdentifierType.GetTypeInfo().DeclaredConstructors.Single(),
@@ -1066,7 +1068,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             static int GetValueBufferIndex(Expression expression)
                 => expression is ConditionalExpression conditionalExpression
                     ? GetValueBufferIndex(conditionalExpression.IfTrue)
-                    : (int)((ConstantExpression)((MethodCallExpression)expression).Arguments[1]).Value;
+                    : ((MethodCallExpression)expression).Arguments[1].GetConstantValue<int>();
         }
 
         /// <summary>

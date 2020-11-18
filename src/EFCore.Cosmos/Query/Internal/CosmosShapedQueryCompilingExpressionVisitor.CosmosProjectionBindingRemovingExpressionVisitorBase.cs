@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
                 if (genericMethod == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod)
                 {
-                    var property = (IProperty)((ConstantExpression)methodCallExpression.Arguments[2]).Value;
+                    var property = methodCallExpression.Arguments[2].GetConstantValue<IProperty>();
                     Expression innerExpression;
                     if (methodCallExpression.Arguments[0] is ProjectionBindingExpression projectionBindingExpression)
                     {

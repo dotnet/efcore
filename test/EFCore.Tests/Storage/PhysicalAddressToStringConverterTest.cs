@@ -70,11 +70,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 new object[] { "1D-4E-55-D6-92-73-D6" },
                 new object[] { "24-80-B7-38-4A-68-D6" },
                 new object[] { "04-59-D0-99-E1-85" },
-#if NET5_0
                 new object[] { "1D:4E:55:D6:92:73" },
                 new object[] { "24:80:B7:38:4A:68" },
                 new object[] { "04:59:D0:99:E1:85" },
-#endif
                 new object[] { "1D4E55D69273" },
                 new object[] { "2480B7384A68" },
                 new object[] { "0459D099E185" },

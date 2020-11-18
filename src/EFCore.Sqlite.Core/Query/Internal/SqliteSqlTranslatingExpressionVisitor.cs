@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override Expression? VisitUnary(UnaryExpression unaryExpression)
+        protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
             Check.NotNull(unaryExpression, nameof(unaryExpression));
 
@@ -109,13 +109,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                         nullable: true,
                         argumentsPropagateNullability: new[] { true },
                         typeof(int))
-                    : null;
+                    : QueryCompilationContext.NotTranslatedExpression;
             }
 
             var visitedExpression = base.VisitUnary(unaryExpression);
-            if (visitedExpression == null)
+            if (visitedExpression == QueryCompilationContext.NotTranslatedExpression)
             {
-                return null;
+                return QueryCompilationContext.NotTranslatedExpression;
             }
 
             if (visitedExpression is SqlUnaryExpression sqlUnary
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
                 if (operandType == typeof(TimeSpan))
                 {
-                    return null;
+                    return QueryCompilationContext.NotTranslatedExpression;
                 }
             }
 
@@ -147,13 +147,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override Expression? VisitBinary(BinaryExpression binaryExpression)
+        protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
             if (!(base.VisitBinary(binaryExpression) is SqlExpression visitedExpression))
             {
-                return null;
+                return QueryCompilationContext.NotTranslatedExpression;
             }
 
             if (visitedExpression is SqlBinaryExpression sqlBinary)
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     && (restrictedTypes.Contains(GetProviderType(sqlBinary.Left))
                         || restrictedTypes.Contains(GetProviderType(sqlBinary.Right))))
                 {
-                    return null;
+                    return QueryCompilationContext.NotTranslatedExpression;
                 }
             }
 

@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             serverQueryExpression = base.RewriteServerQueryExpression(serverQueryExpression);
 
             return Expression.Call(
-                _asSplitIncludeMethodInfo.MakeGenericMethod(serverQueryExpression.Type.TryGetSequenceType()),
+                _asSplitIncludeMethodInfo.MakeGenericMethod(serverQueryExpression.Type.GetSequenceType()),
                 serverQueryExpression);
         }
     }

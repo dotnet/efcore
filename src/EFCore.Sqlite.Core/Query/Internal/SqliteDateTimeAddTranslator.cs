@@ -23,19 +23,19 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     public class SqliteDateTimeAddTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo _addMilliseconds
-            = typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMilliseconds), new[] { typeof(double) });
+            = typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddMilliseconds), new[] { typeof(double) });
 
         private static readonly MethodInfo _addTicks
-            = typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddTicks), new[] { typeof(long) });
+            = typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddTicks), new[] { typeof(long) });
 
         private readonly Dictionary<MethodInfo, string> _methodInfoToUnitSuffix = new Dictionary<MethodInfo, string>
         {
-            { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddYears), new[] { typeof(int) }), " years" },
-            { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMonths), new[] { typeof(int) }), " months" },
-            { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddDays), new[] { typeof(double) }), " days" },
-            { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddHours), new[] { typeof(double) }), " hours" },
-            { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMinutes), new[] { typeof(double) }), " minutes" },
-            { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddSeconds), new[] { typeof(double) }), " seconds" }
+            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddYears), new[] { typeof(int) }), " years" },
+            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddMonths), new[] { typeof(int) }), " months" },
+            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddDays), new[] { typeof(double) }), " days" },
+            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddHours), new[] { typeof(double) }), " hours" },
+            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddMinutes), new[] { typeof(double) }), " minutes" },
+            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddSeconds), new[] { typeof(double) }), " seconds" }
         };
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;

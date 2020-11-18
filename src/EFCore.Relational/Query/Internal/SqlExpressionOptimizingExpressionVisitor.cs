@@ -395,16 +395,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             typeMapping);
                     }
 
-                    var leftBoolConstant = left.Type == typeof(bool) ? leftConstant : null;
-                    var rightBoolConstant = right.Type == typeof(bool) ? rightConstant : null;
-                    if (leftBoolConstant != null || rightBoolConstant != null)
+                    var leftBoolValue = left.Type == typeof(bool) ? (bool?)leftConstant?.Value : null;
+                    var rightBoolValue = right.Type == typeof(bool) ? (bool?)rightConstant?.Value : null;
+                    if (leftBoolValue != null || rightBoolValue != null)
                     {
                         return SimplifyBoolConstantComparisonExpression(
                             operatorType,
                             left,
                             right,
-                            leftBoolConstant,
-                            rightBoolConstant,
+                            leftBoolValue,
+                            rightBoolValue,
                             typeMapping);
                     }
 
@@ -458,18 +458,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             ExpressionType operatorType,
             SqlExpression left,
             SqlExpression right,
-            SqlConstantExpression? leftBoolConstant,
-            SqlConstantExpression? rightBoolConstant,
+            bool? leftBoolValue,
+            bool? rightBoolValue,
             RelationalTypeMapping typeMapping)
         {
-            if (leftBoolConstant != null && rightBoolConstant != null)
+            if (leftBoolValue != null && rightBoolValue != null)
             {
                 return operatorType == ExpressionType.Equal
-                    ? _sqlExpressionFactory.Constant((bool)leftBoolConstant.Value == (bool)rightBoolConstant.Value, typeMapping)
-                    : _sqlExpressionFactory.Constant((bool)leftBoolConstant.Value != (bool)rightBoolConstant.Value, typeMapping);
+                    ? _sqlExpressionFactory.Constant(leftBoolValue.Value == rightBoolValue.Value, typeMapping)
+                    : _sqlExpressionFactory.Constant(leftBoolValue.Value != rightBoolValue.Value, typeMapping);
             }
 
-            if (rightBoolConstant != null
+            if (rightBoolValue != null
                 && CanOptimize(left))
             {
                 // a == true -> a
@@ -478,15 +478,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 // a != false -> a
                 // only correct when f(x) can't be null
                 return operatorType == ExpressionType.Equal
-                    ? (bool)rightBoolConstant.Value
+                    ? rightBoolValue.Value
                         ? left
                         : SimplifyUnaryExpression(ExpressionType.Not, left, typeof(bool), typeMapping)
-                    : (bool)rightBoolConstant.Value
+                    : rightBoolValue.Value
                         ? SimplifyUnaryExpression(ExpressionType.Not, left, typeof(bool), typeMapping)
                         : left;
             }
 
-            if (leftBoolConstant != null
+            if (leftBoolValue != null
                 && CanOptimize(right))
             {
                 // true == a -> a
@@ -495,10 +495,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 // false != a -> a
                 // only correct when a can't be null
                 return operatorType == ExpressionType.Equal
-                    ? (bool)leftBoolConstant.Value
+                    ? leftBoolValue.Value
                         ? right
                         : SimplifyUnaryExpression(ExpressionType.Not, right, typeof(bool), typeMapping)
-                    : (bool)leftBoolConstant.Value
+                    : leftBoolValue.Value
                         ? SimplifyUnaryExpression(ExpressionType.Not, right, typeof(bool), typeMapping)
                         : right;
             }
@@ -524,28 +524,30 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             // true || a -> true
             // false && a -> false
             // false || a -> a
-            if (left is SqlConstantExpression newLeftConstant)
+            if (left is SqlConstantExpression newLeftConstant
+                && newLeftConstant.Value is bool leftBoolValue)
             {
                 return operatorType == ExpressionType.AndAlso
-                    ? (bool)newLeftConstant.Value
+                    ? leftBoolValue
                         ? right
                         : newLeftConstant
-                    : (bool)newLeftConstant.Value
+                    : leftBoolValue
                         ? newLeftConstant
                         : right;
             }
 
-            if (right is SqlConstantExpression newRightConstant)
+            if (right is SqlConstantExpression newRightConstant
+                && newRightConstant.Value is bool rightBoolValue)
             {
                 // a && true -> a
                 // a || true -> true
                 // a && false -> false
                 // a || false -> a
                 return operatorType == ExpressionType.AndAlso
-                    ? (bool)newRightConstant.Value
+                    ? rightBoolValue
                         ? left
                         : newRightConstant
-                    : (bool)newRightConstant.Value
+                    : rightBoolValue
                         ? newRightConstant
                         : left;
             }

@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore
     public static partial class EF
     {
         internal static readonly MethodInfo PropertyMethod
-            = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(Property));
+            = typeof(EF).GetRequiredDeclaredMethod(nameof(Property));
 
         /// <summary>
         ///     <para>

@@ -79,14 +79,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     BindingFlags.NonPublic | BindingFlags.Instance,
                     null,
                     new object[] { memberExpression, valueExpression },
-                    null);
+                    null)!;
             }
 
             return Expression.Assign(memberExpression, valueExpression);
         }
 
         private static readonly Type _assignBinaryExpressionType
-            = typeof(Expression).Assembly.GetType("System.Linq.Expressions.AssignBinaryExpression");
+            // TODO-Nullable: Somethings are unexplainable
+            = typeof(Expression).Assembly.GetType("System.Linq.Expressions.AssignBinaryExpression", throwOnError: true)!;
 
         /// <summary>
         ///     If the given a method-call expression represents a call to <see cref="EF.Property{TProperty}" />, then this
@@ -105,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 && methodCallExpression.Arguments[1] is ConstantExpression propertyNameExpression)
             {
                 entityExpression = methodCallExpression.Arguments[0];
-                propertyName = (string)propertyNameExpression.Value;
+                propertyName = (string)propertyNameExpression.Value!;
                 return true;
             }
 
@@ -131,8 +132,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             if (model.IsIndexerMethod(methodCallExpression.Method)
                 && methodCallExpression.Arguments[0] is ConstantExpression propertyNameExpression)
             {
-                entityExpression = methodCallExpression.Object;
-                propertyName = (string)propertyNameExpression.Value;
+                entityExpression = methodCallExpression.Object!;
+                propertyName = (string)propertyNameExpression.Value!;
+
                 return true;
             }
 
@@ -194,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 var propertyGetter = propertyInfo.GetMethod;
                 var interfaceMapping = parameterType.GetTypeInfo().GetRuntimeInterfaceMap(declaringType);
-                var index = Array.FindIndex(interfaceMapping.InterfaceMethods, p => propertyGetter.Equals(p));
+                var index = Array.FindIndex(interfaceMapping.InterfaceMethods, p => p.Equals(propertyGetter));
                 var targetMethod = interfaceMapping.TargetMethods[index];
                 foreach (var runtimeProperty in parameterType.GetRuntimeProperties())
                 {
@@ -315,8 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         public static readonly MethodInfo ValueBufferTryReadValueMethod
-            = typeof(ExpressionExtensions).GetTypeInfo()
-                .GetDeclaredMethod(nameof(ValueBufferTryReadValue));
+            = typeof(ExpressionExtensions).GetRequiredDeclaredMethod(nameof(ValueBufferTryReadValue));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static TValue ValueBufferTryReadValue<TValue>(

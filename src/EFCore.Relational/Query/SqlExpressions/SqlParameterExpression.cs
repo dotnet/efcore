@@ -24,11 +24,15 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     public sealed class SqlParameterExpression : SqlExpression
     {
         private readonly ParameterExpression _parameterExpression;
+        private readonly string _name;
 
         internal SqlParameterExpression(ParameterExpression parameterExpression, RelationalTypeMapping? typeMapping)
             : base(parameterExpression.Type.UnwrapNullableType(), typeMapping)
         {
+            Check.DebugAssert(parameterExpression.Name != null, "Parameter must have name.");
+
             _parameterExpression = parameterExpression;
+            _name = parameterExpression.Name;
             IsNullable = parameterExpression.Type.IsNullableType();
         }
 
@@ -36,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     The name of the parameter.
         /// </summary>
         public string Name
-            => _parameterExpression.Name;
+            => _name;
 
         /// <summary>
         ///     The bool value indicating if this parameter can have null values.

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -24,17 +25,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     public class SqlServerFromPartsFunctionTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo _dateFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
-            .GetRuntimeMethod(
+            .GetRequiredRuntimeMethod(
                 nameof(SqlServerDbFunctionsExtensions.DateFromParts),
                 new[] { typeof(DbFunctions), typeof(int), typeof(int), typeof(int) });
 
         private static readonly MethodInfo _dateTimeFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
-            .GetRuntimeMethod(
+            .GetRequiredRuntimeMethod(
                 nameof(SqlServerDbFunctionsExtensions.DateTimeFromParts),
                 new[] { typeof(DbFunctions), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int) });
 
         private static readonly MethodInfo _dateTime2FromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
-            .GetRuntimeMethod(
+            .GetRequiredRuntimeMethod(
                 nameof(SqlServerDbFunctionsExtensions.DateTime2FromParts),
                 new[]
                 {
@@ -50,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 });
 
         private static readonly MethodInfo _dateTimeOffsetFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
-            .GetRuntimeMethod(
+            .GetRequiredRuntimeMethod(
                 nameof(SqlServerDbFunctionsExtensions.DateTimeOffsetFromParts),
                 new[]
                 {
@@ -68,12 +69,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 });
 
         private static readonly MethodInfo _smallDateTimeFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
-            .GetRuntimeMethod(
+            .GetRequiredRuntimeMethod(
                 nameof(SqlServerDbFunctionsExtensions.SmallDateTimeFromParts),
                 new[] { typeof(DbFunctions), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int) });
 
         private static readonly MethodInfo _timeFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
-            .GetRuntimeMethod(
+            .GetRequiredRuntimeMethod(
                 nameof(SqlServerDbFunctionsExtensions.TimeFromParts),
                 new[] { typeof(DbFunctions), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int) });
 

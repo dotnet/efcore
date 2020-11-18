@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
 
 #nullable enable
 
@@ -63,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private Expression VisitCase(CaseExpression caseExpression)
         {
             var testIsCondition = caseExpression.Operand == null;
-            var operand = (SqlExpression)Visit(caseExpression.Operand);
+            var operand = (SqlExpression?)Visit(caseExpression.Operand);
             var whenClauses = new List<CaseWhenClause>();
             foreach (var whenClause in caseExpression.WhenClauses)
             {
@@ -77,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 whenClauses.Add(new CaseWhenClause(test, result));
             }
 
-            var elseResult = (SqlExpression)Visit(caseExpression.ElseResult);
+            var elseResult = (SqlExpression?)Visit(caseExpression.ElseResult);
 
             return caseExpression.Update(operand, whenClauses, elseResult);
         }
@@ -101,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 tables.Add(newTable);
             }
 
-            var predicate = TryCompensateForBoolWithValueConverter((SqlExpression)Visit(selectExpression.Predicate));
+            var predicate = TryCompensateForBoolWithValueConverter((SqlExpression?)Visit(selectExpression.Predicate));
             changed |= predicate != selectExpression.Predicate;
 
             var groupBy = new List<SqlExpression>();
@@ -112,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 groupBy.Add(newGroupingKey);
             }
 
-            var having = TryCompensateForBoolWithValueConverter((SqlExpression)Visit(selectExpression.Having));
+            var having = TryCompensateForBoolWithValueConverter((SqlExpression?)Visit(selectExpression.Having));
             changed |= having != selectExpression.Having;
 
             var orderings = new List<OrderingExpression>();
@@ -123,10 +124,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 orderings.Add(ordering.Update(orderingExpression));
             }
 
-            var offset = (SqlExpression)Visit(selectExpression.Offset);
+            var offset = (SqlExpression?)Visit(selectExpression.Offset);
             changed |= offset != selectExpression.Offset;
 
-            var limit = (SqlExpression)Visit(selectExpression.Limit);
+            var limit = (SqlExpression?)Visit(selectExpression.Limit);
             changed |= limit != selectExpression.Limit;
 
             return changed
@@ -151,7 +152,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return leftJoinExpression.Update(table, joinPredicate);
         }
 
-        private SqlExpression TryCompensateForBoolWithValueConverter(SqlExpression sqlExpression)
+        [return: CA.NotNullIfNotNull("sqlExpression")]
+        private SqlExpression? TryCompensateForBoolWithValueConverter(SqlExpression? sqlExpression)
         {
             if (sqlExpression is ColumnExpression columnExpression
                 && columnExpression.TypeMapping!.ClrType == typeof(bool)

@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override Expression? VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.Method.IsGenericMethod
                 && methodCallExpression.Arguments.Count == 1
@@ -469,14 +469,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         return newExpression;
                     }
 
-                    var newArguments = new Expression?[newExpression.Arguments.Count];
+                    var newArguments = new Expression[newExpression.Arguments.Count];
                     for (var i = 0; i < newArguments.Length; i++)
                     {
-                        newArguments[i] = TranslateGroupingKey(newExpression.Arguments[i]);
-                        if (newArguments[i] == null)
+                        var key = TranslateGroupingKey(newExpression.Arguments[i]);
+                        if (key == null)
                         {
                             return null;
                         }
+                        newArguments[i] = key;
                     }
 
                     return newExpression.Update(newArguments);
@@ -1053,9 +1054,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            var innerParameter = Expression.Parameter(selector.ReturnType.TryGetSequenceType(), "i");
+            var innerParameter = Expression.Parameter(selector.ReturnType.GetSequenceType(), "i");
             var resultSelector = Expression.Lambda(
-                innerParameter, Expression.Parameter(source.Type.TryGetSequenceType()), innerParameter);
+                innerParameter, Expression.Parameter(source.Type.GetSequenceType()), innerParameter);
 
             return TranslateSelectMany(source, selector, resultSelector);
         }
@@ -1339,7 +1340,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     source = Visit(source);
 
                     return TryExpand(source, MemberIdentity.Create(navigationName))
-                        ?? methodCallExpression.Update(null, new[] { source, methodCallExpression.Arguments[1] });
+                        ?? methodCallExpression.Update(null!, new[] { source, methodCallExpression.Arguments[1] });
                 }
 
                 if (methodCallExpression.TryGetEFPropertyArguments(out source, out navigationName))
@@ -1363,7 +1364,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     : base.VisitExtension(extensionExpression);
             }
 
-            private Expression? TryExpand(Expression source, MemberIdentity member)
+            private Expression? TryExpand(Expression? source, MemberIdentity member)
             {
                 source = source.UnwrapTypeConversion(out var convertedType);
                 if (!(source is EntityShaperExpression entityShaperExpression))
@@ -1432,7 +1433,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             Expression.Equal(outerKey, innerKey))
                         : Expression.Equal(outerKey, innerKey);
 
-                    var correlationPredicate = _expressionTranslator.Translate(predicate);
+                    var correlationPredicate = _expressionTranslator.Translate(predicate)!;
                     innerQueryExpression.UpdateServerQueryExpression(
                         Expression.Call(
                             EnumerableMethods.Where.MakeGenericMethod(innerQueryExpression.CurrentParameter.Type),
@@ -1479,9 +1480,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             : foreignKey.Properties,
                         makeNullable);
 
-                    var outerKeySelector = Expression.Lambda(_expressionTranslator.Translate(outerKey), _queryExpression.CurrentParameter);
+                    var outerKeySelector = Expression.Lambda(_expressionTranslator.Translate(outerKey)!, _queryExpression.CurrentParameter);
                     var innerKeySelector = Expression.Lambda(
-                        _expressionTranslator.Translate(innerKey), innerQueryExpression.CurrentParameter);
+                        _expressionTranslator.Translate(innerKey)!, innerQueryExpression.CurrentParameter);
                     (outerKeySelector, innerKeySelector) = AlignKeySelectorTypes(outerKeySelector, innerKeySelector);
                     innerShaper = _queryExpression.AddNavigationToWeakEntityType(
                         entityProjectionExpression, navigation, innerQueryExpression, outerKeySelector, innerKeySelector);

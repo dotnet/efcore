@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using JetBrains.Annotations;
+using CA = System.Diagnostics.CodeAnalysis;
 
 #nullable enable
 
@@ -21,7 +22,8 @@ namespace System.Linq.Expressions
                 ? unary.Operand
                 : expression);
 
-        public static Expression UnwrapTypeConversion(this Expression expression, out Type? convertedType)
+        [return: CA.NotNullIfNotNull("expression")]
+        public static Expression? UnwrapTypeConversion(this Expression? expression, out Type? convertedType)
         {
             convertedType = null;
             while (expression is UnaryExpression unaryExpression
@@ -51,5 +53,10 @@ namespace System.Linq.Expressions
 
             return expression;
         }
+
+        public static T GetConstantValue<T>(this Expression expression)
+            => expression is ConstantExpression constantExpression
+                ? (T)constantExpression.Value!
+                : throw new InvalidOperationException();
     }
 }

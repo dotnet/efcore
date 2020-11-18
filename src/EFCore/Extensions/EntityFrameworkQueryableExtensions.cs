@@ -2646,7 +2646,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         public static IQueryable<TEntity> Include<TEntity>(
             [NotNull] this IQueryable<TEntity> source,
-            [NotNull] [NotParameterized] string navigationPropertyPath)
+            [NotNull][NotParameterized] string navigationPropertyPath)
             where TEntity : class
         {
             Check.NotNull(source, nameof(source));
@@ -2669,7 +2669,7 @@ namespace Microsoft.EntityFrameworkCore
 
         internal static readonly MethodInfo IgnoreAutoIncludesMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
-                .GetTypeInfo().GetDeclaredMethod(nameof(IgnoreAutoIncludes));
+                .GetRequiredDeclaredMethod(nameof(IgnoreAutoIncludes));
 
         /// <summary>
         ///     Specifies that the current Entity Framework LINQ query should not have any
@@ -2702,7 +2702,7 @@ namespace Microsoft.EntityFrameworkCore
 
         internal static readonly MethodInfo IgnoreQueryFiltersMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
-                .GetTypeInfo().GetDeclaredMethod(nameof(IgnoreQueryFilters));
+                .GetRequiredDeclaredMethod(nameof(IgnoreQueryFilters));
 
         /// <summary>
         ///     Specifies that the current Entity Framework LINQ query should not have any
@@ -2738,7 +2738,7 @@ namespace Microsoft.EntityFrameworkCore
 
         internal static readonly MethodInfo AsNoTrackingMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
-                .GetTypeInfo().GetDeclaredMethod(nameof(AsNoTracking));
+                .GetRequiredDeclaredMethod(nameof(AsNoTracking));
 
         /// <summary>
         ///     <para>
@@ -2786,7 +2786,7 @@ namespace Microsoft.EntityFrameworkCore
 
         internal static readonly MethodInfo AsNoTrackingWithIdentityResolutionMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
-                .GetTypeInfo().GetDeclaredMethod(nameof(AsNoTrackingWithIdentityResolution));
+                .GetRequiredDeclaredMethod(nameof(AsNoTrackingWithIdentityResolution));
 
         /// <summary>
         ///     <para>
@@ -2914,7 +2914,7 @@ namespace Microsoft.EntityFrameworkCore
 
         internal static readonly MethodInfo TagWithMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
-                .GetTypeInfo().GetDeclaredMethod(nameof(TagWith));
+                .GetRequiredDeclaredMethod(nameof(TagWith));
 
         /// <summary>
         ///     Adds a tag to the collection of tags associated with an EF LINQ query. Tags are query annotations
@@ -2934,7 +2934,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         public static IQueryable<T> TagWith<T>(
             [NotNull] this IQueryable<T> source,
-            [NotNull] [NotParameterized] string tag)
+            [NotNull][NotParameterized] string tag)
         {
             Check.NotNull(source, nameof(source));
             Check.NotEmpty(tag, nameof(tag));
@@ -3037,6 +3037,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Func<TSource, TKey> keySelector,
             CancellationToken cancellationToken = default)
+            where TKey : notnull
             => ToDictionaryAsync(source, keySelector, e => e, comparer: null, cancellationToken);
 
         /// <summary>
@@ -3076,6 +3077,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] Func<TSource, TKey> keySelector,
             [NotNull] IEqualityComparer<TKey> comparer,
             CancellationToken cancellationToken = default)
+            where TKey : notnull
             => ToDictionaryAsync(source, keySelector, e => e, comparer, cancellationToken);
 
         /// <summary>
@@ -3117,6 +3119,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] Func<TSource, TKey> keySelector,
             [NotNull] Func<TSource, TElement> elementSelector,
             CancellationToken cancellationToken = default)
+            where TKey : notnull
             => ToDictionaryAsync(source, keySelector, elementSelector, comparer: null, cancellationToken);
 
         /// <summary>
@@ -3162,6 +3165,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] Func<TSource, TElement> elementSelector,
             [CanBeNull] IEqualityComparer<TKey>? comparer,
             CancellationToken cancellationToken = default)
+            where TKey : notnull
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(keySelector, nameof(keySelector));

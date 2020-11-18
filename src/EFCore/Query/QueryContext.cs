@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public abstract class QueryContext : IParameterValues
     {
-        private readonly IDictionary<string, object> _parameterValues = new Dictionary<string, object>();
+        private readonly IDictionary<string, object?> _parameterValues = new Dictionary<string, object?>();
         private IStateManager? _stateManager;
 
         /// <summary>
@@ -114,15 +114,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The parameter values to use while executing the query.
         /// </summary>
-        public virtual IReadOnlyDictionary<string, object> ParameterValues
-            => (IReadOnlyDictionary<string, object>)_parameterValues;
+        public virtual IReadOnlyDictionary<string, object?> ParameterValues
+            => (IReadOnlyDictionary<string, object?>)_parameterValues;
 
         /// <summary>
         ///     Adds a parameter to <see cref="ParameterValues" /> for this query.
         /// </summary>
         /// <param name="name"> The name. </param>
         /// <param name="value"> The value. </param>
-        public virtual void AddParameter(string name, object value)
+        public virtual void AddParameter(string name, object? value)
         {
             Check.NotEmpty(name, nameof(name));
 

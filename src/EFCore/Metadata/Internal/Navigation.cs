@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             bool? shouldBeCollection,
             bool shouldThrow)
         {
-            if (!navigationProperty.DeclaringType.IsAssignableFrom(sourceClrType))
+            if (!navigationProperty.DeclaringType!.IsAssignableFrom(sourceClrType))
             {
                 if (shouldThrow)
                 {

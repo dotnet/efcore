@@ -252,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Called just before EF intends to call <see cref="DbTransaction.Rollback" />.
+        ///     Called just before EF intends to call <see cref="DbTransaction.Rollback()" />.
         /// </summary>
         /// <param name="transaction"> The transaction. </param>
         /// <param name="eventData"> Contextual information about connection and transaction. </param>
@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             InterceptionResult result);
 
         /// <summary>
-        ///     Called immediately after EF calls <see cref="DbTransaction.Rollback" />.
+        ///     Called immediately after EF calls <see cref="DbTransaction.Rollback()" />.
         /// </summary>
         /// <param name="transaction"> The transaction. </param>
         /// <param name="eventData"> Contextual information about connection and transaction. </param>
@@ -310,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Called immediately after EF calls <see cref="DbTransaction.RollbackAsync" />.
+        ///     Called immediately after EF calls <see cref="DbTransaction.RollbackAsync(CancellationToken)" />.
         /// </summary>
         /// <param name="transaction"> The transaction. </param>
         /// <param name="eventData"> Contextual information about connection and transaction. </param>

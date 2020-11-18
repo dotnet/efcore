@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual object Value
+        public virtual object? Value
             => _constantExpression.Value;
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         }
 
         private void Print(
-            object value,
+            object? value,
             ExpressionPrinter expressionPrinter)
         {
             if (value is IEnumerable enumerable
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             }
         }
 
-        private JToken? GenerateJToken(object value, CoreTypeMapping? typeMapping)
+        private JToken? GenerateJToken(object? value, CoreTypeMapping? typeMapping)
         {
             var mappingClrType = typeMapping?.ClrType.UnwrapNullableType() ?? Type;
             if (value?.GetType().IsInteger() == true

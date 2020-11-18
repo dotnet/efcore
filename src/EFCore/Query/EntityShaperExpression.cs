@@ -31,8 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class EntityShaperExpression : Expression, IPrintableExpression
     {
         private static readonly MethodInfo _createUnableToDiscriminateException
-            = typeof(EntityShaperExpression).GetTypeInfo()
-                .GetDeclaredMethod(nameof(CreateUnableToDiscriminateException));
+            = typeof(EntityShaperExpression).GetRequiredDeclaredMethod(nameof(CreateUnableToDiscriminateException));
 
         [UsedImplicitly]
         private static Exception CreateUnableToDiscriminateException(IEntityType entityType, object discriminator)
@@ -268,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             expressionPrinter.AppendLine(nameof(EntityShaperExpression) + ": ");
             using (expressionPrinter.Indent())
             {
-                expressionPrinter.AppendLine(EntityType.ToString());
+                expressionPrinter.AppendLine(EntityType.Name);
                 expressionPrinter.AppendLine(nameof(ValueBufferExpression) + ": ");
                 using (expressionPrinter.Indent())
                 {

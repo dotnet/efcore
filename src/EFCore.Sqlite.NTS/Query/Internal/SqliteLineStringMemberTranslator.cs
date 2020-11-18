@@ -26,11 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         private static readonly IDictionary<MemberInfo, string> _memberToFunctionName
             = new Dictionary<MemberInfo, string>
             {
-                { typeof(LineString).GetRuntimeProperty(nameof(LineString.Count)), "NumPoints" },
-                { typeof(LineString).GetRuntimeProperty(nameof(LineString.EndPoint)), "EndPoint" },
-                { typeof(LineString).GetRuntimeProperty(nameof(LineString.IsClosed)), "IsClosed" },
-                { typeof(LineString).GetRuntimeProperty(nameof(LineString.IsRing)), "IsRing" },
-                { typeof(LineString).GetRuntimeProperty(nameof(LineString.StartPoint)), "StartPoint" }
+                { typeof(LineString).GetRequiredRuntimeProperty(nameof(LineString.Count)), "NumPoints" },
+                { typeof(LineString).GetRequiredRuntimeProperty(nameof(LineString.EndPoint)), "EndPoint" },
+                { typeof(LineString).GetRequiredRuntimeProperty(nameof(LineString.IsClosed)), "IsClosed" },
+                { typeof(LineString).GetRequiredRuntimeProperty(nameof(LineString.IsRing)), "IsRing" },
+                { typeof(LineString).GetRequiredRuntimeProperty(nameof(LineString.StartPoint)), "StartPoint" }
             };
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;

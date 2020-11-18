@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -21,10 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class StringMethodTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo _isNullOrEmptyMethodInfo
-            = typeof(string).GetRuntimeMethod(nameof(string.IsNullOrEmpty), new[] { typeof(string) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.IsNullOrEmpty), new[] { typeof(string) });
 
         private static readonly MethodInfo _concatMethodInfo
-            = typeof(string).GetRuntimeMethod(nameof(string.Concat), new[] { typeof(string), typeof(string) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Concat), new[] { typeof(string), typeof(string) });
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 

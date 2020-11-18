@@ -2953,7 +2953,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var data = new List<Dictionary<string, object?>>();
-            var valueConverters = new Dictionary<string, ValueConverter>(StringComparer.Ordinal);
+            var valueConverters = new Dictionary<string, ValueConverter?>(StringComparer.Ordinal);
             var properties = GetProperties()
                 .Concat<IPropertyBase>(GetNavigations())
                 .Concat(GetSkipNavigations())

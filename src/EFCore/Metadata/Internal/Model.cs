@@ -850,14 +850,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            while (type != null)
+            var currentType = type;
+
+            while (currentType != null)
             {
-                if (ownedTypes.TryGetValue(GetDisplayName(type), out var configurationSource))
+                if (ownedTypes.TryGetValue(GetDisplayName(currentType), out var configurationSource))
                 {
                     return configurationSource;
                 }
 
-                type = type.BaseType;
+                currentType = currentType.BaseType;
             }
 
             return null;

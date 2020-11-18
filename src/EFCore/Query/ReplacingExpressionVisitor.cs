@@ -140,7 +140,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return memberAssignment.Expression;
                 }
 
-                return methodCallExpression.Update(null, new[] { newEntityExpression, methodCallExpression.Arguments[1] });
+                // TODO-Nullable bug
+                return methodCallExpression.Update(null!, new[] { newEntityExpression, methodCallExpression.Arguments[1] });
             }
 
             return base.VisitMethodCall(methodCallExpression);

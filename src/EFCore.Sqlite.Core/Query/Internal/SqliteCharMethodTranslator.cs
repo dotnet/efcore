@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -24,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     {
         private static readonly Dictionary<MethodInfo, string> _supportedMethods = new Dictionary<MethodInfo, string>
         {
-            { typeof(char).GetRuntimeMethod(nameof(char.ToLower), new[] { typeof(char) }), "lower" },
-            { typeof(char).GetRuntimeMethod(nameof(char.ToUpper), new[] { typeof(char) }), "upper" }
+            { typeof(char).GetRequiredRuntimeMethod(nameof(char.ToLower), new[] { typeof(char) }), "lower" },
+            { typeof(char).GetRequiredRuntimeMethod(nameof(char.ToUpper), new[] { typeof(char) }), "upper" }
         };
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;

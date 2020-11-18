@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 propertyExpressionMap[expression.Key] = newExpression;
             }
 
-            var discriminatorExpression = (SqlExpression)visitor.Visit(DiscriminatorExpression);
+            var discriminatorExpression = (SqlExpression?)visitor.Visit(DiscriminatorExpression);
             changed |= discriminatorExpression != DiscriminatorExpression;
 
             return changed
@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var entityTypesToSelect = derivedType.GetTptDiscriminatorValues();
                 var whenClauses = caseExpression.WhenClauses
-                    .Where(wc => entityTypesToSelect.Contains((string)((SqlConstantExpression)wc.Result).Value))
+                    .Where(wc => entityTypesToSelect.Contains((string)((SqlConstantExpression)wc.Result).Value!))
                     .ToList();
 
                 discriminatorExpression = caseExpression.Update(operand: null, whenClauses, elseResult: null);

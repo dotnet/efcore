@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                 using var command = connection.CreateCommand();
                 command.CommandText = @"
 SELECT SERVERPROPERTY('EngineEdition');";
-                return (int)command.ExecuteScalar();
+                return (int)command.ExecuteScalar()!;
             }
 
             static byte GetCompatibilityLevel(DbConnection connection)

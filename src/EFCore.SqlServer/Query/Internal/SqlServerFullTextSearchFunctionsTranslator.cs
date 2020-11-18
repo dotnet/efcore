@@ -28,22 +28,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         private const string ContainsFunctionName = "CONTAINS";
 
         private static readonly MethodInfo _freeTextMethodInfo
-            = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+            = typeof(SqlServerDbFunctionsExtensions).GetRequiredRuntimeMethod(
                 nameof(SqlServerDbFunctionsExtensions.FreeText),
                 new[] { typeof(DbFunctions), typeof(string), typeof(string) });
 
         private static readonly MethodInfo _freeTextMethodInfoWithLanguage
-            = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+            = typeof(SqlServerDbFunctionsExtensions).GetRequiredRuntimeMethod(
                 nameof(SqlServerDbFunctionsExtensions.FreeText),
                 new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(int) });
 
         private static readonly MethodInfo _containsMethodInfo
-            = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+            = typeof(SqlServerDbFunctionsExtensions).GetRequiredRuntimeMethod(
                 nameof(SqlServerDbFunctionsExtensions.Contains),
                 new[] { typeof(DbFunctions), typeof(string), typeof(string) });
 
         private static readonly MethodInfo _containsMethodInfoWithLanguage
-            = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+            = typeof(SqlServerDbFunctionsExtensions).GetRequiredRuntimeMethod(
                 nameof(SqlServerDbFunctionsExtensions.Contains),
                 new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(int) });
 

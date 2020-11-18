@@ -328,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual SqlFunctionExpression Update([CanBeNull] SqlExpression? instance, [CanBeNull] IReadOnlyList<SqlExpression>? arguments)
         {
-            return instance != Instance || !arguments?.SequenceEqual(Arguments) == true
+            return instance != Instance || (arguments != null && Arguments != null && !arguments.SequenceEqual(Arguments))
                 ? new SqlFunctionExpression(
                     instance,
                     Schema,
@@ -385,7 +385,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 && Schema == sqlFunctionExpression.Schema
                 && ((Instance == null && sqlFunctionExpression.Instance == null)
                     || (Instance != null && Instance.Equals(sqlFunctionExpression.Instance)))
-                && Arguments.SequenceEqual(sqlFunctionExpression.Arguments);
+                && ((Arguments == null && sqlFunctionExpression.Arguments == null)
+                    || (Arguments != null && sqlFunctionExpression.Arguments != null
+                        && Arguments.SequenceEqual(sqlFunctionExpression.Arguments)));
 
         /// <inheritdoc />
         public override int GetHashCode()

@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        protected override Expression? VisitExtension(Expression extensionExpression)
+        protected override Expression VisitExtension(Expression extensionExpression)
         {
             switch (extensionExpression)
             {
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         _sqlExpressionFactory.Select(
                             fromSqlQueryRootExpression.EntityType,
                             new FromSqlExpression(
-                                fromSqlQueryRootExpression.EntityType.GetDefaultMappings().SingleOrDefault().Table.Name.Substring(0, 1)
+                                fromSqlQueryRootExpression.EntityType.GetDefaultMappings().Single().Table.Name.Substring(0, 1)
                                     .ToLowerInvariant(),
                                 fromSqlQueryRootExpression.Sql,
                                 fromSqlQueryRootExpression.Argument)));
@@ -110,7 +110,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                             if (methodInfo != null)
                             {
                                 var methodCall = Expression.Call(
-                                    Expression.Constant(null, methodInfo.DeclaringType),
+                                    // Declaring types would be derived db context.
+                                    Expression.Constant(null, methodInfo.DeclaringType!),
                                     methodInfo,
                                     tableValuedFunctionQueryRootExpression.Arguments);
 
@@ -504,14 +505,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                         return newExpression;
                     }
 
-                    var newArguments = new Expression?[newExpression.Arguments.Count];
+                    var newArguments = new Expression[newExpression.Arguments.Count];
                     for (var i = 0; i < newArguments.Length; i++)
                     {
-                        newArguments[i] = TranslateGroupingKey(newExpression.Arguments[i]);
-                        if (newArguments[i] == null)
+                        var key = TranslateGroupingKey(newExpression.Arguments[i]);
+                        if (key == null)
                         {
                             return null;
                         }
+
+                        newArguments[i] = key;
                     }
 
                     return newExpression.Update(newArguments);
@@ -1026,9 +1029,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            var innerParameter = Expression.Parameter(selector.ReturnType.TryGetSequenceType(), "i");
+            var innerParameter = Expression.Parameter(selector.ReturnType.GetSequenceType(), "i");
             var resultSelector = Expression.Lambda(
-                innerParameter, Expression.Parameter(source.Type.TryGetSequenceType()), innerParameter);
+                innerParameter, Expression.Parameter(source.Type.GetSequenceType()), innerParameter);
 
             return TranslateSelectMany(source, selector, resultSelector);
         }
@@ -1272,7 +1275,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     source = Visit(source);
 
                     return TryExpand(source, MemberIdentity.Create(navigationName))
-                        ?? methodCallExpression.Update(null, new[] { source, methodCallExpression.Arguments[1] });
+                        ?? methodCallExpression.Update(null!, new[] { source, methodCallExpression.Arguments[1] });
                 }
 
                 if (methodCallExpression.TryGetEFPropertyArguments(out source, out navigationName))
@@ -1296,7 +1299,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     : base.VisitExtension(extensionExpression);
             }
 
-            private Expression? TryExpand(Expression source, MemberIdentity member)
+            private Expression? TryExpand(Expression? source, MemberIdentity member)
             {
                 source = source.UnwrapTypeConversion(out var convertedType);
                 if (!(source is EntityShaperExpression entityShaperExpression))
@@ -1344,7 +1347,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(p => p.ClrType)
                         .Any(t => t.IsNullableType());
 
-                    var innerSequenceType = innerShapedQuery.Type.TryGetSequenceType();
+                    var innerSequenceType = innerShapedQuery.Type.GetSequenceType();
                     var correlationPredicateParameter = Expression.Parameter(innerSequenceType);
 
                     var outerKey = entityShaperExpression.CreateKeyValuesExpression(
@@ -1490,7 +1493,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (identifyingColumn.Table is SelectExpression subquery)
                 {
                     var subqueryIdentifyingColumn = (ColumnExpression)subquery.Projection
-                        .SingleOrDefault(e => string.Equals(e.Alias, identifyingColumn.Name, StringComparison.OrdinalIgnoreCase))
+                        .Single(e => string.Equals(e.Alias, identifyingColumn.Name, StringComparison.OrdinalIgnoreCase))
                         .Expression;
 
                     var subqueryPropertyExpressions = GetPropertyExpressionFromSameTable(
@@ -1553,7 +1556,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Type transparentIdentifierType,
             Expression targetExpression,
             string fieldName)
-            => Expression.Field(targetExpression, transparentIdentifierType.GetTypeInfo().GetDeclaredField(fieldName));
+            => Expression.Field(targetExpression, transparentIdentifierType.GetRequiredDeclaredField(fieldName));
 
         private static void HandleGroupByForAggregate(SelectExpression selectExpression, bool eraseProjection = false)
         {
