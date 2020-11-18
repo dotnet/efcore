@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class RelationalDatabaseCreatorDependencies
+    public sealed record RelationalDatabaseCreatorDependencies
     {
         /// <summary>
         ///     <para>
@@ -97,199 +97,46 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The model differ.
         /// </summary>
-        public IMigrationsModelDiffer ModelDiffer { get; }
+        public IMigrationsModelDiffer ModelDiffer { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The Migrations SQL generator.
         /// </summary>
-        public IMigrationsSqlGenerator MigrationsSqlGenerator { get; }
+        public IMigrationsSqlGenerator MigrationsSqlGenerator { get; [param: NotNull] init; }
 
         /// <summary>
         ///     Gets the model for the context this creator is being used with.
         /// </summary>
-        public IModel Model { get; }
+        public IModel Model { get; [param: NotNull] init; }
 
         /// <summary>
         ///     Gets the connection for the database.
         /// </summary>
-        public IRelationalConnection Connection { get; }
+        public IRelationalConnection Connection { get; [param: NotNull] init; }
 
         /// <summary>
         ///     Gets the <see cref="IMigrationCommandExecutor" /> to be used.
         /// </summary>
-        public IMigrationCommandExecutor MigrationCommandExecutor { get; }
+        public IMigrationCommandExecutor MigrationCommandExecutor { get; [param: NotNull] init; }
 
         /// <summary>
         ///     Gets the <see cref="ISqlGenerationHelper" /> to be used.
         /// </summary>
-        public ISqlGenerationHelper SqlGenerationHelper { get; }
+        public ISqlGenerationHelper SqlGenerationHelper { get; [param: NotNull] init; }
 
         /// <summary>
         ///     Gets the <see cref="IExecutionStrategyFactory" /> to be used.
         /// </summary>
-        public IExecutionStrategyFactory ExecutionStrategyFactory { get; }
+        public IExecutionStrategyFactory ExecutionStrategyFactory { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The command logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger { get; }
+        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger { get; [param: NotNull] init; }
 
         /// <summary>
         ///     Contains the <see cref="DbContext" /> currently in use.
         /// </summary>
-        public ICurrentDbContext CurrentContext { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="model"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalDatabaseCreatorDependencies With([NotNull] IModel model)
-            => new RelationalDatabaseCreatorDependencies(
-                model,
-                Connection,
-                ModelDiffer,
-                MigrationsSqlGenerator,
-                MigrationCommandExecutor,
-                SqlGenerationHelper,
-                ExecutionStrategyFactory,
-                CurrentContext,
-                CommandLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="connection"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalDatabaseCreatorDependencies With([NotNull] IRelationalConnection connection)
-            => new RelationalDatabaseCreatorDependencies(
-                Model,
-                connection,
-                ModelDiffer,
-                MigrationsSqlGenerator,
-                MigrationCommandExecutor,
-                SqlGenerationHelper,
-                ExecutionStrategyFactory,
-                CurrentContext,
-                CommandLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="modelDiffer"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalDatabaseCreatorDependencies With([NotNull] IMigrationsModelDiffer modelDiffer)
-            => new RelationalDatabaseCreatorDependencies(
-                Model,
-                Connection,
-                modelDiffer,
-                MigrationsSqlGenerator,
-                MigrationCommandExecutor,
-                SqlGenerationHelper,
-                ExecutionStrategyFactory,
-                CurrentContext,
-                CommandLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="migrationsSqlGenerator"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalDatabaseCreatorDependencies With([NotNull] IMigrationsSqlGenerator migrationsSqlGenerator)
-            => new RelationalDatabaseCreatorDependencies(
-                Model,
-                Connection,
-                ModelDiffer,
-                migrationsSqlGenerator,
-                MigrationCommandExecutor,
-                SqlGenerationHelper,
-                ExecutionStrategyFactory,
-                CurrentContext,
-                CommandLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="migrationCommandExecutor"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalDatabaseCreatorDependencies With([NotNull] IMigrationCommandExecutor migrationCommandExecutor)
-            => new RelationalDatabaseCreatorDependencies(
-                Model,
-                Connection,
-                ModelDiffer,
-                MigrationsSqlGenerator,
-                migrationCommandExecutor,
-                SqlGenerationHelper,
-                ExecutionStrategyFactory,
-                CurrentContext,
-                CommandLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="sqlGenerationHelper"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalDatabaseCreatorDependencies With([NotNull] ISqlGenerationHelper sqlGenerationHelper)
-            => new RelationalDatabaseCreatorDependencies(
-                Model,
-                Connection,
-                ModelDiffer,
-                MigrationsSqlGenerator,
-                MigrationCommandExecutor,
-                sqlGenerationHelper,
-                ExecutionStrategyFactory,
-                CurrentContext,
-                CommandLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="executionStrategyFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalDatabaseCreatorDependencies With([NotNull] IExecutionStrategyFactory executionStrategyFactory)
-            => new RelationalDatabaseCreatorDependencies(
-                Model,
-                Connection,
-                ModelDiffer,
-                MigrationsSqlGenerator,
-                MigrationCommandExecutor,
-                SqlGenerationHelper,
-                executionStrategyFactory,
-                CurrentContext,
-                CommandLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="currentContext"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalDatabaseCreatorDependencies With([NotNull] ICurrentDbContext currentContext)
-            => new RelationalDatabaseCreatorDependencies(
-                Model,
-                Connection,
-                ModelDiffer,
-                MigrationsSqlGenerator,
-                MigrationCommandExecutor,
-                SqlGenerationHelper,
-                ExecutionStrategyFactory,
-                currentContext,
-                CommandLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="commandLogger"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalDatabaseCreatorDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
-            => new RelationalDatabaseCreatorDependencies(
-                Model,
-                Connection,
-                ModelDiffer,
-                MigrationsSqlGenerator,
-                MigrationCommandExecutor,
-                SqlGenerationHelper,
-                ExecutionStrategyFactory,
-                CurrentContext,
-                commandLogger);
+        public ICurrentDbContext CurrentContext { get; [param: NotNull] init; }
     }
 }

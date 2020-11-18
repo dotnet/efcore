@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class LazyLoaderParameterBindingFactoryDependencies
+    public sealed record LazyLoaderParameterBindingFactoryDependencies
     {
         /// <summary>
         ///     <para>

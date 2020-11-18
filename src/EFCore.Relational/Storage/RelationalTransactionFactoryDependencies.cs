@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class RelationalTransactionFactoryDependencies
+    public sealed record RelationalTransactionFactoryDependencies
     {
         /// <summary>
         ///     <para>
@@ -63,14 +63,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Helpers for SQL generation.
         /// </summary>
-        public ISqlGenerationHelper SqlGenerationHelper { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="sqlGenerationHelper"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalTransactionFactoryDependencies With([NotNull] ISqlGenerationHelper sqlGenerationHelper)
-            => new RelationalTransactionFactoryDependencies(sqlGenerationHelper);
+        public ISqlGenerationHelper SqlGenerationHelper { get; [param: NotNull] init; }
     }
 }

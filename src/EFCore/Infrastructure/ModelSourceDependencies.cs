@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class ModelSourceDependencies
+    public sealed record ModelSourceDependencies
     {
         /// <summary>
         ///     <para>
@@ -71,41 +71,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Gets the <see cref="IModelCustomizer" /> that will perform additional configuration of the model
         ///     in addition to what is discovered by convention.
         /// </summary>
-        public IModelCustomizer ModelCustomizer { get; }
+        public IModelCustomizer ModelCustomizer { get; [param: NotNull] init; }
 
         /// <summary>
         ///     Gets the <see cref="IModelCacheKeyFactory" /> that will create keys used to store and lookup models
         ///     the model cache.
         /// </summary>
-        public IModelCacheKeyFactory ModelCacheKeyFactory { get; }
+        public IModelCacheKeyFactory ModelCacheKeyFactory { get; [param: NotNull] init; }
 
         /// <summary>
         ///     Gets the <see cref="IMemoryCache" /> that will be used to cache models.
         /// </summary>
-        public IMemoryCache MemoryCache { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="modelCustomizer"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModelSourceDependencies With([NotNull] IModelCustomizer modelCustomizer)
-            => new ModelSourceDependencies(modelCustomizer, ModelCacheKeyFactory, MemoryCache);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="modelCacheKeyFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModelSourceDependencies With([NotNull] IModelCacheKeyFactory modelCacheKeyFactory)
-            => new ModelSourceDependencies(ModelCustomizer, modelCacheKeyFactory, MemoryCache);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="memoryCache"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModelSourceDependencies With([NotNull] IMemoryCache memoryCache)
-            => new ModelSourceDependencies(ModelCustomizer, ModelCacheKeyFactory, memoryCache);
+        public IMemoryCache MemoryCache { get; [param: NotNull] init; }
     }
 }

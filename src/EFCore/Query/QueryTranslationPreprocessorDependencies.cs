@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class QueryTranslationPreprocessorDependencies
+    public sealed record QueryTranslationPreprocessorDependencies
     {
         /// <summary>
         ///     <para>
@@ -65,14 +65,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Evaluatable expression filter.
         /// </summary>
-        public IEvaluatableExpressionFilter EvaluatableExpressionFilter { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="evaluatableExpressionFilter"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public QueryTranslationPreprocessorDependencies With([NotNull] IEvaluatableExpressionFilter evaluatableExpressionFilter)
-            => new QueryTranslationPreprocessorDependencies(evaluatableExpressionFilter);
+        public IEvaluatableExpressionFilter EvaluatableExpressionFilter { get; [param: NotNull] init; }
     }
 }

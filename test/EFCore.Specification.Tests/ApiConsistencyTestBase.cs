@@ -36,6 +36,17 @@ namespace Microsoft.EntityFrameworkCore
         protected const BindingFlags AnyInstance
             = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
+        protected static bool IsCompilerSynthesizedMethod(MethodBase method)
+            => method.Name == "op_Equality"
+                || method.Name == "op_Inequality"
+                || method.Name == "PrintMembers"
+                // Ignore synthesized copy constructors on records
+                || method is ConstructorInfo
+                && method.GetParameters().Length == 1
+                && method.GetParameters()[0] is var firstParam
+                && firstParam.Name == "original"
+                && firstParam.ParameterType == method.DeclaringType;
+
         protected virtual TFixture Fixture { get; }
 
         [ConditionalFact]
@@ -640,119 +651,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void Ensure_dependency_objects_are_consistent()
-        {
-            var serviceCollection = new ServiceCollection();
-
-            AddServices(serviceCollection);
-
-            var dependencyServices = serviceCollection.Where(
-                    sd => sd.ServiceType.Namespace.StartsWith("Microsoft.Entity", StringComparison.Ordinal)
-                        && sd.ServiceType.Name.EndsWith("Dependencies", StringComparison.Ordinal)
-                        && sd.ImplementationType == sd.ServiceType)
-                .ToList();
-
-            foreach (var service in dependencyServices)
-            {
-                TestDependenciesObject(service.ImplementationType);
-            }
-        }
-
-        // ReSharper disable once ClassNeverInstantiated.Local
-        private class FakeCurrentDbContext : ICurrentDbContext
-        {
-            // ReSharper disable once UnassignedGetOnlyAutoProperty
-            public DbContext Context { get; }
-        }
-
-        private void TestDependenciesObject(Type dependenciesType)
-        {
-            if (!TryCreateProviderServices(out var serviceCollection1))
-            {
-                return;
-            }
-
-            AddServices(serviceCollection1);
-            var services1 = serviceCollection1.BuildServiceProvider();
-
-            TryCreateProviderServices(out var serviceCollection2);
-            AddServices(serviceCollection2);
-            var services2 = serviceCollection2.BuildServiceProvider();
-
-            var dependencies = services1.GetService(dependenciesType);
-
-            var serviceProperties = dependenciesType.GetTypeInfo()
-                .DeclaredProperties
-                .Where(p => !Fixture.ComputedDependencyProperties.Contains(p))
-                .ToList();
-
-            var obsoleteTypes = serviceProperties
-                .Where(p => p.CustomAttributes.Any(a => a.AttributeType == typeof(ObsoleteAttribute)))
-                .Select(p => p.PropertyType)
-                .ToList();
-
-            serviceProperties = serviceProperties.Where(p => !obsoleteTypes.Contains(p.PropertyType)).ToList();
-
-            var constructor = dependenciesType.GetTypeInfo().DeclaredConstructors.OrderByDescending(c => c.GetParameters().Length).First();
-            var constructorParameters = constructor.GetParameters().Where(p => !obsoleteTypes.Contains(p.ParameterType)).ToList();
-
-            foreach (var serviceType in constructorParameters.Select(p => p.ParameterType))
-            {
-                var withMethod = dependenciesType.GetTypeInfo().DeclaredMethods
-                    .FirstOrDefault(
-                        m => m.CustomAttributes.All(a => a.AttributeType != typeof(ObsoleteAttribute))
-                            && m.Name == "With"
-                            && m.GetParameters()[0].ParameterType == serviceType);
-
-                if (withMethod == null)
-                {
-                    throw new Exception(
-                        $"Expected 'With' method for service type '{serviceType.ShortDisplayName()}' on '{dependenciesType.ShortDisplayName()}'");
-                }
-
-                var clone = withMethod.Invoke(dependencies, new[] { services2.GetService(serviceType) });
-
-                foreach (var property in serviceProperties)
-                {
-                    if (property.PropertyType == serviceType)
-                    {
-                        Assert.NotSame(property.GetValue(clone), property.GetValue(dependencies));
-                    }
-                    else
-                    {
-                        Assert.Equal(property.GetValue(clone), property.GetValue(dependencies));
-                    }
-                }
-            }
-
-            bool TryCreateProviderServices(out ServiceCollection services)
-            {
-                if (!Fixture.TryGetProviderOptionsDelegate(out var optionsDelegate))
-                {
-                    services = null;
-                    return false;
-                }
-
-                services = (ServiceCollection)new ServiceCollection()
-                    .AddScoped<IDbContextOptions>(p => CreateOptions(p, optionsDelegate))
-                    .AddScoped<ICurrentDbContext, FakeCurrentDbContext>()
-                    .AddScoped<IModel, Model>();
-
-                return true;
-            }
-
-            DbContextOptions CreateOptions(IServiceProvider serviceProvider, Action<DbContextOptionsBuilder> optionsDelegate)
-            {
-                var optionsBuilder = new DbContextOptionsBuilder()
-                    .UseInternalServiceProvider(serviceProvider);
-
-                optionsDelegate(optionsBuilder);
-
-                return optionsBuilder.Options;
-            }
-        }
-
-        [ConditionalFact]
         public virtual void Service_implementations_should_use_dependencies_parameter_object()
         {
             var serviceCollection = new ServiceCollection();
@@ -842,6 +740,7 @@ namespace Microsoft.EntityFrameworkCore
                            type.GetConstructors(
                                BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static))
                    where (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
+                       && !IsCompilerSynthesizedMethod(method)
                        && !Fixture.NotAnnotatedMethods.Contains(method)
                        && (method is ConstructorInfo || ((MethodInfo)method).GetBaseDefinition().DeclaringType == method.DeclaringType)
                        && (type.IsInterface || !interfaceMappings.Any(im => im.TargetMethods.Contains(method)))
@@ -890,11 +789,12 @@ namespace Microsoft.EntityFrameworkCore
                        || parameterType.IsValueType
                        && parameterType.IsNullableType()
                        && attributes.Any(a => a.GetType().Name == nameof(CanBeNullAttribute))
-                   select $"{type.FullName}.{method.Name}[{parameter.Name}]").ToList();
+                   select (Type: type, Method: method, Parameter: parameter)).ToList();
 
             Assert.False(
                 parametersWithRedundantAttribute.Count > 0,
-                "\r\n-- Redundant NotNull annotations --\r\n" + string.Join(Environment.NewLine, parametersWithRedundantAttribute));
+                "\r\n-- Redundant NotNull annotations --\r\n" + string.Join(Environment.NewLine,
+                    parametersWithRedundantAttribute.Select(t => $"{t.Type.FullName}.{t.Method.Name}[{t.Parameter.Name}]")));
         }
 
         private static readonly HashSet<MethodInfo> _nonCancellableAsyncMethods = new HashSet<MethodInfo>();

@@ -37,8 +37,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         {
         }
 
-        // SQL Server doesn't support releasing savepoints. Override to do nothing.
-
         /// <inheritdoc />
         public override bool SupportsSavepoints
         {

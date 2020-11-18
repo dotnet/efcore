@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     b => b.CommandTimeout(CommandTimeout ?? DefaultMasterConnectionCommandTimeout))
                 .Options;
 
-            return new SqlServerConnection(Dependencies.With(contextOptions));
+            return new SqlServerConnection(Dependencies with { ContextOptions = contextOptions });
         }
 
         /// <summary>

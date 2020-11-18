@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
 
             var contextOptions = new DbContextOptionsBuilder().UseSqlite(connectionStringBuilder.ToString()).Options;
 
-            return new SqliteRelationalConnection(Dependencies.With(contextOptions), _rawSqlCommandBuilder, _logger);
+            return new SqliteRelationalConnection(Dependencies with { ContextOptions = contextOptions }, _rawSqlCommandBuilder, _logger);
         }
 
         private void InitializeDbConnection(DbConnection connection)
