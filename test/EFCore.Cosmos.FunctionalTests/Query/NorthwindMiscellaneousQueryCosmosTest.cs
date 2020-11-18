@@ -2270,10 +2270,10 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Select_bitwise_or()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Select_bitwise_or(bool async)
         {
-            base.Select_bitwise_or();
+            await base.Select_bitwise_or(async);
 
             AssertSql(
                 @"SELECT c
@@ -2281,10 +2281,10 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Select_bitwise_or_multiple()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Select_bitwise_or_multiple(bool async)
         {
-            base.Select_bitwise_or_multiple();
+            await base.Select_bitwise_or_multiple(async);
 
             AssertSql(
                 @"SELECT c
@@ -2292,10 +2292,10 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Select_bitwise_and()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Select_bitwise_and(bool async)
         {
-            base.Select_bitwise_and();
+            await base.Select_bitwise_and(async);
 
             AssertSql(
                 @"SELECT c
@@ -2303,10 +2303,10 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Select_bitwise_and_or()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Select_bitwise_and_or(bool async)
         {
-            base.Select_bitwise_and_or();
+            await base.Select_bitwise_and_or(async);
 
             AssertSql(
                 @"SELECT c
@@ -2378,10 +2378,10 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] | 10248) = 10248))");
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Select_bitwise_or_with_logical_or()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Select_bitwise_or_with_logical_or(bool async)
         {
-            base.Select_bitwise_or_with_logical_or();
+            await base.Select_bitwise_or_with_logical_or(async);
 
             AssertSql(
                 @"SELECT c
@@ -2389,10 +2389,10 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Select_bitwise_and_with_logical_and()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Select_bitwise_and_with_logical_and(bool async)
         {
-            base.Select_bitwise_and_with_logical_and();
+            await base.Select_bitwise_and_with_logical_and(async);
 
             AssertSql(
                 @"SELECT c
@@ -2602,10 +2602,10 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
         }
 
-        [ConditionalFact(Skip = "Issue#17246")]
-        public override void DefaultIfEmpty_without_group_join()
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override async Task DefaultIfEmpty_without_group_join(bool async)
         {
-            base.DefaultIfEmpty_without_group_join();
+            await base.DefaultIfEmpty_without_group_join(async);
 
             AssertSql(
                 @"SELECT c
@@ -3818,16 +3818,6 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                 @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
-        }
-
-        public override void Throws_on_concurrent_query_first()
-        {
-            // #13160
-        }
-
-        public override void Throws_on_concurrent_query_list()
-        {
-            // #13160
         }
 
         [ConditionalTheory(Skip = "Issue#17246")]
