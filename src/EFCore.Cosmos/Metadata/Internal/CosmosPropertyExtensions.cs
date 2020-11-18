@@ -33,8 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal
                 && key.Properties.Count > 1
                 && !property.IsForeignKey()
                 && property.ClrType == typeof(int)
-                && property.ValueGenerated == ValueGenerated.OnAdd
-                && property.FindContainingPrimaryKey()!.Properties.Count > 1;
+                && property.ValueGenerated == ValueGenerated.OnAdd;
         }
     }
 }
