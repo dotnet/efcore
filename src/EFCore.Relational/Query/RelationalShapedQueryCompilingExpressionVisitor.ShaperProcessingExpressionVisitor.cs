@@ -995,33 +995,42 @@ namespace Microsoft.EntityFrameworkCore.Query
                         indexExpression);
 
                 var buffering = false;
-                if (_readerColumns != null
-                    && _readerColumns[index] == null)
+
+                if (_readerColumns != null)
                 {
                     buffering = true;
-                    var bufferedReaderLambdaExpression = valueExpression;
-                    var columnType = bufferedReaderLambdaExpression.Type;
-                    if (!columnType.IsValueType
-                        || !BufferedDataReader.IsSupportedValueType(columnType))
+                    var columnType = valueExpression.Type;
+                    var bufferedColumnType = columnType;
+                    if (!bufferedColumnType.IsValueType
+                        || !BufferedDataReader.IsSupportedValueType(bufferedColumnType))
                     {
-                        columnType = typeof(object);
-                        bufferedReaderLambdaExpression = Expression.Convert(bufferedReaderLambdaExpression, columnType);
+                        bufferedColumnType = typeof(object);
                     }
 
-                    _readerColumns[index] = ReaderColumn.Create(
-                        columnType,
-                        nullable,
-                        _indexMapParameter != null ? ((ColumnExpression)_selectExpression.Projection[index].Expression).Name : null,
-                        property,
-                        Expression.Lambda(
-                            bufferedReaderLambdaExpression,
-                            dbDataReader,
-                            _indexMapParameter ?? Expression.Parameter(typeof(int[]))).Compile());
-
-                    if (getMethod.DeclaringType != typeof(DbDataReader))
+                    if (_readerColumns[index] == null)
                     {
-                        valueExpression = Expression.Call(
-                            dbDataReader, RelationalTypeMapping.GetDataReaderMethod(columnType), indexExpression);
+                        var bufferedReaderLambdaExpression = valueExpression;
+                        if (columnType != bufferedColumnType)
+                        {
+                            bufferedReaderLambdaExpression = Expression.Convert(bufferedReaderLambdaExpression, bufferedColumnType);
+                        }
+
+                        _readerColumns[index] = ReaderColumn.Create(
+                            bufferedColumnType,
+                            nullable,
+                            _indexMapParameter != null ? ((ColumnExpression)_selectExpression.Projection[index].Expression).Name : null,
+                            property,
+                            Expression.Lambda(
+                                bufferedReaderLambdaExpression,
+                                dbDataReader,
+                                _indexMapParameter ?? Expression.Parameter(typeof(int[]))).Compile());
+                    }
+
+                    valueExpression = Expression.Call(
+                        dbDataReader, RelationalTypeMapping.GetDataReaderMethod(bufferedColumnType), indexExpression);
+                    if (valueExpression.Type != columnType)
+                    {
+                        valueExpression = Expression.Convert(valueExpression, columnType);
                     }
                 }
 

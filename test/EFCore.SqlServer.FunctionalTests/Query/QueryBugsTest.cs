@@ -23,6 +23,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.Geometries;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -9262,6 +9263,158 @@ FROM [Blogs] AS [b]");
                     context.Blogs.AddRange(b1, b2);
                     context.Posts.AddRange(p11, p12, p13, p21, p22);
                     context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        #endregion
+
+        #region Issue23211
+
+        [ConditionalFact]
+        public virtual void Collection_include_on_owner_with_two_owned_types_mapped_to_different_table()
+        {
+            using (CreateDatabase23211())
+            {
+                using var context = new MyContext23211(_options);
+
+                var owner = context.Set<Owner23211>().Include(e => e.Dependents).AsSplitQuery().OrderBy(e => e.Id).Single();
+                Assert.NotNull(owner.Dependents);
+                Assert.Equal(2, owner.Dependents.Count);
+                Assert.NotNull(owner.Owned1);
+                Assert.Equal("A", owner.Owned1.Value);
+                Assert.NotNull(owner.Owned2);
+                Assert.Equal("B", owner.Owned2.Value);
+
+                AssertSql(
+                    @"SELECT [t].[Id], [t].[Owner23211Id], [t].[Value], [t].[Owner23211Id0], [t].[Value0]
+FROM (
+    SELECT TOP(2) [o].[Id], [o0].[Owner23211Id], [o0].[Value], [o1].[Owner23211Id] AS [Owner23211Id0], [o1].[Value] AS [Value0]
+    FROM [Owner23211] AS [o]
+    LEFT JOIN [Owned123211] AS [o0] ON [o].[Id] = [o0].[Owner23211Id]
+    LEFT JOIN [Owned223211] AS [o1] ON [o].[Id] = [o1].[Owner23211Id]
+    ORDER BY [o].[Id]
+) AS [t]
+ORDER BY [t].[Id]",
+                    //
+                    @"SELECT [d].[Id], [d].[Owner23211Id], [t].[Id]
+FROM (
+    SELECT TOP(1) [o].[Id]
+    FROM [Owner23211] AS [o]
+    ORDER BY [o].[Id]
+) AS [t]
+INNER JOIN [Dependent23211] AS [d] ON [t].[Id] = [d].[Owner23211Id]
+ORDER BY [t].[Id]");
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Collection_include_on_owner_with_owned_type_mapped_to_different_table()
+        {
+            using (CreateDatabase23211())
+            {
+                using var context = new MyContext23211(_options);
+
+                var owner = context.Set<SecondOwner23211>().Include(e => e.Dependents).AsSplitQuery().OrderBy(e => e.Id).Single();
+                Assert.NotNull(owner.Dependents);
+                Assert.Equal(2, owner.Dependents.Count);
+                Assert.NotNull(owner.Owned);
+                Assert.Equal("A", owner.Owned.Value);
+
+                AssertSql(
+                    @"SELECT [t].[Id], [t].[SecondOwner23211Id], [t].[Value]
+FROM (
+    SELECT TOP(2) [s].[Id], [o].[SecondOwner23211Id], [o].[Value]
+    FROM [SecondOwner23211] AS [s]
+    LEFT JOIN [Owned23211] AS [o] ON [s].[Id] = [o].[SecondOwner23211Id]
+    ORDER BY [s].[Id]
+) AS [t]
+ORDER BY [t].[Id]",
+                    //
+                    @"SELECT [s0].[Id], [s0].[SecondOwner23211Id], [t].[Id]
+FROM (
+    SELECT TOP(1) [s].[Id]
+    FROM [SecondOwner23211] AS [s]
+    ORDER BY [s].[Id]
+) AS [t]
+INNER JOIN [SecondDependent23211] AS [s0] ON [t].[Id] = [s0].[SecondOwner23211Id]
+ORDER BY [t].[Id]");
+            }
+        }
+
+        private class Owner23211
+        {
+            public int Id { get; set; }
+            public List<Dependent23211> Dependents { get; set; }
+            public OwnedType23211 Owned1 { get; set; }
+            public OwnedType23211 Owned2 { get; set; }
+        }
+
+        private class OwnedType23211
+        {
+            public string Value { get; set; }
+        }
+
+        private class Dependent23211
+        {
+            public int Id { get; set; }
+        }
+
+        private class SecondOwner23211
+        {
+            public int Id { get; set; }
+            public List<SecondDependent23211> Dependents { get; set; }
+            public OwnedType23211 Owned { get; set; }
+        }
+
+        private class SecondDependent23211
+        {
+            public int Id { get; set; }
+        }
+
+        private class MyContext23211 : DbContext
+        {
+            public MyContext23211(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Owner23211>().OwnsOne(e => e.Owned1, b => b.ToTable("Owned123211"));
+                modelBuilder.Entity<Owner23211>().OwnsOne(e => e.Owned2, b => b.ToTable("Owned223211"));
+                modelBuilder.Entity<SecondOwner23211>().OwnsOne(e => e.Owned, b => b.ToTable("Owned23211"));
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase23211()
+            => CreateTestStore(
+                () => new MyContext23211(_options),
+                context =>
+                {
+                    context.Add(new Owner23211
+                    {
+                        Dependents = new List<Dependent23211>
+                        {
+                            new Dependent23211(),
+                            new Dependent23211()
+                        },
+                        Owned1 = new OwnedType23211 { Value = "A" },
+                        Owned2 = new OwnedType23211 { Value = "B" }
+                    });
+
+                    context.Add(new SecondOwner23211
+                    {
+                        Dependents = new List<SecondDependent23211>
+                        {
+                            new SecondDependent23211(),
+                            new SecondDependent23211()
+                        },
+                        Owned = new OwnedType23211 { Value = "A" }
+                    });
+
+                    context.SaveChanges();
+
                     ClearLog();
                 });
 
@@ -9319,6 +9472,93 @@ WHERE [e].[Id] NOT IN (1, 7)");
                     context.SaveChanges();
                     ClearLog();
                 });
+        #endregion
+
+        #region Issue23282
+
+        [ConditionalFact]
+        public virtual void Can_query_point_with_buffered_data_reader()
+        {
+            var (options, testSqlLoggerFactory) = CreateOptions23282();
+            using var context = new MyContext23282(options);
+
+            var testUser = context.Locations.FirstOrDefault(x => x.Name == "My Location");
+
+            Assert.NotNull(testUser);
+
+            testSqlLoggerFactory.AssertBaseline(
+                new[] {
+                    @"SELECT TOP(1) [l].[Id], [l].[Name], [l].[Address_County], [l].[Address_Line1], [l].[Address_Line2], [l].[Address_Point], [l].[Address_Postcode], [l].[Address_Town]
+FROM [Locations] AS [l]
+WHERE [l].[Name] = N'My Location'" });
+            }
+
+        [Owned]
+        private class Address23282
+        {
+            public string Line1 { get; set; }
+            public string Line2 { get; set; }
+            public string Town { get; set; }
+            public string County { get; set; }
+            public string Postcode { get; set; }
+
+            public Point Point { get; set; }
+        }
+
+        private class Location23282
+        {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            public Guid Id { get; set; }
+
+            public string Name { get; set; }
+            public Address23282 Address { get; set; }
+        }
+
+        private class MyContext23282 : DbContext
+        {
+            public DbSet<Location23282> Locations { get; set; }
+
+            public MyContext23282(DbContextOptions options)
+                : base(options)
+            {
+            }
+        }
+
+        private (DbContextOptions, TestSqlLoggerFactory) CreateOptions23282()
+        {
+            var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest");
+            var testSqlLoggerFactory = new TestSqlLoggerFactory();
+            var serviceProvider = new ServiceCollection().AddSingleton<ILoggerFactory>(testSqlLoggerFactory).BuildServiceProvider();
+
+            var optionsBuilder = Fixture.AddOptions(new DbContextOptionsBuilder()
+                    .UseSqlServer(testStore.ConnectionString, b => b.EnableRetryOnFailure().UseNetTopologySuite()))
+                .EnableDetailedErrors()
+                .EnableServiceProviderCaching(false)
+                .UseApplicationServiceProvider(serviceProvider);
+
+            var context = new MyContext23282(optionsBuilder.Options);
+            if (context.Database.EnsureCreatedResiliently())
+            {
+                context.Locations.Add(new Location23282
+                {
+                    Name = "My Location",
+                    Address = new Address23282
+                    {
+                        Line1 = "1 Fake Street",
+                        Town = "Fake Town",
+                        County = "Fakeshire",
+                        Postcode = "PO57 0DE",
+                        Point = new Point(115.7930, 37.2431) { SRID = 4326 }
+                    }
+                });
+                context.SaveChanges();
+            }
+
+            testSqlLoggerFactory.Clear();
+
+            return (optionsBuilder.Options, testSqlLoggerFactory);
+        }
 
         #endregion
 

@@ -1037,6 +1037,72 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #endregion
 
+        #region Issue23285
+
+        [ConditionalFact]
+        public virtual void Owned_reference_on_base_with_hierarchy()
+        {
+            using (CreateScratch<MyContext23285>(Seed23285, "23285"))
+            {
+                using var context = new MyContext23285();
+
+                var query = context.Table.ToList();
+
+                var root = Assert.Single(query);
+                Assert.True(root is ChildA23285);
+            }
+        }
+
+        private static void Seed23285(MyContext23285 context)
+        {
+            context.Table.Add(new ChildA23285());
+
+            context.SaveChanges();
+        }
+
+        [Owned]
+        public class OwnedClass23285
+        {
+            public string A { get; set; }
+            public string B { get; set; }
+        }
+
+        public class Root23285
+        {
+            public int Id { get; set; }
+            public OwnedClass23285 OwnedProp { get; set; }
+        }
+
+        public class ChildA23285 : Root23285
+        {
+            public bool Prop { get; set; }
+        }
+
+        public class ChildB23285 : Root23285
+        {
+            public double Prop { get; set; }
+        }
+
+        private class MyContext23285 : DbContext
+        {
+            public DbSet<Root23285> Table { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("23285");
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<ChildA23285>().HasBaseType<Root23285>();
+                modelBuilder.Entity<ChildB23285>().HasBaseType<Root23285>();
+            }
+        }
+
+        #endregion
+
         #region SharedHelper
 
         private static InMemoryTestStore CreateScratch<TContext>(Action<TContext> seed, string databaseName)

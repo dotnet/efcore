@@ -458,7 +458,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(keySelector, nameof(keySelector));
 
             var selectExpression = (SelectExpression)source.QueryExpression;
-            selectExpression.PrepareForAggregate();
+            // This has it's own set of condition since it is different scenario from below.
+            // Aggregate operators need pushdown for skip/limit/offset covered by selectExpression.PrepareForAggregate.
+            // Aggregate operators need special processing beyond pushdown when applying over group by for client eval.
+            if (selectExpression.Limit != null
+                || selectExpression.Offset != null
+                || selectExpression.IsDistinct
+                || selectExpression.GroupBy.Count > 0)
+            {
+                selectExpression.PushdownIntoSubquery();
+            }
 
             var remappedKeySelector = RemapLambdaBody(source, keySelector);
 
@@ -1235,6 +1244,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private sealed class WeakEntityExpandingExpressionVisitor : ExpressionVisitor
         {
+            private static readonly MethodInfo _objectEqualsMethodInfo
+                = typeof(object).GetRequiredRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) });
+
             private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;
             private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -1361,15 +1373,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                             : foreignKey.Properties,
                         makeNullable);
 
-                    var outerKeyFirstProperty = outerKey is NewExpression newExpression
-                        ? ((UnaryExpression)((NewArrayExpression)newExpression.Arguments[0]).Expressions[0]).Operand
-                        : outerKey;
 
-                    var predicate = outerKeyFirstProperty.Type.IsNullableType()
+                    var keyComparison = Expression.Call(_objectEqualsMethodInfo, AddConvertToObject(outerKey), AddConvertToObject(innerKey));
+
+                    var predicate = makeNullable
                         ? Expression.AndAlso(
-                            Expression.NotEqual(outerKeyFirstProperty, Expression.Constant(null, outerKeyFirstProperty.Type)),
-                            Expression.Equal(outerKey, innerKey))
-                        : Expression.Equal(outerKey, innerKey);
+                            outerKey is NewArrayExpression newArrayExpression
+                                ? newArrayExpression.Expressions
+                                    .Select(
+                                        e =>
+                                        {
+                                            var left = (e as UnaryExpression)?.Operand ?? e;
+
+                                            return Expression.NotEqual(left, Expression.Constant(null, left.Type));
+                                        })
+                                    .Aggregate((l, r) => Expression.AndAlso(l, r))
+                                : Expression.NotEqual(outerKey, Expression.Constant(null, outerKey.Type)),
+                            keyComparison)
+                        : (Expression)keyComparison;
 
                     var correlationPredicate = Expression.Lambda(predicate, correlationPredicateParameter);
 
@@ -1459,6 +1480,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 return innerShaper;
             }
+
+            private static Expression AddConvertToObject(Expression expression)
+                => expression.Type.IsValueType
+                    ? Expression.Convert(expression, typeof(object))
+                    : expression;
 
             private static IDictionary<IProperty, ColumnExpression>? GetPropertyExpressionFromSameTable(
                 IEntityType entityType,

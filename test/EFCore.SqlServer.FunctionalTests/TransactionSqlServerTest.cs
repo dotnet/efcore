@@ -2,9 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
+
+// ReSharper disable MethodHasAsyncOverload
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -19,6 +24,41 @@ namespace Microsoft.EntityFrameworkCore
         public override Task Savepoint_can_be_released(bool async)
             => Task.CompletedTask;
 
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Savepoints_are_disabled_with_MARS(bool async)
+        {
+            await using var context = CreateContextWithConnectionString(
+                SqlServerTestStore.CreateConnectionString(TestStore.Name, multipleActiveResultSets: true));
+
+            await using var transaction = await context.Database.BeginTransactionAsync();
+
+            var orderId = 300;
+            foreach (var _ in context.Set<TransactionCustomer>())
+            {
+                context.Add(new TransactionOrder { Id = orderId++, Name = "Order " + orderId });
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+            }
+
+            await transaction.CommitAsync();
+
+            Assert.Contains(Fixture.ListLoggerFactory.Log, t => t.Id == SqlServerEventId.SavepointsDisabledBecauseOfMARS);
+        }
+
+        // Test relies on savepoints, which are disabled when MARS is enabled
+        public override Task SaveChanges_uses_explicit_transaction_with_failure_behavior(bool async, bool autoTransaction)
+            => new SqlConnectionStringBuilder(TestStore.ConnectionString).MultipleActiveResultSets
+                ? Task.CompletedTask
+                : base.SaveChanges_uses_explicit_transaction_with_failure_behavior(async, autoTransaction);
+
         protected override bool SnapshotSupported
             => true;
 
@@ -26,12 +66,16 @@ namespace Microsoft.EntityFrameworkCore
             => true;
 
         protected override DbContext CreateContextWithConnectionString()
+            => CreateContextWithConnectionString(null);
+
+        protected DbContext CreateContextWithConnectionString(string connectionString)
         {
             var options = Fixture.AddOptions(
                     new DbContextOptionsBuilder()
                         .UseSqlServer(
-                            TestStore.ConnectionString,
+                            connectionString ?? TestStore.ConnectionString,
                             b => b.ApplyConfiguration().ExecutionStrategy(c => new SqlServerExecutionStrategy(c))))
+                .ConfigureWarnings(b => b.Log(SqlServerEventId.SavepointsDisabledBecauseOfMARS))
                 .UseInternalServiceProvider(Fixture.ServiceProvider);
 
             return new DbContext(options.Options);
@@ -65,6 +109,7 @@ namespace Microsoft.EntityFrameworkCore
                 new SqlServerDbContextOptionsBuilder(
                         base.AddOptions(builder))
                     .ExecutionStrategy(c => new SqlServerExecutionStrategy(c));
+                builder.ConfigureWarnings(b => b.Log(SqlServerEventId.SavepointsDisabledBecauseOfMARS));
                 return builder;
             }
         }

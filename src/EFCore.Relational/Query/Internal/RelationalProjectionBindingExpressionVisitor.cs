@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -283,6 +284,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 test = Expression.Equal(test, Expression.Constant(true, typeof(bool?)));
             }
+
+            ifTrue = MatchTypes(ifTrue, conditionalExpression.IfTrue.Type);
+            ifFalse = MatchTypes(ifFalse, conditionalExpression.IfFalse.Type);
 
             return conditionalExpression.Update(test, ifTrue, ifFalse);
         }
@@ -578,6 +582,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     : unaryExpression.Update(MatchTypes(operand, unaryExpression.Operand.Type));
         }
 
+        [DebuggerStepThrough]
         private static Expression MatchTypes(Expression expression, Type targetType)
         {
             if (targetType != expression.Type

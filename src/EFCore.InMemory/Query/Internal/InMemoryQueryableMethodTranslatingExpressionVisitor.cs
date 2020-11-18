@@ -1302,7 +1302,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         private sealed class WeakEntityExpandingExpressionVisitor : ExpressionVisitor
         {
+            private static readonly MethodInfo _objectEqualsMethodInfo
+                = typeof(object).GetRequiredRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) });
+
             private readonly InMemoryExpressionTranslatingExpressionVisitor _expressionTranslator;
+
             private InMemoryQueryExpression _queryExpression;
 
             public WeakEntityExpandingExpressionVisitor(InMemoryExpressionTranslatingExpressionVisitor expressionTranslator)
@@ -1423,15 +1427,23 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             : foreignKey.Properties,
                         makeNullable);
 
-                    var outerKeyFirstProperty = outerKey is NewExpression newExpression
-                        ? ((UnaryExpression)((NewArrayExpression)newExpression.Arguments[0]).Expressions[0]).Operand
-                        : outerKey;
+                    var keyComparison = Expression.Call(_objectEqualsMethodInfo, AddConvertToObject(outerKey), AddConvertToObject(innerKey));
 
-                    var predicate = outerKeyFirstProperty.Type.IsNullableType()
+                    var predicate = makeNullable
                         ? Expression.AndAlso(
-                            Expression.NotEqual(outerKeyFirstProperty, Expression.Constant(null, outerKeyFirstProperty.Type)),
-                            Expression.Equal(outerKey, innerKey))
-                        : Expression.Equal(outerKey, innerKey);
+                            outerKey is NewArrayExpression newArrayExpression
+                                ? newArrayExpression.Expressions
+                                    .Select(
+                                        e =>
+                                        {
+                                            var left = (e as UnaryExpression)?.Operand ?? e;
+
+                                            return Expression.NotEqual(left, Expression.Constant(null, left.Type));
+                                        })
+                                    .Aggregate((l, r) => Expression.AndAlso(l, r))
+                                : Expression.NotEqual(outerKey, Expression.Constant(null, outerKey.Type)),
+                            keyComparison)
+                        : (Expression)keyComparison;
 
                     var correlationPredicate = _expressionTranslator.Translate(predicate)!;
                     innerQueryExpression.UpdateServerQueryExpression(
@@ -1490,6 +1502,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                 return innerShaper;
             }
+
+            private static Expression AddConvertToObject(Expression expression)
+                => expression.Type.IsValueType
+                    ? Expression.Convert(expression, typeof(object))
+                    : expression;
         }
 
         private ShapedQueryExpression? TranslateScalarAggregate(

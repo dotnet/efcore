@@ -624,6 +624,39 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
                                         OrderDate = Convert.ToDateTime("2016-04-25 19:23:56")
                                     }
                                 );
+
+                                ob.OwnsMany(e => e.Details, odb =>
+                                {
+                                    odb.HasData(
+                                        new
+                                        {
+                                            Id = -100,
+                                            OrderId = -10,
+                                            OrderClientId = 1,
+                                            Detail = "Discounted Order"
+                                        },
+                                        new
+                                        {
+                                            Id = -101,
+                                            OrderId = -10,
+                                            OrderClientId = 1,
+                                            Detail = "Full Price Order"
+                                        },
+                                        new
+                                        {
+                                            Id = -200,
+                                            OrderId = -20,
+                                            OrderClientId = 2,
+                                            Detail = "Internal Order"
+                                        },
+                                        new
+                                        {
+                                            Id = -300,
+                                            OrderId = -30,
+                                            OrderClientId = 3,
+                                            Detail = "Bulk Order"
+                                        });
+                                });
                             });
                     });
 

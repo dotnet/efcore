@@ -1924,6 +1924,37 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Do_not_erase_projection_mapping_when_adding_single_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => o.OrderID < 10350)
+                    .Include(e => e.OrderDetails).ThenInclude(e => e.Product)
+                    .Select(
+                        o => new
+                        {
+                            OrderID = o.OrderID,
+                            Order = o,
+                            Property1 = o.OrderDetails.FirstOrDefault(e => e.UnitPrice > 10),
+                            Property2 = o.OrderDetails.Where(e => e.UnitPrice < 10),
+                        }),
+                elementSorter: e => e.OrderID,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.OrderID, a.OrderID);
+                    AssertInclude(e.Order, a.Order,
+                        new ExpectedInclude<Order>(e => e.OrderDetails),
+                        new ExpectedInclude<OrderDetail>(e => e.Product, "OrderDetails"));
+                    AssertInclude(e.Property1, a.Property1, new ExpectedInclude<OrderDetail>(e => e.Product));
+                    AssertCollection(e.Property2, a.Property2,
+                        elementAsserter: (ei, ai) => AssertInclude(ei, ai, new ExpectedInclude<OrderDetail>(e => e.Product)));
+                },
+                entryCount: 446);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Projection_skip_projection_doesnt_project_intermittent_column(bool async)
         {
             return AssertQuery(
@@ -1967,5 +1998,32 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(x => new { Aggregate = x.CustomerID + " " + x.City }),
                 assertOrder: true);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Ternary_in_client_eval_assigns_correct_types(bool async)
+        {     return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+
+                    .Where(o => o.OrderID < 10300)
+                    .OrderBy(e => e.OrderID)
+                    .Select(
+                        o => new
+                        {
+                            CustomerID = ClientMethod(o.CustomerID),
+                            OrderDate = o.OrderDate.HasValue ? o.OrderDate.Value : new DateTime(o.OrderID - 10000, 1, 1),
+                            OrderDate2 = o.OrderDate.HasValue == false ? new DateTime(o.OrderID - 10000, 1, 1) : o.OrderDate.Value
+                        }),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.CustomerID, a.CustomerID);
+                    AssertEqual(e.OrderDate, a.OrderDate);
+                    AssertEqual(e.OrderDate2, a.OrderDate2);
+                });
+        }
+
+        private static string ClientMethod(string s) => s;
     }
 }

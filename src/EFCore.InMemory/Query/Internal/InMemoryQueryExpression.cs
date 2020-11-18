@@ -723,58 +723,39 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 new Expression[] { CurrentParameter, innerQueryExpression.CurrentParameter },
                 new Expression[] { MakeMemberAccess(outerParameter, outerMemberInfo), innerParameter });
 
+            var nullableReadValueExpressionVisitor = new NullableReadValueExpressionVisitor();
             var index = 0;
             outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Outer");
             foreach (var projection in _projectionMapping)
             {
                 if (projection.Value is EntityProjectionExpression entityProjection)
                 {
-                    var readExpressionMap = new Dictionary<IProperty, Expression>();
-                    foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
-                    {
-                        var replacedExpression = replacingVisitor.Visit(entityProjection.BindProperty(property));
-                        resultValueBufferExpressions.Add(replacedExpression);
-                        readExpressionMap[property] = CreateReadValueExpression(replacedExpression.Type, index++, property);
-                    }
-
-                    projectionMapping[projection.Key.Prepend(outerMemberInfo)]
-                        = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
+                    projectionMapping[projection.Key.Prepend(outerMemberInfo)] = CopyEntityProjectionToOuter(entityProjection);
                 }
                 else
                 {
                     var replacedExpression = replacingVisitor.Visit(projection.Value);
                     resultValueBufferExpressions.Add(replacedExpression);
-                    projectionMapping[projection.Key.Prepend(outerMemberInfo)]
-                        = CreateReadValueExpression(replacedExpression.Type, index++, InferPropertyFromInner(projection.Value));
+                    projectionMapping[projection.Key.Prepend(outerMemberInfo)] = CreateReadValueExpression(
+                        replacedExpression.Type, index++, InferPropertyFromInner(projection.Value));
                 }
             }
 
             var outerIndex = index;
             innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Inner");
-            var nullableReadValueExpressionVisitor = new NullableReadValueExpressionVisitor();
             foreach (var projection in innerQueryExpression._projectionMapping)
             {
                 if (projection.Value is EntityProjectionExpression entityProjection)
                 {
-                    var readExpressionMap = new Dictionary<IProperty, Expression>();
-                    foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
-                    {
-                        var replacedExpression = replacingVisitor.Visit(entityProjection.BindProperty(property));
-                        replacedExpression = nullableReadValueExpressionVisitor.Visit(replacedExpression);
-                        resultValueBufferExpressions.Add(replacedExpression);
-                        readExpressionMap[property] = CreateReadValueExpression(replacedExpression.Type, index++, property);
-                    }
-
-                    projectionMapping[projection.Key.Prepend(innerMemberInfo)]
-                        = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
+                    projectionMapping[projection.Key.Prepend(innerMemberInfo)] = CopyEntityProjectionToOuter(entityProjection, true);
                 }
                 else
                 {
                     var replacedExpression = replacingVisitor.Visit(projection.Value);
                     replacedExpression = nullableReadValueExpressionVisitor.Visit(replacedExpression);
                     resultValueBufferExpressions.Add(replacedExpression);
-                    projectionMapping[projection.Key.Prepend(innerMemberInfo)]
-                        = CreateReadValueExpression(replacedExpression.Type, index++, InferPropertyFromInner(projection.Value));
+                    projectionMapping[projection.Key.Prepend(innerMemberInfo)] = CreateReadValueExpression(
+                        replacedExpression.Type, index++, InferPropertyFromInner(projection.Value));
                 }
             }
 
@@ -808,6 +789,41 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 resultSelector);
 
             _projectionMapping = projectionMapping;
+
+            EntityProjectionExpression CopyEntityProjectionToOuter(EntityProjectionExpression entityProjection, bool nullable = false)
+            {
+                var readExpressionMap = new Dictionary<IProperty, Expression>();
+                foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
+                {
+                    var replacedExpression = replacingVisitor.Visit(entityProjection.BindProperty(property));
+                    if (nullable)
+                    {
+                        replacedExpression = nullableReadValueExpressionVisitor.Visit(replacedExpression);
+                    }
+                    resultValueBufferExpressions.Add(replacedExpression);
+                    readExpressionMap[property] = CreateReadValueExpression(
+                        replacedExpression.Type, index++, property);
+                }
+
+                var newEntityProjection = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
+
+                // Also lift nested entity projections
+                foreach (var navigation in entityProjection.EntityType.GetAllBaseTypes()
+                    .Concat(entityProjection.EntityType.GetDerivedTypesInclusive())
+                    .SelectMany(EntityTypeExtensions.GetDeclaredNavigations))
+                {
+                    var boundEntityShaperExpression = entityProjection.BindNavigation(navigation);
+                    if (boundEntityShaperExpression != null)
+                    {
+                        var innerEntityProjection = (EntityProjectionExpression)boundEntityShaperExpression.ValueBufferExpression;
+                        var newInnerEntityProjection = CopyEntityProjectionToOuter(innerEntityProjection);
+                        boundEntityShaperExpression = boundEntityShaperExpression.Update(newInnerEntityProjection);
+                        newEntityProjection.AddNavigationBinding(navigation, boundEntityShaperExpression);
+                    }
+                }
+
+                return newEntityProjection;
+            }
         }
 
         /// <summary>
@@ -1031,14 +1047,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
                 {
                     var replacedExpression = replacingVisitor.Visit(entityProjection.BindProperty(property));
-                    var valueBufferIndex = GetValueBufferIndex(replacedExpression);
-                    while (valueBufferIndex >= resultValueBufferExpressions.Count)
-                    {
-                        resultValueBufferExpressions.Add(Constant(null));
-                    }
-                    resultValueBufferExpressions[valueBufferIndex] = replacedExpression;
+                    resultValueBufferExpressions.Add(replacedExpression);
                     readExpressionMap[property] = CreateReadValueExpression(
-                        replacedExpression.Type, valueBufferIndex, property);
+                        replacedExpression.Type, resultValueBufferExpressions.Count - 1, property);
                 }
 
                 var newEntityProjection = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
