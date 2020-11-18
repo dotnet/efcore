@@ -355,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return _clientEval ? extensionExpression : QueryCompilationContext.NotTranslatedExpression;
 
                 default:
-                    throw new InvalidOperationException(CoreStrings.QueryFailed(extensionExpression.Print(), GetType().Name));
+                    throw new InvalidOperationException(CoreStrings.TranslationFailed(extensionExpression.Print()));
             }
         }
 

@@ -271,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return newIncludeExpression;
 
                 default:
-                    throw new InvalidOperationException(CoreStrings.QueryFailed(extensionExpression.Print(), GetType().Name));
+                    throw new InvalidOperationException(CoreStrings.TranslationFailed(extensionExpression.Print()));
             }
         }
 
@@ -336,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     break;
 
                 default:
-                    throw new InvalidOperationException(CoreStrings.QueryFailed(memberExpression.Print(), GetType().Name));
+                    throw new InvalidOperationException(CoreStrings.TranslationFailed(memberExpression.Print()));
             }
 
             var navigationProjection = innerEntityProjection.BindMember(
@@ -372,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
 
                 default:
-                    throw new InvalidOperationException(CoreStrings.QueryFailed(memberExpression.Print(), GetType().Name));
+                    throw new InvalidOperationException(CoreStrings.TranslationFailed(memberExpression.Print()));
             }
 
             Expression NullSafeUpdate(Expression expression)
@@ -529,7 +529,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         break;
 
                     default:
-                        throw new InvalidOperationException(CoreStrings.QueryFailed(methodCallExpression.Print(), GetType().Name));
+                        throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
                 }
 
                 Expression navigationProjection;
@@ -576,7 +576,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     }
 
                     default:
-                        throw new InvalidOperationException(CoreStrings.QueryFailed(methodCallExpression.Print(), GetType().Name));
+                        throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
                 }
             }
 
@@ -725,7 +725,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             if (projectionBindingExpression.QueryExpression != _selectExpression)
             {
-                throw new InvalidOperationException(CoreStrings.QueryFailed(projectionBindingExpression.Print(), GetType().Name));
+                throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print()));
             }
         }
 

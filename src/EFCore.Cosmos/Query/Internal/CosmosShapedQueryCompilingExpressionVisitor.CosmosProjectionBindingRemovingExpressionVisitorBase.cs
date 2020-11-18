@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                         break;
                                     default:
                                         throw new InvalidOperationException(
-                                            CoreStrings.QueryFailed(binaryExpression.Print(), GetType().Name));
+                                            CoreStrings.TranslationFailed(binaryExpression.Print()));
                                 }
                             }
 
@@ -260,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                 objectArrayProjection = objectArrayProjectionExpression;
                                 break;
                             default:
-                                throw new InvalidOperationException(CoreStrings.QueryFailed(extensionExpression.Print(), GetType().Name));
+                                throw new InvalidOperationException(CoreStrings.TranslationFailed(extensionExpression.Print()));
                         }
 
                         var jArray = _projectionBindings[objectArrayProjection];
