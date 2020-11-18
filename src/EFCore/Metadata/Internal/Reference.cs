@@ -16,8 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public class Reference<T> : IMetadataReference<T>
     {
-        // TODO-NULLABLE: Use T? once we switch to C# 9, in this and IMetadataReference
-        [CA.AllowNull, CA.MaybeNull]
         private T _object;
         private readonly IReferenceRoot<T>? _root;
         private int _referenceCount = 1;
@@ -28,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public Reference([CanBeNull] T @object)
+        public Reference([NotNull] T @object)
             : this(@object, null)
         {
         }
@@ -39,9 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public Reference([CanBeNull, CA.AllowNull] T @object, [CanBeNull] IReferenceRoot<T>? root)
+        public Reference([NotNull] T @object, [CanBeNull] IReferenceRoot<T>? root)
         {
-            // TODO-NULLABLE: Object can be set to null from the ctor, but not from the property?
             _object = @object;
             _root = root;
         }
@@ -52,7 +49,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [CA.MaybeNull]
         public virtual T Object
         {
             get => _object;
@@ -70,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (_referenceCount-- == 1)
             {
                 _root?.Release(this);
-                _object = default;
+                _object = default!;
             }
         }
 
