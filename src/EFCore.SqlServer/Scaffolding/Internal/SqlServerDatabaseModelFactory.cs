@@ -577,7 +577,7 @@ LEFT JOIN [sys].[extended_properties] AS [e] ON
 AND [e].[class] = 1
 AND [e].[name] = 'MS_Description'";
 
-            var synonymFilter = @"[v].[is_ms_shipped] = 0 ";
+            var synonymFilter = @"[s].[is_ms_shipped] = 0 ";
 
             if (tableFilter != null)
             {
