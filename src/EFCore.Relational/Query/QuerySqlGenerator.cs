@@ -292,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (!sqlFunctionExpression.IsNiladic)
             {
                 _relationalCommandBuilder.Append("(");
-                GenerateList(sqlFunctionExpression.Arguments!, e => Visit(e));
+                GenerateList(sqlFunctionExpression.Arguments, e => Visit(e));
                 _relationalCommandBuilder.Append(")");
             }
 

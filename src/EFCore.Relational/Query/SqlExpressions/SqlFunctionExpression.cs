@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
 
 #nullable enable
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
@@ -22,7 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    // TODO - NULLABLE for C# 9 (MemberNotNullIf on IsNiladic)
     public class SqlFunctionExpression : SqlExpression
     {
         /// <summary>
@@ -231,6 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     A bool value indicating if the function is niladic.
         /// </summary>
+        [CA.MemberNotNullWhen(false, nameof(Arguments), nameof(ArgumentsPropagateNullability))]
         public virtual bool IsNiladic { get; }
 
         /// <summary>
@@ -276,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             SqlExpression[]? arguments = default;
             if (!IsNiladic)
             {
-                arguments = new SqlExpression[Arguments!.Count];
+                arguments = new SqlExpression[Arguments.Count];
                 for (var i = 0; i < arguments.Length; i++)
                 {
                     arguments[i] = (SqlExpression)visitor.Visit(Arguments[i]);
@@ -367,7 +368,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             if (!IsNiladic)
             {
                 expressionPrinter.Append("(");
-                expressionPrinter.VisitCollection(Arguments!);
+                expressionPrinter.VisitCollection(Arguments);
                 expressionPrinter.Append(")");
             }
         }
@@ -381,6 +382,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         private bool Equals(SqlFunctionExpression sqlFunctionExpression)
             => base.Equals(sqlFunctionExpression)
+                && IsNiladic == sqlFunctionExpression.IsNiladic
                 && Name == sqlFunctionExpression.Name
                 && Schema == sqlFunctionExpression.Schema
                 && ((Instance == null && sqlFunctionExpression.Instance == null)

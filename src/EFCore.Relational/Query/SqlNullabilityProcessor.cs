@@ -1002,7 +1002,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return sqlFunctionExpression.Update(instance, sqlFunctionExpression.Arguments);
             }
 
-            var arguments = new SqlExpression[sqlFunctionExpression.Arguments!.Count];
+            var arguments = new SqlExpression[sqlFunctionExpression.Arguments.Count];
             for (var i = 0; i < arguments.Length; i++)
             {
                 arguments[i] = Visit(sqlFunctionExpression.Arguments[i], out _);
@@ -1687,8 +1687,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         nullabilityPropagationElements.Add(sqlFunctionExpression.Instance);
                     }
 
-                    if (sqlFunctionExpression.Arguments != null
-                        && sqlFunctionExpression.ArgumentsPropagateNullability != null)
+                    if (!sqlFunctionExpression.IsNiladic)
                     {
                         for (var i = 0; i < sqlFunctionExpression.Arguments.Count; i++)
                         {
