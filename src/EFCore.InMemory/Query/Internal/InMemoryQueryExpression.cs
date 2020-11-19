@@ -385,6 +385,110 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual void ApplySetOperation([NotNull] MethodInfo setOperationMethodInfo, [NotNull] InMemoryQueryExpression source2)
+        {
+            var clientProjection = _valueBufferSlots.Count != 0;
+            if (!clientProjection)
+            {
+                var result = new Dictionary<ProjectionMember, Expression>();
+                foreach (var (key, value1, value2) in _projectionMapping.Join(
+                    source2._projectionMapping, kv => kv.Key, kv => kv.Key,
+                    (kv1, kv2) => (kv1.Key, Value1: kv1.Value, Value2: kv2.Value)))
+                {
+                    if (value1 is EntityProjectionExpression entityProjection1
+                        && value2 is EntityProjectionExpression entityProjection2)
+                    {
+                        var map = new Dictionary<IProperty, Expression>();
+                        foreach (var property in GetAllPropertiesInHierarchy(entityProjection1.EntityType))
+                        {
+                            var expressionToAdd1 = entityProjection1.BindProperty(property);
+                            var expressionToAdd2 = entityProjection2.BindProperty(property);
+                            var index = AddToProjection(expressionToAdd1);
+                            source2.AddToProjection(expressionToAdd2);
+                            var type = expressionToAdd1.Type;
+                            if (!type.IsNullableType()
+                                && expressionToAdd2.Type.IsNullableType())
+                            {
+                                type = expressionToAdd2.Type;
+                            }
+                            map[property] = CreateReadValueExpression(type, index, property);
+                        }
+
+                        result[key] = new EntityProjectionExpression(entityProjection1.EntityType, map);
+                    }
+                    else
+                    {
+                        var index = AddToProjection(value1);
+                        source2.AddToProjection(value2);
+                        var type = value1.Type;
+                        if (!type.IsNullableType()
+                            && value2.Type.IsNullableType())
+                        {
+                            type = value2.Type;
+                        }
+                        result[key] = CreateReadValueExpression(type, index, InferPropertyFromInner(value1));
+                    }
+                }
+
+                _projectionMapping = result;
+            }
+
+            var selectorLambda = Lambda(
+                New(
+                    _valueBufferConstructor,
+                    NewArrayInit(
+                        typeof(object),
+                        _valueBufferSlots
+                            .Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e))),
+                CurrentParameter);
+
+            _groupingParameter = null;
+
+            ServerQueryExpression = Call(
+                EnumerableMethods.Select.MakeGenericMethod(ServerQueryExpression.Type.TryGetSequenceType(), typeof(ValueBuffer)),
+                ServerQueryExpression,
+                selectorLambda);
+
+            var selectorLambda2 = Lambda(
+                New(
+                    _valueBufferConstructor,
+                    NewArrayInit(
+                        typeof(object),
+                        source2._valueBufferSlots
+                            .Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e))),
+                source2.CurrentParameter);
+
+            source2._groupingParameter = null;
+
+            source2.ServerQueryExpression = Call(
+                EnumerableMethods.Select.MakeGenericMethod(source2.ServerQueryExpression.Type.TryGetSequenceType(), typeof(ValueBuffer)),
+                source2.ServerQueryExpression,
+                selectorLambda2);
+
+            ServerQueryExpression = Call(
+                setOperationMethodInfo.MakeGenericMethod(typeof(ValueBuffer)), ServerQueryExpression, source2.ServerQueryExpression);
+
+            if (clientProjection)
+            {
+                var newValueBufferSlots = _valueBufferSlots
+                    .Select((e, i) => CreateReadValueExpression(e.Type, i, InferPropertyFromInner(e)))
+                    .ToList();
+
+                _valueBufferSlots.Clear();
+                _valueBufferSlots.AddRange(newValueBufferSlots);
+            }
+            else
+            {
+                _valueBufferSlots.Clear();
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual void ApplyDefaultIfEmpty()
         {
             if (_valueBufferSlots.Count != 0)

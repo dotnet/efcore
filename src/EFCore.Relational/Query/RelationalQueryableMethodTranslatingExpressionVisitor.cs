@@ -298,7 +298,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             ((SelectExpression)source1.QueryExpression).ApplyUnion((SelectExpression)source2.QueryExpression, distinct: false);
 
-            return source1;
+            return source1.UpdateShaperExpression(
+                MatchShaperNullabilityForSetOperation(source1.ShaperExpression, source2.ShaperExpression, makeNullable: true));
         }
 
         /// <inheritdoc />
@@ -410,6 +411,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(source2, nameof(source2));
 
             ((SelectExpression)source1.QueryExpression).ApplyExcept((SelectExpression)source2.QueryExpression, distinct: true);
+
+            // Since except has result from source1, we don't need to change shaper
             return source1;
         }
 
@@ -588,7 +591,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             ((SelectExpression)source1.QueryExpression).ApplyIntersect((SelectExpression)source2.QueryExpression, distinct: true);
 
-            return source1;
+            // For intersect since result comes from both sides, if one of them is non-nullable then both are non-nullable
+            return source1.UpdateShaperExpression(
+                MatchShaperNullabilityForSetOperation(source1.ShaperExpression, source2.ShaperExpression, makeNullable: false));
         }
 
         /// <inheritdoc />
@@ -1195,7 +1200,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(source2, nameof(source2));
 
             ((SelectExpression)source1.QueryExpression).ApplyUnion((SelectExpression)source2.QueryExpression, distinct: true);
-            return source1;
+
+            return source1.UpdateShaperExpression(
+                MatchShaperNullabilityForSetOperation(source1.ShaperExpression, source2.ShaperExpression, makeNullable: true));
         }
 
         /// <inheritdoc />
@@ -1599,6 +1606,50 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     selectExpression.PushdownIntoSubquery();
                 }
+            }
+        }
+
+        private Expression MatchShaperNullabilityForSetOperation(Expression shaper1, Expression shaper2, bool makeNullable)
+        {
+            switch (shaper1)
+            {
+                case EntityShaperExpression entityShaperExpression1
+                when shaper2 is EntityShaperExpression entityShaperExpression2:
+                    return entityShaperExpression1.IsNullable != entityShaperExpression2.IsNullable
+                        ? entityShaperExpression1.MakeNullable(makeNullable)
+                        : entityShaperExpression1;
+
+                case NewExpression newExpression1
+                when shaper2 is NewExpression newExpression2:
+                    var newArguments = new Expression[newExpression1.Arguments.Count];
+                    for (var i = 0; i < newArguments.Length; i++)
+                    {
+                        newArguments[i] = MatchShaperNullabilityForSetOperation(
+                            newExpression1.Arguments[i], newExpression2.Arguments[i], makeNullable);
+                    }
+
+                    return newExpression1.Update(newArguments);
+
+                case MemberInitExpression memberInitExpression1
+                when shaper2 is MemberInitExpression memberInitExpression2:
+                    var newExpression = (NewExpression)MatchShaperNullabilityForSetOperation(
+                        memberInitExpression1.NewExpression, memberInitExpression2.NewExpression, makeNullable);
+
+                    var memberBindings = new MemberBinding[memberInitExpression1.Bindings.Count];
+                    for (var i = 0; i < memberBindings.Length; i++)
+                    {
+                        var memberAssignment = memberInitExpression1.Bindings[i] as MemberAssignment;
+                        Check.DebugAssert(memberAssignment != null, "Only member assignment bindings are supported");
+
+
+                        memberBindings[i] = memberAssignment.Update(MatchShaperNullabilityForSetOperation(
+                            memberAssignment.Expression, ((MemberAssignment)memberInitExpression2.Bindings[i]).Expression, makeNullable));
+                    }
+
+                    return memberInitExpression1.Update(newExpression, memberBindings);
+
+                default:
+                    return shaper1;
             }
         }
 
