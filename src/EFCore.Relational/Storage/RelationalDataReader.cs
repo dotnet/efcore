@@ -10,6 +10,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -27,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private readonly DbCommand _command;
         private readonly DbDataReader _reader;
         private readonly Guid _commandId;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _logger;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command>? _logger;
         private readonly DateTimeOffset _startTime;
         private readonly Stopwatch _stopwatch;
 
@@ -48,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] DbCommand command,
             [NotNull] DbDataReader reader,
             Guid commandId,
-            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command>? logger)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(command, nameof(command));

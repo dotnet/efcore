@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(dependencies, nameof(dependencies));
 
             _typeMappingSource = dependencies.TypeMappingSource;
-            _boolTypeMapping = _typeMappingSource.FindMapping(typeof(bool));
+            _boolTypeMapping = _typeMappingSource.FindMapping(typeof(bool))!;
         }
 
         /// <inheritdoc />
@@ -1017,7 +1017,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <inheritdoc />
         [Obsolete("Use IRelationalTypeMappingSource directly.")]
-        public virtual RelationalTypeMapping FindMapping(Type type)
+        public virtual RelationalTypeMapping? FindMapping(Type type)
             => _typeMappingSource.FindMapping(Check.NotNull(type, nameof(type)));
     }
 }

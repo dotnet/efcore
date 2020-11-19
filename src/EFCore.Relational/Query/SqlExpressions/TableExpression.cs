@@ -5,6 +5,7 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
 
 #nullable enable
 
@@ -40,7 +41,17 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 expressionPrinter.Append(Schema).Append(".");
             }
 
-            expressionPrinter.Append(Name).Append(" AS ").Append(Alias!);
+            expressionPrinter.Append(Name).Append(" AS ").Append(Alias);
+        }
+
+        /// <summary>
+        ///     The alias assigned to this table source.
+        /// </summary>
+        [CA.NotNull]
+        public override string? Alias
+        {
+            get => base.Alias!;
+            internal set => base.Alias = value;
         }
 
         /// <summary>

@@ -8,6 +8,8 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -22,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     public class SqlServerRetryingExecutionStrategy : ExecutionStrategy
     {
-        private readonly ICollection<int> _additionalErrorNumbers;
+        private readonly ICollection<int>? _additionalErrorNumbers;
 
         /// <summary>
         ///     <para>
@@ -99,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] DbContext context,
             int maxRetryCount,
             TimeSpan maxRetryDelay,
-            [CanBeNull] ICollection<int> errorNumbersToAdd)
+            [CanBeNull] ICollection<int>? errorNumbersToAdd)
             : base(
                 context,
                 maxRetryCount,
@@ -117,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] ExecutionStrategyDependencies dependencies,
             int maxRetryCount,
             TimeSpan maxRetryDelay,
-            [CanBeNull] ICollection<int> errorNumbersToAdd)
+            [CanBeNull] ICollection<int>? errorNumbersToAdd)
             : base(dependencies, maxRetryCount, maxRetryDelay)
             => _additionalErrorNumbers = errorNumbersToAdd;
 
@@ -129,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     <see langword="true" /> if the specified exception is considered as transient, otherwise <see langword="false" />.
         /// </returns>
-        protected override bool ShouldRetryOn(Exception exception)
+        protected override bool ShouldRetryOn(Exception? exception)
         {
             if (_additionalErrorNumbers != null
                 && exception is SqlException sqlException)
@@ -167,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore
                 : baseDelay;
         }
 
-        private static bool IsMemoryOptimizedError(Exception exception)
+        private static bool IsMemoryOptimizedError(Exception? exception)
         {
             if (exception is SqlException sqlException)
             {

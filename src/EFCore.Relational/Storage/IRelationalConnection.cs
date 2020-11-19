@@ -7,6 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -30,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets or sets the connection string for the database.
         /// </summary>
-        string ConnectionString { get; [param: CanBeNull] set; }
+        string? ConnectionString { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     <para>
@@ -43,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         Note that the connection must be disposed by application code since it was not created by Entity Framework.
         ///     </para>
         /// </summary>
+        [CA.AllowNull]
         DbConnection DbConnection { get; [param: CanBeNull] set; }
 
         /// <summary>
@@ -99,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the current transaction.
         /// </summary>
-        new IDbContextTransaction CurrentTransaction { get; }
+        new IDbContextTransaction? CurrentTransaction { get; }
 
         /// <summary>
         ///     Gets a semaphore used to serialize access to this connection.

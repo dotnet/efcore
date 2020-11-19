@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -146,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual TResult Execute<TState, TResult>(
             TState state,
             Func<DbContext, TState, TResult> operation,
-            Func<DbContext, TState, ExecutionResult<TResult>> verifySucceeded)
+            Func<DbContext, TState, ExecutionResult<TResult>>? verifySucceeded)
         {
             Check.NotNull(operation, nameof(operation));
 
@@ -162,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private TResult ExecuteImplementation<TState, TResult>(
             Func<DbContext, TState, TResult> operation,
-            Func<DbContext, TState, ExecutionResult<TResult>> verifySucceeded,
+            Func<DbContext, TState, ExecutionResult<TResult>>? verifySucceeded,
             TState state)
         {
             while (true)
@@ -239,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual Task<TResult> ExecuteAsync<TState, TResult>(
             TState state,
             Func<DbContext, TState, CancellationToken, Task<TResult>> operation,
-            Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded,
+            Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>>? verifySucceeded,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(operation, nameof(operation));
@@ -255,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private async Task<TResult> ExecuteImplementationAsync<TState, TResult>(
             Func<DbContext, TState, CancellationToken, Task<TResult>> operation,
-            Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded,
+            Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>>? verifySucceeded,
             TState state,
             CancellationToken cancellationToken)
         {
@@ -370,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     <see langword="true" /> if the specified exception could be thrown after a successful execution, otherwise <see langword="false" />.
         /// </returns>
-        protected internal virtual bool ShouldVerifySuccessOn([NotNull] Exception exception)
+        protected internal virtual bool ShouldVerifySuccessOn([CanBeNull] Exception? exception)
             => ShouldRetryOn(exception);
 
         /// <summary>
@@ -380,7 +382,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     <see langword="true" /> if the specified exception is considered as transient, otherwise <see langword="false" />.
         /// </returns>
-        protected internal abstract bool ShouldRetryOn([NotNull] Exception exception);
+        protected internal abstract bool ShouldRetryOn([CanBeNull] Exception? exception);
 
         /// <summary>
         ///     Recursively gets InnerException from <paramref name="exception" /> as long as it is an
@@ -393,8 +395,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The result from <paramref name="exceptionHandler" />.
         /// </returns>
         public static TResult CallOnWrappedException<TResult>(
-            [NotNull] Exception exception,
-            [NotNull] Func<Exception, TResult> exceptionHandler)
+            [CanBeNull] Exception? exception,
+            [NotNull] Func<Exception?, TResult> exceptionHandler)
             => exception is DbUpdateException dbUpdateException
                 ? CallOnWrappedException(dbUpdateException.InnerException, exceptionHandler)
                 : exceptionHandler(exception);

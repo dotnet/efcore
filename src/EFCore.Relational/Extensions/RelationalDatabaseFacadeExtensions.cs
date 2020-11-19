@@ -16,6 +16,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -177,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore
         public static int ExecuteSqlInterpolated(
             [NotNull] this DatabaseFacade databaseFacade,
             [NotNull] FormattableString sql)
-            => ExecuteSqlRaw(databaseFacade, sql.Format, sql.GetArguments());
+            => ExecuteSqlRaw(databaseFacade, sql.Format, sql.GetArguments()!);
 
         /// <summary>
         ///     <para>
@@ -274,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this DatabaseFacade databaseFacade,
             [NotNull] FormattableString sql,
             CancellationToken cancellationToken = default)
-            => ExecuteSqlRawAsync(databaseFacade, sql.Format, sql.GetArguments(), cancellationToken);
+            => ExecuteSqlRawAsync(databaseFacade, sql.Format, sql.GetArguments()!, cancellationToken);
 
         /// <summary>
         ///     <para>
@@ -442,7 +444,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="connection"> The connection. </param>
-        public static void SetDbConnection([NotNull] this DatabaseFacade databaseFacade, [CanBeNull] DbConnection connection)
+        public static void SetDbConnection([NotNull] this DatabaseFacade databaseFacade, [CanBeNull] DbConnection? connection)
             => GetFacadeDependencies(databaseFacade).RelationalConnection.DbConnection = connection;
 
         /// <summary>
@@ -450,7 +452,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <returns> The connection string. </returns>
-        public static string GetConnectionString([NotNull] this DatabaseFacade databaseFacade)
+        public static string? GetConnectionString([NotNull] this DatabaseFacade databaseFacade)
             => GetFacadeDependencies(databaseFacade).RelationalConnection.ConnectionString;
 
         /// <summary>
@@ -463,7 +465,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="connectionString"> The connection string. </param>
-        public static void SetConnectionString([NotNull] this DatabaseFacade databaseFacade, [CanBeNull] string connectionString)
+        public static void SetConnectionString([NotNull] this DatabaseFacade databaseFacade, [CanBeNull] string? connectionString)
             => GetFacadeDependencies(databaseFacade).RelationalConnection.ConnectionString = connectionString;
 
         /// <summary>
@@ -552,9 +554,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="transaction"> The <see cref="DbTransaction" /> to use. </param>
         /// <returns> A <see cref="IDbContextTransaction" /> that encapsulates the given transaction. </returns>
-        public static IDbContextTransaction UseTransaction(
+        public static IDbContextTransaction? UseTransaction(
             [NotNull] this DatabaseFacade databaseFacade,
-            [CanBeNull] DbTransaction transaction)
+            [CanBeNull] DbTransaction? transaction)
             => databaseFacade.UseTransaction(transaction, Guid.NewGuid());
 
         /// <summary>
@@ -564,9 +566,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="transaction"> The <see cref="DbTransaction" /> to use. </param>
         /// <param name="transactionId"> The unique identifier for the transaction. </param>
         /// <returns> A <see cref="IDbContextTransaction" /> that encapsulates the given transaction. </returns>
-        public static IDbContextTransaction UseTransaction(
+        public static IDbContextTransaction? UseTransaction(
             [NotNull] this DatabaseFacade databaseFacade,
-            [CanBeNull] DbTransaction transaction,
+            [CanBeNull] DbTransaction? transaction,
             Guid transactionId)
         {
             var transactionManager = GetTransactionManager(databaseFacade);
@@ -587,9 +589,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> containing the <see cref="IDbContextTransaction" /> for the given transaction. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        public static Task<IDbContextTransaction> UseTransactionAsync(
+        public static Task<IDbContextTransaction?> UseTransactionAsync(
             [NotNull] this DatabaseFacade databaseFacade,
-            [CanBeNull] DbTransaction transaction,
+            [CanBeNull] DbTransaction? transaction,
             CancellationToken cancellationToken = default)
             => databaseFacade.UseTransactionAsync(transaction, Guid.NewGuid(), cancellationToken);
 
@@ -602,9 +604,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> containing the <see cref="IDbContextTransaction" /> for the given transaction. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        public static Task<IDbContextTransaction> UseTransactionAsync(
+        public static Task<IDbContextTransaction?> UseTransactionAsync(
             [NotNull] this DatabaseFacade databaseFacade,
-            [CanBeNull] DbTransaction transaction,
+            [CanBeNull] DbTransaction? transaction,
             Guid transactionId,
             CancellationToken cancellationToken = default)
         {

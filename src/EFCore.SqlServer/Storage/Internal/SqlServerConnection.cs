@@ -8,6 +8,8 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
     /// <summary>
@@ -29,8 +31,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         // Compensate for slow SQL Server database creation
         private const int DefaultMasterConnectionCommandTimeout = 60;
 
-        private static readonly ConcurrentDictionary<string, bool> _multipleActiveResultSetsEnabledMap =
-            new ConcurrentDictionary<string, bool>();
+        private static readonly ConcurrentDictionary<string, bool> _multipleActiveResultSetsEnabledMap = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

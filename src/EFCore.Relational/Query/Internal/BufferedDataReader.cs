@@ -1270,7 +1270,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     for (var i = 0; i < _columns.Count; i++)
                     {
                         var column = _columns[i];
-                        if (!readerColumns.TryGetValue(column.Name, out var ordinal))
+                        if (!readerColumns.TryGetValue(column.Name!, out var ordinal))
                         {
                             throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(column.Name));
                         }

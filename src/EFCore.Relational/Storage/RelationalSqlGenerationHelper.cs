@@ -8,6 +8,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -155,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     The generated string.
         /// </returns>
-        public virtual string DelimitIdentifier(string name, string schema)
+        public virtual string DelimitIdentifier(string name, string? schema)
             => (!string.IsNullOrEmpty(schema)
                     ? DelimitIdentifier(schema) + "."
                     : string.Empty)
@@ -167,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="builder">The <see cref="StringBuilder" /> to write generated string to.</param>
         /// <param name="name">The identifier to delimit.</param>
         /// <param name="schema">The schema of the identifier.</param>
-        public virtual void DelimitIdentifier(StringBuilder builder, string name, string schema)
+        public virtual void DelimitIdentifier(StringBuilder builder, string name, string? schema)
         {
             if (!string.IsNullOrEmpty(schema))
             {
@@ -190,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var builder = new StringBuilder();
             using (var reader = new StringReader(text))
             {
-                string line;
+                string? line;
                 while ((line = reader.ReadLine()) != null)
                 {
                     builder.Append(SingleLineCommentToken).Append(" ").AppendLine(line);

@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -25,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="parameterValues"> The values to be assigned to parameters. </param>
         public RawSqlCommand(
             [NotNull] IRelationalCommand relationalCommand,
-            [NotNull] IReadOnlyDictionary<string, object> parameterValues)
+            [NotNull] IReadOnlyDictionary<string, object?> parameterValues)
         {
             Check.NotNull(relationalCommand, nameof(relationalCommand));
             Check.NotNull(parameterValues, nameof(parameterValues));
@@ -42,6 +44,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the values to be assigned to parameters.
         /// </summary>
-        public virtual IReadOnlyDictionary<string, object> ParameterValues { get; }
+        public virtual IReadOnlyDictionary<string, object?> ParameterValues { get; }
     }
 }

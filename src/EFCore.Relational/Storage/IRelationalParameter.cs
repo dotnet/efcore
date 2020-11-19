@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Data.Common;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -30,13 +32,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="command"> The command to add the parameter to. </param>
         /// <param name="value"> The value to be assigned to the parameter. </param>
-        void AddDbParameter([NotNull] DbCommand command, [CanBeNull] object value);
+        void AddDbParameter([NotNull] DbCommand command, [CanBeNull] object? value);
 
         /// <summary>
         ///     Adds the parameter as a <see cref="DbParameter" /> to a <see cref="DbCommand" />.
         /// </summary>
         /// <param name="command"> The command to add the parameter to. </param>
         /// <param name="parameterValues"> The map of parameter values </param>
-        void AddDbParameter([NotNull] DbCommand command, [NotNull] IReadOnlyDictionary<string, object> parameterValues);
+        void AddDbParameter([NotNull] DbCommand command, [NotNull] IReadOnlyDictionary<string, object?> parameterValues);
     }
 }
