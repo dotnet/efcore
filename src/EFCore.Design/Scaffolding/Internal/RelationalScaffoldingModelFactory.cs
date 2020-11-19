@@ -194,6 +194,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 modelBuilder.Model.SetDatabaseName(databaseModel.DatabaseName);
             }
 
+            if (!string.IsNullOrEmpty(databaseModel.Collation))
+            {
+                modelBuilder.UseCollation(databaseModel.Collation);
+            }
+
             VisitSequences(modelBuilder, databaseModel.Sequences);
             VisitTables(modelBuilder, databaseModel.Tables);
             VisitForeignKeys(modelBuilder, databaseModel.Tables.SelectMany(table => table.ForeignKeys).ToList());
@@ -497,7 +502,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (column.Collation != null)
             {
-                property.HasComment(column.Collation);
+                property.UseCollation(column.Collation);
             }
 
             if (!(column.Table.PrimaryKey?.Columns.Contains(column) ?? false))
