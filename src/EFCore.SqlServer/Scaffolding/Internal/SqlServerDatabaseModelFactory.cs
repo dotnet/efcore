@@ -566,12 +566,18 @@ WHERE "
             var synonymText = @"
 UNION
 SELECT
-    SCHEMA_NAME([v].[schema_id]) AS [schema],
-    [v].[name],
+    SCHEMA_NAME([s].[schema_id]) AS [schema],
+    [s].[name],
     CAST([e].[value] AS nvarchar(MAX)) AS [comment],
-    'synonym' AS [type],
-    CAST(0 AS bit) AS [is_memory_optimized]
-FROM [sys].[synonyms] AS [s]
+    'synonym' AS [type],";
+            if (supportsMemoryOptimizedTable)
+            {
+                synonymText += @",
+    CAST(0 AS bit) AS [is_memory_optimized]";
+            }
+
+            synonymText += @"
+FROM[sys].[synonyms] AS [s]
 LEFT JOIN [sys].[extended_properties] AS [e] ON
 [e].[major_id] = [s].[object_id] AND [e].[minor_id] = 0
 AND [e].[class] = 1
