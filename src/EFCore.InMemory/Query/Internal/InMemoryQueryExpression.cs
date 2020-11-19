@@ -445,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             _groupingParameter = null;
 
             ServerQueryExpression = Call(
-                EnumerableMethods.Select.MakeGenericMethod(ServerQueryExpression.Type.TryGetSequenceType(), typeof(ValueBuffer)),
+                EnumerableMethods.Select.MakeGenericMethod(ServerQueryExpression.Type.GetSequenceType(), typeof(ValueBuffer)),
                 ServerQueryExpression,
                 selectorLambda);
 
@@ -461,7 +461,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             source2._groupingParameter = null;
 
             source2.ServerQueryExpression = Call(
-                EnumerableMethods.Select.MakeGenericMethod(source2.ServerQueryExpression.Type.TryGetSequenceType(), typeof(ValueBuffer)),
+                EnumerableMethods.Select.MakeGenericMethod(source2.ServerQueryExpression.Type.GetSequenceType(), typeof(ValueBuffer)),
                 source2.ServerQueryExpression,
                 selectorLambda2);
 
