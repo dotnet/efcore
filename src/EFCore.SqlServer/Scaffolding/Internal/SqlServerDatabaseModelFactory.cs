@@ -562,7 +562,36 @@ AND "
 WHERE "
                 + viewFilter;
 
-            command.CommandText = commandText + viewCommandText;
+
+            var synonymText = @"
+UNION
+SELECT
+    SCHEMA_NAME([v].[schema_id]) AS [schema],
+    [v].[name],
+    CAST([e].[value] AS nvarchar(MAX)) AS [comment],
+    'synonym' AS [type],
+    CAST(0 AS bit) AS [is_memory_optimized]
+FROM [sys].[synonyms] AS [s]
+LEFT JOIN [sys].[extended_properties] AS [e] ON
+[e].[major_id] = [s].[object_id] AND [e].[minor_id] = 0
+AND [e].[class] = 1
+AND [e].[name] = 'MS_Description'";
+
+            var synonymFilter = @"[v].[is_ms_shipped] = 0 ";
+
+            if (tableFilter != null)
+            {
+                synonymFilter += @"
+AND "
+                    + tableFilter("SCHEMA_NAME([s].[schema_id])", "[s].[name]");
+            }
+
+            synonymText = synonymText
+                + @"
+WHERE "
+                + synonymFilter;
+
+            command.CommandText = commandText + viewCommandText + synonymText;
 
             using (var reader = command.ExecuteReader())
             {
@@ -643,6 +672,14 @@ FROM
 UNION ALL
     SELECT [t].[name], [t].[object_id], [t].[schema_id]
     FROM [sys].[tables] t WHERE ";
+
+            commandText += tableFilter;
+
+            commandText += @"
+UNION ALL
+	SELECT
+		[s].[name], OBJECT_ID([s].[base_object_name]) as object_id, SCHEMA_ID() AS schema_id
+	FROM sys.synonyms s WHERE ";
 
             commandText += tableFilter;
 
