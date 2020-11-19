@@ -50,10 +50,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the inverse navigation.
         /// </summary>
-        new IMutableNavigation Inverse
+        new IMutableNavigation? Inverse
         {
             [DebuggerStepThrough]
-            get => (IMutableNavigation)((INavigation)this).Inverse;
+            get => (IMutableNavigation?)((INavigation)this).Inverse;
         }
 
         /// <summary>

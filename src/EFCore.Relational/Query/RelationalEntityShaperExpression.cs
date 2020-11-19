@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     continue;
                 }
 
-                var propertyMappings = table.FindColumn(property).PropertyMappings;
+                var propertyMappings = table.FindColumn(property)!.PropertyMappings;
                 if (propertyMappings.Count() > 1
                     && propertyMappings.Any(pm => principalEntityTypes.Contains(pm.TableMapping.EntityType)))
                 {

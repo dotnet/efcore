@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -33,8 +35,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public int Compare(IReadOnlyList<IProperty> x, IReadOnlyList<IProperty> y)
+        public int Compare(IReadOnlyList<IProperty>? x, IReadOnlyList<IProperty>? y)
         {
+            if (ReferenceEquals(x, y))
+            {
+                return 0;
+            }
+
+            if (x is null)
+            {
+                return -1;
+            }
+
+            if (y is null)
+            {
+                return 1;
+            }
+
             var result = x.Count - y.Count;
 
             if (result != 0)
@@ -59,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public bool Equals(IReadOnlyList<IProperty> x, IReadOnlyList<IProperty> y)
+        public bool Equals(IReadOnlyList<IProperty>? x, IReadOnlyList<IProperty>? y)
             => Compare(x, y) == 0;
 
         /// <summary>

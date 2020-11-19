@@ -1502,7 +1502,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private Navigation AddNavigation(MemberIdentity navigationMember, ForeignKey foreignKey, bool pointsToPrincipal)
         {
-            var name = navigationMember.Name;
+            var name = navigationMember.Name!;
             var duplicateNavigation = FindNavigationsInHierarchy(name).FirstOrDefault();
             if (duplicateNavigation != null)
             {

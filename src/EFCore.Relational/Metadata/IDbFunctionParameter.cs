@@ -5,6 +5,8 @@ using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -46,6 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the associated <see cref="IStoreFunctionParameter" />.
         /// </summary>
-        IStoreFunctionParameter StoreFunctionParameter { get; }
+        // TODO-NULLABLE: Not sure about what this is for or if it should be nullable
+        IStoreFunctionParameter? StoreFunctionParameter { get; }
     }
 }

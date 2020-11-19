@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -34,10 +36,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="x"> The first object to compare. </param>
         /// <param name="y"> The second object to compare. </param>
         /// <returns> A negative number if 'x' is less than 'y'; a positive number if 'x' is greater than 'y'; zero otherwise. </returns>
-        public int Compare(IIndex x, IIndex y)
+        public int Compare(IIndex? x, IIndex? y)
         {
-            var result = PropertyListComparer.Instance.Compare(x.Properties, y.Properties);
-            return result != 0 ? result : EntityTypeFullNameComparer.Instance.Compare(x.DeclaringEntityType, y.DeclaringEntityType);
+            var result = PropertyListComparer.Instance.Compare(x?.Properties, y?.Properties);
+            return result != 0 ? result : EntityTypeFullNameComparer.Instance.Compare(x?.DeclaringEntityType, y?.DeclaringEntityType);
         }
 
         /// <summary>
@@ -46,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="x"> The first object to compare. </param>
         /// <param name="y"> The second object to compare. </param>
         /// <returns> <see langword="true" /> if the specified objects are equal; otherwise, <see langword="false" />. </returns>
-        public bool Equals(IIndex x, IIndex y)
+        public bool Equals(IIndex? x, IIndex? y)
             => Compare(x, y) == 0;
 
         /// <summary>

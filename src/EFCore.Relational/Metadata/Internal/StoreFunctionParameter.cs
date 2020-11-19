@@ -6,6 +6,8 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -28,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Function = function;
             Name = parameter.Name;
-            Type = parameter.StoreType;
+            Type = parameter.StoreType!;
             DbFunctionParameters = new List<IDbFunctionParameter> { parameter };
             parameter.StoreFunctionParameter = this;
         }

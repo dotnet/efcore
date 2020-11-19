@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -65,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Returns the object that is used as the default value for this column.
         /// </summary>
-        public virtual object DefaultValue
+        public virtual object? DefaultValue
         {
             get
             {
@@ -82,14 +84,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Returns the SQL expression that is used as the default value for this column.
         /// </summary>
-        public virtual string DefaultValueSql
+        public virtual string? DefaultValueSql
             => PropertyMappings.First().Property
                 .GetDefaultValueSql(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
 
         /// <summary>
         ///     Returns the SQL expression that is used as the computed value for this column.
         /// </summary>
-        public virtual string ComputedColumnSql
+        public virtual string? ComputedColumnSql
             => PropertyMappings.First().Property
                 .GetComputedColumnSql(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
 
@@ -104,14 +106,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Comment for this column
         /// </summary>
-        public virtual string Comment
+        public virtual string? Comment
             => PropertyMappings.First().Property
                 .GetComment(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
 
         /// <summary>
         ///     Collation for this column
         /// </summary>
-        public virtual string Collation
+        public virtual string? Collation
             => PropertyMappings.First().Property
                 .GetCollation(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
     }

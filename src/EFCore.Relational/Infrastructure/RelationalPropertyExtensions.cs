@@ -6,6 +6,8 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -30,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="properties"> The properties to format. </param>
         /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
         /// <returns> A list of column names. </returns>
-        public static IReadOnlyList<string> GetColumnNames(
+        public static IReadOnlyList<string>? GetColumnNames(
             [NotNull] this IEnumerable<IProperty> properties,
             in StoreObjectIdentifier storeObject)
         {

@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -29,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the scalar return type.
         /// </summary>
-        string ReturnType { get; }
+        string? ReturnType { get; }
 
         /// <summary>
         ///     Gets the entity type mappings for the returned row set.
@@ -45,11 +47,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the column with the given name. Returns <see langword="null" />
         ///     if no column with the given name is defined for the returned row set.
         /// </summary>
-        new IFunctionColumn FindColumn([NotNull] string name);
+        new IFunctionColumn? FindColumn([NotNull] string name);
 
         /// <summary>
         ///     Gets the column mapped to the given property. Returns <see langword="null" /> if no column is mapped to the given property.
         /// </summary>
-        new IFunctionColumn FindColumn([NotNull] IProperty property);
+        new IFunctionColumn? FindColumn([NotNull] IProperty property);
     }
 }

@@ -6,6 +6,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -20,9 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="materializationContextExpression"> The expression tree from which the parameter value will come. </param>
         public ParameterBindingInfo(
             [NotNull] IEntityType entityType,
-            [CanBeNull] Expression materializationContextExpression)
+            [NotNull] Expression materializationContextExpression)
         {
             Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(entityType, nameof(materializationContextExpression));
 
             EntityType = entityType;
             MaterializationContextExpression = materializationContextExpression;

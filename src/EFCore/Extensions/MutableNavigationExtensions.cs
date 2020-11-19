@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The inverse navigation, or <see langword="null" /> if none is defined.
         /// </returns>
         [Obsolete("Use IMutableNavigation.Inverse")]
-        public static IMutableNavigation FindInverse([NotNull] this IMutableNavigation navigation)
+        public static IMutableNavigation? FindInverse([NotNull] this IMutableNavigation navigation)
             => navigation.Inverse;
 
         /// <summary>

@@ -1117,7 +1117,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             var property = member.MemberInfo != null
                 ? entityType.FindProperty(member.MemberInfo)
-                : entityType.FindProperty(member.Name);
+                : entityType.FindProperty(member.Name!);
 
             if (property != null)
             {
@@ -1424,7 +1424,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             {
                 case ConstantExpression constantExpression:
                     return Expression.Constant(
-                        property.GetGetter().GetClrValue(constantExpression.Value), property.ClrType.MakeNullable());
+                        constantExpression.Value is null
+                            ? null
+                            : property.GetGetter().GetClrValue(constantExpression.Value),
+                        property.ClrType.MakeNullable());
 
                 case MethodCallExpression methodCallExpression
                     when methodCallExpression.Method.IsGenericMethod

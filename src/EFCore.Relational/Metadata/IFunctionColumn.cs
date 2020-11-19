@@ -3,6 +3,8 @@
 
 using System.Collections.Generic;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>

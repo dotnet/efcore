@@ -3,6 +3,8 @@
 
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -23,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the inverse navigation.
         /// </summary>
-        INavigationBase Inverse { get; }
+        INavigationBase? Inverse { get; }
 
         /// <summary>
         ///     Gets a value indicating whether the navigation property is a collection property.

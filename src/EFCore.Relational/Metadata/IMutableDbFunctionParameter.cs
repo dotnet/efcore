@@ -4,6 +4,8 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -19,11 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets or sets the store type of this parameter.
         /// </summary>
-        new string StoreType { get; [param: CanBeNull] set; }
+        new string? StoreType { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     Gets or sets the <see cref="RelationalTypeMapping" /> for this parameter.
         /// </summary>
-        new RelationalTypeMapping TypeMapping { get; [param: CanBeNull] set; }
+        new RelationalTypeMapping? TypeMapping { get; [param: CanBeNull] set; }
     }
 }

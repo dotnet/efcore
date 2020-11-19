@@ -912,7 +912,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Type entityType,
                 Type relatedEntityType,
                 INavigationBase navigation,
-                INavigationBase inverseNavigation)
+                INavigationBase? inverseNavigation)
             {
                 var entityParameter = Expression.Parameter(entityType);
                 var relatedEntityParameter = Expression.Parameter(relatedEntityType);

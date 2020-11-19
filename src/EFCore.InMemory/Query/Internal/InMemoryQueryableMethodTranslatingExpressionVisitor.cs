@@ -1390,7 +1390,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                 var navigation = member.MemberInfo != null
                     ? entityType.FindNavigation(member.MemberInfo)
-                    : entityType.FindNavigation(member.Name);
+                    : entityType.FindNavigation(member.Name!);
 
                 if (navigation == null)
                 {

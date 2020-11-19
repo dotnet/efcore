@@ -7,6 +7,8 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -51,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool IsBuiltIn { get; }
 
         /// <inheritdoc />
-        public virtual string ReturnType { get; }
+        public virtual string? ReturnType { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -62,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual StoreFunctionParameter[] Parameters { get; }
 
         /// <inheritdoc />
-        public override IColumnBase FindColumn(IProperty property)
+        public override IColumnBase? FindColumn(IProperty property)
             => property.GetFunctionColumnMappings()
                 .FirstOrDefault(cm => cm.TableMapping.Table == this)
                 ?.Column;
@@ -106,12 +108,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IFunctionColumn IStoreFunction.FindColumn(string name)
-            => (IFunctionColumn)base.FindColumn(name);
+        IFunctionColumn? IStoreFunction.FindColumn(string name)
+            => (IFunctionColumn?)base.FindColumn(name);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IFunctionColumn IStoreFunction.FindColumn(IProperty property)
-            => (IFunctionColumn)FindColumn(property);
+        IFunctionColumn? IStoreFunction.FindColumn(IProperty property)
+            => (IFunctionColumn?)FindColumn(property);
     }
 }

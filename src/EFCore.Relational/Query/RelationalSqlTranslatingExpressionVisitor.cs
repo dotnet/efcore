@@ -1077,7 +1077,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var entityType = entityReferenceExpression.EntityType;
             var property = member.MemberInfo != null
                 ? entityType.FindProperty(member.MemberInfo)
-                : entityType.FindProperty(member.Name);
+                : entityType.FindProperty(member.Name!);
 
             if (property != null)
             {
@@ -1414,7 +1414,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 case SqlConstantExpression sqlConstantExpression:
                     return Expression.Constant(
-                        property.GetGetter().GetClrValue(sqlConstantExpression.Value), property.ClrType.MakeNullable());
+                        sqlConstantExpression.Value is null
+                            ? null
+                            : property.GetGetter().GetClrValue(sqlConstantExpression.Value),
+                        property.ClrType.MakeNullable());
 
                 case SqlParameterExpression sqlParameterExpression
                     when sqlParameterExpression.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal):
