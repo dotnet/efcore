@@ -647,6 +647,14 @@ UNION ALL
             commandText += tableFilter;
 
             commandText += @"
+UNION ALL
+	SELECT
+		[s].[name], OBJECT_ID([s].[base_object_name]) as object_id, SCHEMA_ID() AS schema_id
+	FROM sys.synonyms s WHERE ";
+
+            commandText += tableFilter;
+
+            commandText += @"
 ) o
 JOIN [sys].[columns] AS [c] ON [o].[object_id] = [c].[object_id]
 JOIN [sys].[types] AS [tp] ON [c].[user_type_id] = [tp].[user_type_id]
