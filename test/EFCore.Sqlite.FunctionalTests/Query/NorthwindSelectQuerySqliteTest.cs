@@ -211,12 +211,6 @@ FROM ""Orders"" AS ""o""");
             return base.SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(async);
         }
 
-        public override Task Reverse_without_explicit_ordering_throws(bool async)
-        {
-            return AssertTranslationFailedWithDetails(
-                () => base.Reverse_without_explicit_ordering_throws(async), RelationalStrings.MissingOrderingInSelectExpression);
-        }
-
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

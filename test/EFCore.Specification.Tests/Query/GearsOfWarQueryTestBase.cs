@@ -1253,12 +1253,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_coalesce_with_anonymous_types(bool async)
         {
-            return AssertTranslationFailed(
-                () => AssertQuery(
-                    async,
-                    ss => from g in ss.Set<Gear>()
-                          where (new { Name = g.LeaderNickname } ?? new { Name = g.FullName }) != null
-                          select g.Nickname));
+            return AssertQuery(
+                async,
+                ss => from g in ss.Set<Gear>()
+                        where (new { Name = g.LeaderNickname } ?? new { Name = g.FullName }) != null
+                        select g.Nickname);
         }
 
         [ConditionalTheory(Skip = "issue #8421")]
@@ -2724,10 +2723,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var prm = "Marcus' Tag";
 
-            return AssertTranslationFailed(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Gear>().Where(g => ClientEquals(g.Tag.Note, prm))));
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>().Where(g => ClientEquals(g.Tag.Note, prm)));
         }
 
         private static bool ClientEquals(string first, string second)
@@ -5307,17 +5305,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collection_order_by_constant_null_of_non_mapped_type(bool async)
         {
-            return AssertTranslationFailed(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Gear>().OrderByDescending(s => (MyDTO)null).Select(
-                        g => new { g.Nickname, Weapons = g.Weapons.Select(w => w.Name).ToList() }),
-                    elementSorter: e => e.Nickname,
-                    elementAsserter: (e, a) =>
-                    {
-                        Assert.Equal(e.Nickname, a.Nickname);
-                        AssertCollection(e.Weapons, a.Weapons);
-                    }));
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>().OrderByDescending(s => (MyDTO)null).Select(
+                    g => new { g.Nickname, Weapons = g.Weapons.Select(w => w.Name).ToList() }),
+                elementSorter: e => e.Nickname,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Nickname, a.Nickname);
+                    AssertCollection(e.Weapons, a.Weapons);
+                });
         }
 
         [ConditionalTheory]
@@ -6003,10 +6000,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var defaultValue = default(DateTimeOffset);
 
-            return AssertTranslationFailed(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Mission>().Where(m => ((DateTimeOffset?)m.Timeline).GetValueOrDefault() == defaultValue)));
+        return AssertQuery(
+                async,
+                ss => ss.Set<Mission>().Where(m => ((DateTimeOffset?)m.Timeline).GetValueOrDefault() == defaultValue));
         }
 
         [ConditionalTheory]
@@ -7562,27 +7558,23 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Client_eval_followed_by_set_operation_throws_meaningful_exception(bool async)
+        public virtual async Task Client_eval_followed_by_aggregate_operation(bool async)
         {
-            await AssertTranslationFailed(
-                () => AssertSum(
-                    async,
-                    ss => ss.Set<Mission>().Select(m => m.Duration.Ticks)));
+            await AssertSum(
+                async,
+                ss => ss.Set<Mission>().Select(m => m.Duration.Ticks));
 
-            await AssertTranslationFailed(
-                () => AssertAverage(
-                    async,
-                    ss => ss.Set<Mission>().Select(m => m.Duration.Ticks)));
+            await AssertAverage(
+                async,
+                ss => ss.Set<Mission>().Select(m => m.Duration.Ticks));
 
-            await AssertTranslationFailed(
-                () => AssertMin(
-                    async,
-                    ss => ss.Set<Mission>().Select(m => m.Duration.Ticks)));
+            await AssertMin(
+                async,
+                ss => ss.Set<Mission>().Select(m => m.Duration.Ticks));
 
-            await AssertTranslationFailed(
-                () => AssertMax(
-                    async,
-                    ss => ss.Set<Mission>().Select(m => m.Duration.Ticks)));
+            await AssertMax(
+                async,
+                ss => ss.Set<Mission>().Select(m => m.Duration.Ticks));
         }
 
         [ConditionalTheory]
@@ -7657,13 +7649,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Client_member_and_unsupported_string_Equals_in_the_same_query(bool async)
         {
-            return AssertTranslationFailedWithDetails(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Gear>().Where(g => g.FullName.Equals(g.Nickname, StringComparison.InvariantCulture) || g.IsMarcus)),
-                CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison
-                + Environment.NewLine
-                + CoreStrings.QueryUnableToTranslateMember(nameof(Gear.IsMarcus), nameof(Gear)));
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>().Where(g => g.FullName.Equals(g.Nickname, StringComparison.InvariantCulture) || g.IsMarcus));
         }
 
         [ConditionalTheory]

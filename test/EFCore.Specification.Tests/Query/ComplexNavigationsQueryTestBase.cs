@@ -2453,21 +2453,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Complex_query_with_optional_navigations_and_client_side_evaluation(bool async)
+        public virtual Task Complex_query_with_optional_navigations_and_client_side_evaluation(bool async)
         {
-            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Level1>().Where(
-                        l1 => l1.Id < 3
-                            && !l1.OneToMany_Optional1.Select(l2 => l2.OneToOne_Optional_FK2.OneToOne_Optional_FK3.Id)
-                                .All(l4 => ClientMethod(l4))),
-                    ss => ss.Set<Level1>().Where(
-                        l1 => l1.Id < 3
-                            && !l1.OneToMany_Optional1.Select(l2 => l2.OneToOne_Optional_FK2.OneToOne_Optional_FK3.MaybeScalar(x => x.Id))
-                                .All(a => true))))).Message;
-
-            Assert.Contains("ClientMethod((Nullable<int>)", message);
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>().Where(
+                    l1 => l1.Id < 3
+                        && !l1.OneToMany_Optional1.Select(l2 => l2.OneToOne_Optional_FK2.OneToOne_Optional_FK3.Id)
+                            .All(l4 => ClientMethod(l4))),
+                ss => ss.Set<Level1>().Where(
+                    l1 => l1.Id < 3
+                        && !l1.OneToMany_Optional1.Select(l2 => l2.OneToOne_Optional_FK2.OneToOne_Optional_FK3.MaybeScalar(x => x.Id))
+                            .All(a => true)));
         }
 
         [ConditionalTheory]

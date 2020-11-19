@@ -235,11 +235,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var boolean = false;
 
-            return AssertTranslationFailed(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Customer>().Select(c => new { f = boolean }).OrderBy(e => (bool?)e.f),
-                    assertOrder: true));
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Select(c => new { f = boolean }).OrderBy(e => (bool?)e.f),
+                assertOrder: true);
         }
 
         [ConditionalTheory]
@@ -891,7 +890,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Reverse_without_explicit_ordering_throws(bool async)
+        public virtual Task Reverse_without_explicit_ordering(bool async)
         {
             return AssertQueryScalar(
                 async,

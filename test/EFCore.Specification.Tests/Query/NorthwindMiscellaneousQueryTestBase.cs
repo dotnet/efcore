@@ -3610,60 +3610,58 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Random_next_is_not_funcletized_1(bool async)
         {
-            return AssertTranslationFailed(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Order>().Where(o => o.OrderID > new Random().Next())));
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().Where(o => o.OrderID > new Random().Next()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Random_next_is_not_funcletized_2(bool async)
         {
-            return AssertTranslationFailed(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Order>().Where(o => o.OrderID > new Random().Next(5))));
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().Where(o => o.OrderID > new Random().Next(5)),
+                entryCount: 830);
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Random_next_is_not_funcletized_3(bool async)
         {
-            return AssertTranslationFailed(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Order>().Where(o => o.OrderID > new Random().Next(0, 10))));
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().Where(o => o.OrderID > new Random().Next(0, 10)),
+                entryCount: 830);
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Random_next_is_not_funcletized_4(bool async)
         {
-            return AssertTranslationFailed(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Order>().Where(o => o.OrderID > new Random(15).Next())));
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().Where(o => o.OrderID > new Random(15).Next()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Random_next_is_not_funcletized_5(bool async)
         {
-            return AssertTranslationFailed(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Order>().Where(o => o.OrderID > new Random(15).Next(5))));
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().Where(o => o.OrderID > new Random(15).Next(5)),
+                entryCount: 830);
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Random_next_is_not_funcletized_6(bool async)
         {
-            return AssertTranslationFailed(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Order>().Where(o => o.OrderID > new Random(15).Next(0, 10))));
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().Where(o => o.OrderID > new Random(15).Next(0, 10)),
+                entryCount: 830);
         }
 
         [ConditionalTheory]
@@ -6091,22 +6089,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Using_string_Equals_with_StringComparison_throws_informative_error(bool async)
         {
-            return AssertTranslationFailedWithDetails(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Customer>().Where(c => c.CustomerID.Equals("ALFKI", StringComparison.InvariantCulture))),
-                CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.Equals("ALFKI", StringComparison.InvariantCulture)),
+                entryCount: 1);
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Using_static_string_Equals_with_StringComparison_throws_informative_error(bool async)
         {
-            return AssertTranslationFailedWithDetails(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Customer>().Where(c => string.Equals(c.CustomerID, "ALFKI", StringComparison.InvariantCulture))),
-                CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => string.Equals(c.CustomerID, "ALFKI", StringComparison.InvariantCulture)),
+                entryCount: 1);
         }
 
         [ConditionalTheory]
