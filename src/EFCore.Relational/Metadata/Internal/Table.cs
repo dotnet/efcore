@@ -52,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual UniqueConstraint? PrimaryKey
         {
             get => _primaryKey;
+            [param: CanBeNull]
             set
             {
                 var oldPrimaryKey = _primaryKey;
