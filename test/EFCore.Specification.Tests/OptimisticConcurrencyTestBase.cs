@@ -276,10 +276,8 @@ namespace Microsoft.EntityFrameworkCore
                 null);
         }
 
-        [ConditionalFact(Skip = "Many-to-many relationships are not supported without CLR class for join table.")]
-        // TODO: See issue#1368
-        public virtual Task
-            Attempting_to_delete_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
+        [ConditionalFact(Skip = "Issue#23411")]
+        public virtual Task Attempting_to_delete_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
         {
             return ConcurrencyTestAsync(
                 c =>
@@ -292,10 +290,8 @@ namespace Microsoft.EntityFrameworkCore
                 null);
         }
 
-        [ConditionalFact(Skip = "Many-to-many relationships are not supported without CLR class for join table.")]
-        // TODO: See issue#1368
-        public virtual Task
-            Attempting_to_add_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
+        [ConditionalFact(Skip = "Issue#23411")]
+        public virtual Task Attempting_to_add_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
         {
             return ConcurrencyTestAsync(
                 c =>

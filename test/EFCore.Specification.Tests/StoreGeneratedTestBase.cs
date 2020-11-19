@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Throws<NotSupportedException>(() => context.Add(new TEntity())).Message);
         }
 
-        [ConditionalFact(Skip = "Issue#15589")]
+        [ConditionalFact]
         public virtual void Value_generation_works_for_common_GUID_conversions()
         {
             ValueGenerationPositive<Guid, GuidToString>();
