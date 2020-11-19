@@ -34,17 +34,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var principalType = foreignKey.PrincipalKey.IsPrimaryKey()
                 ? foreignKey.PrincipalEntityType
                 : foreignKey.PrincipalKey.DeclaringEntityType;
-            var principalTable = StoreObjectIdentifier.Create(principalType, StoreObjectType.Table)!;
+            var principalTable = StoreObjectIdentifier.Create(principalType, storeObject.StoreObjectType);
 
             var duplicatePrincipalType = duplicateForeignKey.PrincipalKey.IsPrimaryKey()
                 ? duplicateForeignKey.PrincipalEntityType
                 : duplicateForeignKey.PrincipalKey.DeclaringEntityType;
-            var duplicatePrincipalTable = StoreObjectIdentifier.Create(duplicatePrincipalType, StoreObjectType.Table);
+            var duplicatePrincipalTable = StoreObjectIdentifier.Create(duplicatePrincipalType, storeObject.StoreObjectType);
 
             var columnNames = foreignKey.Properties.GetColumnNames(storeObject);
             var duplicateColumnNames = duplicateForeignKey.Properties.GetColumnNames(storeObject);
-            if (columnNames == null
-                || duplicateColumnNames == null)
+            if (columnNames is null
+                || duplicateColumnNames is null
+                || principalTable is null
+                || duplicatePrincipalTable is null)
             {
                 if (shouldThrow)
                 {
@@ -54,7 +56,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             foreignKey.DeclaringEntityType.DisplayName(),
                             duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
-                            foreignKey.GetConstraintName(storeObject, principalTable.Value),
+                            principalTable.HasValue
+                                ? foreignKey.GetConstraintName(storeObject, principalTable.Value)
+                                : foreignKey.GetDefaultName(),
                             foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
                             duplicateForeignKey.DeclaringEntityType.GetSchemaQualifiedTableName()));
                 }
