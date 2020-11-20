@@ -465,7 +465,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             // EF Indexer property
             if (methodCallExpression.TryGetIndexerArguments(_model, out source, out propertyName))
             {
-                return TryBindMember(Visit(source), MemberIdentity.Create(propertyName));
+                var result = TryBindMember(Visit(source), MemberIdentity.Create(propertyName));
+                var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23410", out var enabled) && enabled;
+                if (result != null
+                    || useOldBehavior)
+                {
+                    return result;
+                }
             }
 
             // GroupBy Aggregate case

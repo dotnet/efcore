@@ -17,13 +17,16 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
+using Newtonsoft.Json.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -9308,7 +9311,7 @@ ORDER BY [t].[Id]");
                     @"SELECT TOP(1) [l].[Id], [l].[Name], [l].[Address_County], [l].[Address_Line1], [l].[Address_Line2], [l].[Address_Point], [l].[Address_Postcode], [l].[Address_Town]
 FROM [Locations] AS [l]
 WHERE [l].[Name] = N'My Location'" });
-            }
+        }
 
         [Owned]
         private class Address23282
@@ -9368,6 +9371,167 @@ WHERE [l].[Name] = N'My Location'" });
                         Postcode = "PO57 0DE",
                         Point = new Point(115.7930, 37.2431) { SRID = 4326 }
                     }
+                });
+                context.SaveChanges();
+            }
+
+            testSqlLoggerFactory.Clear();
+
+            return (optionsBuilder.Options, testSqlLoggerFactory);
+        }
+
+        #endregion
+
+        #region Issue23410
+
+        // TODO: Remove when JSON is first class. See issue#4021
+
+        [ConditionalFact]
+        public virtual void Method_call_translators_are_invoked_for_indexer_if_not_indexer_property()
+        {
+            var (options, testSqlLoggerFactory) = CreateOptions23410();
+            using var context = new MyContext23410(options);
+
+            var testUser = context.Blogs.FirstOrDefault(x => x.JObject["Author"].Value<string>() == "Maumar");
+
+            Assert.NotNull(testUser);
+
+            testSqlLoggerFactory.AssertBaseline(
+                new[] {
+                    @"SELECT TOP(1) [b].[Id], [b].[JObject], [b].[Name]
+FROM [Blogs] AS [b]
+WHERE JSON_VALUE([b].[JObject], '$.Author') = N'Maumar'" });
+        }
+
+        private class Blog23410
+        {
+            public int Id { get; set; }
+
+            public string Name { get; set; }
+            public JObject JObject { get; set; }
+        }
+
+        private class MyContext23410 : DbContext
+        {
+            public DbSet<Blog23410> Blogs { get; set; }
+
+            public MyContext23410(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Blog23410>().Property(e => e.JObject).HasConversion(
+                    e => e.ToString(),
+                    e => JObject.Parse(e));
+            }
+        }
+
+        private class JsonMethodCallTranslatorPlugin : IMethodCallTranslatorPlugin
+        {
+            public JsonMethodCallTranslatorPlugin(ISqlExpressionFactory sqlExpressionFactory)
+            {
+                Translators = new IMethodCallTranslator[]
+                {
+                    new JsonIndexerMethodTranslator(sqlExpressionFactory),
+                    new JsonValueMethodTranslator(sqlExpressionFactory)
+                };
+            }
+
+            public IEnumerable<IMethodCallTranslator> Translators { get; }
+        }
+
+        private class JsonValueMethodTranslator : IMethodCallTranslator
+        {
+            private readonly ISqlExpressionFactory _sqlExpressionFactory;
+
+            public JsonValueMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
+            {
+                _sqlExpressionFactory = sqlExpressionFactory;
+            }
+
+            public SqlExpression Translate(
+                SqlExpression instance,
+                MethodInfo method,
+                IReadOnlyList<SqlExpression> arguments,
+                IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+            {
+                if (method.IsGenericMethod
+                    && method.DeclaringType == typeof(Newtonsoft.Json.Linq.Extensions)
+                    && method.Name == "Value"
+                    && arguments.Count == 1
+                    && arguments[0] is SqlFunctionExpression sqlFunctionExpression)
+                {
+                    return _sqlExpressionFactory.Function(
+                        sqlFunctionExpression.Name,
+                        sqlFunctionExpression.Arguments,
+                        sqlFunctionExpression.IsNullable,
+                        sqlFunctionExpression.ArgumentsPropagateNullability,
+                        method.ReturnType);
+                }
+
+                return null;
+            }
+        }
+
+        private class JsonIndexerMethodTranslator : IMethodCallTranslator
+        {
+            private readonly MethodInfo _indexerMethod = typeof(JObject).GetRuntimeMethod("get_Item", new[] { typeof(string) });
+
+            private readonly ISqlExpressionFactory _sqlExpressionFactory;
+
+            public JsonIndexerMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
+            {
+                _sqlExpressionFactory = sqlExpressionFactory;
+            }
+
+            public SqlExpression Translate(
+                SqlExpression instance,
+                MethodInfo method,
+                IReadOnlyList<SqlExpression> arguments,
+                IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+            {
+                if (Equals(_indexerMethod, method))
+                {
+                    return _sqlExpressionFactory.Function(
+                        "JSON_VALUE",
+                        new[] {
+                            instance,
+                            _sqlExpressionFactory.Fragment($"'$.{((SqlConstantExpression)arguments[0]).Value}'")
+                            },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { true, false },
+                        _indexerMethod.ReturnType);
+                }
+
+                return null;
+            }
+        }
+
+        private (DbContextOptions, TestSqlLoggerFactory) CreateOptions23410()
+        {
+            var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest");
+            var testSqlLoggerFactory = new TestSqlLoggerFactory();
+            var serviceCollection = new ServiceCollection()
+                .AddSingleton<ILoggerFactory>(testSqlLoggerFactory)
+                .AddEntityFrameworkSqlServer();
+            serviceCollection.TryAddEnumerable(new ServiceDescriptor(
+                typeof(IMethodCallTranslatorPlugin), typeof(JsonMethodCallTranslatorPlugin), ServiceLifetime.Singleton));
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            var optionsBuilder = Fixture.AddOptions(testStore.AddProviderOptions(new DbContextOptionsBuilder()))
+                .EnableDetailedErrors()
+                .UseInternalServiceProvider(serviceProvider)
+                .EnableServiceProviderCaching(false);
+
+            var context = new MyContext23410(optionsBuilder.Options);
+            if (context.Database.EnsureCreatedResiliently())
+            {
+                context.Blogs.Add(new Blog23410
+                {
+                    Name = "My Location",
+                    JObject = JObject.Parse(@"{ ""Author"": ""Maumar"" }")
                 });
                 context.SaveChanges();
             }
