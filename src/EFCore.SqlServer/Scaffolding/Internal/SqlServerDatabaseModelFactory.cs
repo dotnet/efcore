@@ -1023,7 +1023,12 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                         index.Columns.Add(column);
                     }
 
-                    table.Indexes.Add(index);
+                    var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23378", out var enabled) && enabled;
+                    if (index.Columns.Count > 0
+                        || useOldBehavior)
+                    {
+                        table.Indexes.Add(index);
+                    }
                 }
             }
         }

@@ -1912,6 +1912,26 @@ CREATE INDEX ixHypo ON HypotheticalIndexTable ( Id1 ) WITH STATISTICS_ONLY = -1;
         }
 
         [ConditionalFact]
+        public void Ignore_columnstore_index()
+        {
+            Test(
+                @"
+CREATE TABLE ColumnStoreIndexTable (
+    Id1 int,
+    Id2 int NULL,
+);
+
+CREATE NONCLUSTERED COLUMNSTORE INDEX ixColumnStore ON ColumnStoreIndexTable ( Id1, Id2 )",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    Assert.Empty(dbModel.Tables.Single().Indexes);
+                },
+                "DROP TABLE ColumnStoreIndexTable;");
+        }
+
+        [ConditionalFact]
         public void Set_include_for_index()
         {
             Test(
