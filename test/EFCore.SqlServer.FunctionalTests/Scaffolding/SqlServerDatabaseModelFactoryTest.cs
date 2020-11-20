@@ -700,6 +700,42 @@ On multiple lines.", c.Table.Comment);
         }
 
         [ConditionalFact]
+        public void Create_synonym_columns()
+        {
+            Fixture.TestStore.ExecuteNonQuery(
+    @"
+CREATE SCHEMA [Synonymtest];");
+            Fixture.TestStore.ExecuteNonQuery(
+    @"
+CREATE TABLE [Synonymtest].[Everest] (
+    Id int
+);");
+            Test(
+                @"
+CREATE SYNONYM [dbo].[NotEvereset] FOR [Synonymtest].[Everest];
+",
+                Enumerable.Empty<string>(),
+                new [] { "dbo" },
+                dbModel =>
+                {
+                    var table = Assert.IsType<DatabaseView>(dbModel.Tables.Single());
+
+                    Assert.Equal(1, table.Columns.Count);
+                    Assert.Null(table.PrimaryKey);
+                    Assert.All(
+                        table.Columns, c =>
+                        {
+                            Assert.Equal("dbo", c.Table.Schema);
+                            Assert.Equal("NotEvereset", c.Table.Name);
+                        });
+
+                    Assert.Single(table.Columns.Where(c => c.Name == "Id"));
+                },
+                "DROP SYNONYM [dbo].[NotEvereset]; DROP TABLE [Synonymtest].[Everest]; DROP SCHEMA [Synonymtest];");
+        }
+
+
+        [ConditionalFact]
         public void Create_view_columns()
         {
             Test(

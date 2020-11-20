@@ -563,20 +563,20 @@ WHERE "
                 + viewFilter;
 
 
-            var synonymText = @"
+            var synonymCommandText = @"
 UNION
 SELECT
     SCHEMA_NAME([s].[schema_id]) AS [schema],
     [s].[name],
     CAST([e].[value] AS nvarchar(MAX)) AS [comment],
-    'synonym' AS [type],";
+    'synonym' AS [type]";
             if (supportsMemoryOptimizedTable)
             {
-                synonymText += @",
+                synonymCommandText += @",
     CAST(0 AS bit) AS [is_memory_optimized]";
             }
 
-            synonymText += @"
+            synonymCommandText += @"
 FROM[sys].[synonyms] AS [s]
 LEFT JOIN [sys].[extended_properties] AS [e] ON
 [e].[major_id] = [s].[object_id] AND [e].[minor_id] = 0
@@ -592,12 +592,12 @@ AND "
                     + tableFilter("SCHEMA_NAME([s].[schema_id])", "[s].[name]");
             }
 
-            synonymText = synonymText
+            synonymCommandText = synonymCommandText
                 + @"
 WHERE "
                 + synonymFilter;
 
-            command.CommandText = commandText + viewCommandText + synonymText;
+            command.CommandText = commandText + viewCommandText + synonymCommandText;
 
             using (var reader = command.ExecuteReader())
             {
@@ -630,7 +630,7 @@ WHERE "
             }
 
             // This is done separately due to MARS property may be turned off
-            GetColumns(connection, tables, filter, viewFilter, typeAliases, databaseModel.Collation);
+            GetColumns(connection, tables, filter, viewFilter, synonymFilter, typeAliases, databaseModel.Collation);
             GetIndexes(connection, tables, filter);
             GetForeignKeys(connection, tables, filter);
 
@@ -645,6 +645,7 @@ WHERE "
             IReadOnlyList<DatabaseTable> tables,
             string tableFilter,
             string viewFilter,
+            string synonymFilter,
             IReadOnlyDictionary<string, (string storeType, string typeName)> typeAliases,
             string? databaseCollation)
         {
@@ -687,7 +688,7 @@ UNION ALL
 		[s].[name], OBJECT_ID([s].[base_object_name]) as object_id, SCHEMA_ID() AS schema_id
 	FROM sys.synonyms s WHERE ";
 
-            commandText += tableFilter;
+            commandText += synonymFilter;
 
             commandText += @"
 ) o
