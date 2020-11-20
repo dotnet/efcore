@@ -453,7 +453,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             SqlExpression[]? arguments = default;
             if (!sqlFunctionExpression.IsNiladic)
             {
-                arguments = new SqlExpression[sqlFunctionExpression.Arguments!.Count];
+                arguments = new SqlExpression[sqlFunctionExpression.Arguments.Count];
                 for (var i = 0; i < arguments.Length; i++)
                 {
                     arguments[i] = (SqlExpression)Visit(sqlFunctionExpression.Arguments[i]);
