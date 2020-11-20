@@ -62,8 +62,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             {
                 case SelectExpression selectExpression:
 
-                    selectExpression.ApplyProjection();
-
                     shaperBody = new CosmosProjectionBindingRemovingExpressionVisitor(
                             selectExpression, jObjectParameter,
                             QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll)

@@ -888,18 +888,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 });
         }
 
-        [ConditionalFact(Skip = "Issue #16752")]
+        [ConditionalFact]
         public void Query_subowned()
         {
             Seed();
 
             using var context = new QueryFixupContext();
             var subDependent1 = context.Set<Order>()
+                .Include(a => a.OrderDetails.BillingAddress.OrderDetails.Order)
                 .Select(o => o.OrderDetails.BillingAddress)
-                .Include(a => a.OrderDetails.Order).Single();
+                .Single();
             var subDependent2 = context.Set<Order>()
+                .Include(a => a.OrderDetails.ShippingAddress.OrderDetails.Order)
                 .Select(o => o.OrderDetails.ShippingAddress)
-                .Include(a => a.OrderDetails.Order).Single();
+                .Single();
 
             AssertFixup(
                 context,

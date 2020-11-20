@@ -2315,6 +2315,8 @@ namespace Microsoft.EntityFrameworkCore
                          orderby p.Id
                          select DtoFactory.CreateDto(p)).FirstOrDefault();
 
+            RecordLog();
+
             Assert.NotNull(((dynamic)query).Single);
         }
 
