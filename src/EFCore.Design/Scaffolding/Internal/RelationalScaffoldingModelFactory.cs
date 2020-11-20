@@ -29,6 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     /// </summary>
     public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
     {
+        private static readonly bool _useOldBehavior
+            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23386", out var enabled) && enabled;
+
         internal const string NavigationNameUniquifyingPattern = "{0}Navigation";
         internal const string SelfReferencingPrincipalEndNavigationNamePattern = "Inverse{0}";
 
@@ -194,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 modelBuilder.Model.SetDatabaseName(databaseModel.DatabaseName);
             }
 
-            if (!string.IsNullOrEmpty(databaseModel.Collation))
+            if (!_useOldBehavior && !string.IsNullOrEmpty(databaseModel.Collation))
             {
                 modelBuilder.UseCollation(databaseModel.Collation);
             }
@@ -502,7 +505,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (column.Collation != null)
             {
-                property.UseCollation(column.Collation);
+                if (_useOldBehavior)
+                {
+                    property.HasComment(column.Collation);
+                }
+                else
+                {
+                    property.UseCollation(column.Collation);
+                }
             }
 
             if (!(column.Table.PrimaryKey?.Columns.Contains(column) ?? false))
