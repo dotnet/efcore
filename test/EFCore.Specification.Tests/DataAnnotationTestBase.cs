@@ -2416,6 +2416,54 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public virtual void PrecisionAttribute_sets_precision_for_properties_and_fields()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<PrecisionAnnotationClass>(b =>
+            {
+                b.Property(e => e.DecimalField);
+                b.Property(e => e.DateTimeField);
+                b.Property(e => e.DateTimeOffsetField);
+            });
+
+            Validate(modelBuilder);
+
+            Assert.Equal(10, GetProperty<PrecisionAnnotationClass>(modelBuilder, "DecimalProperty").GetPrecision());
+            Assert.Equal(2, GetProperty<PrecisionAnnotationClass>(modelBuilder, "DecimalProperty").GetScale());
+            Assert.Equal(5, GetProperty<PrecisionAnnotationClass>(modelBuilder, "DateTimeProperty").GetPrecision());
+            Assert.Equal(5, GetProperty<PrecisionAnnotationClass>(modelBuilder, "DateTimeOffsetProperty").GetPrecision());
+
+            Assert.Equal(10, GetProperty<PrecisionAnnotationClass>(modelBuilder, "DecimalField").GetPrecision());
+            Assert.Equal(2, GetProperty<PrecisionAnnotationClass>(modelBuilder, "DecimalField").GetScale());
+            Assert.Equal(5, GetProperty<PrecisionAnnotationClass>(modelBuilder, "DateTimeField").GetPrecision());
+            Assert.Equal(5, GetProperty<PrecisionAnnotationClass>(modelBuilder, "DateTimeOffsetField").GetPrecision());
+        }
+
+        protected class PrecisionAnnotationClass
+        {
+            public int Id { get; set; }
+
+            [Precision(10, 2)]
+            public decimal DecimalProperty { get; set; }
+
+            [Precision(5)]
+            public DateTime DateTimeProperty { get; set; }
+
+            [Precision(5)]
+            public DateTimeOffset DateTimeOffsetProperty { get; set; }
+
+            [Precision(10, 2)]
+            public string DecimalField;
+
+            [Precision(5)]
+            public DateTime DateTimeField;
+
+            [Precision(5)]
+            public DateTimeOffset DateTimeOffsetField;
+        }
+
+        [ConditionalFact]
         public virtual void OwnedEntityTypeAttribute_configures_one_reference_as_owned()
         {
             var modelBuilder = CreateModelBuilder();

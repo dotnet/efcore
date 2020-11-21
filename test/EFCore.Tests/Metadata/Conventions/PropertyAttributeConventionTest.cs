@@ -594,6 +594,59 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
         #endregion
 
+        #region PrecisionAttribute
+        [ConditionalFact]
+        public void PrecisionAttribute_overrides_configuration_from_convention_source()
+        {
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
+
+            var propertyBuilder = entityTypeBuilder.Property(typeof(decimal), "DecimalProperty", ConfigurationSource.Explicit);
+
+            propertyBuilder.HasPrecision(12, ConfigurationSource.Convention);
+            propertyBuilder.HasScale(5, ConfigurationSource.Convention);
+
+            RunConvention(propertyBuilder);
+
+            Assert.Equal(10, propertyBuilder.Metadata.GetPrecision());
+            Assert.Equal(2, propertyBuilder.Metadata.GetScale());
+        }
+
+        [ConditionalFact]
+        public void PrecisionAttribute_does_not_override_configuration_from_explicit_source()
+        {
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
+
+            var propertyBuilder = entityTypeBuilder.Property(typeof(decimal), "DecimalProperty", ConfigurationSource.Explicit);
+
+            propertyBuilder.HasPrecision(12, ConfigurationSource.Explicit);
+            propertyBuilder.HasScale(5, ConfigurationSource.Explicit);
+
+            RunConvention(propertyBuilder);
+
+            Assert.Equal(12, propertyBuilder.Metadata.GetPrecision());
+            Assert.Equal(5, propertyBuilder.Metadata.GetScale());
+        }
+
+        [ConditionalFact]
+        public void PrecisionAttribute_sets_precision_with_conventional_builder()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityTypeBuilder = modelBuilder.Entity<A>();
+
+            Assert.Equal(10, entityTypeBuilder.Property(e => e.DecimalProperty).Metadata.GetPrecision());
+            Assert.Equal(2, entityTypeBuilder.Property(e => e.DecimalProperty).Metadata.GetScale());
+        }
+
+        [ConditionalFact]
+        public void PrecisionAttribute_on_field_sets_precision_with_conventional_builder()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityTypeBuilder = modelBuilder.Entity<F>();
+
+            Assert.Equal(10, entityTypeBuilder.Property<decimal>(nameof(F.DecimalField)).Metadata.GetPrecision());
+            Assert.Equal(2, entityTypeBuilder.Property<decimal>(nameof(F.DecimalField)).Metadata.GetScale());
+        }
+        #endregion
         [ConditionalFact]
         public void Property_attribute_convention_runs_for_private_property()
         {
@@ -649,6 +702,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             new UnicodeAttributeConvention(dependencies)
                 .ProcessPropertyAdded(propertyBuilder, context);
+
+            new PrecisionAttributeConvention(dependencies)
+                .ProcessPropertyAdded(propertyBuilder, context);
         }
 
         private void RunConvention(InternalEntityTypeBuilder entityTypeBuilder)
@@ -687,6 +743,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             [Unicode(false)]
             public string NonUnicodeProperty { get; set; }
+
+            [Precision(10, 2)]
+            public decimal DecimalProperty { get; set; }
 
             [Key]
             public int MyPrimaryKey { get; set; }
@@ -748,6 +807,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             [Unicode(false)]
             public string NonUnicodeField;
+
+            [Precision(10, 2)]
+            public decimal DecimalField;
 
             [Key]
             public int MyPrimaryKey;
