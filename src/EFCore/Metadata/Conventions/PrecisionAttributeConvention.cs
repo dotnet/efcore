@@ -30,10 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="clrMember"> The member that has the attribute. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         protected override void ProcessPropertyAdded(
-            [NotNull] IConventionPropertyBuilder propertyBuilder,
-            [NotNull] PrecisionAttribute attribute,
-            [NotNull] MemberInfo clrMember,
-            [NotNull] IConventionContext context)
+            IConventionPropertyBuilder propertyBuilder,
+            PrecisionAttribute attribute,
+            MemberInfo clrMember,
+            IConventionContext context)
         {
             propertyBuilder.HasPrecision(attribute.Precision, fromDataAnnotation: true);
 
