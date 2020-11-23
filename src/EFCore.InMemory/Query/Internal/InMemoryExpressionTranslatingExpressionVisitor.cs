@@ -903,12 +903,31 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     arguments);
 
                 result = ConvertToNullable(result);
-                result = Expression.Condition(
-                    Expression.Equal(@object, Expression.Constant(null, @object.Type)),
-                    Expression.Constant(null, result.Type),
-                    result);
+                var objectNullCheck = Expression.Equal(@object, Expression.Constant(null, @object.Type));
+                // instance.Equals(argument) should translate to
+                // instance == null ? argument == null : instance.Equals(argument)
+                if (method.Name == nameof(object.Equals))
+                {
+                    var argument = arguments[0];
+                    if (argument.NodeType == ExpressionType.Convert
+                        && argument is UnaryExpression unaryExpression
+                        && argument.Type == unaryExpression.Operand.Type.UnwrapNullableType())
+                    {
+                        argument = unaryExpression.Operand;
+                    }
 
-                return result;
+                    if (!argument.Type.IsNullableType())
+                    {
+                        argument = Expression.Convert(argument, argument.Type.MakeNullable());
+                    }
+
+                    return Expression.Condition(
+                        objectNullCheck,
+                        ConvertToNullable(Expression.Equal(argument, Expression.Constant(null, argument.Type))),
+                        result);
+                }
+
+                return Expression.Condition(objectNullCheck, Expression.Constant(null, result.Type), result);
             }
 
             // TODO-Nullable bug

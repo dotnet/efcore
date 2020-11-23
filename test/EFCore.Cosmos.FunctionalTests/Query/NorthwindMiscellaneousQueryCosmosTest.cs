@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -4207,6 +4208,18 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"
         public override Task Skip_0_Take_0_works_when_constant(bool async)
         {
             return base.Skip_0_Take_0_works_when_constant(async);
+        }
+
+        public override Task Using_static_string_Equals_with_StringComparison_throws_informative_error(bool async)
+        {
+            return AssertTranslationFailedWithDetails(() => base.Using_static_string_Equals_with_StringComparison_throws_informative_error(async),
+                CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
+        }
+
+        public override Task Using_string_Equals_with_StringComparison_throws_informative_error(bool async)
+        {
+            return AssertTranslationFailedWithDetails(() => base.Using_string_Equals_with_StringComparison_throws_informative_error(async),
+                CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
         }
 
         private void AssertSql(params string[] expected)
