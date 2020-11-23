@@ -23,6 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     /// </summary>
     public class SqlFunctionExpression : SqlExpression
     {
+        private static readonly bool _useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23336", out var enabled)
+            && enabled;
+
         /// <summary>
         ///     Creates a new instance of the <see cref="SqlFunctionExpression" /> class which represents a built-in niladic function.
         /// </summary>
@@ -394,9 +397,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             hash.Add(IsNiladic);
             hash.Add(Schema);
             hash.Add(Instance);
-            for (var i = 0; i < Arguments.Count; i++)
+            if (Arguments != null
+                || _useOldBehavior)
             {
-                hash.Add(Arguments[i]);
+                for (var i = 0; i < Arguments.Count; i++)
+                {
+                    hash.Add(Arguments[i]);
+                }
             }
 
             return hash.ToHashCode();
