@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly EvaluatableExpressionFindingExpressionVisitor _evaluatableExpressionFindingExpressionVisitor;
         private readonly ContextParameterReplacingExpressionVisitor _contextParameterReplacingExpressionVisitor;
 
-        private readonly Dictionary<Expression, Expression> _evaluatedValues = new(ExpressionEqualityComparer.Instance);
+        private readonly Dictionary<Expression, EvaluatedValues> _evaluatedValues = new(ExpressionEqualityComparer.Instance);
 
         private IDictionary<Expression, bool> _evaluatableExpressions;
         private IQueryProvider? _currentQueryProvider;
@@ -77,6 +77,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual Expression ExtractParameters([NotNull] Expression expression)
         {
+            return ExtractParameters(expression, clearEvaluatedValues: true);
+        }
+
+        private Expression ExtractParameters([NotNull] Expression expression, bool clearEvaluatedValues)
+        {
             var oldEvaluatableExpressions = _evaluatableExpressions;
             _evaluatableExpressions = _evaluatableExpressionFindingExpressionVisitor.Find(expression);
 
@@ -87,7 +92,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             finally
             {
                 _evaluatableExpressions = oldEvaluatableExpressions;
-                _evaluatedValues.Clear();
+                if (clearEvaluatedValues)
+                {
+                    _evaluatedValues.Clear();
+                }
             }
         }
 
@@ -280,30 +288,43 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private Expression Evaluate(Expression expression, bool generateParameter)
         {
+            object? parameterValue;
+            string? parameterName;
             if (_evaluatedValues.TryGetValue(expression, out var cachedValue))
             {
-                return cachedValue;
-            }
+                var existingExpression = generateParameter ? cachedValue.Parameter : cachedValue.Constant;
+                if (existingExpression != null)
+                {
+                    return existingExpression;
+                }
 
-            var parameterValue = GetValue(expression, out var parameterName);
+                parameterValue = cachedValue.Value;
+                parameterName = cachedValue.CandidateParameterName;
+            }
+            else
+            {
+                parameterValue = GetValue(expression, out parameterName);
+                cachedValue = new EvaluatedValues { CandidateParameterName = parameterName, Value = parameterValue };
+                _evaluatedValues[expression] = cachedValue;
+            }
 
             if (parameterValue is IQueryable innerQueryable)
             {
-                return ExtractParameters(innerQueryable.Expression);
+                return ExtractParameters(innerQueryable.Expression, clearEvaluatedValues: false);
             }
 
             if (parameterName?.StartsWith(QueryFilterPrefix, StringComparison.Ordinal) != true)
             {
                 if (parameterValue is Expression innerExpression)
                 {
-                    return ExtractParameters(innerExpression);
+                    return ExtractParameters(innerExpression, clearEvaluatedValues: false);
                 }
 
                 if (!generateParameter)
                 {
                     var constantValue = GenerateConstantExpression(parameterValue, expression.Type);
 
-                    _evaluatedValues.Add(expression, constantValue);
+                    cachedValue.Constant = constantValue;
 
                     return constantValue;
                 }
@@ -337,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var parameter = Expression.Parameter(expression.Type, parameterName);
 
-            _evaluatedValues.Add(expression, parameter);
+            cachedValue.Parameter = parameter;
 
             return parameter;
         }
@@ -644,6 +665,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private static bool IsQueryableMethod(Expression expression)
                 => expression is MethodCallExpression methodCallExpression
                     && methodCallExpression.Method.DeclaringType == typeof(Queryable);
+        }
+
+        private sealed class EvaluatedValues
+        {
+            public string? CandidateParameterName { get; set; }
+            public object? Value { get; set; }
+            public Expression? Constant { get; set; }
+            public Expression? Parameter { get; set; }
         }
     }
 }
