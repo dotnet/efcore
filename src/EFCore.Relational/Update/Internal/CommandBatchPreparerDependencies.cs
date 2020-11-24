@@ -66,6 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] IComparer<ModificationCommand> modificationCommandComparer,
             [NotNull] IKeyValueIndexFactorySource keyValueIndexFactorySource,
+            [NotNull] IColumnModificationFactory columnModificationFactory,
             [NotNull] ILoggingOptions loggingOptions,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger,
             [NotNull] IDbContextOptions options)
@@ -74,6 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             ParameterNameGeneratorFactory = parameterNameGeneratorFactory;
             ModificationCommandComparer = modificationCommandComparer;
             KeyValueIndexFactorySource = keyValueIndexFactorySource;
+            ColumnModificationFactory = columnModificationFactory;
             LoggingOptions = loggingOptions;
             UpdateLogger = updateLogger;
             Options = options;
@@ -110,6 +112,14 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public IKeyValueIndexFactorySource KeyValueIndexFactorySource { get; [param: NotNull] init; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public IColumnModificationFactory ColumnModificationFactory { get; [param: NotNull] init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

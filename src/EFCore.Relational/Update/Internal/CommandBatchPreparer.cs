@@ -35,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
         private readonly IComparer<ModificationCommand> _modificationCommandComparer;
         private readonly IKeyValueIndexFactorySource _keyValueIndexFactorySource;
+        private readonly IColumnModificationFactory _columnModificationFactory;
         private readonly int _minBatchSize;
         private readonly bool _sensitiveLoggingEnabled;
 
@@ -50,6 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             _parameterNameGeneratorFactory = dependencies.ParameterNameGeneratorFactory;
             _modificationCommandComparer = dependencies.ModificationCommandComparer;
             _keyValueIndexFactorySource = dependencies.KeyValueIndexFactorySource;
+            _columnModificationFactory = dependencies.ColumnModificationFactory;
             _minBatchSize =
                 dependencies.Options.Extensions.OfType<RelationalOptionsExtension>().FirstOrDefault()?.MinBatchSize
                 ?? 4;
@@ -200,13 +202,13 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                         command = sharedCommandsMap.GetOrAddValue(
                             entry,
-                            (n, s, c) => new ModificationCommand(n, s, generateParameterName, _sensitiveLoggingEnabled, c));
+                            (n, s, c) => new ModificationCommand(n, s, generateParameterName, _sensitiveLoggingEnabled, c, _columnModificationFactory));
                         isMainEntry = sharedCommandsMap.IsMainEntry(entry);
                     }
                     else
                     {
                         command = new ModificationCommand(
-                            table.Name, table.Schema, generateParameterName, _sensitiveLoggingEnabled, comparer: null);
+                            table.Name, table.Schema, generateParameterName, _sensitiveLoggingEnabled, comparer: null, _columnModificationFactory);
                     }
 
                     command.AddEntry(entry, isMainEntry);

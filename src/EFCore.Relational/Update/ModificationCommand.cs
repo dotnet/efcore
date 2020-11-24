@@ -28,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         private readonly Func<string> _generateParameterName;
         private readonly bool _sensitiveLoggingEnabled;
         private readonly IComparer<IUpdateEntry> _comparer;
+        private readonly IColumnModificationFactory _columnModificationFactory;
         private readonly List<IUpdateEntry> _entries = new List<IUpdateEntry>();
         private IReadOnlyList<ColumnModification> _columnModifications;
         private bool _requiresResultPropagation;
@@ -41,12 +42,14 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="generateParameterName"> A delegate to generate parameter names. </param>
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
         /// <param name="comparer"> A <see cref="IComparer{T}" /> for <see cref="IUpdateEntry" />s. </param>
+        /// <param name="columnModificationFactory"> A ColumnModification factory. </param>
         public ModificationCommand(
             [NotNull] string name,
             [CanBeNull] string schema,
             [NotNull] Func<string> generateParameterName,
             bool sensitiveLoggingEnabled,
-            [CanBeNull] IComparer<IUpdateEntry> comparer)
+            [CanBeNull] IComparer<IUpdateEntry> comparer,
+            [NotNull] IColumnModificationFactory columnModificationFactory)
             : this(
                 Check.NotEmpty(name, nameof(name)),
                 schema,
@@ -54,9 +57,11 @@ namespace Microsoft.EntityFrameworkCore.Update
                 sensitiveLoggingEnabled)
         {
             Check.NotNull(generateParameterName, nameof(generateParameterName));
+            Check.NotNull(columnModificationFactory, nameof(columnModificationFactory));
 
             _generateParameterName = generateParameterName;
             _comparer = comparer;
+            _columnModificationFactory = columnModificationFactory;
         }
 
         /// <summary>
@@ -342,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             _requiresResultPropagation = true;
                         }
 
-                        var columnModification = new ColumnModification(
+                        var columnModification = _columnModificationFactory.CreateColumnModification(
                             entry,
                             property,
                             column,

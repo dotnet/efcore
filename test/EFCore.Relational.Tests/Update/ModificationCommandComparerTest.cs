@@ -31,22 +31,24 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var stateManager = new DbContext(optionsBuilder.Options).GetService<IStateManager>();
 
+            var columnModificationFactory = new ColumnModificationFactory();
+
             var entry1 = stateManager.GetOrCreateEntry(new object());
             entry1[key] = 1;
             entry1.SetEntityState(EntityState.Added);
-            var modificationCommandAdded = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null);
+            var modificationCommandAdded = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory);
             modificationCommandAdded.AddEntry(entry1, true);
 
             var entry2 = stateManager.GetOrCreateEntry(new object());
             entry2[key] = 2;
             entry2.SetEntityState(EntityState.Modified);
-            var modificationCommandModified = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null);
+            var modificationCommandModified = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory);
             modificationCommandModified.AddEntry(entry2, true);
 
             var entry3 = stateManager.GetOrCreateEntry(new object());
             entry3[key] = 3;
             entry3.SetEntityState(EntityState.Deleted);
-            var modificationCommandDeleted = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null);
+            var modificationCommandDeleted = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory);
             modificationCommandDeleted.AddEntry(entry3, true);
 
             var mCC = new ModificationCommandComparer();
@@ -56,44 +58,44 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.True(
                 0
                 == mCC.Compare(
-                    new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, false, null),
-                    new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, false, null)));
+                    new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory),
+                    new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory)));
 
-            Assert.True(0 > mCC.Compare(null, new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null)));
-            Assert.True(0 < mCC.Compare(new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null), null));
-
-            Assert.True(
-                0
-                > mCC.Compare(
-                    new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null),
-                    new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, false, null)));
-            Assert.True(
-                0
-                < mCC.Compare(
-                    new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, false, null),
-                    new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null)));
+            Assert.True(0 > mCC.Compare(null, new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory)));
+            Assert.True(0 < mCC.Compare(new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory), null));
 
             Assert.True(
                 0
                 > mCC.Compare(
-                    new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, false, null),
-                    new ModificationCommand("A", "foo", new ParameterNameGenerator().GenerateNext, false, null)));
+                    new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory),
+                    new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory)));
             Assert.True(
                 0
                 < mCC.Compare(
-                    new ModificationCommand("A", "foo", new ParameterNameGenerator().GenerateNext, false, null),
-                    new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, false, null)));
+                    new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory),
+                    new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory)));
 
             Assert.True(
                 0
                 > mCC.Compare(
-                    new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null),
-                    new ModificationCommand("B", null, new ParameterNameGenerator().GenerateNext, false, null)));
+                    new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory),
+                    new ModificationCommand("A", "foo", new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory)));
             Assert.True(
                 0
                 < mCC.Compare(
-                    new ModificationCommand("B", null, new ParameterNameGenerator().GenerateNext, false, null),
-                    new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null)));
+                    new ModificationCommand("A", "foo", new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory),
+                    new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory)));
+
+            Assert.True(
+                0
+                > mCC.Compare(
+                    new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory),
+                    new ModificationCommand("B", null, new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory)));
+            Assert.True(
+                0
+                < mCC.Compare(
+                    new ModificationCommand("B", null, new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory),
+                    new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory)));
 
             Assert.True(0 > mCC.Compare(modificationCommandModified, modificationCommandAdded));
             Assert.True(0 < mCC.Compare(modificationCommandAdded, modificationCommandModified));
@@ -174,19 +176,21 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var stateManager = new DbContext(optionsBuilder.Options).GetService<IStateManager>();
 
+            var columnModificationFactory = new ColumnModificationFactory();
+
             var entry1 = stateManager.GetOrCreateEntry(new object());
             entry1[keyProperty] = value1;
             entry1.SetEntityState(EntityState.Modified);
-            var modificationCommand1 = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null);
+            var modificationCommand1 = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory);
             modificationCommand1.AddEntry(entry1, true);
 
             var entry2 = stateManager.GetOrCreateEntry(new object());
             entry2[keyProperty] = value2;
             entry2.SetEntityState(EntityState.Modified);
-            var modificationCommand2 = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null);
+            var modificationCommand2 = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory);
             modificationCommand2.AddEntry(entry2, true);
 
-            var modificationCommand3 = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null);
+            var modificationCommand3 = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory);
             modificationCommand3.AddEntry(entry1, true);
 
             var mCC = new ModificationCommandComparer();

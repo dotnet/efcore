@@ -298,6 +298,12 @@ namespace Microsoft.EntityFrameworkCore.Update
             => _useParameters && IsWrite;
 
         /// <summary>
+        ///     A delegate for generating parameter names for the update SQL
+        /// </summary>
+        protected Func<string> GenerateParameterName
+            => _generateParameterName;
+
+        /// <summary>
         ///     The parameter name to use for the current value parameter (<see cref="UseCurrentValueParameter" />), if needed.
         /// </summary>
         public virtual string ParameterName
@@ -358,6 +364,34 @@ namespace Microsoft.EntityFrameworkCore.Update
                         }
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        ///     The internal value of parameter name to use for the current value parameter.
+        /// </summary>
+        protected string InternalValueOfParameterName
+        {
+            get
+                => _parameterName;
+
+            set
+            {
+                _parameterName = value;
+            }
+        }
+
+        /// <summary>
+        ///     The internal value of parameter name to use for the original value parameter.
+        /// </summary>
+        protected string InternalValueOfOriginalParameterName
+        {
+            get
+                => _originalParameterName;
+
+            set
+            {
+                _originalParameterName = value;
             }
         }
 
