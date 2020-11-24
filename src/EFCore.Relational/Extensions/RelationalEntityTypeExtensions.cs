@@ -153,8 +153,9 @@ namespace Microsoft.EntityFrameworkCore
             }
             else
             {
+                var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23377", out var enabled) && enabled;
                 var skipReferencingTypes = entityType.GetForeignKeys().SelectMany(fk => fk.GetReferencingSkipNavigations())
-                    .Where(n => !n.IsOnDependent && n.DeclaringEntityType != entityType)
+                    .Where(n => !n.IsOnDependent && (n.DeclaringEntityType != entityType || useOldBehavior))
                     .ToList();
                 var skipNavigationSchema = skipReferencingTypes.FirstOrDefault()?.DeclaringEntityType.GetSchema();
                 if (skipNavigationSchema != null

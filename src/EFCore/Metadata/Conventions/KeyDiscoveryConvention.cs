@@ -125,7 +125,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 var manyToManyForeignKeys = entityType.GetForeignKeys()
                     .Where(fk => fk.GetReferencingSkipNavigations().Any(n => n.IsCollection)).ToList();
                 if (manyToManyForeignKeys.Count == 2
-                    && !manyToManyForeignKeys.Any(fk => fk.PrincipalEntityType == entityType))
+                    && (!manyToManyForeignKeys.Any(fk => fk.PrincipalEntityType == entityType)
+                        || (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23377", out var enabled) && enabled)))
                 {
                     keyProperties.AddRange(manyToManyForeignKeys.SelectMany(fk => fk.Properties));
                 }
