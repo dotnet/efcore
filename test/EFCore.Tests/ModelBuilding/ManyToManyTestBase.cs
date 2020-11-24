@@ -344,6 +344,35 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            public virtual void Throws_for_self_ref_with_same_navigation()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<SelfRefManyToOne>().Ignore(s => s.SelfRef1);
+                modelBuilder.Entity<SelfRefManyToOne>().HasMany(t => t.SelfRef2)
+                    .WithMany(t => t.SelfRef2);
+
+                Assert.Equal(CoreStrings.EntityRequiresKey("SelfRefManyToOneSelfRefManyToOne (Dictionary<string, object>)"),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+            }
+
+            [ConditionalFact]
+            public virtual void Throws_for_self_ref_using_self()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<SelfRefManyToOne>().Ignore(s => s.Id);
+                modelBuilder.Entity<SelfRefManyToOne>().HasMany(t => t.Relateds)
+                    .WithMany(t => t.RelatedSelfRefs)
+                    .UsingEntity<SelfRefManyToOne>(
+                    t => t.HasOne(a => a.Related).WithMany(b => b.DirectlyRelatedSelfRefs),
+                    t => t.HasOne(a => a.SelfRef1).WithMany(b => b.SelfRef2));
+
+                Assert.Equal(CoreStrings.EntityRequiresKey(nameof(SelfRefManyToOne)),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+            }
+
+            [ConditionalFact]
             public virtual void Throws_for_ForeignKeyAttribute_on_navigation()
             {
                 var modelBuilder = CreateModelBuilder();

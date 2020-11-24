@@ -721,11 +721,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 .SelectMany(t => t.GetDeclaredForeignKeys()).ToList();
             foreach (var foreignKey in foreignKeys)
             {
-                if ((!foreignKey.IsUnique
-                    || foreignKey.DeclaringEntityType.BaseType != null))
+                if ((foreignKey.IsUnique
+                    && foreignKey.DeclaringEntityType.BaseType == null)
+                    || foreignKey.Builder == null)
                 {
-                    DiscoverProperties(foreignKey.Builder, context);
+                    continue;
                 }
+
+                DiscoverProperties(foreignKey.Builder, context);
             }
         }
 
