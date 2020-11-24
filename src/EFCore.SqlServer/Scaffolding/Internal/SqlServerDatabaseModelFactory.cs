@@ -1036,7 +1036,10 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                         index.Columns.Add(column);
                     }
 
-                    table.Indexes.Add(index);
+                    if (index.Columns.Count > 0)
+                    {
+                        table.Indexes.Add(index);
+                    }
                 }
             }
         }

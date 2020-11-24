@@ -472,8 +472,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             // EF Indexer property
             if (methodCallExpression.TryGetIndexerArguments(_model, out source, out propertyName))
             {
-                return TryBindMember(Visit(source), MemberIdentity.Create(propertyName))
-                    ?? QueryCompilationContext.NotTranslatedExpression;
+                var result = TryBindMember(Visit(source), MemberIdentity.Create(propertyName));
+                if (result != null)
+                {
+                    return result;
+                }
             }
 
             // GroupBy Aggregate case

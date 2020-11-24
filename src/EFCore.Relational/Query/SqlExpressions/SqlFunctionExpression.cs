@@ -400,6 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             hash.Add(IsNiladic);
             hash.Add(Schema);
             hash.Add(Instance);
+
             if (Arguments != null)
             {
                 for (var i = 0; i < Arguments.Count; i++)
