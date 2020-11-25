@@ -723,9 +723,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             var names = new string[0];
             var result = context.Entities1
                 .Where(e => names.Contains(e.NullableStringA))
-                .Select(e => e.NullableStringA).ToList();
+                .Select(e => e.NullableStringA).ToList().Count;
 
-            Assert.Empty(result);
+            Assert.Equal(0, result);
         }
 
         [ConditionalFact]
@@ -735,9 +735,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             var names = new string[] { null };
             var result = context.Entities1
                 .Where(e => names.Contains(e.NullableStringA))
-                .Select(e => e.NullableStringA).ToList();
+                .Select(e => e.NullableStringA).ToList().Count;
 
-            Assert.Empty(result);
+            Assert.Equal(0, result);
         }
 
         [ConditionalTheory]

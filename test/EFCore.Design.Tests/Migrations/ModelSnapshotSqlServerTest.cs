@@ -1575,9 +1575,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
                 {
                     b.Property<int>(""Id"")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType(""int"")
-                        .UseIdentityColumn();
+                        .HasColumnType(""int"");
 
                     b.Property<int>(""AlternateId"")
                         .ValueGeneratedOnUpdateSometimes()
@@ -1838,9 +1836,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"", b1 =>
                         {
                             b1.Property<int>(""AlternateId"")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType(""int"")
-                                .UseIdentityColumn();
+                                .HasColumnType(""int"");
 
                             b1.Property<string>(""EntityWithStringKeyId"")
                                 .HasColumnType(""nvarchar(450)"");
@@ -2063,9 +2059,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"", b1 =>
                         {
                             b1.Property<int>(""AlternateId"")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType(""int"")
-                                .UseIdentityColumn();
+                                .HasColumnType(""int"");
 
                             b1.Property<string>(""EntityWithStringKeyId"")
                                 .HasColumnType(""nvarchar(450)"");
@@ -2236,9 +2230,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"", ""OrderBillingDetails"", b1 =>
                         {
                             b1.Property<int>(""OrderId"")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType(""int"")
-                                .UseIdentityColumn();
+                                .HasColumnType(""int"");
 
                             b1.HasKey(""OrderId"");
 
@@ -2250,9 +2242,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""StreetAddress"", b2 =>
                                 {
                                     b2.Property<int>(""OrderDetailsOrderId"")
-                                        .ValueGeneratedOnAdd()
-                                        .HasColumnType(""int"")
-                                        .UseIdentityColumn();
+                                        .HasColumnType(""int"");
 
                                     b2.Property<string>(""City"")
                                         .HasColumnType(""nvarchar(max)"");
@@ -2271,9 +2261,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"", ""OrderShippingDetails"", b1 =>
                         {
                             b1.Property<int>(""OrderId"")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType(""int"")
-                                .UseIdentityColumn();
+                                .HasColumnType(""int"");
 
                             b1.HasKey(""OrderId"");
 
@@ -2285,9 +2273,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""StreetAddress"", b2 =>
                                 {
                                     b2.Property<int>(""OrderDetailsOrderId"")
-                                        .ValueGeneratedOnAdd()
-                                        .HasColumnType(""int"")
-                                        .UseIdentityColumn();
+                                        .HasColumnType(""int"");
 
                                     b2.Property<string>(""City"")
                                         .HasColumnType(""nvarchar(max)"");
@@ -2306,9 +2292,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderInfo"", ""OrderInfo"", b1 =>
                         {
                             b1.Property<int>(""OrderId"")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType(""int"")
-                                .UseIdentityColumn();
+                                .HasColumnType(""int"");
 
                             b1.HasKey(""OrderId"");
 
@@ -2320,9 +2304,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""StreetAddress"", b2 =>
                                 {
                                     b2.Property<int>(""OrderInfoOrderId"")
-                                        .ValueGeneratedOnAdd()
-                                        .HasColumnType(""int"")
-                                        .UseIdentityColumn();
+                                        .HasColumnType(""int"");
 
                                     b2.Property<string>(""City"")
                                         .HasColumnType(""nvarchar(max)"");
