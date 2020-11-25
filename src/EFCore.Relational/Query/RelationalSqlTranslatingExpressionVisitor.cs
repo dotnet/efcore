@@ -432,7 +432,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <inheritdoc />
         protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
-            => QueryCompilationContext.NotTranslatedExpression;
+            => throw new InvalidOperationException(CoreStrings.TranslationFailed(lambdaExpression.Print()));
 
         /// <inheritdoc />
         protected override Expression VisitListInit(ListInitExpression listInitExpression)
