@@ -201,6 +201,9 @@
   <data name="ForeignKeyScaffoldErrorPropertyNotFound" xml:space="preserve">
     <value>Could not scaffold the foreign key '{foreignKeyName}'.  The following columns in the foreign key could not be scaffolded: {columnNames}.</value>
   </data>
+  <data name="ForeignKeyWithSameFacetsExists" xml:space="preserve">
+    <value>Could not scaffold the foreign key '{foreignKeyName}'. Foreign key '{existingForeignKey}' is defined on same columns targeting same key on principal table.</value>
+  </data>
   <data name="ForeignMigrations" xml:space="preserve">
     <value>The namespace '{migrationsNamespace}' contains migrations for a different DbContext. This can result in conflicting migration names. It's recommend to put migrations for different DbContext classes into different namespaces.</value>
   </data>

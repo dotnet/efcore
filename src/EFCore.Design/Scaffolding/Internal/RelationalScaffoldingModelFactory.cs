@@ -748,7 +748,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             var dependentEntityType = modelBuilder.Model.FindEntityType(GetEntityTypeName(foreignKey.Table));
-
             if (dependentEntityType == null)
             {
                 return null;
@@ -824,9 +823,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                                 nullablePrincipalProperties.Select(tuple => tuple.column.DisplayName()).ToList()
                                     .Aggregate((a, b) => a + "," + b)));
 
-                        nullablePrincipalProperties
-                            .ToList()
-                            .ForEach(tuple => tuple.property.IsNullable = false);
+                        nullablePrincipalProperties.ForEach(tuple => tuple.property.IsNullable = false);
                     }
 
                     principalKey = principalEntityType.AddKey(principalProperties);
@@ -843,6 +840,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                     return null;
                 }
+            }
+
+            var existingForeignKey = dependentEntityType.FindForeignKey(dependentProperties, principalKey, principalEntityType);
+            if (existingForeignKey is not null)
+            {
+                _reporter.WriteWarning(
+                    DesignStrings.ForeignKeyWithSameFacetsExists(foreignKey.DisplayName(), existingForeignKey.GetConstraintName()));
+
+                return null;
             }
 
             var newForeignKey = dependentEntityType.AddForeignKey(
