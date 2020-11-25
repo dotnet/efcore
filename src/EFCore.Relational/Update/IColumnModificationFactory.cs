@@ -26,10 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="column"> The column to be modified. </param>
         /// <param name="generateParameterName"> A delegate for generating parameter names for the update SQL. </param>
         /// <param name="typeMapping"> The relational type mapping to be used for the command parameter. </param>
-        /// <param name="isRead"> Indicates whether or not a value must be read from the database for the column. </param>
-        /// <param name="isWrite"> Indicates whether or not a value must be written to the database for the column. </param>
-        /// <param name="isKey"> Indicates whether or not the column part of a primary or alternate key.</param>
-        /// <param name="isCondition"> Indicates whether or not the column is used in the <c>WHERE</c> clause when updating. </param>
+        /// <param name="valueIsRead"> Indicates whether or not a value must be read from the database for the column. </param>
+        /// <param name="valueIsWrite"> Indicates whether or not a value must be written to the database for the column. </param>
+        /// <param name="columnIsKey"> Indicates whether or not the column part of a primary or alternate key.</param>
+        /// <param name="columnIsCondition"> Indicates whether or not the column is used in the <c>WHERE</c> clause when updating. </param>
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
         /// <returns> A new instance of ColumnModification. </returns>
         ColumnModification CreateColumnModification(
@@ -38,10 +38,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             [NotNull] IColumn column,
             [NotNull] Func<string> generateParameterName,
             [NotNull] RelationalTypeMapping typeMapping,
-            bool isRead,
-            bool isWrite,
-            bool isKey,
-            bool isCondition,
+            bool valueIsRead,
+            bool valueIsWrite,
+            bool columnIsKey,
+            bool columnIsCondition,
             bool sensitiveLoggingEnabled);
 
         /// <summary>
@@ -53,12 +53,12 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="property"> The property that maps to the column. </param>
         /// <param name="columnType"> The database type of the column. </param>
         /// <param name="typeMapping"> The relational type mapping to be used for the command parameter. </param>
-        /// <param name="isRead"> Indicates whether or not a value must be read from the database for the column. </param>
-        /// <param name="isWrite"> Indicates whether or not a value must be written to the database for the column. </param>
-        /// <param name="isKey"> Indicates whether or not the column part of a primary or alternate key.</param>
-        /// <param name="isCondition"> Indicates whether or not the column is used in the <c>WHERE</c> clause when updating. </param>
+        /// <param name="valueIsRead"> Indicates whether or not a value must be read from the database for the column. </param>
+        /// <param name="valueIsWrite"> Indicates whether or not a value must be written to the database for the column. </param>
+        /// <param name="columnIsKey"> Indicates whether or not the column part of a primary or alternate key.</param>
+        /// <param name="columnIsCondition"> Indicates whether or not the column is used in the <c>WHERE</c> clause when updating. </param>
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
-        /// <param name="isNullable"> A value indicating whether the value could be null. </param>
+        /// <param name="valueIsNullable"> A value indicating whether the value could be null. </param>
         /// <returns> A new instance of ColumnModification. </returns>
         ColumnModification CreateColumnModification(
             [NotNull] string columnName,
@@ -67,11 +67,11 @@ namespace Microsoft.EntityFrameworkCore.Update
             [CanBeNull] IProperty property,
             [CanBeNull] string columnType,
             [CanBeNull] RelationalTypeMapping typeMapping,
-            bool isRead,
-            bool isWrite,
-            bool isKey,
-            bool isCondition,
+            bool valueIsRead,
+            bool valueIsWrite,
+            bool columnIsKey,
+            bool columnIsCondition,
             bool sensitiveLoggingEnabled,
-            bool? isNullable = null);
+            bool? valueIsNullable = null);
     }
 }

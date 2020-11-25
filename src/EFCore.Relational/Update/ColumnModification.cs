@@ -300,20 +300,20 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     A delegate for generating parameter names for the update SQL
         /// </summary>
-        protected Func<string> GenerateParameterName
+        protected virtual Func<string> GenerateParameterName
             => _generateParameterName;
 
         /// <summary>
         ///     The parameter name to use for the current value parameter (<see cref="UseCurrentValueParameter" />), if needed.
         /// </summary>
         public virtual string ParameterName
-            => _parameterName ??= UseCurrentValueParameter ? _generateParameterName() : null;
-
+            => InternalValueOfParameterName ??= UseCurrentValueParameter ? GenerateParameterName() : null;
+ 
         /// <summary>
         ///     The parameter name to use for the original value parameter (<see cref="UseOriginalValueParameter" />), if needed.
         /// </summary>
         public virtual string OriginalParameterName
-            => _originalParameterName ??= UseOriginalValueParameter ? _generateParameterName() : null;
+            => InternalValueOfOriginalParameterName ??= UseOriginalValueParameter ? GenerateParameterName() : null;
 
         /// <summary>
         ///     The name of the column.
@@ -370,11 +370,12 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     The internal value of parameter name to use for the current value parameter.
         /// </summary>
-        protected string InternalValueOfParameterName
+        protected virtual string InternalValueOfParameterName
         {
             get
                 => _parameterName;
 
+            [param: CanBeNull]
             set
             {
                 _parameterName = value;
@@ -384,11 +385,12 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     The internal value of parameter name to use for the original value parameter.
         /// </summary>
-        protected string InternalValueOfOriginalParameterName
+        protected virtual string InternalValueOfOriginalParameterName
         {
             get
                 => _originalParameterName;
 
+            [param: CanBeNull]
             set
             {
                 _originalParameterName = value;

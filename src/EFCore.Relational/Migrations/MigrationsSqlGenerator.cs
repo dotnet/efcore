@@ -1005,7 +1005,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     modifications[j] = Dependencies.ColumnModificationFactory.CreateColumnModification(
                         name, originalValue: null, value, propertyMapping?.Property, columnType, typeMapping,
-                        isRead: false, isWrite: true, isKey: true, isCondition: false,
+                        valueIsRead: false, valueIsWrite: true, columnIsKey: true, columnIsCondition: false,
                         SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable);
                 }
 
@@ -1096,7 +1096,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     modifications[j] = Dependencies.ColumnModificationFactory.CreateColumnModification(
                         name, originalValue: null, value, propertyMapping?.Property, columnType, typeMapping,
-                        isRead: false, isWrite: true, isKey: true, isCondition: true,
+                        valueIsRead: false, valueIsWrite: true, columnIsKey: true, columnIsCondition: true,
                         SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable);
                 }
 
@@ -1212,7 +1212,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     keys[j] = Dependencies.ColumnModificationFactory.CreateColumnModification(
                         name, originalValue: null, value, propertyMapping?.Property, columnType, typeMapping,
-                        isRead: false, isWrite: false, isKey: true, isCondition: true,
+                        valueIsRead: false, valueIsWrite: false, columnIsKey: true, columnIsCondition: true,
                         SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable);
                 }
 
@@ -1231,7 +1231,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     modifications[j] = Dependencies.ColumnModificationFactory.CreateColumnModification(
                         name, originalValue: null, value, propertyMapping?.Property, columnType, typeMapping,
-                        isRead: false, isWrite: true, isKey: true, isCondition: false,
+                        valueIsRead: false, valueIsWrite: true, columnIsKey: true, columnIsCondition: false,
                         SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable);
                 }
 

@@ -25,15 +25,15 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ColumnModification CreateColumnModification(
-            [NotNull] IUpdateEntry entry,
-            [NotNull] IProperty property,
-            [NotNull] IColumn column,
-            [NotNull] Func<string> generateParameterName,
-            [NotNull] RelationalTypeMapping typeMapping,
-            bool isRead,
-            bool isWrite,
-            bool isKey,
-            bool isCondition,
+            IUpdateEntry entry,
+            IProperty property,
+            IColumn column,
+            Func<string> generateParameterName,
+            RelationalTypeMapping typeMapping,
+            bool valueIsRead,
+            bool valueIsWrite,
+            bool columnIsKey,
+            bool columnIsCondition,
             bool sensitiveLoggingEnabled)
         {
             return new ColumnModification
@@ -42,10 +42,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                  column,
                  generateParameterName,
                  typeMapping,
-                 isRead,
-                 isWrite,
-                 isKey,
-                 isCondition,
+                 valueIsRead,
+                 valueIsWrite,
+                 columnIsKey,
+                 columnIsCondition,
                  sensitiveLoggingEnabled);
         }
 
@@ -56,18 +56,18 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ColumnModification CreateColumnModification(
-            [NotNull] string columnName,
-            [CanBeNull] object originalValue,
-            [CanBeNull] object value,
-            [CanBeNull] IProperty property,
-            [CanBeNull] string columnType,
-            [CanBeNull] RelationalTypeMapping typeMapping,
-            bool isRead,
-            bool isWrite,
-            bool isKey,
-            bool isCondition,
+            string columnName,
+            object originalValue,
+            object value,
+            IProperty property,
+            string columnType,
+            RelationalTypeMapping typeMapping,
+            bool valueIsRead,
+            bool valueIsWrite,
+            bool columnIsKey,
+            bool columnIsCondition,
             bool sensitiveLoggingEnabled,
-            bool? isNullable)
+            bool? valueIsNullable)
         {
             return new ColumnModification
                 (columnName,
@@ -76,12 +76,12 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                  property,
                  columnType,
                  typeMapping,
-                 isRead,
-                 isWrite,
-                 isKey,
-                 isCondition,
+                 valueIsRead,
+                 valueIsWrite,
+                 columnIsKey,
+                 columnIsCondition,
                  sensitiveLoggingEnabled,
-                 isNullable);
+                 valueIsNullable);
         }
     }
 }
