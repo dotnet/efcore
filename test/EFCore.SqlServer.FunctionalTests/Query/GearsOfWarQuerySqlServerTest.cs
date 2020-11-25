@@ -7344,6 +7344,26 @@ WHERE [t0].[IssueDate] > COALESCE((
     ORDER BY [t1].[Id]), '0001-01-01T00:00:00.0000000')");
         }
 
+        public override async Task First_on_byte_array(bool async)
+        {
+            await base.First_on_byte_array(async);
+
+            AssertSql(
+                @"SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
+FROM [Squads] AS [s]
+WHERE CAST(SUBSTRING([s].[Banner], 1, 1) AS tinyint) = CAST(2 AS tinyint)");
+        }
+
+        public override async Task Array_access_on_byte_array(bool async)
+        {
+            await base.Array_access_on_byte_array(async);
+
+            AssertSql(
+                @"SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
+FROM [Squads] AS [s]
+WHERE CAST(SUBSTRING([s].[Banner5], 2 + 1, 1) AS tinyint) = CAST(6 AS tinyint)");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

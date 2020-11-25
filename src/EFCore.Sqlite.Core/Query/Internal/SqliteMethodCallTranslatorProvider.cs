@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             AddTranslators(
                 new IMethodCallTranslator[]
                 {
-                    new SqliteByteArrayMethodTranslator(sqlExpressionFactory),
+                    new SqliteByteArrayMethodTranslator(sqlExpressionFactory, dependencies.RelationalTypeMappingSource),
                     new SqliteCharMethodTranslator(sqlExpressionFactory),
                     new SqliteDateTimeAddTranslator(sqlExpressionFactory),
                     new SqliteGlobMethodTranslator(sqlExpressionFactory),
