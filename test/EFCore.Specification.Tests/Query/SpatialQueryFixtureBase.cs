@@ -3,11 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -22,10 +24,108 @@ namespace Microsoft.EntityFrameworkCore.Query
             => new SpatialData(GeometryFactory);
 
         public IReadOnlyDictionary<Type, object> GetEntitySorters()
-            => null;
+            => new Dictionary<Type, Func<object, object>>
+            {
+                { typeof(PointEntity), e => ((PointEntity)e)?.Id },
+                { typeof(LineStringEntity), e => ((LineStringEntity)e)?.Id },
+                { typeof(PolygonEntity), e => ((PolygonEntity)e)?.Id },
+                { typeof(MultiLineStringEntity), e => ((MultiLineStringEntity)e)?.Id },
+                { typeof(GeoPointEntity), e => ((GeoPointEntity)e)?.Id },
+            }.ToDictionary(e => e.Key, e => (object)e.Value);
 
         public IReadOnlyDictionary<Type, object> GetEntityAsserters()
-            => null;
+            => new Dictionary<Type, Action<object, object>>
+            {
+                {
+                    typeof(PointEntity), (e, a) =>
+                    {
+                        Assert.Equal(e == null, a == null);
+
+                        if (a != null)
+                        {
+                            var ee = (PointEntity)e;
+                            var aa = (PointEntity)a;
+
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.Geometry, aa.Geometry, GeometryComparer.Instance);
+                            Assert.Equal(ee.Point, aa.Point, GeometryComparer.Instance);
+                            Assert.Equal(ee.PointZ, aa.PointZ, GeometryComparer.Instance);
+                            Assert.Equal(ee.PointM, aa.PointM, GeometryComparer.Instance);
+                            Assert.Equal(ee.PointZM, aa.PointZM, GeometryComparer.Instance);
+                        }
+                    }
+                },
+                {
+                    typeof(LineStringEntity), (e, a) =>
+                    {
+                        Assert.Equal(e == null, a == null);
+
+                        if (a != null)
+                        {
+                            var ee = (LineStringEntity)e;
+                            var aa = (LineStringEntity)a;
+
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.LineString, aa.LineString, GeometryComparer.Instance);
+                        }
+                    }
+                },
+                {
+                    typeof(PolygonEntity), (e, a) =>
+                    {
+                        Assert.Equal(e == null, a == null);
+
+                        if (a != null)
+                        {
+                            var ee = (PolygonEntity)e;
+                            var aa = (PolygonEntity)a;
+
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.Polygon, aa.Polygon, GeometryComparer.Instance);
+                        }
+                    }
+                },
+                {
+                    typeof(MultiLineStringEntity), (e, a) =>
+                    {
+                        Assert.Equal(e == null, a == null);
+
+                        if (a != null)
+                        {
+                            var ee = (MultiLineStringEntity)e;
+                            var aa = (MultiLineStringEntity)a;
+
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.MultiLineString != null, aa.MultiLineString != null);
+                            if (ee.MultiLineString != null)
+                            {
+                                Assert.Equal(ee.MultiLineString.Count, aa.MultiLineString.Count);
+                                Assert.Equal(ee.MultiLineString.Area, aa.MultiLineString.Area);
+                                for (var i = 0; i < ee.MultiLineString.Count; i++)
+                                {
+                                    Assert.Equal(ee.MultiLineString[i], aa.MultiLineString[i], GeometryComparer.Instance);
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    typeof(GeoPointEntity), (e, a) =>
+                    {
+                        Assert.Equal(e == null, a == null);
+
+                        if (a != null)
+                        {
+                            var ee = (GeoPointEntity)e;
+                            var aa = (GeoPointEntity)a;
+
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.Location.Lat, aa.Location.Lat);
+                            Assert.Equal(ee.Location.Lon, aa.Location.Lon);
+                        }
+                    }
+                },
+            }.ToDictionary(e => e.Key, e => (object)e.Value);
 
         public virtual GeometryFactory GeometryFactory
             => LazyInitializer.EnsureInitialized(
