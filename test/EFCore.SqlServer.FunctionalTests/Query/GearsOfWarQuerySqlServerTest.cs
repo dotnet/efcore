@@ -7364,6 +7364,41 @@ FROM [Squads] AS [s]
 WHERE CAST(SUBSTRING([s].[Banner5], 2 + 1, 1) AS tinyint) = CAST(6 AS tinyint)");
         }
 
+        public override async Task Project_shadow_properties(bool async)
+        {
+            await base.Project_shadow_properties(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[AssignedCityName]
+FROM [Gears] AS [g]");
+        }
+
+        public override async Task Project_discriminator_columns(bool async)
+        {
+            await base.Project_discriminator_columns(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[Discriminator]
+FROM [Gears] AS [g]",
+                //
+                @"SELECT [g].[Nickname], [g].[Discriminator]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] = N'Officer'",
+                //
+                @"SELECT [f].[Id], [f].[Discriminator]
+FROM [Factions] AS [f]",
+                //
+                @"SELECT [f].[Id], [f].[Discriminator]
+FROM [Factions] AS [f]",
+                //
+                @"SELECT [l].[Name], [l].[Discriminator]
+FROM [LocustLeaders] AS [l]",
+                //
+                @"SELECT [l].[Name], [l].[Discriminator]
+FROM [LocustLeaders] AS [l]
+WHERE [l].[Discriminator] = N'LocustCommander'");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

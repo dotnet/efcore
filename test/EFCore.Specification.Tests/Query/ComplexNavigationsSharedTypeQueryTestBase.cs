@@ -160,5 +160,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.Multiple_collection_FirstOrDefault_followed_by_member_access_in_projection(async);
         }
+
+        public override Task Project_shadow_properties(bool async)
+            => Task.CompletedTask;
     }
 }

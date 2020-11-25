@@ -39,48 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         protected override Expression RewriteExpectedQueryExpression(Expression expectedQueryExpression)
-            => CreateExpectedQueryRewritingVisitor().Visit(expectedQueryExpression);
+            => new ExpectedQueryRewritingVisitor(Fixture.GetShadowPropertyMappings()).Visit(expectedQueryExpression);
 
         private MemberInfo GetMemberInfo(Type sourceType, string name)
             => sourceType.GetMember(name).Single();
-
-        private ExpectedQueryRewritingVisitor CreateExpectedQueryRewritingVisitor()
-            => new ExpectedQueryRewritingVisitor(
-                new Dictionary<(Type, string), MemberInfo[]>
-                {
-                    {
-                        (typeof(Level1), "OneToMany_Optional_Self_Inverse1Id"),
-                        new[] { GetMemberInfo(typeof(Level1), "OneToMany_Optional_Self_Inverse1"), GetMemberInfo(typeof(Level1), "Id") }
-                    },
-                    {
-                        (typeof(Level1), "OneToOne_Optional_Self1Id"),
-                        new[] { GetMemberInfo(typeof(Level1), "OneToOne_Optional_Self1"), GetMemberInfo(typeof(Level1), "Id") }
-                    },
-                    {
-                        (typeof(Level2), "OneToMany_Optional_Self_Inverse2Id"),
-                        new[] { GetMemberInfo(typeof(Level2), "OneToMany_Optional_Self_Inverse2"), GetMemberInfo(typeof(Level2), "Id") }
-                    },
-                    {
-                        (typeof(Level2), "OneToOne_Optional_Self2Id"),
-                        new[] { GetMemberInfo(typeof(Level2), "OneToOne_Optional_Self2"), GetMemberInfo(typeof(Level2), "Id") }
-                    },
-                    {
-                        (typeof(Level3), "OneToMany_Optional_Self_Inverse3Id"),
-                        new[] { GetMemberInfo(typeof(Level3), "OneToMany_Optional_Self_Inverse3"), GetMemberInfo(typeof(Level3), "Id") }
-                    },
-                    {
-                        (typeof(Level3), "OneToOne_Optional_Self3Id"),
-                        new[] { GetMemberInfo(typeof(Level3), "OneToOne_Optional_Self3"), GetMemberInfo(typeof(Level3), "Id") }
-                    },
-                    {
-                        (typeof(Level4), "OneToMany_Optional_Self_Inverse4Id"),
-                        new[] { GetMemberInfo(typeof(Level4), "OneToMany_Optional_Self_Inverse4"), GetMemberInfo(typeof(Level4), "Id") }
-                    },
-                    {
-                        (typeof(Level4), "OneToOne_Optional_Self4Id"),
-                        new[] { GetMemberInfo(typeof(Level4), "OneToOne_Optional_Self4"), GetMemberInfo(typeof(Level4), "Id") }
-                    },
-                });
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -5961,6 +5923,137 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select inner,
                 assertOrder: true,
                 elementAsserter: (e, a) => AssertCollection(e, a));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Project_shadow_properties(bool async)
+        {
+            await AssertQuery(
+                async,
+                ss => from x in ss.Set<Level1>()
+                      select new
+                      {
+                          Id = x.Id,
+                          OneToOne_Optional_Self1Id = EF.Property<int?>(x, "OneToOne_Optional_Self1Id"),
+                          OneToMany_Required_Self_Inverse1Id = EF.Property<int?>(x, "OneToMany_Required_Self_Inverse1Id"),
+                          OneToMany_Optional_Self_Inverse1Id = EF.Property<int?>(x, "OneToMany_Optional_Self_Inverse1Id"),
+                      },
+                elementSorter: e => e.Id);
+
+            await AssertQuery(
+                async,
+                ss => from x in ss.Set<Level2>()
+                      select new
+                      {
+                          Id = x.Id,
+                          OneToOne_Optional_PK_Inverse2Id = EF.Property<int?>(x, "OneToOne_Optional_PK_Inverse2Id"),
+                          OneToMany_Required_Inverse2Id = EF.Property<int?>(x, "OneToMany_Required_Inverse2Id"),
+                          OneToMany_Optional_Inverse2Id = EF.Property<int?>(x, "OneToMany_Optional_Inverse2Id"),
+                          OneToOne_Optional_Self2Id = EF.Property<int?>(x, "OneToOne_Optional_Self2Id"),
+                          OneToMany_Required_Self_Inverse2Id = EF.Property<int?>(x, "OneToMany_Required_Self_Inverse2Id"),
+                          OneToMany_Optional_Self_Inverse2Id = EF.Property<int?>(x, "OneToMany_Optional_Self_Inverse2Id"),
+                      },
+                elementSorter: e => e.Id);
+
+            await AssertQuery(
+                async,
+                ss => from x in ss.Set<Level3>()
+                      select new
+                      {
+                          Id = x.Id,
+                          OneToOne_Optional_PK_Inverse3Id = EF.Property<int?>(x, "OneToOne_Optional_PK_Inverse3Id"),
+                          OneToMany_Required_Inverse3Id = EF.Property<int?>(x, "OneToMany_Required_Inverse3Id"),
+                          OneToMany_Optional_Inverse3Id = EF.Property<int?>(x, "OneToMany_Optional_Inverse3Id"),
+                          OneToOne_Optional_Self3Id = EF.Property<int?>(x, "OneToOne_Optional_Self3Id"),
+                          OneToMany_Required_Self_Inverse3Id = EF.Property<int?>(x, "OneToMany_Required_Self_Inverse3Id"),
+                          OneToMany_Optional_Self_Inverse3Id = EF.Property<int?>(x, "OneToMany_Optional_Self_Inverse3Id"),
+                      },
+                elementSorter: e => e.Id);
+
+            await AssertQuery(
+                async,
+                ss => from x in ss.Set<Level4>()
+                      select new
+                      {
+                          Id = x.Id,
+                          OneToOne_Optional_PK_Inverse4Id = EF.Property<int?>(x, "OneToOne_Optional_PK_Inverse4Id"),
+                          OneToMany_Required_Inverse4Id = EF.Property<int?>(x, "OneToMany_Required_Inverse4Id"),
+                          OneToMany_Optional_Inverse4Id = EF.Property<int?>(x, "OneToMany_Optional_Inverse4Id"),
+                          OneToOne_Optional_Self4Id = EF.Property<int?>(x, "OneToOne_Optional_Self4Id"),
+                          OneToMany_Required_Self_Inverse4Id = EF.Property<int?>(x, "OneToMany_Required_Self_Inverse4Id"),
+                          OneToMany_Optional_Self_Inverse4Id = EF.Property<int?>(x, "OneToMany_Optional_Self_Inverse4Id"),
+                      },
+                elementSorter: e => e.Id);
+
+            await AssertQuery(
+                async,
+                ss => from x in ss.Set<InheritanceBase1>()
+                      select new
+                      {
+                          Id = x.Id,
+                          InheritanceBase2Id = EF.Property<int?>(x, "InheritanceBase2Id"),
+                          InheritanceBase2Id1 = EF.Property<int?>(x, "InheritanceBase2Id1"),
+                      },
+                elementSorter: e => e.Id);
+
+            await AssertQuery(
+                async,
+                ss => from x in ss.Set<InheritanceBase1>().OfType<InheritanceDerived1>()
+                      select new
+                      {
+                          Id = x.Id,
+                          InheritanceBase2Id = EF.Property<int?>(x, "InheritanceBase2Id"),
+                          InheritanceBase2Id1 = EF.Property<int?>(x, "InheritanceBase2Id1"),
+                      },
+                elementSorter: e => e.Id);
+
+            await AssertQuery(
+                async,
+                ss => from x in ss.Set<InheritanceBase1>().OfType<InheritanceDerived2>()
+                      select new
+                      {
+                          Id = x.Id,
+                          InheritanceBase2Id = EF.Property<int?>(x, "InheritanceBase2Id"),
+                          InheritanceBase2Id1 = EF.Property<int?>(x, "InheritanceBase2Id1"),
+                      },
+                elementSorter: e => e.Id);
+
+            await AssertQuery(
+                async,
+                ss => from x in ss.Set<InheritanceBase2>()
+                      select new
+                      {
+                          Id = x.Id,
+                          InheritanceLeaf2Id = EF.Property<int?>(x, "InheritanceLeaf2Id"),
+                      },
+                elementSorter: e => e.Id);
+
+            await AssertQuery(
+                async,
+                ss => from x in ss.Set<InheritanceLeaf1>()
+                      select new
+                      {
+                          Id = x.Id,
+                          DifferentTypeReference_InheritanceDerived1Id = EF.Property<int?>(x, "DifferentTypeReference_InheritanceDerived1Id"),
+                          InheritanceDerived1Id = EF.Property<int?>(x, "InheritanceDerived1Id"),
+                          InheritanceDerived1Id1 = EF.Property<int?>(x, "InheritanceDerived1Id1"),
+                          InheritanceDerived2Id = EF.Property<int?>(x, "InheritanceDerived2Id"),
+                          SameTypeReference_InheritanceDerived1Id = EF.Property<int?>(x, "SameTypeReference_InheritanceDerived1Id"),
+                          SameTypeReference_InheritanceDerived2Id = EF.Property<int?>(x, "SameTypeReference_InheritanceDerived2Id"),
+                      },
+                elementSorter: e => e.Id);
+
+            await AssertQuery(
+                async,
+                ss => from x in ss.Set<InheritanceLeaf2>()
+                      select new
+                      {
+                          Id = x.Id,
+                          DifferentTypeReference_InheritanceDerived2Id = EF.Property<int?>(x, "DifferentTypeReference_InheritanceDerived2Id"),
+                          InheritanceDerived2Id = EF.Property<int?>(x, "InheritanceDerived2Id"),
+                      },
+                elementSorter: e => e.Id);
         }
     }
 }

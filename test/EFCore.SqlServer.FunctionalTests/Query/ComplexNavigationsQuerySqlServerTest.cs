@@ -6136,6 +6136,44 @@ OUTER APPLY (
 ORDER BY [l].[Id], [t0].[Id], [t1].[Id]");
         }
 
+        public override async Task Project_shadow_properties(bool async)
+        {
+            await base.Project_shadow_properties(async);
+
+            AssertSql(
+                @"SELECT [l].[Id], [l].[OneToOne_Optional_Self1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToMany_Optional_Self_Inverse1Id]
+FROM [LevelOne] AS [l]",
+                //
+                @"SELECT [l].[Id], [l].[OneToOne_Optional_PK_Inverse2Id], [l].[OneToMany_Required_Inverse2Id], [l].[OneToMany_Optional_Inverse2Id], [l].[OneToOne_Optional_Self2Id], [l].[OneToMany_Required_Self_Inverse2Id], [l].[OneToMany_Optional_Self_Inverse2Id]
+FROM [LevelTwo] AS [l]",
+                //
+                @"SELECT [l].[Id], [l].[OneToOne_Optional_PK_Inverse3Id], [l].[OneToMany_Required_Inverse3Id], [l].[OneToMany_Optional_Inverse3Id], [l].[OneToOne_Optional_Self3Id], [l].[OneToMany_Required_Self_Inverse3Id], [l].[OneToMany_Optional_Self_Inverse3Id]
+FROM [LevelThree] AS [l]",
+                //
+                @"SELECT [l].[Id], [l].[OneToOne_Optional_PK_Inverse4Id], [l].[OneToMany_Required_Inverse4Id], [l].[OneToMany_Optional_Inverse4Id], [l].[OneToOne_Optional_Self4Id], [l].[OneToMany_Required_Self_Inverse4Id], [l].[OneToMany_Optional_Self_Inverse4Id]
+FROM [LevelFour] AS [l]",
+                //
+                @"SELECT [i].[Id], [i].[InheritanceBase2Id], [i].[InheritanceBase2Id1]
+FROM [InheritanceOne] AS [i]",
+                //
+                @"SELECT [i].[Id], [i].[InheritanceBase2Id], [i].[InheritanceBase2Id1]
+FROM [InheritanceOne] AS [i]
+WHERE [i].[Discriminator] = N'InheritanceDerived1'",
+                //
+                @"SELECT [i].[Id], [i].[InheritanceBase2Id], [i].[InheritanceBase2Id1]
+FROM [InheritanceOne] AS [i]
+WHERE [i].[Discriminator] = N'InheritanceDerived2'",
+                //
+                @"SELECT [i].[Id], [i].[InheritanceLeaf2Id]
+FROM [InheritanceTwo] AS [i]",
+                //
+                @"SELECT [i].[Id], [i].[DifferentTypeReference_InheritanceDerived1Id], [i].[InheritanceDerived1Id], [i].[InheritanceDerived1Id1], [i].[InheritanceDerived2Id], [i].[SameTypeReference_InheritanceDerived1Id], [i].[SameTypeReference_InheritanceDerived2Id]
+FROM [InheritanceLeafOne] AS [i]",
+                //
+                @"SELECT [i].[Id], [i].[DifferentTypeReference_InheritanceDerived2Id], [i].[InheritanceDerived2Id]
+FROM [InheritanceLeafTwo] AS [i]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
