@@ -317,9 +317,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class SelfRefManyToOne
         {
             public int Id { get; set; }
+            public int SelfRefId { get; set; }
             public SelfRefManyToOne SelfRef1 { get; set; }
             public ICollection<SelfRefManyToOne> SelfRef2 { get; set; }
-            public int SelfRefId { get; set; }
+
+            [NotMapped]
+            public ManyToManyRelated Related { get; set; }
+
+            [NotMapped]
+            public ICollection<ManyToManyRelated> Relateds { get; set; }
+        }
+
+        protected class ManyToManyRelated
+        {
+            public int Id { get; set; }
+            public ICollection<SelfRefManyToOne> DirectlyRelatedSelfRefs { get; set; }
+            public ICollection<SelfRefManyToOne> RelatedSelfRefs { get; set; }
         }
 
         protected class User
