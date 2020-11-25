@@ -2275,6 +2275,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
+        public void Attempting_to_set_store_generated_value_for_non_generated_property_throws()
+        {
+            using var context = new Levels();
+            var property = context.Model.FindEntityType(typeof(Level1)).GetProperty("Prop1");
+
+            Assert.Equal(-1, property.GetStoreGeneratedIndex());
+
+            var internalEntityEntry = context.Entry(new Level1()).GetInfrastructure();
+
+            Assert.Equal(
+                CoreStrings.StoreGenValue("Prop1", nameof(Level1)),
+                Assert.Throws<InvalidOperationException>(() => internalEntityEntry.SetStoreGeneratedValue(property, null)).Message);
+        }
+
+        [ConditionalFact]
         public void Indexes_for_derived_types_are_calculated_correctly()
         {
             using var context = new Levels();

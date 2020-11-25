@@ -532,9 +532,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CanSetValueComparer([CanBeNull] ValueComparer comparer, ConfigurationSource? configurationSource)
-            => (configurationSource.Overrides(Metadata.GetValueComparerConfigurationSource())
-                    && Metadata.CheckValueComparer(comparer) == null)
-                || Metadata[CoreAnnotationNames.ValueComparer] == comparer;
+        {
+            if (configurationSource.Overrides(Metadata.GetValueComparerConfigurationSource()))
+            {
+                var errorString = Metadata.CheckValueComparer(comparer);
+                if (errorString != null)
+                {
+                    if (configurationSource == ConfigurationSource.Explicit)
+                    {
+                        throw new InvalidOperationException(errorString);
+                    }
+
+                    return false;
+                }
+
+                return true;
+            }
+            
+            return Metadata[CoreAnnotationNames.ValueComparer] == comparer;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

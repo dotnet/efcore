@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 #nullable enable
@@ -58,14 +59,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             string entityInstanceName,
             Expression materializationContextExpression)
         {
-            if (!entityType.HasClrType)
-            {
-                throw new InvalidOperationException(CoreStrings.NoClrType(entityType.DisplayName()));
-            }
+            Check.DebugAssert(entityType.HasClrType, "Cannot materialize shadow types.");
 
             if (entityType.IsAbstract())
             {
-                throw new InvalidOperationException(CoreStrings.CannotMaterializeAbstractType(entityType));
+                throw new InvalidOperationException(CoreStrings.CannotMaterializeAbstractType(entityType.DisplayName()));
             }
 
             var constructorBinding = (InstantiationBinding?)entityType[CoreAnnotationNames.ConstructorBinding];

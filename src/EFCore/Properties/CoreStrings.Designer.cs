@@ -1469,14 +1469,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 method);
 
         /// <summary>
-        ///     Cannot start tracking InternalEntityEntry for entity type '{entityType}' because another InternalEntityEntry is already tracking the same entity.
-        /// </summary>
-        public static string MultipleEntries([CanBeNull] object entityType)
-            => string.Format(
-                GetString("MultipleEntries", nameof(entityType)),
-                entityType);
-
-        /// <summary>
         ///     The filters '{filter1}' and '{filter2}' have both been configured on the same included navigation. Only one unique filter per navigation is allowed. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.
         /// </summary>
         public static string MultipleFilteredIncludesOnSameNavigation([CanBeNull] object filter1, [CanBeNull] object filter2)
@@ -1659,14 +1651,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("NoClrNavigation", nameof(navigation), nameof(entityType)),
                 navigation, entityType);
-
-        /// <summary>
-        ///     The CLR entity materializer cannot be used for entity type '{entityType}' because it is a shadow state entity type. Materialization to a CLR type is only possible for entity types that have a corresponding CLR type.
-        /// </summary>
-        public static string NoClrType([CanBeNull] object entityType)
-            => string.Format(
-                GetString("NoClrType", nameof(entityType)),
-                entityType);
 
         /// <summary>
         ///     The navigation '{navigation}' used to define the entity type '{entityType}' is not present on '{definingEntityType}'.
@@ -2142,12 +2126,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("PropertyWrongType", nameof(property), nameof(entityType), nameof(otherEntityType)),
                 property, entityType, otherEntityType);
-
-        /// <summary>
-        ///     The 'InitializeStateManager' method has been called multiple times on the current query context. This method is intended to be called only once before query enumeration starts.
-        /// </summary>
-        public static string QueryContextAlreadyInitializedStateManager
-            => GetString("QueryContextAlreadyInitializedStateManager");
 
         /// <summary>
         ///     The materialization condition passed for entity shaper of entity type '{entityType}' is not of the correct shape. A materialization condition must be a 'LambdaExpression' of 'Func&lt;ValueBuffer, IEntityType&gt;'.
