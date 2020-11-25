@@ -438,7 +438,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 return null;
             }
 
-            var etag = entry.GetCurrentValue(etagProperty);
+            var etag = entry.GetOriginalValue(etagProperty);
             var converter = etagProperty.GetTypeMapping().Converter;
             if (converter != null)
             {
