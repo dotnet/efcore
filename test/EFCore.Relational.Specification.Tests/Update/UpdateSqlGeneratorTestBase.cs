@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -647,6 +648,9 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         protected abstract string RowsAffected { get; }
 
+        protected virtual IColumnModificationFactory CreateColumnModificationFactory()
+            => new ColumnModificationFactory();
+
         protected virtual string Identity
             => throw new NotImplementedException();
 
@@ -677,21 +681,24 @@ namespace Microsoft.EntityFrameworkCore.Update
             var quacksProperty = duckType.FindProperty(nameof(Duck.Quacks));
             var computedProperty = duckType.FindProperty(nameof(Duck.Computed));
             var concurrencyProperty = duckType.FindProperty(nameof(Duck.ConcurrencyToken));
+
+            var columnModificationFactory = CreateColumnModificationFactory();
+
             var columnModifications = new[]
             {
-                new ColumnModification(
+                columnModificationFactory.CreateColumnModification(
                     entry, idProperty, idProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
                     idProperty.GetTableColumnMappings().Single().TypeMapping, identityKey, !identityKey, true, false, true),
-                new ColumnModification(
+                columnModificationFactory.CreateColumnModification(
                     entry, nameProperty, nameProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
                     nameProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, false, true),
-                new ColumnModification(
+                columnModificationFactory.CreateColumnModification(
                     entry, quacksProperty, quacksProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
                     quacksProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, false, true),
-                new ColumnModification(
+                columnModificationFactory.CreateColumnModification(
                     entry, computedProperty, computedProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
                     computedProperty.GetTableColumnMappings().Single().TypeMapping, isComputed, false, false, false, true),
-                new ColumnModification(
+                columnModificationFactory.CreateColumnModification(
                     entry, concurrencyProperty, concurrencyProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
                     concurrencyProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, false, true)
             };
@@ -701,7 +708,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 columnModifications = columnModifications.Where(c => !c.IsWrite).ToArray();
             }
 
-            return new ModificationCommand("Ducks", Schema, columnModifications, false);
+            return new ModificationCommand("Ducks", Schema, columnModifications, false, columnModificationFactory);
         }
 
         protected ModificationCommand CreateUpdateCommand(bool isComputed = true, bool concurrencyToken = true)
@@ -716,26 +723,29 @@ namespace Microsoft.EntityFrameworkCore.Update
             var quacksProperty = duckType.FindProperty(nameof(Duck.Quacks));
             var computedProperty = duckType.FindProperty(nameof(Duck.Computed));
             var concurrencyProperty = duckType.FindProperty(nameof(Duck.ConcurrencyToken));
+
+            var columnModificationFactory = CreateColumnModificationFactory();
+
             var columnModifications = new[]
             {
-                new ColumnModification(
+                columnModificationFactory.CreateColumnModification(
                     entry, idProperty, idProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
                     idProperty.GetTableColumnMappings().Single().TypeMapping, false, false, true, true, true),
-                new ColumnModification(
+                columnModificationFactory.CreateColumnModification(
                     entry, nameProperty, nameProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
                     nameProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, false, true),
-                new ColumnModification(
+                columnModificationFactory.CreateColumnModification(
                     entry, quacksProperty, quacksProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
                     quacksProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, false, true),
-                new ColumnModification(
+                columnModificationFactory.CreateColumnModification(
                     entry, computedProperty, computedProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
                     computedProperty.GetTableColumnMappings().Single().TypeMapping, isComputed, false, false, false, true),
-                new ColumnModification(
+                columnModificationFactory.CreateColumnModification(
                     entry, concurrencyProperty, concurrencyProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
                     concurrencyProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, concurrencyToken, true)
             };
 
-            return new ModificationCommand("Ducks", Schema, columnModifications, false);
+            return new ModificationCommand("Ducks", Schema, columnModifications, false, columnModificationFactory);
         }
 
         protected ModificationCommand CreateDeleteCommand(bool concurrencyToken = true)
@@ -747,17 +757,20 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var idProperty = duckType.FindProperty(nameof(Duck.Id));
             var concurrencyProperty = duckType.FindProperty(nameof(Duck.ConcurrencyToken));
+
+            var columnModificationFactory = CreateColumnModificationFactory();
+
             var columnModifications = new[]
             {
-                new ColumnModification(
+                columnModificationFactory.CreateColumnModification(
                     entry, idProperty, idProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
                     idProperty.GetTableColumnMappings().Single().TypeMapping, false, false, true, true, true),
-                new ColumnModification(
+                columnModificationFactory.CreateColumnModification(
                     entry, concurrencyProperty, concurrencyProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
                     concurrencyProperty.GetTableColumnMappings().Single().TypeMapping, false, false, false, concurrencyToken, true)
             };
 
-            return new ModificationCommand("Ducks", Schema, columnModifications, false);
+            return new ModificationCommand("Ducks", Schema, columnModifications, false, columnModificationFactory);
         }
 
         protected abstract TestHelpers TestHelpers { get; }

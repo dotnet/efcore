@@ -54,14 +54,13 @@ namespace Microsoft.EntityFrameworkCore.Update
                 Check.NotEmpty(name, nameof(name)),
                 schema,
                 null,
-                sensitiveLoggingEnabled)
+                sensitiveLoggingEnabled,
+                columnModificationFactory)
         {
             Check.NotNull(generateParameterName, nameof(generateParameterName));
-            Check.NotNull(columnModificationFactory, nameof(columnModificationFactory));
 
             _generateParameterName = generateParameterName;
             _comparer = comparer;
-            _columnModificationFactory = columnModificationFactory;
         }
 
         /// <summary>
@@ -71,18 +70,22 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="schema"> The schema containing the table, or <see langword="null" /> to use the default schema. </param>
         /// <param name="columnModifications"> The list of <see cref="ColumnModification" />s needed to perform the insert, update, or delete. </param>
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
+        /// <param name="columnModificationFactory"> A ColumnModification factory. </param>
         public ModificationCommand(
             [NotNull] string name,
             [CanBeNull] string schema,
             [CanBeNull] IReadOnlyList<ColumnModification> columnModifications,
-            bool sensitiveLoggingEnabled)
+            bool sensitiveLoggingEnabled,
+            [NotNull] IColumnModificationFactory columnModificationFactory)
         {
             Check.NotNull(name, nameof(name));
+            Check.NotNull(columnModificationFactory, nameof(columnModificationFactory));
 
             TableName = name;
             Schema = schema;
             _columnModifications = columnModifications;
             _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
+            _columnModificationFactory = columnModificationFactory;
         }
 
         /// <summary>

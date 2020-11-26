@@ -1010,7 +1010,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 }
 
                 yield return new ModificationCommand(
-                    operation.Table, operation.Schema, modifications, sensitiveLoggingEnabled: SensitiveLoggingEnabled);
+                    operation.Table, operation.Schema, modifications, sensitiveLoggingEnabled: SensitiveLoggingEnabled,
+                    columnModificationFactory: Dependencies.ColumnModificationFactory);
             }
         }
 
@@ -1101,7 +1102,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 }
 
                 yield return new ModificationCommand(
-                    operation.Table, operation.Schema, modifications, sensitiveLoggingEnabled: SensitiveLoggingEnabled);
+                    operation.Table, operation.Schema, modifications, sensitiveLoggingEnabled: SensitiveLoggingEnabled,
+                    columnModificationFactory: Dependencies.ColumnModificationFactory);
             }
         }
 
@@ -1237,7 +1239,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                 yield return new ModificationCommand(
                     operation.Table, operation.Schema, keys.Concat(modifications).ToArray(),
-                    sensitiveLoggingEnabled: SensitiveLoggingEnabled);
+                    sensitiveLoggingEnabled: SensitiveLoggingEnabled,
+                    columnModificationFactory: Dependencies.ColumnModificationFactory);
             }
         }
 

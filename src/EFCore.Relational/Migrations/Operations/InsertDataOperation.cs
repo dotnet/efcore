@@ -48,6 +48,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         ///     Generates the commands that correspond to this operation.
         /// </summary>
         /// <returns> The commands that correspond to this operation. </returns>
+        /// <remarks>
+        ///     This obsolete method creates ColumnModification directly and attaches ModificationCommand
+        ///     the own implementation of IColumnModificationFactory.
+        /// </remarks>
         [Obsolete]
         public virtual IEnumerable<ModificationCommand> GenerateModificationCommands([CanBeNull] IModel model)
         {
@@ -60,6 +64,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 ? MigrationsModelDiffer.GetMappedProperties(table, Columns)
                 : null;
 
+            var columnModificationFactory = new Update.Internal.ColumnModificationFactory();
+
             for (var i = 0; i < Values.GetLength(0); i++)
             {
                 var modifications = new ColumnModification[Columns.Length];
@@ -71,7 +77,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                         sensitiveLoggingEnabled: false);
                 }
 
-                yield return new ModificationCommand(Table, Schema, modifications, sensitiveLoggingEnabled: false);
+                yield return new ModificationCommand(
+                    Table, Schema, modifications, sensitiveLoggingEnabled: false,
+                    columnModificationFactory: columnModificationFactory);
             }
         }
     }
