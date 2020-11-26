@@ -573,9 +573,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 throw new InvalidOperationException(CoreStrings.WrongStateManager(entityType.DisplayName()));
             }
 
+            #if DEBUG
             var existingEntry = TryGetEntry(entry.Entity ?? entry, entityType);
 
             Check.DebugAssert(existingEntry == null || existingEntry == entry, "Duplicate InternalEntityEntry");
+            #endif
 
             foreach (var key in entityType.GetKeys())
             {
