@@ -393,11 +393,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GeneratePrecisionAttribute(IProperty property)
         {
-            if (property.ClrType != typeof(decimal) && property.ClrType != typeof(DateTime) && property.ClrType != typeof(DateTimeOffset))
-            {
-                return;
-            }
-
             var precision = property.GetPrecision();
             if (precision.HasValue)
             {

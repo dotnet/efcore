@@ -595,25 +595,25 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     lines.Add(
                         $".{nameof(PropertyBuilder.HasMaxLength)}({_code.Literal(maxLength.Value)})");
                 }
-            }
 
-            var precision = property.GetPrecision();
-            var scale = property.GetScale();
-            if (precision != null && scale != null && scale != 0)
-            {
-                lines.Add(
-                    $".{nameof(PropertyBuilder.HasPrecision)}({_code.Literal(precision.Value)}, {_code.Literal(scale.Value)})");
-            }
-            else if (precision != null)
-            {
-                lines.Add(
-                    $".{nameof(PropertyBuilder.HasPrecision)}({_code.Literal(precision.Value)})");
-            }
+                var precision = property.GetPrecision();
+                var scale = property.GetScale();
+                if (precision != null && scale != null && scale != 0)
+                {
+                    lines.Add(
+                        $".{nameof(PropertyBuilder.HasPrecision)}({_code.Literal(precision.Value)}, {_code.Literal(scale.Value)})");
+                }
+                else if (precision != null)
+                {
+                    lines.Add(
+                        $".{nameof(PropertyBuilder.HasPrecision)}({_code.Literal(precision.Value)})");
+                }
 
-            if (property.IsUnicode() != null)
-            {
-                lines.Add(
-                    $".{nameof(PropertyBuilder.IsUnicode)}({(property.IsUnicode() == false ? "false" : "")})");
+                if (property.IsUnicode() != null)
+                {
+                    lines.Add(
+                        $".{nameof(PropertyBuilder.IsUnicode)}({(property.IsUnicode() == false ? "false" : "")})");
+                }
             }
 
             var defaultValue = property.GetDefaultValue();

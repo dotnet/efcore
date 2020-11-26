@@ -26,5 +26,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Equal("Foo", annotation.Name);
             Assert.Equal("Bar", annotation.Value);
         }
+
+        [ConditionalFact]
+        public void NegativeNumberArguments_PrecisionAttribute_Throws()
+        {
+            Assert.Throws<ArgumentOutOfRangeException>("precision", () => new PrecisionAttribute(-1));
+            Assert.Throws<ArgumentOutOfRangeException>("scale", () => new PrecisionAttribute(3, -2));
+            Assert.Throws<ArgumentOutOfRangeException>("precision", () => new PrecisionAttribute(-5, 4));
+        }
     }
 }

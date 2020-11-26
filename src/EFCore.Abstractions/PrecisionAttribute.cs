@@ -20,6 +20,16 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="scale"> The scale of the property. </param>
         public PrecisionAttribute(int precision, int scale)
         {
+            if (precision < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(precision), "Must be non-negative number.");
+            }
+
+            if (scale < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(scale), "Must be non-negative number.");
+            }
+
             Precision = precision;
             Scale = scale;
         }
@@ -30,6 +40,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="precision"> The precision of the property. </param>
         public PrecisionAttribute(int precision)
         {
+            if (precision < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(precision), "Must be non-negative number.");
+            }
+
             Precision = precision;
         }
 

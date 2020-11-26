@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     public class PrecisionAttributeConvention : PropertyAttributeConventionBase<PrecisionAttribute>
     {
         /// <summary>
-        ///     Creates a new instance of <see cref="UnicodeAttributeConvention" />.
+        ///     Creates a new instance of <see cref="PrecisionAttributeConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         public PrecisionAttributeConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
