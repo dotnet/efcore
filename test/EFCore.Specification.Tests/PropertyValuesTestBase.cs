@@ -1641,12 +1641,21 @@ namespace Microsoft.EntityFrameworkCore
 
             if (deleteOrphansTiming == CascadeTiming.Immediate)
             {
-                Assert.Equal(
-                    CoreStrings.PropertyConceptualNullSensitive(
-                        "Value",
-                        nameof(Building),
-                        "{Value: " + Convert.ToString(originalValue, CultureInfo.InvariantCulture) + "}"),
-                    Assert.Throws<InvalidOperationException>(() => values["Value"] = null).Message);
+                if (context.GetService<IDbContextOptions>().FindExtension<CoreOptionsExtension>().IsSensitiveDataLoggingEnabled)
+                {
+                    Assert.Equal(
+                        CoreStrings.PropertyConceptualNullSensitive(
+                            "Value",
+                            nameof(Building),
+                            "{Value: " + Convert.ToString(originalValue, CultureInfo.InvariantCulture) + "}"),
+                        Assert.Throws<InvalidOperationException>(() => values["Value"] = null).Message);
+                }
+                else
+                {
+                    Assert.Equal(
+                        CoreStrings.PropertyConceptualNull("Value", nameof(Building)),
+                        Assert.Throws<InvalidOperationException>(() => values["Value"] = null).Message);
+                }
             }
             else
             {
@@ -1676,9 +1685,18 @@ namespace Microsoft.EntityFrameworkCore
 
             if (deleteOrphansTiming == CascadeTiming.Immediate)
             {
-                Assert.Equal(
-                    CoreStrings.PropertyConceptualNullSensitive("Shadow1", nameof(Building), "{Shadow1: 11}"),
-                    Assert.Throws<InvalidOperationException>(() => values["Shadow1"] = null).Message);
+                if (context.GetService<IDbContextOptions>().FindExtension<CoreOptionsExtension>().IsSensitiveDataLoggingEnabled)
+                {
+                    Assert.Equal(
+                        CoreStrings.PropertyConceptualNullSensitive("Shadow1", nameof(Building), "{Shadow1: 11}"),
+                        Assert.Throws<InvalidOperationException>(() => values["Shadow1"] = null).Message);
+                }
+                else
+                {
+                    Assert.Equal(
+                        CoreStrings.PropertyConceptualNull("Shadow1", nameof(Building)),
+                        Assert.Throws<InvalidOperationException>(() => values["Shadow1"] = null).Message);
+                }
             }
             else
             {

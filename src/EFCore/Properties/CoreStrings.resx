@@ -968,9 +968,6 @@
   <data name="ModelNotFinalized" xml:space="preserve">
     <value>The model must be finalized before '{method}' can be used. Ensure that either 'OnModelCreating' has completed or, if using a stand-alone 'ModelBuilder', that 'FinalizeModel' has been called.</value>
   </data>
-  <data name="MultipleEntries" xml:space="preserve">
-    <value>Cannot start tracking InternalEntityEntry for entity type '{entityType}' because another InternalEntityEntry is already tracking the same entity.</value>
-  </data>
   <data name="MultipleFilteredIncludesOnSameNavigation" xml:space="preserve">
     <value>The filters '{filter1}' and '{filter2}' have both been configured on the same included navigation. Only one unique filter per navigation is allowed. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.</value>
   </data>
@@ -1039,9 +1036,6 @@
   </data>
   <data name="NoClrNavigation" xml:space="preserve">
     <value>The navigation '{navigation}' cannot be added to the entity type '{entityType}' because there is no corresponding CLR property on the underlying type and navigations properties cannot be added in shadow state.</value>
-  </data>
-  <data name="NoClrType" xml:space="preserve">
-    <value>The CLR entity materializer cannot be used for entity type '{entityType}' because it is a shadow state entity type. Materialization to a CLR type is only possible for entity types that have a corresponding CLR type.</value>
   </data>
   <data name="NoDefiningNavigation" xml:space="preserve">
     <value>The navigation '{navigation}' used to define the entity type '{entityType}' is not present on '{definingEntityType}'.</value>
@@ -1226,9 +1220,6 @@
   </data>
   <data name="PropertyWrongType" xml:space="preserve">
     <value>The property '{property}' cannot be removed from the entity type '{entityType}' because it is declared on the entity type '{otherEntityType}'.</value>
-  </data>
-  <data name="QueryContextAlreadyInitializedStateManager" xml:space="preserve">
-    <value>The 'InitializeStateManager' method has been called multiple times on the current query context. This method is intended to be called only once before query enumeration starts.</value>
   </data>
   <data name="QueryEntityMaterializationConditionWrongShape" xml:space="preserve">
     <value>The materialization condition passed for entity shaper of entity type '{entityType}' is not of the correct shape. A materialization condition must be a 'LambdaExpression' of 'Func&lt;ValueBuffer, IEntityType&gt;'.</value>

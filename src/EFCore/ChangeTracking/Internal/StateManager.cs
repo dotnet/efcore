@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
@@ -572,14 +573,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 throw new InvalidOperationException(CoreStrings.WrongStateManager(entityType.DisplayName()));
             }
 
-            var mapKey = entry.Entity ?? entry;
-            var existingEntry = TryGetEntry(mapKey, entityType);
+            #if DEBUG
+            var existingEntry = TryGetEntry(entry.Entity ?? entry, entityType);
 
-            if (existingEntry != null
-                && existingEntry != entry)
-            {
-                throw new InvalidOperationException(CoreStrings.MultipleEntries(entityType.DisplayName()));
-            }
+            Check.DebugAssert(existingEntry == null || existingEntry == entry, "Duplicate InternalEntityEntry");
+            #endif
 
             foreach (var key in entityType.GetKeys())
             {

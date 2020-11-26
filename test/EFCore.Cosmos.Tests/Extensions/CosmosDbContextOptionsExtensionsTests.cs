@@ -5,6 +5,7 @@ using System;
 using System.Net;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
@@ -12,6 +13,21 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class CosmosDbContextOptionsExtensionsTests
     {
+        [ConditionalFact]
+        public void Throws_with_multiple_providers_new_when_no_provider()
+        {
+            var options = new DbContextOptionsBuilder()
+                .UseCosmos("serviceEndPoint", "authKeyOrResourceToken", "databaseName")
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+
+            var context = new DbContext(options);
+
+            Assert.Equal(
+                CoreStrings.MultipleProvidersConfigured("'Microsoft.EntityFrameworkCore.Cosmos', 'Microsoft.EntityFrameworkCore.InMemory'"),
+                Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+        }
+
         [ConditionalFact]
         public void Can_create_options_with_specified_region()
         {

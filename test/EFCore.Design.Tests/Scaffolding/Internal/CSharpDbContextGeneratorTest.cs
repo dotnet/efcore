@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -164,6 +165,58 @@ namespace TestNamespace
                     Assert.Empty(code.AdditionalFiles);
                 },
                 null);
+        }
+
+        [ConditionalFact]
+        public void Required_options_to_GenerateModel_are_not_null()
+        {
+            var services = new ServiceCollection()
+                .AddEntityFrameworkDesignTimeServices();
+            new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
+            services.AddSingleton<IProviderCodeGeneratorPlugin, TestCodeGeneratorPlugin>();
+
+            var generator = services
+                .BuildServiceProvider()
+                .GetRequiredService<IModelCodeGenerator>();
+
+            Assert.StartsWith(
+                CoreStrings.ArgumentPropertyNull(nameof(ModelCodeGenerationOptions.ModelNamespace), "options"),
+                Assert.Throws<ArgumentException>(
+                    () =>
+                        generator.GenerateModel(
+                            new Model(),
+                            new ModelCodeGenerationOptions
+                            {
+                                ModelNamespace = null,
+                                ContextName = "TestDbContext",
+                                ConnectionString = "Initial Catalog=TestDatabase"
+                            })).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ArgumentPropertyNull(nameof(ModelCodeGenerationOptions.ContextName), "options"),
+                Assert.Throws<ArgumentException>(
+                    () =>
+                        generator.GenerateModel(
+                            new Model(),
+                            new ModelCodeGenerationOptions
+                            {
+                                ModelNamespace = "TestNamespace",
+                                ContextName = null,
+                                ConnectionString = "Initial Catalog=TestDatabase"
+                            })).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ArgumentPropertyNull(nameof(ModelCodeGenerationOptions.ConnectionString), "options"),
+                Assert.Throws<ArgumentException>(
+                    () =>
+                        generator.GenerateModel(
+                            new Model(),
+                            new ModelCodeGenerationOptions
+                            {
+                                ModelNamespace = "TestNamespace",
+                                ContextName = "TestDbContext",
+                                ConnectionString = null
+                            })).Message);
         }
 
         [ConditionalFact]
