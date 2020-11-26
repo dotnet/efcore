@@ -89,6 +89,51 @@ namespace Microsoft.EntityFrameworkCore.Update
         }
 
         /// <summary>
+        ///     Initializes a new <see cref="ModificationCommand" /> instance with own ColumnModification factory.
+        /// </summary>
+        /// <param name="name"> The name of the table containing the data to be modified. </param>
+        /// <param name="schema"> The schema containing the table, or <see langword="null" /> to use the default schema. </param>
+        /// <param name="generateParameterName"> A delegate to generate parameter names. </param>
+        /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
+        /// <param name="comparer"> A <see cref="IComparer{T}" /> for <see cref="IUpdateEntry" />s. </param>
+        public ModificationCommand(
+            [NotNull] string name,
+            [CanBeNull] string schema,
+            [NotNull] Func<string> generateParameterName,
+            bool sensitiveLoggingEnabled,
+            [CanBeNull] IComparer<IUpdateEntry> comparer)
+            : this(
+                name,
+                schema,
+                generateParameterName,
+                sensitiveLoggingEnabled,
+                comparer,
+                SingleColumnModificationFactory.Instance)
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new <see cref="ModificationCommand" /> instance with own ColumnModification factory.
+        /// </summary>
+        /// <param name="name"> The name of the table containing the data to be modified. </param>
+        /// <param name="schema"> The schema containing the table, or <see langword="null" /> to use the default schema. </param>
+        /// <param name="columnModifications"> The list of <see cref="ColumnModification" />s needed to perform the insert, update, or delete. </param>
+        /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
+        public ModificationCommand(
+            [NotNull] string name,
+            [CanBeNull] string schema,
+            [CanBeNull] IReadOnlyList<ColumnModification> columnModifications,
+            bool sensitiveLoggingEnabled)
+            :this(
+                name,
+                schema,
+                columnModifications,
+                sensitiveLoggingEnabled,
+                SingleColumnModificationFactory.Instance)
+        {
+        }
+
+        /// <summary>
         ///     The name of the table containing the data to be modified.
         /// </summary>
         public virtual string TableName { get; }
@@ -516,6 +561,11 @@ namespace Microsoft.EntityFrameworkCore.Update
 
                 return _write;
             }
+        }
+
+        private static class SingleColumnModificationFactory
+        {
+            public static readonly IColumnModificationFactory Instance = new Internal.ColumnModificationFactory();
         }
     }
 }
