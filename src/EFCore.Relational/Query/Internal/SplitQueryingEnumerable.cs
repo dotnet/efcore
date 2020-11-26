@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             public void Reset()
-                => throw new NotImplementedException();
+                => throw new NotSupportedException();
         }
 
         private sealed class AsyncEnumerator : IAsyncEnumerator<T>

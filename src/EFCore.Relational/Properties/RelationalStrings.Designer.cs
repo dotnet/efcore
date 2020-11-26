@@ -745,6 +745,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 migrationName);
 
         /// <summary>
+        ///     SQL generation for the operation '{operation}' is not supported by the current database provider. Database providers must implement the appropriate method in 'MigrationsSqlGenerator' to support this operation.
+        /// </summary>
+        public static string MigrationSqlGenerationMissing([CanBeNull] object operation)
+            => string.Format(
+                GetString("MigrationSqlGenerationMissing", nameof(operation)),
+                operation);
+
+        /// <summary>
         ///     Entity type '{entityType}' doesn't contain a property mapped to the store-generated concurrency token column '{missingColumn}' which is used by another entity type sharing the table '{table}'. Add a store-generated property to '{entityType}' which is mapped to the same column; it may be in shadow state.
         /// </summary>
         public static string MissingConcurrencyColumn([CanBeNull] object? entityType, [CanBeNull] object? missingColumn, [CanBeNull] object? table)

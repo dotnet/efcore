@@ -787,7 +787,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         break;
                     default:
-                        throw new NotImplementedException(storeObject.StoreObjectType.ToString());
+                        throw new NotSupportedException(storeObject.StoreObjectType.ToString());
                 }
             }
         }

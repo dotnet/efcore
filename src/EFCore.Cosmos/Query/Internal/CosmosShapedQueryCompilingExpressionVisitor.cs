@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution));
 
                 default:
-                    throw new NotImplementedException();
+                    throw new NotSupportedException();
             }
         }
     }

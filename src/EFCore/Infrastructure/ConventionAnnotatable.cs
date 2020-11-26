@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <inheritdoc />
         IConventionAnnotatableBuilder IConventionAnnotatable.Builder
-            => throw new NotImplementedException();
+            => throw new NotSupportedException();
 
         /// <inheritdoc />
         [DebuggerStepThrough]

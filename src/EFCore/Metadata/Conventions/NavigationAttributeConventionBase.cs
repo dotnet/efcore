@@ -361,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             [NotNull] Type targetClrType,
             [NotNull] TAttribute attribute,
             [NotNull] IConventionContext<IConventionEntityTypeBuilder> context)
-            => throw new NotImplementedException();
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     Called for every navigation property that has an attribute after an entity type is ignored.
@@ -379,7 +379,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             [NotNull] Type targetClrType,
             [NotNull] TAttribute attribute,
             [NotNull] IConventionContext<string> context)
-            => throw new NotImplementedException();
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     Called for every navigation property that has an attribute after an entity type is removed.
@@ -397,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             [NotNull] Type targetClrType,
             [NotNull] TAttribute attribute,
             [NotNull] IConventionContext<IConventionEntityType> context)
-            => throw new NotImplementedException();
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     Called for every navigation property that has an attribute after the base type for an entity type is changed.
@@ -417,7 +417,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             [NotNull] Type targetClrType,
             [NotNull] TAttribute attribute,
             [NotNull] IConventionContext<IConventionEntityType> context)
-            => throw new NotImplementedException();
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     Called after a navigation property that has an attribute is added to an entity type.
@@ -429,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             [NotNull] IConventionNavigationBuilder navigationBuilder,
             [NotNull] TAttribute attribute,
             [NotNull] IConventionContext<IConventionNavigationBuilder> context)
-            => throw new NotImplementedException();
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     Called after a skip navigation property that has an attribute is added to an entity type.
@@ -441,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             [NotNull] IConventionSkipNavigationBuilder skipNavigationBuilder,
             [NotNull] TAttribute attribute,
             [NotNull] IConventionContext<IConventionSkipNavigationBuilder> context)
-            => throw new NotImplementedException();
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     Called after a navigation property that has an attribute is ignored.
@@ -457,7 +457,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             [NotNull] Type targetClrType,
             [NotNull] TAttribute attribute,
             [NotNull] IConventionContext<string> context)
-            => throw new NotImplementedException();
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     Called after the principal end of a foreign key is changed.
@@ -471,6 +471,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             [CanBeNull] IEnumerable<TAttribute> dependentToPrincipalAttributes,
             [CanBeNull] IEnumerable<TAttribute> principalToDependentAttributes,
             [NotNull] IConventionContext<IConventionForeignKeyBuilder> context)
-            => throw new NotImplementedException();
+            => throw new NotSupportedException();
     }
 }

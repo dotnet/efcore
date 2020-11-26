@@ -109,6 +109,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             RelationalCommandParameterObject parameterObject,
             Guid commandId,
             DbCommandMethod commandMethod)
-            => throw new NotImplementedException();
+            => throw new NotSupportedException();
     }
 }
