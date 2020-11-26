@@ -20,79 +20,87 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            // #11552
-            public override void Save_required_one_to_one_changed_by_reference(ChangeMechanism changeMechanism)
+            public override void Optional_many_to_one_dependents_are_orphaned_in_store(
+                CascadeTiming cascadeDeleteTiming,
+                CascadeTiming deleteOrphansTiming)
             {
-            }
-
-            public override void Optional_one_to_one_relationships_are_one_to_one()
-            {
-            }
-
-            public override void Optional_one_to_one_with_AK_relationships_are_one_to_one()
-            {
+                // In-memory database does not support cascade update/delete. Issue #3924.
             }
 
             public override void Optional_many_to_one_dependents_with_alternate_key_are_orphaned_in_store(
                 CascadeTiming cascadeDeleteTiming,
                 CascadeTiming deleteOrphansTiming)
             {
-            }
-
-            public override void Optional_many_to_one_dependents_are_orphaned_in_store(
-                CascadeTiming cascadeDeleteTiming,
-                CascadeTiming deleteOrphansTiming)
-            {
-            }
-
-            public override void Required_one_to_one_are_cascade_detached_when_Added(
-                CascadeTiming cascadeDeleteTiming,
-                CascadeTiming deleteOrphansTiming)
-            {
-            }
-
-            public override void Required_one_to_one_relationships_are_one_to_one()
-            {
-            }
-
-            public override void Required_one_to_one_with_AK_relationships_are_one_to_one()
-            {
-            }
-
-            public override void Required_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
-                CascadeTiming cascadeDeleteTiming,
-                CascadeTiming deleteOrphansTiming)
-            {
-            }
-
-            public override void Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
-                CascadeTiming cascadeDeleteTiming,
-                CascadeTiming deleteOrphansTiming)
-            {
+                // In-memory database does not support cascade update/delete. Issue #3924.
             }
 
             public override void Required_many_to_one_dependents_are_cascade_deleted_in_store(
                 CascadeTiming cascadeDeleteTiming,
                 CascadeTiming deleteOrphansTiming)
             {
+                // In-memory database does not support cascade update/delete. Issue #3924.
             }
 
             public override void Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store(
                 CascadeTiming cascadeDeleteTiming,
                 CascadeTiming deleteOrphansTiming)
             {
+                // In-memory database does not support cascade update/delete. Issue #3924.
             }
 
             public override void Required_non_PK_one_to_one_are_cascade_detached_when_Added(
                 CascadeTiming cascadeDeleteTiming,
                 CascadeTiming deleteOrphansTiming)
             {
+                // FK uniqueness not enforced in in-memory database. Issue #2166.
             }
 
             public override void Required_non_PK_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
                 CascadeTiming cascadeDeleteTiming,
                 CascadeTiming deleteOrphansTiming)
             {
+                // FK uniqueness not enforced in in-memory database. Issue #2166.
+            }
+
+            public override void Required_one_to_one_are_cascade_detached_when_Added(
+                CascadeTiming cascadeDeleteTiming,
+                CascadeTiming deleteOrphansTiming)
+            {
+                // FK uniqueness not enforced in in-memory database. Issue #2166.
+            }
+
+            public override void Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
+                CascadeTiming cascadeDeleteTiming,
+                CascadeTiming deleteOrphansTiming)
+            {
+                // In-memory database does not support cascade update/delete. Issue #3924.
+            }
+
+            public override void Required_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
+                CascadeTiming cascadeDeleteTiming,
+                CascadeTiming deleteOrphansTiming)
+            {
+                // FK uniqueness not enforced in in-memory database. Issue #2166.
+            }
+
+            public override void Optional_one_to_one_relationships_are_one_to_one()
+            {
+                // FK uniqueness not enforced in in-memory database. Issue #2166.
+            }
+
+            public override void Optional_one_to_one_with_AK_relationships_are_one_to_one()
+            {
+                // FK uniqueness not enforced in in-memory database. Issue #2166.
+            }
+
+            public override void Required_one_to_one_relationships_are_one_to_one()
+            {
+                // FK uniqueness not enforced in in-memory database. Issue #2166.
+            }
+
+            public override void Required_one_to_one_with_AK_relationships_are_one_to_one()
+            {
+                // FK uniqueness not enforced in in-memory database. Issue #2166.
             }
 
             protected override void ExecuteWithStrategyInTransaction(
