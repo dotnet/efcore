@@ -26,33 +26,34 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             // Update events
 
             // Query events
+            // These events are actually in Event in `DbLoggerCategory.Database.Command`.
+            // Leaving the ID unchanged to avoid changing it after release.
             ExecutingSqlQuery = CoreEventId.ProviderBaseId + 100,
             ExecutingReadItem
         }
 
-        private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
-
-        private static EventId MakeQueryId(Id id)
-            => new EventId((int)id, _queryPrefix + id);
+        private static readonly string _commandPrefix = DbLoggerCategory.Database.Command.Name + ".";
 
         /// <summary>
         ///     <para>
         ///         A SQL query was executed.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Command" /> category.
         ///     </para>
         /// </summary>
-        public static readonly EventId ExecutingSqlQuery = MakeQueryId(Id.ExecutingSqlQuery);
+        public static readonly EventId ExecutingSqlQuery
+            = new EventId((int)Id.ExecutingSqlQuery, _commandPrefix + Id.ExecutingSqlQuery);
 
         /// <summary>
         ///     <para>
         ///         ReadItem was executed.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Command" /> category.
         ///     </para>
         /// </summary>
-        public static readonly EventId ExecutingReadItem = MakeQueryId(Id.ExecutingReadItem);
+        public static readonly EventId ExecutingReadItem
+                = new EventId((int)Id.ExecutingReadItem, _commandPrefix + Id.ExecutingReadItem);
     }
 }
