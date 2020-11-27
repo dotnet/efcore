@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             if (await context.Database.EnsureCreatedAsync())
             {
-                var cosmosClient = context.GetService<CosmosClientWrapper>();
+                var cosmosClient = context.GetService<ICosmosClientWrapper>();
                 var serializer = CosmosClientWrapper.Serializer;
                 using var fs = new FileStream(_dataFilePath, FileMode.Open, FileAccess.Read);
                 using var sr = new StreamReader(fs);
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public override async Task CleanAsync(DbContext context)
         {
-            var cosmosClientWrapper = context.GetService<CosmosClientWrapper>();
+            var cosmosClientWrapper = context.GetService<ICosmosClientWrapper>();
             var created = await cosmosClientWrapper.CreateDatabaseIfNotExistsAsync();
             try
             {

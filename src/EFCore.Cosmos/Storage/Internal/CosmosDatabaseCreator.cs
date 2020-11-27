@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
     /// </summary>
     public class CosmosDatabaseCreator : IDatabaseCreator
     {
-        private readonly CosmosClientWrapper _cosmosClient;
+        private readonly ICosmosClientWrapper _cosmosClient;
         private readonly IModel _model;
         private readonly IUpdateAdapterFactory _updateAdapterFactory;
         private readonly IDatabase _database;
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosDatabaseCreator(
-            [NotNull] CosmosClientWrapper cosmosClient,
+            [NotNull] ICosmosClientWrapper cosmosClient,
             [NotNull] IModel model,
             [NotNull] IUpdateAdapterFactory updateAdapterFactory,
             [NotNull] IDatabase database)

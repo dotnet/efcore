@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     public class CosmosQueryContextFactory : IQueryContextFactory
     {
         private readonly QueryContextDependencies _dependencies;
-        private readonly CosmosClientWrapper _cosmosClient;
+        private readonly ICosmosClientWrapper _cosmosClient;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public CosmosQueryContextFactory(
             [NotNull] QueryContextDependencies dependencies,
-            [NotNull] CosmosClientWrapper cosmosClient)
+            [NotNull] ICosmosClientWrapper cosmosClient)
         {
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(cosmosClient, nameof(cosmosClient));

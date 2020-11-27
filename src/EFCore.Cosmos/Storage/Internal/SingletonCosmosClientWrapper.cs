@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using JetBrains.Annotations;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
@@ -24,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public class SingletonCosmosClientWrapper : IDisposable
+    public class SingletonCosmosClientWrapper : ISingletonCosmosClientWrapper
     {
         private static readonly string _userAgent = " Microsoft.EntityFrameworkCore.Cosmos/" + ProductInfo.GetVersion();
         private readonly CosmosClientOptions _options;

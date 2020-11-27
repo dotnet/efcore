@@ -70,12 +70,12 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAddProviderSpecificServices(
                     b => b
                         .TryAddSingleton<ICosmosSingletonOptions, CosmosSingletonOptions>()
-                        .TryAddSingleton<SingletonCosmosClientWrapper, SingletonCosmosClientWrapper>()
+                        .TryAddSingleton<ISingletonCosmosClientWrapper, SingletonCosmosClientWrapper>()
                         .TryAddSingleton<ISqlExpressionFactory, SqlExpressionFactory>()
                         .TryAddSingleton<IQuerySqlGeneratorFactory, QuerySqlGeneratorFactory>()
                         .TryAddSingleton<IMethodCallTranslatorProvider, CosmosMethodCallTranslatorProvider>()
                         .TryAddSingleton<IMemberTranslatorProvider, CosmosMemberTranslatorProvider>()
-                        .TryAddScoped<CosmosClientWrapper, CosmosClientWrapper>()
+                        .TryAddScoped<ICosmosClientWrapper, CosmosClientWrapper>()
                 );
 
             builder.TryAddCoreServices();
