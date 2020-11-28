@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -48,19 +49,21 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (ExpectSensitiveData)
             {
                 Assert.Equal(
-                    @"Executing SQL query for container 'NorthwindContext' in partition '(null)' [Parameters=[]]
-SELECT c
+                    CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
+                        "NorthwindContext", "(null)", "", Environment.NewLine,
+                    @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")",
+WHERE (c[""Discriminator""] = ""Customer"")"),
                     Fixture.TestSqlLoggerFactory.Log[2].Message);
             }
             else
             {
                 Assert.Equal(
-                    @"Executing SQL query for container 'NorthwindContext' in partition '?' [Parameters=[]]
-SELECT c
+                    CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
+                        "NorthwindContext", "?", "", Environment.NewLine,
+                        @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")",
+WHERE (c[""Discriminator""] = ""Customer"")"),
                     Fixture.TestSqlLoggerFactory.Log[2].Message);
             }
         }
@@ -91,19 +94,21 @@ WHERE (c[""Discriminator""] = ""Customer"")",
             if (ExpectSensitiveData)
             {
                 Assert.Equal(
-                    @"Executing SQL query for container 'NorthwindContext' in partition '(null)' [Parameters=[@__city_0='Redmond']]
-SELECT c
+                    CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
+                        "NorthwindContext", "(null)", "@__city_0='Redmond'", Environment.NewLine,
+                        @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_0))",
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_0))"),
                     Fixture.TestSqlLoggerFactory.Log[3].Message);
             }
             else
             {
                 Assert.Equal(
-                    @"Executing SQL query for container 'NorthwindContext' in partition '?' [Parameters=[@__city_0=?]]
-SELECT c
+                CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
+                    "NorthwindContext", "?", "@__city_0=?", Environment.NewLine,
+                    @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_0))",
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_0))"),
                     Fixture.TestSqlLoggerFactory.Log[2].Message);
             }
         }

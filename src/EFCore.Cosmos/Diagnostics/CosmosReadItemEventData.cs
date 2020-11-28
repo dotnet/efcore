@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="eventDefinition"> The event definition. </param>
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
-        /// <param name="resourceId"> The ID od the resource being read. </param>
+        /// <param name="resourceId"> The ID of the resource being read. </param>
         /// <param name="containerId"> The ID of the Cosmos container being queried. </param>
         /// <param name="partitionKey"> The key of the Cosmos partition that the query is using. </param>
         /// <param name="logSensitiveData"> Indicates whether or not the application allows logging of sensitive data. </param>
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public virtual string ContainerId { get; }
 
         /// <summary>
-        ///     The ID od the resource being read.
+        ///     The ID of the resource being read.
         /// </summary>
         public virtual string ResourceId { get; }
 
