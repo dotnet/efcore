@@ -3,7 +3,10 @@
 using System;
 using System.Reflection;
 using System.Resources;
+using System.Threading;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
 {
@@ -285,3 +288,65 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
     }
 }
 
+namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
+{
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static class CosmosResources
+    {
+        private static readonly ResourceManager _resourceManager
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Cosmos.Properties.CosmosStrings", typeof(CosmosResources).Assembly);
+
+        /// <summary>
+        ///     Reading resource '{resourceId}' item from container '{containerId}' in partition '{partitionKey}'.
+        /// </summary>
+        public static EventDefinition<string, string, string> LogExecutingReadItem([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutingReadItem;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutingReadItem,
+                    () => new EventDefinition<string, string, string>(
+                        logger.Options,
+                        CosmosEventId.ExecutingReadItem,
+                        LogLevel.Debug,
+                        "CosmosEventId.ExecutingReadItem",
+                        level => LoggerMessage.Define<string, string, string>(
+                            level,
+                            CosmosEventId.ExecutingReadItem,
+                            _resourceManager.GetString("LogExecutingReadItem"))));
+            }
+
+            return (EventDefinition<string, string, string>)definition;
+        }
+
+        /// <summary>
+        ///     Executing SQL query for container '{containerId}' in partition '{partitionKey}' [Parameters=[{parameters}]]{newLine}{commandText}
+        /// </summary>
+        public static EventDefinition<string, string, string, string, string> LogExecutingSqlQuery([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutingSqlQuery;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutingSqlQuery,
+                    () => new EventDefinition<string, string, string, string, string>(
+                        logger.Options,
+                        CosmosEventId.ExecutingSqlQuery,
+                        LogLevel.Debug,
+                        "CosmosEventId.ExecutingSqlQuery",
+                        level => LoggerMessage.Define<string, string, string, string, string>(
+                            level,
+                            CosmosEventId.ExecutingSqlQuery,
+                            _resourceManager.GetString("LogExecutingSqlQuery"))));
+            }
+
+            return (EventDefinition<string, string, string, string, string>)definition;
+        }
+    }
+}

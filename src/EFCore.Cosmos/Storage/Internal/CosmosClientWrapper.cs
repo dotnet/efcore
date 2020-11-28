@@ -504,7 +504,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             string partitionKey,
             CosmosSqlQuery query)
         {
-            _commandLogger.ExecutingSqlQuery(query);
+            _commandLogger.ExecutingSqlQuery(containerId, partitionKey, query);
 
             return new DocumentEnumerable(this, containerId, partitionKey, query);
         }
@@ -520,7 +520,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             string partitionKey,
             CosmosSqlQuery query)
         {
-            _commandLogger.ExecutingSqlQuery(query);
+            _commandLogger.ExecutingSqlQuery(containerId, partitionKey, query);
 
             return new DocumentAsyncEnumerable(this, containerId, partitionKey, query);
         }
@@ -536,7 +536,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             string partitionKey,
             string resourceId)
         {
-            _commandLogger.ExecutingReadItem(partitionKey, resourceId);
+            _commandLogger.ExecutingReadItem(containerId, partitionKey, resourceId);
 
             var responseMessage = CreateSingleItemQuery(
                 containerId, partitionKey, resourceId).GetAwaiter().GetResult();
@@ -556,7 +556,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             string resourceId,
             CancellationToken cancellationToken = default)
         {
-            _commandLogger.ExecutingReadItem(partitionKey, resourceId);
+            _commandLogger.ExecutingReadItem(containerId, partitionKey, resourceId);
 
             var responseMessage = await CreateSingleItemQuery(
                     containerId, partitionKey, resourceId, cancellationToken)
