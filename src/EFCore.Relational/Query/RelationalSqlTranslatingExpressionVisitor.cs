@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 using CA = System.Diagnostics.CodeAnalysis;
@@ -54,6 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly QueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
         private readonly SqlTypeMappingVerifyingExpressionVisitor _sqlTypeMappingVerifyingExpressionVisitor;
+        private readonly RelationalGroupingTranslatingExpressionVisitor _groupingTranslatingExpressionVisitor;
 
         /// <summary>
         ///     Creates a new instance of the <see cref="RelationalSqlTranslatingExpressionVisitor" /> class.
@@ -76,6 +78,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             _model = queryCompilationContext.Model;
             _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
             _sqlTypeMappingVerifyingExpressionVisitor = new SqlTypeMappingVerifyingExpressionVisitor();
+            // TODO: Inject properly
+            _groupingTranslatingExpressionVisitor = new RelationalGroupingTranslatingExpressionVisitor(this, _sqlExpressionFactory);
         }
 
         /// <summary>
@@ -418,9 +422,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .GetMappedProjection(projectionBindingExpression.ProjectionMember)
                         : QueryCompilationContext.NotTranslatedExpression;
 
-                case GroupByShaperExpression groupByShaperExpression:
-                    return new GroupingElementExpression(groupByShaperExpression.ElementSelector);
-
                 default:
                     return QueryCompilationContext.NotTranslatedExpression;
             }
@@ -481,176 +482,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             // GroupBy Aggregate case
             if (methodCallExpression.Object == null
-                && methodCallExpression.Method.DeclaringType == typeof(Enumerable)
-                && methodCallExpression.Arguments.Count > 0)
+                && methodCallExpression.Arguments.Count > 0
+                && methodCallExpression.Arguments[0].Type.TryGetElementType(typeof(IQueryable<>)) == null
+                && _groupingTranslatingExpressionVisitor.TranslateGrouping(methodCallExpression) is SqlExpression groupingTranslation)
             {
-                if (methodCallExpression.Arguments[0].Type.TryGetElementType(typeof(IQueryable<>)) == null
-                    && Visit(methodCallExpression.Arguments[0]) is GroupingElementExpression groupingElementExpression)
-                {
-                    Expression? result;
-                    switch (methodCallExpression.Method.Name)
-                    {
-                        case nameof(Enumerable.Average):
-                            if (methodCallExpression.Arguments.Count == 2)
-                            {
-                                groupingElementExpression = ApplySelector(
-                                    groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
-                            }
-
-                            result = GetExpressionForAggregation(groupingElementExpression) is SqlExpression averageExpression
-                                ? TranslateAverage(averageExpression)
-                                : null;
-                            break;
-
-                        case nameof(Enumerable.Count):
-                            if (methodCallExpression.Arguments.Count == 2)
-                            {
-                                var newGroupingElementExpression = ApplyPredicate(
-                                    groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
-                                if (newGroupingElementExpression == null)
-                                {
-                                    result = null;
-                                    break;
-                                }
-                                groupingElementExpression = newGroupingElementExpression;
-                            }
-
-                            result = TranslateCount(GetExpressionForAggregation(groupingElementExpression, starProjection: true)!);
-                            break;
-
-                        case nameof(Enumerable.Distinct):
-                            result = groupingElementExpression.Element is EntityShaperExpression
-                                ? groupingElementExpression
-                                : groupingElementExpression.IsDistinct
-                                    ? null
-                                    : groupingElementExpression.ApplyDistinct();
-                            break;
-
-                        case nameof(Enumerable.LongCount):
-                            if (methodCallExpression.Arguments.Count == 2)
-                            {
-                                var newGroupingElementExpression = ApplyPredicate(
-                                    groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
-                                if (newGroupingElementExpression == null)
-                                {
-                                    result = null;
-                                    break;
-                                }
-                                groupingElementExpression = newGroupingElementExpression;
-                            }
-
-                            result = TranslateLongCount(GetExpressionForAggregation(groupingElementExpression, starProjection: true)!);
-                            break;
-
-                        case nameof(Enumerable.Max):
-                            if (methodCallExpression.Arguments.Count == 2)
-                            {
-                                groupingElementExpression = ApplySelector(
-                                    groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
-                            }
-
-                            result = GetExpressionForAggregation(groupingElementExpression) is SqlExpression maxExpression
-                                ? TranslateMax(maxExpression)
-                                : null;
-                            break;
-
-                        case nameof(Enumerable.Min):
-                            if (methodCallExpression.Arguments.Count == 2)
-                            {
-                                groupingElementExpression = ApplySelector(
-                                    groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
-                            }
-
-                            result = GetExpressionForAggregation(groupingElementExpression) is SqlExpression minExpression
-                                ? TranslateMin(minExpression)
-                                : null;
-                            break;
-
-                        case nameof(Enumerable.Select):
-                            result = ApplySelector(groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
-                            break;
-
-                        case nameof(Enumerable.Sum):
-                            if (methodCallExpression.Arguments.Count == 2)
-                            {
-                                groupingElementExpression = ApplySelector(
-                                    groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
-                            }
-
-                            result = GetExpressionForAggregation(groupingElementExpression) is SqlExpression sumExpression
-                                ? TranslateSum(sumExpression)
-                                : null;
-                            break;
-
-                        case nameof(Enumerable.Where):
-                            result = ApplyPredicate(groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
-                            break;
-
-                        default:
-                            result = null;
-                            break;
-                    }
-
-                    return result ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
-
-                    GroupingElementExpression? ApplyPredicate(GroupingElementExpression groupingElement, LambdaExpression lambdaExpression)
-                    {
-                        var predicate = TranslateInternal(RemapLambda(groupingElement, lambdaExpression));
-
-                        return predicate == null
-                            ? null
-                            : groupingElement.ApplyPredicate(predicate);
-                    }
-
-                    static GroupingElementExpression ApplySelector(
-                        GroupingElementExpression groupingElement,
-                        LambdaExpression lambdaExpression)
-                    {
-                        var selector = RemapLambda(groupingElement, lambdaExpression);
-
-                        return groupingElement.ApplySelector(selector);
-                    }
-
-                    static Expression RemapLambda(GroupingElementExpression groupingElement, LambdaExpression lambdaExpression)
-                        => ReplacingExpressionVisitor.Replace(
-                            lambdaExpression.Parameters[0], groupingElement.Element, lambdaExpression.Body);
-
-                    SqlExpression? GetExpressionForAggregation(GroupingElementExpression groupingElement, bool starProjection = false)
-                    {
-                        var selector = TranslateInternal(groupingElement.Element);
-                        if (selector == null)
-                        {
-                            if (starProjection)
-                            {
-                                selector = _sqlExpressionFactory.Fragment("*");
-                            }
-                            else
-                            {
-                                return null;
-                            }
-                        }
-
-                        if (groupingElement.Predicate != null)
-                        {
-                            if (selector is SqlFragmentExpression)
-                            {
-                                selector = _sqlExpressionFactory.Constant(1);
-                            }
-
-                            selector = _sqlExpressionFactory.Case(
-                                new List<CaseWhenClause> { new CaseWhenClause(groupingElement.Predicate, selector) },
-                                elseResult: null);
-                        }
-
-                        if (groupingElement.IsDistinct
-                            && !(selector is SqlFragmentExpression))
-                        {
-                            selector = new DistinctExpression(selector);
-                        }
-
-                        return selector;
-                    }
-                }
+                return groupingTranslation;
             }
 
             // Subquery case
@@ -1554,61 +1390,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ? QueryCompilationContext.NotTranslatedExpression
                     : new EntityReferenceExpression(this, derivedEntityType);
             }
-        }
-
-        private sealed class GroupingElementExpression : Expression
-        {
-            public GroupingElementExpression(Expression element)
-            {
-                Element = element;
-            }
-
-            public Expression Element { get; private set; }
-            public bool IsDistinct { get; private set; }
-            public SqlExpression? Predicate { get; private set; }
-
-            public GroupingElementExpression ApplyDistinct()
-            {
-                IsDistinct = true;
-
-                return this;
-            }
-
-            public GroupingElementExpression ApplySelector(Expression expression)
-            {
-                Element = expression;
-
-                return this;
-            }
-
-            public GroupingElementExpression ApplyPredicate(SqlExpression expression)
-            {
-                Check.NotNull(expression, nameof(expression));
-
-                if (expression is SqlConstantExpression sqlConstant
-                    && sqlConstant.Value is bool boolValue
-                    && boolValue)
-                {
-                    return this;
-                }
-
-                Predicate = Predicate == null
-                    ? expression
-                    : new SqlBinaryExpression(
-                        ExpressionType.AndAlso,
-                        Predicate,
-                        expression,
-                        typeof(bool),
-                        expression.TypeMapping);
-
-                return this;
-            }
-
-            public override Type Type
-                => typeof(IEnumerable<>).MakeGenericType(Element.Type);
-
-            public override ExpressionType NodeType
-                => ExpressionType.Extension;
         }
 
         private sealed class SqlTypeMappingVerifyingExpressionVisitor : ExpressionVisitor
