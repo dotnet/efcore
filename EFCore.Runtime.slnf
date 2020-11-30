@@ -33,6 +33,10 @@
       "test\\EFCore.Sqlite.FunctionalTests\\EFCore.Sqlite.FunctionalTests.csproj",
       "test\\EFCore.Sqlite.Tests\\EFCore.Sqlite.Tests.csproj",
       "test\\EFCore.Tests\\EFCore.Tests.csproj",
+      "test\\EFCore.AspNet.Specification.Tests\\EFCore.AspNet.Specification.Tests.csproj",
+      "test\\EFCore.AspNet.SqlServer.FunctionalTests\\EFCore.AspNet.SqlServer.FunctionalTests.csproj",
+      "test\\EFCore.AspNet.Sqlite.FunctionalTests\\EFCore.AspNet.Sqlite.FunctionalTests.csproj",
+      "test\\EFCore.AspNet.InMemory.FunctionalTests\\EFCore.AspNet.InMemory.FunctionalTests.csproj"
     ]
   }
 }
