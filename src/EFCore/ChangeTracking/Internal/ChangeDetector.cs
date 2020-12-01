@@ -370,20 +370,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Check.DebugAssert(navigationBase is INavigation, "Issue #21673. Non-collection skip navigations not supported.");
 
                 var navigation = (INavigation)navigationBase;
-                if (!navigation.ForeignKey.IsOwnership
-                    || !navigation.IsOnDependent)
+                if (_loggingOptions.IsSensitiveDataLoggingEnabled)
                 {
-                    if (_loggingOptions.IsSensitiveDataLoggingEnabled)
-                    {
-                        _logger.ReferenceChangeDetectedSensitive(entry, navigation, snapshotValue, currentValue);
-                    }
-                    else
-                    {
-                        _logger.ReferenceChangeDetected(entry, navigation, snapshotValue, currentValue);
-                    }
-
-                    stateManager.InternalEntityEntryNotifier.NavigationReferenceChanged(entry, navigation, snapshotValue, currentValue);
+                    _logger.ReferenceChangeDetectedSensitive(entry, navigation, snapshotValue, currentValue);
                 }
+                else
+                {
+                    _logger.ReferenceChangeDetected(entry, navigation, snapshotValue, currentValue);
+                }
+                
+                stateManager.InternalEntityEntryNotifier.NavigationReferenceChanged(entry, navigation, snapshotValue, currentValue);
             }
         }
     }

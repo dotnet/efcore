@@ -1343,11 +1343,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var ids = new[] { Tuple.Create(1, 2), Tuple.Create(10248, 11) };
 
-            return AssertTranslationFailed(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<OrderDetail>().Where(o => ids.Contains(new Tuple<int, int>(o.OrderID, o.ProductID))),
-                    entryCount: 1));
+            return AssertQuery(
+                async,
+                ss => ss.Set<OrderDetail>().Where(o => ids.Contains(new Tuple<int, int>(o.OrderID, o.ProductID))),
+                entryCount: 1);
         }
 
         [ConditionalTheory(Skip = "Issue #15937")]

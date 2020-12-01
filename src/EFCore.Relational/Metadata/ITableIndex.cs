@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -39,6 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the expression used as the index filter.
         /// </summary>
-        string Filter { get; }
+        string? Filter { get; }
     }
 }

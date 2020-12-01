@@ -2104,7 +2104,6 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.IsType<Blog>(blog);
             }
 
-#if NET5_0
             var options = new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve, WriteIndented = true };
 
             serialized = System.Text.Json.JsonSerializer.Serialize(blogs, options);
@@ -2177,7 +2176,6 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.IsType<Blog>(blog);
             }
             VerifyBlogs(newBlogs);
-#endif
         }
 
         [ConditionalFact]
@@ -2316,6 +2314,8 @@ namespace Microsoft.EntityFrameworkCore
             var query = (from p in context.Set<Parent>()
                          orderby p.Id
                          select DtoFactory.CreateDto(p)).FirstOrDefault();
+
+            RecordLog();
 
             Assert.NotNull(((dynamic)query).Single);
         }

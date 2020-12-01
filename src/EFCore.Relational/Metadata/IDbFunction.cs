@@ -7,6 +7,9 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -23,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the schema of the function in the database.
         /// </summary>
-        string Schema { get; }
+        string? Schema { get; }
 
         /// <summary>
         ///     Gets the name of the function in the model.
@@ -38,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the CLR method which maps to the function in the database.
         /// </summary>
-        MethodInfo MethodInfo { get; }
+        MethodInfo? MethodInfo { get; }
 
         /// <summary>
         ///     Gets the value indicating whether the database function is built-in.
@@ -48,6 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the value indicating whether this function returns scalar value.
         /// </summary>
+        [CA.MemberNotNullWhen(true, nameof(TypeMapping))]
         bool IsScalar { get; }
 
         /// <summary>
@@ -63,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the configured store type string.
         /// </summary>
-        string StoreType { get; }
+        string? StoreType { get; }
 
         /// <summary>
         ///     Gets the returned CLR type.
@@ -73,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the type mapping for the function's return type.
         /// </summary>
-        RelationalTypeMapping TypeMapping { get; }
+        RelationalTypeMapping? TypeMapping { get; }
 
         /// <summary>
         ///     Gets the parameters for this function.
@@ -83,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the translation callback for performing custom translation of the method call into a SQL expression fragment.
         /// </summary>
-        Func<IReadOnlyCollection<SqlExpression>, SqlExpression> Translation { get; }
+        Func<IReadOnlyCollection<SqlExpression>, SqlExpression>? Translation { get; }
 
         /// <summary>
         ///     Gets the associated <see cref="IStoreFunction" />.

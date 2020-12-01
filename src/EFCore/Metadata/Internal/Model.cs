@@ -214,9 +214,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     for (var i = 0; i < detachedEntityTypes.Count; i++)
                     {
                         var (definingNavigation, definingEntityType) = detachedEntityTypes[i];
-                        // TODO-NULLABLE: Put MemberNotNull on HasDefiningNavigation when we target net5.0
                         if (definingNavigation == entityType.DefiningNavigationName
-                            && definingEntityType == entityType.DefiningEntityType!.Name)
+                            && definingEntityType == entityType.DefiningEntityType.Name)
                         {
                             detachedEntityTypes.RemoveAt(i);
                             break;
@@ -255,8 +254,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             CoreStrings.ClashingNonSharedType(entityType.Name, entityType.ClrType.DisplayName()));
                     }
 
-                    // TODO-NULLABLE: Put MemberNotNull on HasSharedClrType when we target net5.0
-                    Check.DebugAssert(entityType.ClrType != null, "entityType.ClrType is null");
                     if (_sharedTypes.TryGetValue(entityType.ClrType, out var existingConfigurationSource))
                     {
                         _sharedTypes[entityType.ClrType] = entityType.GetConfigurationSource().Max(existingConfigurationSource);
@@ -502,9 +499,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (_detachedEntityTypesWithDefiningNavigation.TryGetValue(entityType.Name, out var detachedEntityTypesWithSameType))
             {
-                // TODO-NULLABLE: Put MemberNotNull on HasDefiningNavigation when we target net5.0
                 if (detachedEntityTypesWithSameType.Any(
-                    e => e.Item1 != entityType.DefiningNavigationName || e.Item2 != entityType.DefiningEntityType!.Name))
+                    e => e.Item1 != entityType.DefiningNavigationName || e.Item2 != entityType.DefiningEntityType.Name))
                 {
                     return true;
                 }
@@ -570,12 +566,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual EntityType? FindActualEntityType([NotNull] EntityType entityType)
-            // TODO-NULLABLE: Put MemberNotNull on HasDefiningNavigation when we target net5.0
             => entityType.Builder != null
                 ? entityType
                 : (entityType.HasDefiningNavigation()
-                    ? FindActualEntityType(entityType.DefiningEntityType!)
-                        ?.FindNavigation(entityType.DefiningNavigationName!)?.TargetEntityType
+                    ? FindActualEntityType(entityType.DefiningEntityType)
+                        ?.FindNavigation(entityType.DefiningNavigationName)?.TargetEntityType
                     : FindEntityType(entityType.Name));
 
         /// <summary>
@@ -850,14 +845,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            while (type != null)
+            var currentType = type;
+
+            while (currentType != null)
             {
-                if (ownedTypes.TryGetValue(GetDisplayName(type), out var configurationSource))
+                if (ownedTypes.TryGetValue(GetDisplayName(currentType), out var configurationSource))
                 {
                     return configurationSource;
                 }
 
-                type = type.BaseType;
+                currentType = currentType.BaseType;
             }
 
             return null;

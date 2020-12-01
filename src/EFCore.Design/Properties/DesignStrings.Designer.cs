@@ -231,6 +231,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 foreignKeyName, columnNames);
 
         /// <summary>
+        ///     Could not scaffold the foreign key '{foreignKeyName}'. Foreign key '{existingForeignKey}' is defined on same columns targeting same key on principal table.
+        /// </summary>
+        public static string ForeignKeyWithSameFacetsExists([CanBeNull] object foreignKeyName, [CanBeNull] object existingForeignKey)
+            => string.Format(
+                GetString("ForeignKeyWithSameFacetsExists", nameof(foreignKeyName), nameof(existingForeignKey)),
+                foreignKeyName, existingForeignKey);
+
+        /// <summary>
         ///     The namespace '{migrationsNamespace}' contains migrations for a different DbContext. This can result in conflicting migration names. It's recommend to put migrations for different DbContext classes into different namespaces.
         /// </summary>
         public static string ForeignMigrations([CanBeNull] object migrationsNamespace)
@@ -383,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 columnName);
 
         /// <summary>
-        ///     The provider '{provider}' is not a Relational provider and therefore cannot be use with Migrations.
+        ///     The provider '{provider}' is not a Relational provider and therefore cannot be used with Migrations.
         /// </summary>
         public static string NonRelationalProvider([CanBeNull] object provider)
             => string.Format(
@@ -455,7 +463,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 providerTypeName);
 
         /// <summary>
-        ///     No files were generated in directory '{outputDirectoryName}'. The following file(s) already exist and must be made writeable to continue: {readOnlyFiles}.
+        ///     No files were generated in directory '{outputDirectoryName}'. The following file(s) already exist(s) and must be made writeable to continue: {readOnlyFiles}.
         /// </summary>
         public static string ReadOnlyFiles([CanBeNull] object outputDirectoryName, [CanBeNull] object readOnlyFiles)
             => string.Format(

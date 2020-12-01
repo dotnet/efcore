@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Dictionary of current parameter values in use.
         /// </summary>
-        protected virtual IReadOnlyDictionary<string, object> ParameterValues { get; private set; }
+        protected virtual IReadOnlyDictionary<string, object?> ParameterValues { get; private set; }
 
         /// <summary>
         ///     Processes a <see cref="SelectExpression" /> to apply null semantics and optimize it.
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> An optimized select expression. </returns>
         public virtual SelectExpression Process(
             [NotNull] SelectExpression selectExpression,
-            [NotNull] IReadOnlyDictionary<string, object> parameterValues,
+            [NotNull] IReadOnlyDictionary<string, object?> parameterValues,
             out bool canCache)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
@@ -681,13 +681,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (valuesExpression is SqlConstantExpression sqlConstant)
                 {
                     typeMapping = sqlConstant.TypeMapping;
-                    values = (IEnumerable)sqlConstant.Value;
+                    values = (IEnumerable)sqlConstant.Value!;
                 }
                 else if (valuesExpression is SqlParameterExpression sqlParameter)
                 {
                     DoNotCache();
                     typeMapping = sqlParameter.TypeMapping;
-                    values = (IEnumerable)ParameterValues[sqlParameter.Name];
+                    values = (IEnumerable?)ParameterValues[sqlParameter.Name];
                     if (values == null)
                     {
                         throw new NullReferenceException();
@@ -1002,7 +1002,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return sqlFunctionExpression.Update(instance, sqlFunctionExpression.Arguments);
             }
 
-            var arguments = new SqlExpression[sqlFunctionExpression.Arguments!.Count];
+            var arguments = new SqlExpression[sqlFunctionExpression.Arguments.Count];
             for (var i = 0; i < arguments.Length; i++)
             {
                 arguments[i] = Visit(sqlFunctionExpression.Arguments[i], out _);
@@ -1397,28 +1397,30 @@ namespace Microsoft.EntityFrameworkCore.Query
             // true || a -> true
             // false && a -> false
             // false || a -> a
-            if (sqlBinaryExpression.Left is SqlConstantExpression newLeftConstant)
+            if (sqlBinaryExpression.Left is SqlConstantExpression newLeftConstant
+                && newLeftConstant.Value is bool leftBoolValue)
             {
                 return sqlBinaryExpression.OperatorType == ExpressionType.AndAlso
-                    ? (bool)newLeftConstant.Value
+                    ? leftBoolValue
                         ? sqlBinaryExpression.Right
                         : newLeftConstant
-                    : (bool)newLeftConstant.Value
+                    : leftBoolValue
                         ? newLeftConstant
                         : sqlBinaryExpression.Right;
             }
 
-            if (sqlBinaryExpression.Right is SqlConstantExpression newRightConstant)
+            if (sqlBinaryExpression.Right is SqlConstantExpression newRightConstant
+                && newRightConstant.Value is bool rightBoolValue)
             {
                 // a && true -> a
                 // a || true -> true
                 // a && false -> false
                 // a || false -> a
                 return sqlBinaryExpression.OperatorType == ExpressionType.AndAlso
-                    ? (bool)newRightConstant.Value
+                    ? rightBoolValue
                         ? sqlBinaryExpression.Left
                         : newRightConstant
-                    : (bool)newRightConstant.Value
+                    : rightBoolValue
                         ? newRightConstant
                         : sqlBinaryExpression.Left;
             }
@@ -1685,8 +1687,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         nullabilityPropagationElements.Add(sqlFunctionExpression.Instance);
                     }
 
-                    if (sqlFunctionExpression.Arguments != null
-                        && sqlFunctionExpression.ArgumentsPropagateNullability != null)
+                    if (!sqlFunctionExpression.IsNiladic)
                     {
                         for (var i = 0; i < sqlFunctionExpression.Arguments.Count; i++)
                         {

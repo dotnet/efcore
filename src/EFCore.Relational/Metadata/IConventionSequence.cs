@@ -5,6 +5,8 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -21,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this sequence.
         /// </summary>
-        new IConventionSequenceBuilder Builder { get; }
+        new IConventionSequenceBuilder? Builder { get; }
 
         /// <summary>
         ///     Gets the configuration source for this <see cref="IConventionSequence" />.
@@ -91,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="type"> The <see cref="Type" /> of values returned by the sequence. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        Type SetType([CanBeNull] Type type, bool fromDataAnnotation = false);
+        Type? SetType([CanBeNull] Type? type, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Gets the configuration source for <see cref="ISequence.ClrType" />.
@@ -106,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         [Obsolete("Use SetType")]
-        Type SetClrType([CanBeNull] Type type, bool fromDataAnnotation = false);
+        Type? SetClrType([CanBeNull] Type? type, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Gets the configuration source for <see cref="ISequence.ClrType" />.

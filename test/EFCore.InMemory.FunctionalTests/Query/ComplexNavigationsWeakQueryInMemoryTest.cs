@@ -19,12 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
-        [ConditionalTheory(Skip = "Issue#17386")]
-        public override Task Complex_query_with_optional_navigations_and_client_side_evaluation(bool async)
-        {
-            return base.Complex_query_with_optional_navigations_and_client_side_evaluation(async);
-        }
-
         [ConditionalTheory(Skip = "Issue#17539")]
         public override Task Join_navigations_in_inner_selector_translated_without_collision(bool async)
         {

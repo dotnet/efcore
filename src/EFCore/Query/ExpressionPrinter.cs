@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         };
 
         private readonly IndentedStringBuilder _stringBuilder;
-        private readonly Dictionary<ParameterExpression, string> _parametersInScope;
+        private readonly Dictionary<ParameterExpression, string?> _parametersInScope;
         private readonly List<ParameterExpression> _namelessParameters;
         private readonly List<ParameterExpression> _encounteredParameters;
 
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public ExpressionPrinter()
         {
             _stringBuilder = new IndentedStringBuilder();
-            _parametersInScope = new Dictionary<ParameterExpression, string>();
+            _parametersInScope = new Dictionary<ParameterExpression, string?>();
             _namelessParameters = new List<ParameterExpression>();
             _encounteredParameters = new List<ParameterExpression>();
         }
@@ -457,7 +457,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return constantExpression;
         }
 
-        private void Print(object value)
+        private void Print(object? value)
         {
             if (value is IEnumerable enumerable
                 && !(value is string))
@@ -494,7 +494,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 stringValue = $@"""{stringValue}""";
             }
 
-            _stringBuilder.Append(stringValue);
+            _stringBuilder.Append(stringValue ?? "Unknown");
         }
 
         /// <inheritdoc />
@@ -590,7 +590,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             else
             {
                 // ReSharper disable once PossibleNullReferenceException
-                _stringBuilder.Append(memberExpression.Member.DeclaringType.Name);
+                _stringBuilder.Append(memberExpression.Member.DeclaringType?.Name ?? "MethodWithoutDeclaringType");
             }
 
             _stringBuilder.Append("." + memberExpression.Member.Name);
@@ -699,7 +699,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         ? extensionMethod
                             ? method.GetParameters().Skip(1).Select(p => p.Name).ToList()
                             : method.GetParameters().Select(p => p.Name).ToList()
-                        : new List<string>();
+                        : new List<string?>();
 
                 IDisposable? indent = null;
 
@@ -880,12 +880,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (Verbose)
                 {
                     Append("(Unhandled parameter: ");
-                    Append(parameterExpression.Name);
+                    Append(parameterExpression.Name ?? "NoNameParameter");
                     Append(")");
                 }
                 else
                 {
-                    Append(parameterExpression.Name);
+                    Append(parameterExpression.Name ?? "NoNameParameter");
                 }
             }
 

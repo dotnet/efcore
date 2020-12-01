@@ -11,7 +11,7 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public class OptimisticConcurrencySqlServerTest : OptimisticConcurrencyTestBase<F1SqlServerFixture>
+    public class OptimisticConcurrencySqlServerTest : OptimisticConcurrencyRelationalTestBase<F1SqlServerFixture>
     {
         public OptimisticConcurrencySqlServerTest(F1SqlServerFixture fixture)
             : base(fixture)
@@ -116,6 +116,31 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(1, detailsEntry.Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue);
                 });
         }
+
+        public override void Property_entry_original_value_is_set()
+        {
+            base.Property_entry_original_value_is_set();
+
+            AssertSql(
+                @"SELECT TOP(1) [e].[Id], [e].[EngineSupplierId], [e].[Name], [e].[StorageLocation_Latitude], [e].[StorageLocation_Longitude]
+FROM [Engines] AS [e]
+ORDER BY [e].[Id]",
+                //
+                @"@p1='1'
+@p2='Mercedes' (Size = 450)
+@p0='FO 108X' (Size = 4000)
+@p3='ChangedEngine' (Size = 4000)
+@p4='47.64491' (Nullable = true)
+@p5='-122.128101' (Nullable = true)
+
+SET NOCOUNT ON;
+UPDATE [Engines] SET [Name] = @p0
+WHERE [Id] = @p1 AND [EngineSupplierId] = @p2 AND [Name] = @p3 AND [StorageLocation_Latitude] = @p4 AND [StorageLocation_Longitude] = @p5;
+SELECT @@ROWCOUNT;");
+        }
+
+        private void AssertSql(params string[] expected)
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());

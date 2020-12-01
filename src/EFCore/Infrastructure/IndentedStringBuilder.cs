@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             using (var reader = new StringReader(value))
             {
                 var first = true;
-                string line;
+                string? line;
                 while ((line = reader.ReadLine()) != null)
                 {
                     if (first)

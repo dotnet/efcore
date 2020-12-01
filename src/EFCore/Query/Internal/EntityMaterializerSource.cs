@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 #nullable enable
@@ -58,14 +59,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             string entityInstanceName,
             Expression materializationContextExpression)
         {
-            if (!entityType.HasClrType())
-            {
-                throw new InvalidOperationException(CoreStrings.NoClrType(entityType.DisplayName()));
-            }
+            Check.DebugAssert(entityType.HasClrType, "Cannot materialize shadow types.");
 
             if (entityType.IsAbstract())
             {
-                throw new InvalidOperationException(CoreStrings.CannotMaterializeAbstractType(entityType));
+                throw new InvalidOperationException(CoreStrings.CannotMaterializeAbstractType(entityType.DisplayName()));
             }
 
             var constructorBinding = (InstantiationBinding?)entityType[CoreAnnotationNames.ConstructorBinding];
@@ -151,9 +149,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>> Materializers
             => LazyInitializer.EnsureInitialized(
-                // TODO-NULLABLE: LazyInitializer not yet null-annotated in netstandard2.1, can remove bang after targeting net5.0
                 ref _materializers,
-                () => new ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>>())!;
+                () => new ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>>());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

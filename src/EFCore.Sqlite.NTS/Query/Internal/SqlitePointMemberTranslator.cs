@@ -25,10 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     {
         private static readonly IDictionary<MemberInfo, string> _memberToFunctionName = new Dictionary<MemberInfo, string>
         {
-            { typeof(Point).GetRuntimeProperty(nameof(Point.M)), "M" },
-            { typeof(Point).GetRuntimeProperty(nameof(Point.X)), "X" },
-            { typeof(Point).GetRuntimeProperty(nameof(Point.Y)), "Y" },
-            { typeof(Point).GetRuntimeProperty(nameof(Point.Z)), "Z" }
+            { typeof(Point).GetRequiredRuntimeProperty(nameof(Point.M)), "M" },
+            { typeof(Point).GetRequiredRuntimeProperty(nameof(Point.X)), "X" },
+            { typeof(Point).GetRequiredRuntimeProperty(nameof(Point.Y)), "Y" },
+            { typeof(Point).GetRequiredRuntimeProperty(nameof(Point.Z)), "Z" }
         };
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;

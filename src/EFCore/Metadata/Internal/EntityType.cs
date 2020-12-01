@@ -229,6 +229,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual EntityType? DefiningEntityType { get; }
 
         /// <summary>
+        ///     Gets a value indicating whether this entity type has a defining navigation.
+        /// </summary>
+        /// <returns> <see langword="true" /> if this entity type has a defining navigation. </returns>
+        [CA.MemberNotNullWhen(true, nameof(DefiningNavigationName), nameof(DefiningEntityType))]
+        public virtual bool HasDefiningNavigation()
+        {
+            if (DefiningEntityType != null)
+            {
+                Check.DebugAssert(DefiningNavigationName != null,
+                    $"{nameof(DefiningEntityType)} is non-null but {nameof(DefiningNavigationName)} is null");
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
@@ -306,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return newBaseType;
             }
 
-            if (this.HasDefiningNavigation())
+            if (HasDefiningNavigation())
             {
                 throw new InvalidOperationException(CoreStrings.WeakDerivedType(this.DisplayName()));
             }
@@ -318,15 +334,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (newBaseType != null)
             {
-                if (this.HasClrType())
+                if (HasClrType)
                 {
-                    if (!newBaseType.HasClrType())
+                    if (!newBaseType.HasClrType)
                     {
                         throw new InvalidOperationException(CoreStrings.NonClrBaseType(this.DisplayName(), newBaseType.DisplayName()));
                     }
 
-                    // TODO-NULLABLE: Use MemberNotNullWhen on HasClrType when we target net5.0
-                    if (!newBaseType.ClrType!.IsAssignableFrom(ClrType))
+                    if (!newBaseType.ClrType.IsAssignableFrom(ClrType))
                     {
                         throw new InvalidOperationException(
                             CoreStrings.NotAssignableClrBaseType(
@@ -340,8 +355,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                 }
 
-                if (!this.HasClrType()
-                    && newBaseType.HasClrType())
+                if (!HasClrType
+                    && newBaseType.HasClrType)
                 {
                     throw new InvalidOperationException(CoreStrings.NonShadowBaseType(this.DisplayName(), newBaseType.DisplayName()));
                 }
@@ -1487,7 +1502,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private Navigation AddNavigation(MemberIdentity navigationMember, ForeignKey foreignKey, bool pointsToPrincipal)
         {
-            var name = navigationMember.Name;
+            var name = navigationMember.Name!;
             var duplicateNavigation = FindNavigationsInHierarchy(name).FirstOrDefault();
             if (duplicateNavigation != null)
             {
@@ -2953,7 +2968,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var data = new List<Dictionary<string, object?>>();
-            var valueConverters = new Dictionary<string, ValueConverter>(StringComparer.Ordinal);
+            var valueConverters = new Dictionary<string, ValueConverter?>(StringComparer.Ordinal);
             var properties = GetProperties()
                 .Concat<IPropertyBase>(GetNavigations())
                 .Concat(GetSkipNavigations())

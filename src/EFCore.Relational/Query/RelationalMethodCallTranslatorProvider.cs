@@ -85,23 +85,32 @@ namespace Microsoft.EntityFrameworkCore.Query
                         arguments.Select(e => _sqlExpressionFactory.ApplyDefaultTypeMapping(e)).ToList());
                 }
 
+                var argumentsPropagateNullability = dbFunction.Parameters.Select(p => p.PropagatesNullability);
+
                 if (dbFunction.IsBuiltIn)
                 {
                     return _sqlExpressionFactory.Function(
                         dbFunction.Name,
                         arguments,
-                        nullable: dbFunction.IsNullable,
-                        argumentsPropagateNullability: dbFunction.Parameters.Select(p => p.PropagatesNullability),
+                        dbFunction.IsNullable,
+                        argumentsPropagateNullability,
                         method.ReturnType.UnwrapNullableType());
                 }
 
-                return _sqlExpressionFactory.Function(
-                    dbFunction.Schema,
-                    dbFunction.Name,
-                    arguments,
-                    nullable: dbFunction.IsNullable,
-                    argumentsPropagateNullability: dbFunction.Parameters.Select(p => p.PropagatesNullability),
-                    method.ReturnType.UnwrapNullableType());
+                return dbFunction.Schema is null
+                    ? _sqlExpressionFactory.Function(
+                        dbFunction.Name,
+                        arguments,
+                        dbFunction.IsNullable,
+                        argumentsPropagateNullability,
+                        method.ReturnType.UnwrapNullableType())
+                    : _sqlExpressionFactory.Function(
+                        dbFunction.Schema,
+                        dbFunction.Name,
+                        arguments,
+                        dbFunction.IsNullable,
+                        argumentsPropagateNullability,
+                        method.ReturnType.UnwrapNullableType());
             }
 
             return _plugins.Concat(_translators)

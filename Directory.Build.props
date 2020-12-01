@@ -17,17 +17,18 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <DefaultNetCoreTargetFramework>net5.0</DefaultNetCoreTargetFramework>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <StrongNameKeyId>MicrosoftAspNetCore</StrongNameKeyId>
     <PackageTags>Entity Framework Core;entity-framework-core;EF;Data;O/RM;EntityFramework;EntityFrameworkCore;EFCore</PackageTags>
     <Product>Microsoft Entity Framework Core</Product>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <LangVersion>8.0</LangVersion>
+    <WarningsNotAsErrors>nullable</WarningsNotAsErrors>
+    <LangVersion>9.0</LangVersion>
     <DebugType>portable</DebugType>
     <PackageProjectUrl>https://docs.microsoft.com/ef/core/</PackageProjectUrl>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(DeveloperBuild)' == 'true'">
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);CS1591;SA1636</WarningsNotAsErrors>
   </PropertyGroup>
 
   <!-- HACK: Work around #15093 -->

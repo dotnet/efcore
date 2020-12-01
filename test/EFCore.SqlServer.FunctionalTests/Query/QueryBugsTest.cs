@@ -17,12 +17,16 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.Geometries;
+using Newtonsoft.Json.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -9262,6 +9266,158 @@ FROM [Blogs] AS [b]");
                     context.Blogs.AddRange(b1, b2);
                     context.Posts.AddRange(p11, p12, p13, p21, p22);
                     context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        #endregion
+
+        #region Issue23211
+
+        [ConditionalFact]
+        public virtual void Collection_include_on_owner_with_two_owned_types_mapped_to_different_table()
+        {
+            using (CreateDatabase23211())
+            {
+                using var context = new MyContext23211(_options);
+
+                var owner = context.Set<Owner23211>().Include(e => e.Dependents).AsSplitQuery().OrderBy(e => e.Id).Single();
+                Assert.NotNull(owner.Dependents);
+                Assert.Equal(2, owner.Dependents.Count);
+                Assert.NotNull(owner.Owned1);
+                Assert.Equal("A", owner.Owned1.Value);
+                Assert.NotNull(owner.Owned2);
+                Assert.Equal("B", owner.Owned2.Value);
+
+                AssertSql(
+                    @"SELECT [t].[Id], [t].[Owner23211Id], [t].[Value], [t].[Owner23211Id0], [t].[Value0]
+FROM (
+    SELECT TOP(2) [o].[Id], [o0].[Owner23211Id], [o0].[Value], [o1].[Owner23211Id] AS [Owner23211Id0], [o1].[Value] AS [Value0]
+    FROM [Owner23211] AS [o]
+    LEFT JOIN [Owned123211] AS [o0] ON [o].[Id] = [o0].[Owner23211Id]
+    LEFT JOIN [Owned223211] AS [o1] ON [o].[Id] = [o1].[Owner23211Id]
+    ORDER BY [o].[Id]
+) AS [t]
+ORDER BY [t].[Id]",
+                    //
+                    @"SELECT [d].[Id], [d].[Owner23211Id], [t].[Id]
+FROM (
+    SELECT TOP(1) [o].[Id]
+    FROM [Owner23211] AS [o]
+    ORDER BY [o].[Id]
+) AS [t]
+INNER JOIN [Dependent23211] AS [d] ON [t].[Id] = [d].[Owner23211Id]
+ORDER BY [t].[Id]");
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Collection_include_on_owner_with_owned_type_mapped_to_different_table()
+        {
+            using (CreateDatabase23211())
+            {
+                using var context = new MyContext23211(_options);
+
+                var owner = context.Set<SecondOwner23211>().Include(e => e.Dependents).AsSplitQuery().OrderBy(e => e.Id).Single();
+                Assert.NotNull(owner.Dependents);
+                Assert.Equal(2, owner.Dependents.Count);
+                Assert.NotNull(owner.Owned);
+                Assert.Equal("A", owner.Owned.Value);
+
+                AssertSql(
+                    @"SELECT [t].[Id], [t].[SecondOwner23211Id], [t].[Value]
+FROM (
+    SELECT TOP(2) [s].[Id], [o].[SecondOwner23211Id], [o].[Value]
+    FROM [SecondOwner23211] AS [s]
+    LEFT JOIN [Owned23211] AS [o] ON [s].[Id] = [o].[SecondOwner23211Id]
+    ORDER BY [s].[Id]
+) AS [t]
+ORDER BY [t].[Id]",
+                    //
+                    @"SELECT [s0].[Id], [s0].[SecondOwner23211Id], [t].[Id]
+FROM (
+    SELECT TOP(1) [s].[Id]
+    FROM [SecondOwner23211] AS [s]
+    ORDER BY [s].[Id]
+) AS [t]
+INNER JOIN [SecondDependent23211] AS [s0] ON [t].[Id] = [s0].[SecondOwner23211Id]
+ORDER BY [t].[Id]");
+            }
+        }
+
+        private class Owner23211
+        {
+            public int Id { get; set; }
+            public List<Dependent23211> Dependents { get; set; }
+            public OwnedType23211 Owned1 { get; set; }
+            public OwnedType23211 Owned2 { get; set; }
+        }
+
+        private class OwnedType23211
+        {
+            public string Value { get; set; }
+        }
+
+        private class Dependent23211
+        {
+            public int Id { get; set; }
+        }
+
+        private class SecondOwner23211
+        {
+            public int Id { get; set; }
+            public List<SecondDependent23211> Dependents { get; set; }
+            public OwnedType23211 Owned { get; set; }
+        }
+
+        private class SecondDependent23211
+        {
+            public int Id { get; set; }
+        }
+
+        private class MyContext23211 : DbContext
+        {
+            public MyContext23211(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Owner23211>().OwnsOne(e => e.Owned1, b => b.ToTable("Owned123211"));
+                modelBuilder.Entity<Owner23211>().OwnsOne(e => e.Owned2, b => b.ToTable("Owned223211"));
+                modelBuilder.Entity<SecondOwner23211>().OwnsOne(e => e.Owned, b => b.ToTable("Owned23211"));
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase23211()
+            => CreateTestStore(
+                () => new MyContext23211(_options),
+                context =>
+                {
+                    context.Add(new Owner23211
+                    {
+                        Dependents = new List<Dependent23211>
+                        {
+                            new Dependent23211(),
+                            new Dependent23211()
+                        },
+                        Owned1 = new OwnedType23211 { Value = "A" },
+                        Owned2 = new OwnedType23211 { Value = "B" }
+                    });
+
+                    context.Add(new SecondOwner23211
+                    {
+                        Dependents = new List<SecondDependent23211>
+                        {
+                            new SecondDependent23211(),
+                            new SecondDependent23211()
+                        },
+                        Owned = new OwnedType23211 { Value = "A" }
+                    });
+
+                    context.SaveChanges();
+
                     ClearLog();
                 });
 
@@ -9319,6 +9475,529 @@ WHERE [e].[Id] NOT IN (1, 7)");
                     context.SaveChanges();
                     ClearLog();
                 });
+        #endregion
+
+        #region Issue23282
+
+        [ConditionalFact]
+        public virtual void Can_query_point_with_buffered_data_reader()
+        {
+            var (options, testSqlLoggerFactory) = CreateOptions23282();
+            using var context = new MyContext23282(options);
+
+            var testUser = context.Locations.FirstOrDefault(x => x.Name == "My Location");
+
+            Assert.NotNull(testUser);
+
+            testSqlLoggerFactory.AssertBaseline(
+                new[] {
+                    @"SELECT TOP(1) [l].[Id], [l].[Name], [l].[Address_County], [l].[Address_Line1], [l].[Address_Line2], [l].[Address_Point], [l].[Address_Postcode], [l].[Address_Town]
+FROM [Locations] AS [l]
+WHERE [l].[Name] = N'My Location'" });
+        }
+
+        [Owned]
+        private class Address23282
+        {
+            public string Line1 { get; set; }
+            public string Line2 { get; set; }
+            public string Town { get; set; }
+            public string County { get; set; }
+            public string Postcode { get; set; }
+
+            public Point Point { get; set; }
+        }
+
+        private class Location23282
+        {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            public Guid Id { get; set; }
+
+            public string Name { get; set; }
+            public Address23282 Address { get; set; }
+        }
+
+        private class MyContext23282 : DbContext
+        {
+            public DbSet<Location23282> Locations { get; set; }
+
+            public MyContext23282(DbContextOptions options)
+                : base(options)
+            {
+            }
+        }
+
+        private (DbContextOptions, TestSqlLoggerFactory) CreateOptions23282()
+        {
+            var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest");
+            var testSqlLoggerFactory = new TestSqlLoggerFactory();
+            var serviceProvider = new ServiceCollection().AddSingleton<ILoggerFactory>(testSqlLoggerFactory).BuildServiceProvider();
+
+            var optionsBuilder = Fixture.AddOptions(new DbContextOptionsBuilder()
+                    .UseSqlServer(testStore.ConnectionString, b => b.EnableRetryOnFailure().UseNetTopologySuite()))
+                .EnableDetailedErrors()
+                .EnableServiceProviderCaching(false)
+                .UseApplicationServiceProvider(serviceProvider);
+
+            var context = new MyContext23282(optionsBuilder.Options);
+            if (context.Database.EnsureCreatedResiliently())
+            {
+                context.Locations.Add(new Location23282
+                {
+                    Name = "My Location",
+                    Address = new Address23282
+                    {
+                        Line1 = "1 Fake Street",
+                        Town = "Fake Town",
+                        County = "Fakeshire",
+                        Postcode = "PO57 0DE",
+                        Point = new Point(115.7930, 37.2431) { SRID = 4326 }
+                    }
+                });
+                context.SaveChanges();
+            }
+
+            testSqlLoggerFactory.Clear();
+
+            return (optionsBuilder.Options, testSqlLoggerFactory);
+        }
+
+        #endregion
+
+        #region Issue19253
+
+        [ConditionalFact]
+        public virtual void Concat_combines_nullability_of_entity_shapers()
+        {
+            using (CreateDatabase19253())
+            {
+                using var context = new MyContext19253(_options);
+
+                Expression<Func<A19253, string>> leftKeySelector = x => x.forkey;
+                Expression<Func<B19253, string>> rightKeySelector = y => y.forkey;
+
+                var query = context.A.GroupJoin(
+                        context.B,
+                        leftKeySelector,
+                        rightKeySelector,
+                        (left, rightg) => new
+                        {
+                            left,
+                            rightg
+                        })
+                    .SelectMany(
+                        r => r.rightg.DefaultIfEmpty(),
+                        (x, y) => new JoinResult19253<A19253, B19253>
+                        {
+                            Left = x.left,
+                            Right = y
+                        })
+                    .Concat(
+                        context.B.GroupJoin(
+                                context.A,
+                                rightKeySelector,
+                                leftKeySelector,
+                                (right, leftg) => new { leftg, right })
+                            .SelectMany(l => l.leftg.DefaultIfEmpty(),
+                                (x, y) => new JoinResult19253<A19253, B19253>
+                                {
+                                    Left = y,
+                                    Right = x.right
+                                })
+                            .Where(z => z.Left.Equals(null)))
+                    .ToList();
+
+                Assert.Equal(3, query.Count);
+
+                AssertSql(
+                    @"SELECT [a].[Id], [a].[a], [a].[a1], [a].[forkey], [b].[Id] AS [Id0], [b].[b], [b].[b1], [b].[forkey] AS [forkey0]
+FROM [A] AS [a]
+LEFT JOIN [B] AS [b] ON [a].[forkey] = [b].[forkey]
+UNION ALL
+SELECT [a0].[Id], [a0].[a], [a0].[a1], [a0].[forkey], [b0].[Id] AS [Id0], [b0].[b], [b0].[b1], [b0].[forkey] AS [forkey0]
+FROM [B] AS [b0]
+LEFT JOIN [A] AS [a0] ON [b0].[forkey] = [a0].[forkey]
+WHERE [a0].[Id] IS NULL");
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Union_combines_nullability_of_entity_shapers()
+        {
+            using (CreateDatabase19253())
+            {
+                using var context = new MyContext19253(_options);
+
+                Expression<Func<A19253, string>> leftKeySelector = x => x.forkey;
+                Expression<Func<B19253, string>> rightKeySelector = y => y.forkey;
+
+                var query = context.A.GroupJoin(
+                        context.B,
+                        leftKeySelector,
+                        rightKeySelector,
+                        (left, rightg) => new
+                        {
+                            left,
+                            rightg
+                        })
+                    .SelectMany(
+                        r => r.rightg.DefaultIfEmpty(),
+                        (x, y) => new JoinResult19253<A19253, B19253>
+                        {
+                            Left = x.left,
+                            Right = y
+                        })
+                    .Union(
+                        context.B.GroupJoin(
+                                context.A,
+                                rightKeySelector,
+                                leftKeySelector,
+                                (right, leftg) => new { leftg, right })
+                            .SelectMany(l => l.leftg.DefaultIfEmpty(),
+                                (x, y) => new JoinResult19253<A19253, B19253>
+                                {
+                                    Left = y,
+                                    Right = x.right
+                                })
+                            .Where(z => z.Left.Equals(null)))
+                    .ToList();
+
+                Assert.Equal(3, query.Count);
+
+                AssertSql(
+                    @"SELECT [a].[Id], [a].[a], [a].[a1], [a].[forkey], [b].[Id] AS [Id0], [b].[b], [b].[b1], [b].[forkey] AS [forkey0]
+FROM [A] AS [a]
+LEFT JOIN [B] AS [b] ON [a].[forkey] = [b].[forkey]
+UNION
+SELECT [a0].[Id], [a0].[a], [a0].[a1], [a0].[forkey], [b0].[Id] AS [Id0], [b0].[b], [b0].[b1], [b0].[forkey] AS [forkey0]
+FROM [B] AS [b0]
+LEFT JOIN [A] AS [a0] ON [b0].[forkey] = [a0].[forkey]
+WHERE [a0].[Id] IS NULL");
+            }
+        }
+        [ConditionalFact]
+        public virtual void Except_combines_nullability_of_entity_shapers()
+        {
+            using (CreateDatabase19253())
+            {
+                using var context = new MyContext19253(_options);
+
+                Expression<Func<A19253, string>> leftKeySelector = x => x.forkey;
+                Expression<Func<B19253, string>> rightKeySelector = y => y.forkey;
+
+                var query = context.A.GroupJoin(
+                        context.B,
+                        leftKeySelector,
+                        rightKeySelector,
+                        (left, rightg) => new
+                        {
+                            left,
+                            rightg
+                        })
+                    .SelectMany(
+                        r => r.rightg.DefaultIfEmpty(),
+                        (x, y) => new JoinResult19253<A19253, B19253>
+                        {
+                            Left = x.left,
+                            Right = y
+                        })
+                    .Except(
+                        context.B.GroupJoin(
+                                context.A,
+                                rightKeySelector,
+                                leftKeySelector,
+                                (right, leftg) => new { leftg, right })
+                            .SelectMany(l => l.leftg.DefaultIfEmpty(),
+                                (x, y) => new JoinResult19253<A19253, B19253>
+                                {
+                                    Left = y,
+                                    Right = x.right
+                                }))
+                    .ToList();
+
+                Assert.Single(query);
+
+                AssertSql(
+                    @"SELECT [a].[Id], [a].[a], [a].[a1], [a].[forkey], [b].[Id] AS [Id0], [b].[b], [b].[b1], [b].[forkey] AS [forkey0]
+FROM [A] AS [a]
+LEFT JOIN [B] AS [b] ON [a].[forkey] = [b].[forkey]
+EXCEPT
+SELECT [a0].[Id], [a0].[a], [a0].[a1], [a0].[forkey], [b0].[Id] AS [Id0], [b0].[b], [b0].[b1], [b0].[forkey] AS [forkey0]
+FROM [B] AS [b0]
+LEFT JOIN [A] AS [a0] ON [b0].[forkey] = [a0].[forkey]");
+            }
+        }
+        [ConditionalFact]
+        public virtual void Intersect_combines_nullability_of_entity_shapers()
+        {
+            using (CreateDatabase19253())
+            {
+                using var context = new MyContext19253(_options);
+
+                Expression<Func<A19253, string>> leftKeySelector = x => x.forkey;
+                Expression<Func<B19253, string>> rightKeySelector = y => y.forkey;
+
+                var query = context.A.GroupJoin(
+                        context.B,
+                        leftKeySelector,
+                        rightKeySelector,
+                        (left, rightg) => new
+                        {
+                            left,
+                            rightg
+                        })
+                    .SelectMany(
+                        r => r.rightg.DefaultIfEmpty(),
+                        (x, y) => new JoinResult19253<A19253, B19253>
+                        {
+                            Left = x.left,
+                            Right = y
+                        })
+                    .Intersect(
+                        context.B.GroupJoin(
+                                context.A,
+                                rightKeySelector,
+                                leftKeySelector,
+                                (right, leftg) => new { leftg, right })
+                            .SelectMany(l => l.leftg.DefaultIfEmpty(),
+                                (x, y) => new JoinResult19253<A19253, B19253>
+                                {
+                                    Left = y,
+                                    Right = x.right
+                                }))
+                    .ToList();
+
+                Assert.Single(query);
+
+                AssertSql(
+                    @"SELECT [a].[Id], [a].[a], [a].[a1], [a].[forkey], [b].[Id] AS [Id0], [b].[b], [b].[b1], [b].[forkey] AS [forkey0]
+FROM [A] AS [a]
+LEFT JOIN [B] AS [b] ON [a].[forkey] = [b].[forkey]
+INTERSECT
+SELECT [a0].[Id], [a0].[a], [a0].[a1], [a0].[forkey], [b0].[Id] AS [Id0], [b0].[b], [b0].[b1], [b0].[forkey] AS [forkey0]
+FROM [B] AS [b0]
+LEFT JOIN [A] AS [a0] ON [b0].[forkey] = [a0].[forkey]");
+            }
+        }
+
+        public class MyContext19253 : DbContext
+        {
+            public DbSet<A19253> A { get; set; }
+            public DbSet<B19253> B { get; set; }
+
+
+            public MyContext19253(DbContextOptions options)
+                : base(options)
+            {
+            }
+        }
+
+        public class JoinResult19253<TLeft, TRight>
+        {
+            public TLeft Left { get; set; }
+
+            public TRight Right { get; set; }
+        }
+
+        public class A19253
+        {
+            public int Id { get; set; }
+            public string a { get; set; }
+            public string a1 { get; set; }
+            public string forkey { get; set; }
+
+        }
+
+        public class B19253
+        {
+            public int Id { get; set; }
+            public string b { get; set; }
+            public string b1 { get; set; }
+            public string forkey { get; set; }
+        }
+
+        private SqlServerTestStore CreateDatabase19253()
+            => CreateTestStore(
+                () => new MyContext19253(_options),
+                context =>
+                {
+                    var tmp_a = new A19253[]
+                    {
+                        new A19253 {a = "a0", a1 = "a1", forkey = "a"},
+                        new A19253 {a = "a2", a1 = "a1", forkey = "d"},
+                    };
+                    var tmp_b = new B19253[]
+                    {
+                        new B19253 {b = "b0", b1 = "b1", forkey = "a"},
+                        new B19253 {b = "b2", b1 = "b1", forkey = "c"},
+                    };
+                    context.A.AddRange(tmp_a);
+                    context.B.AddRange(tmp_b);
+                    context.SaveChanges();
+                    ClearLog();
+                });
+
+        #endregion
+
+        #region Issue23410
+
+        // TODO: Remove when JSON is first class. See issue#4021
+
+        [ConditionalFact]
+        public virtual void Method_call_translators_are_invoked_for_indexer_if_not_indexer_property()
+        {
+            var (options, testSqlLoggerFactory) = CreateOptions23410();
+            using var context = new MyContext23410(options);
+
+            var testUser = context.Blogs.FirstOrDefault(x => x.JObject["Author"].Value<string>() == "Maumar");
+
+            Assert.NotNull(testUser);
+
+            testSqlLoggerFactory.AssertBaseline(
+                new[] {
+                    @"SELECT TOP(1) [b].[Id], [b].[JObject], [b].[Name]
+FROM [Blogs] AS [b]
+WHERE JSON_VALUE([b].[JObject], '$.Author') = N'Maumar'" });
+        }
+
+        private class Blog23410
+        {
+            public int Id { get; set; }
+
+            public string Name { get; set; }
+            public JObject JObject { get; set; }
+        }
+
+        private class MyContext23410 : DbContext
+        {
+            public DbSet<Blog23410> Blogs { get; set; }
+
+            public MyContext23410(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Blog23410>().Property(e => e.JObject).HasConversion(
+                    e => e.ToString(),
+                    e => JObject.Parse(e));
+            }
+        }
+
+        private class JsonMethodCallTranslatorPlugin : IMethodCallTranslatorPlugin
+        {
+            public JsonMethodCallTranslatorPlugin(ISqlExpressionFactory sqlExpressionFactory)
+            {
+                Translators = new IMethodCallTranslator[]
+                {
+                    new JsonIndexerMethodTranslator(sqlExpressionFactory),
+                    new JsonValueMethodTranslator(sqlExpressionFactory)
+                };
+            }
+
+            public IEnumerable<IMethodCallTranslator> Translators { get; }
+        }
+
+        private class JsonValueMethodTranslator : IMethodCallTranslator
+        {
+            private readonly ISqlExpressionFactory _sqlExpressionFactory;
+
+            public JsonValueMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
+            {
+                _sqlExpressionFactory = sqlExpressionFactory;
+            }
+
+            public SqlExpression Translate(
+                SqlExpression instance,
+                MethodInfo method,
+                IReadOnlyList<SqlExpression> arguments,
+                IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+            {
+                if (method.IsGenericMethod
+                    && method.DeclaringType == typeof(Newtonsoft.Json.Linq.Extensions)
+                    && method.Name == "Value"
+                    && arguments.Count == 1
+                    && arguments[0] is SqlFunctionExpression sqlFunctionExpression)
+                {
+                    return _sqlExpressionFactory.Function(
+                        sqlFunctionExpression.Name,
+                        sqlFunctionExpression.Arguments,
+                        sqlFunctionExpression.IsNullable,
+                        sqlFunctionExpression.ArgumentsPropagateNullability,
+                        method.ReturnType);
+                }
+
+                return null;
+            }
+        }
+
+        private class JsonIndexerMethodTranslator : IMethodCallTranslator
+        {
+            private readonly MethodInfo _indexerMethod = typeof(JObject).GetRuntimeMethod("get_Item", new[] { typeof(string) });
+
+            private readonly ISqlExpressionFactory _sqlExpressionFactory;
+
+            public JsonIndexerMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
+            {
+                _sqlExpressionFactory = sqlExpressionFactory;
+            }
+
+            public SqlExpression Translate(
+                SqlExpression instance,
+                MethodInfo method,
+                IReadOnlyList<SqlExpression> arguments,
+                IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+            {
+                if (Equals(_indexerMethod, method))
+                {
+                    return _sqlExpressionFactory.Function(
+                        "JSON_VALUE",
+                        new[] {
+                            instance,
+                            _sqlExpressionFactory.Fragment($"'$.{((SqlConstantExpression)arguments[0]).Value}'")
+                            },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { true, false },
+                        _indexerMethod.ReturnType);
+                }
+
+                return null;
+            }
+        }
+
+        private (DbContextOptions, TestSqlLoggerFactory) CreateOptions23410()
+        {
+            var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest");
+            var testSqlLoggerFactory = new TestSqlLoggerFactory();
+            var serviceCollection = new ServiceCollection()
+                .AddSingleton<ILoggerFactory>(testSqlLoggerFactory)
+                .AddEntityFrameworkSqlServer();
+            serviceCollection.TryAddEnumerable(new ServiceDescriptor(
+                typeof(IMethodCallTranslatorPlugin), typeof(JsonMethodCallTranslatorPlugin), ServiceLifetime.Singleton));
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            var optionsBuilder = Fixture.AddOptions(testStore.AddProviderOptions(new DbContextOptionsBuilder()))
+                .EnableDetailedErrors()
+                .UseInternalServiceProvider(serviceProvider)
+                .EnableServiceProviderCaching(false);
+
+            var context = new MyContext23410(optionsBuilder.Options);
+            if (context.Database.EnsureCreatedResiliently())
+            {
+                context.Blogs.Add(new Blog23410
+                {
+                    Name = "My Location",
+                    JObject = JObject.Parse(@"{ ""Author"": ""Maumar"" }")
+                });
+                context.SaveChanges();
+            }
+
+            testSqlLoggerFactory.Clear();
+
+            return (optionsBuilder.Options, testSqlLoggerFactory);
+        }
 
         #endregion
 

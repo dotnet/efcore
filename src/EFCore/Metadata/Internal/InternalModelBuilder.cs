@@ -438,7 +438,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var removed = false;
                 foreach (var entityType in Metadata.GetEntityTypes(name).ToList())
                 {
-                    if (entityType.HasClrType())
+                    if (entityType.HasClrType)
                     {
                         if (entityType.HasSharedClrType)
                         {

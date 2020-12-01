@@ -291,63 +291,77 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
             var duplicatePropertyStrategy = duplicateProperty.GetValueGenerationStrategy(storeObject);
             if (propertyStrategy != duplicatePropertyStrategy)
             {
-                throw new InvalidOperationException(
-                    SqlServerStrings.DuplicateColumnNameValueGenerationStrategyMismatch(
-                        duplicateProperty.DeclaringEntityType.DisplayName(),
-                        duplicateProperty.Name,
-                        property.DeclaringEntityType.DisplayName(),
-                        property.Name,
-                        columnName,
-                        storeObject.DisplayName()));
+                var isConflicting = ((IConventionProperty)property)
+                    .FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy)
+                    ?.GetConfigurationSource() == ConfigurationSource.Explicit
+                    || propertyStrategy != SqlServerValueGenerationStrategy.None;
+                var isDuplicateConflicting = ((IConventionProperty)duplicateProperty)
+                    .FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy)
+                    ?.GetConfigurationSource() == ConfigurationSource.Explicit
+                    || duplicatePropertyStrategy != SqlServerValueGenerationStrategy.None;
+
+                if (isConflicting && isDuplicateConflicting)
+                {
+                    throw new InvalidOperationException(
+                        SqlServerStrings.DuplicateColumnNameValueGenerationStrategyMismatch(
+                            duplicateProperty.DeclaringEntityType.DisplayName(),
+                            duplicateProperty.Name,
+                            property.DeclaringEntityType.DisplayName(),
+                            property.Name,
+                            columnName,
+                            storeObject.DisplayName()));
+                }
             }
-
-            switch (propertyStrategy)
+            else
             {
-                case SqlServerValueGenerationStrategy.IdentityColumn:
-                    var increment = property.GetIdentityIncrement(storeObject);
-                    var duplicateIncrement = duplicateProperty.GetIdentityIncrement(storeObject);
-                    if (increment != duplicateIncrement)
-                    {
-                        throw new InvalidOperationException(
-                            SqlServerStrings.DuplicateColumnIdentityIncrementMismatch(
-                                duplicateProperty.DeclaringEntityType.DisplayName(),
-                                duplicateProperty.Name,
-                                property.DeclaringEntityType.DisplayName(),
-                                property.Name,
-                                columnName,
-                                storeObject.DisplayName()));
-                    }
+                switch (propertyStrategy)
+                {
+                    case SqlServerValueGenerationStrategy.IdentityColumn:
+                        var increment = property.GetIdentityIncrement(storeObject);
+                        var duplicateIncrement = duplicateProperty.GetIdentityIncrement(storeObject);
+                        if (increment != duplicateIncrement)
+                        {
+                            throw new InvalidOperationException(
+                                SqlServerStrings.DuplicateColumnIdentityIncrementMismatch(
+                                    duplicateProperty.DeclaringEntityType.DisplayName(),
+                                    duplicateProperty.Name,
+                                    property.DeclaringEntityType.DisplayName(),
+                                    property.Name,
+                                    columnName,
+                                    storeObject.DisplayName()));
+                        }
 
-                    var seed = property.GetIdentitySeed(storeObject);
-                    var duplicateSeed = duplicateProperty.GetIdentitySeed(storeObject);
-                    if (seed != duplicateSeed)
-                    {
-                        throw new InvalidOperationException(
-                            SqlServerStrings.DuplicateColumnIdentitySeedMismatch(
-                                duplicateProperty.DeclaringEntityType.DisplayName(),
-                                duplicateProperty.Name,
-                                property.DeclaringEntityType.DisplayName(),
-                                property.Name,
-                                columnName,
-                                storeObject.DisplayName()));
-                    }
+                        var seed = property.GetIdentitySeed(storeObject);
+                        var duplicateSeed = duplicateProperty.GetIdentitySeed(storeObject);
+                        if (seed != duplicateSeed)
+                        {
+                            throw new InvalidOperationException(
+                                SqlServerStrings.DuplicateColumnIdentitySeedMismatch(
+                                    duplicateProperty.DeclaringEntityType.DisplayName(),
+                                    duplicateProperty.Name,
+                                    property.DeclaringEntityType.DisplayName(),
+                                    property.Name,
+                                    columnName,
+                                    storeObject.DisplayName()));
+                        }
 
-                    break;
-                case SqlServerValueGenerationStrategy.SequenceHiLo:
-                    if (property.GetHiLoSequenceName(storeObject) != duplicateProperty.GetHiLoSequenceName(storeObject)
-                        || property.GetHiLoSequenceSchema(storeObject) != duplicateProperty.GetHiLoSequenceSchema(storeObject))
-                    {
-                        throw new InvalidOperationException(
-                            SqlServerStrings.DuplicateColumnSequenceMismatch(
-                                duplicateProperty.DeclaringEntityType.DisplayName(),
-                                duplicateProperty.Name,
-                                property.DeclaringEntityType.DisplayName(),
-                                property.Name,
-                                columnName,
-                                storeObject.DisplayName()));
-                    }
+                        break;
+                    case SqlServerValueGenerationStrategy.SequenceHiLo:
+                        if (property.GetHiLoSequenceName(storeObject) != duplicateProperty.GetHiLoSequenceName(storeObject)
+                            || property.GetHiLoSequenceSchema(storeObject) != duplicateProperty.GetHiLoSequenceSchema(storeObject))
+                        {
+                            throw new InvalidOperationException(
+                                SqlServerStrings.DuplicateColumnSequenceMismatch(
+                                    duplicateProperty.DeclaringEntityType.DisplayName(),
+                                    duplicateProperty.Name,
+                                    property.DeclaringEntityType.DisplayName(),
+                                    property.Name,
+                                    columnName,
+                                    storeObject.DisplayName()));
+                        }
 
-                    break;
+                        break;
+                }
             }
         }
 

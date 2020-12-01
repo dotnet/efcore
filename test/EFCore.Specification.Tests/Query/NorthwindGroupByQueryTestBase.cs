@@ -2356,6 +2356,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: o => o.Key);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_aggregate_followed_another_GroupBy_aggregate(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .GroupBy(o => new { o.CustomerID, o.OrderDate.Value.Year })
+                    .Select(g => new { g.Key.CustomerID, g.Key.Year })
+                    .GroupBy(e => e.CustomerID)
+                    .Select(g => new { g.Key, Count = g.Count() }),
+                elementSorter: o => o.Key);
+        }
+
         #endregion
 
         #region GroupByAggregateChainComposition

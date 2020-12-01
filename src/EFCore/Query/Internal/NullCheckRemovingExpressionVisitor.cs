@@ -140,7 +140,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 Check.NotNull(memberExpression, nameof(memberExpression));
 
                 var innerExpression = Visit(memberExpression.Expression);
-                if (_nullSafeAccesses.Contains(innerExpression))
+                if (innerExpression != null
+                    && _nullSafeAccesses.Contains(innerExpression))
                 {
                     _nullSafeAccesses.Add(memberExpression);
                 }

@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         && constant.Value is int))
             {
                 var whenClauses = caseExpression.WhenClauses.Select(
-                    c => new { test = (SqlBinaryExpression)c.Test, resultValue = (int)((SqlConstantExpression)c.Result).Value }).ToList();
+                    c => new { test = (SqlBinaryExpression)c.Test, resultValue = (int)((SqlConstantExpression)c.Result).Value! }).ToList();
 
                 if (whenClauses[0].test.Left.Equals(whenClauses[1].test.Left)
                     && whenClauses[1].test.Left.Equals(whenClauses[2].test.Left)
@@ -394,12 +394,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && (sqlBinaryExpression.OperatorType == ExpressionType.Equal
                     || sqlBinaryExpression.OperatorType == ExpressionType.NotEqual))
             {
-                var column = (sqlBinaryExpression.Left as ColumnExpression ?? sqlBinaryExpression.Right as ColumnExpression)!;
-                var constant = (sqlBinaryExpression.Left as SqlConstantExpression ?? sqlBinaryExpression.Right as SqlConstantExpression)!;
+                var column = (sqlBinaryExpression.Left as ColumnExpression ?? sqlBinaryExpression.Right as ColumnExpression);
+                var constant = (sqlBinaryExpression.Left as SqlConstantExpression ?? sqlBinaryExpression.Right as SqlConstantExpression);
 
                 if (column != null && constant != null)
                 {
-                    candidateInfo = (column, constant.Value, constant.TypeMapping!, sqlBinaryExpression.OperatorType);
+                    candidateInfo = (column, constant.Value!, constant.TypeMapping!, sqlBinaryExpression.OperatorType);
                     return true;
                 }
             }
@@ -408,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && inExpression.Subquery == null
                 && inExpression.Values is SqlConstantExpression valuesConstant)
             {
-                candidateInfo = (column, valuesConstant.Value, valuesConstant.TypeMapping!,
+                candidateInfo = (column, valuesConstant.Value!, valuesConstant.TypeMapping!,
                     inExpression.IsNegated ? ExpressionType.NotEqual : ExpressionType.Equal);
 
                 return true;

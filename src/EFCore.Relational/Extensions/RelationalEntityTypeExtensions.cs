@@ -153,12 +153,12 @@ namespace Microsoft.EntityFrameworkCore
             }
             else
             {
-                var skipNavigationSchema = entityType.GetForeignKeys().SelectMany(fk => fk.GetReferencingSkipNavigations())
-                    .FirstOrDefault(n => !n.IsOnDependent)
-                    ?.DeclaringEntityType.GetSchema();
+                var skipReferencingTypes = entityType.GetForeignKeys().SelectMany(fk => fk.GetReferencingSkipNavigations())
+                    .Where(n => !n.IsOnDependent && n.DeclaringEntityType != entityType)
+                    .ToList();
+                var skipNavigationSchema = skipReferencingTypes.FirstOrDefault()?.DeclaringEntityType.GetSchema();
                 if (skipNavigationSchema != null
-                    && entityType.GetForeignKeys().SelectMany(fk => fk.GetReferencingSkipNavigations())
-                        .Where(n => !n.IsOnDependent)
+                    && skipReferencingTypes.Skip(1)
                         .All(n => n.DeclaringEntityType.GetSchema() == skipNavigationSchema))
                 {
                     return skipNavigationSchema;

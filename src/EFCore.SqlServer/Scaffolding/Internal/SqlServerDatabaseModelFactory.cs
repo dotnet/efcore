@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                 using var command = connection.CreateCommand();
                 command.CommandText = @"
 SELECT SERVERPROPERTY('EngineEdition');";
-                return (int)command.ExecuteScalar();
+                return (int)command.ExecuteScalar()!;
             }
 
             static byte GetCompatibilityLevel(DbConnection connection)
@@ -1036,7 +1036,10 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                         index.Columns.Add(column);
                     }
 
-                    table.Indexes.Add(index);
+                    if (index.Columns.Count > 0)
+                    {
+                        table.Indexes.Add(index);
+                    }
                 }
             }
         }

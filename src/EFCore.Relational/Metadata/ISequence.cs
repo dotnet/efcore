@@ -4,6 +4,8 @@
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -19,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the database schema that contains the sequence.
         /// </summary>
-        string Schema { get; }
+        string? Schema { get; }
 
         /// <summary>
         ///     Gets the <see cref="IModel" /> in which this sequence is defined.

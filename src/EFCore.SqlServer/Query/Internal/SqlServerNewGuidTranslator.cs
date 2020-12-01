@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     /// </summary>
     public class SqlServerNewGuidTranslator : IMethodCallTranslator
     {
-        private static readonly MethodInfo _methodInfo = typeof(Guid).GetRuntimeMethod(nameof(Guid.NewGuid), Array.Empty<Type>());
+        private static readonly MethodInfo _methodInfo = typeof(Guid).GetRequiredRuntimeMethod(nameof(Guid.NewGuid), Array.Empty<Type>());
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         /// <summary>

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -40,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static PropertyAccessors CreateGeneric<TProperty>(IPropertyBase propertyBase)
         {
             var property = propertyBase as IProperty;
+
             return new PropertyAccessors(
                 CreateCurrentValueGetter<TProperty>(propertyBase, useStoreGeneratedValues: true),
                 CreateCurrentValueGetter<TProperty>(propertyBase, useStoreGeneratedValues: false),

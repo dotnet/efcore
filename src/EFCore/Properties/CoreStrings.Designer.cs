@@ -998,12 +998,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("HiLoBadBlockSize");
 
         /// <summary>
-        ///     The entity type '{entityType}' is part of a relationship cycle involving its primary key {keyProperties}. This would prevent any values to be inserted without vialoating the store constraints. Review the foreign keys defined on the primary key and either remove or use other properties for at least one of them.
+        ///     A relationship cycle involving the primary keys of the following enitity types was detected: '{entityType}'. This would prevent any entity to be inserted without violating the store constraints. Review the foreign keys defined on the primary keys and either remove or use other properties for at least one of them.
         /// </summary>
-        public static string IdentifyingRelationshipCycle([CanBeNull] object entityType, [CanBeNull] object keyProperties)
+        public static string IdentifyingRelationshipCycle([CanBeNull] object entityType)
             => string.Format(
-                GetString("IdentifyingRelationshipCycle", nameof(entityType), nameof(keyProperties)),
-                entityType, keyProperties);
+                GetString("IdentifyingRelationshipCycle", nameof(entityType)),
+                entityType);
 
         /// <summary>
         ///     The instance of entity type '{entityType}' cannot be tracked because another instance with the same key value for {keyProperties} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
@@ -1469,14 +1469,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 method);
 
         /// <summary>
-        ///     Cannot start tracking InternalEntityEntry for entity type '{entityType}' because another InternalEntityEntry is already tracking the same entity.
-        /// </summary>
-        public static string MultipleEntries([CanBeNull] object entityType)
-            => string.Format(
-                GetString("MultipleEntries", nameof(entityType)),
-                entityType);
-
-        /// <summary>
         ///     The filters '{filter1}' and '{filter2}' have both been configured on the same included navigation. Only one unique filter per navigation is allowed. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.
         /// </summary>
         public static string MultipleFilteredIncludesOnSameNavigation([CanBeNull] object filter1, [CanBeNull] object filter2)
@@ -1581,6 +1573,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigation, entityType, targetForeignKeyProperties, actualForeignKeyProperties);
 
         /// <summary>
+        ///     The navigation '{navigation}' cannot be added to the entity type '{entityType}' because it is defined in shadow state, and navigations properties cannot originate from shadow state entities.
+        /// </summary>
+        public static string NavigationFromShadowEntity([CanBeNull] object navigation, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("NavigationFromShadowEntity", nameof(navigation), nameof(entityType)),
+                navigation, entityType);
+
+        /// <summary>
         ///     The property '{1_entityType}.{0_property}' is being accessed using the '{referenceMethod}' or '{collectionMethod}' method, but is defined in the model as a non-navigation. Use the '{propertyMethod}' method to access non-navigation properties.
         /// </summary>
         public static string NavigationIsProperty([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object referenceMethod, [CanBeNull] object collectionMethod, [CanBeNull] object propertyMethod)
@@ -1621,14 +1621,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigation, entityType);
 
         /// <summary>
-        ///     The navigation '{navigation}' cannot be added to the entity type '{entityType}' because it is defined in shadow state, and navigations properties cannot originate from shadow state entities.
-        /// </summary>
-        public static string NavigationFromShadowEntity([CanBeNull] object navigation, [CanBeNull] object entityType)
-            => string.Format(
-                GetString("NavigationFromShadowEntity", nameof(navigation), nameof(entityType)),
-                navigation, entityType);
-
-        /// <summary>
         ///     The navigation '{navigation}' cannot be added to the entity type '{entityType}' because the target entity type '{targetType}' is defined in shadow state, and navigations properties cannot point to shadow state entities.
         /// </summary>
         public static string NavigationToShadowEntity([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object targetType)
@@ -1659,14 +1651,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("NoClrNavigation", nameof(navigation), nameof(entityType)),
                 navigation, entityType);
-
-        /// <summary>
-        ///     The CLR entity materializer cannot be used for entity type '{entityType}' because it is a shadow state entity type. Materialization to a CLR type is only possible for entity types that have a corresponding CLR type.
-        /// </summary>
-        public static string NoClrType([CanBeNull] object entityType)
-            => string.Format(
-                GetString("NoClrType", nameof(entityType)),
-                entityType);
 
         /// <summary>
         ///     The navigation '{navigation}' used to define the entity type '{entityType}' is not present on '{definingEntityType}'.
@@ -2144,26 +2128,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, otherEntityType);
 
         /// <summary>
-        ///     The 'InitializeStateManager' method has been called multiple times on the current query context. This method is intended to be called only once before query enumeration starts.
-        /// </summary>
-        public static string QueryContextAlreadyInitializedStateManager
-            => GetString("QueryContextAlreadyInitializedStateManager");
-
-        /// <summary>
         ///     The materialization condition passed for entity shaper of entity type '{entityType}' is not of the correct shape. A materialization condition must be a 'LambdaExpression' of 'Func&lt;ValueBuffer, IEntityType&gt;'.
         /// </summary>
         public static string QueryEntityMaterializationConditionWrongShape([CanBeNull] object entityType)
             => string.Format(
                 GetString("QueryEntityMaterializationConditionWrongShape", nameof(entityType)),
                 entityType);
-
-        /// <summary>
-        ///     Processing of the LINQ expression '{expression}' by '{visitor}' failed. This may indicate either a bug or a limitation in Entity Framework. See https://go.microsoft.com/fwlink/?linkid=2101433 for more detailed information.
-        /// </summary>
-        public static string QueryFailed([CanBeNull] object expression, [CanBeNull] object visitor)
-            => string.Format(
-                GetString("QueryFailed", nameof(expression), nameof(visitor)),
-                expression, visitor);
 
         /// <summary>
         ///     The query contains a projection '{projection}' of type '{queryableType}'. Collections in the final projection must be an 'IEnumerable&lt;T&gt;' type such as 'List&lt;T&gt;'. Consider using 'ToList' or some other mechanism to convert the 'IQueryable&lt;T&gt;' or 'IOrderedEnumerable&lt;T&gt;' into an 'IEnumerable&lt;T&gt;'.

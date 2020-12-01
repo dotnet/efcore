@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -34,22 +36,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="x"> The first object to compare. </param>
         /// <param name="y"> The second object to compare. </param>
         /// <returns> A negative number if 'x' is less than 'y'; a positive number if 'x' is greater than 'y'; zero otherwise. </returns>
-        public int Compare(IForeignKey x, IForeignKey y)
+        public int Compare(IForeignKey? x, IForeignKey? y)
         {
-            var result = PropertyListComparer.Instance.Compare(x.Properties, y.Properties);
+            var result = PropertyListComparer.Instance.Compare(x?.Properties, y?.Properties);
             if (result != 0)
             {
                 return result;
             }
 
-            result = PropertyListComparer.Instance.Compare(x.PrincipalKey.Properties, y.PrincipalKey.Properties);
+            result = PropertyListComparer.Instance.Compare(x?.PrincipalKey.Properties, y?.PrincipalKey.Properties);
             if (result != 0)
             {
                 return result;
             }
 
-            result = EntityTypeFullNameComparer.Instance.Compare(x.PrincipalEntityType, y.PrincipalEntityType);
-            return result != 0 ? result : EntityTypeFullNameComparer.Instance.Compare(x.DeclaringEntityType, y.DeclaringEntityType);
+            result = EntityTypeFullNameComparer.Instance.Compare(x?.PrincipalEntityType, y?.PrincipalEntityType);
+            return result != 0 ? result : EntityTypeFullNameComparer.Instance.Compare(x?.DeclaringEntityType, y?.DeclaringEntityType);
         }
 
         /// <summary>
@@ -58,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="x"> The first object to compare. </param>
         /// <param name="y"> The second object to compare. </param>
         /// <returns> <see langword="true" /> if the specified objects are equal; otherwise, <see langword="false" />. </returns>
-        public bool Equals(IForeignKey x, IForeignKey y)
+        public bool Equals(IForeignKey? x, IForeignKey? y)
             => Compare(x, y) == 0;
 
         /// <summary>

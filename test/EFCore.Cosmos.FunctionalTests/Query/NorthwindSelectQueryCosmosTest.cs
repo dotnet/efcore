@@ -1151,10 +1151,10 @@ ORDER BY c[""CustomerID""]");
             AssertSql(" ");
         }
 
-        public override Task Reverse_without_explicit_ordering_throws(bool async)
+        public override Task Reverse_without_explicit_ordering(bool async)
         {
             return AssertTranslationFailedWithDetails(
-                () => base.Reverse_without_explicit_ordering_throws(async), CosmosStrings.MissingOrderingInSelectExpression);
+                () => base.Reverse_without_explicit_ordering(async), CosmosStrings.MissingOrderingInSelectExpression);
         }
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
@@ -1225,6 +1225,23 @@ OFFSET 0 LIMIT @__p_0");
         public override Task Projecting_count_of_navigation_which_is_generic_list(bool async)
         {
             return base.Projecting_count_of_navigation_which_is_generic_list(async);
+        }
+
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Do_not_erase_projection_mapping_when_adding_single_projection(bool async)
+        {
+            return base.Do_not_erase_projection_mapping_when_adding_single_projection(async);
+        }
+
+        public override async Task Ternary_in_client_eval_assigns_correct_types(bool async)
+        {
+            await base.Ternary_in_client_eval_assigns_correct_types(async);
+
+            AssertSql(
+                @"SELECT VALUE {""CustomerID"" : c[""CustomerID""], ""OrderDate"" : c[""OrderDate""], ""c"" : (c[""OrderID""] - 10000)}
+FROM root c
+WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))
+ORDER BY c[""OrderID""]");
         }
 
         private void AssertSql(params string[] expected)

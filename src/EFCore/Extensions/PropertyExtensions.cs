@@ -376,12 +376,12 @@ namespace Microsoft.EntityFrameworkCore
                 _comparer = comparer;
             }
 
-            public bool Equals(TNullableKey x, TNullableKey y)
+            public bool Equals(TNullableKey? x, TNullableKey? y)
                 => (x == null && y == null)
                     || (x != null && y != null && _comparer.Equals(x, y));
 
             public int GetHashCode(TNullableKey obj)
-                => _comparer.GetHashCode(obj);
+                => obj is null ? 0 : _comparer.GetHashCode(obj);
         }
 
         /// <summary>

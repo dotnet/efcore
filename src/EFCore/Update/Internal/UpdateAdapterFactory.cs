@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
             return model == null
                 ? new UpdateAdapter(new StateManager(stateManager.Dependencies))
-                : new UpdateAdapter(new StateManager(stateManager.Dependencies.With(model)));
+                : new UpdateAdapter(new StateManager(stateManager.Dependencies with { Model = model }));
         }
     }
 }

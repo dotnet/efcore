@@ -92,7 +92,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
             Check.NotNull(orderings, nameof(orderings));
 
-            return (Partitions == null ? partitions == null : Partitions.SequenceEqual(partitions))
+            return ((Partitions == null && partitions == null)
+                    || (Partitions != null && partitions != null && Partitions.SequenceEqual(partitions)))
                 && Orderings.SequenceEqual(orderings)
                     ? this
                     : new RowNumberExpression(partitions, orderings, TypeMapping);

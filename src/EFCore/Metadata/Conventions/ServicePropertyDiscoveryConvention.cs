@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var entityType = entityTypeBuilder.Metadata;
 
-            if (!entityType.HasClrType())
+            if (!entityType.HasClrType)
             {
                 return;
             }

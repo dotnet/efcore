@@ -194,6 +194,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 modelBuilder.Model.SetDatabaseName(databaseModel.DatabaseName);
             }
 
+            if (!string.IsNullOrEmpty(databaseModel.Collation))
+            {
+                modelBuilder.UseCollation(databaseModel.Collation);
+            }
+
             VisitSequences(modelBuilder, databaseModel.Sequences);
             VisitTables(modelBuilder, databaseModel.Tables);
             VisitForeignKeys(modelBuilder, databaseModel.Tables.SelectMany(table => table.ForeignKeys).ToList());
@@ -497,7 +502,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (column.Collation != null)
             {
-                property.HasComment(column.Collation);
+                property.UseCollation(column.Collation);
             }
 
             if (!(column.Table.PrimaryKey?.Columns.Contains(column) ?? false))
@@ -621,7 +626,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             var propertyNames = uniqueConstraint.Columns.Select(GetPropertyName).ToArray();
-            var indexBuilder = builder.HasIndex(propertyNames, uniqueConstraint.Name).IsUnique();
+            var indexBuilder = string.IsNullOrEmpty(uniqueConstraint.Name)
+                ? builder.HasIndex(propertyNames)
+                : builder.HasIndex(propertyNames, uniqueConstraint.Name);
+            indexBuilder = indexBuilder.IsUnique();
             indexBuilder.Metadata.AddAnnotations(uniqueConstraint.GetAnnotations());
 
             return indexBuilder;
@@ -671,11 +679,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             var propertyNames = index.Columns.Select(GetPropertyName).ToArray();
-            var indexBuilder =
-                index.Name == null
-                    ? builder.HasIndex(propertyNames)
-                    : builder.HasIndex(propertyNames, index.Name)
-                        .IsUnique(index.IsUnique);
+            var indexBuilder = string.IsNullOrEmpty(index.Name)
+                ? builder.HasIndex(propertyNames)
+                : builder.HasIndex(propertyNames, index.Name);
+
+            indexBuilder = indexBuilder.IsUnique(index.IsUnique);
 
             if (index.Filter != null)
             {
@@ -740,7 +748,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             var dependentEntityType = modelBuilder.Model.FindEntityType(GetEntityTypeName(foreignKey.Table));
-
             if (dependentEntityType == null)
             {
                 return null;
@@ -816,9 +823,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                                 nullablePrincipalProperties.Select(tuple => tuple.column.DisplayName()).ToList()
                                     .Aggregate((a, b) => a + "," + b)));
 
-                        nullablePrincipalProperties
-                            .ToList()
-                            .ForEach(tuple => tuple.property.IsNullable = false);
+                        nullablePrincipalProperties.ForEach(tuple => tuple.property.IsNullable = false);
                     }
 
                     principalKey = principalEntityType.AddKey(principalProperties);
@@ -835,6 +840,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                     return null;
                 }
+            }
+
+            var existingForeignKey = dependentEntityType.FindForeignKey(dependentProperties, principalKey, principalEntityType);
+            if (existingForeignKey is not null)
+            {
+                _reporter.WriteWarning(
+                    DesignStrings.ForeignKeyWithSameFacetsExists(foreignKey.DisplayName(), existingForeignKey.GetConstraintName()));
+
+                return null;
             }
 
             var newForeignKey = dependentEntityType.AddForeignKey(

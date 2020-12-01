@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class EnumHasFlagTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo _methodInfo
-            = typeof(Enum).GetRuntimeMethod(nameof(Enum.HasFlag), new[] { typeof(Enum) });
+            = typeof(Enum).GetRequiredRuntimeMethod(nameof(Enum.HasFlag), new[] { typeof(Enum) });
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 

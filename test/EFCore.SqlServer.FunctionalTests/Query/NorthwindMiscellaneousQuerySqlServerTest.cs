@@ -98,41 +98,6 @@ INNER JOIN (
 ORDER BY [t0].[CustomerID]");
         }
 
-        [ConditionalFact(Skip = "Issue #16006")]
-        public virtual void Cache_key_contexts_are_detached()
-        {
-            var weakRef = Scoper(
-                () =>
-                {
-                    var context = new NorthwindRelationalContext(Fixture.CreateOptions());
-
-                    var wr = new WeakReference(context);
-
-                    using (context)
-                    {
-                        var orderDetails = context.OrderDetails;
-
-                        Customer Query(NorthwindContext param)
-                            => (from c in context.Customers
-                                from o in context.Set<Order>()
-                                from od in orderDetails
-                                from e1 in param.Employees
-                                from e2 in param.Set<Order>()
-                                select c).First();
-
-                        Assert.NotNull(Query(context));
-
-                        Assert.True(wr.IsAlive);
-
-                        return wr;
-                    }
-                });
-
-            GC.Collect();
-
-            Assert.False(weakRef.IsAlive);
-        }
-
         private static T Scoper<T>(Func<T> getter)
         {
             return getter();
@@ -2783,9 +2748,9 @@ FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]");
         }
 
-        public override void Select_bitwise_or()
+        public override async Task Select_bitwise_or(bool async)
         {
-            base.Select_bitwise_or();
+            await base.Select_bitwise_or(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], CASE
@@ -2799,9 +2764,9 @@ FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]");
         }
 
-        public override void Select_bitwise_or_multiple()
+        public override async Task Select_bitwise_or_multiple(bool async)
         {
-            base.Select_bitwise_or_multiple();
+            await base.Select_bitwise_or_multiple(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], (CASE
@@ -2818,9 +2783,9 @@ FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]");
         }
 
-        public override void Select_bitwise_and()
+        public override async Task Select_bitwise_and(bool async)
         {
-            base.Select_bitwise_and();
+            await base.Select_bitwise_and(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], CASE
@@ -2834,9 +2799,9 @@ FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]");
         }
 
-        public override void Select_bitwise_and_or()
+        public override async Task Select_bitwise_and_or(bool async)
         {
-            base.Select_bitwise_and_or();
+            await base.Select_bitwise_and_or(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], (CASE
@@ -2949,9 +2914,9 @@ FROM [Orders] AS [o]
 WHERE ([o].[OrderID] | 10248) = 10248");
         }
 
-        public override void Select_bitwise_or_with_logical_or()
+        public override async Task Select_bitwise_or_with_logical_or(bool async)
         {
-            base.Select_bitwise_or_with_logical_or();
+            await base.Select_bitwise_or_with_logical_or(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], CASE
@@ -2968,9 +2933,9 @@ FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]");
         }
 
-        public override void Select_bitwise_and_with_logical_and()
+        public override async Task Select_bitwise_and_with_logical_and(bool async)
         {
-            base.Select_bitwise_and_with_logical_and();
+            await base.Select_bitwise_and_with_logical_and(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], CASE
@@ -3252,9 +3217,9 @@ FROM [Orders] AS [o]
 WHERE [o].[OrderDate] IS NOT NULL AND (DATEPART(year, [o].[OrderDate]) < @__nextYear_0)");
         }
 
-        public override void DefaultIfEmpty_without_group_join()
+        public override async Task DefaultIfEmpty_without_group_join(bool async)
         {
-            base.DefaultIfEmpty_without_group_join();
+            await base.DefaultIfEmpty_without_group_join(async);
 
             AssertSql(
                 @"SELECT [t].[CustomerID]
@@ -5343,6 +5308,88 @@ END
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID]");
+        }
+
+        [ConditionalFact]
+        public async Task Single_Predicate_Cancellation()
+        {
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(
+                async () =>
+                    await Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
+        }
+
+        [ConditionalFact]
+        public Task Query_compiler_concurrency()
+        {
+            const int threadCount = 50;
+
+            var tasks = new Task[threadCount];
+
+            for (var i = 0; i < threadCount; i++)
+            {
+                tasks[i] = Task.Run(
+                    () =>
+                    {
+                        using var context = CreateContext();
+                        using ((from c in context.Customers
+                                where c.City == "London"
+                                orderby c.CustomerID
+                                select (from o1 in context.Orders
+                                        where o1.CustomerID == c.CustomerID
+                                            && o1.OrderDate.Value.Year == 1997
+                                        orderby o1.OrderID
+                                        select (from o2 in context.Orders
+                                                where o1.CustomerID == c.CustomerID
+                                                orderby o2.OrderID
+                                                select o1.OrderID).ToList()).ToList())
+                            .GetEnumerator())
+                        {
+                        }
+                    });
+            }
+
+            return Task.WhenAll(tasks);
+        }
+
+        [ConditionalFact(Skip = "Issue#16218")]
+        public Task Race_when_context_disposed_before_query_termination()
+        {
+            DbSet<Customer> task;
+
+            using (var context = CreateContext())
+            {
+                task = context.Customers;
+            }
+
+            return Assert.ThrowsAsync<ObjectDisposedException>(() => task.SingleAsync(c => c.CustomerID == "ALFKI"));
+        }
+
+        [ConditionalFact]
+        public async Task Concurrent_async_queries_are_serialized2()
+        {
+            using var context = CreateContext();
+            await context.OrderDetails
+                .Where(od => od.OrderID > 0)
+                .Intersect(
+                    context.OrderDetails
+                        .Where(od => od.OrderID > 0))
+                .Intersect(
+                    context.OrderDetails
+                        .Where(od => od.OrderID > 0)).ToListAsync();
+        }
+
+        [ConditionalFact]
+        public async Task Concurrent_async_queries_when_raw_query()
+        {
+            using var context = CreateContext();
+            await using var asyncEnumerator = context.Customers.AsAsyncEnumerable().GetAsyncEnumerator();
+            while (await asyncEnumerator.MoveNextAsync())
+            {
+                // Outer query is buffered by default
+                await context.Database.ExecuteSqlRawAsync(
+                    "[dbo].[CustOrderHist] @CustomerID = {0}",
+                    asyncEnumerator.Current.CustomerID);
+            }
         }
 
         private void AssertSql(params string[] expected)

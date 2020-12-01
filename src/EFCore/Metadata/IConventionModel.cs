@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this model.
         /// </summary>
-        new IConventionModelBuilder? Builder { get; }
+        new IConventionModelBuilder Builder { get; }
 
         /// <summary>
         ///     <para>

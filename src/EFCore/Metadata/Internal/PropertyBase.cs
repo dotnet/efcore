@@ -154,14 +154,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static FieldInfo GetFieldInfo(
+        public static FieldInfo? GetFieldInfo(
             [NotNull] string fieldName,
             [NotNull] TypeBase type,
-            [CanBeNull] string propertyName,
+            [NotNull] string propertyName,
             bool shouldThrow)
         {
-            Check.DebugAssert(propertyName != null || !shouldThrow, "propertyName is null");
-
             if (!type.GetRuntimeFields()!.TryGetValue(fieldName, out var fieldInfo)
                 && shouldThrow)
             {
@@ -252,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.DebugAssert(propertyName != null || !shouldThrow, "propertyName is null");
 
             if (entityType == null
-                || !fieldInfo.DeclaringType.IsAssignableFrom(entityType))
+                || !fieldInfo.DeclaringType!.IsAssignableFrom(entityType))
             {
                 if (shouldThrow)
                 {
@@ -396,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ref _currentValueComparer, this, p => new CurrentValueComparerFactory().Create(p));
 
         private static readonly MethodInfo _containsKeyMethod =
-            typeof(IDictionary<string, object>).GetMethod(nameof(IDictionary<string, object>.ContainsKey));
+            typeof(IDictionary<string, object>).GetRequiredMethod(nameof(IDictionary<string, object>.ContainsKey), new[] { typeof(string) });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -469,7 +467,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        FieldInfo? IConventionPropertyBase.SetFieldInfo(FieldInfo fieldInfo, bool fromDataAnnotation)
+        FieldInfo? IConventionPropertyBase.SetFieldInfo(FieldInfo? fieldInfo, bool fromDataAnnotation)
             => SetFieldInfo(fieldInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

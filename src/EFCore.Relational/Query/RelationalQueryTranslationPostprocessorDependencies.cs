@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class RelationalQueryTranslationPostprocessorDependencies
+    public sealed record RelationalQueryTranslationPostprocessorDependencies
     {
         /// <summary>
         ///     <para>
@@ -64,14 +64,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The SQL expression factory.
         /// </summary>
-        public ISqlExpressionFactory SqlExpressionFactory { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="sqlExpressionFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalQueryTranslationPostprocessorDependencies With([NotNull] ISqlExpressionFactory sqlExpressionFactory)
-            => new RelationalQueryTranslationPostprocessorDependencies(sqlExpressionFactory);
+        public ISqlExpressionFactory SqlExpressionFactory { get; [param: NotNull] init; }
     }
 }

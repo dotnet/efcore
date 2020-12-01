@@ -523,7 +523,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("http://blog.com", result.Url);
         }
 
-        [ConditionalFact(Skip = "Issue #21142")]
+        [ConditionalFact]
         public virtual void Select_conditional_bool_with_value_conversion_is_used()
         {
             using var context = CreateContext();

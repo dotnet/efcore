@@ -34,6 +34,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     () => base.LastOrDefault_when_no_order_by(async))).Message);
         }
 
+        public override Task Contains_with_local_tuple_array_closure(bool async)
+        {
+            return AssertTranslationFailed(() => base.Contains_with_local_tuple_array_closure(async));
+        }
+
         protected virtual bool CanExecuteQueryString
             => false;
 

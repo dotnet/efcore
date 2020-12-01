@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class ShapedQueryCompilingExpressionVisitorDependencies
+    public sealed record ShapedQueryCompilingExpressionVisitorDependencies
     {
         /// <summary>
         ///     <para>
@@ -74,40 +74,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The materializer source.
         /// </summary>
-        public IEntityMaterializerSource EntityMaterializerSource { get; }
+        public IEntityMaterializerSource EntityMaterializerSource { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The type mapping source.
         /// </summary>
-        public ITypeMappingSource TypeMappingSource { get; }
+        public ITypeMappingSource TypeMappingSource { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The memory cache.
         /// </summary>
-        public IMemoryCache MemoryCache { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="entityMaterializerSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ShapedQueryCompilingExpressionVisitorDependencies With([NotNull] IEntityMaterializerSource entityMaterializerSource)
-            => new ShapedQueryCompilingExpressionVisitorDependencies(entityMaterializerSource, TypeMappingSource, MemoryCache);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ShapedQueryCompilingExpressionVisitorDependencies With([NotNull] ITypeMappingSource typeMappingSource)
-            => new ShapedQueryCompilingExpressionVisitorDependencies(EntityMaterializerSource, typeMappingSource, MemoryCache);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="memoryCache"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ShapedQueryCompilingExpressionVisitorDependencies With([NotNull] IMemoryCache memoryCache)
-            => new ShapedQueryCompilingExpressionVisitorDependencies(EntityMaterializerSource, TypeMappingSource, memoryCache);
+        public IMemoryCache MemoryCache { get; [param: NotNull] init; }
     }
 }

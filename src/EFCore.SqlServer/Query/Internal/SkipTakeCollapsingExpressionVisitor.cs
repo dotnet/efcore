@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     {
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        private IReadOnlyDictionary<string, object> _parameterValues;
+        private IReadOnlyDictionary<string, object?> _parameterValues;
         private bool _canCache;
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         /// </summary>
         public virtual SelectExpression Process(
             [NotNull] SelectExpression selectExpression,
-            [NotNull] IReadOnlyDictionary<string, object> parametersValues,
+            [NotNull] IReadOnlyDictionary<string, object?> parametersValues,
             out bool canCache)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
@@ -91,11 +91,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 {
                     switch (sqlExpression)
                     {
-                        case SqlConstantExpression constant:
-                            return ((int)constant.Value) == 0;
+                        case SqlConstantExpression constant
+                        when constant.Value is int intValue:
+                            return intValue == 0;
                         case SqlParameterExpression parameter:
                             _canCache = false;
-                            return ((int)_parameterValues[parameter.Name]) == 0;
+                            return _parameterValues[parameter.Name] is int value && value == 0;
 
                         default:
                             return false;

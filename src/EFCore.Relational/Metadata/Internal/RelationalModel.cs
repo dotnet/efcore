@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -49,8 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SortedDictionary<(string, string), Table> Tables { get; }
-            = new SortedDictionary<(string, string), Table>();
+        public virtual SortedDictionary<(string, string?), Table> Tables { get; }
+            = new SortedDictionary<(string, string?), Table>();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -58,8 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SortedDictionary<(string, string), View> Views { get; }
-            = new SortedDictionary<(string, string), View>();
+        public virtual SortedDictionary<(string, string?), View> Views { get; }
+            = new SortedDictionary<(string, string?), View>();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -76,29 +78,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SortedDictionary<(string, string, IReadOnlyList<string>), StoreFunction> Functions { get; }
-            = new SortedDictionary<(string, string, IReadOnlyList<string>), StoreFunction>(NamedListComparer.Instance);
+        public virtual SortedDictionary<(string, string?, IReadOnlyList<string>), StoreFunction> Functions { get; }
+            = new SortedDictionary<(string, string?, IReadOnlyList<string>), StoreFunction>(NamedListComparer.Instance);
 
         /// <inheritdoc />
-        public virtual ITable FindTable(string name, string schema)
+        public virtual ITable? FindTable(string name, string? schema)
             => Tables.TryGetValue((name, schema), out var table)
                 ? table
                 : null;
 
         /// <inheritdoc />
-        public virtual IView FindView(string name, string schema)
+        public virtual IView? FindView(string name, string? schema)
             => Views.TryGetValue((name, schema), out var view)
                 ? view
                 : null;
 
         /// <inheritdoc />
-        public virtual ISqlQuery FindQuery(string name)
+        public virtual ISqlQuery? FindQuery(string name)
             => Queries.TryGetValue(name, out var query)
                 ? query
                 : null;
 
         /// <inheritdoc />
-        public virtual IStoreFunction FindFunction(string name, string schema, IReadOnlyList<string> parameters)
+        public virtual IStoreFunction? FindFunction(string name, string? schema, IReadOnlyList<string> parameters)
             => Functions.TryGetValue((name, schema, parameters), out var function)
                 ? function
                 : null;
@@ -248,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     continue;
                 }
 
-                var column = (ColumnBase)defaultTable.FindColumn(columnName);
+                var column = (ColumnBase?)defaultTable.FindColumn(columnName);
                 if (column == null)
                 {
                     column = new ColumnBase(columnName, property.GetColumnType(), defaultTable);
@@ -299,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 var schema = entityType.GetSchema();
                 var mappedType = entityType;
-                List<TableMapping> tableMappings = null;
+                List<TableMapping>? tableMappings = null;
                 while (mappedType != null)
                 {
                     var mappedTableName = mappedType.GetTableName();
@@ -342,7 +344,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             continue;
                         }
 
-                        var column = (Column)table.FindColumn(columnName);
+                        var column = (Column?)table.FindColumn(columnName);
                         if (column == null)
                         {
                             column = new Column(columnName, property.GetColumnType(mappedTable), table);
@@ -386,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                 }
 
-                tableMappings.Reverse();
+                tableMappings?.Reverse();
             }
         }
 
@@ -399,7 +401,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var schema = entityType.GetViewSchema();
-            List<ViewMapping> viewMappings = null;
+            List<ViewMapping>? viewMappings = null;
             var mappedType = entityType;
             while (mappedType != null)
             {
@@ -433,7 +435,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         continue;
                     }
 
-                    var column = (ViewColumn)view.FindColumn(columnName);
+                    var column = (ViewColumn?)view.FindColumn(columnName);
                     if (column == null)
                     {
                         column = new ViewColumn(columnName, property.GetColumnType(mappedView), view);
@@ -477,7 +479,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            viewMappings.Reverse();
+            viewMappings?.Reverse();
         }
 
         private static void AddSqlQueries(RelationalModel databaseModel, IConventionEntityType entityType)
@@ -488,7 +490,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return;
             }
 
-            List<SqlQueryMapping> queryMappings = null;
+            List<SqlQueryMapping>? queryMappings = null;
             var definingType = entityType;
             while (definingType != null)
             {
@@ -504,6 +506,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 definingType = definingType.BaseType;
             }
 
+            Check.DebugAssert(definingType is not null, $"Could not find defining type for {entityType}");
+
             var mappedType = entityType;
             while (mappedType != null)
             {
@@ -518,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var mappedQuery = StoreObjectIdentifier.SqlQuery(definingType);
                 if (!databaseModel.Queries.TryGetValue(mappedQuery.Name, out var sqlQuery))
                 {
-                    sqlQuery = new SqlQuery(mappedQuery.Name, databaseModel) { Sql = mappedTypeSqlQuery };
+                    sqlQuery = new SqlQuery(mappedQuery.Name, databaseModel, mappedTypeSqlQuery);
                     databaseModel.Queries.Add(mappedQuery.Name, sqlQuery);
                 }
 
@@ -537,7 +541,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         continue;
                     }
 
-                    var column = (SqlQueryColumn)sqlQuery.FindColumn(columnName);
+                    var column = (SqlQueryColumn?)sqlQuery.FindColumn(columnName);
                     if (column == null)
                     {
                         column = new SqlQueryColumn(columnName, property.GetColumnType(mappedQuery), sqlQuery);
@@ -581,7 +585,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            queryMappings.Reverse();
+            queryMappings?.Reverse();
         }
 
         private static void AddMappedFunctions(RelationalModel databaseModel, IConventionEntityType entityType)
@@ -593,7 +597,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return;
             }
 
-            List<FunctionMapping> functionMappings = null;
+            List<FunctionMapping>? functionMappings = null;
             var mappedType = entityType;
             while (mappedType != null)
             {
@@ -605,7 +609,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     break;
                 }
 
-                var dbFunction = (DbFunction)model.FindDbFunction(mappedFunctionName);
+                var dbFunction = (DbFunction)model.FindDbFunction(mappedFunctionName)!;
                 var functionMapping = CreateFunctionMapping(entityType, mappedType, dbFunction, databaseModel, @default: true);
 
                 mappedType = mappedType.BaseType;
@@ -625,7 +629,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            functionMappings.Reverse();
+            functionMappings?.Reverse();
         }
 
         private static void AddTVFs(RelationalModel relationalModel)
@@ -687,7 +691,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     continue;
                 }
 
-                var column = (FunctionColumn)storeFunction.FindColumn(columnName);
+                var column = (FunctionColumn?)storeFunction.FindColumn(columnName);
                 if (column == null)
                 {
                     column = new FunctionColumn(columnName, property.GetColumnType(mappedFunction), storeFunction);
@@ -719,11 +723,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private static StoreFunction GetOrCreateStoreFunction(DbFunction dbFunction, RelationalModel model)
         {
-            var storeFunction = (StoreFunction)dbFunction.StoreFunction;
+            var storeFunction = (StoreFunction?)dbFunction.StoreFunction;
             if (storeFunction == null)
             {
-                var parameterTypes = dbFunction.Parameters.Select(p => p.StoreType).ToArray();
-                storeFunction = (StoreFunction)model.FindFunction(dbFunction.Name, dbFunction.Schema, parameterTypes);
+                var parameterTypes = dbFunction.Parameters.Select(p => p.StoreType!).ToArray();
+                storeFunction = (StoreFunction?)model.FindFunction(dbFunction.Name, dbFunction.Schema, parameterTypes);
                 if (storeFunction == null)
                 {
                     storeFunction = new StoreFunction(dbFunction, model);
@@ -799,8 +803,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         var principalColumns = new Column[foreignKey.Properties.Count];
                         for (var i = 0; i < principalColumns.Length; i++)
                         {
-                            principalColumns[i] = (Column)principalTable.FindColumn(foreignKey.PrincipalKey.Properties[i]);
-                            if (principalColumns[i] == null)
+                            if (principalTable.FindColumn(foreignKey.PrincipalKey.Properties[i]) is Column principalColumn)
+                            {
+                                principalColumns[i] = principalColumn;
+                            }
+                            else
                             {
                                 principalColumns = null;
                                 break;
@@ -815,8 +822,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         var columns = new Column[foreignKey.Properties.Count];
                         for (var i = 0; i < columns.Length; i++)
                         {
-                            columns[i] = (Column)table.FindColumn(foreignKey.Properties[i]);
-                            if (columns[i] == null)
+                            if (table.FindColumn(foreignKey.Properties[i]) is Column foreignKeyColumn)
+                            {
+                                columns[i] = foreignKeyColumn;
+                            }
+                            else
                             {
                                 columns = null;
                                 break;
@@ -836,7 +846,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                         if (entityTypeMapping.IncludesDerivedTypes
                             && foreignKey.DeclaringEntityType != entityType
-                            && foreignKey.Properties.SequenceEqual(entityType.FindPrimaryKey().Properties))
+                            && entityType.FindPrimaryKey() is IConventionKey primaryKey
+                            && foreignKey.Properties.SequenceEqual(primaryKey.Properties))
                         {
                             // The identifying FK constraint is needed to be created only on the table that corresponds
                             // to the declaring entity type
@@ -873,8 +884,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         var columns = new Column[key.Properties.Count];
                         for (var i = 0; i < columns.Length; i++)
                         {
-                            columns[i] = (Column)table.FindColumn(key.Properties[i]);
-                            if (columns[i] == null)
+                            if (table.FindColumn(key.Properties[i]) is Column uniqueConstraintColumn)
+                            {
+                                columns[i] = uniqueConstraintColumn;
+                            }
+                            else
                             {
                                 columns = null;
                                 break;
@@ -918,8 +932,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         var columns = new Column[index.Properties.Count];
                         for (var i = 0; i < columns.Length; i++)
                         {
-                            columns[i] = (Column)table.FindColumn(index.Properties[i]);
-                            if (columns[i] == null)
+                            if (table.FindColumn(index.Properties[i]) is Column indexColumn)
+                            {
+                                columns[i] = indexColumn;
+                            }
+                            else
                             {
                                 columns = null;
                                 break;
@@ -950,9 +967,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private static void PopulateRowInternalForeignKeys(TableBase table)
         {
-            SortedDictionary<IEntityType, IEnumerable<IForeignKey>> internalForeignKeyMap = null;
-            SortedDictionary<IEntityType, IEnumerable<IForeignKey>> referencingInternalForeignKeyMap = null;
-            TableMappingBase mainMapping = null;
+            SortedDictionary<IEntityType, IEnumerable<IForeignKey>>? internalForeignKeyMap = null;
+            SortedDictionary<IEntityType, IEnumerable<IForeignKey>>? referencingInternalForeignKeyMap = null;
+            TableMappingBase? mainMapping = null;
             var mappedEntityTypes = new HashSet<IEntityType>();
             foreach (TableMappingBase entityTypeMapping in ((ITableBase)table).EntityTypeMappings)
             {
@@ -970,7 +987,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     continue;
                 }
 
-                SortedSet<IForeignKey> rowInternalForeignKeys = null;
+                SortedSet<IForeignKey>? rowInternalForeignKeys = null;
                 foreach (var foreignKey in entityType.FindForeignKeys(primaryKey.Properties))
                 {
                     if (foreignKey.IsUnique
@@ -1033,12 +1050,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 mainMapping.IsSharedTablePrincipal = true;
                 ((Table)mainMapping.Table).EntityTypeMappings.Add(mainTableMapping);
             }
-            else
+            else if (mainMapping is ViewMapping mainViewMapping)
             {
-                ((View)mainMapping.Table).EntityTypeMappings.Remove((ViewMapping)mainMapping);
+                ((View)mainMapping.Table).EntityTypeMappings.Remove(mainViewMapping);
                 mainMapping.IsSharedTablePrincipal = true;
-                ((View)mainMapping.Table).EntityTypeMappings.Add((ViewMapping)mainMapping);
+                ((View)mainMapping.Table).EntityTypeMappings.Add(mainViewMapping);
             }
+
+            Check.DebugAssert(mainMapping is not null,
+                $"{nameof(mainMapping)} is neither a {nameof(TableMapping)} nor a {nameof(ViewMapping)}");
 
             if (referencingInternalForeignKeyMap != null)
             {

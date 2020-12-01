@@ -41,10 +41,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         = ((IDictionary<IProperty, int>)GetProjectionIndex(queryExpression, projectionBindingExpression),
                             ((InMemoryQueryExpression)projectionBindingExpression.QueryExpression).CurrentParameter);
 
-                    var updatedExpression = Expression.New(
-                        newExpression.Constructor,
-                        Expression.Constant(ValueBuffer.Empty),
-                        newExpression.Arguments[1]);
+                    var updatedExpression = newExpression.Update(
+                        new[] { Expression.Constant(ValueBuffer.Empty), newExpression.Arguments[1] });
 
                     return Expression.MakeBinary(ExpressionType.Assign, binaryExpression.Left, updatedExpression);
                 }
@@ -67,10 +65,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 if (methodCallExpression.Method.IsGenericMethod
                     && methodCallExpression.Method.GetGenericMethodDefinition() == ExpressionExtensions.ValueBufferTryReadValueMethod)
                 {
-                    var property = (IProperty?)((ConstantExpression)methodCallExpression.Arguments[2]).Value;
+                    var property = methodCallExpression.Arguments[2].GetConstantValue<IProperty?>();
                     var (indexMap, valueBuffer) =
                         _materializationContextBindings[
-                            (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object];
+                            (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object!];
 
                     Check.DebugAssert(
                         property != null || methodCallExpression.Type.IsNullableType(), "Must read nullable value without property");
@@ -113,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     && methodCallExpression.Method.IsGenericMethod
                     && methodCallExpression.Method.GetGenericMethodDefinition() == ExpressionExtensions.ValueBufferTryReadValueMethod)
                 {
-                    return (IPropertyBase)((ConstantExpression)methodCallExpression.Arguments[2]).Value;
+                    return methodCallExpression.Arguments[2].GetConstantValue<IPropertyBase?>();
                 }
 
                 return null;
@@ -124,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 ProjectionBindingExpression projectionBindingExpression)
             {
                 return projectionBindingExpression.ProjectionMember != null
-                    ? ((ConstantExpression)queryExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember)).Value
+                    ? queryExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember).GetConstantValue<object>()
                     : (projectionBindingExpression.Index != null
                         ? (object)projectionBindingExpression.Index
                         : projectionBindingExpression.IndexMap!);

@@ -58,7 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly ISet<TableExpressionBase> _visitedTableExpressionBases
                 = new HashSet<TableExpressionBase>(LegacyReferenceEqualityComparer.Instance);
 
-            public override Expression Visit(Expression expression)
+            [return: CA.NotNullIfNotNull("expression")]
+            public override Expression? Visit(Expression? expression)
             {
                 var visitedExpression = base.Visit(expression);
                 if (visitedExpression is TableExpressionBase tableExpressionBase

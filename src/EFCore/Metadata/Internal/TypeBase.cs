@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
 
 #nullable enable
 
@@ -23,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConventionTypeBase
     {
+        private readonly bool _hasSharedClrType;
         private ConfigurationSource _configurationSource;
 
         private readonly Dictionary<string, ConfigurationSource> _ignoredMembers
@@ -47,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Name = name;
             Model = model;
             _configurationSource = configurationSource;
-            HasSharedClrType = false;
+            _hasSharedClrType = false;
         }
 
         /// <summary>
@@ -64,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Model = model;
             _configurationSource = configurationSource;
             Name = model.GetDisplayName(type);
-            HasSharedClrType = false;
+            _hasSharedClrType = false;
             IsPropertyBag = type.IsPropertyBagType();
         }
 
@@ -84,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ClrType = type;
             Model = model;
             _configurationSource = configurationSource;
-            HasSharedClrType = true;
+            _hasSharedClrType = true;
             IsPropertyBag = type.IsPropertyBagType();
         }
 
@@ -118,7 +120,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool HasSharedClrType { [DebuggerStepThrough] get; }
+        [CA.MemberNotNullWhen(true, nameof(ClrType))]
+        public virtual bool HasClrType => ClrType is not null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [CA.MemberNotNullWhen(true, nameof(ClrType))]
+        public virtual bool HasSharedClrType
+        {
+            [DebuggerStepThrough] get
+            {
+                if (_hasSharedClrType)
+                {
+                    Check.DebugAssert(ClrType != null, $"{nameof(_hasSharedClrType)} is true but {nameof(ClrType)} is null");
+                    return true;
+                }
+
+                return false;
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

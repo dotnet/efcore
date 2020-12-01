@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             OwnedAttribute attribute,
             IConventionContext<IConventionEntityTypeBuilder> context)
         {
-            if (entityTypeBuilder.Metadata.HasClrType())
+            if (entityTypeBuilder.Metadata.HasClrType)
             {
                 entityTypeBuilder.ModelBuilder.Owned(entityTypeBuilder.Metadata.ClrType, fromDataAnnotation: true);
             }

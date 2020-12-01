@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -24,16 +26,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the column with the given name. Returns <see langword="null" /> if no column with the given name is defined.
         /// </summary>
-        new IViewColumn FindColumn([NotNull] string name);
+        new IViewColumn? FindColumn([NotNull] string name);
 
         /// <summary>
         ///     Gets the column mapped to the given property. Returns <see langword="null" /> if no column is mapped to the given property.
         /// </summary>
-        new IViewColumn FindColumn([NotNull] IProperty property);
+        new IViewColumn? FindColumn([NotNull] IProperty property);
 
         /// <summary>
         ///     Gets the view definition or <see langword="null" /> if this view is not managed by migrations.
         /// </summary>
-        public string ViewDefinitionSql { get; }
+        public string? ViewDefinitionSql { get; }
     }
 }

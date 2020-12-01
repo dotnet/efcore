@@ -256,12 +256,12 @@ namespace Microsoft.Data.Sqlite
                         "SELECT quote($password);",
                         new SqliteParameter("$password", ConnectionOptions.Password));
                     this.ExecuteNonQuery("PRAGMA key = " + quotedPassword + ";");
-                }
 
-                if (SQLitePCLExtensions.EncryptionSupported() != false)
-                {
-                    // NB: Forces decryption. Throws when the key is incorrect.
-                    this.ExecuteNonQuery("SELECT COUNT(*) FROM sqlite_master;");
+                    if (SQLitePCLExtensions.EncryptionSupported() != false)
+                    {
+                        // NB: Forces decryption. Throws when the key is incorrect.
+                        this.ExecuteNonQuery("SELECT COUNT(*) FROM sqlite_master;");
+                    }
                 }
 
                 if (ConnectionOptions.ForeignKeys.HasValue)

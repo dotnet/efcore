@@ -9,6 +9,8 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -30,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [NotNull] Type parameterType,
             [NotNull] Type serviceType,
             [NotNull] MethodInfo method,
-            [CanBeNull] IPropertyBase serviceProperty = null)
+            [CanBeNull] IPropertyBase? serviceProperty = null)
             : base(parameterType, serviceType, serviceProperty)
         {
             Check.NotNull(method, nameof(method));

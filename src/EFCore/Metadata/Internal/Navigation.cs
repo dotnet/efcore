@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             bool? shouldBeCollection,
             bool shouldThrow)
         {
-            if (!navigationProperty.DeclaringType.IsAssignableFrom(sourceClrType))
+            if (!navigationProperty.DeclaringType!.IsAssignableFrom(sourceClrType))
             {
                 if (shouldThrow)
                 {
@@ -266,10 +266,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Navigation Inverse
+        public virtual Navigation? Inverse
         {
             [DebuggerStepThrough]
-            get => (Navigation)((INavigationBase)this).Inverse;
+            get => (Navigation?)((INavigationBase)this).Inverse;
         }
 
         /// <summary>

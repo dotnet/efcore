@@ -491,7 +491,7 @@
     <value>The block size used for Hi-Lo value generation is not positive. The Hi-Lo generator is usually backed by a SQL sequence and this means that the sequence increment must be positive.</value>
   </data>
   <data name="IdentifyingRelationshipCycle" xml:space="preserve">
-    <value>The entity type '{entityType}' is part of a relationship cycle involving its primary key {keyProperties}. This would prevent any values to be inserted without vialoating the store constraints. Review the foreign keys defined on the primary key and either remove or use other properties for at least one of them.</value>
+    <value>A relationship cycle involving the primary keys of the following enitity types was detected: '{entityType}'. This would prevent any entity to be inserted without violating the store constraints. Review the foreign keys defined on the primary keys and either remove or use other properties for at least one of them.</value>
   </data>
   <data name="IdentityConflict" xml:space="preserve">
     <value>The instance of entity type '{entityType}' cannot be tracked because another instance with the same key value for {keyProperties} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.</value>
@@ -968,9 +968,6 @@
   <data name="ModelNotFinalized" xml:space="preserve">
     <value>The model must be finalized before '{method}' can be used. Ensure that either 'OnModelCreating' has completed or, if using a stand-alone 'ModelBuilder', that 'FinalizeModel' has been called.</value>
   </data>
-  <data name="MultipleEntries" xml:space="preserve">
-    <value>Cannot start tracking InternalEntityEntry for entity type '{entityType}' because another InternalEntityEntry is already tracking the same entity.</value>
-  </data>
   <data name="MultipleFilteredIncludesOnSameNavigation" xml:space="preserve">
     <value>The filters '{filter1}' and '{filter2}' have both been configured on the same included navigation. Only one unique filter per navigation is allowed. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.</value>
   </data>
@@ -1010,6 +1007,9 @@
   <data name="NavigationForWrongForeignKey" xml:space="preserve">
     <value>The navigation '{1_entityType}.{0_navigation}' cannot be associated with foreign key {targetForeignKeyProperties} because it was created for foreign key {actualForeignKeyProperties}.</value>
   </data>
+  <data name="NavigationFromShadowEntity" xml:space="preserve">
+    <value>The navigation '{navigation}' cannot be added to the entity type '{entityType}' because it is defined in shadow state, and navigations properties cannot originate from shadow state entities.</value>
+  </data>
   <data name="NavigationIsProperty" xml:space="preserve">
     <value>The property '{1_entityType}.{0_property}' is being accessed using the '{referenceMethod}' or '{collectionMethod}' method, but is defined in the model as a non-navigation. Use the '{propertyMethod}' method to access non-navigation properties.</value>
   </data>
@@ -1025,9 +1025,6 @@
   <data name="NavigationToKeylessType" xml:space="preserve">
     <value>The navigation '{navigation}' cannot be added because it targets the keyless entity type '{entityType}'. Navigations can only target entity types with keys.</value>
   </data>
-  <data name="NavigationFromShadowEntity" xml:space="preserve">
-    <value>The navigation '{navigation}' cannot be added to the entity type '{entityType}' because it is defined in shadow state, and navigations properties cannot originate from shadow state entities.</value>
-  </data>
   <data name="NavigationToShadowEntity" xml:space="preserve">
     <value>The navigation '{navigation}' cannot be added to the entity type '{entityType}' because the target entity type '{targetType}' is defined in shadow state, and navigations properties cannot point to shadow state entities.</value>
   </data>
@@ -1039,9 +1036,6 @@
   </data>
   <data name="NoClrNavigation" xml:space="preserve">
     <value>The navigation '{navigation}' cannot be added to the entity type '{entityType}' because there is no corresponding CLR property on the underlying type and navigations properties cannot be added in shadow state.</value>
-  </data>
-  <data name="NoClrType" xml:space="preserve">
-    <value>The CLR entity materializer cannot be used for entity type '{entityType}' because it is a shadow state entity type. Materialization to a CLR type is only possible for entity types that have a corresponding CLR type.</value>
   </data>
   <data name="NoDefiningNavigation" xml:space="preserve">
     <value>The navigation '{navigation}' used to define the entity type '{entityType}' is not present on '{definingEntityType}'.</value>
@@ -1227,14 +1221,8 @@
   <data name="PropertyWrongType" xml:space="preserve">
     <value>The property '{property}' cannot be removed from the entity type '{entityType}' because it is declared on the entity type '{otherEntityType}'.</value>
   </data>
-  <data name="QueryContextAlreadyInitializedStateManager" xml:space="preserve">
-    <value>The 'InitializeStateManager' method has been called multiple times on the current query context. This method is intended to be called only once before query enumeration starts.</value>
-  </data>
   <data name="QueryEntityMaterializationConditionWrongShape" xml:space="preserve">
     <value>The materialization condition passed for entity shaper of entity type '{entityType}' is not of the correct shape. A materialization condition must be a 'LambdaExpression' of 'Func&lt;ValueBuffer, IEntityType&gt;'.</value>
-  </data>
-  <data name="QueryFailed" xml:space="preserve">
-    <value>Processing of the LINQ expression '{expression}' by '{visitor}' failed. This may indicate either a bug or a limitation in Entity Framework. See https://go.microsoft.com/fwlink/?linkid=2101433 for more detailed information.</value>
   </data>
   <data name="QueryInvalidMaterializationType" xml:space="preserve">
     <value>The query contains a projection '{projection}' of type '{queryableType}'. Collections in the final projection must be an 'IEnumerable&lt;T&gt;' type such as 'List&lt;T&gt;'. Consider using 'ToList' or some other mechanism to convert the 'IQueryable&lt;T&gt;' or 'IOrderedEnumerable&lt;T&gt;' into an 'IEnumerable&lt;T&gt;'.</value>

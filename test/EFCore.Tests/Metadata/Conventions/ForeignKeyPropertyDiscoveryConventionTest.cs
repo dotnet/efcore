@@ -1171,7 +1171,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private ProviderConventionSetBuilderDependencies CreateDependencies()
             => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>()
-                .With(CreateLogger());
+                with { Logger = CreateLogger() };
 
         private DiagnosticsLogger<DbLoggerCategory.Model> CreateLogger()
         {

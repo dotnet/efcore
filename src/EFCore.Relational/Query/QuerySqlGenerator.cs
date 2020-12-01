@@ -292,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (!sqlFunctionExpression.IsNiladic)
             {
                 _relationalCommandBuilder.Append("(");
-                GenerateList(sqlFunctionExpression.Arguments!, e => Visit(e));
+                GenerateList(sqlFunctionExpression.Arguments, e => Visit(e));
                 _relationalCommandBuilder.Append(")");
             }
 
@@ -803,7 +803,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _relationalCommandBuilder.Append(inExpression.IsNegated ? " NOT IN " : " IN ");
                 _relationalCommandBuilder.Append("(");
                 var valuesConstant = (SqlConstantExpression)inExpression.Values;
-                var valuesList = ((IEnumerable<object>)valuesConstant.Value)
+                var valuesList = ((IEnumerable<object?>)valuesConstant.Value!)
                     .Select(v => new SqlConstantExpression(Expression.Constant(v), valuesConstant.TypeMapping)).ToList();
                 GenerateList(valuesList, e => Visit(e));
                 _relationalCommandBuilder.Append(")");

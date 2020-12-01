@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     /// </summary>
-    public sealed class CSharpMigrationOperationGeneratorDependencies
+    public sealed record CSharpMigrationOperationGeneratorDependencies
     {
         /// <summary>
         ///     <para>
@@ -58,14 +58,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     The C# helper.
         /// </summary>
-        public ICSharpHelper CSharpHelper { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="csharpHelper"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public CSharpMigrationOperationGeneratorDependencies With([NotNull] ICSharpHelper csharpHelper)
-            => new CSharpMigrationOperationGeneratorDependencies(csharpHelper);
+        public ICSharpHelper CSharpHelper { get; [param: NotNull] init; }
     }
 }

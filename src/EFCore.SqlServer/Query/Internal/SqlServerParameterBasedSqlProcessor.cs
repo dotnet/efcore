@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         /// </summary>
         public override SelectExpression Optimize(
             SelectExpression selectExpression,
-            IReadOnlyDictionary<string, object> parametersValues,
+            IReadOnlyDictionary<string, object?> parametersValues,
             out bool canCache)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));

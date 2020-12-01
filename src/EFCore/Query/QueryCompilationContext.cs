@@ -49,6 +49,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         public static readonly ParameterExpression QueryContextParameter = Expression.Parameter(typeof(QueryContext), "queryContext");
 
+        /// <summary>
+        ///     <para>
+        ///         Expression representing a not translated expression in query tree during translation phase.
+        ///     </para>
+        ///     <para>
+        ///         This property is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        public static readonly Expression NotTranslatedExpression = new NotTranslatedExpressionType();
+
         private readonly IQueryTranslationPreprocessorFactory _queryTranslationPreprocessorFactory;
         private readonly IQueryableMethodTranslatingExpressionVisitorFactory _queryableMethodTranslatingExpressionVisitorFactory;
         private readonly IQueryTranslationPostprocessorFactory _queryTranslationPostprocessorFactory;
@@ -238,8 +249,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Append(query));
 
         private static readonly MethodInfo _queryContextAddParameterMethodInfo
-            = typeof(QueryContext)
-                .GetTypeInfo()
-                .GetDeclaredMethod(nameof(QueryContext.AddParameter));
+            = typeof(QueryContext).GetRequiredDeclaredMethod(nameof(QueryContext.AddParameter));
+
+        private sealed class NotTranslatedExpressionType : Expression
+        {
+            public override Type Type => typeof(object);
+            public override ExpressionType NodeType => ExpressionType.Extension;
+        }
     }
 }

@@ -9,13 +9,12 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class PropertyEntryTestBase<TFixture> : IClassFixture<TFixture>
+    public abstract class OptimisticConcurrencyRelationalTestBase<TFixture> : OptimisticConcurrencyTestBase<TFixture>
         where TFixture : F1FixtureBase, new()
     {
-        protected PropertyEntryTestBase(TFixture fixture)
-            => Fixture = fixture;
-
-        protected TFixture Fixture { get; }
+        protected OptimisticConcurrencyRelationalTestBase(TFixture fixture)
+            : base(fixture)
+        { }
 
         [ConditionalFact]
         public virtual void Property_entry_original_value_is_set()
@@ -37,8 +36,5 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 });
         }
-
-        protected F1Context CreateF1Context()
-            => Fixture.CreateContext();
     }
 }

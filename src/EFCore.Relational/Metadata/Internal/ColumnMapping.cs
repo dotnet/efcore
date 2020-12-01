@@ -6,6 +6,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -25,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public ColumnMapping(
             [NotNull] IProperty property,
             [NotNull] Column column,
-            [CanBeNull] RelationalTypeMapping typeMapping,
+            [NotNull] RelationalTypeMapping typeMapping,
             [NotNull] TableMapping tableMapping)
             : base(property, column, typeMapping, tableMapping)
         {

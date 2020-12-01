@@ -54,6 +54,57 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(RelationalStrings.MissingIdentifyingProjectionInDistinctGroupBySubquery("s.MissionId"), message);
         }
 
+        public override async Task Client_eval_followed_by_aggregate_operation(bool async)
+        {
+            await AssertTranslationFailed(
+                () => AssertSum(
+                    async,
+                    ss => ss.Set<Mission>().Select(m => m.Duration.Ticks)));
+
+            await AssertTranslationFailed(
+                () => AssertAverage(
+                    async,
+                    ss => ss.Set<Mission>().Select(m => m.Duration.Ticks)));
+
+            await AssertTranslationFailed(
+                () => AssertMin(
+                    async,
+                    ss => ss.Set<Mission>().Select(m => m.Duration.Ticks)));
+
+            await AssertTranslationFailed(
+                () => AssertMax(
+                    async,
+                    ss => ss.Set<Mission>().Select(m => m.Duration.Ticks)));
+        }
+
+        public override Task Client_member_and_unsupported_string_Equals_in_the_same_query(bool async)
+        {
+            return AssertTranslationFailedWithDetails(() => base.Client_member_and_unsupported_string_Equals_in_the_same_query(async),
+                CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison
+                + Environment.NewLine
+                + CoreStrings.QueryUnableToTranslateMember(nameof(Gear.IsMarcus), nameof(Gear)));
+        }
+
+        public override Task Client_side_equality_with_parameter_works_with_optional_navigations(bool async)
+        {
+            return AssertTranslationFailed(() => base.Client_side_equality_with_parameter_works_with_optional_navigations(async));
+        }
+
+        public override Task Correlated_collection_order_by_constant_null_of_non_mapped_type(bool async)
+        {
+            return AssertTranslationFailed(() => base.Correlated_collection_order_by_constant_null_of_non_mapped_type(async));
+        }
+
+        public override Task GetValueOrDefault_on_DateTimeOffset(bool async)
+        {
+            return AssertTranslationFailed(() => base.GetValueOrDefault_on_DateTimeOffset(async));
+        }
+
+        public override Task Where_coalesce_with_anonymous_types(bool async)
+        {
+            return AssertTranslationFailed(() => base.Where_coalesce_with_anonymous_types(async));
+        }
+
         protected virtual bool CanExecuteQueryString
             => false;
 

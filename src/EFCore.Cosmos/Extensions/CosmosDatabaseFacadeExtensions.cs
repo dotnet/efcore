@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <returns> The <see cref="CosmosClient" /> </returns>
         public static CosmosClient GetCosmosClient([NotNull] this DatabaseFacade databaseFacade)
-            => GetService<SingletonCosmosClientWrapper>(databaseFacade).Client;
+            => GetService<ISingletonCosmosClientWrapper>(databaseFacade).Client;
 
         private static TService GetService<TService>(IInfrastructure<IServiceProvider> databaseFacade)
         {

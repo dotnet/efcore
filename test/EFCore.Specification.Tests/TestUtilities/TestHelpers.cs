@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             return new ModelBuilder(
                 contextServices.GetRequiredService<IConventionSetBuilder>().CreateConventionSet(),
-                contextServices.GetRequiredService<ModelDependencies>().With(modelLogger));
+                contextServices.GetRequiredService<ModelDependencies>() with { Logger = modelLogger });
         }
 
         public ConventionSet CreateConventionalConventionSet(

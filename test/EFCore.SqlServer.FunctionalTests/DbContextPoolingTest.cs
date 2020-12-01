@@ -230,6 +230,48 @@ namespace Microsoft.EntityFrameworkCore
                         (_, __) => { })).Message);
         }
 
+        [ConditionalFact]
+        public void Throws_when_pooled_context_constructor_has_more_than_one_parameter()
+        {
+            var serviceProvider
+                = new ServiceCollection().AddDbContextPool<TwoParameterConstructorContext>(_ => { }).BuildServiceProvider();
+
+            using var scope = serviceProvider.CreateScope();
+
+            Assert.Equal(
+                CoreStrings.PoolingContextCtorError(nameof(TwoParameterConstructorContext)),
+                Assert.Throws<InvalidOperationException>(() => scope.ServiceProvider.GetService<TwoParameterConstructorContext>()).Message);
+        }
+
+        private class TwoParameterConstructorContext : DbContext
+        {
+            public TwoParameterConstructorContext(DbContextOptions options, string x)
+                : base(options)
+            {
+            }
+        }
+
+        [ConditionalFact]
+        public void Throws_when_pooled_context_constructor_wrong_parameter()
+        {
+            var serviceProvider
+                = new ServiceCollection().AddDbContextPool<WrongParameterConstructorContext>(_ => { }).BuildServiceProvider();
+
+            using var scope = serviceProvider.CreateScope();
+
+            Assert.Equal(
+                CoreStrings.PoolingContextCtorError(nameof(WrongParameterConstructorContext)),
+                Assert.Throws<InvalidOperationException>(() => scope.ServiceProvider.GetService<WrongParameterConstructorContext>()).Message);
+        }
+
+        private class WrongParameterConstructorContext : DbContext
+        {
+            public WrongParameterConstructorContext(string x)
+                : base(new DbContextOptions<WrongParameterConstructorContext>())
+            {
+            }
+        }
+
         [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(true, false)]

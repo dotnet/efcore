@@ -164,9 +164,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     {
                         var structure = (IReadOnlyList<KeyValuePair<string, object>>)state;
 
-                        var parameters = structure.Where(i => i.Key == "parameters").Select(i => (string)i.Value).First();
+                        var partitionKey = structure.Where(i => i.Key == "partitionKey").Select(i => (string)i.Value).First();
+                        var resourceId = structure.Where(i => i.Key == "resourceId").Select(i => (string)i.Value).First();
 
-                        SqlStatements.Add($"ReadItem({parameters})");
+                        SqlStatements.Add($"ReadItem({partitionKey}, {resourceId})");
                     }
                 }
                 else

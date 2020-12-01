@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -21,12 +22,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class LikeTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo _methodInfo
-            = typeof(DbFunctionsExtensions).GetRuntimeMethod(
+            = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
                 nameof(DbFunctionsExtensions.Like),
                 new[] { typeof(DbFunctions), typeof(string), typeof(string) });
 
         private static readonly MethodInfo _methodInfoWithEscape
-            = typeof(DbFunctionsExtensions).GetRuntimeMethod(
+            = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
                 nameof(DbFunctionsExtensions.Like),
                 new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(string) });
 

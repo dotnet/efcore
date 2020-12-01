@@ -135,7 +135,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
         public IReadOnlyList<TVertex> TopologicalSort(
             [CanBeNull] Func<TVertex, TVertex, IEnumerable<TEdge>, bool> tryBreakEdge,
-            [CanBeNull] Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
+            [CanBeNull] Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle,
+            Func<string, string> formatException = null)
         {
             var sortedQueue = new List<TVertex>();
             var predecessorCounts = new Dictionary<TVertex, int>();
@@ -248,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
                         cycle.Reverse();
 
-                        ThrowCycle(cycle, formatCycle);
+                        ThrowCycle(cycle, formatCycle, formatException);
                     }
                 }
             }
@@ -256,7 +257,10 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             return sortedQueue;
         }
 
-        private void ThrowCycle(List<TVertex> cycle, Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
+        private void ThrowCycle(
+            List<TVertex> cycle,
+            Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle,
+            Func<string, string> formatException = null)
         {
             string cycleString;
             if (formatCycle == null)
@@ -277,7 +281,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 cycleString = formatCycle(cycleData);
             }
 
-            throw new InvalidOperationException(CoreStrings.CircularDependency(cycleString));
+            var message = formatException == null ? CoreStrings.CircularDependency(cycleString) : formatException(cycleString);
+            throw new InvalidOperationException(message);
         }
 
         protected virtual string ToString(TVertex vertex)

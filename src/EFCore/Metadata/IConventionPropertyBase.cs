@@ -6,6 +6,8 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -44,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="fieldInfo"> The <see cref="FieldInfo" /> for the underlying CLR field to use. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new <see cref="FieldInfo" />. </returns>
-        FieldInfo SetFieldInfo([CanBeNull] FieldInfo fieldInfo, bool fromDataAnnotation = false);
+        FieldInfo? SetFieldInfo([CanBeNull] FieldInfo? fieldInfo, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     <para>
@@ -60,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="fieldInfo"> The <see cref="FieldInfo" /> for the underlying CLR field to use. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         [Obsolete("Use SetFieldInfo")]
-        void SetField([CanBeNull] FieldInfo fieldInfo, bool fromDataAnnotation = false)
+        void SetField([CanBeNull] FieldInfo? fieldInfo, bool fromDataAnnotation = false)
             => SetFieldInfo(fieldInfo, fromDataAnnotation);
 
         /// <summary>
@@ -84,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="fieldName"> The name of the field to use. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new <see cref="FieldInfo" />. </returns>
-        FieldInfo SetField([CanBeNull] string fieldName, bool fromDataAnnotation = false)
+        FieldInfo? SetField([CanBeNull] string? fieldName, bool fromDataAnnotation = false)
             => this.AsPropertyBase()
                 .SetField(fieldName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 

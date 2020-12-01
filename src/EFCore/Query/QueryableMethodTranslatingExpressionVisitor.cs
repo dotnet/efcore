@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual QueryCompilationContext QueryCompilationContext { get; }
 
         /// <inheritdoc />
-        protected override Expression? VisitExtension(Expression extensionExpression)
+        protected override Expression VisitExtension(Expression extensionExpression)
         {
             Check.NotNull(extensionExpression, nameof(extensionExpression));
 
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        protected override Expression? VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
@@ -163,9 +163,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                             var source2 = Visit(methodCallExpression.Arguments[1]);
                             if (source2 is ShapedQueryExpression innerShapedQueryExpression)
                             {
-                                return TranslateConcat(
+                                return CheckTranslated(TranslateConcat(
                                     shapedQueryExpression,
-                                    innerShapedQueryExpression);
+                                    innerShapedQueryExpression));
                             }
 
                             break;
@@ -495,7 +495,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             return _subquery
-                ? (Expression?)null
+                ? QueryCompilationContext.NotTranslatedExpression
                 : throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
         }
 
@@ -506,7 +506,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Check.NotNull(extensionExpression, nameof(extensionExpression));
 
                 return extensionExpression is EntityShaperExpression entityShaper
-                    ? entityShaper.MarkAsNullable()
+                    ? entityShaper.MakeNullable()
                     : base.VisitExtension(extensionExpression);
             }
         }
@@ -571,8 +571,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression innerShaper,
             Type transparentIdentifierType)
         {
-            var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
-            var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
+            var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Outer");
+            var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Inner");
             outerShaper = new MemberAccessShiftingExpressionVisitor(queryExpression, outerMemberInfo).Visit(outerShaper);
             innerShaper = new MemberAccessShiftingExpressionVisitor(queryExpression, innerMemberInfo).Visit(innerShaper);
 
@@ -612,7 +612,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Type transparentIdentifierType,
             Expression targetExpression)
         {
-            var fieldInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
+            var fieldInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Outer");
 
             return Expression.Field(targetExpression, fieldInfo);
         }
@@ -622,7 +622,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Type transparentIdentifierType,
             Expression targetExpression)
         {
-            var fieldInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
+            var fieldInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Inner");
 
             return Expression.Field(targetExpression, fieldInfo);
         }
@@ -658,14 +658,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="elementType"> The clr type of the entity type to look for. </param>
         /// <returns> A shaped query expression for the given clr type. </returns>
         [Obsolete("Use overload which takes IEntityType.")]
-        protected abstract ShapedQueryExpression? CreateShapedQueryExpression([NotNull] Type elementType);
+        protected abstract ShapedQueryExpression CreateShapedQueryExpression([NotNull] Type elementType);
 
         /// <summary>
         ///     Creates a <see cref="ShapedQueryExpression" /> for the given entity type.
         /// </summary>
         /// <param name="entityType"> The the entity type. </param>
         /// <returns> A shaped query expression for the given entity type. </returns>
-        protected abstract ShapedQueryExpression? CreateShapedQueryExpression([NotNull] IEntityType entityType);
+        protected abstract ShapedQueryExpression CreateShapedQueryExpression([NotNull] IEntityType entityType);
 
         /// <summary>
         ///     Translates <see cref="Queryable.All{TSource}(IQueryable{TSource}, Expression{Func{TSource, bool}})" /> method over the given source.

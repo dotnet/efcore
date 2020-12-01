@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -98,6 +99,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                 // Use public API to remove the convention, issue #214
                 ConventionSet.Remove(conventionSet.ModelInitializedConventions, typeof(DbSetFindingConvention));
+                ConventionSet.Remove(conventionSet.ModelInitializedConventions, typeof(RelationalDbFunctionAttributeConvention));
+
                 var modelBuilder = new ModelBuilder(conventionSet);
                 modelBuilder.Entity<HistoryRow>(
                     x =>

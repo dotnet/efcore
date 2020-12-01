@@ -26,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         private static readonly IDictionary<MemberInfo, string> _memberToFunctionName
             = new Dictionary<MemberInfo, string>
             {
-                { typeof(Polygon).GetRuntimeProperty(nameof(Polygon.ExteriorRing)), "ExteriorRing" },
-                { typeof(Polygon).GetRuntimeProperty(nameof(Polygon.NumInteriorRings)), "NumInteriorRing" }
+                { typeof(Polygon).GetRequiredRuntimeProperty(nameof(Polygon.ExteriorRing)), "ExteriorRing" },
+                { typeof(Polygon).GetRequiredRuntimeProperty(nameof(Polygon.NumInteriorRings)), "NumInteriorRing" }
             };
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;

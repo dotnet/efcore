@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -23,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     public class SqlitePolygonMethodTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo _getInteriorRingN
-            = typeof(Polygon).GetRuntimeMethod(nameof(Polygon.GetInteriorRingN), new[] { typeof(int) });
+            = typeof(Polygon).GetRequiredRuntimeMethod(nameof(Polygon.GetInteriorRingN), new[] { typeof(int) });
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 

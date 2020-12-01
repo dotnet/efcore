@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             foreach (var directlyDerivedType in model.GetEntityTypes())
             {
                 if (directlyDerivedType != entityType
-                        && directlyDerivedType.HasClrType()
+                        && directlyDerivedType.HasClrType
                         && !directlyDerivedType.HasSharedClrType
                         && !directlyDerivedType.HasDefiningNavigation()
                         && model.FindIsOwnedConfigurationSource(directlyDerivedType.ClrType) == null

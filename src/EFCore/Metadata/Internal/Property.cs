@@ -640,7 +640,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return properties.All(
                 property =>
                     property.IsShadowProperty()
-                    || (entityType.HasClrType()
+                    || (entityType.HasClrType
                         && ((property.PropertyInfo != null
                                 && entityType.GetRuntimeProperties()!.ContainsKey(property.Name))
                             || (property.FieldInfo != null

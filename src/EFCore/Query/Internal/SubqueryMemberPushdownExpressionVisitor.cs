@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var updatedMemberExpression = memberExpression.Update(Visit(memberExpression.Expression));
 
                 return Expression.Call(
-                    QueryableMethods.AsQueryable.MakeGenericMethod(updatedMemberExpression.Type.TryGetSequenceType()),
+                    QueryableMethods.AsQueryable.MakeGenericMethod(updatedMemberExpression.Type.GetSequenceType()),
                     updatedMemberExpression);
             }
 
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Type returnType)
         {
             var source = methodCallExpression.Arguments[0];
-            var queryableType = source.Type.TryGetSequenceType();
+            var queryableType = source.Type.GetSequenceType();
             var genericMethod = methodCallExpression.Method.GetGenericMethodDefinition();
             if (methodCallExpression.Arguments.Count == 2)
             {
@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 source = Expression.Call(
                     QueryableMethods.Select.MakeGenericMethod(
-                        sourceMethodCallExpression.Arguments[0].Type.TryGetSequenceType(), memberAccessExpression.Type),
+                        sourceMethodCallExpression.Arguments[0].Type.GetSequenceType(), memberAccessExpression.Type),
                     sourceMethodCallExpression.Arguments[0],
                     Expression.Quote(Expression.Lambda(memberAccessExpression, selector.Parameters[0])));
 
@@ -224,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     Expression.Quote(Expression.Lambda(memberAccessExpression, parameter)));
             }
 
-            source = Expression.Call(genericMethod.MakeGenericMethod(source.Type.TryGetSequenceType()), source);
+            source = Expression.Call(genericMethod.MakeGenericMethod(source.Type.GetSequenceType()), source);
 
             return source.Type != returnType
                 ? Expression.Convert(source, returnType)

@@ -234,6 +234,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         [ConditionalFact]
+        public virtual void AddColumnOperation_with_spatial_type()
+        {
+            Generate(
+                new AddColumnOperation
+                {
+                    Table = "Geometries",
+                    Name = "Geometry",
+                    [SqliteAnnotationNames.Srid] = 4326,
+                    ColumnType = "GEOMETRYZM",
+                    IsNullable = true
+                });
+
+            AssertSql(
+                @"SELECT AddGeometryColumn('Geometries', 'Geometry', 4326, 'GEOMETRYZM', -1, 0);
+");
+        }
+
+
+        [ConditionalFact]
         public void DropSchemaOperation_is_ignored()
         {
             Generate(new DropSchemaOperation());

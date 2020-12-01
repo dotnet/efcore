@@ -29,13 +29,37 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
                 "GEOMETRY",
+                "GEOMETRYZ",
+                "GEOMETRYM",
+                "GEOMETRYZM",
                 "GEOMETRYCOLLECTION",
+                "GEOMETRYCOLLECTIONZ",
+                "GEOMETRYCOLLECTIONM",
+                "GEOMETRYCOLLECTIONZM",
                 "LINESTRING",
+                "LINESTRINGZ",
+                "LINESTRINGM",
+                "LINESTRINGZM",
                 "MULTILINESTRING",
+                "MULTILINESTRINGZ",
+                "MULTILINESTRINGM",
+                "MULTILINESTRINGZM",
                 "MULTIPOINT",
+                "MULTIPOINTZ",
+                "MULTIPOINTM",
+                "MULTIPOINTZM",
                 "MULTIPOLYGON",
+                "MULTIPOLYGONZ",
+                "MULTIPOLYGONM",
+                "MULTIPOLYGONZM",
                 "POINT",
-                "POLYGON"
+                "POINTZ",
+                "POINTM",
+                "POINTZM",
+                "POLYGON",
+                "POLYGONZ",
+                "POLYGONM",
+                "POLYGONZM"
             };
 
         private const string IntegerTypeName = "INTEGER";

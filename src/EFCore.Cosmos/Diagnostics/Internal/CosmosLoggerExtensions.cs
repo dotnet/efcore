@@ -7,9 +7,9 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -31,31 +31,52 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void ExecutingSqlQuery(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnosticsLogger,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            [NotNull] string containerId,
+            [CanBeNull] string partitionKey,
             [NotNull] CosmosSqlQuery cosmosSqlQuery)
         {
-            var definition = new EventDefinition<string, string, string>(
-                diagnosticsLogger.Options,
-                CosmosEventId.ExecutingSqlQuery,
-                LogLevel.Debug,
-                "CosmosEventId.ExecutingSqlQuery",
-                level => LoggerMessage.Define<string, string, string>(
-                    level,
-                    CosmosEventId.ExecutingSqlQuery,
-                    "Executing Sql Query [Parameters=[{parameters}]]{newLine}{commandText}"));
+            var definition = CosmosResources.LogExecutingSqlQuery(diagnostics);
 
-            definition.Log(
-                diagnosticsLogger,
-                FormatParameters(cosmosSqlQuery.Parameters, ShouldLogParameterValues(diagnosticsLogger, cosmosSqlQuery)),
-                Environment.NewLine,
-                cosmosSqlQuery.Query);
+            if (diagnostics.ShouldLog(definition))
+            {
+                var logSensitiveData = diagnostics.ShouldLogSensitiveData();
+
+                definition.Log(
+                    diagnostics,
+                    containerId,
+                    logSensitiveData ? partitionKey : "?",
+                    FormatParameters(cosmosSqlQuery.Parameters, logSensitiveData && cosmosSqlQuery.Parameters.Count > 0),
+                    Environment.NewLine,
+                    cosmosSqlQuery.Query);
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new CosmosQueryEventData(
+                    definition,
+                    ExecutingSqlQuery,
+                    containerId,
+                    partitionKey,
+                    cosmosSqlQuery.Parameters.Select(p => (p.Name, p.Value)).ToList(),
+                    cosmosSqlQuery.Query,
+                    diagnostics.ShouldLogSensitiveData());
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
         }
 
-        private static bool ShouldLogParameterValues(
-            IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
-            CosmosSqlQuery cosmosSqlQuery)
-            => cosmosSqlQuery.Parameters.Count > 0
-                && diagnostics.ShouldLogSensitiveData();
+        private static string ExecutingSqlQuery(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string, string, string, string>)definition;
+            var p = (CosmosQueryEventData)payload;
+            return d.GenerateMessage(
+                p.ContainerId,
+                p.LogSensitiveData ? p.PartitionKey : "?",
+                FormatParameters(p.Parameters, p.LogSensitiveData && p.Parameters.Count > 0),
+                Environment.NewLine,
+                p.QuerySql);
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -64,31 +85,47 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void ExecutingReadItem(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnosticsLogger,
-            [NotNull] string partitionKey,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            [NotNull] string containerId,
+            [CanBeNull] string partitionKey,
             [NotNull] string resourceId)
         {
-            var definition = new EventDefinition<string>(
-                diagnosticsLogger.Options,
-                CosmosEventId.ExecutingReadItem,
-                LogLevel.Debug,
-                "CosmosEventId.ExecutingReadItem",
-                level => LoggerMessage.Define<string>(
-                    level,
-                    CosmosEventId.ExecutingReadItem,
-                    "Executing Read Item [Partition Key, Resource Id=[{parameters}]]"));
+            var definition = CosmosResources.LogExecutingReadItem(diagnostics);
 
-            definition.Log(
-                diagnosticsLogger,
-                $"{partitionKey}, {resourceId}");
+            if (diagnostics.ShouldLog(definition))
+            {
+                var logSensitiveData = diagnostics.ShouldLogSensitiveData();
+                definition.Log(diagnostics, logSensitiveData ? resourceId : "?", containerId, logSensitiveData ? partitionKey : "?");
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new CosmosReadItemEventData(
+                    definition,
+                    ExecutingReadItem,
+                    resourceId,
+                    containerId,
+                    partitionKey,
+                    diagnostics.ShouldLogSensitiveData());
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
         }
+        
+        private static string ExecutingReadItem(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string, string>)definition;
+            var p = (CosmosReadItemEventData)payload;
+            return d.GenerateMessage(p.LogSensitiveData ? p.ResourceId : "?", p.ContainerId, p.LogSensitiveData ? p.PartitionKey : "?");
+        }
+
+        private static string FormatParameters(IReadOnlyList<(string Name, object Value)> parameters, bool shouldLogParameterValues)
+            => FormatParameters(parameters.Select(p => new SqlParameter(p.Name, p.Value)).ToList(), shouldLogParameterValues);
 
         private static string FormatParameters(IReadOnlyList<SqlParameter> parameters, bool shouldLogParameterValues)
-        {
-            return parameters.Count == 0
+            => parameters.Count == 0
                 ? ""
                 : string.Join(", ", parameters.Select(e => FormatParameter(e, shouldLogParameterValues)));
-        }
 
         private static string FormatParameter(SqlParameter parameter, bool shouldLogParameterValue)
         {

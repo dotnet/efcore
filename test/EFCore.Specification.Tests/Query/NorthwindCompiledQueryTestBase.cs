@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -213,18 +214,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             using (var context = CreateContext())
             {
-                Assert.Equal(
-                    CoreStrings.TranslationFailed("DbSet<Customer>()    .Where(c => c.CustomerID == __args[0])"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => query(context, new[] { "ALFKI" }).First().CustomerID).Message.Replace("\r", "").Replace("\n", ""));
+                query(context, new[] { "ALFKI" });
             }
 
             using (var context = CreateContext())
             {
-                Assert.Equal(
-                    CoreStrings.TranslationFailed("DbSet<Customer>()    .Where(c => c.CustomerID == __args[0])"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => query(context, new[] { "ANATR" }).First().CustomerID).Message.Replace("\r", "").Replace("\n", ""));
+                query(context, new[] { "ANATR" });
             }
         }
 
@@ -477,18 +472,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             using (var context = CreateContext())
             {
-                Assert.Equal(
-                    CoreStrings.TranslationFailed("DbSet<Customer>()    .Where(c => c.CustomerID == __args[0])"),
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => query(context, new[] { "ALFKI" }).ToListAsync())).Message.Replace("\r", "").Replace("\n", ""));
+                await Enumerate(query(context, new[] { "ALFKI" }));
             }
 
             using (var context = CreateContext())
             {
-                Assert.Equal(
-                    CoreStrings.TranslationFailed("DbSet<Customer>()    .Where(c => c.CustomerID == __args[0])"),
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => query(context, new[] { "ANATR" }).ToListAsync())).Message.Replace("\r", "").Replace("\n", ""));
+                await Enumerate(query(context, new[] { "ANATR" }));
             }
         }
 
@@ -870,6 +859,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             var result = query(context, new[] { "ALFKI" }).ToList();
 
             Assert.Single(result);
+        }
+
+        protected async Task Enumerate<T>(IAsyncEnumerable<T> source)
+        {
+            await foreach(var _ in source)
+            {
+            }
         }
 
         protected NorthwindContext CreateContext()

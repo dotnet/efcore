@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -33,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="x"> The first object to compare. </param>
         /// <param name="y"> The second object to compare. </param>
         /// <returns> A negative number if 'x' is less than 'y'; a positive number if 'x' is greater than 'y'; zero otherwise. </returns>
-        public int Compare(IEntityType x, IEntityType y)
+        public int Compare(IEntityType? x, IEntityType? y)
         {
             if (ReferenceEquals(x, y))
             {
@@ -83,8 +85,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     return result;
                 }
 
-                x = x.DefiningEntityType;
-                y = y.DefiningEntityType;
+                x = x.DefiningEntityType!;
+                y = y.DefiningEntityType!;
             }
         }
 
@@ -94,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="x"> The first object to compare. </param>
         /// <param name="y"> The second object to compare. </param>
         /// <returns> <see langword="true" /> if the specified objects are equal; otherwise, <see langword="false" />. </returns>
-        public bool Equals(IEntityType x, IEntityType y)
+        public bool Equals(IEntityType? x, IEntityType? y)
             => Compare(x, y) == 0;
 
         /// <summary>
@@ -108,13 +110,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             while (true)
             {
                 hash.Add(obj.Name, StringComparer.Ordinal);
-                var definingNavigationName = obj.DefiningNavigationName;
-                if (definingNavigationName == null)
+                if (!obj.HasDefiningNavigation())
                 {
                     return hash.ToHashCode();
                 }
 
-                hash.Add(definingNavigationName, StringComparer.Ordinal);
+                hash.Add(obj.DefiningNavigationName, StringComparer.Ordinal);
                 obj = obj.DefiningEntityType;
             }
         }

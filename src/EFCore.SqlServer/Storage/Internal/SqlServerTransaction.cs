@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
@@ -34,6 +35,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             [NotNull] ISqlGenerationHelper sqlGenerationHelper)
             : base(connection, transaction, transactionId, logger, transactionOwned, sqlGenerationHelper)
         {
+        }
+
+        /// <inheritdoc />
+        public override bool SupportsSavepoints
+        {
+            get
+            {
+                if (Connection is ISqlServerConnection sqlServerConnection && sqlServerConnection.IsMultipleActiveResultSetsEnabled)
+                {
+                    Logger.SavepointsDisabledBecauseOfMARS();
+
+                    return false;
+                }
+
+                return true;
+            }
         }
 
         // SQL Server doesn't support releasing savepoints. Override to do nothing.

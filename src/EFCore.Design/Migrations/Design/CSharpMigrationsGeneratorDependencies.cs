@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     /// </summary>
-    public sealed class CSharpMigrationsGeneratorDependencies
+    public sealed record CSharpMigrationsGeneratorDependencies
     {
         /// <summary>
         ///     <para>
@@ -59,49 +59,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     The C# helper.
         /// </summary>
-        public ICSharpHelper CSharpHelper { get; }
+        public ICSharpHelper CSharpHelper { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The C# migration operation generator.
         /// </summary>
-        public ICSharpMigrationOperationGenerator CSharpMigrationOperationGenerator { get; }
+        public ICSharpMigrationOperationGenerator CSharpMigrationOperationGenerator { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The C# model snapshot generator.
         /// </summary>
-        public ICSharpSnapshotGenerator CSharpSnapshotGenerator { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="csharpHelper"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public CSharpMigrationsGeneratorDependencies With([NotNull] ICSharpHelper csharpHelper)
-            => new CSharpMigrationsGeneratorDependencies(
-                csharpHelper,
-                CSharpMigrationOperationGenerator,
-                CSharpSnapshotGenerator);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="csharpMigrationOperationGenerator"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public CSharpMigrationsGeneratorDependencies With([NotNull] ICSharpMigrationOperationGenerator csharpMigrationOperationGenerator)
-            => new CSharpMigrationsGeneratorDependencies(
-                CSharpHelper,
-                csharpMigrationOperationGenerator,
-                CSharpSnapshotGenerator);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="csharpSnapshotGenerator"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public CSharpMigrationsGeneratorDependencies With([NotNull] ICSharpSnapshotGenerator csharpSnapshotGenerator)
-            => new CSharpMigrationsGeneratorDependencies(
-                CSharpHelper,
-                CSharpMigrationOperationGenerator,
-                csharpSnapshotGenerator);
+        public ICSharpSnapshotGenerator CSharpSnapshotGenerator { get; [param: NotNull] init; }
     }
 }

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -172,7 +173,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
                 if (_explicitBehaviors != null)
                 {
-                    hashCode = _explicitBehaviors.Aggregate(
+                    IEnumerable<KeyValuePair<int, (WarningBehavior? Behavior, LogLevel? Level)>> explicitBehaviors = _explicitBehaviors;
+
+                    explicitBehaviors = _explicitBehaviors.OrderBy(b => b.Key);
+
+                    hashCode = explicitBehaviors.Aggregate(
                         hashCode,
                         (t, e) => (t * 397) ^ (((long)e.Value.GetHashCode() * 3163) ^ (long)e.Key.GetHashCode()));
                 }
