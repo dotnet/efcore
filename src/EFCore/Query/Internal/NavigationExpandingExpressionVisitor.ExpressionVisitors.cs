@@ -825,7 +825,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         }
                     }
 
-                    result = new IncludeExpression(result, included, navigationBase);
+                    result = new IncludeExpression(result, included, navigationBase, entityReference.SetLoaded);
                 }
 
                 return result;

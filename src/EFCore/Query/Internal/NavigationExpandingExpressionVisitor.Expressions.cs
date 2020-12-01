@@ -29,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public bool IsOptional { get; private set; }
             public IncludeTreeNode IncludePaths { get; private set; }
             public IncludeTreeNode LastIncludeTreeNode { get; private set; }
+            public bool SetLoaded { get; private set; } = true;
 
             public override ExpressionType NodeType
                 => ExpressionType.Extension;
@@ -56,6 +57,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public void MarkAsOptional()
                 => IsOptional = true;
+
+            public void SuppressSettingLoaded()
+                => SetLoaded = false;
 
             void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
             {

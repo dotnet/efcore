@@ -392,7 +392,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         Expression.Constant(navigation),
                         Expression.Constant(inverseNavigation, typeof(INavigation)),
                         Expression.Constant(fixup),
-                        Expression.Constant(initialize, typeof(Action<>).MakeGenericType(includingClrType))));
+                        Expression.Constant(initialize, typeof(Action<>).MakeGenericType(includingClrType)),
+                        Expression.Constant(includeExpression.SetLoaded)));
             }
 
             private static readonly MethodInfo _includeReferenceMethodInfo
@@ -409,7 +410,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 INavigation navigation,
                 INavigation inverseNavigation,
                 Action<TIncludingEntity, TIncludedEntity> fixup,
-                Action<TIncludingEntity> _)
+                Action<TIncludingEntity> _,
+                bool __)
             {
                 if (entity == null
                     || !navigation.DeclaringEntityType.IsAssignableFrom(entityType))
@@ -454,7 +456,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 INavigation navigation,
                 INavigation inverseNavigation,
                 Action<TIncludingEntity, TIncludedEntity> fixup,
-                Action<TIncludingEntity> initialize)
+                Action<TIncludingEntity> initialize,
+                bool setLoaded)
             {
                 if (entity == null
                     || !navigation.DeclaringEntityType.IsAssignableFrom(entityType))
@@ -485,9 +488,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
                 else
                 {
+                    if (setLoaded)
+                    {
 #pragma warning disable EF1001 // Internal EF Core API usage.
-                    entry.SetIsLoaded(navigation);
+                        entry.SetIsLoaded(navigation);
 #pragma warning restore EF1001 // Internal EF Core API usage.
+                    }
+
                     if (relatedEntities != null)
                     {
                         using var enumerator = relatedEntities.GetEnumerator();

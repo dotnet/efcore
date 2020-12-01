@@ -21,7 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class IncludeExpression : Expression, IPrintableExpression
     {
         /// <summary>
-        ///     Creates a new instance of the <see cref="IncludeExpression" /> class.
+        ///     Creates a new instance of the <see cref="IncludeExpression" /> class. The navigation will be set
+        ///     as loaded after completing the Include.
         /// </summary>
         /// <param name="entityExpression"> An expression to get entity which is performing include. </param>
         /// <param name="navigationExpression"> An expression to get included navigation element. </param>
@@ -30,6 +31,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] Expression entityExpression,
             [NotNull] Expression navigationExpression,
             [NotNull] INavigationBase navigation)
+            : this(entityExpression, navigationExpression, navigation, setLoaded: true)
+        {
+        }
+
+        /// <summary>
+        ///     Creates a new instance of the <see cref="IncludeExpression" /> class.
+        /// </summary>
+        /// <param name="entityExpression"> An expression to get entity which is performing include. </param>
+        /// <param name="navigationExpression"> An expression to get included navigation element. </param>
+        /// <param name="navigation"> The navigation for this include operation. </param>
+        /// <param name="setLoaded"> True if the navigation will be marked as loaded. </param>
+        public IncludeExpression(
+            [NotNull] Expression entityExpression,
+            [NotNull] Expression navigationExpression,
+            [NotNull] INavigationBase navigation,
+            bool setLoaded)
         {
             Check.NotNull(entityExpression, nameof(entityExpression));
             Check.NotNull(navigationExpression, nameof(navigationExpression));
@@ -39,6 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             NavigationExpression = navigationExpression;
             Navigation = navigation;
             Type = EntityExpression.Type;
+            SetLoaded = setLoaded;
         }
 
         /// <summary>
@@ -55,6 +73,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The navigation associated with this include operation.
         /// </summary>
         public virtual INavigationBase Navigation { get; }
+
+        /// <summary>
+        ///     True if the navigation will be marked as loaded.
+        /// </summary>
+        public virtual bool SetLoaded { get; }
 
         /// <inheritdoc />
         public sealed override ExpressionType NodeType
@@ -87,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(navigationExpression, nameof(navigationExpression));
 
             return entityExpression != EntityExpression || navigationExpression != NavigationExpression
-                ? new IncludeExpression(entityExpression, navigationExpression, Navigation)
+                ? new IncludeExpression(entityExpression, navigationExpression, Navigation, SetLoaded)
                 : this;
         }
 

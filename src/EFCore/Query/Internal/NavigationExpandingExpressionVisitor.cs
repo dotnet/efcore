@@ -453,13 +453,25 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 methodCallExpression.Type.TryGetSequenceType());
 
                         case nameof(EntityFrameworkQueryableExtensions.Include):
+                            return ProcessInclude(
+                                source,
+                                methodCallExpression.Arguments[1],
+                                thenInclude: false,
+                                setLoaded: true);
+
                         case nameof(EntityFrameworkQueryableExtensions.ThenInclude):
                             return ProcessInclude(
                                 source,
                                 methodCallExpression.Arguments[1],
-                                string.Equals(
-                                    method.Name,
-                                    nameof(EntityFrameworkQueryableExtensions.ThenInclude)));
+                                thenInclude: true,
+                                setLoaded: true);
+
+                        case nameof(EntityFrameworkQueryableExtensions.NotQuiteInclude):
+                            return ProcessInclude(
+                                source,
+                                methodCallExpression.Arguments[1],
+                                thenInclude: false,
+                                setLoaded: false);
 
                         case nameof(Queryable.GroupBy)
                             when genericMethod == QueryableMethods.GroupByWithKeySelector:
@@ -823,7 +835,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return new NavigationExpansionExpression(result, navigationTree, navigationTree, parameterName);
         }
 
-        private NavigationExpansionExpression ProcessInclude(NavigationExpansionExpression source, Expression expression, bool thenInclude)
+        private NavigationExpansionExpression ProcessInclude(
+            NavigationExpansionExpression source, Expression expression, bool thenInclude, bool setLoaded)
         {
             if (source.PendingSelector is NavigationTreeExpression navigationTree
                 && navigationTree.Value is EntityReference entityReference)
@@ -890,6 +903,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
 
                     entityReference.SetLastInclude(lastIncludeTree);
+
+                    if (!setLoaded)
+                    {
+                        entityReference.SuppressSettingLoaded();
+                    }
                 }
 
                 return source;

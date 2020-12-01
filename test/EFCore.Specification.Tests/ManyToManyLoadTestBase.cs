@@ -74,6 +74,10 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.True(collectionEntry.IsLoaded);
+            foreach (var entityTwo in left.TwoSkip)
+            {
+                Assert.False(context.Entry(entityTwo).Collection(e => e.OneSkip).IsLoaded);
+            }
 
             RecordLog();
             context.ChangeTracker.LazyLoadingEnabled = false;
@@ -113,6 +117,10 @@ namespace Microsoft.EntityFrameworkCore
                 : collectionEntry.Query().ToList();
 
             Assert.False(collectionEntry.IsLoaded);
+            foreach (var entityTwo in left.TwoSkipShared)
+            {
+                Assert.False(context.Entry(entityTwo).Collection(e => e.OneSkipShared).IsLoaded);
+            }
 
             RecordLog();
             context.ChangeTracker.LazyLoadingEnabled = false;
@@ -234,6 +242,10 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.True(collectionEntry.IsLoaded);
+            foreach (var entityTwo in left.ThreeSkipPayloadFull)
+            {
+                Assert.False(context.Entry(entityTwo).Collection(e => e.OneSkipPayloadFull).IsLoaded);
+            }
 
             RecordLog();
             context.ChangeTracker.LazyLoadingEnabled = false;
@@ -276,6 +288,10 @@ namespace Microsoft.EntityFrameworkCore
 
             RecordLog();
             context.ChangeTracker.LazyLoadingEnabled = false;
+            foreach (var entityTwo in left.TwoSkip)
+            {
+                Assert.False(context.Entry(entityTwo).Collection(e => e.OneSkip).IsLoaded);
+            }
 
             Assert.Equal(7, left.TwoSkip.Count);
             foreach (var right in left.TwoSkip)
@@ -326,6 +342,10 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.True(navigationEntry.IsLoaded);
+            foreach (var entityTwo in left.TwoSkip)
+            {
+                Assert.False(context.Entry((object)entityTwo).Collection("OneSkip").IsLoaded);
+            }
 
             RecordLog();
             context.ChangeTracker.LazyLoadingEnabled = false;
@@ -365,6 +385,10 @@ namespace Microsoft.EntityFrameworkCore
                 : collectionEntry.Query().ToList<object>();
 
             Assert.False(collectionEntry.IsLoaded);
+            foreach (var entityTwo in left.TwoSkipShared)
+            {
+                Assert.False(context.Entry((object)entityTwo).Collection("OneSkipShared").IsLoaded);
+            }
 
             RecordLog();
             context.ChangeTracker.LazyLoadingEnabled = false;
@@ -514,6 +538,10 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.True(navigationEntry.IsLoaded);
+            foreach (var entityTwo in left.ThreeSkipPayloadFull)
+            {
+                Assert.False(context.Entry((object)entityTwo).Collection("OneSkipPayloadFull").IsLoaded);
+            }
 
             RecordLog();
             context.ChangeTracker.LazyLoadingEnabled = false;
@@ -565,6 +593,10 @@ namespace Microsoft.EntityFrameworkCore
                 : navigationEntry.Query().ToList<object>();
 
             Assert.True(navigationEntry.IsLoaded);
+            foreach (var entityTwo in left.TwoSkip)
+            {
+                Assert.False(context.Entry((object)entityTwo).Collection("OneSkip").IsLoaded);
+            }
 
             RecordLog();
             context.ChangeTracker.LazyLoadingEnabled = false;
@@ -618,6 +650,10 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.True(collectionEntry.IsLoaded);
+            foreach (var entityTwo in left.ThreeSkipFull)
+            {
+                Assert.False(context.Entry(entityTwo).Collection(e => e.CompositeKeySkipFull).IsLoaded);
+            }
 
             RecordLog();
             context.ChangeTracker.LazyLoadingEnabled = false;
@@ -657,6 +693,10 @@ namespace Microsoft.EntityFrameworkCore
                 : collectionEntry.Query().ToList();
 
             Assert.False(collectionEntry.IsLoaded);
+            foreach (var entityTwo in left.ThreeSkipFull)
+            {
+                Assert.False(context.Entry(entityTwo).Collection(e => e.CompositeKeySkipFull).IsLoaded);
+            }
 
             RecordLog();
             context.ChangeTracker.LazyLoadingEnabled = false;
