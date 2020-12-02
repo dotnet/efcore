@@ -31,27 +31,9 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("Orange", seeds[1].Species);
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public virtual async Task Seeding_keyless_entity_success(bool async)
-        {
-            using var context = CreateKeylessContextWithEmptyDatabase(async ? "1A" : "1S");
-            var _ = async
-                ? await context.Database.EnsureCreatedResilientlyAsync()
-                : context.Database.EnsureCreatedResiliently();
-
-            Assert.Empty(context.ChangeTracker.Entries());
-
-            var seeds = context.Set<KeylessSeed>().OrderBy(e => e.Species).ToList();
-            Assert.Equal(2, seeds.Count);
-            Assert.Equal("Apple", seeds[0].Species);
-            Assert.Equal("Orange", seeds[1].Species);
-        }
+        
 
         protected abstract SeedingContext CreateContextWithEmptyDatabase(string testId);
-
-        protected abstract KeylessSeedingContext CreateKeylessContextWithEmptyDatabase(string testId);
 
         protected abstract class SeedingContext : DbContext
         {
@@ -72,27 +54,6 @@ namespace Microsoft.EntityFrameworkCore
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
 
-            public string Species { get; set; }
-        }
-
-        protected abstract class KeylessSeedingContext : DbContext
-        {
-            public string TestId { get; }
-
-            protected KeylessSeedingContext(string testId)
-                => TestId = testId;
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<Seed>()
-                    .HasNoKey()
-                    .HasData(
-                    new Seed { Species = "Apple" },
-                    new Seed { Species = "Orange" }
-                );
-        }
-
-        protected class KeylessSeed
-        {
             public string Species { get; set; }
         }
     }
