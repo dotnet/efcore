@@ -308,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
-            => QueryCompilationContext.NotTranslatedExpression;
+            => throw new InvalidOperationException(CoreStrings.TranslationFailed(lambdaExpression.Print()));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
