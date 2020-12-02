@@ -16,9 +16,29 @@ namespace Microsoft.EntityFrameworkCore
             return context;
         }
 
+        protected override KeylessSeedingContext CreateKeylessContextWithEmptyDatabase(string testId)
+        {
+            var context = new KeylessSeedingSqlServerContext(testId);
+
+            context.Database.EnsureClean();
+
+            return context;
+        }
+
         protected class SeedingSqlServerContext : SeedingContext
         {
             public SeedingSqlServerContext(string testId)
+                : base(testId)
+            {
+            }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString($"Seeds{TestId}"));
+        }
+
+        protected class KeylessSeedingSqlServerContext : KeylessSeedingContext
+        {
+            public KeylessSeedingSqlServerContext(string testId)
                 : base(testId)
             {
             }
