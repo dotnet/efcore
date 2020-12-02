@@ -8,23 +8,9 @@ namespace Microsoft.EntityFrameworkCore
         protected override SeedingContext CreateContextWithEmptyDatabase(string testId)
             => new SeedingInMemoryContext(testId);
 
-        protected override KeylessSeedingContext CreateKeylessContextWithEmptyDatabase(string testId)
-            => new KeylessSeedingInMemoryContext(testId);
-
         protected class SeedingInMemoryContext : SeedingContext
         {
             public SeedingInMemoryContext(string testId)
-                : base(testId)
-            {
-            }
-
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase($"Seeds{TestId}");
-        }
-
-        protected class KeylessSeedingInMemoryContext : KeylessSeedingContext
-        {
-            public KeylessSeedingInMemoryContext(string testId)
                 : base(testId)
             {
             }
