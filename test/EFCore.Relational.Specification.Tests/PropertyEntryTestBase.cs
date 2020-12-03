@@ -10,7 +10,7 @@ using Xunit;
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class PropertyEntryTestBase<TFixture> : IClassFixture<TFixture>
-        where TFixture : F1FixtureBase, new()
+        where TFixture : F1FixtureBase<byte[]>, new()
     {
         protected PropertyEntryTestBase(TFixture fixture)
             => Fixture = fixture;
