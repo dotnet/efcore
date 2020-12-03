@@ -5,6 +5,8 @@ using System.Reflection;
 using System.Resources;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
@@ -21,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Failed creating connection: {exceptionMessage}
         /// </summary>
-        public static string BadConnection([CanBeNull] object exceptionMessage)
+        public static string BadConnection([CanBeNull] object? exceptionMessage)
             => string.Format(
                 GetString("BadConnection", nameof(exceptionMessage)),
                 exceptionMessage);
@@ -29,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Cannot scaffold sequence '{sequenceName}' because it uses type '{typeName}' which is unsupported.
         /// </summary>
-        public static string BadSequenceType([CanBeNull] object sequenceName, [CanBeNull] object typeName)
+        public static string BadSequenceType([CanBeNull] object? sequenceName, [CanBeNull] object? typeName)
             => string.Format(
                 GetString("BadSequenceType", nameof(sequenceName), nameof(typeName)),
                 sequenceName, typeName);
@@ -37,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Unable to find expected assembly attribute [DesignTimeProviderServices] in provider assembly '{runtimeProviderAssemblyName}'. This attribute is required to identify the class which acts as the design-time service provider factory for the provider.
         /// </summary>
-        public static string CannotFindDesignTimeProviderAssemblyAttribute([CanBeNull] object runtimeProviderAssemblyName)
+        public static string CannotFindDesignTimeProviderAssemblyAttribute([CanBeNull] object? runtimeProviderAssemblyName)
             => string.Format(
                 GetString("CannotFindDesignTimeProviderAssemblyAttribute", nameof(runtimeProviderAssemblyName)),
                 runtimeProviderAssemblyName);
@@ -45,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Unable to find provider assembly '{assemblyName}'. Ensure the name is correct and it's referenced by the project.
         /// </summary>
-        public static string CannotFindRuntimeProviderAssembly([CanBeNull] object assemblyName)
+        public static string CannotFindRuntimeProviderAssembly([CanBeNull] object? assemblyName)
             => string.Format(
                 GetString("CannotFindRuntimeProviderAssembly", nameof(assemblyName)),
                 assemblyName);
@@ -53,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Could not find type mapping for column '{columnName}' with data type '{dateType}'. Skipping column.
         /// </summary>
-        public static string CannotFindTypeMappingForColumn([CanBeNull] object columnName, [CanBeNull] object dateType)
+        public static string CannotFindTypeMappingForColumn([CanBeNull] object? columnName, [CanBeNull] object? dateType)
             => string.Format(
                 GetString("CannotFindTypeMappingForColumn", nameof(columnName), nameof(dateType)),
                 columnName, dateType);
@@ -61,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The name you have chosen for the migration, '{name}', is the same as the context class name. Please choose a different name for your migration. Might we suggest 'InitialCreate' for your first migration?
         /// </summary>
-        public static string ConflictingContextAndMigrationName([CanBeNull] object name)
+        public static string ConflictingContextAndMigrationName([CanBeNull] object? name)
             => string.Format(
                 GetString("ConflictingContextAndMigrationName", nameof(name)),
                 name);
@@ -69,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The context class name '{contextClassName}' is not a valid C# identifier.
         /// </summary>
-        public static string ContextClassNotValidCSharpIdentifier([CanBeNull] object contextClassName)
+        public static string ContextClassNotValidCSharpIdentifier([CanBeNull] object? contextClassName)
             => string.Format(
                 GetString("ContextClassNotValidCSharpIdentifier", nameof(contextClassName)),
                 contextClassName);
@@ -77,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Successfully dropped database '{name}'.
         /// </summary>
-        public static string DatabaseDropped([CanBeNull] object name)
+        public static string DatabaseDropped([CanBeNull] object? name)
             => string.Format(
                 GetString("DatabaseDropped", nameof(name)),
                 name);
@@ -97,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Dropping database '{database}' on server '{dataSource}'.
         /// </summary>
-        public static string DroppingDatabase([CanBeNull] object database, [CanBeNull] object dataSource)
+        public static string DroppingDatabase([CanBeNull] object? database, [CanBeNull] object? dataSource)
             => string.Format(
                 GetString("DroppingDatabase", nameof(database), nameof(dataSource)),
                 database, dataSource);
@@ -105,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The name '{migrationName}' is used by an existing migration.
         /// </summary>
-        public static string DuplicateMigrationName([CanBeNull] object migrationName)
+        public static string DuplicateMigrationName([CanBeNull] object? migrationName)
             => string.Format(
                 GetString("DuplicateMigrationName", nameof(migrationName)),
                 migrationName);
@@ -113,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     An error occurred while accessing the database. Continuing without the information provided by the database. Error: {message}
         /// </summary>
-        public static string ErrorConnecting([CanBeNull] object message)
+        public static string ErrorConnecting([CanBeNull] object? message)
             => string.Format(
                 GetString("ErrorConnecting", nameof(message)),
                 message);
@@ -121,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The following file(s) already exist in directory '{outputDirectoryName}': {existingFiles}. Use the Force flag to overwrite these files.
         /// </summary>
-        public static string ExistingFiles([CanBeNull] object outputDirectoryName, [CanBeNull] object existingFiles)
+        public static string ExistingFiles([CanBeNull] object? outputDirectoryName, [CanBeNull] object? existingFiles)
             => string.Format(
                 GetString("ExistingFiles", nameof(outputDirectoryName), nameof(existingFiles)),
                 outputDirectoryName, existingFiles);
@@ -141,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Finding IDesignTimeServices implementations in assembly '{startupAssembly}'...
         /// </summary>
-        public static string FindingDesignTimeServices([CanBeNull] object startupAssembly)
+        public static string FindingDesignTimeServices([CanBeNull] object? startupAssembly)
             => string.Format(
                 GetString("FindingDesignTimeServices", nameof(startupAssembly)),
                 startupAssembly);
@@ -155,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Finding design-time services for provider '{provider}'...
         /// </summary>
-        public static string FindingProviderServices([CanBeNull] object provider)
+        public static string FindingProviderServices([CanBeNull] object? provider)
             => string.Format(
                 GetString("FindingProviderServices", nameof(provider)),
                 provider);
@@ -169,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Finding design-time services referenced by assembly '{startupAssembly}'...
         /// </summary>
-        public static string FindingReferencedServices([CanBeNull] object startupAssembly)
+        public static string FindingReferencedServices([CanBeNull] object? startupAssembly)
             => string.Format(
                 GetString("FindingReferencedServices", nameof(startupAssembly)),
                 startupAssembly);
@@ -177,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Finding application service provider in assembly '{startupAssembly}'...
         /// </summary>
-        public static string FindingServiceProvider([CanBeNull] object startupAssembly)
+        public static string FindingServiceProvider([CanBeNull] object? startupAssembly)
             => string.Format(
                 GetString("FindingServiceProvider", nameof(startupAssembly)),
                 startupAssembly);
@@ -185,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Unable to check if the migration '{name}' has been applied to the database. If it has, you will need to manually revert its changes. Error encountered while checking: {error}
         /// </summary>
-        public static string ForceRemoveMigration([CanBeNull] object name, [CanBeNull] object error)
+        public static string ForceRemoveMigration([CanBeNull] object? name, [CanBeNull] object? error)
             => string.Format(
                 GetString("ForceRemoveMigration", nameof(name), nameof(error)),
                 name, error);
@@ -193,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The principal end of the foreign key '{foreignKeyName}' is supported by the unique index '{indexName}' and contains the following nullable columns '{columnNames}'. Entity Framework requires the properties representing those columns to be non-nullable.
         /// </summary>
-        public static string ForeignKeyPrincipalEndContainsNullableColumns([CanBeNull] object foreignKeyName, [CanBeNull] object indexName, [CanBeNull] object columnNames)
+        public static string ForeignKeyPrincipalEndContainsNullableColumns([CanBeNull] object? foreignKeyName, [CanBeNull] object? indexName, [CanBeNull] object? columnNames)
             => string.Format(
                 GetString("ForeignKeyPrincipalEndContainsNullableColumns", nameof(foreignKeyName), nameof(indexName), nameof(columnNames)),
                 foreignKeyName, indexName, columnNames);
@@ -201,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Could not scaffold the foreign key '{foreignKeyName}'. A key for '{columnsList}' was not found in the principal entity type '{principalEntityType}'.
         /// </summary>
-        public static string ForeignKeyScaffoldErrorPrincipalKeyNotFound([CanBeNull] object foreignKeyName, [CanBeNull] object columnsList, [CanBeNull] object principalEntityType)
+        public static string ForeignKeyScaffoldErrorPrincipalKeyNotFound([CanBeNull] object? foreignKeyName, [CanBeNull] object? columnsList, [CanBeNull] object? principalEntityType)
             => string.Format(
                 GetString("ForeignKeyScaffoldErrorPrincipalKeyNotFound", nameof(foreignKeyName), nameof(columnsList), nameof(principalEntityType)),
                 foreignKeyName, columnsList, principalEntityType);
@@ -209,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Could not scaffold the foreign key '{foreignKeyName}'. The referenced table could not be found. This most likely occurred because the referenced table was excluded from scaffolding.
         /// </summary>
-        public static string ForeignKeyScaffoldErrorPrincipalTableNotFound([CanBeNull] object foreignKeyName)
+        public static string ForeignKeyScaffoldErrorPrincipalTableNotFound([CanBeNull] object? foreignKeyName)
             => string.Format(
                 GetString("ForeignKeyScaffoldErrorPrincipalTableNotFound", nameof(foreignKeyName)),
                 foreignKeyName);
@@ -217,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Could not scaffold the foreign key '{foreignKeyName}'. The referenced table '{principalTableName}' could not be scaffolded.
         /// </summary>
-        public static string ForeignKeyScaffoldErrorPrincipalTableScaffoldingError([CanBeNull] object foreignKeyName, [CanBeNull] object principalTableName)
+        public static string ForeignKeyScaffoldErrorPrincipalTableScaffoldingError([CanBeNull] object? foreignKeyName, [CanBeNull] object? principalTableName)
             => string.Format(
                 GetString("ForeignKeyScaffoldErrorPrincipalTableScaffoldingError", nameof(foreignKeyName), nameof(principalTableName)),
                 foreignKeyName, principalTableName);
@@ -225,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Could not scaffold the foreign key '{foreignKeyName}'.  The following columns in the foreign key could not be scaffolded: {columnNames}.
         /// </summary>
-        public static string ForeignKeyScaffoldErrorPropertyNotFound([CanBeNull] object foreignKeyName, [CanBeNull] object columnNames)
+        public static string ForeignKeyScaffoldErrorPropertyNotFound([CanBeNull] object? foreignKeyName, [CanBeNull] object? columnNames)
             => string.Format(
                 GetString("ForeignKeyScaffoldErrorPropertyNotFound", nameof(foreignKeyName), nameof(columnNames)),
                 foreignKeyName, columnNames);
@@ -233,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Could not scaffold the foreign key '{foreignKeyName}'. Foreign key '{existingForeignKey}' is defined on same columns targeting same key on principal table.
         /// </summary>
-        public static string ForeignKeyWithSameFacetsExists([CanBeNull] object foreignKeyName, [CanBeNull] object existingForeignKey)
+        public static string ForeignKeyWithSameFacetsExists([CanBeNull] object? foreignKeyName, [CanBeNull] object? existingForeignKey)
             => string.Format(
                 GetString("ForeignKeyWithSameFacetsExists", nameof(foreignKeyName), nameof(existingForeignKey)),
                 foreignKeyName, existingForeignKey);
@@ -241,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The namespace '{migrationsNamespace}' contains migrations for a different DbContext. This can result in conflicting migration names. It's recommend to put migrations for different DbContext classes into different namespaces.
         /// </summary>
-        public static string ForeignMigrations([CanBeNull] object migrationsNamespace)
+        public static string ForeignMigrations([CanBeNull] object? migrationsNamespace)
             => string.Format(
                 GetString("ForeignMigrations", nameof(migrationsNamespace)),
                 migrationsNamespace);
@@ -249,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Found IDesignTimeDbContextFactory implementation '{factory}'.
         /// </summary>
-        public static string FoundContextFactory([CanBeNull] object factory)
+        public static string FoundContextFactory([CanBeNull] object? factory)
             => string.Format(
                 GetString("FoundContextFactory", nameof(factory)),
                 factory);
@@ -257,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Found DbContext '{contextType}'.
         /// </summary>
-        public static string FoundDbContext([CanBeNull] object contextType)
+        public static string FoundDbContext([CanBeNull] object? contextType)
             => string.Format(
                 GetString("FoundDbContext", nameof(contextType)),
                 contextType);
@@ -265,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     An error occurred while accessing the Microsoft.Extensions.Hosting services. Continuing without the application service provider. Error: {error}
         /// </summary>
-        public static string InvokeCreateHostBuilderFailed([CanBeNull] object error)
+        public static string InvokeCreateHostBuilderFailed([CanBeNull] object? error)
             => string.Format(
                 GetString("InvokeCreateHostBuilderFailed", nameof(error)),
                 error);
@@ -273,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The literal expression '{expression}' for '{type}' cannot be parsed. Only simple constructor calls and factory methods are supported.
         /// </summary>
-        public static string LiteralExpressionNotSupported([CanBeNull] object expression, [CanBeNull] object type)
+        public static string LiteralExpressionNotSupported([CanBeNull] object? expression, [CanBeNull] object? type)
             => string.Format(
                 GetString("LiteralExpressionNotSupported", nameof(expression), nameof(type)),
                 expression, type);
@@ -295,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     Change your migrations assembly by using DbContextOptionsBuilder. E.g. options.UseSqlServer(connection, b =&gt; b.MigrationsAssembly("{assembly}")). By default, the migrations assembly is the assembly containing the DbContext.
         ///     Change your target project to the migrations project by using the Package Manager Console's Default project drop-down list, or by executing "dotnet ef" from the directory containing the migrations project.
         /// </summary>
-        public static string MigrationsAssemblyMismatch([CanBeNull] object assembly, [CanBeNull] object migrationsAssembly)
+        public static string MigrationsAssemblyMismatch([CanBeNull] object? assembly, [CanBeNull] object? migrationsAssembly)
             => string.Format(
                 GetString("MigrationsAssemblyMismatch", nameof(assembly), nameof(migrationsAssembly)),
                 assembly, migrationsAssembly);
@@ -303,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The annotation '{annotationName}' was specified twice with potentially different values. Specifying the same annotation multiple times for different providers is no longer supported. Review the generated Migration to ensure it is correct and, if necessary, edit the Migration to fix any issues.
         /// </summary>
-        public static string MultipleAnnotationConflict([CanBeNull] object annotationName)
+        public static string MultipleAnnotationConflict([CanBeNull] object? annotationName)
             => string.Format(
                 GetString("MultipleAnnotationConflict", nameof(annotationName)),
                 annotationName);
@@ -317,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     More than one DbContext named '{name}' was found. Specify which one to use by providing its fully qualified name.
         /// </summary>
-        public static string MultipleContextsWithName([CanBeNull] object name)
+        public static string MultipleContextsWithName([CanBeNull] object? name)
             => string.Format(
                 GetString("MultipleContextsWithName", nameof(name)),
                 name);
@@ -325,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     More than one DbContext named '{name}' was found. Specify which one to use by providing its fully qualified name using its exact case.
         /// </summary>
-        public static string MultipleContextsWithQualifiedName([CanBeNull] object name)
+        public static string MultipleContextsWithQualifiedName([CanBeNull] object? name)
             => string.Format(
                 GetString("MultipleContextsWithQualifiedName", nameof(name)),
                 name);
@@ -333,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     No DbContext was found in assembly '{assembly}'. Ensure that you're using the correct assembly and that the type is neither abstract nor generic.
         /// </summary>
-        public static string NoContext([CanBeNull] object assembly)
+        public static string NoContext([CanBeNull] object? assembly)
             => string.Format(
                 GetString("NoContext", nameof(assembly)),
                 assembly);
@@ -341,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     No DbContext named '{name}' was found.
         /// </summary>
-        public static string NoContextWithName([CanBeNull] object name)
+        public static string NoContextWithName([CanBeNull] object? name)
             => string.Format(
                 GetString("NoContextWithName", nameof(name)),
                 name);
@@ -361,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The project language '{language}' isn't supported by the built-in {service} service. You can try looking for an additional NuGet package which supports this language; moving your DbContext type to a C# class library referenced by this project; or manually implementing and registering the design-time service for the programming language.
         /// </summary>
-        public static string NoLanguageService([CanBeNull] object language, [CanBeNull] object service)
+        public static string NoLanguageService([CanBeNull] object? language, [CanBeNull] object? service)
             => string.Format(
                 GetString("NoLanguageService", nameof(language), nameof(service)),
                 language, service);
@@ -369,7 +371,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     No file named '{file}' was found. You must manually remove the migration class '{migrationClass}'.
         /// </summary>
-        public static string NoMigrationFile([CanBeNull] object file, [CanBeNull] object migrationClass)
+        public static string NoMigrationFile([CanBeNull] object? file, [CanBeNull] object? migrationClass)
             => string.Format(
                 GetString("NoMigrationFile", nameof(file), nameof(migrationClass)),
                 file, migrationClass);
@@ -377,7 +379,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     No file named '{file}' was found.
         /// </summary>
-        public static string NoMigrationMetadataFile([CanBeNull] object file)
+        public static string NoMigrationMetadataFile([CanBeNull] object? file)
             => string.Format(
                 GetString("NoMigrationMetadataFile", nameof(file)),
                 file);
@@ -385,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The column '{columnName}' would normally be mapped to a non-nullable bool property, but it has a default constraint. Such a column is mapped to a nullable bool property to allow a difference between setting the property to false and invoking the default constraint. See https://go.microsoft.com/fwlink/?linkid=851278 for details.
         /// </summary>
-        public static string NonNullableBoooleanColumnHasDefaultConstraint([CanBeNull] object columnName)
+        public static string NonNullableBoooleanColumnHasDefaultConstraint([CanBeNull] object? columnName)
             => string.Format(
                 GetString("NonNullableBoooleanColumnHasDefaultConstraint", nameof(columnName)),
                 columnName);
@@ -393,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The provider '{provider}' is not a Relational provider and therefore cannot be used with Migrations.
         /// </summary>
-        public static string NonRelationalProvider([CanBeNull] object provider)
+        public static string NonRelationalProvider([CanBeNull] object? provider)
             => string.Format(
                 GetString("NonRelationalProvider", nameof(provider)),
                 provider);
@@ -401,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Unable to create an object of type '{contextType}'. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728
         /// </summary>
-        public static string NoParameterlessConstructor([CanBeNull] object contextType)
+        public static string NoParameterlessConstructor([CanBeNull] object? contextType)
             => string.Format(
                 GetString("NoParameterlessConstructor", nameof(contextType)),
                 contextType);
@@ -433,7 +435,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     No file named '{file}' was found. You must manually remove the model snapshot class '{snapshotClass}'.
         /// </summary>
-        public static string NoSnapshotFile([CanBeNull] object file, [CanBeNull] object snapshotClass)
+        public static string NoSnapshotFile([CanBeNull] object? file, [CanBeNull] object? snapshotClass)
             => string.Format(
                 GetString("NoSnapshotFile", nameof(file), nameof(snapshotClass)),
                 file, snapshotClass);
@@ -441,7 +443,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Database '{name}' did not exist, no action was taken.
         /// </summary>
-        public static string NotExistDatabase([CanBeNull] object name)
+        public static string NotExistDatabase([CanBeNull] object? name)
             => string.Format(
                 GetString("NotExistDatabase", nameof(name)),
                 name);
@@ -449,7 +451,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Could not scaffold the primary key for '{tableName}'. The following columns in the primary key could not be scaffolded: {columnNames}.
         /// </summary>
-        public static string PrimaryKeyErrorPropertyNotFound([CanBeNull] object tableName, [CanBeNull] object columnNames)
+        public static string PrimaryKeyErrorPropertyNotFound([CanBeNull] object? tableName, [CanBeNull] object? columnNames)
             => string.Format(
                 GetString("PrimaryKeyErrorPropertyNotFound", nameof(tableName), nameof(columnNames)),
                 tableName, columnNames);
@@ -457,7 +459,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Metadata model returned should not be null. Provider: {providerTypeName}.
         /// </summary>
-        public static string ProviderReturnedNullModel([CanBeNull] object providerTypeName)
+        public static string ProviderReturnedNullModel([CanBeNull] object? providerTypeName)
             => string.Format(
                 GetString("ProviderReturnedNullModel", nameof(providerTypeName)),
                 providerTypeName);
@@ -465,7 +467,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     No files were generated in directory '{outputDirectoryName}'. The following file(s) already exist(s) and must be made writeable to continue: {readOnlyFiles}.
         /// </summary>
-        public static string ReadOnlyFiles([CanBeNull] object outputDirectoryName, [CanBeNull] object readOnlyFiles)
+        public static string ReadOnlyFiles([CanBeNull] object? outputDirectoryName, [CanBeNull] object? readOnlyFiles)
             => string.Format(
                 GetString("ReadOnlyFiles", nameof(outputDirectoryName), nameof(readOnlyFiles)),
                 outputDirectoryName, readOnlyFiles);
@@ -473,7 +475,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Removing migration '{name}'.
         /// </summary>
-        public static string RemovingMigration([CanBeNull] object name)
+        public static string RemovingMigration([CanBeNull] object? name)
             => string.Format(
                 GetString("RemovingMigration", nameof(name)),
                 name);
@@ -487,7 +489,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Reusing namespace of type '{type}'.
         /// </summary>
-        public static string ReusingNamespace([CanBeNull] object type)
+        public static string ReusingNamespace([CanBeNull] object? type)
             => string.Format(
                 GetString("ReusingNamespace", nameof(type)),
                 type);
@@ -495,7 +497,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Reusing model snapshot name '{name}'.
         /// </summary>
-        public static string ReusingSnapshotName([CanBeNull] object name)
+        public static string ReusingSnapshotName([CanBeNull] object? name)
             => string.Format(
                 GetString("ReusingSnapshotName", nameof(name)),
                 name);
@@ -509,7 +511,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The migration '{name}' has already been applied to the database. Revert it and try again. If the migration has been applied to other databases, consider reverting its changes using a new migration instead.
         /// </summary>
-        public static string RevertMigration([CanBeNull] object name)
+        public static string RevertMigration([CanBeNull] object? name)
             => string.Format(
                 GetString("RevertMigration", nameof(name)),
                 name);
@@ -529,7 +531,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Unable to generate entity type for table '{tableName}' since its primary key could not be scaffolded.
         /// </summary>
-        public static string UnableToGenerateEntityType([CanBeNull] object tableName)
+        public static string UnableToGenerateEntityType([CanBeNull] object? tableName)
             => string.Format(
                 GetString("UnableToGenerateEntityType", nameof(tableName)),
                 tableName);
@@ -537,7 +539,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Unable to scaffold the index '{indexName}'. The following columns could not be scaffolded: {columnNames}.
         /// </summary>
-        public static string UnableToScaffoldIndexMissingProperty([CanBeNull] object indexName, [CanBeNull] object columnNames)
+        public static string UnableToScaffoldIndexMissingProperty([CanBeNull] object? indexName, [CanBeNull] object? columnNames)
             => string.Format(
                 GetString("UnableToScaffoldIndexMissingProperty", nameof(indexName), nameof(columnNames)),
                 indexName, columnNames);
@@ -545,7 +547,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Unhandled enum value '{enumValue}'.
         /// </summary>
-        public static string UnhandledEnumValue([CanBeNull] object enumValue)
+        public static string UnhandledEnumValue([CanBeNull] object? enumValue)
             => string.Format(
                 GetString("UnhandledEnumValue", nameof(enumValue)),
                 enumValue);
@@ -553,7 +555,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Cannot scaffold C# literals of type '{literalType}'. The provider should implement CoreTypeMapping.GenerateCodeLiteral to support using it at design time.
         /// </summary>
-        public static string UnknownLiteral([CanBeNull] object literalType)
+        public static string UnknownLiteral([CanBeNull] object? literalType)
             => string.Format(
                 GetString("UnknownLiteral", nameof(literalType)),
                 literalType);
@@ -561,7 +563,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The current CSharpMigrationOperationGenerator cannot scaffold operations of type '{operationType}'. Configure your design-time services to use one that can.
         /// </summary>
-        public static string UnknownOperation([CanBeNull] object operationType)
+        public static string UnknownOperation([CanBeNull] object? operationType)
             => string.Format(
                 GetString("UnknownOperation", nameof(operationType)),
                 operationType);
@@ -569,7 +571,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Could not load assembly '{assembly}'. Ensure it is referenced by the startup project '{startupProject}'.
         /// </summary>
-        public static string UnreferencedAssembly([CanBeNull] object assembly, [CanBeNull] object startupProject)
+        public static string UnreferencedAssembly([CanBeNull] object? assembly, [CanBeNull] object? startupProject)
             => string.Format(
                 GetString("UnreferencedAssembly", nameof(assembly), nameof(startupProject)),
                 assembly, startupProject);
@@ -577,7 +579,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Using context '{name}'.
         /// </summary>
-        public static string UseContext([CanBeNull] object name)
+        public static string UseContext([CanBeNull] object? name)
             => string.Format(
                 GetString("UseContext", nameof(name)),
                 name);
@@ -585,7 +587,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Using DbContext factory '{factory}'.
         /// </summary>
-        public static string UsingDbContextFactory([CanBeNull] object factory)
+        public static string UsingDbContextFactory([CanBeNull] object? factory)
             => string.Format(
                 GetString("UsingDbContextFactory", nameof(factory)),
                 factory);
@@ -593,7 +595,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Using design-time services from class '{designTimeServices}'.
         /// </summary>
-        public static string UsingDesignTimeServices([CanBeNull] object designTimeServices)
+        public static string UsingDesignTimeServices([CanBeNull] object? designTimeServices)
             => string.Format(
                 GetString("UsingDesignTimeServices", nameof(designTimeServices)),
                 designTimeServices);
@@ -601,7 +603,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Using environment '{environment}'.
         /// </summary>
-        public static string UsingEnvironment([CanBeNull] object environment)
+        public static string UsingEnvironment([CanBeNull] object? environment)
             => string.Format(
                 GetString("UsingEnvironment", nameof(environment)),
                 environment);
@@ -615,7 +617,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Using design-time services from provider '{provider}'.
         /// </summary>
-        public static string UsingProviderServices([CanBeNull] object provider)
+        public static string UsingProviderServices([CanBeNull] object? provider)
             => string.Format(
                 GetString("UsingProviderServices", nameof(provider)),
                 provider);
@@ -623,7 +625,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Using design-time services from assembly '{referencedAssembly}'.
         /// </summary>
-        public static string UsingReferencedServices([CanBeNull] object referencedAssembly)
+        public static string UsingReferencedServices([CanBeNull] object? referencedAssembly)
             => string.Format(
                 GetString("UsingReferencedServices", nameof(referencedAssembly)),
                 referencedAssembly);
@@ -631,7 +633,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The Entity Framework tools version '{toolsVersion}' is older than that of the runtime '{runtimeVersion}'. Update the tools for the latest features and bug fixes.
         /// </summary>
-        public static string VersionMismatch([CanBeNull] object toolsVersion, [CanBeNull] object runtimeVersion)
+        public static string VersionMismatch([CanBeNull] object? toolsVersion, [CanBeNull] object? runtimeVersion)
             => string.Format(
                 GetString("VersionMismatch", nameof(toolsVersion), nameof(runtimeVersion)),
                 toolsVersion, runtimeVersion);
@@ -639,7 +641,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Writing migration to '{file}'.
         /// </summary>
-        public static string WritingMigration([CanBeNull] object file)
+        public static string WritingMigration([CanBeNull] object? file)
             => string.Format(
                 GetString("WritingMigration", nameof(file)),
                 file);
@@ -647,14 +649,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Writing model snapshot to '{file}'.
         /// </summary>
-        public static string WritingSnapshot([CanBeNull] object file)
+        public static string WritingSnapshot([CanBeNull] object? file)
             => string.Format(
                 GetString("WritingSnapshot", nameof(file)),
                 file);
 
         private static string GetString(string name, params string[] formatterNames)
         {
-            var value = _resourceManager.GetString(name);
+            var value = _resourceManager.GetString(name)!;
             for (var i = 0; i < formatterNames.Length; i++)
             {
                 value = value.Replace("{" + formatterNames[i] + "}", "{" + i + "}");

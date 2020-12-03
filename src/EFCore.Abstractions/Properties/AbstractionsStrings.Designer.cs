@@ -5,6 +5,8 @@ using System.Reflection;
 using System.Resources;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -24,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The string argument '{argumentName}' cannot be empty.
         /// </summary>
-        public static string ArgumentIsEmpty([CanBeNull] object argumentName)
+        public static string ArgumentIsEmpty([CanBeNull] object? argumentName)
             => string.Format(
                 GetString("ArgumentIsEmpty", nameof(argumentName)),
                 argumentName);
@@ -32,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The collection argument '{argumentName}' must not contain any empty elements.
         /// </summary>
-        public static string CollectionArgumentHasEmptyElements([CanBeNull] object argumentName)
+        public static string CollectionArgumentHasEmptyElements([CanBeNull] object? argumentName)
             => string.Format(
                 GetString("CollectionArgumentHasEmptyElements", nameof(argumentName)),
                 argumentName);
@@ -40,14 +42,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The collection argument '{argumentName}' must contain at least one element.
         /// </summary>
-        public static string CollectionArgumentIsEmpty([CanBeNull] object argumentName)
+        public static string CollectionArgumentIsEmpty([CanBeNull] object? argumentName)
             => string.Format(
                 GetString("CollectionArgumentIsEmpty", nameof(argumentName)),
                 argumentName);
 
         private static string GetString(string name, params string[] formatterNames)
         {
-            var value = _resourceManager.GetString(name);
+            var value = _resourceManager.GetString(name)!;
             for (var i = 0; i < formatterNames.Length; i++)
             {
                 value = value.Replace("{" + formatterNames[i] + "}", "{" + i + "}");

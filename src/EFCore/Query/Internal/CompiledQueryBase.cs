@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected virtual TResult ExecuteCore(
             [NotNull] TContext context,
-            [NotNull] params object[] parameters)
+            [NotNull] params object?[] parameters)
             => ExecuteCore(context, default, parameters);
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         protected virtual TResult ExecuteCore(
             [NotNull] TContext context,
             CancellationToken cancellationToken,
-            [NotNull] params object[] parameters)
+            [NotNull] params object?[] parameters)
         {
             var executor = EnsureExecutor(context);
             var queryContextFactory = context.GetService<IQueryContextFactory>();

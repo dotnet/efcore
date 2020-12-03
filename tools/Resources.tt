@@ -36,6 +36,8 @@ using JetBrains.Annotations;
     }
 #>
 
+#nullable enable
+
 namespace <#= model.Namespace #>
 {
 <#
@@ -98,7 +100,7 @@ namespace <#= model.Namespace #>
             if (resource.Parameters.Any())
             {
 #>
-        public static string <#= resource.Name #>(<#= List("[CanBeNull] object ", resource.Parameters.Select(e => e.ParamString)) #>)
+        public static string <#= resource.Name #>(<#= List("[CanBeNull] object? ", resource.Parameters.Select(e => e.ParamString)) #>)
             => string.Format(
                 GetString("<#= resource.Name #>", <#= List(resource.Parameters.Select(e => e.NameOfString)) #>),
                 <#= List(resource.Parameters.Select(e => e.ParamString)) #>);
@@ -117,7 +119,7 @@ namespace <#= model.Namespace #>
 
         private static string GetString(string name, params string[] formatterNames)
         {
-            var value = _resourceManager.GetString(name);
+            var value = _resourceManager.GetString(name)!;
             for (var i = 0; i < formatterNames.Length; i++)
             {
                 value = value.Replace("{" + formatterNames[i] + "}", "{" + i + "}");
@@ -177,7 +179,7 @@ namespace <#= model.Namespace.EndsWith(".Internal") ? model.Namespace : (model.N
                         <#= resource.EventId #>,
                         LogLevel.<#= resource.Level #>,
                         "<#= resource.EventId #>",
-                        _resourceManager.GetString("<#= resource.Name #>")));
+                        _resourceManager.GetString("<#= resource.Name #>")!));
             }
 
             return (FallbackEventDefinition)definition;
@@ -209,7 +211,7 @@ namespace <#= model.Namespace.EndsWith(".Internal") ? model.Namespace : (model.N
                         level => LoggerMessage.Define<#= genericTypes #>(
                             level,
                             <#= resource.EventId #>,
-                            _resourceManager.GetString("<#= resource.Name #>"))));
+                            _resourceManager.GetString("<#= resource.Name #>")!)));
             }
 
             return (EventDefinition<#= genericTypes #>)definition;
