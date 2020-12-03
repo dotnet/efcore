@@ -55,7 +55,7 @@ Alternately, your IDE might provide auto-completion directly in the .csproj file
 
 EF Core 6.0 targets .NET 5. This means that:
 
-* Your application must target .NET 5 ot .NET 6; .NET Core 3.1 is no longer a supported target.
+* Your application must target .NET 5 or later; .NET Core 3.1 is no longer a supported target.
 * The daily builds should work with any IDE that supports .NET 5.
   * They do not require a Visual Studio preview release, although previews will also work.
 * The daily builds should work with either the .NET 5 SDK or the .NET 6 SDK installed.
