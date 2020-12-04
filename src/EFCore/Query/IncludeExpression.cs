@@ -56,7 +56,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             NavigationExpression = navigationExpression;
             Navigation = navigation;
             Type = EntityExpression.Type;
-            SetLoaded = setLoaded;
+
+            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23475", out var enabled) && enabled;
+            SetLoaded = useOldBehavior || setLoaded;
         }
 
         /// <summary>
