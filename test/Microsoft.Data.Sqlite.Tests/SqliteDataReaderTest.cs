@@ -457,6 +457,62 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void GetStream_works_when_composite_pk()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                connection.ExecuteNonQuery(
+                    @"CREATE TABLE DataTable (Id1 INTEGER, Id2 INTEGER, Data BLOB, PRIMARY KEY (Id1, Id2));
+                    INSERT INTO DataTable VALUES (5, 6, X'01020304');");
+
+                var selectCommand = connection.CreateCommand();
+                selectCommand.CommandText = "SELECT Id1, Id2, Data FROM DataTable WHERE Id1 = 5 AND Id2 = 6";
+                using (var reader = selectCommand.ExecuteReader())
+                {
+                    Assert.True(reader.Read());
+                    using (var sourceStream = reader.GetStream(2))
+                    {
+                        Assert.IsType<MemoryStream>(sourceStream);
+                        var buffer = new byte[4];
+                        var bytesRead = sourceStream.Read(buffer, 0, 4);
+                        Assert.Equal(4, bytesRead);
+                        Assert.Equal(new byte[] { 0x01, 0x02, 0x03, 0x04 }, buffer);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void GetStream_works_when_composite_pk_and_rowid()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                connection.ExecuteNonQuery(
+                    @"CREATE TABLE DataTable (Id1 INTEGER, Id2 INTEGER, Data BLOB, PRIMARY KEY (Id1, Id2));
+                    INSERT INTO DataTable VALUES (5, 6, X'01020304');");
+
+                var selectCommand = connection.CreateCommand();
+                selectCommand.CommandText = "SELECT Id1, Id2, rowid, Data FROM DataTable WHERE Id1 = 5 AND Id2 = 6";
+                using (var reader = selectCommand.ExecuteReader())
+                {
+                    Assert.True(reader.Read());
+                    using (var sourceStream = reader.GetStream(3))
+                    {
+                        Assert.IsType<SqliteBlob>(sourceStream);
+                        var buffer = new byte[4];
+                        var bytesRead = sourceStream.Read(buffer, 0, 4);
+                        Assert.Equal(4, bytesRead);
+                        Assert.Equal(new byte[] { 0x01, 0x02, 0x03, 0x04 }, buffer);
+                    }
+                }
+            }
+        }
+
+        [Fact]
         public void GetStream_throws_when_closed()
         {
             X_throws_when_closed(r => r.GetStream(0), nameof(SqliteDataReader.GetStream));

@@ -269,6 +269,7 @@ namespace Microsoft.Data.Sqlite
             if (!_rowidOrdinal.HasValue)
             {
                 _rowidOrdinal = -1;
+                var pkColumns = -1L;
 
                 for (var i = 0; i < FieldCount; i++)
                 {
@@ -310,8 +311,22 @@ namespace Microsoft.Data.Sqlite
                     if (string.Equals(dataType, "INTEGER", StringComparison.OrdinalIgnoreCase)
                         && primaryKey != 0)
                     {
-                        _rowidOrdinal = i;
-                        break;
+                        if (pkColumns < 0L)
+                        {
+                            using (var command = _connection.CreateCommand())
+                            {
+                                command.CommandText = "SELECT COUNT(*) FROM pragma_table_info($table) WHERE pk != 0;";
+                                command.Parameters.AddWithValue("$table", tableName);
+
+                                pkColumns = (long)command.ExecuteScalar()!;
+                            }
+                        }
+
+                        if (pkColumns == 1L)
+                        {
+                            _rowidOrdinal = i;
+                            break;
+                        }
                     }
                 }
 
