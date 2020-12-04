@@ -35,8 +35,4 @@
   <PropertyGroup>
     <NoWarn>$(NoWarn.Replace(';1591', ''))</NoWarn>
   </PropertyGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="**\*.rd.xml" />
-  </ItemGroup>
 </Project>
