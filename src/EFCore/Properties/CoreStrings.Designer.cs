@@ -1151,6 +1151,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type);
 
         /// <summary>
+        ///     Entity Type Configuration is invalid. The configuration have to implement IEntityTypeConfiguration&lt;&gt; Interface.
+        /// </summary>
+        public static string InvalidEntityTypeConfiguration
+            => GetString("InvalidEntityTypeConfiguration");
+
+        /// <summary>
         ///     The value '{value}' provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
         /// </summary>
         public static string InvalidEnumValue([CanBeNull] object value, [CanBeNull] object argumentName, [CanBeNull] object enumType)

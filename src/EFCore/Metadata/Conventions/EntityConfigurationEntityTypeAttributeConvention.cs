@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
@@ -37,12 +38,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var entityTypeConfiguration = attribute.EntityConfigurationType;
 
+            if(!IsEntityTypeConfigurationImplementation(entityTypeConfiguration))
+            {
+                throw new InvalidOperationException(CoreStrings.InvalidEntityTypeConfiguration);
+            }
+
             var entityTypeBuilderInstance = GetEntityBuilderInstance(entityTypeBuilder.Metadata, entityTypeConfiguration);
 
             var instance = Activator.CreateInstance(entityTypeConfiguration);
 
             MethodInfo method = entityTypeConfiguration.GetMethod("Configure");
             method.Invoke(instance, new object[] { entityTypeBuilderInstance });
+        }
+
+        private bool IsEntityTypeConfigurationImplementation(Type configuration)
+        {
+            return configuration.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>));
         }
 
         private Type[] GetEntityTypeArgs(Type entityTypeConfiguration)
