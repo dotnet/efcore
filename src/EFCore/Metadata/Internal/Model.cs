@@ -346,7 +346,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [Obsolete]
         public virtual EntityType? AddEntityType(
             [NotNull] string name,
             [NotNull] string definingNavigationName,
@@ -367,7 +366,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [Obsolete]
         public virtual EntityType? AddEntityType(
             [NotNull] Type type,
             [NotNull] string definingNavigationName,
@@ -454,10 +452,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<EntityType> GetEntityTypes([NotNull] Type type)
         {
-#pragma warning disable CS0618 // Type or member is obsolete
             var result = GetEntityTypes(GetDisplayName(type));
-#pragma warning restore CS0618 // Type or member is obsolete
-
             return _sharedTypes.TryGetValue(type, out var existingTypes)
                 ? result.Concat(existingTypes.Types)
                 : result;
@@ -469,7 +464,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [Obsolete("Use GetEntityTypes(Type) or FindEntityType(string)")]
         public virtual IReadOnlyCollection<EntityType> GetEntityTypes([NotNull] string name)
         {
             var entityType = FindEntityType(name);
@@ -1031,7 +1025,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [Obsolete]
         IMutableEntityType IMutableModel.AddEntityType(
             string name,
             string definingNavigationName,
@@ -1044,7 +1037,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [Obsolete]
         IMutableEntityType IMutableModel.AddEntityType(
             Type type,
             string definingNavigationName,

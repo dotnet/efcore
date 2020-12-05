@@ -39,16 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> <see langword="true" /> if this entity type has a defining navigation. </returns>
         [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
-        public bool HasDefiningNavigation()
-        {
-            if (DefiningEntityType != null)
-            {
-                Check.DebugAssert(DefiningNavigationName != null,
-                    $"{nameof(DefiningEntityType)} is non-null but {nameof(DefiningNavigationName)} is null");
-                return true;
-            }
-            return false;
-        }
+        public bool HasDefiningNavigation() => HasSharedClrType;
 
         /// <summary>
         ///     Gets primary key for this entity type. Returns <see langword="null" /> if no primary key is defined.
