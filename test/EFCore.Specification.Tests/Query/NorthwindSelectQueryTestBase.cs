@@ -2001,26 +2001,52 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Ternary_in_client_eval_assigns_correct_types(bool async)
-        {     return AssertQuery(
-                async,
-                ss => ss.Set<Order>()
+        {
+            return AssertQuery(
+              async,
+              ss => ss.Set<Order>()
 
-                    .Where(o => o.OrderID < 10300)
-                    .OrderBy(e => e.OrderID)
-                    .Select(
-                        o => new
-                        {
-                            CustomerID = ClientMethod(o.CustomerID),
-                            OrderDate = o.OrderDate.HasValue ? o.OrderDate.Value : new DateTime(o.OrderID - 10000, 1, 1),
-                            OrderDate2 = o.OrderDate.HasValue == false ? new DateTime(o.OrderID - 10000, 1, 1) : o.OrderDate.Value
-                        }),
-                assertOrder: true,
-                elementAsserter: (e, a) =>
-                {
-                    AssertEqual(e.CustomerID, a.CustomerID);
-                    AssertEqual(e.OrderDate, a.OrderDate);
-                    AssertEqual(e.OrderDate2, a.OrderDate2);
-                });
+                  .Where(o => o.OrderID < 10300)
+                  .OrderBy(e => e.OrderID)
+                  .Select(
+                      o => new
+                      {
+                          CustomerID = ClientMethod(o.CustomerID),
+                          OrderDate = o.OrderDate.HasValue ? o.OrderDate.Value : new DateTime(o.OrderID - 10000, 1, 1),
+                          OrderDate2 = o.OrderDate.HasValue == false ? new DateTime(o.OrderID - 10000, 1, 1) : o.OrderDate.Value
+                      }),
+              assertOrder: true,
+              elementAsserter: (e, a) =>
+              {
+                  AssertEqual(e.CustomerID, a.CustomerID);
+                  AssertEqual(e.OrderDate, a.OrderDate);
+                  AssertEqual(e.OrderDate2, a.OrderDate2);
+              });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task VisitLambda_should_not_be_visited_trivially(bool async)
+        {
+            return AssertTranslationFailed(() => AssertQuery(
+              async,
+              ss =>
+              {
+                  var orders = ss.Set<Order>().Where(o => o.CustomerID.StartsWith("A")).ToList();
+
+                  return ss.Set<Customer>()
+                    .Select(c => new
+                    {
+                        Customer = c,
+                        HasOrder = orders.Any(o => o.CustomerID == c.CustomerID)
+                    });
+              },
+              elementSorter: e => e.Customer.CustomerID,
+              elementAsserter: (e, a) =>
+              {
+                  AssertEqual(e.Customer, a.Customer);
+                  AssertEqual(e.HasOrder, a.HasOrder);
+              }));
         }
 
         private static string ClientMethod(string s) => s;
