@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase($"Seeds{TestId}");
+                => optionsBuilder.UseInMemoryDatabase($"KeylessSeeds{TestId}");
         }
     }
 }
