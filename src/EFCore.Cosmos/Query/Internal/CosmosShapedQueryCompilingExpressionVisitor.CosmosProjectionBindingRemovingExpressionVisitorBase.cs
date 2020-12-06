@@ -393,7 +393,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         Expression.Constant(inverseNavigation, typeof(INavigation)),
                         Expression.Constant(fixup),
                         Expression.Constant(initialize, typeof(Action<>).MakeGenericType(includingClrType)),
+#pragma warning disable EF1001 // Internal EF Core API usage.
                         Expression.Constant(includeExpression.SetLoaded)));
+#pragma warning restore EF1001 // Internal EF Core API usage.
             }
 
             private static readonly MethodInfo _includeReferenceMethodInfo

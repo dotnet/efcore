@@ -183,7 +183,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                 GenerateFixup(
                                     includingClrType, relatedEntityClrType, includeExpression.Navigation, inverseNavigation).Compile()),
                             Expression.Constant(_tracking),
+#pragma warning disable EF1001 // Internal EF Core API usage.
                             Expression.Constant(includeExpression.SetLoaded));
+#pragma warning restore EF1001 // Internal EF Core API usage.
                     }
 
                     return Expression.Call(

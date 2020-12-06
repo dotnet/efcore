@@ -4,6 +4,7 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -36,12 +37,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Creates a new instance of the <see cref="IncludeExpression" /> class.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        /// <param name="entityExpression"> An expression to get entity which is performing include. </param>
-        /// <param name="navigationExpression"> An expression to get included navigation element. </param>
-        /// <param name="navigation"> The navigation for this include operation. </param>
-        /// <param name="setLoaded"> True if the navigation will be marked as loaded. </param>
+        [EntityFrameworkInternal]
         public IncludeExpression(
             [NotNull] Expression entityExpression,
             [NotNull] Expression navigationExpression,
@@ -77,8 +78,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual INavigationBase Navigation { get; }
 
         /// <summary>
-        ///     True if the navigation will be marked as loaded.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         public virtual bool SetLoaded { get; }
 
         /// <inheritdoc />

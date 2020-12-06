@@ -825,7 +825,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         }
                     }
 
-                    result = new IncludeExpression(result, included, navigationBase, entityReference.SetLoaded);
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                    result = new IncludeExpression(result, included, navigationBase, kvp.Value.SetLoaded);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 }
 
                 return result;

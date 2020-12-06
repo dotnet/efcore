@@ -548,7 +548,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     Expression.Constant(navigation),
                                     Expression.Constant(navigation.GetCollectionAccessor()),
                                     Expression.Constant(_isTracking),
+#pragma warning disable EF1001 // Internal EF Core API usage.
                                     Expression.Constant(includeExpression.SetLoaded)));
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
                             var relatedEntityType = innerShaper.ReturnType;
                             var inverseNavigation = navigation.Inverse;
@@ -631,7 +633,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     Expression.Constant(navigation),
                                     Expression.Constant(navigation.GetCollectionAccessor()),
                                     Expression.Constant(_isTracking),
+#pragma warning disable EF1001 // Internal EF Core API usage.
                                     Expression.Constant(includeExpression.SetLoaded)));
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
                             var relatedEntityType = innerShaper.ReturnType;
                             var inverseNavigation = navigation.Inverse;
