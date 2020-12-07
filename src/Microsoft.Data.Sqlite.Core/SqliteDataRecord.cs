@@ -296,7 +296,7 @@ namespace Microsoft.Data.Sqlite
             var blobColumnName = sqlite3_column_origin_name(Handle, ordinal).utf8_to_string();
             var rowid = GetInt32(_rowidOrdinal.Value);
 
-            return new SqliteBlob(_connection, blobTableName, blobColumnName, rowid, readOnly: true);
+            return new SqliteBlob(_connection, blobDatabaseName, blobTableName, blobColumnName, rowid, readOnly: true);
         }
 
         public bool Read()
