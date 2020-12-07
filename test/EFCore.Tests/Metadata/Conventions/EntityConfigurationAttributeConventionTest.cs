@@ -4,6 +4,7 @@
 using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -27,9 +28,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
-            Assert.Equal(CoreStrings.InvalidEntityTypeConfiguration,
+            var entityType = (IConventionEntityType)CreateModel().AddEntityType(typeof(User));
+
+            Assert.Equal(CoreStrings.InvalidEntityTypeConfiguration(typeof(UserConfiguration), entityType),
                 Assert.Throws<InvalidOperationException>(() => builder.Entity<User>()).Message);
         }
+
+         private static IMutableModel CreateModel()
+            => new Model();
 
         private class UserConfiguration
         {

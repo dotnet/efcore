@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             if(!IsEntityTypeConfigurationImplementation(entityTypeConfiguration))
             {
-                throw new InvalidOperationException(CoreStrings.InvalidEntityTypeConfiguration);
+                throw new InvalidOperationException(CoreStrings.InvalidEntityTypeConfiguration(entityTypeConfiguration, entityTypeBuilder.Metadata));
             }
 
             var entityTypeBuilderInstance = GetEntityBuilderInstance(entityTypeBuilder.Metadata, entityTypeConfiguration);

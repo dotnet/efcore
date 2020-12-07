@@ -551,7 +551,7 @@
     <value>The specified type '{type}' must be a non-interface reference type to be used as an entity type.</value>
   </data>
   <data name="InvalidEntityTypeConfiguration" xml:space="preserve">
-    <value>Entity Type Configuration is invalid. The configuration have to implement IEntityTypeConfiguration&lt;&gt; Interface.</value>
+    <value>Entity Type Configuration of type {entityTypeConfigurationType} is invalid. The configuration have to implement IEntityTypeConfiguration&lt;{entityType}&gt; Interface.</value>
   </data>
   <data name="InvalidEnumValue" xml:space="preserve">
     <value>The value '{value}' provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.</value>
