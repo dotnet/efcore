@@ -1112,6 +1112,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (_concurrencyDetector.EnterCriticalSection())
             {
+                EntityFrameworkEventSource.Log.SavingChanges();
+
                 return await _database.SaveChangesAsync(entriesToSave, cancellationToken)
                     .ConfigureAwait(false);
             }
