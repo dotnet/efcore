@@ -60,7 +60,19 @@ namespace Microsoft.Data.Sqlite
             => sqlite3_column_text(Handle, ordinal).utf8_to_string();
 
         public override T GetFieldValue<T>(int ordinal)
-            => base.GetFieldValue<T>(ordinal)!;
+        {
+            if (typeof(T) == typeof(Stream))
+            {
+                return (T)(object)GetStream(ordinal);
+            }
+
+            if (typeof(T) == typeof(TextReader))
+            {
+                return (T)(object)GetTextReader(ordinal);
+            }
+
+            return base.GetFieldValue<T>(ordinal)!;
+        }
 
         protected override byte[] GetBlob(int ordinal)
             => base.GetBlob(ordinal)!;
@@ -316,6 +328,11 @@ namespace Microsoft.Data.Sqlite
 
             return new SqliteBlob(_connection, blobDatabaseName, blobTableName, blobColumnName, rowid, readOnly: true);
         }
+
+        public virtual TextReader GetTextReader(int ordinal)
+            => IsDBNull(ordinal)
+                ? new StringReader(string.Empty)
+                : new StreamReader(GetStream(ordinal), Encoding.UTF8);
 
         public bool Read()
         {

@@ -853,6 +853,45 @@ namespace Microsoft.Data.Sqlite
                 (int?)1);
 
         [Fact]
+        public void GetFieldValue_of_Stream_works()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("SELECT x'7E57';"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    var stream = reader.GetFieldValue<Stream>(0);
+                    Assert.Equal(0x7E, stream.ReadByte());
+                    Assert.Equal(0x57, stream.ReadByte());
+                }
+            }
+        }
+
+        [Fact]
+        public void GetFieldValue_of_TextReader_works()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("SELECT 'test';"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    using (var textReader = reader.GetFieldValue<TextReader>(0))
+                    {
+                        Assert.Equal("test", textReader.ReadToEnd());
+                    }
+                }
+            }
+        }
+
+        [Fact]
         public void GetFieldValue_of_TimeSpan_works()
             => GetFieldValue_works(
                 "SELECT '12:06:29';",

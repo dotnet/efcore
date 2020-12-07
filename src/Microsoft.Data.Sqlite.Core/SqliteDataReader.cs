@@ -551,9 +551,11 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The returned object.</returns>
         public override TextReader GetTextReader(int ordinal)
-            => IsDBNull(ordinal)
-                ? (TextReader)new StringReader(string.Empty)
-                : new StreamReader(GetStream(ordinal), Encoding.UTF8);
+            => _closed
+                ? throw new InvalidOperationException(Resources.DataReaderClosed(nameof(GetTextReader)))
+                : _record == null
+                    ? throw new InvalidOperationException(Resources.NoData)
+                    : _record.GetTextReader(ordinal);
 
         /// <summary>
         ///     Gets the value of the specified column.
