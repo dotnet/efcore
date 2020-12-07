@@ -1741,16 +1741,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] IReadOnlyList<string> propertyNames,
             [NotNull] EntityType dependentEntityType,
             ConfigurationSource configurationSource)
-            => HasForeignKey(
-                dependentEntityType.Builder.GetOrCreateProperties(
-                    propertyNames,
-                    configurationSource,
-                    Metadata.PrincipalKey.Properties,
-                    Metadata.GetIsRequiredConfigurationSource() != null && Metadata.IsRequired,
-                    Metadata.GetPrincipalKeyConfigurationSource() == null
-                    && Metadata.PrincipalEntityType.FindPrimaryKey() == null),
-                dependentEntityType,
-                configurationSource);
+        {
+            using (var batch = Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions())
+            {
+                var relationship = HasForeignKey(
+                           dependentEntityType.Builder.GetOrCreateProperties(
+                               propertyNames,
+                               configurationSource,
+                               Metadata.PrincipalKey.Properties,
+                               Metadata.GetIsRequiredConfigurationSource() != null && Metadata.IsRequired,
+                               Metadata.GetPrincipalKeyConfigurationSource() == null
+                               && Metadata.PrincipalEntityType.FindPrimaryKey() == null),
+                           dependentEntityType,
+                           configurationSource);
+
+                if (relationship == null)
+                {
+                    return null;
+                }
+
+                return (InternalForeignKeyBuilder)batch.Run(relationship.Metadata)?.Builder;
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

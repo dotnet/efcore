@@ -396,28 +396,36 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .WithMany(e => e.Categories)
                     .UsingEntity<Dictionary<string, object>>(
                         "ProductCategory",
-                        e => e.HasOne<ProductWithAttribute>().WithMany().HasForeignKey("ProductKey"),
-                        e => e.HasOne<CategoryWithAttribute>().WithMany().HasForeignKey("CategoryKey"));
+                        e => e.HasOne<ProductWithAttribute>().WithMany().HasForeignKey("ProductWithAttributeId"),
+                        e => e.HasOne<CategoryWithAttribute>().WithMany().HasForeignKey("CategoryWithAttributeId"));
 
                 var model = modelBuilder.FinalizeModel();
 
                 var category = model.FindEntityType(typeof(CategoryWithAttribute));
                 var productsNavigation = category.GetSkipNavigations().Single();
                 var categoryFk = productsNavigation.ForeignKey;
-                Assert.Equal("CategoryKey", categoryFk.Properties.Single().Name);
+                Assert.Equal("CategoryWithAttributeId", categoryFk.Properties.Single().Name);
+
+                var categoryNavigation = productsNavigation.TargetEntityType.GetSkipNavigations().Single();
+                var productFk = categoryNavigation.ForeignKey;
+                Assert.Equal("ProductWithAttributeId", productFk.Properties.Single().Name);
+
+                var joinEntityType = categoryFk.DeclaringEntityType;
+                Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
+                Assert.Equal(2, joinEntityType.GetProperties().Count());
             }
 
             protected class ProductWithAttribute
             {
-                public int Id { get; set; }
+                public int ID { get; set; }
 
-                [ForeignKey("ProductId")]
+                [ForeignKey("ProductKey")]
                 public virtual ICollection<CategoryWithAttribute> Categories { get; set; }
             }
 
             protected class CategoryWithAttribute
             {
-                public int Id { get; set; }
+                public int ID { get; set; }
                 public virtual ICollection<ProductWithAttribute> Products { get; set; }
             }
 
