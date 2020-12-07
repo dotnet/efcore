@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(definingNavigationName, nameof(definingNavigationName));
             Check.NotNull(definingEntityType, nameof(definingEntityType));
 
-            return model.AsModel().FindEntityType(
+            return ((Model)model).FindEntityType(
                 type,
                 definingNavigationName,
                 definingEntityType.AsEntityType());

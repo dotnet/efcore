@@ -82,14 +82,14 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Removes an entity type with a defining navigation from the model.
+        ///     Removes an entity type with the given type, defining navigation name
+        ///     and the defining entity type.
         /// </summary>
         /// <param name="model"> The model to remove the entity type from. </param>
         /// <param name="name"> The name of the entity type to be removed. </param>
         /// <param name="definingNavigationName"> The defining navigation. </param>
         /// <param name="definingEntityType"> The defining entity type. </param>
         /// <returns> The entity type that was removed. </returns>
-        [Obsolete("Use RemoveEntityType(string)")]
         public static IConventionEntityType RemoveEntityType(
             [NotNull] this IConventionModel model,
             [NotNull] string name,
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotEmpty(definingNavigationName, nameof(definingNavigationName));
             Check.NotNull(definingEntityType, nameof(definingEntityType));
 
-            return ((Model)model).RemoveEntityType(name);
+            return ((Model)model).RemoveEntityType(name, definingNavigationName, definingEntityType);
         }
 
         /// <summary>
@@ -119,14 +119,14 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Removes an entity type with a defining navigation from the model.
+        ///     Removes an entity type with the given type, defining navigation name
+        ///     and the defining entity type.
         /// </summary>
         /// <param name="model"> The model to remove the entity type from. </param>
         /// <param name="type"> The CLR class that is used to represent instances of this entity type. </param>
         /// <param name="definingNavigationName"> The defining navigation. </param>
         /// <param name="definingEntityType"> The defining entity type. </param>
         /// <returns> The entity type that was removed. </returns>
-        [Obsolete("Use RemoveEntityType(string)")]
         public static IConventionEntityType RemoveEntityType(
             [NotNull] this IConventionModel model,
             [NotNull] Type type,

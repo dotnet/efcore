@@ -507,7 +507,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var navigation = navigationBuilder.Metadata;
             var newRelationshipBuilder = DiscoverProperties(navigation.ForeignKey.Builder, context);
-            context.StopProcessingIfChanged(newRelationshipBuilder?.Metadata.GetNavigation(navigation.IsOnDependent)?.Builder);
+            if (newRelationshipBuilder != null)
+            {
+                context.StopProcessingIfChanged(newRelationshipBuilder.Metadata.GetNavigation(navigation.IsOnDependent)?.Builder);
+            }
         }
 
         /// <summary>
@@ -648,7 +651,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
 
             var newForeignKey = batch.Run(DiscoverProperties(relationshipBuilder, context).Metadata);
-            context.StopProcessingIfChanged(newForeignKey?.IsRequired);
+            if (newForeignKey != relationshipBuilder.Metadata
+                || newForeignKey.IsRequired != isRequired)
+            {
+                context.StopProcessing();
+            }
         }
 
         /// <summary>
@@ -672,7 +679,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             ProcessForeignKey(relationshipBuilder, context);
 
-            context.StopProcessingIfChanged(relationshipBuilder?.Metadata.Properties);
+            if (relationshipBuilder.Metadata.Builder != null)
+            {
+                context.StopProcessingIfChanged(relationshipBuilder.Metadata.Properties);
+            }
         }
 
         /// <summary>

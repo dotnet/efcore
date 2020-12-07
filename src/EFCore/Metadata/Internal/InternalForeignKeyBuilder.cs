@@ -176,7 +176,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && (navigationToDependent == null
                     || navigationToDependent.Value.Name == Metadata.PrincipalToDependent?.Name))
             {
-                Metadata.UpdateConfigurationSource(configurationSource);
                 if (navigationToPrincipal != null)
                 {
                     Metadata.UpdateDependentToPrincipalConfigurationSource(configurationSource);
@@ -392,16 +391,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 using var batch = Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions();
                 builder = this;
-                Metadata.UpdateConfigurationSource(configurationSource);
 
-                if (shouldBeUnique.HasValue)
-                {
-                    IsUnique(shouldBeUnique.Value, configurationSource);
-                }
-                else
-                {
-                    IsUnique(null, ConfigurationSource.Convention);
-                }
+                IsUnique(shouldBeUnique, shouldBeUnique.HasValue ? configurationSource : ConfigurationSource.Convention);
 
                 if (navigationToPrincipal != null)
                 {
@@ -1720,10 +1711,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] IReadOnlyList<MemberInfo> properties,
             [NotNull] EntityType dependentEntityType,
             ConfigurationSource configurationSource)
-            => HasForeignKey(
-                dependentEntityType.Builder.GetOrCreateProperties(properties, configurationSource),
-                dependentEntityType,
-                configurationSource);
+        {
+            using (var batch = Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions())
+            {
+                var relationship = HasForeignKey(
+                           dependentEntityType.Builder.GetOrCreateProperties(properties, configurationSource),
+                           dependentEntityType,
+                           configurationSource);
+
+                if (relationship == null)
+                {
+                    return null;
+                }
+
+                return (InternalForeignKeyBuilder)batch.Run(relationship.Metadata)?.Builder;
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1735,16 +1738,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] IReadOnlyList<string> propertyNames,
             [NotNull] EntityType dependentEntityType,
             ConfigurationSource configurationSource)
-            => HasForeignKey(
-                dependentEntityType.Builder.GetOrCreateProperties(
-                    propertyNames,
-                    configurationSource,
-                    Metadata.PrincipalKey.Properties,
-                    Metadata.GetIsRequiredConfigurationSource() != null && Metadata.IsRequired,
-                    Metadata.GetPrincipalKeyConfigurationSource() == null
-                    && Metadata.PrincipalEntityType.FindPrimaryKey() == null),
-                dependentEntityType,
-                configurationSource);
+        {
+            using (var batch = Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions())
+            {
+                var relationship = HasForeignKey(
+                           dependentEntityType.Builder.GetOrCreateProperties(
+                               propertyNames,
+                               configurationSource,
+                               Metadata.PrincipalKey.Properties,
+                               Metadata.GetIsRequiredConfigurationSource() != null && Metadata.IsRequired,
+                               Metadata.GetPrincipalKeyConfigurationSource() == null
+                               && Metadata.PrincipalEntityType.FindPrimaryKey() == null),
+                           dependentEntityType,
+                           configurationSource);
+
+                if (relationship == null)
+                {
+                    return null;
+                }
+
+                return (InternalForeignKeyBuilder)batch.Run(relationship.Metadata)?.Builder;
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1943,9 +1958,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual InternalForeignKeyBuilder HasPrincipalKey(
             [NotNull] IReadOnlyList<MemberInfo> members,
             ConfigurationSource configurationSource)
-            => HasPrincipalKey(
-                Metadata.PrincipalEntityType.Builder.GetOrCreateProperties(members, configurationSource),
-                configurationSource);
+        {
+            using (var batch = Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions())
+            {
+                var relationship = HasPrincipalKey(
+                           Metadata.PrincipalEntityType.Builder.GetOrCreateProperties(members, configurationSource),
+                           configurationSource);
+
+                if (relationship == null)
+                {
+                    return null;
+                }
+
+                return (InternalForeignKeyBuilder)batch.Run(relationship.Metadata)?.Builder;
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1956,9 +1983,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual InternalForeignKeyBuilder HasPrincipalKey(
             [NotNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource configurationSource)
-            => HasPrincipalKey(
-                Metadata.PrincipalEntityType.Builder.GetOrCreateProperties(propertyNames, configurationSource),
-                configurationSource);
+        {
+            using (var batch = Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions())
+            {
+                var relationship = HasPrincipalKey(
+                           Metadata.PrincipalEntityType.Builder.GetOrCreateProperties(propertyNames, configurationSource),
+                           configurationSource);
+
+                if (relationship == null)
+                {
+                    return null;
+                }
+
+                return (InternalForeignKeyBuilder)batch.Run(relationship.Metadata)?.Builder;
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

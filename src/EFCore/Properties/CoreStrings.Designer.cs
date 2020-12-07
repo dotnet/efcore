@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The shared type entity type '{entityType}' cannot be added to the model because its name is the same as the CLR type name. This usually indicates an error, either add it as a non-shared entity type or choose a different name.
         /// </summary>
-        public static string AmbiguousSharedTypeEntityTypeName([CanBeNull] object entityType)
+        public static string AmbiguousSharedTypeEntityTypeName([CanBeNull] object? entityType)
             => string.Format(
                 GetString("AmbiguousSharedTypeEntityTypeName", nameof(entityType)),
                 entityType);
@@ -331,7 +331,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     The entity type '{entityType}' with a defining navigation cannot be added to the model because an entity type with the same name already exists.
         /// </summary>
         [Obsolete]
-        public static string ClashingNonWeakEntityType([CanBeNull] object entityType)
+        public static string ClashingNonWeakEntityType([CanBeNull] object? entityType)
             => string.Format(
                 GetString("ClashingNonWeakEntityType", nameof(entityType)),
                 entityType);
@@ -355,9 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The entity type '{entityType}' cannot be added to the model because an entity type with a defining navigation with the same name already exists.
         /// </summary>
-        public static string ClashingWeakEntityType([CanBeNull] object entityType)
         [Obsolete]
-        public static string ClashingWeakEntityType([CanBeNull] object entityType)
         public static string ClashingWeakEntityType([CanBeNull] object? entityType)
             => string.Format(
                 GetString("ClashingWeakEntityType", nameof(entityType)),
@@ -960,9 +958,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The foreign keys on entity type '{dependentType}' cannot target the same entity type because it has a defining navigation.
         /// </summary>
-        public static string ForeignKeySelfReferencingDependentEntityType([CanBeNull] object dependentType)
         [Obsolete]
-        public static string ForeignKeySelfReferencingDependentEntityType([CanBeNull] object dependentType)
         public static string ForeignKeySelfReferencingDependentEntityType([CanBeNull] object? dependentType)
             => string.Format(
                 GetString("ForeignKeySelfReferencingDependentEntityType", nameof(dependentType)),
@@ -1105,9 +1101,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The entity type '{ownedEntityType}' is configured as owned, but the entity type '{nonOwnedEntityType}' is not. Configure all entity types with defining navigations sharing a CLR type as owned in 'OnModelCreating'.
         /// </summary>
-        public static string InconsistentOwnership([CanBeNull] object ownedEntityType, [CanBeNull] object nonOwnedEntityType)
         [Obsolete]
-        public static string InconsistentOwnership([CanBeNull] object ownedEntityType, [CanBeNull] object nonOwnedEntityType)
         public static string InconsistentOwnership([CanBeNull] object? ownedEntityType, [CanBeNull] object? nonOwnedEntityType)
             => string.Format(
                 GetString("InconsistentOwnership", nameof(ownedEntityType), nameof(nonOwnedEntityType)),
@@ -1301,9 +1295,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Cannot create a DbSet for '{typeName}' because it is mapped to multiple entity types with defining navigations and should be accessed through the owning entities.
         /// </summary>
-        public static string InvalidSetTypeWeak([CanBeNull] object typeName)
         [Obsolete]
-        public static string InvalidSetTypeWeak([CanBeNull] object typeName)
         public static string InvalidSetTypeWeak([CanBeNull] object? typeName)
             => string.Format(
                 GetString("InvalidSetTypeWeak", nameof(typeName)),
@@ -1678,9 +1670,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The navigation '{navigation}' used to define the entity type '{entityType}' is not present on '{definingEntityType}'.
         /// </summary>
-        public static string NoDefiningNavigation([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object definingEntityType)
         [Obsolete]
-        public static string NoDefiningNavigation([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object definingEntityType)
         public static string NoDefiningNavigation([CanBeNull] object? navigation, [CanBeNull] object? entityType, [CanBeNull] object? definingEntityType)
             => string.Format(
                 GetString("NoDefiningNavigation", nameof(navigation), nameof(entityType), nameof(definingEntityType)),
@@ -1790,9 +1780,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The entity type '{2_entityType}' owned by '{0_ownershipNavigation}' should use defining navigation '{1_definingNavigation}' for .
         /// </summary>
-        public static string NonDefiningOwnership([CanBeNull] object ownershipNavigation, [CanBeNull] object definingNavigation, [CanBeNull] object entityType)
         [Obsolete]
-        public static string NonDefiningOwnership([CanBeNull] object ownershipNavigation, [CanBeNull] object definingNavigation, [CanBeNull] object entityType)
         public static string NonDefiningOwnership([CanBeNull] object? ownershipNavigation, [CanBeNull] object? definingNavigation, [CanBeNull] object? entityType)
             => string.Format(
                 GetString("NonDefiningOwnership", "0_ownershipNavigation", "1_definingNavigation", "2_entityType"),
@@ -2713,9 +2701,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The type '{entityType}' cannot have entity type '{baseType}' as the base type because the latter has a defining navigation.
         /// </summary>
-        public static string WeakBaseType([CanBeNull] object entityType, [CanBeNull] object baseType)
         [Obsolete]
-        public static string WeakBaseType([CanBeNull] object entityType, [CanBeNull] object baseType)
         public static string WeakBaseType([CanBeNull] object? entityType, [CanBeNull] object? baseType)
             => string.Format(
                 GetString("WeakBaseType", nameof(entityType), nameof(baseType)),
@@ -2724,9 +2710,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The entity type '{entityType}' cannot have a base type because it has a defining navigation.
         /// </summary>
-        public static string WeakDerivedType([CanBeNull] object entityType)
         [Obsolete]
-        public static string WeakDerivedType([CanBeNull] object entityType)
         public static string WeakDerivedType([CanBeNull] object? entityType)
             => string.Format(
                 GetString("WeakDerivedType", nameof(entityType)),
