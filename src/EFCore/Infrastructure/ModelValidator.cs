@@ -70,7 +70,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ValidateQueryFilters(model, logger);
             ValidateData(model, logger);
             ValidateTypeMappings(model, logger);
-            ValidateKeylessSeed(model, logger);
             LogShadowProperties(model, logger);
         }
 
@@ -995,6 +994,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 var key = entityType.FindPrimaryKey();
                 if (key == null)
                 {
+                    if (entityType.GetSeedData().Any())
+                    {
+                        throw new InvalidOperationException(CoreStrings.SeedKeylessEntity(entityType.DisplayName()));
+                    }
                     continue;
                 }
 
@@ -1107,29 +1110,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     entry = new InternalShadowEntityEntry(null, entityType);
 
                     identityMap.Add(keyValues, entry);
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Validates the key of seeding data in the model
-        /// </summary>
-        /// <param name="model"> The model to validate. </param>
-        /// <param name="logger"> The logger to use. </param>
-        protected virtual void ValidateKeylessSeed([NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
-        {
-            Check.NotNull(model, nameof(model));
-
-            if (!(model is IConventionModel conventionModel))
-            {
-                return;
-            }
-
-            foreach (var entityType in conventionModel.GetEntityTypes())
-            {
-                if (entityType.IsKeyless && entityType.GetSeedData().Any())
-                {
-                    throw new InvalidOperationException(CoreStrings.SeedKeylessEntity(entityType.DisplayName()));
                 }
             }
         }
