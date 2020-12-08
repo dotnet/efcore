@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -329,19 +330,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Null(modelBuilder.Ignore(typeof(Details), ConfigurationSource.Convention));
 
-            Assert.Equal(2, model.GetEntityTypes(typeof(Details)).Count);
+            Assert.Equal(2, model.GetEntityTypes(typeof(Details)).Count());
+
+            Assert.Equal(
+                CoreStrings.ClashingSharedType(typeof(Details).Name),
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity(typeof(Details), ConfigurationSource.Explicit)).Message);
 
             Assert.Equal(
                 CoreStrings.ClashingOwnedEntityType(typeof(Details).Name),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity(typeof(Details), ConfigurationSource.Explicit)).Message);
+                Assert.Throws<InvalidOperationException>(()
+                    => modelBuilder.SharedTypeEntity(nameof(Details), typeof(Details), ConfigurationSource.Explicit)).Message);
 
             Assert.NotNull(modelBuilder.Ignore(typeof(Details), ConfigurationSource.Explicit));
 
             Assert.False(model.IsOwned(typeof(Details)));
 
-            Assert.NotNull(modelBuilder.Entity(typeof(Details), ConfigurationSource.Explicit));
+            Assert.NotNull(modelBuilder.SharedTypeEntity(nameof(Details), typeof(Details), ConfigurationSource.Explicit));
 
-            Assert.Empty(model.GetEntityTypes(typeof(Details)).Where(e => e.DefiningNavigationName != null));
+            Assert.Empty(model.GetEntityTypes(typeof(Details)).Where(e => !e.HasSharedClrType));
 
             Assert.Null(modelBuilder.Owned(typeof(Details), ConfigurationSource.Convention));
 
@@ -497,10 +503,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotNull(modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit));
 
             Assert.Equal(
-                CoreStrings.ClashingNonSharedType(typeof(Customer).DisplayName(), typeof(Customer).DisplayName()),
+                CoreStrings.ClashingNonSharedType(typeof(Customer).DisplayName(), typeof(Customer).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(
-                        () =>
-                            modelBuilder.SharedTypeEntity(typeof(Customer).DisplayName(), typeof(Customer), ConfigurationSource.Explicit))
+                        () => modelBuilder.SharedTypeEntity(typeof(Customer).DisplayName(), typeof(Customer), ConfigurationSource.Explicit))
                     .Message);
         }
 

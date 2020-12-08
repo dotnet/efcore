@@ -189,17 +189,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Set_throws_for_owned_type_with_defining_navigation(bool async)
-        {
-            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(async, ss => ss.Set<OwnedAddress>()));
-
-            Assert.Equal(
-                CoreStrings.InvalidSetTypeWeak(nameof(OwnedAddress)),
-                exception.Message);
-        }
-
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
         public virtual Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity(bool async)
         {
             return AssertQuery(

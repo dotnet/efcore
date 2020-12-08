@@ -76,11 +76,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 if (_entityType == null)
                 {
-                    if (_context.Model.HasEntityTypeWithDefiningNavigation(typeof(TEntity)))
-                    {
-                        throw new InvalidOperationException(CoreStrings.InvalidSetTypeWeak(typeof(TEntity).ShortDisplayName()));
-                    }
-
                     if (_context.Model.IsShared(typeof(TEntity)))
                     {
                         throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(typeof(TEntity).ShortDisplayName()));

@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             if (clrType == null
                 || entityType.HasSharedClrType
                 || entityType.HasDefiningNavigation()
-                || entityType.Model.FindIsOwnedConfigurationSource(clrType) != null
+                || entityType.Model.IsOwned(clrType)
                 || entityType.FindOwnership() != null)
             {
                 return;
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         && directlyDerivedType.HasClrType
                         && !directlyDerivedType.HasSharedClrType
                         && !directlyDerivedType.HasDefiningNavigation()
-                        && model.FindIsOwnedConfigurationSource(directlyDerivedType.ClrType) == null
+                        && !model.IsOwned(directlyDerivedType.ClrType)
                         && directlyDerivedType.FindDeclaredOwnership() == null
                         && ((directlyDerivedType.BaseType == null && clrType.IsAssignableFrom(directlyDerivedType.ClrType))
                             || (directlyDerivedType.BaseType == entityType.BaseType && FindClosestBaseType(directlyDerivedType) == entityType)))

@@ -164,8 +164,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             var entityTypeBuilder = new EntityTypeBuilder<TJoinEntity>(joinEntityType);
 
-            var leftForeignKey = configureLeft(entityTypeBuilder).Metadata;
             var rightForeignKey = configureRight(entityTypeBuilder).Metadata;
+            var leftForeignKey = configureLeft(entityTypeBuilder).Metadata;
 
             Using(rightForeignKey, leftForeignKey);
 

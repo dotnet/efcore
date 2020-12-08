@@ -70,17 +70,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
 
             List<IConventionProperty> keyProperties = null;
-            var definingFk = entityType.FindDefiningNavigation()?.ForeignKey
-                ?? entityType.FindOwnership();
-            if (definingFk != null
-                && definingFk.DeclaringEntityType != entityType)
+            var ownership = entityType.FindOwnership();
+            if (ownership != null
+                && ownership.DeclaringEntityType != entityType)
             {
-                definingFk = null;
+                ownership = null;
             }
 
-            if (definingFk?.IsUnique == true)
+            if (ownership?.IsUnique == true)
             {
-                keyProperties = definingFk.Properties.ToList();
+                keyProperties = ownership.Properties.ToList();
             }
 
             if (keyProperties == null)
@@ -96,16 +95,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
             }
 
-            if (definingFk?.IsUnique == false)
+            if (ownership?.IsUnique == false)
             {
                 if (keyProperties.Count == 0
-                    || definingFk.Properties.Contains(keyProperties.First()))
+                    || ownership.Properties.Contains(keyProperties.First()))
                 {
                     var primaryKey = entityType.FindPrimaryKey();
                     var shadowProperty = primaryKey?.Properties.Last();
                     if (shadowProperty == null
                         || primaryKey.Properties.Count == 1
-                        || definingFk.Properties.Contains(shadowProperty))
+                        || ownership.Properties.Contains(shadowProperty))
                     {
                         shadowProperty = entityTypeBuilder.CreateUniqueProperty(typeof(int), "Id", required: true).Metadata;
                     }
@@ -116,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                 var extraProperty = keyProperties[0];
                 keyProperties.RemoveAt(0);
-                keyProperties.AddRange(definingFk.Properties);
+                keyProperties.AddRange(ownership.Properties);
                 keyProperties.Add(extraProperty);
             }
 

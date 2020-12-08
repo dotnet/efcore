@@ -6,30 +6,12 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class ComplexNavigationsWeakQueryTestBase<TFixture> : ComplexNavigationsQueryTestBase<TFixture>
-        where TFixture : ComplexNavigationsWeakQueryFixtureBase, new()
+    public abstract class ComplexNavigationsSharedTypeQueryTestBase<TFixture> : ComplexNavigationsQueryTestBase<TFixture>
+        where TFixture : ComplexNavigationsSharedTypeQueryFixtureBase, new()
     {
-        protected ComplexNavigationsWeakQueryTestBase(TFixture fixture)
+        protected ComplexNavigationsSharedTypeQueryTestBase(TFixture fixture)
             : base(fixture)
         {
-        }
-
-        // Naked instances not supported
-        public override Task Entity_equality_empty(bool async)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override Task Key_equality_two_conditions_on_same_navigation(bool async)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override Task Level4_Include(bool async)
-        {
-            // Due to level 4 being weak, other tests using l4 as root could cause same query as this one to run
-            // generating different SQL
-            return Task.CompletedTask;
         }
 
         // Self-ref not supported
@@ -49,16 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         public override Task Join_condition_optimizations_applied_correctly_when_anonymous_type_with_single_property(bool async)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override Task Include_after_multiple_SelectMany_and_reference_navigation(bool async)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override Task Include_after_SelectMany_and_multiple_reference_navigations(bool async)
         {
             return Task.CompletedTask;
         }

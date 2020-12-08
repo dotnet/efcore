@@ -52,42 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 return 1;
             }
 
-            var result = StringComparer.Ordinal.Compare(x.Name, y.Name);
-            if (result != 0)
-            {
-                return result;
-            }
-
-            while (true)
-            {
-                var xDefiningNavigationName = x.DefiningNavigationName;
-                var yDefiningNavigationName = y.DefiningNavigationName;
-
-                if (xDefiningNavigationName == null
-                    && yDefiningNavigationName == null)
-                {
-                    return StringComparer.Ordinal.Compare(x.Name, y.Name);
-                }
-
-                if (xDefiningNavigationName == null)
-                {
-                    return -1;
-                }
-
-                if (yDefiningNavigationName == null)
-                {
-                    return 1;
-                }
-
-                result = StringComparer.Ordinal.Compare(xDefiningNavigationName, yDefiningNavigationName);
-                if (result != 0)
-                {
-                    return result;
-                }
-
-                x = x.DefiningEntityType!;
-                y = y.DefiningEntityType!;
-            }
+            return StringComparer.Ordinal.Compare(x.Name, y.Name);
         }
 
         /// <summary>
@@ -105,19 +70,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="obj"> The for which a hash code is to be returned. </param>
         /// <returns> A hash code for the specified object. </returns>
         public int GetHashCode(IEntityType obj)
-        {
-            var hash = new HashCode();
-            while (true)
-            {
-                hash.Add(obj.Name, StringComparer.Ordinal);
-                if (!obj.HasDefiningNavigation())
-                {
-                    return hash.ToHashCode();
-                }
-
-                hash.Add(obj.DefiningNavigationName, StringComparer.Ordinal);
-                obj = obj.DefiningEntityType;
-            }
-        }
+            => obj.Name.GetHashCode();
     }
 }

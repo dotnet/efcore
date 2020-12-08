@@ -124,7 +124,7 @@
     <value>Cannot add an entity type with type '{typeName}' to the model as it is a dynamically-generated proxy type.</value>
   </data>
   <data name="AmbiguousDependentEntity" xml:space="preserve">
-    <value>The entity type '{entityType}' has a defining navigation and the supplied entity is currently referenced from several owner entities. To access the entry for a particular reference, call '{targetEntryCall}' on the owner entry.</value>
+    <value>The entity type '{entityType}' uses a shared type and the supplied entity is currently referenced from several owner entities. To access the entry for a particular reference, call '{targetEntryCall}' on the owner entry.</value>
   </data>
   <data name="AmbiguousEndRequiredDependent" xml:space="preserve">
     <value>The foreign key {foreignKeyProperties} on entity type '{entityType}' cannot be configured as having a required dependent since the dependent side cannot be determined. To identify the dependent side of the relationship, configure the foreign key property in 'OnModelCreating'. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.</value>
@@ -146,6 +146,9 @@
   </data>
   <data name="AmbiguousServiceProperty" xml:space="preserve">
     <value>The service property '{property}' of type '{serviceType}' cannot be added to the entity type '{entityType}' because there is another property of the same type. Ignore one of the properties using the [NotMapped] attribute or 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
+  </data>
+  <data name="AmbiguousSharedTypeEntityTypeName" xml:space="preserve">
+    <value>The shared type entity type '{entityType}' cannot be added to the model because its name is the same as the CLR type name. This usually indicates an error, either add it as a non-shared entity type or choose a different name.</value>
   </data>
   <data name="AnnotationNotFound" xml:space="preserve">
     <value>The annotation '{annotation}' was not found. Ensure that the annotation has been added to the object {annotatable}</value>
@@ -231,6 +234,7 @@
   </data>
   <data name="ClashingNonWeakEntityType" xml:space="preserve">
     <value>The entity type '{entityType}' with a defining navigation cannot be added to the model because an entity type with the same name already exists.</value>
+    <comment>Obsolete</comment>
   </data>
   <data name="ClashingOwnedEntityType" xml:space="preserve">
     <value>The type '{entityType}' cannot be configured as non-owned because an owned entity type with the same name already exists.</value>
@@ -240,6 +244,7 @@
   </data>
   <data name="ClashingWeakEntityType" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be added to the model because an entity type with a defining navigation with the same name already exists.</value>
+    <comment>Obsolete</comment>
   </data>
   <data name="ClientProjectionCapturingConstantInMethodArgument" xml:space="preserve">
     <value>The client projection contains a reference to a constant expression of '{constantType}' which is being passed as an argument to the method '{methodName}'. This could potentially cause a memory leak; consider assigning this constant to a local variable and using the variable in the query instead. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information.</value>
@@ -471,6 +476,7 @@
   </data>
   <data name="ForeignKeySelfReferencingDependentEntityType" xml:space="preserve">
     <value>The foreign keys on entity type '{dependentType}' cannot target the same entity type because it has a defining navigation.</value>
+    <comment>Obsolete</comment>
   </data>
   <data name="ForeignKeyTypeMismatch" xml:space="preserve">
     <value>The types of the properties specified for the foreign key {foreignKeyProperties} on entity type '{dependentType}' do not match the types of the properties in the principal key {principalKeyProperties} on entity type '{principalType}'. Provide properties that use the same types in the same order.</value>
@@ -527,6 +533,7 @@
   </data>
   <data name="InconsistentOwnership" xml:space="preserve">
     <value>The entity type '{ownedEntityType}' is configured as owned, but the entity type '{nonOwnedEntityType}' is not. Configure all entity types with defining navigations sharing a CLR type as owned in 'OnModelCreating'.</value>
+    <comment>Obsolete</comment>
   </data>
   <data name="IndexPropertiesWrongEntity" xml:space="preserve">
     <value>The specified index properties {indexProperties} are not declared on the entity type '{entityType}'. Ensure that index properties are declared on the target entity type.</value>
@@ -602,6 +609,7 @@
   </data>
   <data name="InvalidSetTypeWeak" xml:space="preserve">
     <value>Cannot create a DbSet for '{typeName}' because it is mapped to multiple entity types with defining navigations and should be accessed through the owning entities.</value>
+    <comment>Obsolete</comment>
   </data>
   <data name="InvalidSwitch" xml:space="preserve">
     <value>Invalid {name}: {value}</value>
@@ -801,7 +809,7 @@
   </data>
   <data name="LogNonDefiningInverseNavigation" xml:space="preserve">
     <value>The navigation '{targetEntityType}.{inverseNavigation}' specified in the [InverseProperty] attribute cannot be used as the inverse of '{weakEntityType}.{navigation}' because it's not the defining navigation '{definingNavigation}'.</value>
-    <comment>Warning CoreEventId.NonDefiningInverseNavigationWarning string string string string string</comment>
+    <comment>Obsolete Warning CoreEventId.NonDefiningInverseNavigationWarning string string string string string</comment>
   </data>
   <data name="LogNonNullableInverted" xml:space="preserve">
     <value>The navigation '{navigation}' is non-nullable, causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.</value>
@@ -1039,6 +1047,7 @@
   </data>
   <data name="NoDefiningNavigation" xml:space="preserve">
     <value>The navigation '{navigation}' used to define the entity type '{entityType}' is not present on '{definingEntityType}'.</value>
+    <comment>Obsolete</comment>
   </data>
   <data name="NoDiscriminatorForValue" xml:space="preserve">
     <value>Cannot set the discriminator value for entity type '{entityType}' because the root entity type '{rootEntityType}' doesn't have a discriminator property configured.</value>
@@ -1082,6 +1091,7 @@
   </data>
   <data name="NonDefiningOwnership" xml:space="preserve">
     <value>The entity type '{2_entityType}' owned by '{0_ownershipNavigation}' should use defining navigation '{1_definingNavigation}' for .</value>
+    <comment>Obsolete</comment>
   </data>
   <data name="NonGenericOptions" xml:space="preserve">
     <value>The DbContextOptions passed to the {contextType} constructor must be a DbContextOptions&lt;{contextType}&gt;. When registering multiple DbContext types, make sure that the constructor for each context type has a DbContextOptions&lt;TContext&gt; parameter rather than a non-generic DbContextOptions parameter.</value>
@@ -1423,7 +1433,7 @@
     <value>An unnamed index specified via [Index] attribute on the entity type '{entityType}' references properties {indexProperties}, but no property with name '{propertyName}' exists on that entity type or any of its base types.</value>
   </data>
   <data name="UntrackedDependentEntity" xml:space="preserve">
-    <value>The entity type '{entityType}' has a defining navigation and the supplied entity is currently not being tracked. To start tracking this entity, call '{referenceCall}' or '{collectionCall}' on the owner entry.</value>
+    <value>The entity type '{entityType}' uses a shared type and the supplied entity is currently not being tracked. To start tracking this entity, call '{referenceCall}' or '{collectionCall}' on the owner entry.</value>
   </data>
   <data name="ValueCannotBeNull" xml:space="preserve">
     <value>The value for property '{1_entityType}.{0_property}' cannot be set to null because its type is '{propertyType}' which is not a nullable type.</value>
@@ -1439,9 +1449,11 @@
   </data>
   <data name="WeakBaseType" xml:space="preserve">
     <value>The type '{entityType}' cannot have entity type '{baseType}' as the base type because the latter has a defining navigation.</value>
+    <comment>Obsolete</comment>
   </data>
   <data name="WeakDerivedType" xml:space="preserve">
     <value>The entity type '{entityType}' cannot have a base type because it has a defining navigation.</value>
+    <comment>Obsolete</comment>
   </data>
   <data name="WrongGenericPropertyType" xml:space="preserve">
     <value>Property '{1_entityType}.{0_property}' is of type '{actualType}' but the generic type provided is of type '{genericType}'.</value>

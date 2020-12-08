@@ -1756,6 +1756,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="targetType"> The target type. </param>
         /// <param name="inverseNavigation"> The inverse navigation property. </param>
         /// <param name="definingNavigation"> The defining navigation property. </param>
+        [Obsolete]
         public static void NonDefiningInverseNavigationWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             [NotNull] IEntityType declaringType,

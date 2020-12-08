@@ -23,11 +23,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public RelationshipSnapshot(
             [NotNull] InternalForeignKeyBuilder relationship,
-            [CanBeNull] EntityType.Snapshot definedEntityTypeSnapshot,
+            [CanBeNull] EntityType.Snapshot ownedEntityTypeSnapshot,
             [CanBeNull] List<(SkipNavigation, ConfigurationSource)> referencingSkipNavigations)
         {
             Relationship = relationship;
-            DefinedEntityTypeSnapshot = definedEntityTypeSnapshot;
+            OwnedEntityTypeSnapshot = ownedEntityTypeSnapshot;
             ReferencingSkipNavigations = referencingSkipNavigations;
         }
 
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual EntityType.Snapshot DefinedEntityTypeSnapshot { [DebuggerStepThrough] get; }
+        public virtual EntityType.Snapshot OwnedEntityTypeSnapshot { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var newRelationship = Relationship.Attach(entityTypeBuilder);
             if (newRelationship != null)
             {
-                DefinedEntityTypeSnapshot?.Attach(
+                OwnedEntityTypeSnapshot?.Attach(
                     newRelationship.Metadata.ResolveOtherEntityType(entityTypeBuilder.Metadata).Builder);
 
                 if (ReferencingSkipNavigations != null)

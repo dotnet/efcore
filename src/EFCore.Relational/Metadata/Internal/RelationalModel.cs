@@ -230,7 +230,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private static void AddDefaultMappings(RelationalModel databaseModel, IConventionEntityType entityType)
         {
-            var name = entityType.GetRootType().FullName();
+            var rootType = entityType.GetRootType();
+            var name = rootType.HasSharedClrType ? rootType.FullName() : rootType.ShortName();
             if (!databaseModel.DefaultTables.TryGetValue(name, out var defaultTable))
             {
                 defaultTable = new TableBase(name, null, databaseModel);

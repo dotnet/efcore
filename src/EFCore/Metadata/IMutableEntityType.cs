@@ -36,7 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the defining entity type.
         /// </summary>
-        new IMutableEntityType? DefiningEntityType { get; }
+        [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
+        new IMutableEntityType? DefiningEntityType => null;
 
         /// <summary>
         ///     Gets or sets a value indicating whether the entity type has no keys.

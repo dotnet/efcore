@@ -417,6 +417,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The defining navigation if one exists or <see langword="null" /> otherwise. </returns>
+        [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
         public static IConventionNavigation? FindDefiningNavigation([NotNull] this IConventionEntityType entityType)
             => (IConventionNavigation?)((IEntityType)entityType).FindDefiningNavigation();
 

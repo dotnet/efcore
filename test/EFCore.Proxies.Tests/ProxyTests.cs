@@ -109,24 +109,6 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(typeof(IsOwnedButNotWeak), context.CreateProxy(typeof(IsOwnedButNotWeak)).GetType().BaseType);
         }
 
-        [ConditionalFact] // Issue #22407
-        public void CreateProxy_throws_for_weak_entity_types()
-        {
-            using var context = new NeweyContext();
-
-            Assert.Equal(
-                ProxiesStrings.EntityTypeNotFoundWeak(nameof(IsWeak)),
-                Assert.Throws<InvalidOperationException>(() => context.CreateProxy<IsWeak>()).Message);
-
-            Assert.Equal(
-                ProxiesStrings.EntityTypeNotFoundWeak(nameof(IsWeak)),
-                Assert.Throws<InvalidOperationException>(() => context.CreateProxy<IsWeak>(_ => { })).Message);
-
-            Assert.Equal(
-                ProxiesStrings.EntityTypeNotFoundWeak(nameof(IsWeak)),
-                Assert.Throws<InvalidOperationException>(() => context.CreateProxy(typeof(IsWeak))).Message);
-        }
-
         [ConditionalFact]
         public void CreateProxy_uses_parameterless_constructor()
         {

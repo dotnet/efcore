@@ -63,12 +63,16 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             var name = entityType.ShortName();
-            if (entityType.HasDefiningNavigation())
+            if (entityType.HasSharedClrType
+                && ownership != null
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                && entityType.Name == ownership.PrincipalEntityType.GetOwnedName(name, ownership.PrincipalToDependent.Name))
+#pragma warning restore EF1001 // Internal EF Core API usage.
             {
-                var definingTypeName = entityType.DefiningEntityType.GetTableName();
-                name = definingTypeName != null
-                    ? $"{definingTypeName}_{entityType.DefiningNavigationName}"
-                    : $"{entityType.DefiningNavigationName}_{name}";
+                var ownerTypeTable = ownership.PrincipalEntityType.GetTableName();
+                name = ownerTypeTable != null
+                    ? $"{ownerTypeTable}_{ownership.PrincipalToDependent.Name}"
+                    : $"{ownership.PrincipalToDependent.Name}_{name}";
             }
 
             return truncate
@@ -141,31 +145,23 @@ namespace Microsoft.EntityFrameworkCore
         public static string GetDefaultSchema([NotNull] this IEntityType entityType)
         {
             var ownership = entityType.FindOwnership();
-            if (ownership != null
-                && ownership.IsUnique)
+            if (ownership != null)
             {
                 return ownership.PrincipalEntityType.GetSchema();
             }
 
-            if (entityType.HasDefiningNavigation())
+            var skipNavigationSchema = entityType.GetForeignKeys().SelectMany(fk => fk.GetReferencingSkipNavigations())
+                .FirstOrDefault(n => !n.IsOnDependent)
+                ?.DeclaringEntityType.GetSchema();
+            if (skipNavigationSchema != null
+                && entityType.GetForeignKeys().SelectMany(fk => fk.GetReferencingSkipNavigations())
+                    .Where(n => !n.IsOnDependent)
+                    .All(n => n.DeclaringEntityType.GetSchema() == skipNavigationSchema))
             {
-                return entityType.DefiningEntityType.GetSchema() ?? entityType.Model.GetDefaultSchema();
+                return skipNavigationSchema;
             }
-            else
-            {
-                var skipReferencingTypes = entityType.GetForeignKeys().SelectMany(fk => fk.GetReferencingSkipNavigations())
-                    .Where(n => !n.IsOnDependent && n.DeclaringEntityType != entityType)
-                    .ToList();
-                var skipNavigationSchema = skipReferencingTypes.FirstOrDefault()?.DeclaringEntityType.GetSchema();
-                if (skipNavigationSchema != null
-                    && skipReferencingTypes.Skip(1)
-                        .All(n => n.DeclaringEntityType.GetSchema() == skipNavigationSchema))
-                {
-                    return skipNavigationSchema;
-                }
 
-                return entityType.Model.GetDefaultSchema();
-            }
+            return entityType.Model.GetDefaultSchema();
         }
 
         /// <summary>

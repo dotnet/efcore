@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
     public class ShadowEntityTypeTest
     {
         [ConditionalFact]
-        public virtual void Can_create_two_shadow_weak_owned_types()
+        public virtual void Can_create_two_shadow_owned_types()
         {
             var modelBuilder = CreateModelBuilder();
 
@@ -62,11 +62,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             Assert.Equal(
                 ownership1.DeclaringEntityType.FindPrimaryKey().Properties.Single().Name,
                 ownership2.DeclaringEntityType.FindPrimaryKey().Properties.Single().Name);
-            Assert.Equal(2, model.GetEntityTypes().Count(e => e.Name == "CustomerDetails"));
+            Assert.Equal(2, model.GetEntityTypes().Count(e => e.ShortName() == "CustomerDetails"));
         }
 
         [ConditionalFact]
-        public virtual void Can_create_One_to_One_shadow_navigations_between_shadow_entity_types()
+        public virtual void Can_create_one_to_one_shadow_navigations_between_shadow_entity_types()
         {
             var modelBuilder = CreateModelBuilder();
             var foreignKey = modelBuilder.Entity("Order")
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         }
 
         [ConditionalFact]
-        public virtual void Can_create_One_to_Many_shadow_navigations_between_shadow_entity_types()
+        public virtual void Can_create_one_to_many_shadow_navigations_between_shadow_entity_types()
         {
             var modelBuilder = CreateModelBuilder();
             var foreignKey = modelBuilder.Entity("Order")

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
@@ -542,7 +543,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(typeof(Dictionary<string, object>), shared2.ClrType);
 
                 Assert.Equal(
-                    CoreStrings.ClashingSharedType(typeof(Dictionary<string, object>).DisplayName()),
+                    CoreStrings.ClashingSharedType(typeof(Dictionary<string, object>).ShortDisplayName()),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Dictionary<string, object>>()).Message);
 
                 modelBuilder.FinalizeModel();

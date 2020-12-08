@@ -504,7 +504,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Null(foreignKey.PrincipalToDependent);
                 Assert.NotEqual(ownership1.Properties.Single().Name, foreignKey.Properties.Single().Name);
                 Assert.Equal(5, model.GetEntityTypes().Count());
-                Assert.Equal(2, model.GetEntityTypes(typeof(Order)).Count);
+                Assert.Equal(2, model.GetEntityTypes(typeof(Order)).Count());
                 Assert.Equal(2, ownership1.DeclaringEntityType.GetForeignKeys().Count());
 
                 Assert.Equal(2, model.GetEntityTypes().Count(e => e.ClrType == typeof(Order)));
@@ -786,8 +786,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     nameof(SpecialOrder.SpecialOrderId), specialOwnership.DeclaringEntityType.FindPrimaryKey().Properties.Single().Name);
 
                 Assert.Equal(9, modelBuilder.Model.GetEntityTypes().Count());
-                Assert.Equal(2, modelBuilder.Model.GetEntityTypes(typeof(Order)).Count);
-                Assert.Equal(7, modelBuilder.Model.GetEntityTypes().Count(e => !e.HasDefiningNavigation()));
+                Assert.Equal(2, modelBuilder.Model.GetEntityTypes(typeof(Order)).Count());
+                Assert.Equal(7, modelBuilder.Model.GetEntityTypes().Count(e => !e.HasSharedClrType));
                 Assert.Equal(5, modelBuilder.Model.GetEntityTypes().Count(e => e.IsOwned()));
 
                 var conventionModel = (IConventionModel)modelBuilder.Model;
@@ -834,8 +834,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     nameof(SpecialOrder.SpecialOrderId), specialOwnership.DeclaringEntityType.FindPrimaryKey().Properties.Single().Name);
 
                 Assert.Equal(9, modelBuilder.Model.GetEntityTypes().Count());
-                Assert.Equal(2, modelBuilder.Model.GetEntityTypes(typeof(Order)).Count);
-                Assert.Equal(7, modelBuilder.Model.GetEntityTypes().Count(e => !e.HasDefiningNavigation()));
+                Assert.Equal(2, modelBuilder.Model.GetEntityTypes(typeof(Order)).Count());
+                // SpecialOrder and Address are only used once, but once they are made shared they don't revert to non-shared
+                Assert.Equal(5, modelBuilder.Model.GetEntityTypes().Count(e => !e.HasSharedClrType));
                 Assert.Equal(5, modelBuilder.Model.GetEntityTypes().Count(e => e.IsOwned()));
 
                 var conventionModel = (IConventionModel)modelBuilder.Model;
@@ -1286,7 +1287,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .ForeignKey;
                 var selfOwnership = bookLabelOwnership.DeclaringEntityType.FindNavigation(nameof(BookLabel.AnotherBookLabel)).ForeignKey;
                 Assert.NotSame(selfOwnership.PrincipalEntityType, selfOwnership.DeclaringEntityType);
-                Assert.Equal(selfOwnership.PrincipalEntityType.Name, selfOwnership.DeclaringEntityType.Name);
+                Assert.Equal(selfOwnership.PrincipalEntityType.ClrType, selfOwnership.DeclaringEntityType.ClrType);
                 Assert.True(selfOwnership.IsOwnership);
                 Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(BookLabel)));
                 Assert.Equal(2, model.GetEntityTypes().Count(e => e.ClrType == typeof(AnotherBookLabel)));
@@ -1356,8 +1357,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(
                     CoreStrings.ClashingNonOwnedDerivedEntityType(nameof(BookLabel), nameof(AnotherBookLabel)),
                     Assert.Throws<InvalidOperationException>(
-                        () =>
-                            modelBuilder.Entity<Book>().OwnsOne(c => c.Label)).Message);
+                        () => modelBuilder.Entity<Book>().OwnsOne(c => c.Label)).Message);
             }
 
             [ConditionalFact]
@@ -1594,36 +1594,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                                 () =>
                                     b.OwnsMany("Shared1", e => e.Collection)).Message);
                     });
-            }
-
-            [ConditionalFact]
-            public virtual void Cannot_add_shared_type_with_same_clr_type_as_weak_entity_type()
-            {
-                var modelBuilder = CreateModelBuilder();
-
-                modelBuilder.Entity<BillingOwner>(
-                    b =>
-                    {
-                        b.OwnsOne(e => e.Bill1);
-                        b.OwnsOne(e => e.Bill2);
-                    });
-
-                Assert.Equal(
-                    CoreStrings.ClashingNonSharedType("Shared1", typeof(BillingDetail).DisplayName()),
-                    Assert.Throws<InvalidOperationException>(
-                        () => modelBuilder.SharedTypeEntity<BillingDetail>("Shared1")).Message);
-            }
-
-            [ConditionalFact]
-            public virtual void Cannot_add_owned_type_with_same_clr_type_as_shared_type_entity_type()
-            {
-                var modelBuilder = CreateModelBuilder();
-                var entityTypeBuilder = modelBuilder.Entity<OwnerOfSharedType>();
-
-                Assert.Equal(
-                    CoreStrings.ClashingSharedType(typeof(Dictionary<string, object>).DisplayName()),
-                    Assert.Throws<InvalidOperationException>(
-                        () => entityTypeBuilder.OwnsOne(e => e.Reference)).Message);
             }
         }
     }

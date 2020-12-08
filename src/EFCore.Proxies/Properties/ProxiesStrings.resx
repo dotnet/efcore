@@ -125,6 +125,7 @@
   </data>
   <data name="EntityTypeNotFoundWeak" xml:space="preserve">
     <value>Cannot create a proxy for '{typeName}' because it is mapped to multiple owned entity types. Proxy creation is not supported for owned types used more than once in the model.</value>
+    <comment>Obsolete</comment>
   </data>
   <data name="FieldProperty" xml:space="preserve">
     <value>Property '{property}' on entity type '{entityType}' is mapped without a CLR property. 'UseChangeTrackingProxies' requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. 'UseLazyLoadingProxies' requires only the navigation properties be virtual.</value>

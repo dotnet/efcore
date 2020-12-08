@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             modelBuilder.Entity<SpecialCustomer>().HasOne(c => c.Details)).Message);
             }
 
-            //Shadow navigations not supported #3864
+            // Shadow navigations not supported #3864
             public override void Can_configure_owned_type_collection_with_one_call()
             {
             }
@@ -49,11 +49,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             // Owned type configuration doesn't apply to "derived" types when using shadow entity types
             public override void Can_configure_owned_type_collection_with_one_call_afterwards()
-            {
-            }
-
-            // Owned type's CLR type is not used
-            public override void Cannot_add_owned_type_with_same_clr_type_as_shared_type_entity_type()
             {
             }
         }
