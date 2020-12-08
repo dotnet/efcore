@@ -996,7 +996,14 @@ namespace Microsoft.EntityFrameworkCore
                         || IsOptionalSharingDependent(linkingForeignKey.PrincipalEntityType, storeObject, recursionDepth));
             }
 
-            return optional ?? (entityType.BaseType != null && entityType.GetDiscriminatorProperty() != null);
+            if (optional.HasValue)
+            {
+                return optional.Value;
+            }
+
+            return AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23479", out var enabled) && enabled
+                ? false
+                : entityType.BaseType != null && entityType.GetDiscriminatorProperty() != null;
         }
 
         /// <summary>
