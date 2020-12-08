@@ -1165,11 +1165,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type);
 
         /// <summary>
-        ///     Entity Type Configuration of type {entityTypeConfigurationType} is invalid. The configuration have to implement IEntityTypeConfiguration&lt;{entityType}&gt; Interface.
+        ///     The entity type configuration of type '{entityTypeConfigurationType}' is invalid. The configuration specified using EntityTypeConfigurationAttribute has to implement 'IEntityTypeConfiguration&lt;{entityType}&gt;'.
         /// </summary>
-        public static string InvalidEntityTypeConfiguration([CanBeNull] object entityTypeConfigurationType, [CanBeNull] object entityType)
+        public static string InvalidEntityTypeConfigurationAttribute([CanBeNull] object? entityTypeConfigurationType, [CanBeNull] object? entityType)
             => string.Format(
-                GetString("InvalidEntityTypeConfiguration", nameof(entityTypeConfigurationType), nameof(entityType)),
+                GetString("InvalidEntityTypeConfigurationAttribute", nameof(entityTypeConfigurationType), nameof(entityType)),
                 entityTypeConfigurationType, entityType);
 
         /// <summary>

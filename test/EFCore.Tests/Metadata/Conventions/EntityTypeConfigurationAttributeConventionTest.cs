@@ -10,10 +10,10 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
-    public class EntityConfigurationAttributeConventionTest
+    public class EntityTypeConfigurationAttributeConventionTest
     {
         [ConditionalFact]
-        public void EntityConfigurationAttribute_Should_AppliConfiguration_ToEntityType()
+        public void EntityTypeConfigurationAttribute_should_apply_configuration_to_EntityType()
         {
             var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
@@ -24,25 +24,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         [ConditionalFact]
-        public void EntityConfigurationAttribute_Should_ThrowInvalidOperationException_WhenConfiguration_IsInvalid()
+        public void EntityTypeConfigurationAttribute_should_throw_when_configuration_is_wrong_type()
         {
             var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
-            var entityType = (IConventionEntityType)CreateModel().AddEntityType(typeof(User));
-
-            Assert.Equal(CoreStrings.InvalidEntityTypeConfiguration(typeof(UserConfiguration), entityType),
+            Assert.Equal(CoreStrings.InvalidEntityTypeConfigurationAttribute(nameof(UserConfiguration), nameof(User)),
                 Assert.Throws<InvalidOperationException>(() => builder.Entity<User>()).Message);
         }
 
-         private static IMutableModel CreateModel()
+        [ConditionalFact]
+        public void EntityTypeConfigurationAttribute_should_throw_when_configuration_is_for_wrong_entity_type()
+        {
+            var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+            Assert.Equal(CoreStrings.InvalidEntityTypeConfigurationAttribute(nameof(CustomerConfiguration), nameof(InvalidCustomer)),
+                Assert.Throws<InvalidOperationException>(() => builder.Entity<InvalidCustomer>()).Message);
+        }
+
+        private static IMutableModel CreateModel()
             => new Model();
 
         private class UserConfiguration
         {
         }
 
-        [EntityConfiguration(typeof(UserConfiguration))]
-        protected class User
+        [EntityTypeConfiguration(typeof(UserConfiguration))]
+        private class User
         {
             public int Id { get; set; }
 
@@ -57,8 +64,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        [EntityConfiguration(typeof(CustomerConfiguration))]
-        protected class Customer
+        [EntityTypeConfiguration(typeof(CustomerConfiguration))]
+        private class Customer
+        {
+            public int Id { get; set; }
+
+            public string Name { get; set; }
+        }
+
+        [EntityTypeConfiguration(typeof(CustomerConfiguration))]
+        private class InvalidCustomer
         {
             public int Id { get; set; }
 
