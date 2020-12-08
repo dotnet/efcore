@@ -1585,11 +1585,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             get
             {
-                var keyProperties = ((EntityType)EntityType).FindPrimaryKey()?.Properties;
-                if (keyProperties == null)
-                {
-                    throw new InvalidOperationException(CoreStrings.SeedKeylessEntity(EntityType.DisplayName()));
-                }
+                var keyProperties = ((EntityType)EntityType).FindPrimaryKey().Properties;
                 // ReSharper disable once ForCanBeConvertedToForeach
                 // ReSharper disable once LoopCanBeConvertedToQuery
                 for (var i = 0; i < keyProperties.Count; i++)
