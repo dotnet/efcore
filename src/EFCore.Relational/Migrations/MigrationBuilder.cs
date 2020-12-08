@@ -1333,6 +1333,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Table = table,
                 Schema = schema,
                 Columns = columns,
+                ColumnTypes = columnTypes,
                 Values = values
             };
             Operations.Add(operation);
