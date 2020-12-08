@@ -53,7 +53,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionContext<bool?> context)
         {
             var newRelationshipBuilder = relationshipBuilder.OnDelete(GetTargetDeleteBehavior(relationshipBuilder.Metadata));
-            context.StopProcessingIfChanged(newRelationshipBuilder?.Metadata.IsRequired);
+            if (newRelationshipBuilder != null)
+            {
+                context.StopProcessingIfChanged(newRelationshipBuilder.Metadata.IsRequired);
+            }
         }
 
         /// <summary>
