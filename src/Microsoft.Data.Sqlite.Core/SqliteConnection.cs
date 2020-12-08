@@ -90,11 +90,6 @@ namespace Microsoft.Data.Sqlite
 
                 _connectionString = value ?? string.Empty;
                 _connectionOptions = null;
-
-                if (ConnectionOptions.DefaultTimeout.HasValue)
-                {
-                    DefaultTimeout = ConnectionOptions.DefaultTimeout.Value;
-                }
             }
         }
 
@@ -135,7 +130,7 @@ namespace Microsoft.Data.Sqlite
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/database-errors">Database Errors</seealso>
         public virtual int DefaultTimeout
         {
-            get => _defaultTimeout ?? 30;
+            get => _defaultTimeout ?? ConnectionOptions.DefaultTimeout;
             set => _defaultTimeout = value;
         }
 

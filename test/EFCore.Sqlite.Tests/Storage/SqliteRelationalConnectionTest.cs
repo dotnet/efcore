@@ -37,26 +37,5 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Same(originalConnection, connection);
             Assert.Equal(42, originalConnection.DefaultTimeout);
         }
-
-        [Fact]
-        public void Sets_DefaultTimeout_when_connection_overrides_connection_string()
-        {
-            var originalConnection = new SqliteConnection("Data Source=:memory:;Default Timeout=50") { DefaultTimeout = 21 };
-            Assert.Equal(21, originalConnection.DefaultTimeout);
-
-            var services = SqliteTestHelpers.Instance.CreateContextServices(
-                new DbContextOptionsBuilder()
-                    .UseSqlite(originalConnection, x => x.CommandTimeout(42))
-                    .Options);
-
-            Assert.Equal(42, originalConnection.DefaultTimeout);
-        }
-
-        [Fact]
-        public void Sets_DefaultTimeout_when_connection_string()
-        {
-            var originalConnection = new SqliteConnection("Data Source=:memory:;Default Timeout=50");
-            Assert.Equal(50, originalConnection.DefaultTimeout);
-        }
     }
 }

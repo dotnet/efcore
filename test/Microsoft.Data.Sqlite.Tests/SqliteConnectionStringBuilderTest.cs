@@ -10,10 +10,13 @@ namespace Microsoft.Data.Sqlite
 {
     public class SqliteConnectionStringBuilderTest
     {
-        [Fact]
-        public void Ctor_parses_options()
+        [Theory]
+        [InlineData("Data Source")]
+        [InlineData("Filename")]
+        [InlineData("DataSource")]
+        public void Ctor_parses_DataSource(string keyword)
         {
-            var builder = new SqliteConnectionStringBuilder("Data Source=test.db");
+            var builder = new SqliteConnectionStringBuilder($"{keyword}=test.db");
 
             Assert.Equal("test.db", builder.DataSource);
         }
@@ -31,6 +34,40 @@ namespace Microsoft.Data.Sqlite
             var builder = new SqliteConnectionStringBuilder("Mode=Memory");
 
             Assert.Equal(SqliteOpenMode.Memory, builder.Mode);
+        }
+
+        [Fact]
+        public void Ctor_parses_Password()
+        {
+            var builder = new SqliteConnectionStringBuilder("Password=key");
+
+            Assert.Equal("key", builder.Password);
+        }
+
+        [Fact]
+        public void Ctor_parses_ForeignKeys()
+        {
+            var builder = new SqliteConnectionStringBuilder("Foreign Keys=True");
+
+            Assert.True(builder.ForeignKeys);
+        }
+
+        [Fact]
+        public void Ctor_parses_RecursiveTriggers()
+        {
+            var builder = new SqliteConnectionStringBuilder("Recursive Triggers=True");
+
+            Assert.True(builder.RecursiveTriggers);
+        }
+
+        [Theory]
+        [InlineData("Default Timeout")]
+        [InlineData("Command Timeout")]
+        public void Ctor_parses_DefaultTimeout(string keyword)
+        {
+            var builder = new SqliteConnectionStringBuilder($"{keyword}=1");
+
+            Assert.Equal(1, builder.DefaultTimeout);
         }
 
         [Fact]
@@ -109,6 +146,12 @@ namespace Microsoft.Data.Sqlite
         public void Password_defaults_to_empty()
         {
             Assert.Empty(new SqliteConnectionStringBuilder().Password);
+        }
+
+        [Fact]
+        public void DefaultTimeout_defaults_to_30()
+        {
+            Assert.Equal(30, new SqliteConnectionStringBuilder().DefaultTimeout);
         }
 
         [Fact]
@@ -232,32 +275,11 @@ namespace Microsoft.Data.Sqlite
             Assert.ThrowsAny<FormatException>(() => builder["Foreign Keys"] = value);
         }
 
-        [Theory]
-        [InlineData("250", 250)]
-        public void Item_converts_to_int_on_set(object value, int? expected)
-        {
-            var builder = new SqliteConnectionStringBuilder();
-
-            builder["Default Timeout"] = value;
-
-            Assert.Equal(expected, builder["Default Timeout"]);
-        }
-
-        [Theory]
-        [InlineData("test")]
-        [InlineData("Unknown")]
-        public void Item_throws_when_cannot_convert_to_int_on_set(object value)
-        {
-            var builder = new SqliteConnectionStringBuilder();
-
-            Assert.ThrowsAny<FormatException>(() => builder["Default Timeout"] = value);
-        }
-
         [Fact]
         public void Clear_resets_everything()
         {
             var builder = new SqliteConnectionStringBuilder(
-                "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True");
+                "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True;Default Timeout=1");
 
             builder.Clear();
 
@@ -267,6 +289,7 @@ namespace Microsoft.Data.Sqlite
             Assert.Empty(builder.Password);
             Assert.Null(builder.ForeignKeys);
             Assert.False(builder.RecursiveTriggers);
+            Assert.Equal(30, builder.DefaultTimeout);
         }
 
         [Fact]
@@ -348,11 +371,12 @@ namespace Microsoft.Data.Sqlite
                 Mode = SqliteOpenMode.Memory,
                 Password = "test",
                 ForeignKeys = true,
-                RecursiveTriggers = true
+                RecursiveTriggers = true,
+                DefaultTimeout = 1
             };
 
             Assert.Equal(
-                "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True",
+                "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True;Default Timeout=1",
                 builder.ToString());
         }
 

@@ -51,7 +51,7 @@ namespace Microsoft.Data.Sqlite
         private string _password = string.Empty;
         private bool? _foreignKeys;
         private bool _recursiveTriggers;
-        private int? _defaultTimeout;
+        private int _defaultTimeout = 30;
 
         static SqliteConnectionStringBuilder()
         {
@@ -193,10 +193,10 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Gets or sets a value indicating the Default Connection Timeout.
+        ///     Gets or sets the default <see cref="SqliteConnection.DefaultTimeout" /> value.
         /// </summary>
-        /// <value>The Default Connection Timeout in seconds.</value>
-        public int? DefaultTimeout
+        /// <value>The default <see cref="SqliteConnection.DefaultTimeout" /> value.</value>
+        public int DefaultTimeout
         {
             get => _defaultTimeout;
             set => base[DefaultTimeoutKeyword] = _defaultTimeout = value;
@@ -436,7 +436,7 @@ namespace Microsoft.Data.Sqlite
                     return;
 
                 case Keywords.DefaultTimeout:
-                    _defaultTimeout = null;
+                    _defaultTimeout = 30;
                     return;
 
                 default:

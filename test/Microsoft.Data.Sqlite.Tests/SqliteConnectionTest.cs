@@ -107,12 +107,22 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void DefaultTimeout_works()
+        public void DefaultTimeout_defaults_to_connection_string()
         {
-            var connection = new SqliteConnection();
-            connection.DefaultTimeout = 1;
+            var connection = new SqliteConnection("Default Timeout=1");
 
             Assert.Equal(1, connection.DefaultTimeout);
+        }
+
+        [Fact]
+        public void DefaultTimeout_works()
+        {
+            var connection = new SqliteConnection("Default Timeout=1")
+            {
+                DefaultTimeout = 2
+            };
+
+            Assert.Equal(2, connection.DefaultTimeout);
         }
 
         [Fact]
@@ -471,28 +481,6 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void Open_works_when_default_timeout()
-        {
-            using (var connection = new SqliteConnection("Data Source=:memory:;Default Timeout=100"))
-            {
-                connection.Open();
-
-                Assert.Equal(100, connection.DefaultTimeout);
-            }
-        }
-
-        [Fact]
-        public void Open_works_when_command_timeout()
-        {
-            using (var connection = new SqliteConnection("Data Source=:memory:;Command Timeout=100"))
-            {
-                connection.Open();
-
-                Assert.Equal(100, connection.DefaultTimeout);
-            }
-        }
-
-        [Fact]
         public void Close_works()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -570,7 +558,6 @@ namespace Microsoft.Data.Sqlite
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
-                connection.DefaultTimeout = 1;
                 connection.Open();
 
                 using (var transaction = connection.BeginTransaction())
@@ -579,7 +566,6 @@ namespace Microsoft.Data.Sqlite
 
                     Assert.NotNull(command);
                     Assert.Same(connection, command.Connection);
-                    Assert.Equal(1, command.CommandTimeout);
                     Assert.Same(transaction, command.Transaction);
                 }
             }
