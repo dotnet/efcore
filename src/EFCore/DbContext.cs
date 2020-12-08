@@ -112,6 +112,8 @@ namespace Microsoft.EntityFrameworkCore
             ServiceProviderCache.Instance.GetOrAdd(options, providerRequired: false)
                 .GetRequiredService<IDbSetInitializer>()
                 .InitializeSets(this);
+
+            EntityFrameworkEventSource.Log.DbContextInitializing();
         }
 
         /// <summary>
@@ -346,8 +348,6 @@ namespace Microsoft.EntityFrameworkCore
                 try
                 {
                     _initializing = true;
-
-                    EntityFrameworkEventSource.Log.DbContextInitializing();
 
                     var optionsBuilder = new DbContextOptionsBuilder(_options);
 
@@ -642,6 +642,8 @@ namespace Microsoft.EntityFrameworkCore
             }
             catch (DbUpdateConcurrencyException exception)
             {
+                EntityFrameworkEventSource.Log.OptimisticConcurrencyFailure();
+
                 await DbContextDependencies.UpdateLogger.OptimisticConcurrencyExceptionAsync(this, exception, cancellationToken)
                     .ConfigureAwait(false);
 
