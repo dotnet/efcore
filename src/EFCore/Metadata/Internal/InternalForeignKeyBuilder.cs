@@ -1742,26 +1742,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] EntityType dependentEntityType,
             ConfigurationSource configurationSource)
         {
-            using (var batch = Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions())
+            using var batch = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23516", out var enabled) && enabled
+                ? null
+                : Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions();
+
+            var relationship = HasForeignKey(
+                       dependentEntityType.Builder.GetOrCreateProperties(
+                           propertyNames,
+                           configurationSource,
+                           Metadata.PrincipalKey.Properties,
+                           Metadata.GetIsRequiredConfigurationSource() != null && Metadata.IsRequired,
+                           Metadata.GetPrincipalKeyConfigurationSource() == null
+                           && Metadata.PrincipalEntityType.FindPrimaryKey() == null),
+                       dependentEntityType,
+                       configurationSource);
+
+            if (relationship == null)
             {
-                var relationship = HasForeignKey(
-                           dependentEntityType.Builder.GetOrCreateProperties(
-                               propertyNames,
-                               configurationSource,
-                               Metadata.PrincipalKey.Properties,
-                               Metadata.GetIsRequiredConfigurationSource() != null && Metadata.IsRequired,
-                               Metadata.GetPrincipalKeyConfigurationSource() == null
-                               && Metadata.PrincipalEntityType.FindPrimaryKey() == null),
-                           dependentEntityType,
-                           configurationSource);
-
-                if (relationship == null)
-                {
-                    return null;
-                }
-
-                return (InternalForeignKeyBuilder)batch.Run(relationship.Metadata)?.Builder;
+                return null;
             }
+
+            return batch == null
+                ? relationship
+                : (InternalForeignKeyBuilder)batch.Run(relationship.Metadata)?.Builder;
         }
 
         /// <summary>
