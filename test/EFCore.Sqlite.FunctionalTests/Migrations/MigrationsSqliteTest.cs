@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 );",
                 @"INSERT INTO ""ef_temp_People"" (""Id"")
 SELECT ""Id""
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -140,7 +140,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""Id"")
 SELECT ""Id""
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -159,7 +159,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""Id"")
 SELECT ""Id""
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -176,7 +176,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""Id"")
 SELECT ""Id""
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -204,7 +204,7 @@ FROM People;",
                 //
                 @"INSERT INTO ""ef_temp_Persons"" (""Id"")
 SELECT ""Id""
-FROM Persons;",
+FROM ""Persons"";",
                 //
                 @"PRAGMA foreign_keys = 0;",
                 //
@@ -285,7 +285,7 @@ FROM Persons;",
                 //
                 @"INSERT INTO ""ef_temp_People"" (""FullName"", ""Id"")
 SELECT ""FullName"", ""Id""
-FROM People;",
+FROM ""People"";",
                 //
                 @"PRAGMA foreign_keys = 0;",
                 //
@@ -325,7 +325,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""DriverLicense"", ""Id"")
 SELECT ""DriverLicense"", ""Id""
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -343,7 +343,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""Id"", ""SomeColumn"")
 SELECT ""Id"", IFNULL(""SomeColumn"", '')
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -361,7 +361,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""Id"", ""SomeColumn"")
 SELECT ""Id"", IFNULL(""SomeColumn"", '')
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -381,7 +381,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""FirstName"", ""Id"", ""LastName"")
 SELECT IFNULL(""FirstName"", ''), ""Id"", ""LastName""
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -404,7 +404,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""Id"", ""X"", ""Y"")
 SELECT ""Id"", ""X"", ""Y""
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -424,7 +424,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""Id"", ""X"", ""Y"")
 SELECT ""Id"", ""X"", ""Y""
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -444,7 +444,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""Id"", ""X"", ""Y"")
 SELECT ""Id"", ""X"", ""Y""
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -462,7 +462,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""Id"")
 SELECT ""Id""
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -480,7 +480,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""Id"")
 SELECT ""Id""
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -497,7 +497,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""Id"")
 SELECT ""Id""
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -514,7 +514,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""Name"")
 SELECT ""Name""
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -531,7 +531,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""Name"")
 SELECT ""Name""
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -548,7 +548,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""Id"")
 SELECT ""Id""
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -565,7 +565,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""SomeColumn"")
 SELECT ""SomeColumn""
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -616,7 +616,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""SomeField"")
 SELECT ""SomeField""
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -633,7 +633,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""SomeField"")
 SELECT ""SomeField""
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -652,7 +652,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""SomeField1"", ""SomeField2"")
 SELECT ""SomeField1"", ""SomeField2""
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -669,7 +669,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""SomeField"")
 SELECT ""SomeField""
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -688,7 +688,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_Orders"" (""CustomerId"", ""Id"")
 SELECT ""CustomerId"", ""Id""
-FROM Orders;",
+FROM ""Orders"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""Orders"";",
                 @"ALTER TABLE ""ef_temp_Orders"" RENAME TO ""Orders"";",
@@ -707,7 +707,7 @@ FROM Orders;",
 );",
                 @"INSERT INTO ""ef_temp_Orders"" (""CustomerId"", ""Id"")
 SELECT ""CustomerId"", ""Id""
-FROM Orders;",
+FROM ""Orders"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""Orders"";",
                 @"ALTER TABLE ""ef_temp_Orders"" RENAME TO ""Orders"";",
@@ -725,7 +725,7 @@ FROM Orders;",
 );",
                 @"INSERT INTO ""ef_temp_Orders"" (""CustomerId"", ""Id"")
 SELECT ""CustomerId"", ""Id""
-FROM Orders;",
+FROM ""Orders"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""Orders"";",
                 @"ALTER TABLE ""ef_temp_Orders"" RENAME TO ""Orders"";",
@@ -744,7 +744,7 @@ FROM Orders;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""AlternateKeyColumn"", ""Id"")
 SELECT ""AlternateKeyColumn"", ""Id""
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -764,7 +764,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""AlternateKeyColumn1"", ""AlternateKeyColumn2"", ""Id"")
 SELECT ""AlternateKeyColumn1"", ""AlternateKeyColumn2"", ""Id""
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -782,7 +782,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""AlternateKeyColumn"", ""Id"")
 SELECT ""AlternateKeyColumn"", ""Id""
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -801,7 +801,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""DriverLicense"", ""Id"")
 SELECT ""DriverLicense"", ""Id""
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -820,7 +820,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""DriverLicense"", ""Id"")
 SELECT ""DriverLicense"", ""Id""
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
@@ -838,7 +838,7 @@ FROM People;",
 );",
                 @"INSERT INTO ""ef_temp_People"" (""DriverLicense"", ""Id"")
 SELECT ""DriverLicense"", ""Id""
-FROM People;",
+FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",

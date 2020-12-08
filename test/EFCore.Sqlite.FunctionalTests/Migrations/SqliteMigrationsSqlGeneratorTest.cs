@@ -768,7 +768,7 @@ GO
 
 INSERT INTO ""ef_temp_Blog"" (""Name"")
 SELECT ""Title""
-FROM Blog;
+FROM ""Blog"";
 GO
 
 PRAGMA foreign_keys = 0;
@@ -818,7 +818,7 @@ GO
 
 INSERT INTO ""ef_temp_Blog"" (""Name"")
 SELECT ""Title""
-FROM Blog;
+FROM ""Blog"";
 GO
 
 PRAGMA foreign_keys = 0;
@@ -871,7 +871,7 @@ GO
 
 INSERT INTO ""ef_temp_Blog"" (""Name"")
 SELECT ""Title""
-FROM Blog;
+FROM ""Blog"";
 GO
 
 PRAGMA foreign_keys = 0;
@@ -919,7 +919,7 @@ GO
 
 INSERT INTO ""ef_temp_Blog"" (""Id"")
 SELECT ""Id""
-FROM Blog;
+FROM ""Blog"";
 GO
 
 PRAGMA foreign_keys = 0;
@@ -970,7 +970,7 @@ GO
 
 INSERT INTO ""ef_temp_Blog"" (""Id"")
 SELECT ""Id""
-FROM Blog;
+FROM ""Blog"";
 GO
 
 PRAGMA foreign_keys = 0;
@@ -1015,7 +1015,7 @@ GO
 
 INSERT INTO ""ef_temp_Blog"" (""Id"")
 SELECT ""Id""
-FROM Blog;
+FROM ""Blog"";
 GO
 
 PRAGMA foreign_keys = 0;
