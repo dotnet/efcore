@@ -47,20 +47,20 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
 
             result = StringComparer.Ordinal.Compare(x.Schema, y.Schema);
-            if (0 != result)
+            if (result != 0)
             {
                 return result;
             }
 
             result = StringComparer.Ordinal.Compare(x.TableName, y.TableName);
-            if (0 != result)
+            if (result != 0)
             {
                 return result;
             }
 
             var xState = x.EntityState;
             result = (int)xState - (int)y.EntityState;
-            if (0 != result)
+            if (result != 0)
             {
                 return result;
             }
@@ -77,13 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 if (xEntityType != yEntityType)
                 {
                     result = StringComparer.Ordinal.Compare(xEntityType.Name, yEntityType.Name);
-                    if (0 != result)
-                    {
-                        return result;
-                    }
-
-                    result = StringComparer.Ordinal.Compare(xEntityType.DefiningNavigationName, yEntityType.DefiningNavigationName);
-                    if (0 != result)
+                    if (result != 0)
                     {
                         return result;
                     }
@@ -95,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     var xKeyProperty = xKey.Properties[i];
 
                     result = xKeyProperty.GetCurrentValueComparer().Compare(xEntry, yEntry);
-                    if (0 != result)
+                    if (result != 0)
                     {
                         return result;
                     }

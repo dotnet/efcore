@@ -37,8 +37,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     /// </summary>
     public class StateManager : IStateManager
     {
-        private readonly EntityReferenceMap _entityReferenceMap
-            = new EntityReferenceMap(hasSubMap: true);
+        private readonly EntityReferenceMap _entityReferenceMap = new(hasSubMap: true);
 
         private IDictionary<object, IList<Tuple<INavigationBase, InternalEntityEntry>>> _referencedUntrackedEntities;
         private IIdentityMap _identityMap0;
@@ -211,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var entityType = _model.FindRuntimeEntityType(entity.GetType());
                 if (entityType == null)
                 {
-                    if (_model.HasEntityTypeWithDefiningNavigation(entity.GetType()))
+                    if (_model.IsShared(entity.GetType()))
                     {
                         throw new InvalidOperationException(
                             CoreStrings.UntrackedDependentEntity(
@@ -252,20 +251,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = TryGetEntry(entity, entityType);
             if (entry == null)
             {
-                if (!entityType.HasSharedClrType)
+                var runtimeEntityType = _model.FindRuntimeEntityType(entity.GetType());
+                if (runtimeEntityType != null)
                 {
-                    var runtimeEntityType = _model.FindRuntimeEntityType(entity.GetType());
-                    if (runtimeEntityType != null)
+                    if (!entityType.IsAssignableFrom(runtimeEntityType))
                     {
-                        if (!entityType.IsAssignableFrom(runtimeEntityType))
-                        {
-                            throw new InvalidOperationException(
-                                CoreStrings.TrackingTypeMismatch(
-                                    runtimeEntityType.DisplayName(), entityType.DisplayName()));
-                        }
-
-                        entityType = runtimeEntityType;
+                        throw new InvalidOperationException(
+                            CoreStrings.TrackingTypeMismatch(
+                                runtimeEntityType.DisplayName(), entityType.DisplayName()));
                     }
+
+                    entityType = runtimeEntityType;
                 }
 
                 if (entityType.FindPrimaryKey() == null)
@@ -325,10 +321,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             EntityState? oldState)
         {
             var entityType = entry.EntityType;
-            if (entityType.HasDefiningNavigation())
+            if (entityType.HasSharedClrType)
             {
                 var mapKey = entry.Entity ?? entry;
-                foreach (var otherType in _model.GetEntityTypes(entityType.Name)
+                foreach (var otherType in _model.GetEntityTypes(entityType.ClrType)
                     .Where(et => et != entityType && TryGetEntry(mapKey, et) != null))
                 {
                     UpdateLogger.DuplicateDependentEntityTypeInstanceWarning(entityType, otherType);
@@ -358,7 +354,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var clrType = entity.GetType();
             var entityType = baseEntityType.HasSharedClrType
                 || baseEntityType.ClrType == clrType
-                || baseEntityType.HasDefiningNavigation()
                     ? baseEntityType
                     : _model.FindRuntimeEntityType(clrType);
 
@@ -1112,6 +1107,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (_concurrencyDetector.EnterCriticalSection())
             {
+                EntityFrameworkEventSource.Log.SavingChanges();
+
                 return await _database.SaveChangesAsync(entriesToSave, cancellationToken)
                     .ConfigureAwait(false);
             }

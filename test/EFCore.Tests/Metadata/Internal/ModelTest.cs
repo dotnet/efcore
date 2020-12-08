@@ -143,61 +143,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void Can_add_weak_entity_types()
+        public void Adding_a_shared_entity_with_same_name_throws()
         {
             var model = CreateModel();
-            var customerType = model.AddEntityType(typeof(Customer));
-            var idProperty = customerType.AddProperty(Customer.IdProperty);
-            var customerKey = customerType.AddKey(idProperty);
-            var dependentOrderType = model.AddEntityType(typeof(Order), nameof(Customer.Orders), customerType);
 
-            var fkProperty = dependentOrderType.AddProperty("ShadowId", typeof(int));
-            var orderKey = dependentOrderType.AddKey(fkProperty);
-            var fk = dependentOrderType.AddForeignKey(fkProperty, customerKey, customerType);
-            var index = dependentOrderType.AddIndex(fkProperty);
-
-            Assert.Same(fkProperty, dependentOrderType.GetProperties().Single());
-            Assert.Same(orderKey, dependentOrderType.GetKeys().Single());
-            Assert.Same(fk, dependentOrderType.GetForeignKeys().Single());
-            Assert.Same(index, dependentOrderType.GetIndexes().Single());
-            Assert.Equal(new[] { customerType, dependentOrderType }, model.GetEntityTypes());
-            Assert.True(model.HasEntityTypeWithDefiningNavigation(typeof(Order)));
-            Assert.True(model.HasEntityTypeWithDefiningNavigation(typeof(Order).DisplayName()));
-            Assert.Same(
-                dependentOrderType,
-                model.FindEntityType(typeof(Order).DisplayName(), nameof(Customer.Orders), customerType));
-            Assert.Same(
-                dependentOrderType,
-                model.FindEntityType(typeof(Order).DisplayName(), nameof(Customer.Orders), (IEntityType)customerType));
-
-            Assert.Equal(
-                CoreStrings.ClashingWeakEntityType(typeof(Order).DisplayName(fullName: false)),
-                Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Order))).Message);
-            Assert.Equal(
-                CoreStrings.ClashingNonWeakEntityType(
-                    nameof(Customer)
-                    + "."
-                    + nameof(Customer.Orders)
-                    + "#"
-                    + nameof(Order)
-                    + "."
-                    + nameof(Order.Customer)
-                    + "#"
-                    + nameof(Customer)),
-                Assert.Throws<InvalidOperationException>(
-                    () => model.AddEntityType(typeof(Customer), nameof(Order.Customer), dependentOrderType)).Message);
-
-            Assert.Equal(
-                CoreStrings.ForeignKeySelfReferencingDependentEntityType(
-                    nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(Order)),
-                Assert.Throws<InvalidOperationException>(
-                    () => dependentOrderType.AddForeignKey(fkProperty, orderKey, dependentOrderType)).Message);
-
-            Assert.Same(
-                dependentOrderType, model.RemoveEntityType(
-                    typeof(Order), nameof(Customer.Orders), customerType));
-            Assert.Null(((EntityType)dependentOrderType).Builder);
-            Assert.Empty(customerType.GetReferencingForeignKeys());
+            Assert.Equal(CoreStrings.AmbiguousSharedTypeEntityTypeName(typeof(Customer).DisplayName()),
+                Assert.Throws<InvalidOperationException>(()
+                    => model.AddEntityType(typeof(Customer).DisplayName(), typeof(Customer))).Message);
         }
 
         [ConditionalFact]

@@ -7,12 +7,12 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ComplexNavigationsWeakQueryInMemoryTest :
-        ComplexNavigationsWeakQueryTestBase<ComplexNavigationsWeakQueryInMemoryFixture>
+    public class ComplexNavigationsSharedTypeQueryInMemoryTest :
+        ComplexNavigationsSharedTypeQueryTestBase<ComplexNavigationsSharedTypeQueryInMemoryFixture>
     {
         // ReSharper disable once UnusedParameter.Local
-        public ComplexNavigationsWeakQueryInMemoryTest(
-            ComplexNavigationsWeakQueryInMemoryFixture fixture,
+        public ComplexNavigationsSharedTypeQueryInMemoryTest(
+            ComplexNavigationsSharedTypeQueryInMemoryFixture fixture,
             ITestOutputHelper testOutputHelper)
             : base(fixture)
         {

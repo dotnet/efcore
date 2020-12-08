@@ -10,10 +10,10 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ComplexNavigationsWeakQuerySqliteTest : ComplexNavigationsWeakQueryRelationalTestBase<
-        ComplexNavigationsWeakQuerySqliteFixture>
+    public class ComplexNavigationsSharedTypeQuerySqliteTest : ComplexNavigationsSharedQueryTypeRelationalTestBase<
+        ComplexNavigationsSharedTypeQuerySqliteFixture>
     {
-        public ComplexNavigationsWeakQuerySqliteTest(ComplexNavigationsWeakQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
+        public ComplexNavigationsSharedTypeQuerySqliteTest(ComplexNavigationsSharedTypeQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
         }
@@ -74,5 +74,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqliteStrings.ApplyNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Complex_query_with_let_collection_projection_FirstOrDefault(async))).Message);
+
+        public override async Task Filtered_include_and_non_filtered_include_followed_by_then_include_on_same_navigation_split(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Filtered_include_and_non_filtered_include_followed_by_then_include_on_same_navigation_split(async))).Message);
+
+        public override async Task Filtered_include_multiple_multi_level_includes_with_first_level_using_filter_include_on_one_of_the_chains_only_split(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Filtered_include_multiple_multi_level_includes_with_first_level_using_filter_include_on_one_of_the_chains_only_split(async))).Message);
+
+        public override async Task Filtered_include_same_filter_set_on_same_navigation_twice_followed_by_ThenIncludes_split(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Filtered_include_same_filter_set_on_same_navigation_twice_followed_by_ThenIncludes_split(async))).Message);
     }
 }

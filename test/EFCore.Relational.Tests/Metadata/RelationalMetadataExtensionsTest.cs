@@ -118,28 +118,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [ConditionalFact]
-        public void Can_get_table_and_schema_name_for_non_owned_entity_types_with_defining_navigation()
-        {
-            var modelBuilder = new ModelBuilder();
-
-            var orderType = modelBuilder
-                .Entity<Order>()
-                .Metadata;
-
-            var customerType = modelBuilder.Model.AddEntityType(typeof(Customer), nameof(Order.Customer), orderType);
-
-            Assert.Equal("Order_Customer", customerType.GetTableName());
-
-            orderType.SetTableName(null);
-
-            Assert.Equal("Customer_Customer", customerType.GetTableName());
-
-            customerType.SetTableName("Customizer");
-
-            Assert.Equal("Customizer", customerType.GetTableName());
-        }
-
-        [ConditionalFact]
         public void Gets_model_schema_if_schema_on_entity_type_not_set()
         {
             var modelBuilder = new ModelBuilder();

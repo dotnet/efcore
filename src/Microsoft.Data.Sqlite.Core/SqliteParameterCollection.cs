@@ -103,7 +103,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="type">The SQLite type of the parameter.</param>
         /// <returns>The parameter that was added.</returns>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
-        public virtual SqliteParameter Add(string parameterName, SqliteType type)
+        public virtual SqliteParameter Add(string? parameterName, SqliteType type)
             => Add(new SqliteParameter(parameterName, type));
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="size">The maximum size, in bytes, of the parameter.</param>
         /// <returns>The parameter that was added.</returns>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
-        public virtual SqliteParameter Add(string parameterName, SqliteType type, int size)
+        public virtual SqliteParameter Add(string? parameterName, SqliteType type, int size)
             => Add(new SqliteParameter(parameterName, type, size));
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace Microsoft.Data.Sqlite
         /// </param>
         /// <returns>The parameter that was added.</returns>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
-        public virtual SqliteParameter Add(string parameterName, SqliteType type, int size, string sourceColumn)
+        public virtual SqliteParameter Add(string? parameterName, SqliteType type, int size, string? sourceColumn)
             => Add(new SqliteParameter(parameterName, type, size, sourceColumn));
 
         /// <summary>
@@ -157,13 +157,8 @@ namespace Microsoft.Data.Sqlite
         /// <returns>The parameter that was added.</returns>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
-        public virtual SqliteParameter AddWithValue(string parameterName, object value)
-        {
-            var parameter = new SqliteParameter(parameterName, value);
-            Add(parameter);
-
-            return parameter;
-        }
+        public virtual SqliteParameter AddWithValue(string? parameterName, object? value)
+            => Add(new SqliteParameter(parameterName, value));
 
         /// <summary>
         ///     Removes all parameters from the collection.

@@ -120,9 +120,6 @@
   <data name="CallRequiresOpenConnection" xml:space="preserve">
     <value>{methodName} can only be called when the connection is open.</value>
   </data>
-  <data name="CallRequiresSetCommandText" xml:space="preserve">
-    <value>CommandText must be set before {methodName} can be called.</value>
-  </data>
   <data name="ConnectionStringRequiresClosedConnection" xml:space="preserve">
     <value>ConnectionString cannot be set when the connection is open.</value>
   </data>
@@ -146,9 +143,6 @@
   </data>
   <data name="NoData" xml:space="preserve">
     <value>No data exists for the row/column.</value>
-  </data>
-  <data name="OpenRequiresSetConnectionString" xml:space="preserve">
-    <value>ConnectionString must be set before Open can be called.</value>
   </data>
   <data name="ParallelTransactionsNotSupported" xml:space="preserve">
     <value>SqliteConnection does not support nested transactions.</value>

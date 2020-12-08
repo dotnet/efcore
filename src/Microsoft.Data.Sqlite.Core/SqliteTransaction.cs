@@ -16,14 +16,14 @@ namespace Microsoft.Data.Sqlite
     /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/transactions">Transactions</seealso>
     public class SqliteTransaction : DbTransaction
     {
-        private SqliteConnection _connection;
+        private SqliteConnection? _connection;
         private readonly IsolationLevel _isolationLevel;
         private bool _completed;
 
         internal SqliteTransaction(SqliteConnection connection, IsolationLevel isolationLevel, bool deferred)
         {
             if ((isolationLevel == IsolationLevel.ReadUncommitted
-                    && ((connection.ConnectionOptions.Cache != SqliteCacheMode.Shared) || !deferred))
+                    && ((connection.ConnectionOptions!.Cache != SqliteCacheMode.Shared) || !deferred))
                 || isolationLevel == IsolationLevel.ReadCommitted
                 || isolationLevel == IsolationLevel.RepeatableRead)
             {
@@ -57,14 +57,14 @@ namespace Microsoft.Data.Sqlite
         ///     Gets the connection associated with the transaction.
         /// </summary>
         /// <value>The connection associated with the transaction.</value>
-        public new virtual SqliteConnection Connection
+        public new virtual SqliteConnection? Connection
             => _connection;
 
         /// <summary>
         ///     Gets the connection associated with the transaction.
         /// </summary>
         /// <value>The connection associated with the transaction.</value>
-        protected override DbConnection DbConnection
+        protected override DbConnection? DbConnection
             => Connection;
 
         internal bool ExternalRollback { get; private set; }
@@ -75,11 +75,11 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <value>The isolation level for the transaction.</value>
         public override IsolationLevel IsolationLevel
-            => _completed || _connection.State != ConnectionState.Open
+            => _completed || _connection!.State != ConnectionState.Open
                 ? throw new InvalidOperationException(Resources.TransactionCompleted)
                 : _isolationLevel != IsolationLevel.Unspecified
                     ? _isolationLevel
-                    : (_connection.ConnectionOptions.Cache == SqliteCacheMode.Shared
+                    : (_connection.ConnectionOptions!.Cache == SqliteCacheMode.Shared
                         && _connection.ExecuteScalar<long>("PRAGMA read_uncommitted;") != 0)
                         ? IsolationLevel.ReadUncommitted
                         : IsolationLevel.Serializable;
@@ -91,7 +91,7 @@ namespace Microsoft.Data.Sqlite
         {
             if (ExternalRollback
                 || _completed
-                || _connection.State != ConnectionState.Open)
+                || _connection!.State != ConnectionState.Open)
             {
                 throw new InvalidOperationException(Resources.TransactionCompleted);
             }
@@ -106,7 +106,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         public override void Rollback()
         {
-            if (_completed || _connection.State != ConnectionState.Open)
+            if (_completed || _connection!.State != ConnectionState.Open)
             {
                 throw new InvalidOperationException(Resources.TransactionCompleted);
             }
@@ -114,28 +114,22 @@ namespace Microsoft.Data.Sqlite
             RollbackInternal();
         }
 
-#if NET
         /// <inheritdoc />
         public override bool SupportsSavepoints => true;
-#endif
 
         /// <summary>
         /// Creates a savepoint in the transaction. This allows all commands that are executed after the savepoint was
         /// established to be rolled back, restoring the transaction state to what it was at the time of the savepoint.
         /// </summary>
         /// <param name="savepointName">The name of the savepoint to be created.</param>
-#if NET
         public override void Save(string savepointName)
-#else
-        public void Save(string savepointName)
-#endif
         {
             if (savepointName is null)
             {
                 throw new ArgumentNullException(nameof(savepointName));
             }
 
-            if (_completed || _connection.State != ConnectionState.Open)
+            if (_completed || _connection!.State != ConnectionState.Open)
             {
                 throw new InvalidOperationException(Resources.TransactionCompleted);
             }
@@ -152,18 +146,14 @@ namespace Microsoft.Data.Sqlite
         /// Rolls back all commands that were executed after the specified savepoint was established.
         /// </summary>
         /// <param name="savepointName">The name of the savepoint to roll back to.</param>
-#if NET
         public override void Rollback(string savepointName)
-#else
-        public void Rollback(string savepointName)
-#endif
         {
             if (savepointName is null)
             {
                 throw new ArgumentNullException(nameof(savepointName));
             }
 
-            if (_completed || _connection.State != ConnectionState.Open)
+            if (_completed || _connection!.State != ConnectionState.Open)
             {
                 throw new InvalidOperationException(Resources.TransactionCompleted);
             }
@@ -181,18 +171,14 @@ namespace Microsoft.Data.Sqlite
         /// reclaim some resources before the transaction ends.
         /// </summary>
         /// <param name="savepointName">The name of the savepoint to release.</param>
-#if NET
         public override void Release(string savepointName)
-#else
-        public void Release(string savepointName)
-#endif
         {
             if (savepointName is null)
             {
                 throw new ArgumentNullException(nameof(savepointName));
             }
 
-            if (_completed || _connection.State != ConnectionState.Open)
+            if (_completed || _connection!.State != ConnectionState.Open)
             {
                 throw new InvalidOperationException(Resources.TransactionCompleted);
             }
@@ -216,7 +202,7 @@ namespace Microsoft.Data.Sqlite
         {
             if (disposing
                 && !_completed
-                && _connection.State == ConnectionState.Open)
+                && _connection!.State == ConnectionState.Open)
             {
                 RollbackInternal();
             }
@@ -224,7 +210,7 @@ namespace Microsoft.Data.Sqlite
 
         private void Complete()
         {
-            _connection.Transaction = null;
+            _connection!.Transaction = null;
             _connection = null;
             _completed = true;
         }
@@ -233,7 +219,7 @@ namespace Microsoft.Data.Sqlite
         {
             if (!ExternalRollback)
             {
-                sqlite3_rollback_hook(_connection.Handle, null, null);
+                sqlite3_rollback_hook(_connection!.Handle, null, null);
                 _connection.ExecuteNonQuery("ROLLBACK;");
             }
 
@@ -242,7 +228,7 @@ namespace Microsoft.Data.Sqlite
 
         private void RollbackExternal(object userData)
         {
-            sqlite3_rollback_hook(_connection.Handle, null, null);
+            sqlite3_rollback_hook(_connection!.Handle, null, null);
             ExternalRollback = true;
         }
     }

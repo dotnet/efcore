@@ -67,6 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.EntityTypeAddedConventions.Add(new NotMappedEntityTypeAttributeConvention(Dependencies));
             conventionSet.EntityTypeAddedConventions.Add(new OwnedEntityTypeAttributeConvention(Dependencies));
             conventionSet.EntityTypeAddedConventions.Add(new KeylessEntityTypeAttributeConvention(Dependencies));
+            conventionSet.EntityTypeAddedConventions.Add(new EntityConfigurationEntityTypeAttributeConvention(Dependencies));
             conventionSet.EntityTypeAddedConventions.Add(new NotMappedMemberAttributeConvention(Dependencies));
             conventionSet.EntityTypeAddedConventions.Add(baseTypeDiscoveryConvention);
             conventionSet.EntityTypeAddedConventions.Add(propertyDiscoveryConvention);
@@ -79,7 +80,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.EntityTypeIgnoredConventions.Add(relationshipDiscoveryConvention);
 
             var discriminatorConvention = new DiscriminatorConvention(Dependencies);
-            conventionSet.EntityTypeRemovedConventions.Add(new OwnedTypesConvention(Dependencies));
             conventionSet.EntityTypeRemovedConventions.Add(inversePropertyAttributeConvention);
             conventionSet.EntityTypeRemovedConventions.Add(discriminatorConvention);
 

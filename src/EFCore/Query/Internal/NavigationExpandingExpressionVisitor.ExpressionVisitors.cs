@@ -151,8 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 bool derivedTypeConversion)
             {
                 var targetType = navigation.TargetEntityType;
-                if (targetType.HasDefiningNavigation()
-                    || targetType.IsOwned())
+                if (targetType.IsOwned())
                 {
                     if (entityReference.ForeignKeyExpansionMap.TryGetValue(
                         (navigation.ForeignKey, navigation.IsOnDependent), out var ownedExpansion))
@@ -344,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var collection = !foreignKey.IsUnique && !onDependent;
                 var targetType = onDependent ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType;
 
-                Debug.Assert(!targetType.HasDefiningNavigation() && !targetType.IsOwned(), "Owned entity expanding foreign key.");
+                Debug.Assert(!targetType.IsOwned(), "Owned entity expanding foreign key.");
 
                 var innerQueryable = new QueryRootExpression(targetType);
                 var innerSource = (NavigationExpansionExpression)_navigationExpandingExpressionVisitor.Visit(innerQueryable);

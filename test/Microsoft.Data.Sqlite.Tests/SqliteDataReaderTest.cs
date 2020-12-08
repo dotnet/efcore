@@ -160,12 +160,9 @@ namespace Microsoft.Data.Sqlite
                     var hasData = reader.Read();
                     Assert.True(hasData);
 
-                    byte[] buffer = null;
-                    long bytesRead = reader.GetBytes(0, 1, buffer, 0, 3);
+                    long bytesRead = reader.GetBytes(0, 1, null, 0, 3);
 
-                    // Expecting to return the length of the field in bytes,
-                    // which can be simply be blob length minus the offset.
-                    Assert.Equal(3, bytesRead);
+                    Assert.Equal(4, bytesRead);
                 }
             }
         }
@@ -236,14 +233,33 @@ namespace Microsoft.Data.Sqlite
             {
                 connection.Open();
 
-                using (var reader = connection.ExecuteReader("SELECT 'test';"))
+                using (var reader = connection.ExecuteReader("SELECT 'têst';"))
                 {
                     var hasData = reader.Read();
                     Assert.True(hasData);
 
                     var buffer = new char[2];
                     reader.GetChars(0, 1, buffer, 0, buffer.Length);
-                    Assert.Equal(new char[2] { 'e', 's' }, buffer);
+                    Assert.Equal(new char[2] { 'ê', 's' }, buffer);
+                }
+            }
+        }
+
+        [Fact]
+        public void GetChars_works_when_buffer_null()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("SELECT 'têst';"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    long bytesRead = reader.GetChars(0, 1, null, 0, 3);
+
+                    Assert.Equal(4, bytesRead);
                 }
             }
         }
@@ -255,7 +271,7 @@ namespace Microsoft.Data.Sqlite
             {
                 connection.Open();
 
-                using (var reader = connection.ExecuteReader("SELECT 'test';"))
+                using (var reader = connection.ExecuteReader("SELECT 'têst';"))
                 {
                     var hasData = reader.Read();
                     Assert.True(hasData);
@@ -264,7 +280,7 @@ namespace Microsoft.Data.Sqlite
                     long charsRead = reader.GetChars(0, 1, hugeBuffer, 0, hugeBuffer.Length);
                     Assert.Equal(3, charsRead);
 
-                    var correctBytes = new char[3] { 'e', 's', 't' };
+                    var correctBytes = new char[3] { 'ê', 's', 't' };
                     for (int i = 0; i < charsRead; i++)
                     {
                         Assert.Equal(correctBytes[i], hugeBuffer[i]);
@@ -280,7 +296,7 @@ namespace Microsoft.Data.Sqlite
             {
                 connection.Open();
 
-                using (var reader = connection.ExecuteReader("SELECT 'test';"))
+                using (var reader = connection.ExecuteReader("SELECT 'têst';"))
                 {
                     var hasData = reader.Read();
                     Assert.True(hasData);
@@ -296,12 +312,12 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void GetChars_throws_when_closed()
         {
-            X_throws_when_closed(r => r.GetChars(0, 0, null, 0, 0), nameof(SqliteDataReader.GetChars));
+            X_throws_when_closed(r => r.GetChars(0, 0, null!, 0, 0), nameof(SqliteDataReader.GetChars));
         }
 
         [Fact]
         public void GetChars_throws_when_non_query()
-            => X_throws_when_non_query(r => r.GetChars(0, 0, null, 0, 0));
+            => X_throws_when_non_query(r => r.GetChars(0, 0, null!, 0, 0));
 
         [Fact]
         public void GetChars_works_streaming()
@@ -310,7 +326,7 @@ namespace Microsoft.Data.Sqlite
             {
                 connection.Open();
 
-                connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES ('test');");
+                connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES ('têst');");
 
                 using (var reader = connection.ExecuteReader("SELECT rowid, Value FROM Data;"))
                 {
@@ -319,7 +335,7 @@ namespace Microsoft.Data.Sqlite
 
                     var buffer = new char[2];
                     reader.GetChars(1, 1, buffer, 0, buffer.Length);
-                    Assert.Equal(new[] { 'e', 's' }, buffer);
+                    Assert.Equal(new[] { 'ê', 's' }, buffer);
                 }
             }
         }
@@ -1179,7 +1195,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void GetOrdinal_throws_when_closed()
         {
-            X_throws_when_closed(r => r.GetOrdinal(null), nameof(SqliteDataReader.GetOrdinal));
+            X_throws_when_closed(r => r.GetOrdinal(null!), nameof(SqliteDataReader.GetOrdinal));
         }
 
         [Fact]
@@ -1320,12 +1336,12 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void GetValues_throws_when_closed()
         {
-            X_throws_when_closed(r => r.GetValues(null), nameof(SqliteDataReader.GetValues));
+            X_throws_when_closed(r => r.GetValues(null!), nameof(SqliteDataReader.GetValues));
         }
 
         [Fact]
         public void GetValues_throws_when_non_query()
-            => X_throws_when_non_query(r => r.GetValues(null));
+            => X_throws_when_non_query(r => r.GetValues(null!));
 
         [Fact]
         public void HasRows_returns_true_when_rows()

@@ -8,7 +8,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -61,10 +60,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalEntityTypeBuilder SharedTypeEntity(
             [NotNull] string name,
-            [NotNull] Type type,
+            [CanBeNull] Type type,
             ConfigurationSource configurationSource,
             bool? shouldBeOwned = false)
-            => Entity(new TypeIdentity(name, Check.NotNull(type, nameof(type))), configurationSource, shouldBeOwned);
+            => Entity(new TypeIdentity(name, type ?? Model.DefaultPropertyBagType), configurationSource, shouldBeOwned);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -91,26 +90,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             using var batch = Metadata.ConventionDispatcher.DelayConventions();
             var clrType = type.Type;
             EntityType entityType;
+            EntityType.Snapshot entityTypeSnapshot = null;
             if (type.IsNamed)
             {
-                if (type.Type != null)
+                if (clrType != null)
                 {
-                    var nonSharedTypes = Metadata.GetEntityTypes(Metadata.GetDisplayName(type.Type));
-                    foreach (var nonSharedType in nonSharedTypes)
+                    entityType = Metadata.FindEntityType(clrType);
+                    if (entityType != null)
                     {
-                        if (configurationSource.OverridesStrictly(nonSharedType.GetConfigurationSource()))
+                        if (entityType.Name == type.Name
+                            && entityType.HasSharedClrType)
                         {
-                            continue;
+                            entityType.UpdateConfigurationSource(configurationSource);
+                            return entityType.Builder;
                         }
 
-                        return configurationSource == ConfigurationSource.Explicit
-                            ? throw new InvalidOperationException(CoreStrings.ClashingNonSharedType(type.Name, type.Type.DisplayName()))
-                            : (InternalEntityTypeBuilder)null;
-                    }
+                        if (!configurationSource.OverridesStrictly(entityType.GetConfigurationSource())
+                            && !entityType.IsOwned())
+                        {
+                            return configurationSource == ConfigurationSource.Explicit
+                                ? throw new InvalidOperationException(CoreStrings.ClashingNonSharedType(type.Name, clrType.ShortDisplayName()))
+                                : (InternalEntityTypeBuilder)null;
+                        }
 
-                    foreach (var nonSharedType in nonSharedTypes)
-                    {
-                        HasNoEntityType(nonSharedType, configurationSource);
+                        entityTypeSnapshot = InternalEntityTypeBuilder.DetachAllMembers(entityType);
+
+                        HasNoEntityType(entityType, ConfigurationSource.Explicit);
                     }
                 }
 
@@ -118,10 +123,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
+                clrType = type.Type ?? Metadata.FindClrType(type.Name);
                 if (Metadata.IsShared(clrType))
                 {
                     return configurationSource == ConfigurationSource.Explicit
-                        ? throw new InvalidOperationException(CoreStrings.ClashingSharedType(clrType.DisplayName()))
+                        ? throw new InvalidOperationException(CoreStrings.ClashingSharedType(clrType.ShortDisplayName()))
                         : (InternalEntityTypeBuilder)null;
                 }
 
@@ -129,10 +135,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             if (shouldBeOwned == false
-                && (ShouldBeOwnedType(type) // Marked in model as owned
-                    || entityType != null && entityType.IsOwned())) // Created using Owns* API
+                && (ShouldBeOwnedType(type)
+                    || entityType != null && entityType.IsOwned()))
             {
-                // We always throw as configuring a type as owned is always comes from user (through Explicit/DataAnnotation)
+                // We always throw as configuring a type as owned always comes from user (through Explicit/DataAnnotation)
                 throw new InvalidOperationException(
                     CoreStrings.ClashingOwnedEntityType(
                         clrType == null ? type.Name : clrType.ShortDisplayName()));
@@ -145,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     && configurationSource == ConfigurationSource.Explicit
                     && entityType.GetConfigurationSource() == ConfigurationSource.Explicit)
                 {
-                    throw new InvalidOperationException(CoreStrings.ClashingNonOwnedEntityType(entityType.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.ClashingNonOwnedEntityType(clrType.ShortDisplayName()));
                 }
 
                 foreach (var derivedType in entityType.GetDerivedTypes())
@@ -184,10 +190,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Metadata.RemoveIgnored(type.Name);
             entityType = type.IsNamed
-                ? type.Type == null
+                ? clrType == null
                     ? Metadata.AddEntityType(type.Name, configurationSource)
-                    : Metadata.AddEntityType(type.Name, type.Type, configurationSource)
+                    : Metadata.AddEntityType(type.Name, clrType, configurationSource)
                 : Metadata.AddEntityType(clrType, configurationSource);
+
+            if (entityType != null
+                && entityTypeSnapshot != null)
+            {
+                entityTypeSnapshot.Attach(entityType.Builder);
+            }
 
             return entityType?.Builder;
         }
@@ -223,67 +235,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             string definingNavigationName,
             EntityType definingEntityType,
             ConfigurationSource configurationSource)
-        {
-            if (IsIgnored(type, configurationSource))
-            {
-                return null;
-            }
-
-            var clrType = type.Type
-                ?? Metadata.FindClrType(type.Name);
-
-            var entityTypeWithDefiningNavigation = clrType == null
-                ? Metadata.FindEntityType(type.Name, definingNavigationName, definingEntityType)
-                : Metadata.FindEntityType(clrType, definingNavigationName, definingEntityType);
-            if (entityTypeWithDefiningNavigation == null)
-            {
-                var entityType = clrType == null
-                    ? Metadata.FindEntityType(type.Name)
-                    : Metadata.FindEntityType(clrType);
-
-                IConventionBatch batch = null;
-                EntityType.Snapshot entityTypeSnapshot = null;
-                if (entityType != null)
-                {
-                    if (!configurationSource.Overrides(entityType.GetConfigurationSource()))
-                    {
-                        return null;
-                    }
-
-                    batch = ModelBuilder.Metadata.ConventionDispatcher.DelayConventions();
-                    entityTypeSnapshot = InternalEntityTypeBuilder.DetachAllMembers(entityType);
-
-                    HasNoEntityType(entityType, configurationSource);
-                }
-
-                if (clrType == null)
-                {
-                    Metadata.RemoveIgnored(type.Name);
-
-                    entityTypeWithDefiningNavigation = Metadata.AddEntityType(
-                        type.Name, definingNavigationName, definingEntityType, configurationSource);
-                }
-                else
-                {
-                    Metadata.RemoveIgnored(type.Name);
-
-                    entityTypeWithDefiningNavigation = Metadata.AddEntityType(
-                        clrType, definingNavigationName, definingEntityType, configurationSource);
-                }
-
-                if (batch != null)
-                {
-                    entityTypeSnapshot.Attach(entityTypeWithDefiningNavigation.Builder);
-                    batch.Dispose();
-                }
-            }
-            else
-            {
-                entityTypeWithDefiningNavigation.UpdateConfigurationSource(configurationSource);
-            }
-
-            return entityTypeWithDefiningNavigation?.Builder;
-        }
+            => SharedTypeEntity(
+                definingEntityType.GetOwnedName(type.Type?.ShortDisplayName() ?? type.Name, definingNavigationName),
+                type.Type, configurationSource, shouldBeOwned: true);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -326,9 +280,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Metadata.RemoveIgnored(type);
             Metadata.AddOwned(type);
 
-            var entityType = Metadata.FindEntityType(type);
-            if (entityType?.GetForeignKeys().Any(fk => fk.IsOwnership) == false)
+            foreach (var entityType in Metadata.GetEntityTypes(type))
             {
+                if (entityType.IsOwned())
+                {
+                    continue;
+                }
+
                 if (!configurationSource.Overrides(entityType.GetConfigurationSource()))
                 {
                     return null;
@@ -336,18 +294,40 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (entityType.GetConfigurationSource() == ConfigurationSource.Explicit)
                 {
-                    throw new InvalidOperationException(CoreStrings.ClashingNonOwnedEntityType(entityType.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.ClashingNonOwnedEntityType(type.ShortDisplayName()));
                 }
 
-                var ownershipCandidate = entityType.GetForeignKeys().FirstOrDefault(
-                    fk => fk.PrincipalToDependent != null
-                        && !fk.PrincipalEntityType.IsInOwnershipPath(entityType)
-                        && !fk.PrincipalEntityType.IsInDefinitionPath(type));
-                if (ownershipCandidate != null)
+                foreach (var derivedType in entityType.GetDerivedTypes())
                 {
-                    if (ownershipCandidate.Builder.IsOwnership(true, configurationSource) == null)
+                    if (!derivedType.IsOwned()
+                        && configurationSource == ConfigurationSource.Explicit
+                        && derivedType.GetConfigurationSource() == ConfigurationSource.Explicit)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.ClashingNonOwnedDerivedEntityType(type.ShortDisplayName(), derivedType.ShortName()));
+                    }
+                }
+
+                var ownershipCandidates = entityType.GetForeignKeys().Where(
+                    fk => fk.PrincipalToDependent != null
+                        && !fk.PrincipalEntityType.IsInOwnershipPath(type)).ToList();
+                if (ownershipCandidates.Count == 1)
+                {
+                    if (ownershipCandidates[0].Builder.IsOwnership(true, configurationSource) == null)
                     {
                         return null;
+                    }
+                }
+                else if (ownershipCandidates.Count > 1)
+                {
+                    using (var batch = ModelBuilder.Metadata.ConventionDispatcher.DelayConventions())
+                    {
+                        var ownership = ownershipCandidates[0].Builder.IsOwnership(true, configurationSource);
+                        if (ownership == null)
+                        {
+                            return null;
+                        }
+                        ownership.MakeDeclaringTypeShared(configurationSource);
                     }
                 }
                 else
@@ -435,39 +415,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             using (Metadata.ConventionDispatcher.DelayConventions())
             {
-                var removed = false;
-                foreach (var entityType in Metadata.GetEntityTypes(name).ToList())
+                var entityType = Metadata.FindEntityType(name);
+                if (entityType != null)
                 {
-                    if (entityType.HasClrType)
-                    {
-                        if (entityType.HasSharedClrType)
-                        {
-                            Metadata.AddIgnored(entityType.Name, entityType.ClrType, configurationSource);
-                        }
-                        else
-                        {
-                            Metadata.AddIgnored(entityType.ClrType, configurationSource);
-                        }
-                    }
-                    else
-                    {
-                        Metadata.AddIgnored(entityType.Name, configurationSource);
-                    }
-
-                    removed = true;
                     HasNoEntityType(entityType, configurationSource);
                 }
 
-                if (!removed)
+                if (type.Type == null)
                 {
-                    if (type.Type == null)
-                    {
-                        Metadata.AddIgnored(name, configurationSource);
-                    }
-                    else
-                    {
-                        Metadata.AddIgnored(type.Type, configurationSource);
-                    }
+                    Metadata.AddIgnored(name, configurationSource);
+                }
+                else
+                {
+                    Metadata.AddIgnored(type.Type, configurationSource);
                 }
 
                 if (type.Type != null)
@@ -511,7 +471,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            if (Metadata.GetEntityTypes(name).Any(o => !configurationSource.Overrides(o.GetConfigurationSource())))
+            if (type.Type != null
+                && Metadata.GetEntityTypes(type.Type).Any(o => !configurationSource.Overrides(o.GetConfigurationSource())))
+            {
+                return false;
+            }
+
+            if (Metadata.FindEntityType(name)?.GetConfigurationSource().OverridesStrictly(configurationSource) == true)
             {
                 return false;
             }
@@ -560,11 +526,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     var derivedEntityTypeBuilder = directlyDerivedType.Builder
                         .HasBaseType(entityType.BaseType, configurationSource);
                     Check.DebugAssert(derivedEntityTypeBuilder != null, "derivedEntityTypeBuilder is null");
-                }
-
-                foreach (var definedType in Metadata.GetEntityTypes().Where(e => e.DefiningEntityType == entityType).ToList())
-                {
-                    HasNoEntityType(definedType, configurationSource);
                 }
 
                 Metadata.RemoveEntityType(entityType);

@@ -521,15 +521,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         private OwnedNavigationBuilder OwnsOneBuilder(in TypeIdentity ownedType, string navigationName)
         {
-            InternalForeignKeyBuilder relationship;
-            using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
+            IMutableForeignKey foreignKey;
+            using (var batch = DependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
                 var navigationMember = MemberIdentity.Create(navigationName);
-                relationship = DependentEntityType.Builder.HasOwnership(ownedType, navigationMember, ConfigurationSource.Explicit);
+                var relationship = DependentEntityType.Builder.HasOwnership(ownedType, navigationMember, ConfigurationSource.Explicit);
                 relationship.IsUnique(true, ConfigurationSource.Explicit);
+                foreignKey = (IMutableForeignKey)batch.Run(relationship.Metadata);
             }
 
-            return new OwnedNavigationBuilder(relationship.Metadata);
+            return new OwnedNavigationBuilder(foreignKey);
         }
 
         /// <summary>
@@ -743,15 +744,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         private OwnedNavigationBuilder OwnsManyBuilder(in TypeIdentity ownedType, string navigationName)
         {
-            InternalForeignKeyBuilder relationship;
-            using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
+            IMutableForeignKey foreignKey;
+            using (var batch = DependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
                 var navigationMember = MemberIdentity.Create(navigationName);
-                relationship = DependentEntityType.Builder.HasOwnership(ownedType, navigationMember, ConfigurationSource.Explicit);
+                var relationship = DependentEntityType.Builder.HasOwnership(ownedType, navigationMember, ConfigurationSource.Explicit);
                 relationship.IsUnique(false, ConfigurationSource.Explicit);
+                foreignKey = (IMutableForeignKey)batch.Run(relationship.Metadata);
             }
 
-            return new OwnedNavigationBuilder(relationship.Metadata);
+            return new OwnedNavigationBuilder(foreignKey);
         }
 
         /// <summary>
@@ -819,12 +821,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The name of the reference navigation property on this entity type that represents the relationship.
         /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
-        public virtual ReferenceNavigationBuilder HasOne(
-            [NotNull] string navigationName)
+        public virtual ReferenceNavigationBuilder HasOne([NotNull] string navigationName)
         {
             Check.NotEmpty(navigationName, nameof(navigationName));
 
-            return OwnedEntityType.ClrType == null
+            return OwnedEntityType.ClrType == null || OwnedEntityType.ClrType == Model.DefaultPropertyBagType
                 ? HasOne(navigationName, null) // Path only used by pre 3.0 snapshots
                 : HasOne(OwnedEntityType.GetNavigationMemberInfo(navigationName).GetMemberType(), navigationName);
         }
@@ -881,12 +882,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [EntityFrameworkInternal]
         protected virtual EntityType FindRelatedEntityType([NotNull] string relatedTypeName, [CanBeNull] string navigationName)
         {
-            var relatedEntityType = DependentEntityType.FindInDefinitionPath(relatedTypeName);
-            if (relatedEntityType != null)
-            {
-                return relatedEntityType;
-            }
-
+            EntityType relatedEntityType = null;
             var model = DependentEntityType.Model;
             if (navigationName != null)
             {
@@ -897,7 +893,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 && model.GetProductVersion()?.StartsWith("2.", StringComparison.Ordinal) == true)
             {
                 var owner = DependentEntityType.FindOwnership().PrincipalEntityType;
-                if (owner.Name == relatedTypeName)
+                if (owner.Name == relatedTypeName
+                    || owner.ShortName() == relatedTypeName)
                 {
                     relatedEntityType = owner;
                 }
@@ -915,15 +912,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [EntityFrameworkInternal]
         protected virtual EntityType FindRelatedEntityType([NotNull] Type relatedType, [CanBeNull] string navigationName)
         {
-            var relatedEntityType = DependentEntityType.FindInDefinitionPath(relatedType);
+            var relatedEntityType = (EntityType)DependentEntityType.FindInOwnershipPath(relatedType);
             if (relatedEntityType != null)
             {
                 return relatedEntityType;
             }
 
-            if (navigationName != null)
+            if (Builder.ModelBuilder.Metadata.IsShared(relatedType))
             {
-                relatedEntityType = Builder.ModelBuilder.Metadata.FindEntityType(relatedType, navigationName, DependentEntityType);
+                if (PrincipalEntityType.HasSharedClrType
+                    && PrincipalEntityType.ClrType == relatedType)
+                {
+                    return PrincipalEntityType;
+                }
+
+                if (navigationName != null)
+                {
+                    relatedEntityType = Builder.ModelBuilder.Metadata.FindEntityType(relatedType, navigationName, DependentEntityType);
+                }
             }
 
             return relatedEntityType ?? DependentEntityType.Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit).Metadata;

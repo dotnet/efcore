@@ -333,7 +333,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 return (EntityType)DeclaringEntityType;
             }
 
-            return RelatedEntityType.DisplayName() == entityTypeName ? (EntityType)RelatedEntityType : null;
+            if (RelatedEntityType.DisplayName() == entityTypeName)
+            {
+                return (EntityType)RelatedEntityType;
+            }
+
+            if (DeclaringEntityType.HasSharedClrType
+                && DeclaringEntityType.ShortName() == entityTypeName)
+            {
+                return (EntityType)DeclaringEntityType;
+            }
+
+            return RelatedEntityType.HasSharedClrType && RelatedEntityType.ShortName() == entityTypeName
+                ? (EntityType)RelatedEntityType
+                : null;
         }
 
         /// <summary>

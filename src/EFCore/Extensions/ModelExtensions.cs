@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(definingNavigationName, nameof(definingNavigationName));
             Check.NotNull(definingEntityType, nameof(definingEntityType));
 
-            return model.AsModel().FindEntityType(
+            return ((Model)model).FindEntityType(
                 type,
                 definingNavigationName,
                 definingEntityType.AsEntityType());
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="type"> The type of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
         [DebuggerStepThrough]
-        public static IReadOnlyCollection<IEntityType> GetEntityTypes([NotNull] this IModel model, [NotNull] Type type)
+        public static IEnumerable<IEntityType> GetEntityTypes([NotNull] this IModel model, [NotNull] Type type)
             => ((Model)model).GetEntityTypes(type);
 
         /// <summary>
@@ -98,6 +98,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
         [DebuggerStepThrough]
+        [Obsolete("Use GetEntityTypes(Type) or FindEntityType(string)")]
         public static IReadOnlyCollection<IEntityType> GetEntityTypes([NotNull] this IModel model, [NotNull] string name)
             => ((Model)model).GetEntityTypes(name);
 
@@ -108,9 +109,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="type"> The type used to find an entity type a defining navigation. </param>
         /// <returns> <see langword="true" /> if the model contains a corresponding entity type with a defining navigation. </returns>
         [DebuggerStepThrough]
+        [Obsolete("Use IsShared(Type)")]
         public static bool HasEntityTypeWithDefiningNavigation([NotNull] this IModel model, [NotNull] Type type)
-            => Check.NotNull(model, nameof(model)).AsModel()
-                .HasEntityTypeWithDefiningNavigation(Check.NotNull(type, nameof(type)));
+            => model.IsShared(type);
 
         /// <summary>
         ///     Gets a value indicating whether the model contains a corresponding entity type with a defining navigation.
@@ -119,9 +120,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name used to find an entity type with a defining navigation. </param>
         /// <returns> <see langword="true" /> if the model contains a corresponding entity type with a defining navigation. </returns>
         [DebuggerStepThrough]
+        [Obsolete("Use FindEntityType(string)?.HasSharedClrType")]
         public static bool HasEntityTypeWithDefiningNavigation([NotNull] this IModel model, [NotNull] string name)
-            => Check.NotNull(model, nameof(model)).AsModel()
-                .HasEntityTypeWithDefiningNavigation(Check.NotNull(name, nameof(name)));
+            => model.FindEntityType(name)?.HasSharedClrType ?? false;
 
         /// <summary>
         ///     Gets whether the CLR type is used by shared type entities in the model.

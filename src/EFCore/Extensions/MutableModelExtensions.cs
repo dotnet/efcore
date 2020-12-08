@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="type"> The type of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
         [DebuggerStepThrough]
-        public static IReadOnlyCollection<IMutableEntityType> GetEntityTypes([NotNull] this IMutableModel model, [NotNull] Type type)
+        public static IEnumerable<IMutableEntityType> GetEntityTypes([NotNull] this IMutableModel model, [NotNull] Type type)
             => ((Model)model).GetEntityTypes(type);
 
         /// <summary>
@@ -63,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
         [DebuggerStepThrough]
+        [Obsolete("Use GetEntityTypes(Type) or FindEntityType(string)")]
         public static IReadOnlyCollection<IMutableEntityType> GetEntityTypes([NotNull] this IMutableModel model, [NotNull] string name)
             => ((Model)model).GetEntityTypes(name);
 
@@ -81,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Removes an entity type with a defining navigation from the model.
+        ///     Removes an entity type with the given type, defining navigation name
+        ///     and the defining entity type
         /// </summary>
         /// <param name="model"> The model to remove the entity type from. </param>
         /// <param name="type"> The CLR class that is used to represent instances of this entity type. </param>
@@ -115,7 +117,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Removes an entity type with a defining navigation from the model.
+        ///     Removes an entity type with the given type, defining navigation name
+        ///     and the defining entity type
         /// </summary>
         /// <param name="model"> The model to remove the entity type from. </param>
         /// <param name="name"> The name of the entity type to be removed. </param>
@@ -133,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotEmpty(definingNavigationName, nameof(definingNavigationName));
             Check.NotNull(definingEntityType, nameof(definingEntityType));
 
-            return ((Model)model).RemoveEntityType(name);
+            return ((Model)model).RemoveEntityType(name, definingNavigationName, definingEntityType);
         }
 
         /// <summary>

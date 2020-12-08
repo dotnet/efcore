@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -12,7 +11,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class ComplexNavigationsWeakQueryFixtureBase : ComplexNavigationsQueryFixtureBase, IQueryFixtureBase
+    public abstract class ComplexNavigationsSharedTypeQueryFixtureBase : ComplexNavigationsQueryFixtureBase, IQueryFixtureBase
     {
         protected override string StoreName { get; } = "ComplexNavigationsOwned";
 

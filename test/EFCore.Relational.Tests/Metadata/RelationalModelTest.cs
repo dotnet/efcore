@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(
                 new[]
                 {
-                    nameof(Order), "OrderDetails.BillingAddress#Address", "OrderDetails.ShippingAddress#Address", nameof(OrderDetails)
+                    nameof(Order), nameof(OrderDetails), "OrderDetails.BillingAddress#Address", "OrderDetails.ShippingAddress#Address"
                 },
                 ordersView.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
             Assert.Equal(
@@ -273,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(
                 new[]
                 {
-                    nameof(Order), "OrderDetails.BillingAddress#Address", "OrderDetails.ShippingAddress#Address", nameof(OrderDetails)
+                    nameof(Order), nameof(OrderDetails), "OrderDetails.BillingAddress#Address", "OrderDetails.ShippingAddress#Address"
                 },
                 ordersTable.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
             Assert.Equal(

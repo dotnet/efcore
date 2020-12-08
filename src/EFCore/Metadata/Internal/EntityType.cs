@@ -17,7 +17,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
 
 #nullable enable
 
@@ -147,42 +146,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EntityType(
-            [NotNull] string name,
-            [NotNull] Model model,
-            [NotNull] string definingNavigationName,
-            [NotNull] EntityType definingEntityType,
-            ConfigurationSource configurationSource)
-            : this(name, model, configurationSource)
-        {
-            DefiningNavigationName = definingNavigationName;
-            DefiningEntityType = definingEntityType;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public EntityType(
-            [NotNull] Type type,
-            [NotNull] Model model,
-            [NotNull] string definingNavigationName,
-            [NotNull] EntityType definingEntityType,
-            ConfigurationSource configurationSource)
-            : this(type, model, configurationSource)
-        {
-            DefiningNavigationName = definingNavigationName;
-            DefiningEntityType = definingEntityType;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public virtual InternalEntityTypeBuilder? Builder
         {
             get;
@@ -210,38 +173,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             get => RootType()._isKeyless ?? false;
             set => SetIsKeyless(value, ConfigurationSource.Explicit);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual string? DefiningNavigationName { get; }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual EntityType? DefiningEntityType { get; }
-
-        /// <summary>
-        ///     Gets a value indicating whether this entity type has a defining navigation.
-        /// </summary>
-        /// <returns> <see langword="true" /> if this entity type has a defining navigation. </returns>
-        [CA.MemberNotNullWhen(true, nameof(DefiningNavigationName), nameof(DefiningEntityType))]
-        public virtual bool HasDefiningNavigation()
-        {
-            if (DefiningEntityType != null)
-            {
-                Check.DebugAssert(DefiningNavigationName != null,
-                    $"{nameof(DefiningEntityType)} is non-null but {nameof(DefiningNavigationName)} is null");
-                return true;
-            }
-            return false;
         }
 
         /// <summary>
@@ -322,11 +253,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return newBaseType;
             }
 
-            if (HasDefiningNavigation())
-            {
-                throw new InvalidOperationException(CoreStrings.WeakDerivedType(this.DisplayName()));
-            }
-
             var originalBaseType = _baseType;
 
             _baseType?._directlyDerivedTypes.Remove(this);
@@ -347,11 +273,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             CoreStrings.NotAssignableClrBaseType(
                                 this.DisplayName(), newBaseType.DisplayName(), ClrType.ShortDisplayName(),
                                 newBaseType.ClrType.ShortDisplayName()));
-                    }
-
-                    if (newBaseType.HasDefiningNavigation())
-                    {
-                        throw new InvalidOperationException(CoreStrings.WeakBaseType(this.DisplayName(), newBaseType.DisplayName()));
                     }
                 }
 
@@ -1547,7 +1468,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 memberInfo = ClrType?.GetMembersInHierarchy(name).FirstOrDefault();
             }
 
-            if (ClrType != null)
+            if (ClrType != null
+                && ClrType != Model.DefaultPropertyBagType)
             {
                 Navigation.IsCompatible(
                     name,
@@ -3421,42 +3343,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             [DebuggerStepThrough]
             get => BaseType;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        IEntityType? IEntityType.DefiningEntityType
-        {
-            [DebuggerStepThrough]
-            get => DefiningEntityType;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        IMutableEntityType? IMutableEntityType.DefiningEntityType
-        {
-            [DebuggerStepThrough]
-            get => DefiningEntityType;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        IConventionEntityType? IConventionEntityType.DefiningEntityType
-        {
-            [DebuggerStepThrough]
-            get => DefiningEntityType;
         }
 
         /// <summary>

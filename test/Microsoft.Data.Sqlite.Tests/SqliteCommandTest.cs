@@ -165,15 +165,13 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void Prepare_throws_when_no_command_text()
+        public void Prepare_works_when_no_command_text()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
 
-                var ex = Assert.Throws<InvalidOperationException>(() => connection.CreateCommand().Prepare());
-
-                Assert.Equal(Resources.CallRequiresSetCommandText("Prepare"), ex.Message);
+                connection.CreateCommand().Prepare();
             }
         }
 
@@ -255,15 +253,16 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void ExecuteReader_throws_when_no_command_text()
+        public void ExecuteReader_works_when_no_command_text()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
 
-                var ex = Assert.Throws<InvalidOperationException>(() => connection.CreateCommand().ExecuteReader());
+                using var reader = connection.CreateCommand().ExecuteReader();
 
-                Assert.Equal(Resources.CallRequiresSetCommandText("ExecuteReader"), ex.Message);
+                Assert.False(reader.HasRows);
+                Assert.Equal(-1, reader.RecordsAffected);
             }
         }
 
@@ -326,9 +325,9 @@ namespace Microsoft.Data.Sqlite
             {
                 connection.Open();
 
-                var ex = Assert.Throws<InvalidOperationException>(() => connection.CreateCommand().ExecuteScalar());
+                var result = connection.CreateCommand().ExecuteScalar();
 
-                Assert.Equal(Resources.CallRequiresSetCommandText("ExecuteScalar"), ex.Message);
+                Assert.Null(result);
             }
         }
 
@@ -541,15 +540,15 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void ExecuteNonQuery_throws_when_no_command_text()
+        public void ExecuteNonQuery_works_when_no_command_text()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
 
-                var ex = Assert.Throws<InvalidOperationException>(() => connection.CreateCommand().ExecuteNonQuery());
+                var result = connection.CreateCommand().ExecuteNonQuery();
 
-                Assert.Equal(Resources.CallRequiresSetCommandText("ExecuteNonQuery"), ex.Message);
+                Assert.Equal(-1, result);
             }
         }
 
