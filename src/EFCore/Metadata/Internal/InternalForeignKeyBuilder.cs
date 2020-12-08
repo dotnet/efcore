@@ -176,6 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && (navigationToDependent == null
                     || navigationToDependent.Value.Name == Metadata.PrincipalToDependent?.Name))
             {
+                Metadata.UpdateConfigurationSource(configurationSource);
                 if (navigationToPrincipal != null)
                 {
                     Metadata.UpdateDependentToPrincipalConfigurationSource(configurationSource);
@@ -1795,6 +1796,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             properties = dependentEntityType.Builder.GetActualProperties(properties, configurationSource);
             if (Metadata.Properties.SequenceEqual(properties))
             {
+                Metadata.UpdateConfigurationSource(configurationSource);
                 Metadata.UpdatePropertiesConfigurationSource(configurationSource);
 
                 var builder = this;
@@ -2022,6 +2024,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (Metadata.PrincipalKey.Properties.SequenceEqual(properties))
             {
+                Metadata.UpdateConfigurationSource(configurationSource);
                 Metadata.UpdatePrincipalKeyConfigurationSource(configurationSource);
 
                 var builder = this;

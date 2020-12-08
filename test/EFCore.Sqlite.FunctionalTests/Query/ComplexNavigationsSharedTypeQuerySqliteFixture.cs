@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ComplexNavigationsSharedQuerySqliteFixture : ComplexNavigationsSharedQueryRelationalFixtureBase
+    public class ComplexNavigationsSharedTypeQuerySqliteFixture : ComplexNavigationsSharedTypeQueryRelationalFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;

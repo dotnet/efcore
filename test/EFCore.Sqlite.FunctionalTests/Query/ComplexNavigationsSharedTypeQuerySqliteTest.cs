@@ -11,9 +11,9 @@ using Xunit.Abstractions;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class ComplexNavigationsSharedTypeQuerySqliteTest : ComplexNavigationsSharedQueryTypeRelationalTestBase<
-        ComplexNavigationsSharedQuerySqliteFixture>
+        ComplexNavigationsSharedTypeQuerySqliteFixture>
     {
-        public ComplexNavigationsSharedTypeQuerySqliteTest(ComplexNavigationsSharedQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
+        public ComplexNavigationsSharedTypeQuerySqliteTest(ComplexNavigationsSharedTypeQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
         }

@@ -10,10 +10,10 @@ using Xunit.Abstractions;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class ComplexNavigationsSharedTypeQuerySqlServerTest : ComplexNavigationsSharedQueryTypeRelationalTestBase<
-        ComplexNavigationsWeakQuerySqlServerFixture>
+        ComplexNavigationsSharedTypeQuerySqlServerFixture>
     {
         public ComplexNavigationsSharedTypeQuerySqlServerTest(
-            ComplexNavigationsWeakQuerySqlServerFixture fixture,
+            ComplexNavigationsSharedTypeQuerySqlServerFixture fixture,
             ITestOutputHelper testOutputHelper)
             : base(fixture)
         {

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class ComplexNavigationsSharedQueryRelationalFixtureBase : ComplexNavigationsSharedQueryFixtureBase
+    public abstract class ComplexNavigationsSharedTypeQueryRelationalFixtureBase : ComplexNavigationsSharedTypeQueryFixtureBase
     {
         public TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;

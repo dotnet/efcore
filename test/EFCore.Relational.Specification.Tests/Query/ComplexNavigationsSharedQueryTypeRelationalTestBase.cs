@@ -11,7 +11,7 @@ using Xunit;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class ComplexNavigationsSharedQueryTypeRelationalTestBase<TFixture> : ComplexNavigationsSharedTypeQueryTestBase<TFixture>
-        where TFixture : ComplexNavigationsSharedQueryRelationalFixtureBase, new()
+        where TFixture : ComplexNavigationsSharedTypeQueryRelationalFixtureBase, new()
     {
         protected ComplexNavigationsSharedQueryTypeRelationalTestBase(TFixture fixture)
             : base(fixture)
