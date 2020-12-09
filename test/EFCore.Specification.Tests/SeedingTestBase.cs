@@ -45,12 +45,6 @@ namespace Microsoft.EntityFrameworkCore
                     var _ = async
                         ? await context.Database.EnsureCreatedResilientlyAsync()
                         : context.Database.EnsureCreatedResiliently();
-
-                    Assert.Empty(context.ChangeTracker.Entries());
-
-                    var seeds = context.Set<KeylessSeed>().OrderBy(e => e.Species).ToList();
-
-                    Assert.Empty(seeds);
                 });
             Assert.Equal(CoreStrings.SeedKeylessEntity(nameof(KeylessSeed)), exception.Message);
         }
