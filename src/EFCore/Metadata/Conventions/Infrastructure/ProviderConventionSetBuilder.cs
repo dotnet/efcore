@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.EntityTypeAddedConventions.Add(new NotMappedEntityTypeAttributeConvention(Dependencies));
             conventionSet.EntityTypeAddedConventions.Add(new OwnedEntityTypeAttributeConvention(Dependencies));
             conventionSet.EntityTypeAddedConventions.Add(new KeylessEntityTypeAttributeConvention(Dependencies));
-            conventionSet.EntityTypeAddedConventions.Add(new EntityConfigurationEntityTypeAttributeConvention(Dependencies));
+            conventionSet.EntityTypeAddedConventions.Add(new EntityTypeConfigurationEntityTypeAttributeConvention(Dependencies));
             conventionSet.EntityTypeAddedConventions.Add(new NotMappedMemberAttributeConvention(Dependencies));
             conventionSet.EntityTypeAddedConventions.Add(baseTypeDiscoveryConvention);
             conventionSet.EntityTypeAddedConventions.Add(propertyDiscoveryConvention);
