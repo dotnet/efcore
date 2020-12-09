@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore
             => new SeedingInMemoryContext(testId);
 
         protected override KeylessSeedingContext CreateKeylessContextWithEmptyDatabase(string testId)
-        => new KeylessSeedingInMemoryContext(testId);
+            => new KeylessSeedingInMemoryContext(testId);
 
         protected class SeedingInMemoryContext : SeedingContext
         {
