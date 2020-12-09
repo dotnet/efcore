@@ -130,6 +130,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
             }
 
+            for (var i = keyProperties.Count - 1; i >= 0; i--)
+            {
+                var property = keyProperties[i];
+                for (var j = i - 1; j >= 0; j--)
+                {
+                    if (property == keyProperties[j])
+                    {
+                        keyProperties.RemoveAt(j);
+                        i--;
+                    }
+                }
+            }
+
             ProcessKeyProperties(keyProperties, entityType);
 
             if (keyProperties.Count > 0)

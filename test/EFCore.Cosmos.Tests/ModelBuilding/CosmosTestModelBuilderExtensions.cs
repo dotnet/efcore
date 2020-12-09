@@ -29,6 +29,24 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             return builder;
         }
 
+        public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> HasPartitionKey<TEntity>(
+            this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+            string name)
+            where TEntity : class
+        {
+            switch (builder)
+            {
+                case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                    genericBuilder.Instance.HasPartitionKey(name);
+                    break;
+                case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                    nonGenericBuilder.Instance.HasPartitionKey(name);
+                    break;
+            }
+
+            return builder;
+        }
+
         public static ModelBuilderTest.TestPropertyBuilder<TProperty> ToJsonProperty<TProperty>(
             this ModelBuilderTest.TestPropertyBuilder<TProperty> builder,
             string name)
