@@ -132,15 +132,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
             }
 
-            for (var i = keyProperties.Count - 1; i >= 0; i--)
+            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23476", out var enabledFor23476) && enabledFor23476;
+            if (!useOldBehavior)
             {
-                var property = keyProperties[i];
-                for (var j = i - 1; j >= 0; j--)
+                for (var i = keyProperties.Count - 1; i >= 0; i--)
                 {
-                    if (property == keyProperties[j])
+                    var property = keyProperties[i];
+                    for (var j = i - 1; j >= 0; j--)
                     {
-                        keyProperties.RemoveAt(j);
-                        i--;
+                        if (property == keyProperties[j])
+                        {
+                            keyProperties.RemoveAt(j);
+                            i--;
+                        }
                     }
                 }
             }
