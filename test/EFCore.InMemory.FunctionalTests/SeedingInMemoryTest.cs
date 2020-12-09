@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseInMemoryDatabase($"Seeds{TestId}");
         }
+
         protected class KeylessSeedingInMemoryContext : KeylessSeedingContext
         {
             public KeylessSeedingInMemoryContext(string testId)
