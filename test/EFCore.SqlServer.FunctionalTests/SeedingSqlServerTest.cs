@@ -48,6 +48,5 @@ namespace Microsoft.EntityFrameworkCore
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString($"Seeds{TestId}"));
         }
-
     }
 }
