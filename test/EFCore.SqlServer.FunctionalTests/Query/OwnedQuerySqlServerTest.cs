@@ -1123,7 +1123,7 @@ LEFT JOIN (
         FROM [OwnedPerson] AS [o3]
         WHERE [o3].[Discriminator] IN (N'Branch', N'LeafA')
     ) AS [t1] ON [o2].[Id] = [t1].[Id]
-    WHERE [o2].[BranchAddress_PlaceType] IS NOT NULL OR [o2].[BranchAddress_BranchName] IS NOT NULL
+    WHERE [o2].[BranchAddress_BranchName] IS NOT NULL OR [o2].[BranchAddress_PlaceType] IS NOT NULL
 ) AS [t0] ON [o].[Id] = [t0].[Id]
 LEFT JOIN (
     SELECT [o4].[Id], [o4].[LeafBAddress_LeafBType], [o4].[LeafBAddress_PlaceType], [t3].[Id] AS [Id0], [o4].[Id] AS [Id1], [o4].[LeafBAddress_Country_Name], [o4].[LeafBAddress_Country_PlanetId]
@@ -1133,7 +1133,7 @@ LEFT JOIN (
         FROM [OwnedPerson] AS [o5]
         WHERE [o5].[Discriminator] = N'LeafB'
     ) AS [t3] ON [o4].[Id] = [t3].[Id]
-    WHERE [o4].[LeafBAddress_PlaceType] IS NOT NULL OR [o4].[LeafBAddress_LeafBType] IS NOT NULL
+    WHERE [o4].[LeafBAddress_LeafBType] IS NOT NULL OR [o4].[LeafBAddress_PlaceType] IS NOT NULL
 ) AS [t2] ON [o].[Id] = [t2].[Id]
 LEFT JOIN (
     SELECT [o6].[Id], [o6].[LeafAAddress_LeafType], [o6].[LeafAAddress_PlaceType], [t5].[Id] AS [Id0], [o6].[Id] AS [Id1], [o6].[LeafAAddress_Country_Name], [o6].[LeafAAddress_Country_PlanetId]
