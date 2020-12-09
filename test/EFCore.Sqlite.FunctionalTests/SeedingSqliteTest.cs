@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected override KeylessSeedingContext CreateKeylessContextWithEmptyDatabase(string testId)
         {
-            var context = new KeylessSeedingInMemoryContext(testId);
+            var context = new KeylessSeedingSqliteContext(testId);
 
             context.Database.EnsureClean();
 
@@ -34,15 +34,15 @@ namespace Microsoft.EntityFrameworkCore
                 => optionsBuilder.UseSqlite(($"Data Source = Seeds{TestId}.db"));
         }
 
-        protected class KeylessSeedingInMemoryContext : KeylessSeedingContext
+        protected class KeylessSeedingSqliteContext : KeylessSeedingContext
         {
-            public KeylessSeedingInMemoryContext(string testId)
+            public KeylessSeedingSqliteContext(string testId)
                 : base(testId)
             {
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlite(($"Data Source = Seeds{TestId}.db"));
+                => optionsBuilder.UseSqlite(($"Data Source = KeylessSeeds{TestId}.db"));
         }
     }
 }

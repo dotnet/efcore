@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected override KeylessSeedingContext CreateKeylessContextWithEmptyDatabase(string testId)
         {
-            var context = new KeylessSeedingInMemoryContext(testId);
+            var context = new KeylessSeedingSqlServerContext(testId);
 
             context.Database.EnsureClean();
 
@@ -38,9 +38,9 @@ namespace Microsoft.EntityFrameworkCore
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString($"Seeds{TestId}"));
         }
-        protected class KeylessSeedingInMemoryContext : KeylessSeedingContext
+        protected class KeylessSeedingSqlServerContext : KeylessSeedingContext
         {
-            public KeylessSeedingInMemoryContext(string testId)
+            public KeylessSeedingSqlServerContext(string testId)
                 : base(testId)
             {
             }
