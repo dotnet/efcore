@@ -32,12 +32,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Order>().Include(o => o.Customer.Orders).OrderBy(o => o.OrderID),
+                ss => ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F")).Include(o => o.Customer.Orders).OrderBy(o => o.OrderID),
                 elementAsserter: (e, a) => AssertInclude(
                     e, a,
                     new ExpectedInclude<Order>(o => o.Customer), new ExpectedInclude<Customer>(c => c.Orders, "Customer")),
                 assertOrder: true,
-                entryCount: 919);
+                entryCount: 70);
         }
 
         [ConditionalTheory]
@@ -46,12 +46,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             await AssertQuery(
                 async,
-                ss => ss.Set<Order>().Include(o => o.Customer).ThenInclude(c => c.Orders),
+                ss => ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F")).Include(o => o.Customer).ThenInclude(c => c.Orders),
                 elementAsserter: (e, a) => AssertInclude(
                     e, a,
                     new ExpectedInclude<Order>(o => o.Customer),
                     new ExpectedInclude<Customer>(c => c.Orders, "Customer")),
-                entryCount: 919);
+                entryCount: 70);
         }
 
         [ConditionalTheory]
@@ -150,9 +150,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Customer>().Include(c => c.Orders),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).Include(c => c.Orders),
                 elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-                entryCount: 921);
+                entryCount: 71);
         }
 
         [ConditionalTheory]
@@ -161,12 +161,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Product>().Include(p => p.OrderDetails).ThenInclude(od => od.Order),
+                ss => ss.Set<Product>().Where(p => p.ProductID % 17 == 5).Include(p => p.OrderDetails).ThenInclude(od => od.Order),
                 elementAsserter: (e, a) => AssertInclude(
                     e, a,
                     new ExpectedInclude<Product>(p => p.OrderDetails),
                     new ExpectedInclude<OrderDetail>(od => od.Order, "OrderDetails")),
-                entryCount: 3062);
+                entryCount: 237);
         }
 
         [ConditionalTheory]
@@ -229,12 +229,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Product>().Include(p => p.OrderDetails).ThenInclude(od => od.Order),
+                ss => ss.Set<Product>().Where(p => p.ProductID % 17 == 5 && p.UnitPrice < 20).Include(p => p.OrderDetails).ThenInclude(od => od.Order),
                 elementAsserter: (e, a) => AssertInclude(
                     e, a,
                     new ExpectedInclude<Product>(p => p.OrderDetails),
                     new ExpectedInclude<OrderDetail>(od => od.Order, "OrderDetails")),
-                entryCount: 3062);
+                entryCount: 89);
         }
 
         [ConditionalTheory]
@@ -243,9 +243,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Order>().Include(o => o.OrderDetails),
+                ss => ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F")).Include(o => o.OrderDetails),
                 elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.OrderDetails)),
-                entryCount: 2985);
+                entryCount: 227);
         }
 
         [ConditionalTheory]
@@ -254,11 +254,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Order>().Include(o => o.OrderDetails).Include(o => o.Customer),
+                ss => ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F")).Include(o => o.OrderDetails).Include(o => o.Customer),
                 elementAsserter: (e, a) => AssertInclude(
                     e, a,
                     new ExpectedInclude<Order>(o => o.OrderDetails), new ExpectedInclude<Order>(o => o.Customer)),
-                entryCount: 3074);
+                entryCount: 234);
         }
 
         [ConditionalTheory]
@@ -302,10 +302,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => from c1 in ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(5)
-                      from c2 in ss.Set<Customer>().Include(c2 => c2.Orders)
+                      from c2 in ss.Set<Customer>().Where(c2 => c2.CustomerID.StartsWith("F")).Include(c2 => c2.Orders)
                       select c2,
                 elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-                entryCount: 921);
+                entryCount: 71);
         }
 
         [ConditionalTheory]
@@ -472,10 +472,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Customer>().Include(c => c.Orders).OrderBy(c => c.CustomerID),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).Include(c => c.Orders).OrderBy(c => c.CustomerID),
                 elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
                 assertOrder: true,
-                entryCount: 921);
+                entryCount: 71);
         }
 
         [ConditionalTheory]
@@ -484,10 +484,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Customer>().Include(c => c.Orders).OrderBy(c => c.PostalCode),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).Include(c => c.Orders).OrderBy(c => c.PostalCode),
                 elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
                 assertOrder: true,
-                entryCount: 921);
+                entryCount: 71);
         }
 
         [ConditionalTheory]
@@ -507,9 +507,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Customer>().Include(c => c.Orders).OrderBy(c => c.ContactTitle).Skip(10),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).Include(c => c.Orders).OrderBy(c => c.ContactTitle).Skip(2),
                 elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-                entryCount: 795);
+                entryCount: 64);
         }
 
         [ConditionalTheory]
@@ -760,12 +760,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<OrderDetail>().Include(o => o.Order).Include(o => o.Product),
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID % 23 == 13).Include(o => o.Order).Include(o => o.Product),
                 elementAsserter: (e, a) => AssertInclude(
                     e, a,
                     new ExpectedInclude<OrderDetail>(od => od.Order),
                     new ExpectedInclude<OrderDetail>(od => od.Product)),
-                entryCount: 3062);
+                entryCount: 183);
         }
 
         [ConditionalTheory]
@@ -774,14 +774,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<OrderDetail>().Include(od => od.Order.Customer.Orders).Include(od => od.Product),
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID % 23 == 13).Include(od => od.Order.Customer.Orders).Include(od => od.Product),
                 elementAsserter: (e, a) => AssertInclude(
                     e, a,
                     new ExpectedInclude<OrderDetail>(od => od.Order),
                     new ExpectedInclude<Order>(o => o.Customer, "Order"),
                     new ExpectedInclude<Customer>(c => c.Orders, "Order.Customer"),
                     new ExpectedInclude<OrderDetail>(od => od.Product)),
-                entryCount: 3151);
+                entryCount: 516);
         }
 
         [ConditionalTheory]
@@ -790,14 +790,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<OrderDetail>().Include(od => od.Product).Include(od => od.Order.Customer.Orders),
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID % 23 == 13).Include(od => od.Product).Include(od => od.Order.Customer.Orders),
                 elementAsserter: (e, a) => AssertInclude(
                     e, a,
                     new ExpectedInclude<OrderDetail>(od => od.Order),
                     new ExpectedInclude<Order>(o => o.Customer, "Order"),
                     new ExpectedInclude<Customer>(c => c.Orders, "Order.Customer"),
                     new ExpectedInclude<OrderDetail>(od => od.Product)),
-                entryCount: 3151);
+                entryCount: 516);
         }
 
         [ConditionalTheory]
@@ -806,13 +806,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<OrderDetail>().Include(o => o.Order.Customer).Include(o => o.Product),
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID % 23 == 13).Include(o => o.Order.Customer).Include(o => o.Product),
                 elementAsserter: (e, a) => AssertInclude(
                     e, a,
                     new ExpectedInclude<OrderDetail>(od => od.Order),
                     new ExpectedInclude<Order>(o => o.Customer, "Order"),
                     new ExpectedInclude<OrderDetail>(od => od.Product)),
-                entryCount: 3151);
+                entryCount: 213);
         }
 
         [ConditionalTheory]
@@ -821,13 +821,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<OrderDetail>().Include(o => o.Product).Include(o => o.Order.Customer),
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID % 23 == 13).Include(o => o.Product).Include(o => o.Order.Customer),
                 elementAsserter: (e, a) => AssertInclude(
                     e, a,
                     new ExpectedInclude<OrderDetail>(od => od.Order),
                     new ExpectedInclude<Order>(o => o.Customer, "Order"),
                     new ExpectedInclude<OrderDetail>(od => od.Product)),
-                entryCount: 3151);
+                entryCount: 213);
         }
 
         [ConditionalTheory]
@@ -836,9 +836,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Order>().Include(o => o.Customer),
+                ss => ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F")).Include(o => o.Customer),
                 elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.Customer)),
-                entryCount: 919);
+                entryCount: 70);
         }
 
         [ConditionalTheory]
@@ -847,9 +847,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             await AssertQuery(
                 async,
-                ss => ss.Set<OrderDetail>().Include(o => o.Order),
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID % 23 == 13).Include(o => o.Order),
                 elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<OrderDetail>(od => od.Order)),
-                entryCount: 2985);
+                entryCount: 131);
         }
 
         [ConditionalTheory]
@@ -858,12 +858,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Order>().Include(o => o.Customer).Include(o => o.OrderDetails),
+                ss => ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F")).Include(o => o.Customer).Include(o => o.OrderDetails),
                 elementAsserter: (e, a) => AssertInclude(
                     e, a,
                     new ExpectedInclude<Order>(o => o.Customer),
                     new ExpectedInclude<Order>(o => o.OrderDetails)),
-                entryCount: 3074);
+                entryCount: 234);
         }
 
         [ConditionalTheory]
@@ -923,14 +923,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Order>().Include(o => o.Customer).Select(o => new { o, o.CustomerID }),
+                ss => ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F")).Include(o => o.Customer).Select(o => new { o, o.CustomerID }),
                 elementSorter: e => e.o.OrderID,
                 elementAsserter: (e, a) =>
                 {
                     AssertInclude(e.o, a.o, new ExpectedInclude<Order>(o => o.Customer));
                     AssertEqual(e.CustomerID, a.CustomerID);
                 },
-                entryCount: 919);
+                entryCount: 70);
         }
 
         [ConditionalTheory]
@@ -961,13 +961,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<OrderDetail>().Include(o => o.Order.Customer.Orders),
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID % 23 == 13 && od.UnitPrice < 10).Include(o => o.Order.Customer.Orders),
                 elementAsserter: (e, a) => AssertInclude(
                     e, a,
                     new ExpectedInclude<OrderDetail>(od => od.Order),
                     new ExpectedInclude<Order>(o => o.Customer, "Order"),
                     new ExpectedInclude<Customer>(c => c.Orders, "Order.Customer")),
-                entryCount: 3074);
+                entryCount: 227);
         }
 
         [ConditionalTheory]
@@ -976,12 +976,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Customer>().Include(c => c.Orders).ThenInclude(o => o.OrderDetails),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).Include(c => c.Orders).ThenInclude(o => o.OrderDetails),
                 elementAsserter: (e, a) => AssertInclude(
                     e, a,
                     new ExpectedInclude<Customer>(c => c.Orders),
                     new ExpectedInclude<Order>(o => o.OrderDetails, "Orders")),
-                entryCount: 3076);
+                entryCount: 235);
         }
 
         [ConditionalTheory]
@@ -990,13 +990,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Customer>().Include(c => c.Orders).ThenInclude(o => o.OrderDetails).ThenInclude(od => od.Product),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).Include(c => c.Orders).ThenInclude(o => o.OrderDetails).ThenInclude(od => od.Product),
                 elementAsserter: (e, a) => AssertInclude(
                     e, a,
                     new ExpectedInclude<Customer>(c => c.Orders),
                     new ExpectedInclude<Order>(o => o.OrderDetails, "Orders"),
                     new ExpectedInclude<OrderDetail>(od => od.Product, "Orders.OrderDetails")),
-                entryCount: 3153);
+                entryCount: 293);
         }
 
         [ConditionalTheory]
@@ -1035,12 +1035,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<OrderDetail>().Include(o => o.Order.Customer),
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID % 23 == 13).Include(o => o.Order.Customer),
                 elementAsserter: (e, a) => AssertInclude(
                     e, a,
                     new ExpectedInclude<OrderDetail>(od => od.Order),
                     new ExpectedInclude<Order>(o => o.Customer, "Order")),
-                entryCount: 3074);
+                entryCount: 161);
         }
 
         [ConditionalTheory]
@@ -1065,6 +1065,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<OrderDetail>()
+                    .Where(od => od.OrderID % 23 == 13)
                     .Include(od => od.Order).ThenInclude(o => o.Customer).ThenInclude(c => c.Orders)
                     .Include(od => od.Product),
                 elementAsserter: (e, a) => AssertInclude(
@@ -1073,7 +1074,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new ExpectedInclude<Order>(o => o.Customer, "Order"),
                     new ExpectedInclude<Customer>(c => c.Orders, "Order.Customer"),
                     new ExpectedInclude<OrderDetail>(od => od.Product)),
-                entryCount: 3151);
+                entryCount: 516);
         }
 
         [ConditionalTheory]
@@ -1083,6 +1084,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<OrderDetail>()
+                    .Where(od => od.OrderID % 23 == 13)
                     .Include(od => od.Product)
                     .Include(od => od.Order).ThenInclude(o => o.Customer).ThenInclude(c => c.Orders),
                 elementAsserter: (e, a) => AssertInclude(
@@ -1091,7 +1093,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new ExpectedInclude<Order>(o => o.Customer, "Order"),
                     new ExpectedInclude<Customer>(c => c.Orders, "Order.Customer"),
                     new ExpectedInclude<OrderDetail>(od => od.Product)),
-                entryCount: 3151);
+                entryCount: 516);
         }
 
         [ConditionalTheory]
@@ -1101,6 +1103,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<OrderDetail>()
+                    .Where(od => od.OrderID % 23 == 13)
                     .Include(od => od.Order).ThenInclude(o => o.Customer)
                     .Include(od => od.Product),
                 elementAsserter: (e, a) => AssertInclude(
@@ -1108,7 +1111,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new ExpectedInclude<OrderDetail>(od => od.Order),
                     new ExpectedInclude<Order>(o => o.Customer, "Order"),
                     new ExpectedInclude<OrderDetail>(od => od.Product)),
-                entryCount: 3151);
+                entryCount: 213);
         }
 
         [ConditionalTheory]
@@ -1118,6 +1121,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<OrderDetail>()
+                    .Where(od => od.OrderID % 23 == 13)
                     .Include(od => od.Product)
                     .Include(od => od.Order).ThenInclude(o => o.Customer),
                 elementAsserter: (e, a) => AssertInclude(
@@ -1125,7 +1129,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new ExpectedInclude<OrderDetail>(od => od.Order),
                     new ExpectedInclude<Order>(o => o.Customer, "Order"),
                     new ExpectedInclude<OrderDetail>(od => od.Product)),
-                entryCount: 3151);
+                entryCount: 213);
         }
 
         [ConditionalTheory]
@@ -1135,13 +1139,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<OrderDetail>()
-                    .Include(od => od.Order).ThenInclude(o => o.Customer).ThenInclude(c => c.Orders),
+                    .Where(od => od.ProductID % 23 == 17 && od.Quantity < 10)
+                    .Include(od => od.Order)
+                    .ThenInclude(o => o.Customer)
+                    .ThenInclude(c => c.Orders),
                 elementAsserter: (e, a) => AssertInclude(
                     e, a,
                     new ExpectedInclude<OrderDetail>(od => od.Order),
                     new ExpectedInclude<Order>(o => o.Customer, "Order"),
                     new ExpectedInclude<Customer>(c => c.Orders, "Order.Customer")),
-                entryCount: 3074);
+                entryCount: 229);
         }
 
         [ConditionalTheory]
@@ -1151,7 +1158,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<OrderDetail>()
-                    .Include(od => od.Order).ThenInclude(o => o.Customer).ThenInclude(c => c.Orders)
+                    .Include(od => od.Order)
+                    .ThenInclude(o => o.Customer)
+                    .ThenInclude(c => c.Orders)
                     .Where(od => od.OrderID == 10248),
                 elementAsserter: (e, a) => AssertInclude(
                     e, a,
@@ -1168,12 +1177,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<OrderDetail>()
-                    .Include(od => od.Order).ThenInclude(o => o.Customer),
+                    .Where(od => od.OrderID % 23 == 13)
+                    .Include(od => od.Order)
+                    .ThenInclude(o => o.Customer),
                 elementAsserter: (e, a) => AssertInclude(
                     e, a,
                     new ExpectedInclude<OrderDetail>(od => od.Order),
                     new ExpectedInclude<Order>(o => o.Customer, "Order")),
-                entryCount: 3074);
+                entryCount: 161);
         }
 
         [ConditionalTheory]
@@ -1240,10 +1251,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Customer>().Include(c => c.Orders).OrderBy(c => c.CustomerID.StartsWith("S") ? 1 : 2),
+                ss => ss.Set<Customer>()
+                    .Where(c => c.CustomerID.StartsWith("F"))
+                    .Include(c => c.Orders)
+                    .OrderBy(c => c.CustomerID.StartsWith("S") ? 1 : 2)
+                    .Select(c => c),
                 elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-                assertOrder: true,
-                entryCount: 921);
+                elementSorter: e => e.CustomerID,
+                entryCount: 71);
         }
 
         [ConditionalTheory]

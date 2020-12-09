@@ -346,9 +346,9 @@ WHERE ""c"".""CustomerID"" = 'ALFKI'");
             await base.Where_math_abs1(async);
 
             AssertSql(
-                @"SELECT ""o"".""OrderID"", ""o"".""ProductID"", ""o"".""Discount"", ""o"".""Quantity"", ""o"".""UnitPrice""
-FROM ""Order Details"" AS ""o""
-WHERE abs(""o"".""ProductID"") > 10");
+                @"SELECT ""p"".""ProductID"", ""p"".""Discontinued"", ""p"".""ProductName"", ""p"".""SupplierID"", ""p"".""UnitPrice"", ""p"".""UnitsInStock""
+FROM ""Products"" AS ""p""
+WHERE abs(""p"".""ProductID"") > 10");
         }
 
         public override async Task Where_math_abs2(bool async)
@@ -358,7 +358,7 @@ WHERE abs(""o"".""ProductID"") > 10");
             AssertSql(
                 @"SELECT ""o"".""OrderID"", ""o"".""ProductID"", ""o"".""Discount"", ""o"".""Quantity"", ""o"".""UnitPrice""
 FROM ""Order Details"" AS ""o""
-WHERE abs(""o"".""Quantity"") > 10");
+WHERE (""o"".""UnitPrice"" < 7.0) AND (abs(""o"".""Quantity"") > 10)");
         }
 
         public override async Task Where_math_abs_uncorrelated(bool async)
@@ -368,7 +368,7 @@ WHERE abs(""o"".""Quantity"") > 10");
             AssertSql(
                 @"SELECT ""o"".""OrderID"", ""o"".""ProductID"", ""o"".""Discount"", ""o"".""Quantity"", ""o"".""UnitPrice""
 FROM ""Order Details"" AS ""o""
-WHERE 10 < ""o"".""ProductID""");
+WHERE (""o"".""UnitPrice"" < 7.0) AND (10 < ""o"".""ProductID"")");
         }
 
         public override async Task Select_math_round_int(bool async)

@@ -46,11 +46,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss =>
-                    from c in ss.Set<Customer>()
+                    from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
                     join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID
                     select new { c, o },
                 e => (e.c.CustomerID, e.o.OrderID),
-                entryCount: 919);
+                entryCount: 70);
         }
 
         [ConditionalTheory]
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => from c in ss.Set<Customer>()
+                ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
                       join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID
                       from e in ss.Set<Employee>()
                       select new
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                           e
                       },
                 e => (e.c.CustomerID, e.o.OrderID, e.e.EmployeeID),
-                entryCount: 928);
+                entryCount: 79);
         }
 
         [ConditionalTheory(Skip = "Issue #17328")]
@@ -236,12 +236,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss =>
-                    from c in ss.Set<Customer>()
+                    from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
                     join o in ss.Set<Order>() on new { a = c.CustomerID, b = c.CustomerID }
                         equals new { a = o.CustomerID, b = o.CustomerID }
                     select new { c, o },
                 e => e.o.OrderID,
-                entryCount: 919);
+                entryCount: 70);
         }
 
         [ConditionalTheory]
@@ -334,10 +334,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss =>
-                    ss.Set<Order>().Join(
+                    ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F")).Join(
                         ss.Set<Order>(), o => o.CustomerID, i => i.CustomerID, (_, o) => new { _, o }),
                 e => (e._.OrderID, e.o.OrderID),
-                entryCount: 830);
+                entryCount: 63);
         }
 
         [ConditionalTheory]
@@ -351,9 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                      join e in ss.Set<Employee>() on c.City equals e.City into employees
                      select employees)
                     .SelectMany(emps => emps)
-                    .Select(
-                        e =>
-                            new { Title = EF.Property<string>(e, "Title"), Id = e.EmployeeID }),
+                    .Select(e => new { Title = EF.Property<string>(e, "Title"), Id = e.EmployeeID }),
                 e => e.Id);
         }
 
@@ -368,9 +366,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                      join e in ss.Set<Employee>().OrderBy(e => e.City) on c.City equals e.City into employees
                      select employees)
                     .SelectMany(emps => emps)
-                    .Select(
-                        e =>
-                            new { Title = EF.Property<string>(e, "Title"), Id = e.EmployeeID }),
+                    .Select(e => new { Title = EF.Property<string>(e, "Title"), Id = e.EmployeeID }),
                 e => e.Id);
         }
 
@@ -385,9 +381,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                      join e in ss.Set<Employee>().OrderBy(e => e.City).Take(5) on c.City equals e.City into employees
                      select employees)
                     .SelectMany(emps => emps)
-                    .Select(
-                        e =>
-                            new { Title = EF.Property<string>(e, "Title"), Id = e.EmployeeID }),
+                    .Select(e => new { Title = EF.Property<string>(e, "Title"), Id = e.EmployeeID }),
                 e => e.Id);
         }
 
@@ -398,11 +392,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss =>
-                    from c in ss.Set<Customer>()
+                    from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
                     join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
                     from o in orders
                     select o,
-                entryCount: 830);
+                entryCount: 63);
         }
 
         [ConditionalTheory]
@@ -440,11 +434,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss =>
-                    from c in ss.Set<Customer>().OrderBy(c => c.City)
+                    from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).OrderBy(c => c.City)
                     join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
                     from o in orders
                     select o,
-                entryCount: 830);
+                entryCount: 63);
         }
 
         [ConditionalTheory]
@@ -468,12 +462,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss =>
-                    from c in ss.Set<Customer>()
+                    from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
                     join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
                     from o in orders
                     select new { c, o },
                 e => (e.c.CustomerID, e.o.OrderID),
-                entryCount: 919);
+                entryCount: 70);
         }
 
         [ConditionalTheory]
@@ -503,12 +497,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss =>
-                    from c in ss.Set<Customer>()
+                    from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
                     join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
                     from o in orders.DefaultIfEmpty()
                     select new { c, o },
                 e => (e.c.CustomerID, e.o?.OrderID),
-                entryCount: 921);
+                entryCount: 71);
         }
 
         [ConditionalTheory]
@@ -518,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss =>
-                    from c in ss.Set<Customer>()
+                    from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
                     join o1 in ss.Set<Order>() on c.CustomerID equals o1.CustomerID into orders1
                     from o1 in orders1.DefaultIfEmpty()
                     join o2 in ss.Set<Order>() on c.CustomerID equals o2.CustomerID into orders2
@@ -530,7 +524,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         o2
                     },
                 e => (e.c.CustomerID, e.o1?.OrderID, e.o2?.OrderID),
-                entryCount: 921);
+                entryCount: 71);
         }
 
         [ConditionalTheory]
@@ -541,11 +535,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss =>
                     from e in ss.Set<Employee>()
-                    join o in ss.Set<Order>() on e.EmployeeID equals o.EmployeeID into orders
+                    join o in ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F")) on e.EmployeeID equals o.EmployeeID into orders
                     from o in orders.DefaultIfEmpty()
                     select new { e, o },
                 e => (e.e.EmployeeID, e.o?.OrderID),
-                entryCount: 839);
+                entryCount: 72);
         }
 
         [ConditionalTheory]
@@ -676,12 +670,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss =>
-                    from c in ss.Set<Customer>()
+                    from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
                     join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into lo
                     from o in lo.Where(x => x.OrderID > 5).DefaultIfEmpty()
                     select new { c.ContactName, o },
                 e => (e.ContactName, e.o?.OrderID),
-                entryCount: 830);
+                entryCount: 63);
         }
 
         [ConditionalTheory(Skip = "Issue #19015")]
@@ -691,12 +685,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss =>
-                    from c in ss.Set<Customer>()
+                    from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
                     join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into lo
                     from o in lo.Where(x => x.OrderID > 5).OrderBy(x => x.OrderDate).DefaultIfEmpty()
                     select new { c.ContactName, o },
                 e => (e.ContactName, e.o?.OrderID),
-                entryCount: 830);
+                entryCount: 23);
         }
 
         [ConditionalTheory]
