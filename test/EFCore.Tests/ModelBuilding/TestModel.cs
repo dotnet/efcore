@@ -887,7 +887,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
         }
 
-        private class OneToManyNavPrincipal
+        protected class OneToManyNavPrincipal
         {
             public int Id { get; set; }
             public string Name { get; set; }
@@ -895,7 +895,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public List<NavDependent> Dependents { get; set; }
         }
 
-        private class OneToOneNavPrincipal
+        protected class OneToOneNavPrincipal
         {
             public int Id { get; set; }
             public string Name { get; set; }
@@ -903,7 +903,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public NavDependent Dependent { get; set; }
         }
 
-        private class ManyToManyNavPrincipal
+        protected class ManyToManyNavPrincipal
         {
             private readonly List<NavDependent> _randomField;
 
@@ -919,7 +919,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public List<NavDependent> Dependents { get; set; }
         }
 
-        private class NavDependent
+        protected class NavDependent
         {
             public int Id { get; set; }
             public string Name { get; set; }
@@ -929,7 +929,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public List<ManyToManyNavPrincipal> ManyToManyPrincipals { get; set; }
         }
 
-        private class OneToManyNavPrincipalOwner
+        protected class OneToManyNavPrincipalOwner
         {
             public int Id { get; set; }
             public string Description { get; set; }
@@ -937,7 +937,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public List<OwnedOneToManyNavDependent> OwnedDependents { get; set; }
         }
 
-        private class OneToOneNavPrincipalOwner
+        protected class OneToOneNavPrincipalOwner
         {
             public int Id { get; set; }
             public string Description { get; set; }
@@ -945,7 +945,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public OwnedNavDependent OwnedDependent { get; set; }
         }
 
-        private class OwnedNavDependent
+        protected class OwnedNavDependent
         {
             public string FirstName { get; set; }
             public string LastName { get; set; }
@@ -953,7 +953,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public OneToOneNavPrincipalOwner OneToOneOwner { get; set; }
         }
 
-        private class OwnedOneToManyNavDependent
+        protected class OwnedOneToManyNavDependent
         {
             public string FirstName { get; set; }
             public string LastName { get; set; }
