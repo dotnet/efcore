@@ -740,6 +740,72 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
+        public void Create_FK_to_excluded_principal()
+        {
+            Execute(
+                common => common
+                    .Entity("X", x =>
+                    {
+                        x.Property<int>("Id");
+                        x.ToTable("X", t => t.ExcludeFromMigrations());
+                    })
+                    .Entity(
+                        "Y",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                        }),
+                _ => { },
+                target => target
+                    .Entity(
+                        "Y",
+                        x =>
+                        {
+                            x.HasOne("X").WithMany().HasForeignKey("XId");
+                        }),
+                upOps => Assert.Collection(
+                    upOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<AddColumnOperation>(o);
+                        Assert.Equal("XId", operation.Name);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<CreateIndexOperation>(o);
+                        Assert.Equal("IX_Y_XId", operation.Name);
+                        Assert.Collection(
+                            operation.Columns,
+                            x => Assert.Equal("XId", x));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<AddForeignKeyOperation>(o);
+                        Assert.Equal("FK_Y_X_XId", operation.Name);
+                        Assert.Collection(
+                            operation.Columns,
+                            x => Assert.Equal("XId", x));
+                    }),
+                downOps => Assert.Collection(
+                    downOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<DropForeignKeyOperation>(o);
+                        Assert.Equal("FK_Y_X_XId", operation.Name);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<DropIndexOperation>(o);
+                        Assert.Equal("IX_Y_XId", operation.Name);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<DropColumnOperation>(o);
+                        Assert.Equal("XId", operation.Name);
+                    }));
+        }
+
+        [ConditionalFact]
         public void Create_table_no_key()
         {
             Execute(
@@ -9669,45 +9735,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             c.ToTable("Customer", t => t.ExcludeFromMigrations());
                         });
                 },
-                Assert.Empty,
-                Assert.Empty,
-                skipSourceConventions: true);
-        }
-
-        [ConditionalFact]
-        public void SeedData_type_with_owned_collection_excluded()
-        {
-            Execute(
-                common =>
-                {
-                    common.Entity<Customer>(
-                        c =>
-                        {
-                            c.Ignore(x => x.Mailing);
-
-                            c.HasKey(x => x.Id);
-                            c.HasData(new Customer { Id = 1 });
-
-                            c.OwnsMany(
-                                y => y.Orders, x =>
-                                {
-                                    x.Ignore(o => o.Billing);
-                                    x.Ignore(o => o.Shipping);
-
-                                    x.WithOwner()
-                                        .HasForeignKey("CustomerId");
-
-                                    x.HasKey("CustomerId", "Id");
-                                    x.HasData(new { Id = 2, CustomerId = 1 });
-
-                                    x.ToTable("Order", excludedFromMigrations: true);
-                                });
-
-                            c.ToTable("Customer", t => t.ExcludeFromMigrations());
-                        });
-                },
-                _ => { },
-                _ => { },
                 Assert.Empty,
                 Assert.Empty,
                 skipSourceConventions: true);
