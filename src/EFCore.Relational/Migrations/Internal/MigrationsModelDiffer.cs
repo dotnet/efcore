@@ -597,6 +597,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if (source.IsExcludedFromMigrations
                 && target.IsExcludedFromMigrations)
             {
+                // Populate column mapping
+                foreach(var _ in Diff(source.Columns, target.Columns, diffContext))
+                { }
+                
                 yield break;
             }
 
