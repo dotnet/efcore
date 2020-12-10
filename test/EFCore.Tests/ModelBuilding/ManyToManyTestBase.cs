@@ -410,7 +410,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var joinEntityType = categoryFk.DeclaringEntityType;
                 Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
-                Assert.Equal(2, joinEntityType.GetProperties().Count());
             }
 
             protected class ProductWithAttribute
