@@ -93,6 +93,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Property(od => od.UnitPrice)
                 .HasColumnType("money");
 
+            modelBuilder.Entity<OrderDetail>().ToTable("Order Details");
+
             modelBuilder.Entity<Product>(
                 b =>
                 {
