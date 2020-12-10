@@ -23,6 +23,8 @@ namespace Microsoft.EntityFrameworkCore
                 ? await context.Database.EnsureCreatedResilientlyAsync()
                 : context.Database.EnsureCreatedResiliently();
 
+            TestStore.Clean(context);
+
             Assert.Empty(context.ChangeTracker.Entries());
 
             var seeds = context.Set<Seed>().OrderBy(e => e.Id).ToList();
@@ -45,9 +47,12 @@ namespace Microsoft.EntityFrameworkCore
                     var _ = async
                         ? await context.Database.EnsureCreatedResilientlyAsync()
                         : context.Database.EnsureCreatedResiliently();
+                    TestStore.Clean(context);
                 });
             Assert.Equal(CoreStrings.SeedKeylessEntity(nameof(KeylessSeed)), exception.Message);
         }
+
+        protected abstract TestStore TestStore { get; }
 
         protected abstract SeedingContext CreateContextWithEmptyDatabase(string testId);
 

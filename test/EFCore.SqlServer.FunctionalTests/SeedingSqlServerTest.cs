@@ -10,23 +10,13 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SeedingSqlServerTest : SeedingTestBase
     {
+        protected override TestStore TestStore => SqlServerTestStore.Create("sqlServerTestStore");
+
         protected override SeedingContext CreateContextWithEmptyDatabase(string testId)
-        {
-            var context = new SeedingSqlServerContext(testId);
-
-            context.Database.EnsureClean();
-
-            return context;
-        }
+            => new SeedingSqlServerContext(testId);
 
         protected override KeylessSeedingContext CreateKeylessContextWithEmptyDatabase(string testId)
-        {
-            var context = new KeylessSeedingSqlServerContext(testId);
-
-            context.Database.EnsureClean();
-
-            return context;
-        }
+            => new KeylessSeedingSqlServerContext(testId);
 
         protected class SeedingSqlServerContext : SeedingContext
         {
@@ -46,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString($"Seeds{TestId}"));
+                => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString($"KeylessSeeds{TestId}"));
         }
     }
 }
