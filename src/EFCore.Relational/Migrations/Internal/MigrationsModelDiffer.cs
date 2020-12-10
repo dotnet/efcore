@@ -597,9 +597,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if (source.IsExcludedFromMigrations
                 && target.IsExcludedFromMigrations)
             {
-                // Populate column mapping
-                foreach(var _ in Diff(source.Columns, target.Columns, diffContext))
-                { }
+                var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23639", out var enabled) && enabled;
+                if (!useOldBehavior)
+                {
+                    // Populate column mapping
+                    foreach (var _ in Diff(source.Columns, target.Columns, diffContext))
+                    { }
+                }
                 
                 yield break;
             }
