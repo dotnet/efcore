@@ -74,6 +74,10 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.True(collectionEntry.IsLoaded);
+            foreach (var entityTwo in left.TwoSkip)
+            {
+                Assert.False(context.Entry(entityTwo).Collection(e => e.OneSkip).IsLoaded);
+            }
 
             RecordLog();
             context.ChangeTracker.LazyLoadingEnabled = false;
@@ -113,6 +117,10 @@ namespace Microsoft.EntityFrameworkCore
                 : collectionEntry.Query().ToList();
 
             Assert.False(collectionEntry.IsLoaded);
+            foreach (var entityTwo in left.TwoSkipShared)
+            {
+                Assert.False(context.Entry(entityTwo).Collection(e => e.OneSkipShared).IsLoaded);
+            }
 
             RecordLog();
             context.ChangeTracker.LazyLoadingEnabled = false;
@@ -234,6 +242,10 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.True(collectionEntry.IsLoaded);
+            foreach (var entityTwo in left.ThreeSkipPayloadFull)
+            {
+                Assert.False(context.Entry(entityTwo).Collection(e => e.OneSkipPayloadFull).IsLoaded);
+            }
 
             RecordLog();
             context.ChangeTracker.LazyLoadingEnabled = false;
@@ -276,6 +288,10 @@ namespace Microsoft.EntityFrameworkCore
 
             RecordLog();
             context.ChangeTracker.LazyLoadingEnabled = false;
+            foreach (var entityTwo in left.TwoSkip)
+            {
+                Assert.False(context.Entry(entityTwo).Collection(e => e.OneSkip).IsLoaded);
+            }
 
             Assert.Equal(7, left.TwoSkip.Count);
             foreach (var right in left.TwoSkip)
@@ -326,6 +342,10 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.True(navigationEntry.IsLoaded);
+            foreach (var entityTwo in left.TwoSkip)
+            {
+                Assert.False(context.Entry((object)entityTwo).Collection("OneSkip").IsLoaded);
+            }
 
             RecordLog();
             context.ChangeTracker.LazyLoadingEnabled = false;
@@ -365,6 +385,10 @@ namespace Microsoft.EntityFrameworkCore
                 : collectionEntry.Query().ToList<object>();
 
             Assert.False(collectionEntry.IsLoaded);
+            foreach (var entityTwo in left.TwoSkipShared)
+            {
+                Assert.False(context.Entry((object)entityTwo).Collection("OneSkipShared").IsLoaded);
+            }
 
             RecordLog();
             context.ChangeTracker.LazyLoadingEnabled = false;
@@ -514,6 +538,10 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.True(navigationEntry.IsLoaded);
+            foreach (var entityTwo in left.ThreeSkipPayloadFull)
+            {
+                Assert.False(context.Entry((object)entityTwo).Collection("OneSkipPayloadFull").IsLoaded);
+            }
 
             RecordLog();
             context.ChangeTracker.LazyLoadingEnabled = false;
@@ -565,6 +593,10 @@ namespace Microsoft.EntityFrameworkCore
                 : navigationEntry.Query().ToList<object>();
 
             Assert.True(navigationEntry.IsLoaded);
+            foreach (var entityTwo in left.TwoSkip)
+            {
+                Assert.False(context.Entry((object)entityTwo).Collection("OneSkip").IsLoaded);
+            }
 
             RecordLog();
             context.ChangeTracker.LazyLoadingEnabled = false;
@@ -618,6 +650,10 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.True(collectionEntry.IsLoaded);
+            foreach (var entityTwo in left.ThreeSkipFull)
+            {
+                Assert.False(context.Entry(entityTwo).Collection(e => e.CompositeKeySkipFull).IsLoaded);
+            }
 
             RecordLog();
             context.ChangeTracker.LazyLoadingEnabled = false;
@@ -657,6 +693,10 @@ namespace Microsoft.EntityFrameworkCore
                 : collectionEntry.Query().ToList();
 
             Assert.False(collectionEntry.IsLoaded);
+            foreach (var entityTwo in left.ThreeSkipFull)
+            {
+                Assert.False(context.Entry(entityTwo).Collection(e => e.CompositeKeySkipFull).IsLoaded);
+            }
 
             RecordLog();
             context.ChangeTracker.LazyLoadingEnabled = false;
@@ -728,6 +768,317 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(
                 CoreStrings.CannotLoadDetached(nameof(left.TwoSkip), nameof(EntityOne)),
                 Assert.Throws<InvalidOperationException>(() => collectionEntry.Query()).Message);
+        }
+
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Load_collection_using_Query_with_Include(bool async)
+        {
+            using var context = Fixture.CreateContext();
+
+            var left = context.Set<EntityOne>().Find(3);
+
+            ClearLog();
+
+            var collectionEntry = context.Entry(left).Collection(e => e.TwoSkipShared);
+
+            Assert.False(collectionEntry.IsLoaded);
+
+            var children = async
+                ? await collectionEntry.Query().Include(e => e.ThreeSkipFull).ToListAsync()
+                : collectionEntry.Query().Include(e => e.ThreeSkipFull).ToList();
+
+            Assert.False(collectionEntry.IsLoaded);
+            foreach (var entityTwo in left.TwoSkipShared)
+            {
+                Assert.False(context.Entry(entityTwo).Collection(e => e.OneSkipShared).IsLoaded);
+                Assert.True(context.Entry(entityTwo).Collection(e => e.ThreeSkipFull).IsLoaded);
+
+                foreach (var entityThree in entityTwo.ThreeSkipFull)
+                {
+                    Assert.False(context.Entry(entityThree).Collection(e => e.TwoSkipFull).IsLoaded);
+                }
+            }
+
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
+
+            Assert.Equal(3, left.TwoSkipShared.Count);
+            foreach (var right in left.TwoSkipShared)
+            {
+                Assert.Contains(left, right.OneSkipShared);
+                foreach (var three in right.ThreeSkipFull)
+                {
+                    Assert.Contains(right, three.TwoSkipFull);
+                }
+            }
+
+            Assert.Equal(children, left.TwoSkipShared.ToList());
+
+            Assert.Equal(21, context.ChangeTracker.Entries().Count());
+        }
+
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Load_collection_using_Query_with_Include_for_inverse(bool async)
+        {
+            using var context = Fixture.CreateContext();
+
+            var left = context.Set<EntityOne>().Find(3);
+
+            ClearLog();
+
+            var collectionEntry = context.Entry(left).Collection(e => e.TwoSkipShared);
+
+            Assert.False(collectionEntry.IsLoaded);
+
+            var queryable = collectionEntry.Query().Include(e => e.OneSkipShared);
+            var children = async
+                ? await queryable.ToListAsync()
+                : queryable.ToList();
+
+            Assert.False(collectionEntry.IsLoaded);
+            foreach (var entityTwo in left.TwoSkipShared)
+            {
+                Assert.True(context.Entry(entityTwo).Collection(e => e.OneSkipShared).IsLoaded);
+            }
+
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
+
+            Assert.Equal(3, left.TwoSkipShared.Count);
+            foreach (var right in left.TwoSkipShared)
+            {
+                Assert.Contains(left, right.OneSkipShared);
+            }
+
+            Assert.Equal(children, left.TwoSkipShared.ToList());
+            Assert.Equal(7, context.ChangeTracker.Entries().Count());
+        }
+
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Load_collection_using_Query_with_Include_for_same_collection(bool async)
+        {
+            using var context = Fixture.CreateContext();
+
+            var left = context.Set<EntityOne>().Find(3);
+
+            ClearLog();
+
+            var collectionEntry = context.Entry(left).Collection(e => e.TwoSkipShared);
+
+            Assert.False(collectionEntry.IsLoaded);
+
+            var queryable = collectionEntry.Query().Include(e => e.OneSkipShared).ThenInclude(e => e.TwoSkipShared);
+            var children = async
+                ? await queryable.ToListAsync()
+                : queryable.ToList();
+
+            Assert.True(collectionEntry.IsLoaded);
+            foreach (var entityTwo in left.TwoSkipShared)
+            {
+                Assert.True(context.Entry(entityTwo).Collection(e => e.OneSkipShared).IsLoaded);
+            }
+
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
+
+            Assert.Equal(3, left.TwoSkipShared.Count);
+            foreach (var right in left.TwoSkipShared)
+            {
+                Assert.Contains(left, right.OneSkipShared);
+            }
+
+            Assert.Equal(children, left.TwoSkipShared.ToList());
+            Assert.Equal(7, context.ChangeTracker.Entries().Count());
+        }
+
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Load_collection_using_Query_with_filtered_Include(bool async)
+        {
+            using var context = Fixture.CreateContext();
+
+            var left = context.Set<EntityOne>().Find(3);
+
+            ClearLog();
+
+            var collectionEntry = context.Entry(left).Collection(e => e.TwoSkipShared);
+
+            Assert.False(collectionEntry.IsLoaded);
+
+            var children = async
+                ? await collectionEntry.Query().Include(e => e.ThreeSkipFull.Where(e => e.Id == 13 || e.Id == 11)).ToListAsync()
+                : collectionEntry.Query().Include(e => e.ThreeSkipFull.Where(e => e.Id == 13 || e.Id == 11)).ToList();
+
+            Assert.False(collectionEntry.IsLoaded);
+            foreach (var entityTwo in left.TwoSkipShared)
+            {
+                Assert.False(context.Entry(entityTwo).Collection(e => e.OneSkipShared).IsLoaded);
+                Assert.True(context.Entry(entityTwo).Collection(e => e.ThreeSkipFull).IsLoaded);
+
+                foreach (var entityThree in entityTwo.ThreeSkipFull)
+                {
+                    Assert.False(context.Entry(entityThree).Collection(e => e.TwoSkipFull).IsLoaded);
+                }
+            }
+
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
+
+            Assert.Equal(3, left.TwoSkipShared.Count);
+            foreach (var right in left.TwoSkipShared)
+            {
+                Assert.Contains(left, right.OneSkipShared);
+                foreach (var three in right.ThreeSkipFull)
+                {
+                    Assert.True(three.Id == 11 || three.Id == 13);
+                    Assert.Contains(right, three.TwoSkipFull);
+                }
+            }
+
+            Assert.Equal(children, left.TwoSkipShared.ToList());
+
+            Assert.Equal(9, context.ChangeTracker.Entries().Count());
+        }
+
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Load_collection_using_Query_with_filtered_Include_and_projection(bool async)
+        {
+            using var context = Fixture.CreateContext();
+
+            var left = context.Set<EntityOne>().Find(3);
+
+            ClearLog();
+
+            var collectionEntry = context.Entry(left).Collection(e => e.TwoSkipShared);
+
+            Assert.False(collectionEntry.IsLoaded);
+
+            var queryable = collectionEntry
+                .Query()
+                .Include(e => e.ThreeSkipFull.Where(e => e.Id == 13 || e.Id == 11))
+                .Select(e => new { e.Id, e.Name, Count1 = e.OneSkipShared.Count, Count3 = e.ThreeSkipFull.Count });
+
+            var projected = async
+                ? await queryable.ToListAsync()
+                : queryable.ToList();
+
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
+            Assert.False(collectionEntry.IsLoaded);
+            Assert.Empty(left.TwoSkipShared);
+            Assert.Equal(1, context.ChangeTracker.Entries().Count());
+
+            Assert.Equal(3, projected.Count);
+
+            Assert.Equal(10, projected[0].Id);
+            Assert.Equal("EntityTwo 10", projected[0].Name);
+            Assert.Equal(3, projected[0].Count1);
+            Assert.Equal(1, projected[0].Count3);
+
+            Assert.Equal(11, projected[1].Id);
+            Assert.Equal("EntityTwo 11", projected[1].Name);
+            Assert.Equal(2, projected[1].Count1);
+            Assert.Equal(4, projected[1].Count3);
+
+            Assert.Equal(16, projected[2].Id);
+            Assert.Equal("EntityTwo 16", projected[2].Name);
+            Assert.Equal(3, projected[2].Count1);
+            Assert.Equal(2, projected[2].Count3);
+        }
+
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Load_collection_using_Query_with_join(bool async)
+        {
+            using var context = Fixture.CreateContext();
+
+            var left = context.Set<EntityOne>().Find(3);
+
+            ClearLog();
+
+            var collectionEntry = context.Entry(left).Collection(e => e.TwoSkipShared);
+
+            Assert.False(collectionEntry.IsLoaded);
+
+            var queryable = from t in collectionEntry.Query()
+                            join s in context.Set<EntityOne>().SelectMany(e => e.TwoSkipShared)
+                                on t.Id equals s.Id
+                            select new { t, s };
+
+            var projected = async
+                ? await queryable.ToListAsync()
+                : queryable.ToList();
+
+            Assert.False(collectionEntry.IsLoaded);
+
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
+
+            Assert.Equal(7, context.ChangeTracker.Entries().Count());
+            Assert.Equal(8, projected.Count);
+
+            foreach (var pair in projected)
+            {
+                Assert.Same(pair.s, pair.t);
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Query_with_Include_marks_only_left_as_loaded(bool async)
+        {
+            using var context = Fixture.CreateContext();
+
+            var queryable = context.EntityOnes.Include(e => e.TwoSkip);
+            var left = async
+                ? await queryable.SingleAsync(e => e.Id == 1)
+                : queryable.Single(e => e.Id == 1);
+
+            Assert.True(context.Entry(left).Collection(e => e.TwoSkip).IsLoaded);
+
+            context.ChangeTracker.LazyLoadingEnabled = false;
+
+            Assert.Equal(20, left.TwoSkip.Count);
+            foreach (var right in left.TwoSkip)
+            {
+                Assert.False(context.Entry(right).Collection(e => e.OneSkip).IsLoaded);
+                Assert.Same(left, right.OneSkip.Single());
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Query_with_filtered_Include_marks_only_left_as_loaded(bool async)
+        {
+            using var context = Fixture.CreateContext();
+
+            var queryable = context.EntityOnes.Include(e => e.TwoSkip.Where(e => e.Id == 1 || e.Id == 2));
+            var left = async
+                ? await queryable.SingleAsync(e => e.Id == 1)
+                : queryable.Single(e => e.Id == 1);
+
+            Assert.True(context.Entry(left).Collection(e => e.TwoSkip).IsLoaded);
+
+            context.ChangeTracker.LazyLoadingEnabled = false;
+
+            Assert.Equal(2, left.TwoSkip.Count);
+            foreach (var right in left.TwoSkip)
+            {
+                Assert.False(context.Entry(right).Collection(e => e.OneSkip).IsLoaded);
+                Assert.Same(left, right.OneSkip.Single());
+            }
         }
 
         protected virtual void ClearLog()

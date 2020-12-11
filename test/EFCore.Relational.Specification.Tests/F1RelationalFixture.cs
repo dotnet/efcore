@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class F1RelationalFixture : F1FixtureBase
+    public abstract class F1RelationalFixture<TRowVersion> : F1FixtureBase<TRowVersion>
     {
         public TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;

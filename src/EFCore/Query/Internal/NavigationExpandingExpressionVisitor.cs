@@ -458,11 +458,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 methodCallExpression.Type.GetSequenceType());
 
                         case nameof(EntityFrameworkQueryableExtensions.Include):
+                            return ProcessInclude(
+                                source,
+                                methodCallExpression.Arguments[1],
+                                method.Name == nameof(EntityFrameworkQueryableExtensions.Include));
+                                thenInclude: false,
+                                setLoaded: true);
+
                         case nameof(EntityFrameworkQueryableExtensions.ThenInclude):
                             return ProcessInclude(
                                 source,
                                 methodCallExpression.Arguments[1],
                                 method.Name == nameof(EntityFrameworkQueryableExtensions.ThenInclude));
+                                thenInclude: true,
+                                setLoaded: true);
+
+                        case nameof(EntityFrameworkQueryableExtensions.NotQuiteInclude):
+                            return ProcessInclude(
+                                source,
+                                methodCallExpression.Arguments[1],
+                                method.Name == nameof(EntityFrameworkQueryableExtensions.NotQuiteInclude));
+                                thenInclude: false,
+                                setLoaded: false);
 
                         case nameof(Queryable.GroupBy)
                             when genericMethod == QueryableMethods.GroupByWithKeySelector:
@@ -827,7 +844,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return new NavigationExpansionExpression(result, navigationTree, navigationTree, parameterName);
         }
 
-        private NavigationExpansionExpression ProcessInclude(NavigationExpansionExpression source, Expression expression, bool thenInclude)
+        private NavigationExpansionExpression ProcessInclude(
+            NavigationExpansionExpression source, Expression expression, bool thenInclude, bool setLoaded)
         {
             if (source.PendingSelector is NavigationTreeExpression navigationTree
                 && navigationTree.Value is EntityReference entityReference)
@@ -856,7 +874,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             var currentNode = includeTreeNodes.Dequeue();
                             foreach (var navigation in FindNavigations(currentNode.EntityType, navigationName))
                             {
-                                var addedNode = currentNode.AddNavigation(navigation);
+                                var addedNode = currentNode.AddNavigation(navigation, setLoaded);
 
                                 // This is to add eager Loaded navigations when owner type is included.
                                 PopulateEagerLoadedNavigations(addedNode);
@@ -879,7 +897,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var includeLambda = expression.UnwrapLambdaFromQuote();
 
                     var (result, filterExpression) = ExtractIncludeFilter(includeLambda.Body, includeLambda.Body);
-                    var lastIncludeTree = PopulateIncludeTree(currentIncludeTreeNode, result);
+                    var lastIncludeTree = PopulateIncludeTree(currentIncludeTreeNode, result, setLoaded);
                     if (filterExpression != null)
                     {
                         if (lastIncludeTree.FilterExpression != null
@@ -1739,7 +1757,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             foreach (var navigation in outboundNavigations)
             {
-                includeTreeNode.AddNavigation(navigation);
+                includeTreeNode.AddNavigation(navigation, includeTreeNode.SetLoaded);
             }
         }
 
@@ -1786,7 +1804,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .Concat(entityType.GetDerivedSkipNavigations())
                 .Where(n => n.IsEagerLoaded);
 
-        private IncludeTreeNode PopulateIncludeTree(IncludeTreeNode includeTreeNode, Expression expression)
+        private IncludeTreeNode PopulateIncludeTree(IncludeTreeNode includeTreeNode, Expression expression, bool setLoaded)
         {
             switch (expression)
             {
@@ -1796,7 +1814,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 case MemberExpression memberExpression
                 when memberExpression.Expression != null:
                     var innerExpression = memberExpression.Expression.UnwrapTypeConversion(out var convertedType);
-                    var innerIncludeTreeNode = PopulateIncludeTree(includeTreeNode, innerExpression);
+                    var innerIncludeTreeNode = PopulateIncludeTree(includeTreeNode, innerExpression, setLoaded);
                     var entityType = innerIncludeTreeNode.EntityType;
                     if (convertedType != null)
                     {
@@ -1812,7 +1830,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var navigation = entityType.FindNavigation(memberExpression.Member);
                     if (navigation != null)
                     {
-                        var addedNode = innerIncludeTreeNode.AddNavigation(navigation);
+                        var addedNode = innerIncludeTreeNode.AddNavigation(navigation, setLoaded);
 
                         // This is to add eager Loaded navigations when owner type is included.
                         PopulateEagerLoadedNavigations(addedNode);
@@ -1823,7 +1841,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var skipNavigation = entityType.FindSkipNavigation(memberExpression.Member);
                     if (skipNavigation != null)
                     {
-                        var addedNode = innerIncludeTreeNode.AddNavigation(skipNavigation);
+                        var addedNode = innerIncludeTreeNode.AddNavigation(skipNavigation, setLoaded);
 
                         // This is to add eager Loaded navigations when owner type is included.
                         PopulateEagerLoadedNavigations(addedNode);
