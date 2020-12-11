@@ -2,33 +2,31 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class OptimisticConcurrencyULongSqliteTest : OptimisticConcurrencySqliteTestBase<F1ULongSqliteFixture, ulong?>
+    public class OptimisticConcurrencyULongInMemoryTest : OptimisticConcurrencyInMemoryTestBase<F1ULongInMemoryFixture, ulong>
     {
-        public OptimisticConcurrencyULongSqliteTest(F1ULongSqliteFixture fixture)
+        public OptimisticConcurrencyULongInMemoryTest(F1ULongInMemoryFixture fixture)
             : base(fixture)
         {
         }
     }
 
-    public class OptimisticConcurrencySqliteTest : OptimisticConcurrencySqliteTestBase<F1SqliteFixture, byte[]>
+    public class OptimisticConcurrencyInMemoryTest : OptimisticConcurrencyInMemoryTestBase<F1InMemoryFixture, byte[]>
     {
-        public OptimisticConcurrencySqliteTest(F1SqliteFixture fixture)
+        public OptimisticConcurrencyInMemoryTest(F1InMemoryFixture fixture)
             : base(fixture)
         {
         }
     }
 
-    public abstract class OptimisticConcurrencySqliteTestBase<TFixture, TRowVersion>
+    public abstract class OptimisticConcurrencyInMemoryTestBase<TFixture, TRowVersion>
         : OptimisticConcurrencyTestBase<TFixture, TRowVersion>
         where TFixture : F1FixtureBase<TRowVersion>, new()
     {
-        protected OptimisticConcurrencySqliteTestBase(TFixture fixture)
+        protected OptimisticConcurrencyInMemoryTestBase(TFixture fixture)
             : base(fixture)
         {
         }
@@ -79,7 +77,16 @@ namespace Microsoft.EntityFrameworkCore
         public override Task Two_concurrency_issues_in_one_to_one_related_entities_can_be_handled_by_dealing_with_dependent_first()
             => Task.FromResult(true);
 
-        protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
-            => facade.UseTransaction(transaction.GetDbTransaction());
+        [ConditionalFact(Skip = "Throw DbUpdateException or DbUpdateConcurrencyException for in-memory database errors #23569")]
+        public override Task Adding_the_same_entity_twice_results_in_DbUpdateException()
+            => Task.FromResult(true);
+
+        [ConditionalFact(Skip = "Throw DbUpdateException or DbUpdateConcurrencyException for in-memory database errors #23569")]
+        public override Task Deleting_the_same_entity_twice_results_in_DbUpdateConcurrencyException()
+            => Task.FromResult(true);
+
+        [ConditionalFact(Skip = "Throw DbUpdateException or DbUpdateConcurrencyException for in-memory database errors #23569")]
+        public override Task Deleting_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException()
+            => Task.FromResult(true);
     }
 }

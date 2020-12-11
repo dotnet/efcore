@@ -16,8 +16,8 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class OptimisticConcurrencyTestBase<TFixture> : IClassFixture<TFixture>
-        where TFixture : F1FixtureBase, new()
+    public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : IClassFixture<TFixture>
+        where TFixture : F1FixtureBase<TRowVersion>, new()
     {
         protected OptimisticConcurrencyTestBase(TFixture fixture)
         {
