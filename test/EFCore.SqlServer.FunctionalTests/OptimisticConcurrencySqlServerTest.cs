@@ -28,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore
     }
 
     public abstract class OptimisticConcurrencySqlServerTestBase<TFixture, TRowVersion>
-        : OptimisticConcurrencyTestBase<TFixture, TRowVersion>
-        where TFixture : F1FixtureBase<TRowVersion>, new()
+        : OptimisticConcurrencyRelationalTestBase<TFixture, TRowVersion>
+        where TFixture : F1RelationalFixture<TRowVersion>, new()
     {
         protected OptimisticConcurrencySqlServerTestBase(TFixture fixture)
             : base(fixture)

@@ -975,7 +975,7 @@ namespace Microsoft.EntityFrameworkCore
             context.ChangeTracker.LazyLoadingEnabled = false;
             Assert.False(collectionEntry.IsLoaded);
             Assert.Empty(left.TwoSkipShared);
-            Assert.Equal(1, context.ChangeTracker.Entries().Count());
+            Assert.Single(context.ChangeTracker.Entries());
 
             Assert.Equal(3, projected.Count);
 

@@ -252,17 +252,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 var comparer = property.GetKeyValueComparer();
                 var originalValue = entry.GetOriginalValue(property);
 
-                var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23527", out var enabled) && enabled;
+                var converter = property.GetValueConverter()
+                    ?? property.FindTypeMapping()?.Converter;
 
-                if (!useOldBehavior)
+                if (converter != null)
                 {
-                    var converter = property.GetValueConverter()
-                        ?? property.FindTypeMapping()?.Converter;
-
-                    if (converter != null)
-                    {
-                        rowValue = converter.ConvertFromProvider(rowValue);
-                    }
+                    rowValue = converter.ConvertFromProvider(rowValue);
                 }
 
                 if ((comparer != null && !comparer.Equals(rowValue, originalValue))

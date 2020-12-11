@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore
     }
 
     public abstract class OptimisticConcurrencySqliteTestBase<TFixture, TRowVersion>
-        : OptimisticConcurrencyTestBase<TFixture, TRowVersion>
-        where TFixture : F1FixtureBase<TRowVersion>, new()
+        : OptimisticConcurrencyRelationalTestBase<TFixture, TRowVersion>
+        where TFixture : F1RelationalFixture<TRowVersion>, new()
     {
         protected OptimisticConcurrencySqliteTestBase(TFixture fixture)
             : base(fixture)

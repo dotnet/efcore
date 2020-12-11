@@ -461,7 +461,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             return ProcessInclude(
                                 source,
                                 methodCallExpression.Arguments[1],
-                                method.Name == nameof(EntityFrameworkQueryableExtensions.Include));
                                 thenInclude: false,
                                 setLoaded: true);
 
@@ -469,7 +468,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             return ProcessInclude(
                                 source,
                                 methodCallExpression.Arguments[1],
-                                method.Name == nameof(EntityFrameworkQueryableExtensions.ThenInclude));
                                 thenInclude: true,
                                 setLoaded: true);
 
@@ -477,7 +475,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             return ProcessInclude(
                                 source,
                                 methodCallExpression.Arguments[1],
-                                method.Name == nameof(EntityFrameworkQueryableExtensions.NotQuiteInclude));
                                 thenInclude: false,
                                 setLoaded: false);
 
