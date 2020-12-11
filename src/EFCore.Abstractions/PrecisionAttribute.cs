@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -22,12 +23,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (precision < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(precision), "Must be non-negative number.");
+                throw new ArgumentException(AbstractionsStrings.ArgumentIsNegativeNumber(nameof(precision)));
             }
 
             if (scale < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(scale), "Must be non-negative number.");
+                throw new ArgumentException(AbstractionsStrings.ArgumentIsNegativeNumber(nameof(scale)));
             }
 
             Precision = precision;
@@ -42,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (precision < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(precision), "Must be non-negative number.");
+                throw new ArgumentException(AbstractionsStrings.ArgumentIsNegativeNumber(nameof(precision)));
             }
 
             Precision = precision;

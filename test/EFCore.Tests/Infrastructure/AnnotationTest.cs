@@ -30,9 +30,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [ConditionalFact]
         public void NegativeNumberArguments_PrecisionAttribute_Throws()
         {
-            Assert.Throws<ArgumentOutOfRangeException>("precision", () => new PrecisionAttribute(-1));
-            Assert.Throws<ArgumentOutOfRangeException>("scale", () => new PrecisionAttribute(3, -2));
-            Assert.Throws<ArgumentOutOfRangeException>("precision", () => new PrecisionAttribute(-5, 4));
+            Assert.Equal(
+                AbstractionsStrings.ArgumentIsNegativeNumber("precision"),
+                Assert.Throws<ArgumentException>(() => new PrecisionAttribute(-1)).Message);
+            Assert.Equal(
+                AbstractionsStrings.ArgumentIsNegativeNumber("scale"),
+                Assert.Throws<ArgumentException>(() => new PrecisionAttribute(3, -2)).Message);
+            Assert.Equal(
+                AbstractionsStrings.ArgumentIsNegativeNumber("precision"),
+                Assert.Throws<ArgumentException>(() => new PrecisionAttribute(-5, 4)).Message);
         }
     }
 }
