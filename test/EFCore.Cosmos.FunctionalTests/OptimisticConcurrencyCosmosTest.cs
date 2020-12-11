@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Cosmos
 {
-    public class OptimisticConcurrencyULongCosmosTest : OptimisticConcurrencyCosmosTestBase<F1CosmosFixture<ulong>, ulong>
+    internal class OptimisticConcurrencyULongCosmosTest : OptimisticConcurrencyCosmosTestBase<F1CosmosFixture<ulong>, ulong>
     {
         public OptimisticConcurrencyULongCosmosTest(F1CosmosFixture<ulong> fixture)
             : base(fixture)
@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
     }
 
-    public class OptimisticConcurrencyCosmosTest : OptimisticConcurrencyCosmosTestBase<F1CosmosFixture<byte[]>, byte[]>
+    internal class OptimisticConcurrencyCosmosTest : OptimisticConcurrencyCosmosTestBase<F1CosmosFixture<byte[]>, byte[]>
     {
         public OptimisticConcurrencyCosmosTest(F1CosmosFixture<byte[]> fixture)
             : base(fixture)
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
     }
 
-    public abstract class OptimisticConcurrencyCosmosTestBase<TFixture, TRowVersion>
+    internal abstract class OptimisticConcurrencyCosmosTestBase<TFixture, TRowVersion>
         : OptimisticConcurrencyTestBase<TFixture, TRowVersion>
         where TFixture : F1FixtureBase<TRowVersion>, new()
     {
