@@ -72,6 +72,25 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     _sqlExpressionFactory.Constant(0));
             }
 
+            if (method.IsGenericMethod
+                && method.GetGenericMethodDefinition().Equals(EnumerableMethods.FirstWithoutPredicate)
+                && arguments[0].Type == typeof(byte[]))
+            {
+                return _sqlExpressionFactory.Convert(
+                    _sqlExpressionFactory.Function(
+                        "SUBSTRING",
+                        new SqlExpression[]
+                        {
+                            arguments[0],
+                            _sqlExpressionFactory.Constant(1),
+                            _sqlExpressionFactory.Constant(1)
+                        },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { true, true, true },
+                        typeof(byte[])),
+                    method.ReturnType);
+            }
+
             return null;
         }
     }
