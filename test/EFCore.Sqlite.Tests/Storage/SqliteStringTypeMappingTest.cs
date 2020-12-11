@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         [InlineData("lovin'\n", "('lovin''' || CHAR(10))")]
         [InlineData("it\n", "('it' || CHAR(10))")]
         [InlineData("\nit", "(CHAR(10) || 'it')")]
-        [InlineData("\nit\n", "(CHAR(10) || 'it' || CHAR(10))")]
+        [InlineData("\nit\n", "(CHAR(10) || ('it' || CHAR(10)))")]
         [InlineData("'\n", "('''' || CHAR(10))")]
         public void GenerateProviderValueSqlLiteral_works(string value, string expected)
         {
