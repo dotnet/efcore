@@ -2376,6 +2376,15 @@ namespace Microsoft.EntityFrameworkCore
                         && mi.GetParameters().Any(
                             pi => pi.Name == "navigationPropertyPath" && pi.ParameterType != typeof(string)));
 
+        internal static readonly MethodInfo NotQuiteIncludeMethodInfo
+            = typeof(EntityFrameworkQueryableExtensions)
+                .GetTypeInfo().GetDeclaredMethods(nameof(NotQuiteInclude))
+                .Single(
+                    mi =>
+                        mi.GetGenericArguments().Count() == 2
+                        && mi.GetParameters().Any(
+                            pi => pi.Name == "navigationPropertyPath" && pi.ParameterType != typeof(string)));
+
         /// <summary>
         ///     Specifies related entities to include in the query results. The navigation property to be included is specified starting with the
         ///     type of entity being queried (<typeparamref name="TEntity" />). If you wish to include additional types based on the navigation
@@ -2439,6 +2448,22 @@ namespace Microsoft.EntityFrameworkCore
                         Expression.Call(
                             instance: null,
                             method: IncludeMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TProperty)),
+                            arguments: new[] { source.Expression, Expression.Quote(navigationPropertyPath) }))
+                    : source);
+        }
+
+        // A version of Include that doesn't set the navigation as loaded
+        internal static IIncludableQueryable<TEntity, TProperty> NotQuiteInclude<TEntity, TProperty>(
+            [NotNull] this IQueryable<TEntity> source,
+            [NotNull] Expression<Func<TEntity, TProperty>> navigationPropertyPath)
+            where TEntity : class
+        {
+            return new IncludableQueryable<TEntity, TProperty>(
+                source.Provider is EntityQueryProvider
+                    ? source.Provider.CreateQuery<TEntity>(
+                        Expression.Call(
+                            instance: null,
+                            method: NotQuiteIncludeMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TProperty)),
                             arguments: new[] { source.Expression, Expression.Quote(navigationPropertyPath) }))
                     : source);
         }

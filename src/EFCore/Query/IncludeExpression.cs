@@ -4,6 +4,7 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -21,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class IncludeExpression : Expression, IPrintableExpression
     {
         /// <summary>
-        ///     Creates a new instance of the <see cref="IncludeExpression" /> class.
+        ///     Creates a new instance of the <see cref="IncludeExpression" /> class. The navigation will be set
+        ///     as loaded after completing the Include.
         /// </summary>
         /// <param name="entityExpression"> An expression to get entity which is performing include. </param>
         /// <param name="navigationExpression"> An expression to get included navigation element. </param>
@@ -30,6 +32,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] Expression entityExpression,
             [NotNull] Expression navigationExpression,
             [NotNull] INavigationBase navigation)
+            : this(entityExpression, navigationExpression, navigation, setLoaded: true)
+        {
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public IncludeExpression(
+            [NotNull] Expression entityExpression,
+            [NotNull] Expression navigationExpression,
+            [NotNull] INavigationBase navigation,
+            bool setLoaded)
         {
             Check.NotNull(entityExpression, nameof(entityExpression));
             Check.NotNull(navigationExpression, nameof(navigationExpression));
@@ -39,6 +57,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             NavigationExpression = navigationExpression;
             Navigation = navigation;
             Type = EntityExpression.Type;
+
+            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23475", out var enabled) && enabled;
+            SetLoaded = useOldBehavior || setLoaded;
         }
 
         /// <summary>
@@ -55,6 +76,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The navigation associated with this include operation.
         /// </summary>
         public virtual INavigationBase Navigation { get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public virtual bool SetLoaded { get; }
 
         /// <inheritdoc />
         public sealed override ExpressionType NodeType
@@ -87,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(navigationExpression, nameof(navigationExpression));
 
             return entityExpression != EntityExpression || navigationExpression != NavigationExpression
-                ? new IncludeExpression(entityExpression, navigationExpression, Navigation)
+                ? new IncludeExpression(entityExpression, navigationExpression, Navigation, SetLoaded)
                 : this;
         }
 

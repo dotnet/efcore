@@ -547,7 +547,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     Expression.Constant(outerIdentifierLambda.Compile()),
                                     Expression.Constant(navigation),
                                     Expression.Constant(navigation.GetCollectionAccessor()),
-                                    Expression.Constant(_isTracking)));
+                                    Expression.Constant(_isTracking),
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                                    Expression.Constant(includeExpression.SetLoaded)));
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
                             var relatedEntityType = innerShaper.ReturnType;
                             var inverseNavigation = navigation.Inverse;
@@ -629,7 +632,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     Expression.Constant(parentIdentifierLambda.Compile()),
                                     Expression.Constant(navigation),
                                     Expression.Constant(navigation.GetCollectionAccessor()),
-                                    Expression.Constant(_isTracking)));
+                                    Expression.Constant(_isTracking),
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                                    Expression.Constant(includeExpression.SetLoaded)));
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
                             var relatedEntityType = innerShaper.ReturnType;
                             var inverseNavigation = navigation.Inverse;
@@ -1207,20 +1213,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Func<QueryContext, DbDataReader, object[]> outerIdentifier,
                 INavigationBase navigation,
                 IClrCollectionAccessor clrCollectionAccessor,
-                bool trackingQuery)
+                bool trackingQuery,
+                bool setLoaded)
                 where TParent : class
                 where TNavigationEntity : class, TParent
             {
                 object collection = null;
                 if (entity is TNavigationEntity)
                 {
-                    if (trackingQuery)
+                    if (setLoaded)
                     {
-                        queryContext.SetNavigationIsLoaded(entity, navigation);
-                    }
-                    else
-                    {
-                        navigation.SetIsLoadedWhenNoTracking(entity);
+                        if (trackingQuery)
+                        {
+                            queryContext.SetNavigationIsLoaded(entity, navigation);
+                        }
+                        else
+                        {
+                            navigation.SetIsLoadedWhenNoTracking(entity);
+                        }
                     }
 
                     collection = clrCollectionAccessor.GetOrCreate(entity, forMaterialization: true);
@@ -1361,20 +1371,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Func<QueryContext, DbDataReader, object[]> parentIdentifier,
                 INavigationBase navigation,
                 IClrCollectionAccessor clrCollectionAccessor,
-                bool trackingQuery)
+                bool trackingQuery,
+                bool setLoaded)
                 where TParent : class
                 where TNavigationEntity : class, TParent
             {
                 object collection = null;
                 if (entity is TNavigationEntity)
                 {
-                    if (trackingQuery)
+                    if (setLoaded)
                     {
-                        queryContext.SetNavigationIsLoaded(entity, navigation);
-                    }
-                    else
-                    {
-                        navigation.SetIsLoadedWhenNoTracking(entity);
+                        if (trackingQuery)
+                        {
+                            queryContext.SetNavigationIsLoaded(entity, navigation);
+                        }
+                        else
+                        {
+                            navigation.SetIsLoadedWhenNoTracking(entity);
+                        }
                     }
 
                     collection = clrCollectionAccessor.GetOrCreate(entity, forMaterialization: true);
