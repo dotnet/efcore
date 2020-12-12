@@ -2691,7 +2691,7 @@ namespace RootNamespace
                     b.Property<string>(""Name"")
                         .HasMaxLength(100)
                         .HasColumnType(""nchar(100)"")
-                        .IsFixedLength(true);
+                        .IsFixedLength();
 
                     b.HasKey(""Id"");
 
