@@ -826,67 +826,12 @@ namespace TestNamespace
                         x =>
                         {
                             x.Property<int>("Id");
-                            x.Property<string>("Name").IsRequired().HasMaxLength(5).IsFixedLength();
+                            x.Property<string>("Name").HasMaxLength(5).IsFixedLength();
                         }),
                 new ModelCodeGenerationOptions { UseDataAnnotations = false },
-                code =>
-                {
-                    AssertFileContents(
-                        @"using System;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
-
-#nullable disable
-
-namespace TestNamespace
-{
-    public partial class TestDbContext : DbContext
-    {
-        public TestDbContext()
-        {
-        }
-
-        public TestDbContext(DbContextOptions<TestDbContext> options)
-            : base(options)
-        {
-        }
-
-        public virtual DbSet<Employee> Employee { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning "
-                        + DesignStrings.SensitiveInformationWarning
-                        + @"
-                optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
-            }
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Employee>(entity =>
-            {
-                entity.Property(e => e.Id).UseIdentityColumn();
-
-                entity.Property(e => e.Name)
-                    .IsRequired()
-                    .HasMaxLength(5)
-                    .IsFixedLength();
-            });
-
-            OnModelCreatingPartial(modelBuilder);
-        }
-
-        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
-    }
-}
-",
-                        code.ContextFile);
-                },
+                code => Assert.Contains(".IsFixedLength()", code.ContextFile.Code),
                 model =>
-                    Assert.Equal(true, model.FindEntityType("TestNamespace.Employee").GetProperty("Name").GetIsFixedLength()));
+                    Assert.Equal(true, model.FindEntityType("TestNamespace.Employee").GetProperty("Name").IsFixedLength()));
         }
 
         private class TestCodeGeneratorPlugin : ProviderCodeGeneratorPlugin

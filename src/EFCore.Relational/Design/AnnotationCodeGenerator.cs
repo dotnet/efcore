@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                                 computedColumnSql));
             }
 
-            if(TryGetAndRemove(annotations, RelationalAnnotationNames.IsFixedLength, out bool isFixedLength))
+            if (TryGetAndRemove(annotations, RelationalAnnotationNames.IsFixedLength, out bool isFixedLength))
             {
                 methodCallCodeFragments.Add(
                         isFixedLength
