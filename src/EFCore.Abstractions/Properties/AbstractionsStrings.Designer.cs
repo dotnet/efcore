@@ -32,6 +32,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 argumentName);
 
         /// <summary>
+        ///     The number argument '{argumentName}' cannot be negative number.
+        /// </summary>
+        public static string ArgumentIsNegativeNumber([CanBeNull] object argumentName)
+            => string.Format(
+                GetString("ArgumentIsNegativeNumber", nameof(argumentName)),
+                argumentName);
+
+        /// <summary>
         ///     The collection argument '{argumentName}' must not contain any empty elements.
         /// </summary>
         public static string CollectionArgumentHasEmptyElements([CanBeNull] object? argumentName)

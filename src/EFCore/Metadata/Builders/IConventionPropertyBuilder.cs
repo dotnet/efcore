@@ -183,6 +183,46 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         bool CanSetIsUnicode(bool? unicode, bool fromDataAnnotation = false);
 
         /// <summary>
+        ///     Configures the precision of the property.
+        /// </summary>
+        /// <param name="precision"> The precision of the property. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <see langword="null" /> otherwise.
+        /// </returns>
+        IConventionPropertyBuilder HasPrecision(int? precision, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether the precision of data allowed can be set for this property
+        ///     from the current configuration source.
+        /// </summary>
+        /// <param name="precision"> The precision of the property. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the precision of data allowed can be set for this property. </returns>
+        bool CanSetPrecision(int? precision, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Configures the scale of the property.
+        /// </summary>
+        /// <param name="scale"> The scale of the property. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <see langword="null" /> otherwise.
+        /// </returns>
+        IConventionPropertyBuilder HasScale(int? scale, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether the scale of data allowed can be set for this property
+        ///     from the current configuration source.
+        /// </summary>
+        /// <param name="scale"> The scale of the property. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the scale of data allowed can be set for this property. </returns>
+        bool CanSetScale(int? scale, bool fromDataAnnotation = false);
+
+        /// <summary>
         ///     Configures whether this property can be modified before the entity is saved to the database.
         /// </summary>
         /// <param name="behavior">

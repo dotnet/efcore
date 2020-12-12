@@ -429,6 +429,28 @@ namespace TestNamespace
         }
 
         [ConditionalFact]
+        public void IsUnicode_works()
+        {
+            Test(
+                modelBuilder => {
+                    modelBuilder.Entity("Entity").Property<string>("UnicodeColumn").IsUnicode();
+                    modelBuilder.Entity("Entity").Property<string>("NonUnicodeColumn").IsUnicode(false);
+                },
+                new ModelCodeGenerationOptions(),
+                code => {
+                    Assert.Contains("Property(e => e.UnicodeColumn).IsUnicode()", code.ContextFile.Code);
+                    Assert.Contains("Property(e => e.NonUnicodeColumn).IsUnicode(false)", code.ContextFile.Code);
+                },
+                model =>
+                {
+                    var entity = model.FindEntityType("TestNamespace.Entity");
+                    Assert.True(entity.GetProperty("UnicodeColumn").IsUnicode());
+                    Assert.False(entity.GetProperty("NonUnicodeColumn").IsUnicode());
+                });
+        }
+
+
+        [ConditionalFact]
         public void ComputedColumnSql_works_stored()
         {
             Test(
