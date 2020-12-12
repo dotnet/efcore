@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// <summary>
     ///     An <see cref="EventSource" /> emitting Entity Framework performance counter data.
     /// </summary>
-    public sealed class EntityFrameworkEventSource : EventSource
+    public class EntityFrameworkEventSource : EventSource
     {
         private long _activeDbContexts, _totalQueries, _totalSaveChanges;
         private long _totalExecutionStrategyOperationFailures, _totalOptimisticConcurrencyFailures;
@@ -28,16 +28,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private PollingCounter _totalExecutionStrategyOperationFailuresCounter;
         private IncrementingPollingCounter _executionStrategyOperationFailuresPerSecondCounter;
         private PollingCounter _totalOptimisticConcurrencyFailuresCounter;
-
         private IncrementingPollingCounter _optimisticConcurrencyFailuresPerSecondCounter;
         // ReSharper restore NotAccessedField.Local
 
         /// <summary>
         ///     The singleton instance of <see cref="EntityFrameworkEventSource" />.
         /// </summary>
-        public static readonly EntityFrameworkEventSource Log = new EntityFrameworkEventSource();
+        public static EntityFrameworkEventSource Log = new();
 
-        private EntityFrameworkEventSource()
+        /// <summary>
+        ///     Creates a new instance of the <see cref="EntityFrameworkEventSource"/> class. 
+        /// </summary>
+        protected EntityFrameworkEventSource()
             : base("Microsoft.EntityFrameworkCore")
         {
         }
@@ -45,49 +47,49 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Indicates that a new <see cref="DbContext" /> instance is being initialized.
         /// </summary>
-        public void DbContextInitializing()
+        public virtual void DbContextInitializing()
             => Interlocked.Increment(ref _activeDbContexts);
 
         /// <summary>
         ///     Indicates that a <see cref="DbContext" /> instance is being disposed.
         /// </summary>
-        public void DbContextDisposing()
+        public virtual void DbContextDisposing()
             => Interlocked.Decrement(ref _activeDbContexts);
 
         /// <summary>
         ///     Indicates that a query is about to begin execution.
         /// </summary>
-        public void QueryExecuting()
+        public virtual void QueryExecuting()
             => Interlocked.Increment(ref _totalQueries);
 
         /// <summary>
         ///     Indicates that changes are about to be saved.
         /// </summary>
-        public void SavingChanges()
+        public virtual void SavingChanges()
             => Interlocked.Increment(ref _totalSaveChanges);
 
         /// <summary>
         ///     Indicates a hit in the compiled query cache, signifying that query compilation will not need to occur.
         /// </summary>
-        public void CompiledQueryCacheHit()
+        public virtual void CompiledQueryCacheHit()
             => Interlocked.Increment(ref _compiledQueryCacheInfo.Hits);
 
         /// <summary>
         ///     Indicates a miss in the compiled query cache, signifying that query compilation will need to occur.
         /// </summary>
-        public void CompiledQueryCacheMiss()
+        public virtual void CompiledQueryCacheMiss()
             => Interlocked.Increment(ref _compiledQueryCacheInfo.Misses);
 
         /// <summary>
         ///     Indicates that an operation executed by an <see cref="IExecutionStrategy" /> failed (and may be retried).
         /// </summary>
-        public void ExecutionStrategyOperationFailure()
+        public virtual void ExecutionStrategyOperationFailure()
             => Interlocked.Increment(ref _totalExecutionStrategyOperationFailures);
 
         /// <summary>
         ///     Indicates that an optimistic concurrency failure has occurred.
         /// </summary>
-        public void OptimisticConcurrencyFailure()
+        public virtual void OptimisticConcurrencyFailure()
             => Interlocked.Increment(ref _totalOptimisticConcurrencyFailures);
 
         /// <inheritdoc />
