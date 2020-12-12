@@ -61,6 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         private readonly List<SelectExpression> _pendingCollections = new List<SelectExpression>();
 
+        private readonly AliasFactory _aliasFactory;
+
         private List<int> _tptLeftJoinTables = new List<int>();
         private IDictionary<ProjectionMember, Expression> _projectionMapping = new Dictionary<ProjectionMember, Expression>();
 
@@ -134,27 +136,33 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             List<ProjectionExpression> projections,
             List<TableExpressionBase> tables,
             List<SqlExpression> groupBy,
-            List<OrderingExpression> orderings)
+            List<OrderingExpression> orderings,
+            AliasFactory aliasFactory)
             : base(alias)
         {
             _projection = projections;
             _tables = tables;
             _groupBy = groupBy;
             _orderings = orderings;
+            _aliasFactory = aliasFactory;
         }
 
-        internal SelectExpression(SqlExpression projection)
+        internal SelectExpression(SqlExpression projection, AliasFactory aliasFactory)
             : base(null)
         {
             if (projection != null)
             {
                 _projectionMapping[new ProjectionMember()] = projection;
             }
+
+            _aliasFactory = aliasFactory;
         }
 
         internal SelectExpression(IEntityType entityType, ISqlExpressionFactory sqlExpressionFactory)
             : base(null)
         {
+            _aliasFactory = sqlExpressionFactory.AliasFactory;
+
             if ((entityType.BaseType == null && !entityType.GetDirectlyDerivedTypes().Any())
                 || entityType.GetDiscriminatorProperty() != null)
             {
@@ -271,9 +279,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
         }
 
-        internal SelectExpression(IEntityType entityType, TableExpressionBase tableExpressionBase)
+        internal SelectExpression(IEntityType entityType, TableExpressionBase tableExpressionBase, AliasFactory aliasFactory)
             : base(null)
         {
+            _aliasFactory = aliasFactory;
+
             if ((entityType.BaseType != null || entityType.GetDirectlyDerivedTypes().Any())
                 && entityType.GetDiscriminatorProperty() == null)
             {
@@ -721,7 +731,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 new List<ProjectionExpression> { new ProjectionExpression(nullSqlExpression, "empty") },
                 new List<TableExpressionBase>(),
                 new List<SqlExpression>(),
-                new List<OrderingExpression>());
+                new List<OrderingExpression>(),
+                _aliasFactory);
 
             if (Orderings.Any()
                 || Limit != null
@@ -832,7 +843,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             // TODO: What happens when applying set operations on 2 queries with one of them being grouping
 
             var select1 = new SelectExpression(
-                null, new List<ProjectionExpression>(), _tables.ToList(), _groupBy.ToList(), _orderings.ToList())
+                null, new List<ProjectionExpression>(), _tables.ToList(), _groupBy.ToList(), _orderings.ToList(), _aliasFactory)
             {
                 IsDistinct = IsDistinct,
                 Predicate = Predicate,
@@ -1041,10 +1052,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Pushes down the <see cref="SelectExpression" /> into a subquery.
         /// </summary>
         /// <returns> A mapping of projections before pushdown to <see cref="ColumnExpression" />s after pushdown. </returns>
-        public IDictionary<SqlExpression, ColumnExpression> PushdownIntoSubquery()
+        public IDictionary<SqlExpression, ColumnExpression> PushdownIntoSubquery(string existingAlias = null)
         {
+            var alias = existingAlias ?? _aliasFactory.GetUniqueAlias();
+
             var subquery = new SelectExpression(
-                "t", new List<ProjectionExpression>(), _tables.ToList(), _groupBy.ToList(), _orderings.ToList())
+                alias, new List<ProjectionExpression>(), _tables.ToList(), _groupBy.ToList(), _orderings.ToList(), _aliasFactory)
             {
                 IsDistinct = IsDistinct,
                 Predicate = Predicate,
@@ -2294,8 +2307,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 || innerSelectExpression.Tables.Count > 1
                 || innerSelectExpression.GroupBy.Count > 0)
             {
+                string innerAlias = innerSelectExpression.Tables.Any() && innerSelectExpression.Tables[0] is SelectExpression selectExpression
+                    ? selectExpression.Alias
+                    : null;
+
                 joinPredicate = new SqlRemappingVisitor(
-                        innerSelectExpression.PushdownIntoSubquery(), (SelectExpression)innerSelectExpression.Tables[0])
+                        innerSelectExpression.PushdownIntoSubquery(innerAlias), (SelectExpression)innerSelectExpression.Tables[0])
                     .Remap(joinPredicate);
             }
 
@@ -2972,7 +2989,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             if (changed)
             {
-                var newSelectExpression = new SelectExpression(Alias, newProjections, newTables, newGroupBy, newOrderings)
+                var newSelectExpression = new SelectExpression(Alias, newProjections, newTables, newGroupBy, newOrderings, _aliasFactory)
                 {
                     _projectionMapping = newProjectionMapping,
                     Predicate = predicate,
@@ -3129,7 +3146,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 projectionMapping[kvp.Key] = kvp.Value;
             }
 
-            return new SelectExpression(alias, projections, tables, groupBy, orderings)
+            return new SelectExpression(alias, projections, tables, groupBy, orderings, _aliasFactory)
             {
                 _projectionMapping = projectionMapping,
                 Predicate = predicate,
@@ -3174,7 +3191,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 projectionMapping[kvp.Key] = kvp.Value;
             }
 
-            return new SelectExpression(Alias, projections, tables, groupBy, orderings)
+            return new SelectExpression(Alias, projections, tables, groupBy, orderings, _aliasFactory)
             {
                 _projectionMapping = projectionMapping,
                 Predicate = predicate,

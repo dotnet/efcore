@@ -16,11 +16,27 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary/>
+    public sealed class AliasFactory
+    {
+        private int _counter = -2;
+
+        /// <summary/>
+        public string GetUniqueAlias()
+        {
+            _counter++;
+            return _counter == -1 ? "t" : "t" + _counter;
+        }
+    }
+
     /// <inheritdoc />
     public class SqlExpressionFactory : ISqlExpressionFactory
     {
         private readonly IRelationalTypeMappingSource _typeMappingSource;
         private readonly RelationalTypeMapping _boolTypeMapping;
+
+        /// <summary/>
+        public AliasFactory AliasFactory { get; } = new AliasFactory();
 
         /// <summary>
         ///     Creates a new instance of the <see cref="SqlExpressionFactory" /> class.
@@ -784,7 +800,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <inheritdoc />
         public virtual SelectExpression Select(SqlExpression projection)
-            => new SelectExpression(projection);
+            => new SelectExpression(projection, AliasFactory);
 
         /// <inheritdoc />
         public virtual SelectExpression Select(IEntityType entityType)
@@ -803,7 +819,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(tableExpressionBase, nameof(tableExpressionBase));
 
-            var selectExpression = new SelectExpression(entityType, tableExpressionBase);
+            var selectExpression = new SelectExpression(entityType, tableExpressionBase, AliasFactory);
             AddConditions(selectExpression, entityType);
 
             return selectExpression;
@@ -818,7 +834,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var tableExpression = new FromSqlExpression(
                 entityType.GetDefaultMappings().SingleOrDefault().Table.Name.Substring(0, 1).ToLower(), sql, sqlArguments);
-            var selectExpression = new SelectExpression(entityType, tableExpression);
+            var selectExpression = new SelectExpression(entityType, tableExpression, AliasFactory);
             AddConditions(selectExpression, entityType);
 
             return selectExpression;

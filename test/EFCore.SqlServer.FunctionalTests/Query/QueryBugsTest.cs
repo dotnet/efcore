@@ -6084,6 +6084,98 @@ ORDER BY [e].[Id], [t0].[Id], [t0].[Id0]");
 
         #endregion
 
+        #region Bug21026
+
+        [ConditionalFact]
+        public virtual async Task MultipleSkipTakeBug()
+        {
+            using (CreateDatabase21026())
+            {
+                using var context = new AppDbContext21026(_options);
+                var query = await context.Blogs
+                    .OrderBy(blog => blog.Id)
+                    .Skip(2).Take(3) // <--- causes crash when BOTH lines are uncommented
+                    .Select(blog => new Blog21026
+                    {
+                        Posts = blog.Posts
+                            .OrderBy(post => post.Id)
+                            .Skip(1).Take(5) // <--- causes crash when BOTH lines are uncommented
+                            .Select(post => new Post21026
+                            {
+                                Author = post.Author
+                            })
+                            .ToList()
+                    })
+                    .ToListAsync();
+
+                AssertSql(
+                    @"@__p_0='2'
+@__p_1='3'
+
+SELECT [t1].[Id], [t00].[Id], [t00].[LastName], [t00].[Id0]
+FROM (
+    SELECT [b].[Id]
+    FROM [Blogs] AS [b]
+    ORDER BY [b].[Id]
+    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+) AS [t1]
+OUTER APPLY (
+    SELECT [a].[Id], [a].[LastName], [t0].[Id] AS [Id0]
+    FROM (
+        SELECT [p].[Id], [p].[AuthorId]
+        FROM [Post21026] AS [p]
+        WHERE [t1].[Id] = [p].[Blog21026Id]
+        ORDER BY [p].[Id]
+        OFFSET 1 ROWS FETCH NEXT 5 ROWS ONLY
+    ) AS [t0]
+    LEFT JOIN [Author21026] AS [a] ON [t0].[AuthorId] = [a].[Id]
+) AS [t00]
+ORDER BY [t1].[Id], [t00].[Id0], [t00].[Id]");
+            }
+        }
+
+        private class AppDbContext21026 : DbContext
+        {
+            public DbSet<Blog21026> Blogs { get; set; }
+
+            public AppDbContext21026(DbContextOptions options)
+                : base(options)
+            {
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase21026()
+            => CreateTestStore(
+                () => new AppDbContext21026(_options),
+                context =>
+                {
+                    ClearLog();
+                });
+
+        private class Blog21026
+        {
+            public long Id { get; set; }
+            public string Name { get; set; }
+
+            public ICollection<Post21026> Posts { get; set; }
+        }
+
+        private class Post21026
+        {
+            public long Id { get; set; }
+            public string Title { get; set; }
+
+            public Author21026 Author { get; set; }
+        }
+
+        private class Author21026
+        {
+            public long Id { get; set; }
+            public string LastName { get; set; }
+        }
+
+        #endregion
+
         #region Issue7973
 
         [ConditionalFact]

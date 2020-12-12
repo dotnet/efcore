@@ -603,5 +603,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> An expression representing a SELECT in a SQL tree. </returns>
         [Obsolete("Use overload which takes TableExpressionBase by passing FromSqlExpression directly.")]
         SelectExpression Select([NotNull] IEntityType entityType, [NotNull] string sql, [NotNull] Expression sqlArguments);
+
+        /// <summary/>
+        AliasFactory AliasFactory { get; }
     }
 }
