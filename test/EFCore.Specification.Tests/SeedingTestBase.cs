@@ -19,11 +19,10 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task Seeding_does_not_leave_context_contaminated(bool async)
         {
             using var context = CreateContextWithEmptyDatabase(async ? "1A" : "1S");
+            TestStore.Clean(context);
             var _ = async
                 ? await context.Database.EnsureCreatedResilientlyAsync()
                 : context.Database.EnsureCreatedResiliently();
-
-            TestStore.Clean(context);
 
             Assert.Empty(context.ChangeTracker.Entries());
 
@@ -44,10 +43,10 @@ namespace Microsoft.EntityFrameworkCore
                 async () =>
                 {
                     using var context = CreateKeylessContextWithEmptyDatabase(async ? "1A" : "1S");
+                    TestStore.Clean(context);
                     var _ = async
                         ? await context.Database.EnsureCreatedResilientlyAsync()
                         : context.Database.EnsureCreatedResiliently();
-                    TestStore.Clean(context);
                 });
             Assert.Equal(CoreStrings.SeedKeylessEntity(nameof(KeylessSeed)), exception.Message);
         }
