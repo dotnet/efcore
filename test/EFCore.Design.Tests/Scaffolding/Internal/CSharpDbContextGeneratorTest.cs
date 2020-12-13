@@ -817,7 +817,7 @@ namespace TestNamespace
         }
 
         [ConditionalFact]
-        public void Is_fixed_legth_annotation_should_be_scafollded_without_optional_parameter()
+        public void Is_fixed_length_annotation_should_be_scaffolded_without_optional_parameter()
         {
              Test(
                 modelBuilder => modelBuilder
