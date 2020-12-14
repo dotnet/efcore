@@ -406,8 +406,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="startTime"> The time that execution began. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> An intercepted result. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<InterceptionResult<DbDataReader>> CommandReaderExecutingAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -458,8 +459,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="startTime"> The time that execution began. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> An intercepted result. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<InterceptionResult<object>> CommandScalarExecutingAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -510,8 +512,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="startTime"> The time that execution began. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> An intercepted result. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<InterceptionResult<int>> CommandNonQueryExecutingAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -799,8 +802,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="methodResult"> The return value from the underlying method execution. </param>
         /// <param name="startTime"> The time that execution began. </param>
         /// <param name="duration"> The duration of the command execution, not including consuming results. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<DbDataReader> CommandReaderExecutedAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -857,8 +861,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="methodResult"> The return value from the underlying method execution. </param>
         /// <param name="startTime"> The time that execution began. </param>
         /// <param name="duration"> The duration of the command execution, not including consuming results. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<object> CommandScalarExecutedAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -915,8 +920,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="methodResult"> The return value from the underlying method execution. </param>
         /// <param name="startTime"> The time that execution began. </param>
         /// <param name="duration"> The duration of the command execution, not including consuming results. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<int> CommandNonQueryExecutedAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -1113,8 +1119,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="exception"> The exception that caused this failure. </param>
         /// <param name="startTime"> The time that execution began. </param>
         /// <param name="duration"> The amount of time that passed until the exception was raised. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task CommandErrorAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -1252,8 +1259,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="connection"> The connection. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<InterceptionResult> ConnectionOpeningAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -1371,8 +1379,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connection"> The connection. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The amount of time before the connection was opened. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task ConnectionOpenedAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -1743,8 +1752,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The elapsed time before the operation failed. </param>
         /// <param name="logErrorAsDebug"> A flag indicating the exception is being handled and so it should be logged at Debug level. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task ConnectionErrorAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -1883,8 +1893,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="isolationLevel"> The transaction isolation level. </param>
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<InterceptionResult<DbTransaction>> TransactionStartingAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -2020,8 +2031,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The amount of time before the connection was opened. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<DbTransaction> TransactionStartedAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -2156,8 +2168,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<DbTransaction> TransactionUsedAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -2297,8 +2310,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<InterceptionResult> TransactionCommittingAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -2419,8 +2433,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The elapsed time from when the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task TransactionCommittedAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -2545,8 +2560,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The elapsed time from when the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task TransactionRolledBackAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -2673,8 +2689,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<InterceptionResult> TransactionRollingBackAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -2797,8 +2814,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<InterceptionResult> CreatingTransactionSavepointAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -2915,8 +2933,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task CreatedTransactionSavepointAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -3039,8 +3058,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<InterceptionResult> RollingBackToTransactionSavepointAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -3157,8 +3177,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task RolledBackToTransactionSavepointAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -3281,8 +3302,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<InterceptionResult> ReleasingTransactionSavepointAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -3399,8 +3421,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task ReleasedTransactionSavepointAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -3567,8 +3590,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="exception"> The exception that represents the error. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The elapsed time from when the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task TransactionErrorAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,

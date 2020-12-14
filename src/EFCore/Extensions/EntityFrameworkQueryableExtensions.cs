@@ -37,9 +37,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="source"> The query source. </param>
         /// <returns> The query string for debugging. </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         public static string ToQueryString([NotNull] this IQueryable source)
         {
             Check.NotNull(source, nameof(source));
@@ -55,25 +53,18 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously determines whether a sequence contains any elements.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> to check for being empty.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> to check for being empty. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains <see langword="true" /> if the source sequence contains any elements; otherwise, <see langword="false" />.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<bool> AnyAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -87,19 +78,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously determines whether any element of a sequence satisfies a condition.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> whose elements to test for a condition.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> whose elements to test for a condition. </param>
         /// <param name="predicate"> A function to test each element for a condition. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains <see langword="true" /> if any elements in the source sequence pass the test in the specified
@@ -108,6 +93,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="predicate" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<bool> AnyAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
@@ -123,19 +109,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously determines whether all the elements of a sequence satisfy a condition.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> whose elements to test for a condition.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> whose elements to test for a condition. </param>
         /// <param name="predicate"> A function to test each element for a condition. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains <see langword="true" /> if every element of the source sequence passes the test in the specified
@@ -144,6 +124,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="predicate" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<bool> AllAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
@@ -163,25 +144,18 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously returns the number of elements in a sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> that contains the elements to be counted.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> that contains the elements to be counted. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the number of elements in the input sequence.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<int> CountAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -195,19 +169,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously returns the number of elements in a sequence that satisfy a condition.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> that contains the elements to be counted.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> that contains the elements to be counted. </param>
         /// <param name="predicate"> A function to test each element for a condition. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the number of elements in the sequence that satisfy the condition in the predicate
@@ -216,6 +184,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="predicate" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<int> CountAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
@@ -231,25 +200,18 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously returns an <see cref="long" /> that represents the total number of elements in a sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> that contains the elements to be counted.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> that contains the elements to be counted. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the number of elements in the input sequence.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<long> LongCountAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -264,19 +226,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     that satisfy a condition.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> that contains the elements to be counted.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> that contains the elements to be counted. </param>
         /// <param name="predicate"> A function to test each element for a condition. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the number of elements in the sequence that satisfy the condition in the predicate
@@ -285,6 +241,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="predicate" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<long> LongCountAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
@@ -304,28 +261,19 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously returns the first element of a sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> to return the first element of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> to return the first element of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the first element in <paramref name="source" />.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
-        /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source" /> contains no elements.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource> FirstAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -339,19 +287,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously returns the first element of a sequence that satisfies a specified condition.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> to return the first element of.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> to return the first element of. </param>
         /// <param name="predicate"> A function to test each element for a condition. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the first element in <paramref name="source" /> that passes the test in
@@ -371,6 +313,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <paramref name="source" /> contains no elements.
         ///     </para>
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource> FirstAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
@@ -386,26 +329,19 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously returns the first element of a sequence, or a default value if the sequence contains no elements.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> to return the first element of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> to return the first element of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains <see langword="default" /> ( <typeparamref name="TSource" /> ) if
         ///     <paramref name="source" /> is empty; otherwise, the first element in <paramref name="source" />.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource> FirstOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -420,19 +356,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     or a default value if no such element is found.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> to return the first element of.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> to return the first element of. </param>
         /// <param name="predicate"> A function to test each element for a condition. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains <see langword="default" /> ( <typeparamref name="TSource" /> ) if <paramref name="source" />
@@ -442,6 +372,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="predicate" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource> FirstOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
@@ -461,28 +392,19 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously returns the last element of a sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> to return the last element of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> to return the last element of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the last element in <paramref name="source" />.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
-        /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source" /> contains no elements.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource> LastAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -496,19 +418,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously returns the last element of a sequence that satisfies a specified condition.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> to return the last element of.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> to return the last element of. </param>
         /// <param name="predicate"> A function to test each element for a condition. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the last element in <paramref name="source" /> that passes the test in
@@ -528,6 +444,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <paramref name="source" /> contains no elements.
         ///     </para>
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource> LastAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
@@ -543,26 +460,19 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously returns the last element of a sequence, or a default value if the sequence contains no elements.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> to return the last element of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> to return the last element of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains <see langword="default" /> ( <typeparamref name="TSource" /> ) if
         ///     <paramref name="source" /> is empty; otherwise, the last element in <paramref name="source" />.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource> LastOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -577,19 +487,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     or a default value if no such element is found.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> to return the last element of.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> to return the last element of. </param>
         /// <param name="predicate"> A function to test each element for a condition. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains <see langword="default" /> ( <typeparamref name="TSource" /> ) if <paramref name="source" />
@@ -599,6 +503,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="predicate" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource> LastOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
@@ -619,25 +524,17 @@ namespace Microsoft.EntityFrameworkCore
         ///     if there is not exactly one element in the sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> to return the single element of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> to return the single element of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the single element of the input sequence.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="InvalidOperationException">
         ///     <para>
         ///         <paramref name="source" /> contains more than one elements.
@@ -649,6 +546,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <paramref name="source" /> contains no elements.
         ///     </para>
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource> SingleAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -663,19 +561,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     and throws an exception if more than one such element exists.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> to return the single element of.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> to return the single element of. </param>
         /// <param name="predicate"> A function to test an element for a condition. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the single element of the input sequence that satisfies the condition in
@@ -701,6 +593,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <paramref name="source" /> contains no elements.
         ///     </para>
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource> SingleAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
@@ -717,30 +610,21 @@ namespace Microsoft.EntityFrameworkCore
         ///     this method throws an exception if there is more than one element in the sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> to return the single element of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> to return the single element of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the single element of the input sequence, or <see langword="default" /> (
         ///     <typeparamref name="TSource" />)
         ///     if the sequence contains no elements.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
-        /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source" /> contains more than one element.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains more than one element. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource> SingleOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -756,19 +640,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     satisfies the condition.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> to return the single element of.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> to return the single element of. </param>
         /// <param name="predicate"> A function to test an element for a condition. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the single element of the input sequence that satisfies the condition in
@@ -780,6 +658,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="InvalidOperationException">
         ///     More than one element satisfies the condition in <paramref name="predicate" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource> SingleOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
@@ -800,25 +679,18 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously returns the minimum value of a sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> that contains the elements to determine the minimum of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> that contains the elements to determine the minimum of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the minimum value in the sequence.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource> MinAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -832,22 +704,16 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously invokes a projection function on each element of a sequence and returns the minimum resulting value.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
         /// <typeparam name="TResult">
-        ///     The type of the value returned by the function represented by <paramref name="selector" /> .
+        ///     The type of the value returned by the function represented by <paramref name="selector" />.
         /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> that contains the elements to determine the minimum of.
-        /// </param>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> that contains the elements to determine the minimum of. </param>
         /// <param name="selector"> A projection function to apply to each element. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the minimum value in the sequence.
@@ -855,6 +721,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TResult> MinAsync<TSource, TResult>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, TResult>> selector,
@@ -874,25 +741,18 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously returns the maximum value of a sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> that contains the elements to determine the maximum of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> that contains the elements to determine the maximum of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the maximum value in the sequence.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource> MaxAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -906,22 +766,16 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously invokes a projection function on each element of a sequence and returns the maximum resulting value.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
         /// <typeparam name="TResult">
-        ///     The type of the value returned by the function represented by <paramref name="selector" /> .
+        ///     The type of the value returned by the function represented by <paramref name="selector" />.
         /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> that contains the elements to determine the maximum of.
-        /// </param>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> that contains the elements to determine the maximum of. </param>
         /// <param name="selector"> A projection function to apply to each element. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the maximum value in the sequence.
@@ -929,6 +783,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TResult> MaxAsync<TSource, TResult>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, TResult>> selector,
@@ -948,22 +803,17 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously computes the sum of a sequence of values.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values to calculate the sum of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="source"> A sequence of values to calculate the sum of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<decimal> SumAsync(
             [NotNull] this IQueryable<decimal> source,
             CancellationToken cancellationToken = default)
@@ -977,22 +827,17 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously computes the sum of a sequence of values.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values to calculate the sum of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="source"> A sequence of values to calculate the sum of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<decimal?> SumAsync(
             [NotNull] this IQueryable<decimal?> source,
             CancellationToken cancellationToken = default)
@@ -1008,16 +853,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     each element of the input sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values of type <typeparamref name="TSource" />.
-        /// </param>
+        /// <param name="source"> A sequence of values of type <typeparamref name="TSource" />. </param>
         /// <param name="selector"> A projection function to apply to each element. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the sum of the projected values..
@@ -1025,6 +866,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<decimal> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, decimal>> selector,
@@ -1042,16 +884,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     each element of the input sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values of type <typeparamref name="TSource" />.
-        /// </param>
+        /// <param name="source"> A sequence of values of type <typeparamref name="TSource" />. </param>
         /// <param name="selector"> A projection function to apply to each element. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the sum of the projected values..
@@ -1059,6 +897,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<decimal?> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, decimal?>> selector,
@@ -1075,22 +914,17 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously computes the sum of a sequence of values.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values to calculate the sum of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="source"> A sequence of values to calculate the sum of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<int> SumAsync(
             [NotNull] this IQueryable<int> source,
             CancellationToken cancellationToken = default)
@@ -1104,22 +938,17 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously computes the sum of a sequence of values.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values to calculate the sum of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="source"> A sequence of values to calculate the sum of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<int?> SumAsync(
             [NotNull] this IQueryable<int?> source,
             CancellationToken cancellationToken = default)
@@ -1134,16 +963,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     each element of the input sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values of type <typeparamref name="TSource" />.
-        /// </param>
+        /// <param name="source"> A sequence of values of type <typeparamref name="TSource" />. </param>
         /// <param name="selector"> A projection function to apply to each element. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the sum of the projected values..
@@ -1151,6 +976,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<int> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, int>> selector,
@@ -1167,16 +993,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     each element of the input sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values of type <typeparamref name="TSource" />.
-        /// </param>
+        /// <param name="source"> A sequence of values of type <typeparamref name="TSource" />. </param>
         /// <param name="selector"> A projection function to apply to each element. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the sum of the projected values..
@@ -1184,6 +1006,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<int?> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, int?>> selector,
@@ -1200,22 +1023,17 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously computes the sum of a sequence of values.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values to calculate the sum of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="source"> A sequence of values to calculate the sum of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<long> SumAsync(
             [NotNull] this IQueryable<long> source,
             CancellationToken cancellationToken = default)
@@ -1229,22 +1047,17 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously computes the sum of a sequence of values.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values to calculate the sum of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="source"> A sequence of values to calculate the sum of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<long?> SumAsync(
             [NotNull] this IQueryable<long?> source,
             CancellationToken cancellationToken = default)
@@ -1259,16 +1072,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     each element of the input sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values of type <typeparamref name="TSource" />.
-        /// </param>
+        /// <param name="source"> A sequence of values of type <typeparamref name="TSource" />. </param>
         /// <param name="selector"> A projection function to apply to each element. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the sum of the projected values..
@@ -1276,6 +1085,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<long> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, long>> selector,
@@ -1293,16 +1103,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     each element of the input sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values of type <typeparamref name="TSource" />.
-        /// </param>
+        /// <param name="source"> A sequence of values of type <typeparamref name="TSource" />. </param>
         /// <param name="selector"> A projection function to apply to each element. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the sum of the projected values..
@@ -1310,6 +1116,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<long?> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, long?>> selector,
@@ -1326,22 +1133,17 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously computes the sum of a sequence of values.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values to calculate the sum of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="source"> A sequence of values to calculate the sum of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double> SumAsync(
             [NotNull] this IQueryable<double> source,
             CancellationToken cancellationToken = default)
@@ -1355,22 +1157,17 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously computes the sum of a sequence of values.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values to calculate the sum of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="source"> A sequence of values to calculate the sum of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double?> SumAsync(
             [NotNull] this IQueryable<double?> source,
             CancellationToken cancellationToken = default)
@@ -1385,16 +1182,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     each element of the input sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values of type <typeparamref name="TSource" />.
-        /// </param>
+        /// <param name="source"> A sequence of values of type <typeparamref name="TSource" />. </param>
         /// <param name="selector"> A projection function to apply to each element. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the sum of the projected values..
@@ -1402,6 +1195,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, double>> selector,
@@ -1419,16 +1213,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     each element of the input sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values of type <typeparamref name="TSource" />.
-        /// </param>
+        /// <param name="source"> A sequence of values of type <typeparamref name="TSource" />. </param>
         /// <param name="selector"> A projection function to apply to each element. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the sum of the projected values..
@@ -1436,6 +1226,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double?> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, double?>> selector,
@@ -1452,22 +1243,17 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously computes the sum of a sequence of values.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values to calculate the sum of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="source"> A sequence of values to calculate the sum of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<float> SumAsync(
             [NotNull] this IQueryable<float> source,
             CancellationToken cancellationToken = default)
@@ -1481,22 +1267,17 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously computes the sum of a sequence of values.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values to calculate the sum of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="source"> A sequence of values to calculate the sum of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<float?> SumAsync(
             [NotNull] this IQueryable<float?> source,
             CancellationToken cancellationToken = default)
@@ -1511,16 +1292,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     each element of the input sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values of type <typeparamref name="TSource" />.
-        /// </param>
+        /// <param name="source"> A sequence of values of type <typeparamref name="TSource" />. </param>
         /// <param name="selector"> A projection function to apply to each element. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the sum of the projected values..
@@ -1528,6 +1305,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<float> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, float>> selector,
@@ -1545,16 +1323,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     each element of the input sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values of type <typeparamref name="TSource" />.
-        /// </param>
+        /// <param name="source"> A sequence of values of type <typeparamref name="TSource" />. </param>
         /// <param name="selector"> A projection function to apply to each element. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the sum of the projected values..
@@ -1562,6 +1336,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<float?> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, float?>> selector,
@@ -1582,25 +1357,18 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously computes the average of a sequence of values.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values to calculate the average of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="source"> A sequence of values to calculate the average of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the average of the sequence of values.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
-        /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source" /> contains no elements.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<decimal> AverageAsync(
             [NotNull] this IQueryable<decimal> source,
             CancellationToken cancellationToken = default)
@@ -1615,22 +1383,17 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously computes the average of a sequence of values.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values to calculate the average of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="source"> A sequence of values to calculate the average of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the average of the sequence of values.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<decimal?> AverageAsync(
             [NotNull] this IQueryable<decimal?> source,
             CancellationToken cancellationToken = default)
@@ -1646,17 +1409,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     by invoking a projection function on each element of the input sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" /> .
-        /// </typeparam>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
         /// <param name="source"> A sequence of values of type <typeparamref name="TSource" />. </param>
         /// <param name="selector"> A projection function to apply to each element. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the average of the projected values.
@@ -1664,9 +1423,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source" /> contains no elements.
-        /// </exception>
+        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<decimal> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, decimal>> selector,
@@ -1684,17 +1442,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     by invoking a projection function on each element of the input sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" /> .
-        /// </typeparam>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
         /// <param name="source"> A sequence of values of type <typeparamref name="TSource" />. </param>
         /// <param name="selector"> A projection function to apply to each element. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the average of the projected values.
@@ -1702,6 +1456,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<decimal?> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, decimal?>> selector,
@@ -1718,25 +1473,18 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously computes the average of a sequence of values.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values to calculate the average of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="source"> A sequence of values to calculate the average of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the average of the sequence of values.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
-        /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source" /> contains no elements.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double> AverageAsync(
             [NotNull] this IQueryable<int> source,
             CancellationToken cancellationToken = default)
@@ -1750,22 +1498,17 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously computes the average of a sequence of values.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values to calculate the average of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="source"> A sequence of values to calculate the average of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the average of the sequence of values.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double?> AverageAsync(
             [NotNull] this IQueryable<int?> source,
             CancellationToken cancellationToken = default)
@@ -1780,17 +1523,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     by invoking a projection function on each element of the input sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" /> .
-        /// </typeparam>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
         /// <param name="source"> A sequence of values of type <typeparamref name="TSource" />. </param>
         /// <param name="selector"> A projection function to apply to each element. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the average of the projected values.
@@ -1798,9 +1537,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source" /> contains no elements.
-        /// </exception>
+        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, int>> selector,
@@ -1818,17 +1556,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     by invoking a projection function on each element of the input sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" /> .
-        /// </typeparam>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
         /// <param name="source"> A sequence of values of type <typeparamref name="TSource" />. </param>
         /// <param name="selector"> A projection function to apply to each element. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the average of the projected values.
@@ -1836,6 +1570,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double?> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, int?>> selector,
@@ -1852,25 +1587,18 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously computes the average of a sequence of values.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values to calculate the average of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="source"> A sequence of values to calculate the average of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the average of the sequence of values.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
-        /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source" /> contains no elements.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double> AverageAsync(
             [NotNull] this IQueryable<long> source,
             CancellationToken cancellationToken = default)
@@ -1884,22 +1612,17 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously computes the average of a sequence of values.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values to calculate the average of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="source"> A sequence of values to calculate the average of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the average of the sequence of values.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double?> AverageAsync(
             [NotNull] this IQueryable<long?> source,
             CancellationToken cancellationToken = default)
@@ -1914,17 +1637,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     by invoking a projection function on each element of the input sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" /> .
-        /// </typeparam>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
         /// <param name="source"> A sequence of values of type <typeparamref name="TSource" />. </param>
         /// <param name="selector"> A projection function to apply to each element. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the average of the projected values.
@@ -1932,9 +1651,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source" /> contains no elements.
-        /// </exception>
+        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, long>> selector,
@@ -1952,17 +1670,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     by invoking a projection function on each element of the input sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" /> .
-        /// </typeparam>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
         /// <param name="source"> A sequence of values of type <typeparamref name="TSource" />. </param>
         /// <param name="selector"> A projection function to apply to each element. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the average of the projected values.
@@ -1970,6 +1684,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double?> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, long?>> selector,
@@ -1986,25 +1701,18 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously computes the average of a sequence of values.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values to calculate the average of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="source"> A sequence of values to calculate the average of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the average of the sequence of values.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
-        /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source" /> contains no elements.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double> AverageAsync(
             [NotNull] this IQueryable<double> source,
             CancellationToken cancellationToken = default)
@@ -2019,22 +1727,17 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously computes the average of a sequence of values.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values to calculate the average of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="source"> A sequence of values to calculate the average of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the average of the sequence of values.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double?> AverageAsync(
             [NotNull] this IQueryable<double?> source,
             CancellationToken cancellationToken = default)
@@ -2050,17 +1753,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     by invoking a projection function on each element of the input sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" /> .
-        /// </typeparam>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
         /// <param name="source"> A sequence of values of type <typeparamref name="TSource" />. </param>
         /// <param name="selector"> A projection function to apply to each element. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the average of the projected values.
@@ -2068,9 +1767,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source" /> contains no elements.
-        /// </exception>
+        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, double>> selector,
@@ -2088,17 +1786,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     by invoking a projection function on each element of the input sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" /> .
-        /// </typeparam>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
         /// <param name="source"> A sequence of values of type <typeparamref name="TSource" />. </param>
         /// <param name="selector"> A projection function to apply to each element. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the average of the projected values.
@@ -2106,6 +1800,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double?> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, double?>> selector,
@@ -2122,25 +1817,18 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously computes the average of a sequence of values.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values to calculate the average of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="source"> A sequence of values to calculate the average of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the average of the sequence of values.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
-        /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source" /> contains no elements.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<float> AverageAsync(
             [NotNull] this IQueryable<float> source,
             CancellationToken cancellationToken = default)
@@ -2154,22 +1842,17 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously computes the average of a sequence of values.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <param name="source">
-        ///     A sequence of values to calculate the average of.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="source"> A sequence of values to calculate the average of. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the average of the sequence of values.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<float?> AverageAsync(
             [NotNull] this IQueryable<float?> source,
             CancellationToken cancellationToken = default)
@@ -2185,17 +1868,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     by invoking a projection function on each element of the input sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" /> .
-        /// </typeparam>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
         /// <param name="source"> A sequence of values of type <typeparamref name="TSource" />. </param>
         /// <param name="selector"> A projection function to apply to each element. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the average of the projected values.
@@ -2203,9 +1882,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source" /> contains no elements.
-        /// </exception>
+        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<float> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, float>> selector,
@@ -2223,17 +1901,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     by invoking a projection function on each element of the input sequence.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" /> .
-        /// </typeparam>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
         /// <param name="source"> A sequence of values of type <typeparamref name="TSource" />. </param>
         /// <param name="selector"> A projection function to apply to each element. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the average of the projected values.
@@ -2241,6 +1915,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<float?> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, float?>> selector,
@@ -2261,27 +1936,20 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously determines whether a sequence contains a specified element by using the default equality comparer.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> to return the single element of.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> to return the single element of. </param>
         /// <param name="item"> The object to locate in the sequence. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains <see langword="true" /> if the input sequence contains the specified value; otherwise,
         ///     <see langword="false" />.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<bool> ContainsAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] TSource item,
@@ -2305,25 +1973,18 @@ namespace Microsoft.EntityFrameworkCore
         ///     asynchronously.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> to create a list from.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> to create a list from. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains a <see cref="List{T}" /> that contains elements from the input sequence.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static async Task<List<TSource>> ToListAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -2341,25 +2002,18 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously creates an array from an <see cref="IQueryable{T}" /> by enumerating it asynchronously.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> to create an array from.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> to create an array from. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains an array that contains elements from the input sequence.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static async Task<TSource[]> ToArrayAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -2430,9 +2084,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="navigationPropertyPath">
         ///     A lambda expression representing the navigation property to be included (<c>t => t.Property1</c>).
         /// </param>
-        /// <returns>
-        ///     A new query with the related data included.
-        /// </returns>
+        /// <returns> A new query with the related data included. </returns>
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="navigationPropertyPath" /> is <see langword="null" />.
         /// </exception>
@@ -2530,9 +2182,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="navigationPropertyPath">
         ///     A lambda expression representing the navigation property to be included (<c>t => t.Property1</c>).
         /// </param>
-        /// <returns>
-        ///     A new query with the related data included.
-        /// </returns>
+        /// <returns> A new query with the related data included. </returns>
         public static IIncludableQueryable<TEntity, TProperty> ThenInclude<TEntity, TPreviousProperty, TProperty>(
             [NotNull] this IIncludableQueryable<TEntity, IEnumerable<TPreviousProperty>> source,
             [NotNull] Expression<Func<TPreviousProperty, TProperty>> navigationPropertyPath)
@@ -2584,9 +2234,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="navigationPropertyPath">
         ///     A lambda expression representing the navigation property to be included (<c>t => t.Property1</c>).
         /// </param>
-        /// <returns>
-        ///     A new query with the related data included.
-        /// </returns>
+        /// <returns> A new query with the related data included. </returns>
         public static IIncludableQueryable<TEntity, TProperty> ThenInclude<TEntity, TPreviousProperty, TProperty>(
             [NotNull] this IIncludableQueryable<TEntity, TPreviousProperty> source,
             [NotNull] Expression<Func<TPreviousProperty, TProperty>> navigationPropertyPath)
@@ -2666,9 +2314,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="navigationPropertyPath" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="ArgumentException">
-        ///     <paramref name="navigationPropertyPath" /> is empty or whitespace.
-        /// </exception>
+        /// <exception cref="ArgumentException"> <paramref name="navigationPropertyPath" /> is empty or whitespace. </exception>
         public static IQueryable<TEntity> Include<TEntity>(
             [NotNull] this IQueryable<TEntity> source,
             [NotNull][NotParameterized] string navigationPropertyPath)
@@ -2697,14 +2343,11 @@ namespace Microsoft.EntityFrameworkCore
                 .GetRequiredDeclaredMethod(nameof(IgnoreAutoIncludes));
 
         /// <summary>
-        ///     Specifies that the current Entity Framework LINQ query should not have any
-        ///     model-level eager loaded navigations applied.
+        ///     Specifies that the current Entity Framework LINQ query should not have any model-level eager loaded navigations applied.
         /// </summary>
         /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
         /// <param name="source"> The source query. </param>
-        /// <returns>
-        ///     A new query that will not apply any model-level eager loaded navigations.
-        /// </returns>
+        /// <returns> A new query that will not apply any model-level eager loaded navigations. </returns>
         public static IQueryable<TEntity> IgnoreAutoIncludes<TEntity>(
             [NotNull] this IQueryable<TEntity> source)
             where TEntity : class
@@ -2730,17 +2373,12 @@ namespace Microsoft.EntityFrameworkCore
                 .GetRequiredDeclaredMethod(nameof(IgnoreQueryFilters));
 
         /// <summary>
-        ///     Specifies that the current Entity Framework LINQ query should not have any
-        ///     model-level entity query filters applied.
+        ///     Specifies that the current Entity Framework LINQ query should not have any model-level entity query filters applied.
         /// </summary>
         /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
         /// <param name="source"> The source query. </param>
-        /// <returns>
-        ///     A new query that will not apply any model-level entity query filters.
-        /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <returns> A new query that will not apply any model-level entity query filters. </returns>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         public static IQueryable<TEntity> IgnoreQueryFilters<TEntity>(
             [NotNull] this IQueryable<TEntity> source)
             where TEntity : class
@@ -2787,12 +2425,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
         /// <param name="source"> The source query. </param>
-        /// <returns>
-        ///     A new query where the result set will not be tracked by the context.
-        /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <returns> A new query where the result set will not be tracked by the context. </returns>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         public static IQueryable<TEntity> AsNoTracking<TEntity>(
             [NotNull] this IQueryable<TEntity> source)
             where TEntity : class
@@ -2835,12 +2469,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
         /// <param name="source"> The source query. </param>
-        /// <returns>
-        ///     A new query where the result set will not be tracked by the context.
-        /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <returns> A new query where the result set will not be tracked by the context. </returns>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         public static IQueryable<TEntity> AsNoTrackingWithIdentityResolution<TEntity>(
             [NotNull] this IQueryable<TEntity> source)
             where TEntity : class
@@ -2875,12 +2505,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
         /// <param name="source"> The source query. </param>
-        /// <returns>
-        ///     A new query where the result set will be tracked by the context.
-        /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <returns> A new query where the result set will be tracked by the context. </returns>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         public static IQueryable<TEntity> AsTracking<TEntity>(
             [NotNull] this IQueryable<TEntity> source)
             where TEntity : class
@@ -2919,12 +2545,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
         /// <param name="source"> The source query. </param>
         /// <param name="track"> Indicates whether the query will track results or not. </param>
-        /// <returns>
-        ///     A new query where the result set will be tracked by the context.
-        /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <returns> A new query where the result set will be tracked by the context. </returns>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         public static IQueryable<TEntity> AsTracking<TEntity>(
             [NotNull] this IQueryable<TEntity> source,
             QueryTrackingBehavior track)
@@ -2948,15 +2570,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="T"> The type of entity being queried. </typeparam>
         /// <param name="source"> The source query. </param>
         /// <param name="tag"> The tag. </param>
-        /// <returns>
-        ///     A new query annotated with the given tag.
-        /// </returns>
+        /// <returns> A new query annotated with the given tag. </returns>
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="tag" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="ArgumentException">
-        ///     <paramref name="tag" /> is empty or whitespace.
-        /// </exception>
+        /// <exception cref="ArgumentException"> <paramref name="tag" /> is empty or whitespace. </exception>
         public static IQueryable<T> TagWith<T>(
             [NotNull] this IQueryable<T> source,
             [NotNull][NotParameterized] string tag)
@@ -2985,9 +2603,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     and then throwing away the list (without the overhead of actually creating the list).
         /// </summary>
         /// <param name="source"> The source query. </param>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         public static void Load<TSource>([NotNull] this IQueryable<TSource> source)
         {
             Check.NotNull(source, nameof(source));
@@ -3004,13 +2620,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     and then throwing away the list (without the overhead of actually creating the list).
         /// </summary>
         /// <param name="source"> The source query. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static async Task LoadAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -3035,22 +2648,14 @@ namespace Microsoft.EntityFrameworkCore
         ///     according to a specified key selector function.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <typeparam name="TKey">
-        ///     The type of the key returned by <paramref name="keySelector" /> .
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> to create a <see cref="Dictionary{TKey, TValue}" /> from.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <typeparam name="TKey"> The type of the key returned by <paramref name="keySelector" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> to create a <see cref="Dictionary{TKey, TValue}" /> from. </param>
         /// <param name="keySelector"> A function to extract a key from each element. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains a <see cref="Dictionary{TKey, TSource}" /> that contains selected keys and values.
@@ -3058,6 +2663,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="keySelector" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Func<TSource, TKey> keySelector,
@@ -3071,25 +2677,15 @@ namespace Microsoft.EntityFrameworkCore
         ///     according to a specified key selector function and a comparer.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <typeparam name="TKey">
-        ///     The type of the key returned by <paramref name="keySelector" /> .
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> to create a <see cref="Dictionary{TKey, TValue}" /> from.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <typeparam name="TKey"> The type of the key returned by <paramref name="keySelector" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> to create a <see cref="Dictionary{TKey, TValue}" /> from. </param>
         /// <param name="keySelector"> A function to extract a key from each element. </param>
-        /// <param name="comparer">
-        ///     An <see cref="IEqualityComparer{TKey}" /> to compare keys.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="comparer"> An <see cref="IEqualityComparer{TKey}" /> to compare keys. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains a <see cref="Dictionary{TKey, TSource}" /> that contains selected keys and values.
@@ -3097,6 +2693,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="keySelector" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Func<TSource, TKey> keySelector,
@@ -3111,26 +2708,16 @@ namespace Microsoft.EntityFrameworkCore
         ///     according to a specified key selector and an element selector function.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <typeparam name="TKey">
-        ///     The type of the key returned by <paramref name="keySelector" /> .
-        /// </typeparam>
-        /// <typeparam name="TElement">
-        ///     The type of the value returned by <paramref name="elementSelector" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> to create a <see cref="Dictionary{TKey, TValue}" /> from.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <typeparam name="TKey"> The type of the key returned by <paramref name="keySelector" />. </typeparam>
+        /// <typeparam name="TElement"> The type of the value returned by <paramref name="elementSelector" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> to create a <see cref="Dictionary{TKey, TValue}" /> from. </param>
         /// <param name="keySelector"> A function to extract a key from each element. </param>
         /// <param name="elementSelector"> A transform function to produce a result element value from each element. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains a <see cref="Dictionary{TKey, TElement}" /> that contains values of type
@@ -3139,6 +2726,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="keySelector" /> or <paramref name="elementSelector" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<Dictionary<TKey, TElement>> ToDictionaryAsync<TSource, TKey, TElement>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Func<TSource, TKey> keySelector,
@@ -3153,29 +2741,17 @@ namespace Microsoft.EntityFrameworkCore
         ///     according to a specified key selector function, a comparer, and an element selector function.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <typeparam name="TKey">
-        ///     The type of the key returned by <paramref name="keySelector" /> .
-        /// </typeparam>
-        /// <typeparam name="TElement">
-        ///     The type of the value returned by <paramref name="elementSelector" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> to create a <see cref="Dictionary{TKey, TValue}" /> from.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <typeparam name="TKey"> The type of the key returned by <paramref name="keySelector" />. </typeparam>
+        /// <typeparam name="TElement"> The type of the value returned by <paramref name="elementSelector" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> to create a <see cref="Dictionary{TKey, TValue}" /> from. </param>
         /// <param name="keySelector"> A function to extract a key from each element. </param>
         /// <param name="elementSelector"> A transform function to produce a result element value from each element. </param>
-        /// <param name="comparer">
-        ///     An <see cref="IEqualityComparer{TKey}" /> to compare keys.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="comparer"> An <see cref="IEqualityComparer{TKey}" /> to compare keys. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task result contains a <see cref="Dictionary{TKey, TElement}" /> that contains values of type
@@ -3184,6 +2760,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="keySelector" /> or <paramref name="elementSelector" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static async Task<Dictionary<TKey, TElement>> ToDictionaryAsync<TSource, TKey, TElement>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Func<TSource, TKey> keySelector,
@@ -3213,23 +2790,18 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously enumerates the query results and performs the specified action on each element.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="T">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> to enumerate.
-        /// </param>
+        /// <typeparam name="T"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> to enumerate. </param>
         /// <param name="action"> The action to perform on each element. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="action" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static async Task ForEachAsync<T>(
             [NotNull] this IQueryable<T> source,
             [NotNull] Action<T> action,
@@ -3251,22 +2823,14 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns an <see cref="IAsyncEnumerable{T}" /> which can be enumerated asynchronously.
         /// </summary>
         /// <remarks>
-        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///     that any asynchronous operations have completed before calling another method on this context.
         /// </remarks>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> to enumerate.
-        /// </param>
+        /// <typeparam name="TSource"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <param name="source"> An <see cref="IQueryable{T}" /> to enumerate. </param>
         /// <returns> The query results. </returns>
-        /// <exception cref="InvalidOperationException">
-        ///     <paramref name="source" /> is <see langword="null" />.
-        /// </exception>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source" /> is not a <see cref="IAsyncEnumerable{T}" />.
-        /// </exception>
+        /// <exception cref="InvalidOperationException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="source" /> is not a <see cref="IAsyncEnumerable{T}" />. </exception>
         public static IAsyncEnumerable<TSource> AsAsyncEnumerable<TSource>(
             [NotNull] this IQueryable<TSource> source)
         {

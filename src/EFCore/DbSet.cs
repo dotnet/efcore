@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     null is returned.
         /// </summary>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
-        /// <returns>The entity found, or null.</returns>
+        /// <returns>The entity found, or <see langword="null" />.</returns>
         public virtual TEntity Find([CanBeNull] params object[] keyValues)
             => throw new NotImplementedException();
 
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     null is returned.
         /// </summary>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
-        /// <returns>The entity found, or null.</returns>
+        /// <returns>The entity found, or <see langword="null" />.</returns>
         public virtual ValueTask<TEntity> FindAsync([CanBeNull] params object[] keyValues)
             => throw new NotImplementedException();
 
@@ -133,7 +133,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns>The entity found, or null.</returns>
+        /// <returns>The entity found, or <see langword="null" />.</returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual ValueTask<TEntity> FindAsync([CanBeNull] object[] keyValues, CancellationToken cancellationToken)
             => throw new NotImplementedException();
 
@@ -177,6 +178,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides access to change tracking
         ///     information and operations for the entity.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual ValueTask<EntityEntry<TEntity>> AddAsync(
             [NotNull] TEntity entity,
             CancellationToken cancellationToken = default)
@@ -419,6 +421,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entities"> The entities to add. </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> A task that represents the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual Task AddRangeAsync(
             [NotNull] IEnumerable<TEntity> entities,
             CancellationToken cancellationToken = default)

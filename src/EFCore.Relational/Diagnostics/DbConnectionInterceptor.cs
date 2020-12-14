@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
@@ -50,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     interceptor suppressed execution by calling <see cref="InterceptionResult.Suppress" />.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
         ///     If <see cref="InterceptionResult.IsSuppressed" /> is true, then EF will suppress the operation
@@ -58,6 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to suppress
         ///     the operation is to return the <paramref name="result" /> value passed in.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual ValueTask<InterceptionResult> ConnectionOpeningAsync(
             DbConnection connection,
             ConnectionEventData eventData,
@@ -79,8 +81,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="connection"> The connection. </param>
         /// <param name="eventData"> Contextual information about the connection. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual Task ConnectionOpenedAsync(
             DbConnection connection,
             ConnectionEndEventData eventData,
@@ -173,8 +176,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="connection"> The connection. </param>
         /// <param name="eventData"> Contextual information about the connection. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual Task ConnectionFailedAsync(
             DbConnection connection,
             ConnectionErrorEventData eventData,

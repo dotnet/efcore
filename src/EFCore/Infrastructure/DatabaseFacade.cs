@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         to ensure the database is created using migrations and that all migrations have been applied.
         ///     </para>
         /// </summary>
-        /// <returns> <see langword="true" /> if the database is created, false if it already existed. </returns>
+        /// <returns> <see langword="true" /> if the database is created, <see langword="false" /> if it already existed. </returns>
         public virtual bool EnsureCreated()
             => Dependencies.DatabaseCreator.EnsureCreated();
 
@@ -118,8 +118,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous save operation. The task result contains <see langword="true" /> if the database is created,
-        ///     false if it already existed.
+        ///     <see langword="false" /> if it already existed.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
             => Dependencies.DatabaseCreator.EnsureCreatedAsync(cancellationToken);
 
@@ -138,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         execution of the test/prototype. Note, however, that data in the database is not preserved.
         ///     </para>
         /// </summary>
-        /// <returns> <see langword="true" /> if the database is deleted, false if it did not exist. </returns>
+        /// <returns> <see langword="true" /> if the database is deleted, <see langword="false" /> if it did not exist. </returns>
         public virtual bool EnsureDeleted()
             => Dependencies.DatabaseCreator.EnsureDeleted();
 
@@ -160,8 +161,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous save operation. The task result contains <see langword="true" /> if the database is deleted,
-        ///     false if it did not exist.
+        ///     <see langword="false" /> if it did not exist.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default)
             => Dependencies.DatabaseCreator.EnsureDeletedAsync(cancellationToken);
 
@@ -203,6 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> <see langword="true" /> if the database is available; <see langword="false" /> otherwise. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
             => Dependencies.DatabaseCreator.CanConnectAsync(cancellationToken);
 
@@ -223,6 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     A task that represents the asynchronous transaction initialization. The task result contains a <see cref="IDbContextTransaction" />
         ///     that represents the started transaction.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
             => Dependencies.TransactionManager.BeginTransactionAsync(cancellationToken);
 
@@ -237,6 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> A Task representing the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual Task CommitTransactionAsync(CancellationToken cancellationToken = default)
             => Dependencies.TransactionManager.CommitTransactionAsync(cancellationToken);
 
@@ -251,6 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> A Task representing the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
             => Dependencies.TransactionManager.RollbackTransactionAsync(cancellationToken);
 
@@ -289,16 +295,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         'BeginTransaction' or 'UseTransaction' methods have been called.
         ///     </para>
         ///     <para>
-        ///         Setting this value to false will also disable the <see cref="IExecutionStrategy" />
+        ///         Setting this value to <see langword="false" /> will also disable the <see cref="IExecutionStrategy" />
         ///         for <see cref="DbContext.SaveChanges()" />
         ///     </para>
         ///     <para>
-        ///         The default value is true, meaning that SaveChanges will always use a transaction
-        ///         when saving changes.
+        ///         The default value is <see langword="true" />, meaning that <see cref="DbContext.SaveChanges()" /> will always use a
+        ///         transaction when saving changes.
         ///     </para>
         ///     <para>
-        ///         Setting this value to false should only be done with caution since the database
-        ///         could be left in a corrupted state if SaveChanges fails.
+        ///         Setting this value to <see langword="false" /> should only be done with caution since the database
+        ///         could be left in a corrupted state if <see cref="DbContext.SaveChanges()" /> fails.
         ///     </para>
         /// </summary>
         public virtual bool AutoTransactionsEnabled { get; set; } = true;
