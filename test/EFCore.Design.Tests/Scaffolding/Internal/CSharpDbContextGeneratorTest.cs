@@ -838,6 +838,24 @@ namespace TestNamespace
                     Assert.Equal("date", model.FindEntityType("TestNamespace.Employee").GetProperty("HireDate").GetConfiguredColumnType()));
         }
 
+        [ConditionalFact]
+        public void Is_fixed_length_annotation_should_be_scaffolded_without_optional_parameter()
+        {
+             Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "Employee",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("Name").HasMaxLength(5).IsFixedLength();
+                        }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = false },
+                code => Assert.Contains(".IsFixedLength()", code.ContextFile.Code),
+                model =>
+                    Assert.Equal(true, model.FindEntityType("TestNamespace.Employee").GetProperty("Name").IsFixedLength()));
+        }
+
         private class TestCodeGeneratorPlugin : ProviderCodeGeneratorPlugin
         {
             public override MethodCallCodeFragment GenerateProviderOptions()
