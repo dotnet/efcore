@@ -7364,6 +7364,22 @@ FROM [Squads] AS [s]
 WHERE CAST(SUBSTRING([s].[Banner5], 2 + 1, 1) AS tinyint) = CAST(6 AS tinyint)");
         }
 
+        public override async Task Include_ThenInclude_which_cycles_back_but_also_includes_additional_navigations(bool async)
+        {
+            await base.Include_ThenInclude_which_cycles_back_but_also_includes_additional_navigations(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [t].[Id], [t].[AmmunitionType], [t].[IsAutomatic], [t].[Name], [t].[OwnerFullName], [t].[SynergyWithId], [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[Discriminator], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Name0], [t].[Location], [t].[Nation]
+FROM [Gears] AS [g]
+LEFT JOIN (
+    SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId], [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank], [c].[Name] AS [Name0], [c].[Location], [c].[Nation]
+    FROM [Weapons] AS [w]
+    LEFT JOIN [Gears] AS [g0] ON [w].[OwnerFullName] = [g0].[FullName]
+    LEFT JOIN [Cities] AS [c] ON [g0].[AssignedCityName] = [c].[Name]
+) AS [t] ON [g].[FullName] = [t].[OwnerFullName]
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id], [t].[Nickname], [t].[SquadId], [t].[Name0]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

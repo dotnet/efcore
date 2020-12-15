@@ -7954,6 +7954,27 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Squad>().Where(e => e.Banner5[2] == 0x06));
         }
 
+        [ConditionalTheory(Skip = "issue #23674")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_ThenInclude_which_cycles_back_but_also_includes_additional_navigations(bool async)
+        {
+            var expectedIncludes = new IExpectedInclude[]
+            {
+                new ExpectedInclude<Gear>(e => e.Weapons),
+                new ExpectedInclude<Weapon>(e => e.Owner, "Weapons"),
+                new ExpectedInclude<Gear>(e => e.AssignedCity, "Weapons.Owner")
+            };
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>()
+                    .AsTracking()
+                    .Include(g => g.Weapons)
+                    .ThenInclude(w => w.Owner.AssignedCity),
+                elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes),
+                entryCount: 17);
+        }
+
         protected GearsOfWarContext CreateContext()
             => Fixture.CreateContext();
 

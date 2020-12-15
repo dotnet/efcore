@@ -8514,6 +8514,31 @@ FROM [Squads] AS [s]
 WHERE CAST(SUBSTRING([s].[Banner5], 2 + 1, 1) AS tinyint) = CAST(6 AS tinyint)");
         }
 
+        public override async Task Include_ThenInclude_which_cycles_back_but_also_includes_additional_navigations(bool async)
+        {
+            await base.Include_ThenInclude_which_cycles_back_but_also_includes_additional_navigations(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], CASE
+    WHEN [o].[Nickname] IS NOT NULL THEN N'Officer'
+END AS [Discriminator], [t0].[Id], [t0].[AmmunitionType], [t0].[IsAutomatic], [t0].[Name], [t0].[OwnerFullName], [t0].[SynergyWithId], [t0].[Nickname], [t0].[SquadId], [t0].[AssignedCityName], [t0].[CityOfBirthName], [t0].[FullName], [t0].[HasSoulPatch], [t0].[LeaderNickname], [t0].[LeaderSquadId], [t0].[Rank], [t0].[Discriminator], [t0].[Name0], [t0].[Location], [t0].[Nation]
+FROM [Gears] AS [g]
+LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
+LEFT JOIN (
+    SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId], [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Discriminator], [c].[Name] AS [Name0], [c].[Location], [c].[Nation]
+    FROM [Weapons] AS [w]
+    LEFT JOIN (
+        SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank], CASE
+            WHEN [o0].[Nickname] IS NOT NULL THEN N'Officer'
+        END AS [Discriminator]
+        FROM [Gears] AS [g0]
+        LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
+    ) AS [t] ON [w].[OwnerFullName] = [t].[FullName]
+    LEFT JOIN [Cities] AS [c] ON [t].[AssignedCityName] = [c].[Name]
+) AS [t0] ON [g].[FullName] = [t0].[OwnerFullName]
+ORDER BY [g].[Nickname], [g].[SquadId], [t0].[Id], [t0].[Nickname], [t0].[SquadId], [t0].[Name0]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
