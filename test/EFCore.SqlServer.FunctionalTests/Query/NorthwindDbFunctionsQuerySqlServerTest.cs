@@ -695,7 +695,7 @@ WHERE DATEDIFF(week, NULL, [o].[OrderDate]) = 5");
             AssertSql(
                 @"SELECT CAST(ISDATE([o].[CustomerID]) AS bit)
 FROM [Orders] AS [o]
-WHERE CAST(ISDATE([o].[CustomerID]) AS bit) <> CAST(1 AS bit)");
+WHERE CAST(ISDATE([o].[CustomerID]) AS bit) = CAST(0 AS bit)");
         }
 
         [ConditionalTheory]

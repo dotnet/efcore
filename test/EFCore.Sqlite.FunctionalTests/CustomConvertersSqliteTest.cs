@@ -59,6 +59,17 @@ FROM ""Blog"" AS ""b""
 WHERE ""b"".""IsVisible"" = 'Y'");
         }
 
+        [ConditionalFact]
+        public override void Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used()
+        {
+            base.Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used();
+
+            AssertSql(
+                @"SELECT ""b"".""BlogId"", ""b"".""Discriminator"", ""b"".""IndexerVisible"", ""b"".""IsVisible"", ""b"".""Url"", ""b"".""RssUrl""
+FROM ""Blog"" AS ""b""
+WHERE ""b"".""IsVisible"" = 'N'");
+        }
+
         public override void Where_bool_with_value_conversion_inside_comparison_doesnt_get_converted_twice()
         {
             base.Where_bool_with_value_conversion_inside_comparison_doesnt_get_converted_twice();
@@ -101,7 +112,7 @@ WHERE ""b"".""IsVisible"" = 'Y'");
             AssertSql(
                 @"SELECT ""b"".""BlogId"", ""b"".""Discriminator"", ""b"".""IndexerVisible"", ""b"".""IsVisible"", ""b"".""Url"", ""b"".""RssUrl""
 FROM ""Blog"" AS ""b""
-WHERE ""b"".""IndexerVisible"" <> 'Aye'");
+WHERE ""b"".""IndexerVisible"" = 'Nay'");
         }
 
         private void AssertSql(params string[] expected)

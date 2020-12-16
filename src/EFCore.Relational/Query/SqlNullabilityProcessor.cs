@@ -1490,6 +1490,34 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 sqlBinaryOperand.TypeMapping)!);
                     }
 
+                    // use equality where possible
+                    // !(a == true) -> a == false
+                    // !(a == false) -> a == true
+                    // !(true == a) -> false == a
+                    // !(false == a) -> true == a
+                    if (sqlBinaryOperand.OperatorType == ExpressionType.Equal)
+                    {
+                        if (sqlBinaryOperand.Left is SqlConstantExpression leftConstant
+                            && leftConstant.Type == typeof(bool))
+                        {
+                            return _sqlExpressionFactory.MakeBinary(
+                                ExpressionType.Equal,
+                                _sqlExpressionFactory.Constant(!(bool)leftConstant.Value!, leftConstant.TypeMapping),
+                                sqlBinaryOperand.Right,
+                                sqlBinaryOperand.TypeMapping)!;
+                        }
+
+                        if (sqlBinaryOperand.Right is SqlConstantExpression rightConstant
+                            && rightConstant.Type == typeof(bool))
+                        {
+                            return _sqlExpressionFactory.MakeBinary(
+                                ExpressionType.Equal,
+                                sqlBinaryOperand.Left,
+                                _sqlExpressionFactory.Constant(!(bool)rightConstant.Value!, rightConstant.TypeMapping),
+                                sqlBinaryOperand.TypeMapping)!;
+                        }
+                    }
+
                     // !(a == b) -> a != b
                     // !(a != b) -> a == b
                     // !(a > b) -> a <= b

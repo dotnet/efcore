@@ -2845,7 +2845,7 @@ ORDER BY [t].[c], [t].[c0], [t].[Id], [t].[Id0], [t].[Id1], [o].[Id]");
                 AssertSql(
                     @"SELECT CASE
     WHEN [c0].[Id] IS NOT NULL THEN CASE
-        WHEN [c0].[Processed] <> CAST(1 AS bit) THEN CAST(1 AS bit)
+        WHEN [c0].[Processed] = CAST(0 AS bit) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
     ELSE NULL
@@ -5385,7 +5385,7 @@ WHERE EXISTS (
                 AssertSql(
                     @"SELECT [r].[Id], [r].[IsRemoved], [r].[Removed], [r].[RemovedByUser], [r].[OwnedEntity_OwnedValue]
 FROM [RemovableEntities] AS [r]
-WHERE [r].[IsRemoved] <> CAST(1 AS bit)");
+WHERE [r].[IsRemoved] = CAST(0 AS bit)");
             }
         }
 
