@@ -113,6 +113,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     first time or after retrying transient failures). If the task fails with a non-transient error or
         ///     the retry limit is reached, the returned task will become faulted and the exception must be observed.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task ExecuteAsync(
             [NotNull] this IExecutionStrategy strategy,
             [NotNull] Func<CancellationToken, Task> operation,
@@ -171,6 +172,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     first time or after retrying transient failures). If the task fails with a non-transient error or
         ///     the retry limit is reached, the returned task will become faulted and the exception must be observed.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TResult> ExecuteAsync<TResult>(
             [NotNull] this IExecutionStrategy strategy,
             [NotNull] Func<CancellationToken, Task<TResult>> operation,
@@ -224,6 +226,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     first time or after retrying transient failures). If the task fails with a non-transient error or
         ///     the retry limit is reached, the returned task will become faulted and the exception must be observed.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task ExecuteAsync<TState>(
             [NotNull] this IExecutionStrategy strategy,
             [CanBeNull] TState state,
@@ -306,6 +309,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     first time or after retrying transient failures). If the task fails with a non-transient error or
         ///     the retry limit is reached, the returned task will become faulted and the exception must be observed.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TResult> ExecuteAsync<TState, TResult>(
             [NotNull] this IExecutionStrategy strategy,
             [CanBeNull] TState state,
@@ -361,6 +365,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TResult> ExecuteAsync<TState, TResult>(
             [NotNull] this IExecutionStrategy strategy,
             [CanBeNull] TState state,
@@ -445,6 +450,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task ExecuteInTransactionAsync(
             [NotNull] this IExecutionStrategy strategy,
             [NotNull] Func<CancellationToken, Task> operation,
@@ -501,6 +507,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TResult> ExecuteInTransactionAsync<TResult>(
             [NotNull] this IExecutionStrategy strategy,
             [NotNull] Func<CancellationToken, Task<TResult>> operation,
@@ -564,6 +571,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task ExecuteInTransactionAsync<TState>(
             [NotNull] this IExecutionStrategy strategy,
             [CanBeNull] TState state,
@@ -633,6 +641,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TResult> ExecuteInTransactionAsync<TState, TResult>(
             [NotNull] this IExecutionStrategy strategy,
             [CanBeNull] TState state,
@@ -716,6 +725,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TResult> ExecuteInTransactionAsync<TState, TResult>(
             [NotNull] IExecutionStrategy strategy,
             [CanBeNull] TState state,

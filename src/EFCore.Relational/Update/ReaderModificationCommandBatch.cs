@@ -266,8 +266,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     database using the given connection.
         /// </summary>
         /// <param name="connection"> The connection to the database to update. </param>
-        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public override async Task ExecuteAsync(
             IRelationalConnection connection,
             CancellationToken cancellationToken = default)
@@ -311,8 +312,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     Consumes the data reader created by <see cref="ExecuteAsync" />.
         /// </summary>
         /// <param name="reader"> The data reader. </param>
-        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         protected abstract Task ConsumeAsync(
             [NotNull] RelationalDataReader reader,
             CancellationToken cancellationToken = default);

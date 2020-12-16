@@ -555,7 +555,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
         ///     </para>
         ///     <para>
-        ///         Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///         Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///         that any asynchronous operations have completed before calling another method on this context.
         ///     </para>
         /// </summary>
@@ -572,6 +572,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A concurrency violation occurs when an unexpected number of rows are affected during save.
         ///     This is usually because the data in the database has been modified since it was loaded into memory.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
             => SaveChangesAsync(acceptAllChangesOnSuccess: true, cancellationToken: cancellationToken);
 
@@ -585,7 +586,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
         ///     </para>
         ///     <para>
-        ///         Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///         Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///         that any asynchronous operations have completed before calling another method on this context.
         ///     </para>
         /// </summary>
@@ -606,6 +607,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A concurrency violation occurs when an unexpected number of rows are affected during save.
         ///     This is usually because the data in the database has been modified since it was loaded into memory.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async Task<int> SaveChangesAsync(
             bool acceptAllChangesOnSuccess,
             CancellationToken cancellationToken = default)
@@ -994,6 +996,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides access to change tracking
         ///     information and operations for the entity.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async ValueTask<EntityEntry<TEntity>> AddAsync<TEntity>(
             [NotNull] TEntity entity,
             CancellationToken cancellationToken = default)
@@ -1200,6 +1203,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see cref="EntityEntry" /> for the entity. The entry provides access to change tracking
         ///     information and operations for the entity.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async ValueTask<EntityEntry> AddAsync(
             [NotNull] object entity,
             CancellationToken cancellationToken = default)
@@ -1524,6 +1528,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     A task that represents the asynchronous operation.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async Task AddRangeAsync(
             [NotNull] IEnumerable<object> entities,
             CancellationToken cancellationToken = default)
@@ -1668,7 +1673,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The type of entity to find. </param>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
-        /// <returns>The entity found, or null.</returns>
+        /// <returns>The entity found, or <see langword="null" />.</returns>
         public virtual object Find([NotNull] Type entityType, [CanBeNull] params object[] keyValues)
         {
             CheckDisposed();
@@ -1685,7 +1690,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The type of entity to find. </param>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
-        /// <returns>The entity found, or null.</returns>
+        /// <returns>The entity found, or <see langword="null" />.</returns>
         public virtual ValueTask<object> FindAsync([NotNull] Type entityType, [CanBeNull] params object[] keyValues)
         {
             CheckDisposed();
@@ -1703,7 +1708,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The type of entity to find. </param>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns>The entity found, or null.</returns>
+        /// <returns>The entity found, or <see langword="null" />.</returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual ValueTask<object> FindAsync(
             [NotNull] Type entityType,
             [CanBeNull] object[] keyValues,
@@ -1723,7 +1729,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
-        /// <returns>The entity found, or null.</returns>
+        /// <returns>The entity found, or <see langword="null" />.</returns>
         public virtual TEntity Find<TEntity>([CanBeNull] params object[] keyValues)
             where TEntity : class
         {
@@ -1741,7 +1747,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
-        /// <returns>The entity found, or null.</returns>
+        /// <returns>The entity found, or <see langword="null" />.</returns>
         public virtual ValueTask<TEntity> FindAsync<TEntity>([CanBeNull] params object[] keyValues)
             where TEntity : class
         {
@@ -1760,7 +1766,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns>The entity found, or null.</returns>
+        /// <returns>The entity found, or <see langword="null" />.</returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual ValueTask<TEntity> FindAsync<TEntity>([CanBeNull] object[] keyValues, CancellationToken cancellationToken)
             where TEntity : class
         {
