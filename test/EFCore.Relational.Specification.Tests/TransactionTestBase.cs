@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 using IsolationLevel = System.Data.IsolationLevel;
 
+// ReSharper disable MethodHasAsyncOverload
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
@@ -1207,6 +1208,98 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.Equal(ConnectionState.Closed, connection.State);
+        }
+
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task SaveChanges_implicitly_creates_savepoint(bool async)
+        {
+            using (var context = CreateContext())
+            {
+                Assert.True(context.Database.AutoSavepointsEnabled);
+
+                using var transaction = async
+                    ? await context.Database.BeginTransactionAsync()
+                    : context.Database.BeginTransaction();
+
+                context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+
+                context.Add(new TransactionCustomer { Id = 78, Name = "Hobble" });
+                context.Add(new TransactionCustomer { Id = 1, Name = "Gobble" }); // Cause SaveChanges failure
+
+                if (async)
+                {
+                    await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
+                    await transaction.CommitAsync();
+                }
+                else
+                {
+                    Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                    transaction.Commit();
+                }
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal(77, context.Set<TransactionCustomer>().Max(c => c.Id));
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task SaveChanges_can_be_used_with_no_savepoint(bool async)
+        {
+            using (var context = CreateContext())
+            {
+                context.Database.AutoSavepointsEnabled = false;
+
+                using var transaction = async
+                    ? await context.Database.BeginTransactionAsync()
+                    : context.Database.BeginTransaction();
+
+                context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+
+                context.Add(new TransactionCustomer { Id = 78, Name = "Hobble" });
+                context.Add(new TransactionCustomer { Id = 1, Name = "Gobble" }); // Cause SaveChanges failure
+
+                if (async)
+                {
+                    await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
+                    await transaction.CommitAsync();
+                }
+                else
+                {
+                    Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                    transaction.Commit();
+                }
+
+                context.Database.AutoSavepointsEnabled = true;
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal(78, context.Set<TransactionCustomer>().Max(c => c.Id));
+            }
         }
 
         [ConditionalTheory]
