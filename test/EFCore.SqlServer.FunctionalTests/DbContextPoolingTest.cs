@@ -1063,7 +1063,6 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
-        [PlatformSkipCondition(TestPlatform.Linux, SkipReason = "Test is flaky on CI.")]
         public void Double_dispose_concurrency_test(bool useInterface)
         {
             var serviceProvider = useInterface
@@ -1091,7 +1090,6 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        [PlatformSkipCondition(TestPlatform.Linux, SkipReason = "Test is flaky on CI.")]
         public async Task Concurrency_test(bool useInterface, bool async)
         {
             PooledContext.InstanceCount = 0;
