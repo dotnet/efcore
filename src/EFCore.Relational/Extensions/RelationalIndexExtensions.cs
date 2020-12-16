@@ -90,6 +90,7 @@ namespace Microsoft.EntityFrameworkCore
                 return null;
             }
 
+            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23672", out var enabled) && enabled;
             var rootIndex = index;
 
             // Limit traversal to avoid getting stuck in a cycle (validation will throw for these later)
@@ -102,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore
                     .SelectMany(fk => fk.PrincipalEntityType.GetIndexes()))
                 {
                     var otherColumnNames = otherIndex.Properties.GetColumnNames(storeObject);
-                    if (otherColumnNames != null
+                    if ((otherColumnNames != null || useOldBehavior)
                         && otherColumnNames.SequenceEqual(columnNames))
                     {
                         linkedIndex = otherIndex;
