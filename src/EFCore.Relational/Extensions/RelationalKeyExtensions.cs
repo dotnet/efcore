@@ -97,8 +97,8 @@ namespace Microsoft.EntityFrameworkCore
             }
             else
             {
-                var propertyNames = key.Properties.GetColumnNames(storeObject);
-                if (propertyNames == null)
+                var columnNames = key.Properties.GetColumnNames(storeObject);
+                if (columnNames == null)
                 {
                     return null;
                 }
@@ -114,7 +114,9 @@ namespace Microsoft.EntityFrameworkCore
                         .FindRowInternalForeignKeys(storeObject)
                         .SelectMany(fk => fk.PrincipalEntityType.GetKeys()))
                     {
-                        if (otherKey.Properties.GetColumnNames(storeObject).SequenceEqual(propertyNames))
+                        var otherColumnNames = otherKey.Properties.GetColumnNames(storeObject);
+                        if (otherColumnNames != null
+                            && otherColumnNames.SequenceEqual(columnNames))
                         {
                             linkedKey = otherKey;
                             break;
@@ -138,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore
                     .Append("AK_")
                     .Append(storeObject.Name)
                     .Append("_")
-                    .AppendJoin(propertyNames, "_")
+                    .AppendJoin(columnNames, "_")
                     .ToString();
             }
 

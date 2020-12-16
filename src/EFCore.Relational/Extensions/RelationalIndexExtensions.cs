@@ -84,8 +84,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The default name that would be used for this index. </returns>
         public static string GetDefaultDatabaseName([NotNull] this IIndex index, in StoreObjectIdentifier storeObject)
         {
-            var propertyNames = index.Properties.GetColumnNames(storeObject);
-            if (propertyNames == null)
+            var columnNames = index.Properties.GetColumnNames(storeObject);
+            if (columnNames == null)
             {
                 return null;
             }
@@ -101,7 +101,9 @@ namespace Microsoft.EntityFrameworkCore
                     .FindRowInternalForeignKeys(storeObject)
                     .SelectMany(fk => fk.PrincipalEntityType.GetIndexes()))
                 {
-                    if (otherIndex.Properties.GetColumnNames(storeObject).SequenceEqual(propertyNames))
+                    var otherColumnNames = otherIndex.Properties.GetColumnNames(storeObject);
+                    if (otherColumnNames != null
+                        && otherColumnNames.SequenceEqual(columnNames))
                     {
                         linkedIndex = otherIndex;
                         break;
@@ -125,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore
                 .Append("IX_")
                 .Append(storeObject.Name)
                 .Append("_")
-                .AppendJoin(propertyNames, "_")
+                .AppendJoin(columnNames, "_")
                 .ToString();
 
             return Uniquifier.Truncate(baseName, index.DeclaringEntityType.Model.GetMaxIdentifierLength());
