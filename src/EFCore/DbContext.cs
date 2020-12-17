@@ -718,6 +718,10 @@ namespace Microsoft.EntityFrameworkCore
                 _database.AutoTransactionsEnabled
                     = _configurationSnapshot?.AutoTransactionsEnabled == null
                     || _configurationSnapshot.AutoTransactionsEnabled.Value;
+
+                _database.AutoSavepointsEnabled
+                    = _configurationSnapshot?.AutoSavepointsEnabled == null
+                    || _configurationSnapshot.AutoSavepointsEnabled.Value;
             }
         }
 
@@ -733,6 +737,7 @@ namespace Microsoft.EntityFrameworkCore
                 _changeTracker?.AutoDetectChangesEnabled,
                 _changeTracker?.QueryTrackingBehavior,
                 _database?.AutoTransactionsEnabled,
+                _database?.AutoSavepointsEnabled,
                 _changeTracker?.LazyLoadingEnabled,
                 _changeTracker?.CascadeDeleteTiming,
                 _changeTracker?.DeleteOrphansTiming);
