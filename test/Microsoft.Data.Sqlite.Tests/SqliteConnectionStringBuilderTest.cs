@@ -47,9 +47,9 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Ctor_parses_ForeignKeys()
         {
-            var builder = new SqliteConnectionStringBuilder("Foreign Keys=True");
+            var builder = new SqliteConnectionStringBuilder("Foreign Keys=On");
 
-            Assert.True(builder.ForeignKeys);
+            Assert.Equal(SqliteForeignKeys.On, builder.ForeignKeys);
         }
 
         [Fact]
@@ -246,13 +246,25 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Theory]
-        [InlineData(1, true)]
-        [InlineData("True", true)]
-        [InlineData(0, false)]
-        [InlineData("False", false)]
-        [InlineData(null, null)]
-        [InlineData("", null)]
-        public void Item_converts_to_bool_on_set(object value, bool? expected)
+        [InlineData(1, SqliteForeignKeys.On)]
+        [InlineData("True", SqliteForeignKeys.On)]
+        [InlineData(SqliteForeignKeys.On, SqliteForeignKeys.On)]
+        [InlineData("On", SqliteForeignKeys.On)]
+        [InlineData("1", SqliteForeignKeys.On)]
+        [InlineData(true, SqliteForeignKeys.On)]
+        [InlineData(0, SqliteForeignKeys.Off)]
+        [InlineData("False", SqliteForeignKeys.Off)]
+        [InlineData(SqliteForeignKeys.Off, SqliteForeignKeys.Off)]
+        [InlineData("Off", SqliteForeignKeys.Off)]
+        [InlineData("0", SqliteForeignKeys.Off)]
+        [InlineData(false, SqliteForeignKeys.Off)]
+        [InlineData(-1, SqliteForeignKeys.Default)]
+        [InlineData("", SqliteForeignKeys.Default)]
+        [InlineData(null, SqliteForeignKeys.Default)]
+        [InlineData(SqliteForeignKeys.Default, SqliteForeignKeys.Default)]
+        [InlineData("Default", SqliteForeignKeys.Default)]
+        [InlineData("-1", SqliteForeignKeys.Default)]
+        public void Item_converts_to_SqliteForeignKeys_on_set(object value, SqliteForeignKeys expected)
         {
             var builder = new SqliteConnectionStringBuilder();
 
@@ -261,25 +273,36 @@ namespace Microsoft.Data.Sqlite
             Assert.Equal(expected, builder["Foreign Keys"]);
         }
 
-        [Theory]
-        [InlineData("1")]
-        [InlineData("Yes")]
-        [InlineData("On")]
-        [InlineData("0")]
-        [InlineData("No")]
-        [InlineData("Off")]
-        public void Item_throws_when_cannot_convert_to_bool_on_set(object value)
+        [Fact]
+        public void Item_converts_to_SqliteForeignKeys_from_nullable_on_set()
         {
             var builder = new SqliteConnectionStringBuilder();
 
-            Assert.ThrowsAny<FormatException>(() => builder["Foreign Keys"] = value);
+            builder["Foreign Keys"] = (bool?)true;
+            Assert.Equal(SqliteForeignKeys.On, builder["Foreign Keys"]);
+
+            builder["Foreign Keys"] = (bool?)false;
+            Assert.Equal(SqliteForeignKeys.Off, builder["Foreign Keys"]);
+
+            builder["Foreign Keys"] = default(bool?);
+            Assert.Equal(SqliteForeignKeys.Default, builder["Foreign Keys"]);
+        }
+
+        [Theory]
+        [InlineData("Yes")]
+        [InlineData("No")]
+        public void Item_throws_when_cannot_convert_to_SqliteForeignKeys_on_set(object value)
+        {
+            var builder = new SqliteConnectionStringBuilder();
+
+            Assert.ThrowsAny<ArgumentException>(() => builder["Foreign Keys"] = value);
         }
 
         [Fact]
         public void Clear_resets_everything()
         {
             var builder = new SqliteConnectionStringBuilder(
-                "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True;Default Timeout=1");
+                "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=On;Recursive Triggers=True;Default Timeout=1");
 
             builder.Clear();
 
@@ -287,7 +310,7 @@ namespace Microsoft.Data.Sqlite
             Assert.Equal(SqliteOpenMode.ReadWriteCreate, builder.Mode);
             Assert.Equal(SqliteCacheMode.Default, builder.Cache);
             Assert.Empty(builder.Password);
-            Assert.Null(builder.ForeignKeys);
+            Assert.Equal(SqliteForeignKeys.Default, builder.ForeignKeys);
             Assert.False(builder.RecursiveTriggers);
             Assert.Equal(30, builder.DefaultTimeout);
         }
@@ -370,13 +393,13 @@ namespace Microsoft.Data.Sqlite
                 Cache = SqliteCacheMode.Shared,
                 Mode = SqliteOpenMode.Memory,
                 Password = "test",
-                ForeignKeys = true,
+                ForeignKeys = SqliteForeignKeys.On,
                 RecursiveTriggers = true,
                 DefaultTimeout = 1
             };
 
             Assert.Equal(
-                "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True;Default Timeout=1",
+                "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=On;Recursive Triggers=True;Default Timeout=1",
                 builder.ToString());
         }
 

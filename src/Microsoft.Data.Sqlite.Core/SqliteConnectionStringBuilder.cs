@@ -49,7 +49,7 @@ namespace Microsoft.Data.Sqlite
         private SqliteOpenMode _mode = SqliteOpenMode.ReadWriteCreate;
         private SqliteCacheMode _cache = SqliteCacheMode.Default;
         private string _password = string.Empty;
-        private bool? _foreignKeys;
+        private SqliteForeignKeys _foreignKeys = SqliteForeignKeys.Default;
         private bool _recursiveTriggers;
         private int _defaultTimeout = 30;
 
@@ -134,13 +134,13 @@ namespace Microsoft.Data.Sqlite
         {
             get
             {
-                var values = new object?[_validKeywords.Count];
+                var values = new object[_validKeywords.Count];
                 for (var i = 0; i < _validKeywords.Count; i++)
                 {
-                    values[i] = GetAt((Keywords)i);
+                    values[i] = GetAt((Keywords)i)!;
                 }
 
-                return new ReadOnlyCollection<object?>(values);
+                return new ReadOnlyCollection<object>(values);
             }
         }
 
@@ -174,7 +174,7 @@ namespace Microsoft.Data.Sqlite
         ///     keys if, like in e_sqlite3, SQLITE_DEFAULT_FOREIGN_KEYS was used to compile the native library.
         /// </summary>
         /// <value>A value indicating whether to enable foreign key constraints.</value>
-        public bool? ForeignKeys
+        public SqliteForeignKeys ForeignKeys
         {
             get => _foreignKeys;
             set => base[ForeignKeysKeyword] = _foreignKeys = value;
@@ -207,11 +207,10 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <param name="keyword">The key.</param>
         /// <returns>The value.</returns>
-        public override object? this[string keyword]
+        [AllowNull]
+        public override object this[string keyword]
         {
-#pragma warning disable CS8764 // NB: this["Foreign Keys"] may return null
-            get => GetAt(GetIndex(keyword));
-#pragma warning restore CS8764
+            get => GetAt(GetIndex(keyword))!;
             set
             {
                 if (value == null)
@@ -240,7 +239,7 @@ namespace Microsoft.Data.Sqlite
                         return;
 
                     case Keywords.ForeignKeys:
-                        ForeignKeys = ConvertToNullableBoolean(value);
+                        ForeignKeys = ConvertToSqliteForeignKeys(value);
                         return;
 
                     case Keywords.RecursiveTriggers:
@@ -291,15 +290,35 @@ namespace Microsoft.Data.Sqlite
             return enumValue;
         }
 
-        private static bool? ConvertToNullableBoolean(object value)
+        private static SqliteForeignKeys ConvertToSqliteForeignKeys(object value)
         {
-            if (value == null
-                || (value is string stringValue && stringValue.Length == 0))
+            if (value == null)
             {
-                return null;
+                return SqliteForeignKeys.Default;
+            }
+            if (value.Equals(true))
+            {
+                return SqliteForeignKeys.On;
+            }
+            if (value.Equals(false))
+            {
+                return SqliteForeignKeys.Off;
+            }
+            if (value is string textValue)
+            {
+                if (textValue.Length == 0)
+                {
+                    return SqliteForeignKeys.Default;
+                }
+                if (bool.TryParse(textValue, out var boolValue))
+                {
+                    return boolValue
+                        ? SqliteForeignKeys.On
+                        : SqliteForeignKeys.Off;
+                }
             }
 
-            return Convert.ToBoolean(value, CultureInfo.InvariantCulture);
+            return ConvertToEnum<SqliteForeignKeys>(value);
         }
 
         /// <summary>
@@ -355,9 +374,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="keyword">The key.</param>
         /// <param name="value">The value.</param>
         /// <returns><see langword="true" /> if the key was used; otherwise, <see langword="false" />. </returns>
-#pragma warning disable CS8765 // NB: TryGetValue("Foreign Keys", out value) returns true, but value may be null
-        public override bool TryGetValue(string keyword, out object? value)
-#pragma warning restore CS8765
+        public override bool TryGetValue(string keyword, [NotNullWhen(true)] out object? value)
         {
             if (!_keywords.TryGetValue(keyword, out var index))
             {
@@ -366,7 +383,7 @@ namespace Microsoft.Data.Sqlite
                 return false;
             }
 
-            value = GetAt(index);
+            value = GetAt(index)!;
 
             return true;
         }
@@ -428,7 +445,7 @@ namespace Microsoft.Data.Sqlite
                     return;
 
                 case Keywords.ForeignKeys:
-                    _foreignKeys = null;
+                    _foreignKeys = SqliteForeignKeys.Default;
                     return;
 
                 case Keywords.RecursiveTriggers:

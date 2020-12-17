@@ -369,8 +369,8 @@ namespace Microsoft.Data.Sqlite
 #endif
 
         [Theory]
-        [InlineData("True", 1L)]
-        [InlineData("False", 0L)]
+        [InlineData("On", 1L)]
+        [InlineData("Off", 0L)]
         public void Open_works_when_foreign_keys(string foreignKeys, long expected)
         {
             using (var connection = new SqliteConnection("Data Source=:memory:;Foreign Keys=" + foreignKeys))

@@ -268,10 +268,10 @@ namespace Microsoft.Data.Sqlite
                     }
                 }
 
-                if (ConnectionOptions.ForeignKeys.HasValue)
+                if (ConnectionOptions.ForeignKeys != SqliteForeignKeys.Default)
                 {
                     this.ExecuteNonQuery(
-                        "PRAGMA foreign_keys = " + (ConnectionOptions.ForeignKeys.Value ? "1" : "0") + ";");
+                        "PRAGMA foreign_keys = " + (ConnectionOptions.ForeignKeys == SqliteForeignKeys.On ? "1" : "0") + ";");
                 }
 
                 if (ConnectionOptions.RecursiveTriggers)
