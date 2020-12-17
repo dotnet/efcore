@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private bool _nullable;
         private string? _storeType;
         private RelationalTypeMapping? _typeMapping;
-        private Func<IReadOnlyCollection<SqlExpression>, SqlExpression>? _translation;
+        private Func<IReadOnlyList<SqlExpression>, SqlExpression>? _translation;
 
         private ConfigurationSource _configurationSource;
         private ConfigurationSource? _schemaConfigurationSource;
@@ -544,7 +544,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Func<IReadOnlyCollection<SqlExpression>, SqlExpression>? Translation
+        public virtual Func<IReadOnlyList<SqlExpression>, SqlExpression>? Translation
         {
             get => _translation;
             set => SetTranslation(value, ConfigurationSource.Explicit);
@@ -556,8 +556,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Func<IReadOnlyCollection<SqlExpression>, SqlExpression>? SetTranslation(
-            [CanBeNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression>? translation,
+        public virtual Func<IReadOnlyList<SqlExpression>, SqlExpression>? SetTranslation(
+            [CanBeNull] Func<IReadOnlyList<SqlExpression>, SqlExpression>? translation,
             ConfigurationSource configurationSource)
         {
             if (translation != null
@@ -696,8 +696,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        Func<IReadOnlyCollection<SqlExpression>, SqlExpression>? IConventionDbFunction.SetTranslation(
-            Func<IReadOnlyCollection<SqlExpression>, SqlExpression>? translation,
+        Func<IReadOnlyList<SqlExpression>, SqlExpression>? IConventionDbFunction.SetTranslation(
+            Func<IReadOnlyList<SqlExpression>, SqlExpression>? translation,
             bool fromDataAnnotation)
             => SetTranslation(translation, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 

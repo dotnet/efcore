@@ -60,6 +60,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets or sets the translation callback for performing custom translation of the method call into a SQL expression fragment.
         /// </summary>
-        new Func<IReadOnlyCollection<SqlExpression>, SqlExpression>? Translation { get; [param: CanBeNull] set; }
+        new Func<IReadOnlyList<SqlExpression>, SqlExpression>? Translation { get; [param: CanBeNull] set; }
     }
 }

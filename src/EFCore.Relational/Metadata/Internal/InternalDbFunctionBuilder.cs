@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IConventionDbFunctionBuilder? HasTranslation(
-            [CanBeNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression>? translation,
+            [CanBeNull] Func<IReadOnlyList<SqlExpression>, SqlExpression>? translation,
             ConfigurationSource configurationSource)
         {
             if (CanSetTranslation(translation, configurationSource))
@@ -226,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CanSetTranslation(
-            [CanBeNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression>? translation,
+            [CanBeNull] Func<IReadOnlyList<SqlExpression>, SqlExpression>? translation,
             ConfigurationSource configurationSource)
             => (Metadata.IsScalar && !Metadata.IsAggregate || configurationSource == ConfigurationSource.Explicit)
                 && (configurationSource.Overrides(Metadata.GetTranslationConfigurationSource())
@@ -319,14 +319,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         /// <inheritdoc />
         [DebuggerStepThrough]
         IConventionDbFunctionBuilder? IConventionDbFunctionBuilder.HasTranslation(
-            Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation,
+            Func<IReadOnlyList<SqlExpression>, SqlExpression> translation,
             bool fromDataAnnotation)
             => HasTranslation(translation, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
         bool IConventionDbFunctionBuilder.CanSetTranslation(
-            Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation,
+            Func<IReadOnlyList<SqlExpression>, SqlExpression> translation,
             bool fromDataAnnotation)
             => CanSetTranslation(translation, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
