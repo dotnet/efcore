@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Obsolete("Use the constructor which takes populated column expressions map.", error: true)]
         public EntityProjectionExpression([NotNull] IEntityType entityType, [NotNull] TableExpressionBase innerTable, bool nullable)
         {
-            throw new NotSupportedException();
+            throw new NotSupportedException("Obsolete: Use the constructor which takes populated column expressions map.");
         }
 
         /// <summary>

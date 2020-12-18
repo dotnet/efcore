@@ -721,6 +721,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 method);
 
         /// <summary>
+        ///     The 'Down' method for this migration has not been implemented. Both the 'Up' abd 'Down' methods must be implemented to support reverting migrations.
+        /// </summary>
+        public static string MigrationDownMissing
+            => GetString("MigrationDownMissing");
+
+        /// <summary>
         ///     The entity type '{entityType}' is mapped to the DbFunction named '{functionName}', but no DbFunction with that name was found in the model. Ensure that the entity type mapping is configured using the model name of a function in the model.
         /// </summary>
         public static string MappedFunctionNotFound([CanBeNull] object? entityType, [CanBeNull] object? functionName)

@@ -824,6 +824,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 invalidDependentType, invalidPrincipalType, dependentType, principalType);
 
         /// <summary>
+        ///     This enumerator cannot be reset.
+        /// </summary>
+        public static string EnumerableResetNotSupported
+            => GetString("EnumerableResetNotSupported");
+
+        /// <summary>
         ///     Cannot use multiple context instances within a single query execution. Ensure the query uses a single context instance.
         /// </summary>
         public static string ErrorInvalidQueryable
@@ -2283,6 +2289,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string RuntimeParameterMissingParameter
             => GetString("RuntimeParameterMissingParameter");
+
+        /// <summary>
+        ///     Savepoints are not supported by the database provider in use.
+        /// </summary>
+        public static string SavepointsNotSupported
+            => GetString("SavepointsNotSupported");
 
         /// <summary>
         ///     The seed entity for entity type '{entityType}' cannot be added because a default value was provided for the required property '{property}'. Please provide a value different from '{defaultValue}'.

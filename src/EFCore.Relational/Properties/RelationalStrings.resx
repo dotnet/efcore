@@ -608,6 +608,9 @@
   <data name="MethodOnNonTPHRootNotSupported" xml:space="preserve">
     <value>Using '{methodName}' on DbSet of '{entityType}' is not supported since '{entityType}' is part of hierarchy and does not contain a discriminator property.</value>
   </data>
+  <data name="MigrationDownMissing" xml:space="preserve">
+    <value>The 'Down' method for this migration has not been implemented. Both the 'Up' abd 'Down' methods must be implemented to support reverting migrations.</value>
+  </data>
   <data name="MigrationNotFound" xml:space="preserve">
     <value>The migration '{migrationName}' was not found.</value>
   </data>
