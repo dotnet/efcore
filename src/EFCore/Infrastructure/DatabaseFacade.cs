@@ -311,6 +311,23 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     <para>
+        ///         Whether a transaction savepoint will be created automatically by <see cref="DbContext.SaveChanges()" /> if it is called
+        ///         after a transaction has been manually started with <see cref="BeginTransaction" />.
+        ///     </para>
+        ///     <para>
+        ///         The default value is <see langword="true" />, meaning that <see cref="DbContext.SaveChanges()" /> will create a
+        ///         transaction savepoint within a manually-started transaction. Regardless of this property, savepoints are only created
+        ///         if the data provider supports them; see <see cref="IDbContextTransaction.SupportsSavepoints"/>.
+        ///     </para>
+        ///     <para>
+        ///         Setting this value to <see langword="false" /> should only be done with caution since the database could be left in a
+        ///         corrupted state if <see cref="DbContext.SaveChanges()" /> fails.
+        ///     </para>
+        /// </summary>
+        public virtual bool AutoSavepointsEnabled { get; set; } = true;
+
+        /// <summary>
+        ///     <para>
         ///         Returns the name of the database provider currently in use.
         ///         The name is typically the name of the provider assembly.
         ///         It is usually easier to use a sugar method such as
