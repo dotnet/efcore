@@ -1103,6 +1103,63 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #endregion
 
+        #region Issue23687
+
+        [ConditionalFact]
+        public virtual void Owned_reference_with_composite_key()
+        {
+            using (CreateScratch<MyContext23687>(Seed23687, "23687"))
+            {
+                using var context = new MyContext23687();
+
+                var query = context.Table.ToList();
+
+                var root = Assert.Single(query);
+                Assert.Equal("A", root.OwnedProp.A);
+                Assert.Equal("B", root.OwnedProp.B);
+            }
+        }
+
+        private static void Seed23687(MyContext23687 context)
+        {
+            context.Table.Add(new Root23687 { Id1 = 1, Id2 = 11, OwnedProp = new OwnedClass23687 { A = "A", B = "B" } });
+
+            context.SaveChanges();
+        }
+
+        [Owned]
+        public class OwnedClass23687
+        {
+            public string A { get; set; }
+            public string B { get; set; }
+        }
+
+        public class Root23687
+        {
+            public int Id1 { get; set; }
+            public int Id2 { get; set; }
+            public OwnedClass23687 OwnedProp { get; set; }
+        }
+
+        private class MyContext23687 : DbContext
+        {
+            public DbSet<Root23687> Table { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("23687");
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Root23687>().HasKey(e => new { e.Id1, e.Id2 });
+            }
+        }
+
+        #endregion
+
         #region SharedHelper
 
         private static InMemoryTestStore CreateScratch<TContext>(Action<TContext> seed, string databaseName)
