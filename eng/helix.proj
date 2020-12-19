@@ -44,6 +44,7 @@
     <XUnitProject Remove="$(RepoRoot)/test/**/*.csproj"/>
     <XUnitProject Include="$(SqlServerTests);$(RepoRoot)/test/EFCore.CrossStore.FunctionalTests/*.csproj">
       <PreCommands>$(PreCommands); export MSSQL_SA_PASSWORD=$(MSSQL_SA_PASSWORD); /opt/mssql/bin/sqlservr --accept-eula &amp;; export Test__SqlServer__DefaultConnection="Data Source=localhost;;Database=master;;User=sa;;Password=$(MSSQL_SA_PASSWORD);;Connect Timeout=60;;ConnectRetryCount=0"; sleep 120</PreCommands>
+      <XUnitWorkItemTimeout>01:00:00</XUnitWorkItemTimeout>
     </XUnitProject>
   </ItemGroup>
 
@@ -57,6 +58,6 @@
     <XUnitRuntimeTargetFramework>netcoreapp2.0</XUnitRuntimeTargetFramework>
     <XUnitRunnerVersion>2.4.1</XUnitRunnerVersion>
     <XUnitArguments></XUnitArguments>
-    <XUnitWorkItemTimeout>00:30:00</XUnitWorkItemTimeout>
+    <XUnitWorkItemTimeout Condition = "'$(XUnitWorkItemTimeout)' == ''">00:30:00</XUnitWorkItemTimeout>
   </PropertyGroup>
 </Project>
