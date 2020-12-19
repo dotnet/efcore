@@ -14,7 +14,7 @@
     <FailOnTestFailure>true</FailOnTestFailure>
     <EnableXUnitReporter>true</EnableXUnitReporter>
     <FailOnMissionControlTestFailure>true</FailOnMissionControlTestFailure>
-    <SqlServerTests>$(RepoRoot)/test/EFCore.SqlServer.FunctionalTests/*.csproj;$(RepoRoot)/test/EFCore.OData.FunctionalTests/*.csproj</SqlServerTests>
+    <SqlServerTests>$(RepoRoot)/test/EFCore.SqlServer.FunctionalTests/*.csproj;$(RepoRoot)/test/EFCore.OData.FunctionalTests/*.csproj;$(RepoRoot)/test/EFCore.AspNet.SqlServer.FunctionalTests/*.csproj</SqlServerTests>
   </PropertyGroup>
 
   <PropertyGroup Condition = "'$(SYSTEM_ACCESSTOKEN)' == ''">
@@ -29,6 +29,7 @@
   <ItemGroup>
     <XUnitProject Include="$(RepoRoot)/test/**/*.csproj"/>
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.Specification.Tests/*.csproj"/>
+    <XUnitProject Remove="$(RepoRoot)/test/EFCore.AspNet.Specification.Tests/*.csproj"/>
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.Relational.Specification.Tests/*.csproj"/>
   </ItemGroup>
 
