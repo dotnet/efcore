@@ -37,6 +37,19 @@ namespace Microsoft.EntityFrameworkCore
             => Fixture = fixture;
 
         [ConditionalFact]
+        public void Can_build_identity_model()
+        {
+            using (var context = CreateContext())
+            {
+                var entityTypeMappings = context.Model.GetEntityTypes().Select(e => new EntityTypeMapping(e)).ToList();
+
+                EntityTypeMapping.AssertEqual(ExpectedMappings, entityTypeMappings);
+            }
+        }
+
+        protected abstract List<EntityTypeMapping> ExpectedMappings { get; }
+
+        [ConditionalFact]
         public async Task Can_call_UserStore_FindByNameAsync()
         {
             var user = new TUser { NormalizedUserName = "wendy" };

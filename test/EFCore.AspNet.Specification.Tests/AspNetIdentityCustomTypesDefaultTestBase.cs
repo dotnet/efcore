@@ -24,18 +24,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Can_build_string_key_identity_model_with_custom_types()
-        {
-            using (var context = CreateContext())
-            {
-                var entityTypeMappings = context.Model.GetEntityTypes().Select(e => new EntityTypeMapping(e)).ToList();
-
-                EntityTypeMapping.AssertEqual(CustomTypesDefaultMappings, entityTypeMappings);
-                //throw new Exception(EntityTypeMapping.Serialize(entityTypeMappings));
-            }
-        }
-
-        [ConditionalFact]
         public async Task Can_lazy_load_User_navigations()
         {
             var userId = "";
@@ -152,173 +140,174 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        protected readonly List<EntityTypeMapping> CustomTypesDefaultMappings = new()
-        {
-            new()
+        protected override List<EntityTypeMapping> ExpectedMappings
+            => new()
             {
-                Name = "Microsoft.EntityFrameworkCore.CustomRoleClaimString",
-                TableName = "MyRoleClaims",
-                PrimaryKey = "Key: CustomRoleClaimString.Id PK",
-                Properties =
+                new()
                 {
-                    "Property: CustomRoleClaimString.Id (int) Required PK AfterSave:Throw ValueGenerated.OnAdd",
-                    "Property: CustomRoleClaimString.ClaimType (string)",
-                    "Property: CustomRoleClaimString.ClaimValue (string)",
-                    "Property: CustomRoleClaimString.RoleId (string) Required FK Index",
+                    Name = "Microsoft.EntityFrameworkCore.CustomRoleClaimString",
+                    TableName = "MyRoleClaims",
+                    PrimaryKey = "Key: CustomRoleClaimString.Id PK",
+                    Properties =
+                    {
+                        "Property: CustomRoleClaimString.Id (int) Required PK AfterSave:Throw ValueGenerated.OnAdd",
+                        "Property: CustomRoleClaimString.ClaimType (string)",
+                        "Property: CustomRoleClaimString.ClaimValue (string)",
+                        "Property: CustomRoleClaimString.RoleId (string) Required FK Index",
+                    },
+                    Indexes = { "{'RoleId'} ", },
+                    FKs =
+                    {
+                        "ForeignKey: CustomRoleClaimString {'RoleId'} -> CustomRoleString {'Id'} ToDependent: RoleClaims ToPrincipal: Role Cascade",
+                    },
+                    Navigations =
+                    {
+                        "Navigation: CustomRoleClaimString.Role (CustomRoleString) ToPrincipal CustomRoleString Inverse: RoleClaims PropertyAccessMode.Field",
+                    },
                 },
-                Indexes = { "{'RoleId'} ", },
-                FKs =
+                new()
                 {
-                    "ForeignKey: CustomRoleClaimString {'RoleId'} -> CustomRoleString {'Id'} ToDependent: RoleClaims ToPrincipal: Role Cascade",
+                    Name = "Microsoft.EntityFrameworkCore.CustomRoleString",
+                    TableName = "MyRoles",
+                    PrimaryKey = "Key: CustomRoleString.Id PK",
+                    Properties =
+                    {
+                        "Property: CustomRoleString.Id (string) Required PK AfterSave:Throw",
+                        "Property: CustomRoleString.ConcurrencyStamp (string) Concurrency",
+                        "Property: CustomRoleString.Name (string) MaxLength(256)",
+                        "Property: CustomRoleString.NormalizedName (string) Index MaxLength(256)",
+                    },
+                    Indexes = { "{'NormalizedName'} Unique", },
+                    Navigations =
+                    {
+                        "Navigation: CustomRoleString.RoleClaims (ICollection<CustomRoleClaimString>) Collection ToDependent CustomRoleClaimString Inverse: Role PropertyAccessMode.Field",
+                        "Navigation: CustomRoleString.UserRoles (ICollection<CustomUserRoleString>) Collection ToDependent CustomUserRoleString Inverse: Role PropertyAccessMode.Field",
+                    },
                 },
-                Navigations =
+                new()
                 {
-                    "Navigation: CustomRoleClaimString.Role (CustomRoleString) ToPrincipal CustomRoleString Inverse: RoleClaims PropertyAccessMode.Field",
+                    Name = "Microsoft.EntityFrameworkCore.CustomUserClaimString",
+                    TableName = "MyUserClaims",
+                    PrimaryKey = "Key: CustomUserClaimString.Id PK",
+                    Properties =
+                    {
+                        "Property: CustomUserClaimString.Id (int) Required PK AfterSave:Throw ValueGenerated.OnAdd",
+                        "Property: CustomUserClaimString.ClaimType (string)",
+                        "Property: CustomUserClaimString.ClaimValue (string)",
+                        "Property: CustomUserClaimString.UserId (string) Required FK Index",
+                    },
+                    Indexes = { "{'UserId'} ", },
+                    FKs =
+                    {
+                        "ForeignKey: CustomUserClaimString {'UserId'} -> CustomUserString {'Id'} ToDependent: Claims ToPrincipal: User Cascade",
+                    },
+                    Navigations =
+                    {
+                        "Navigation: CustomUserClaimString.User (CustomUserString) ToPrincipal CustomUserString Inverse: Claims PropertyAccessMode.Field",
+                    },
                 },
-            },
-            new()
-            {
-                Name = "Microsoft.EntityFrameworkCore.CustomRoleString",
-                TableName = "MyRoles",
-                PrimaryKey = "Key: CustomRoleString.Id PK",
-                Properties =
+                new()
                 {
-                    "Property: CustomRoleString.Id (string) Required PK AfterSave:Throw",
-                    "Property: CustomRoleString.ConcurrencyStamp (string) Concurrency",
-                    "Property: CustomRoleString.Name (string) MaxLength(256)",
-                    "Property: CustomRoleString.NormalizedName (string) Index MaxLength(256)",
+                    Name = "Microsoft.EntityFrameworkCore.CustomUserLoginString",
+                    TableName = "MyUserLogins",
+                    PrimaryKey = "Key: CustomUserLoginString.LoginProvider, CustomUserLoginString.ProviderKey PK",
+                    Properties =
+                    {
+                        "Property: CustomUserLoginString.LoginProvider (string) Required PK AfterSave:Throw",
+                        "Property: CustomUserLoginString.ProviderKey (string) Required PK AfterSave:Throw",
+                        "Property: CustomUserLoginString.ProviderDisplayName (string)",
+                        "Property: CustomUserLoginString.UserId (string) Required FK Index",
+                    },
+                    Indexes = { "{'UserId'} ", },
+                    FKs =
+                    {
+                        "ForeignKey: CustomUserLoginString {'UserId'} -> CustomUserString {'Id'} ToDependent: Logins ToPrincipal: User Cascade",
+                    },
+                    Navigations =
+                    {
+                        "Navigation: CustomUserLoginString.User (CustomUserString) ToPrincipal CustomUserString Inverse: Logins PropertyAccessMode.Field",
+                    },
                 },
-                Indexes = { "{'NormalizedName'} Unique", },
-                Navigations =
+                new()
                 {
-                    "Navigation: CustomRoleString.RoleClaims (ICollection<CustomRoleClaimString>) Collection ToDependent CustomRoleClaimString Inverse: Role PropertyAccessMode.Field",
-                    "Navigation: CustomRoleString.UserRoles (ICollection<CustomUserRoleString>) Collection ToDependent CustomUserRoleString Inverse: Role PropertyAccessMode.Field",
+                    Name = "Microsoft.EntityFrameworkCore.CustomUserRoleString",
+                    TableName = "MyUserRoles",
+                    PrimaryKey = "Key: CustomUserRoleString.UserId, CustomUserRoleString.RoleId PK",
+                    Properties =
+                    {
+                        "Property: CustomUserRoleString.UserId (string) Required PK FK AfterSave:Throw",
+                        "Property: CustomUserRoleString.RoleId (string) Required PK FK Index AfterSave:Throw",
+                    },
+                    Indexes = { "{'RoleId'} ", },
+                    FKs =
+                    {
+                        "ForeignKey: CustomUserRoleString {'RoleId'} -> CustomRoleString {'Id'} ToDependent: UserRoles ToPrincipal: Role Cascade",
+                        "ForeignKey: CustomUserRoleString {'UserId'} -> CustomUserString {'Id'} ToDependent: UserRoles ToPrincipal: User Cascade",
+                    },
+                    Navigations =
+                    {
+                        "Navigation: CustomUserRoleString.Role (CustomRoleString) ToPrincipal CustomRoleString Inverse: UserRoles PropertyAccessMode.Field",
+                        "Navigation: CustomUserRoleString.User (CustomUserString) ToPrincipal CustomUserString Inverse: UserRoles PropertyAccessMode.Field",
+                    },
                 },
-            },
-            new()
-            {
-                Name = "Microsoft.EntityFrameworkCore.CustomUserClaimString",
-                TableName = "MyUserClaims",
-                PrimaryKey = "Key: CustomUserClaimString.Id PK",
-                Properties =
+                new()
                 {
-                    "Property: CustomUserClaimString.Id (int) Required PK AfterSave:Throw ValueGenerated.OnAdd",
-                    "Property: CustomUserClaimString.ClaimType (string)",
-                    "Property: CustomUserClaimString.ClaimValue (string)",
-                    "Property: CustomUserClaimString.UserId (string) Required FK Index",
+                    Name = "Microsoft.EntityFrameworkCore.CustomUserString",
+                    TableName = "MyUsers",
+                    PrimaryKey = "Key: CustomUserString.Id PK",
+                    Properties =
+                    {
+                        "Property: CustomUserString.Id (string) Required PK AfterSave:Throw",
+                        "Property: CustomUserString.AccessFailedCount (int) Required",
+                        "Property: CustomUserString.ConcurrencyStamp (string) Concurrency",
+                        "Property: CustomUserString.CustomTag (string)",
+                        "Property: CustomUserString.Email (string) MaxLength(128)",
+                        "Property: CustomUserString.EmailConfirmed (bool) Required",
+                        "Property: CustomUserString.LockoutEnabled (bool) Required",
+                        "Property: CustomUserString.LockoutEnd (Nullable<DateTimeOffset>)",
+                        "Property: CustomUserString.NormalizedEmail (string) Index MaxLength(128)",
+                        "Property: CustomUserString.NormalizedUserName (string) Index MaxLength(128)",
+                        "Property: CustomUserString.PasswordHash (string)",
+                        "Property: CustomUserString.PhoneNumber (string)",
+                        "Property: CustomUserString.PhoneNumberConfirmed (bool) Required",
+                        "Property: CustomUserString.SecurityStamp (string)",
+                        "Property: CustomUserString.TwoFactorEnabled (bool) Required",
+                        "Property: CustomUserString.UserName (string) MaxLength(128)",
+                    },
+                    Indexes =
+                    {
+                        "{'NormalizedEmail'} ", "{'NormalizedUserName'} Unique",
+                    },
+                    Navigations =
+                    {
+                        "Navigation: CustomUserString.Claims (ICollection<CustomUserClaimString>) Collection ToDependent CustomUserClaimString Inverse: User PropertyAccessMode.Field",
+                        "Navigation: CustomUserString.Logins (ICollection<CustomUserLoginString>) Collection ToDependent CustomUserLoginString Inverse: User PropertyAccessMode.Field",
+                        "Navigation: CustomUserString.Tokens (ICollection<CustomUserTokenString>) Collection ToDependent CustomUserTokenString Inverse: User PropertyAccessMode.Field",
+                        "Navigation: CustomUserString.UserRoles (ICollection<CustomUserRoleString>) Collection ToDependent CustomUserRoleString Inverse: User PropertyAccessMode.Field",
+                    },
                 },
-                Indexes = { "{'UserId'} ", },
-                FKs =
+                new()
                 {
-                    "ForeignKey: CustomUserClaimString {'UserId'} -> CustomUserString {'Id'} ToDependent: Claims ToPrincipal: User Cascade",
+                    Name = "Microsoft.EntityFrameworkCore.CustomUserTokenString",
+                    TableName = "MyUserTokens",
+                    PrimaryKey = "Key: CustomUserTokenString.UserId, CustomUserTokenString.LoginProvider, CustomUserTokenString.Name PK",
+                    Properties =
+                    {
+                        "Property: CustomUserTokenString.UserId (string) Required PK FK AfterSave:Throw",
+                        "Property: CustomUserTokenString.LoginProvider (string) Required PK AfterSave:Throw MaxLength(128)",
+                        "Property: CustomUserTokenString.Name (string) Required PK AfterSave:Throw MaxLength(128)",
+                        "Property: CustomUserTokenString.Value (string)",
+                    },
+                    FKs =
+                    {
+                        "ForeignKey: CustomUserTokenString {'UserId'} -> CustomUserString {'Id'} ToDependent: Tokens ToPrincipal: User Cascade",
+                    },
+                    Navigations =
+                    {
+                        "Navigation: CustomUserTokenString.User (CustomUserString) ToPrincipal CustomUserString Inverse: Tokens PropertyAccessMode.Field",
+                    },
                 },
-                Navigations =
-                {
-                    "Navigation: CustomUserClaimString.User (CustomUserString) ToPrincipal CustomUserString Inverse: Claims PropertyAccessMode.Field",
-                },
-            },
-            new()
-            {
-                Name = "Microsoft.EntityFrameworkCore.CustomUserLoginString",
-                TableName = "MyUserLogins",
-                PrimaryKey = "Key: CustomUserLoginString.LoginProvider, CustomUserLoginString.ProviderKey PK",
-                Properties =
-                {
-                    "Property: CustomUserLoginString.LoginProvider (string) Required PK AfterSave:Throw",
-                    "Property: CustomUserLoginString.ProviderKey (string) Required PK AfterSave:Throw",
-                    "Property: CustomUserLoginString.ProviderDisplayName (string)",
-                    "Property: CustomUserLoginString.UserId (string) Required FK Index",
-                },
-                Indexes = { "{'UserId'} ", },
-                FKs =
-                {
-                    "ForeignKey: CustomUserLoginString {'UserId'} -> CustomUserString {'Id'} ToDependent: Logins ToPrincipal: User Cascade",
-                },
-                Navigations =
-                {
-                    "Navigation: CustomUserLoginString.User (CustomUserString) ToPrincipal CustomUserString Inverse: Logins PropertyAccessMode.Field",
-                },
-            },
-            new()
-            {
-                Name = "Microsoft.EntityFrameworkCore.CustomUserRoleString",
-                TableName = "MyUserRoles",
-                PrimaryKey = "Key: CustomUserRoleString.UserId, CustomUserRoleString.RoleId PK",
-                Properties =
-                {
-                    "Property: CustomUserRoleString.UserId (string) Required PK FK AfterSave:Throw",
-                    "Property: CustomUserRoleString.RoleId (string) Required PK FK Index AfterSave:Throw",
-                },
-                Indexes = { "{'RoleId'} ", },
-                FKs =
-                {
-                    "ForeignKey: CustomUserRoleString {'RoleId'} -> CustomRoleString {'Id'} ToDependent: UserRoles ToPrincipal: Role Cascade",
-                    "ForeignKey: CustomUserRoleString {'UserId'} -> CustomUserString {'Id'} ToDependent: UserRoles ToPrincipal: User Cascade",
-                },
-                Navigations =
-                {
-                    "Navigation: CustomUserRoleString.Role (CustomRoleString) ToPrincipal CustomRoleString Inverse: UserRoles PropertyAccessMode.Field",
-                    "Navigation: CustomUserRoleString.User (CustomUserString) ToPrincipal CustomUserString Inverse: UserRoles PropertyAccessMode.Field",
-                },
-            },
-            new()
-            {
-                Name = "Microsoft.EntityFrameworkCore.CustomUserString",
-                TableName = "MyUsers",
-                PrimaryKey = "Key: CustomUserString.Id PK",
-                Properties =
-                {
-                    "Property: CustomUserString.Id (string) Required PK AfterSave:Throw",
-                    "Property: CustomUserString.AccessFailedCount (int) Required",
-                    "Property: CustomUserString.ConcurrencyStamp (string) Concurrency",
-                    "Property: CustomUserString.CustomTag (string)",
-                    "Property: CustomUserString.Email (string) MaxLength(128)",
-                    "Property: CustomUserString.EmailConfirmed (bool) Required",
-                    "Property: CustomUserString.LockoutEnabled (bool) Required",
-                    "Property: CustomUserString.LockoutEnd (Nullable<DateTimeOffset>)",
-                    "Property: CustomUserString.NormalizedEmail (string) Index MaxLength(128)",
-                    "Property: CustomUserString.NormalizedUserName (string) Index MaxLength(128)",
-                    "Property: CustomUserString.PasswordHash (string)",
-                    "Property: CustomUserString.PhoneNumber (string)",
-                    "Property: CustomUserString.PhoneNumberConfirmed (bool) Required",
-                    "Property: CustomUserString.SecurityStamp (string)",
-                    "Property: CustomUserString.TwoFactorEnabled (bool) Required",
-                    "Property: CustomUserString.UserName (string) MaxLength(128)",
-                },
-                Indexes =
-                {
-                    "{'NormalizedEmail'} ", "{'NormalizedUserName'} Unique",
-                },
-                Navigations =
-                {
-                    "Navigation: CustomUserString.Claims (ICollection<CustomUserClaimString>) Collection ToDependent CustomUserClaimString Inverse: User PropertyAccessMode.Field",
-                    "Navigation: CustomUserString.Logins (ICollection<CustomUserLoginString>) Collection ToDependent CustomUserLoginString Inverse: User PropertyAccessMode.Field",
-                    "Navigation: CustomUserString.Tokens (ICollection<CustomUserTokenString>) Collection ToDependent CustomUserTokenString Inverse: User PropertyAccessMode.Field",
-                    "Navigation: CustomUserString.UserRoles (ICollection<CustomUserRoleString>) Collection ToDependent CustomUserRoleString Inverse: User PropertyAccessMode.Field",
-                },
-            },
-            new()
-            {
-                Name = "Microsoft.EntityFrameworkCore.CustomUserTokenString",
-                TableName = "MyUserTokens",
-                PrimaryKey = "Key: CustomUserTokenString.UserId, CustomUserTokenString.LoginProvider, CustomUserTokenString.Name PK",
-                Properties =
-                {
-                    "Property: CustomUserTokenString.UserId (string) Required PK FK AfterSave:Throw",
-                    "Property: CustomUserTokenString.LoginProvider (string) Required PK AfterSave:Throw MaxLength(128)",
-                    "Property: CustomUserTokenString.Name (string) Required PK AfterSave:Throw MaxLength(128)",
-                    "Property: CustomUserTokenString.Value (string)",
-                },
-                FKs =
-                {
-                    "ForeignKey: CustomUserTokenString {'UserId'} -> CustomUserString {'Id'} ToDependent: Tokens ToPrincipal: User Cascade",
-                },
-                Navigations =
-                {
-                    "Navigation: CustomUserTokenString.User (CustomUserString) ToPrincipal CustomUserString Inverse: Tokens PropertyAccessMode.Field",
-                },
-            },
-        };
+            };
     }
 
     public class CustomTypesIdentityContext : IdentityDbContext<CustomUserString, CustomRoleString, string, CustomUserClaimString,

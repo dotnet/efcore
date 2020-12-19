@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -19,18 +18,6 @@ namespace Microsoft.EntityFrameworkCore
         protected AspNetIdentityCustomTypesIntKeyTestBase(TFixture fixture)
             : base(fixture)
         {
-        }
-
-        [ConditionalFact]
-        public void Can_build_int_key_identity_model_with_custom_types()
-        {
-            using (var context = CreateContext())
-            {
-                var entityTypeMappings = context.Model.GetEntityTypes().Select(e => new EntityTypeMapping(e)).ToList();
-
-                EntityTypeMapping.AssertEqual(CustomTypesIntKeyMappings, entityTypeMappings);
-                //throw new Exception(EntityTypeMapping.Serialize(entityTypeMappings));
-            }
         }
 
         [ConditionalFact]
@@ -61,135 +48,136 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        protected readonly List<EntityTypeMapping> CustomTypesIntKeyMappings = new()
-        {
-            new()
+        protected override List<EntityTypeMapping> ExpectedMappings
+            => new()
             {
-                Name = "Microsoft.EntityFrameworkCore.CustomRoleClaimInt",
-                TableName = "AspNetRoleClaims",
-                PrimaryKey = "Key: CustomRoleClaimInt.Id PK",
-                Properties =
+                new()
                 {
-                    "Property: CustomRoleClaimInt.Id (int) Required PK AfterSave:Throw ValueGenerated.OnAdd",
-                    "Property: CustomRoleClaimInt.ClaimType (string)",
-                    "Property: CustomRoleClaimInt.ClaimValue (string)",
-                    "Property: CustomRoleClaimInt.RoleId (int) Required FK Index",
+                    Name = "Microsoft.EntityFrameworkCore.CustomRoleClaimInt",
+                    TableName = "AspNetRoleClaims",
+                    PrimaryKey = "Key: CustomRoleClaimInt.Id PK",
+                    Properties =
+                    {
+                        "Property: CustomRoleClaimInt.Id (int) Required PK AfterSave:Throw ValueGenerated.OnAdd",
+                        "Property: CustomRoleClaimInt.ClaimType (string)",
+                        "Property: CustomRoleClaimInt.ClaimValue (string)",
+                        "Property: CustomRoleClaimInt.RoleId (int) Required FK Index",
+                    },
+                    Indexes = { "{'RoleId'} ", },
+                    FKs = { "ForeignKey: CustomRoleClaimInt {'RoleId'} -> CustomRoleInt {'Id'} Cascade", },
                 },
-                Indexes = { "{'RoleId'} ", },
-                FKs = { "ForeignKey: CustomRoleClaimInt {'RoleId'} -> CustomRoleInt {'Id'} Cascade", },
-            },
-            new()
-            {
-                Name = "Microsoft.EntityFrameworkCore.CustomRoleInt",
-                TableName = "AspNetRoles",
-                PrimaryKey = "Key: CustomRoleInt.Id PK",
-                Properties =
+                new()
                 {
-                    "Property: CustomRoleInt.Id (int) Required PK AfterSave:Throw ValueGenerated.OnAdd",
-                    "Property: CustomRoleInt.ConcurrencyStamp (string) Concurrency",
-                    "Property: CustomRoleInt.Name (string) MaxLength(256)",
-                    "Property: CustomRoleInt.NormalizedName (string) Index MaxLength(256)",
+                    Name = "Microsoft.EntityFrameworkCore.CustomRoleInt",
+                    TableName = "AspNetRoles",
+                    PrimaryKey = "Key: CustomRoleInt.Id PK",
+                    Properties =
+                    {
+                        "Property: CustomRoleInt.Id (int) Required PK AfterSave:Throw ValueGenerated.OnAdd",
+                        "Property: CustomRoleInt.ConcurrencyStamp (string) Concurrency",
+                        "Property: CustomRoleInt.Name (string) MaxLength(256)",
+                        "Property: CustomRoleInt.NormalizedName (string) Index MaxLength(256)",
+                    },
+                    Indexes = { "{'NormalizedName'} Unique", },
                 },
-                Indexes = { "{'NormalizedName'} Unique", },
-            },
-            new()
-            {
-                Name = "Microsoft.EntityFrameworkCore.CustomUserClaimInt",
-                TableName = "AspNetUserClaims",
-                PrimaryKey = "Key: CustomUserClaimInt.Id PK",
-                Properties =
+                new()
                 {
-                    "Property: CustomUserClaimInt.Id (int) Required PK AfterSave:Throw ValueGenerated.OnAdd",
-                    "Property: CustomUserClaimInt.ClaimType (string)",
-                    "Property: CustomUserClaimInt.ClaimValue (string)",
-                    "Property: CustomUserClaimInt.UserId (int) Required FK Index",
+                    Name = "Microsoft.EntityFrameworkCore.CustomUserClaimInt",
+                    TableName = "AspNetUserClaims",
+                    PrimaryKey = "Key: CustomUserClaimInt.Id PK",
+                    Properties =
+                    {
+                        "Property: CustomUserClaimInt.Id (int) Required PK AfterSave:Throw ValueGenerated.OnAdd",
+                        "Property: CustomUserClaimInt.ClaimType (string)",
+                        "Property: CustomUserClaimInt.ClaimValue (string)",
+                        "Property: CustomUserClaimInt.UserId (int) Required FK Index",
+                    },
+                    Indexes = { "{'UserId'} ", },
+                    FKs = { "ForeignKey: CustomUserClaimInt {'UserId'} -> CustomUserInt {'Id'} ToDependent: Claims Cascade", },
                 },
-                Indexes = { "{'UserId'} ", },
-                FKs = { "ForeignKey: CustomUserClaimInt {'UserId'} -> CustomUserInt {'Id'} ToDependent: Claims Cascade", },
-            },
-            new()
-            {
-                Name = "Microsoft.EntityFrameworkCore.CustomUserInt",
-                TableName = "AspNetUsers",
-                PrimaryKey = "Key: CustomUserInt.Id PK",
-                Properties =
+                new()
                 {
-                    "Property: CustomUserInt.Id (int) Required PK AfterSave:Throw ValueGenerated.OnAdd",
-                    "Property: CustomUserInt.AccessFailedCount (int) Required",
-                    "Property: CustomUserInt.ConcurrencyStamp (string) Concurrency",
-                    "Property: CustomUserInt.CustomTag (string)",
-                    "Property: CustomUserInt.Email (string) MaxLength(256)",
-                    "Property: CustomUserInt.EmailConfirmed (bool) Required",
-                    "Property: CustomUserInt.LockoutEnabled (bool) Required",
-                    "Property: CustomUserInt.LockoutEnd (Nullable<DateTimeOffset>)",
-                    "Property: CustomUserInt.NormalizedEmail (string) Index MaxLength(256)",
-                    "Property: CustomUserInt.NormalizedUserName (string) Index MaxLength(256)",
-                    "Property: CustomUserInt.PasswordHash (string)",
-                    "Property: CustomUserInt.PhoneNumber (string)",
-                    "Property: CustomUserInt.PhoneNumberConfirmed (bool) Required",
-                    "Property: CustomUserInt.SecurityStamp (string)",
-                    "Property: CustomUserInt.TwoFactorEnabled (bool) Required",
-                    "Property: CustomUserInt.UserName (string) MaxLength(256)",
+                    Name = "Microsoft.EntityFrameworkCore.CustomUserInt",
+                    TableName = "AspNetUsers",
+                    PrimaryKey = "Key: CustomUserInt.Id PK",
+                    Properties =
+                    {
+                        "Property: CustomUserInt.Id (int) Required PK AfterSave:Throw ValueGenerated.OnAdd",
+                        "Property: CustomUserInt.AccessFailedCount (int) Required",
+                        "Property: CustomUserInt.ConcurrencyStamp (string) Concurrency",
+                        "Property: CustomUserInt.CustomTag (string)",
+                        "Property: CustomUserInt.Email (string) MaxLength(256)",
+                        "Property: CustomUserInt.EmailConfirmed (bool) Required",
+                        "Property: CustomUserInt.LockoutEnabled (bool) Required",
+                        "Property: CustomUserInt.LockoutEnd (Nullable<DateTimeOffset>)",
+                        "Property: CustomUserInt.NormalizedEmail (string) Index MaxLength(256)",
+                        "Property: CustomUserInt.NormalizedUserName (string) Index MaxLength(256)",
+                        "Property: CustomUserInt.PasswordHash (string)",
+                        "Property: CustomUserInt.PhoneNumber (string)",
+                        "Property: CustomUserInt.PhoneNumberConfirmed (bool) Required",
+                        "Property: CustomUserInt.SecurityStamp (string)",
+                        "Property: CustomUserInt.TwoFactorEnabled (bool) Required",
+                        "Property: CustomUserInt.UserName (string) MaxLength(256)",
+                    },
+                    Indexes =
+                    {
+                        "{'NormalizedEmail'} ", "{'NormalizedUserName'} Unique",
+                    },
+                    Navigations =
+                    {
+                        "Navigation: CustomUserInt.Claims (ICollection<CustomUserClaimInt>) Collection ToDependent CustomUserClaimInt",
+                        "Navigation: CustomUserInt.Logins (ICollection<CustomUserLoginInt>) Collection ToDependent CustomUserLoginInt",
+                        "Navigation: CustomUserInt.Tokens (ICollection<CustomUserTokenInt>) Collection ToDependent CustomUserTokenInt",
+                        "Navigation: CustomUserInt.UserRoles (ICollection<CustomUserRoleInt>) Collection ToDependent CustomUserRoleInt",
+                    },
                 },
-                Indexes =
+                new()
                 {
-                    "{'NormalizedEmail'} ", "{'NormalizedUserName'} Unique",
+                    Name = "Microsoft.EntityFrameworkCore.CustomUserLoginInt",
+                    TableName = "AspNetUserLogins",
+                    PrimaryKey = "Key: CustomUserLoginInt.LoginProvider, CustomUserLoginInt.ProviderKey PK",
+                    Properties =
+                    {
+                        "Property: CustomUserLoginInt.LoginProvider (string) Required PK AfterSave:Throw",
+                        "Property: CustomUserLoginInt.ProviderKey (string) Required PK AfterSave:Throw",
+                        "Property: CustomUserLoginInt.ProviderDisplayName (string)",
+                        "Property: CustomUserLoginInt.UserId (int) Required FK Index",
+                    },
+                    Indexes = { "{'UserId'} ", },
+                    FKs = { "ForeignKey: CustomUserLoginInt {'UserId'} -> CustomUserInt {'Id'} ToDependent: Logins Cascade", },
                 },
-                Navigations =
+                new()
                 {
-                    "Navigation: CustomUserInt.Claims (ICollection<CustomUserClaimInt>) Collection ToDependent CustomUserClaimInt",
-                    "Navigation: CustomUserInt.Logins (ICollection<CustomUserLoginInt>) Collection ToDependent CustomUserLoginInt",
-                    "Navigation: CustomUserInt.Tokens (ICollection<CustomUserTokenInt>) Collection ToDependent CustomUserTokenInt",
-                    "Navigation: CustomUserInt.UserRoles (ICollection<CustomUserRoleInt>) Collection ToDependent CustomUserRoleInt",
+                    Name = "Microsoft.EntityFrameworkCore.CustomUserRoleInt",
+                    TableName = "AspNetUserRoles",
+                    PrimaryKey = "Key: CustomUserRoleInt.UserId, CustomUserRoleInt.RoleId PK",
+                    Properties =
+                    {
+                        "Property: CustomUserRoleInt.UserId (int) Required PK FK AfterSave:Throw",
+                        "Property: CustomUserRoleInt.RoleId (int) Required PK FK Index AfterSave:Throw",
+                    },
+                    Indexes = { "{'RoleId'} ", },
+                    FKs =
+                    {
+                        "ForeignKey: CustomUserRoleInt {'RoleId'} -> CustomRoleInt {'Id'} Cascade",
+                        "ForeignKey: CustomUserRoleInt {'UserId'} -> CustomUserInt {'Id'} ToDependent: UserRoles Cascade",
+                    },
                 },
-            },
-            new()
-            {
-                Name = "Microsoft.EntityFrameworkCore.CustomUserLoginInt",
-                TableName = "AspNetUserLogins",
-                PrimaryKey = "Key: CustomUserLoginInt.LoginProvider, CustomUserLoginInt.ProviderKey PK",
-                Properties =
+                new()
                 {
-                    "Property: CustomUserLoginInt.LoginProvider (string) Required PK AfterSave:Throw",
-                    "Property: CustomUserLoginInt.ProviderKey (string) Required PK AfterSave:Throw",
-                    "Property: CustomUserLoginInt.ProviderDisplayName (string)",
-                    "Property: CustomUserLoginInt.UserId (int) Required FK Index",
+                    Name = "Microsoft.EntityFrameworkCore.CustomUserTokenInt",
+                    TableName = "AspNetUserTokens",
+                    PrimaryKey = "Key: CustomUserTokenInt.UserId, CustomUserTokenInt.LoginProvider, CustomUserTokenInt.Name PK",
+                    Properties =
+                    {
+                        "Property: CustomUserTokenInt.UserId (int) Required PK FK AfterSave:Throw",
+                        "Property: CustomUserTokenInt.LoginProvider (string) Required PK AfterSave:Throw",
+                        "Property: CustomUserTokenInt.Name (string) Required PK AfterSave:Throw",
+                        "Property: CustomUserTokenInt.Value (string)",
+                    },
+                    FKs = { "ForeignKey: CustomUserTokenInt {'UserId'} -> CustomUserInt {'Id'} ToDependent: Tokens Cascade", },
                 },
-                Indexes = { "{'UserId'} ", },
-                FKs = { "ForeignKey: CustomUserLoginInt {'UserId'} -> CustomUserInt {'Id'} ToDependent: Logins Cascade", },
-            },
-            new()
-            {
-                Name = "Microsoft.EntityFrameworkCore.CustomUserRoleInt",
-                TableName = "AspNetUserRoles",
-                PrimaryKey = "Key: CustomUserRoleInt.UserId, CustomUserRoleInt.RoleId PK",
-                Properties =
-                {
-                    "Property: CustomUserRoleInt.UserId (int) Required PK FK AfterSave:Throw",
-                    "Property: CustomUserRoleInt.RoleId (int) Required PK FK Index AfterSave:Throw",
-                },
-                Indexes = { "{'RoleId'} ", },
-                FKs =
-                {
-                    "ForeignKey: CustomUserRoleInt {'RoleId'} -> CustomRoleInt {'Id'} Cascade",
-                    "ForeignKey: CustomUserRoleInt {'UserId'} -> CustomUserInt {'Id'} ToDependent: UserRoles Cascade",
-                },
-            },
-            new()
-            {
-                Name = "Microsoft.EntityFrameworkCore.CustomUserTokenInt",
-                TableName = "AspNetUserTokens",
-                PrimaryKey = "Key: CustomUserTokenInt.UserId, CustomUserTokenInt.LoginProvider, CustomUserTokenInt.Name PK",
-                Properties =
-                {
-                    "Property: CustomUserTokenInt.UserId (int) Required PK FK AfterSave:Throw",
-                    "Property: CustomUserTokenInt.LoginProvider (string) Required PK AfterSave:Throw",
-                    "Property: CustomUserTokenInt.Name (string) Required PK AfterSave:Throw",
-                    "Property: CustomUserTokenInt.Value (string)",
-                },
-                FKs = { "ForeignKey: CustomUserTokenInt {'UserId'} -> CustomUserInt {'Id'} ToDependent: Tokens Cascade", },
-            },
-        };
+            };
     }
 
     public class CustomTypesIdentityContextInt : IdentityDbContext<CustomUserInt, CustomRoleInt, int, CustomUserClaimInt, CustomUserRoleInt,
