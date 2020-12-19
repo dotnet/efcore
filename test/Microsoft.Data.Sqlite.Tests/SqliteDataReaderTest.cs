@@ -1925,6 +1925,83 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
+        [Fact]
+        public void GetSchemaTable_works_when_view()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.ExecuteNonQuery(
+                    @"CREATE VIEW dual AS SELECT 'X' AS dummy;");
+
+                using (var reader = connection.ExecuteReader("SELECT * FROM dual;"))
+                {
+                    var schemaTable = reader.GetSchemaTable();
+                    Assert.Equal(1, schemaTable.Rows.Count);
+                    Assert.Equal("dummy", schemaTable.Rows[0][SchemaTableColumn.ColumnName]);
+                }
+            }
+        }
+
+        [Fact]
+        public void GetSchemaTable_works_when_virtual_table()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.ExecuteNonQuery("CREATE VIRTUAL TABLE dual USING fts3(dummy);");
+
+                using (var reader = connection.ExecuteReader("SELECT * FROM dual;"))
+                {
+                    var schemaTable = reader.GetSchemaTable();
+                    Assert.Equal(1, schemaTable.Rows.Count);
+                    Assert.Equal("dummy", schemaTable.Rows[0][SchemaTableColumn.ColumnName]);
+                }
+            }
+        }
+
+        [Fact]
+        public void GetSchemaTable_works_when_pragma()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("PRAGMA table_info('sqlite_master');"))
+                {
+                    var schemaTable = reader.GetSchemaTable();
+                    Assert.Equal(6, schemaTable.Rows.Count);
+                    Assert.Equal("cid", schemaTable.Rows[0][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("name", schemaTable.Rows[1][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("type", schemaTable.Rows[2][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("notnull", schemaTable.Rows[3][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("dflt_value", schemaTable.Rows[4][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("pk", schemaTable.Rows[5][SchemaTableColumn.ColumnName]);
+                }
+            }
+        }
+
+        [Fact]
+        public void GetSchemaTable_works_when_eponymous_virtual_table()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("SELECT * FROM pragma_table_info('sqlite_master');"))
+                {
+                    var schemaTable = reader.GetSchemaTable();
+                    Assert.Equal(6, schemaTable.Rows.Count);
+                    Assert.Equal("cid", schemaTable.Rows[0][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("name", schemaTable.Rows[1][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("type", schemaTable.Rows[2][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("notnull", schemaTable.Rows[3][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("dflt_value", schemaTable.Rows[4][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("pk", schemaTable.Rows[5][SchemaTableColumn.ColumnName]);
+                }
+            }
+        }
+
         [Theory]
         [InlineData("(0), (1), ('A')", typeof(long))]
         [InlineData("('Z'), (1), ('A')", typeof(string))]

@@ -686,6 +686,7 @@ namespace Microsoft.Data.Sqlite
                 schemaRow[IsExpression] = columnName == null;
                 schemaRow[IsLong] = DBNull.Value;
 
+                var eponymousVirtualTable = false;
                 if (tableName != null
                     && columnName != null)
                 {
@@ -712,15 +713,21 @@ namespace Microsoft.Data.Sqlite
                             .AppendLine("ORDER BY count() DESC")
                             .AppendLine("LIMIT 1;").ToString();
 
-                        var type = (string)command.ExecuteScalar()!;
+                        var type = (string?)command.ExecuteScalar();
                         schemaRow[DataType] =
                             (type != null)
                                 ? SqliteDataRecord.GetFieldType(type)
                                 : SqliteDataRecord.GetFieldTypeFromSqliteType(
                                     SqliteDataRecord.Sqlite3AffinityType(dataTypeName));
+
+                        command.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE name = $name AND type IN ('table', 'view')";
+                        command.Parameters.AddWithValue("$name", tableName);
+
+                        eponymousVirtualTable = (long)command.ExecuteScalar()! == 0L;
                     }
 
-                    if (databaseName != null)
+                    if (databaseName != null
+                        && !eponymousVirtualTable)
                     {
                         var rc = sqlite3_table_column_metadata(
                             _command.Connection.Handle, databaseName, tableName, columnName, out var dataType, out var collSeq,
