@@ -423,6 +423,9 @@
   <data name="EntityTypesNotInRelationship" xml:space="preserve">
     <value>The provided entity types '{invalidDependentType}' and '{invalidPrincipalType}' are invalid. Specify '{dependentType}' and '{principalType}', or entity types in the same hierarchy.</value>
   </data>
+  <data name="EnumerableResetNotSupported" xml:space="preserve">
+    <value>This enumerator cannot be reset.</value>
+  </data>
   <data name="ErrorInvalidQueryable" xml:space="preserve">
     <value>Cannot use multiple context instances within a single query execution. Ensure the query uses a single context instance.</value>
   </data>
@@ -1287,6 +1290,9 @@
   </data>
   <data name="RuntimeParameterMissingParameter" xml:space="preserve">
     <value>While registering a runtime parameter, the lambda expression must have only one parameter which must be same as 'QueryCompilationContext.QueryContextParameter' expression.</value>
+  </data>
+  <data name="SavepointsNotSupported" xml:space="preserve">
+    <value>Savepoints are not supported by the database provider in use.</value>
   </data>
   <data name="SeedDatumDefaultValue" xml:space="preserve">
     <value>The seed entity for entity type '{entityType}' cannot be added because a default value was provided for the required property '{property}'. Please provide a value different from '{defaultValue}'.</value>

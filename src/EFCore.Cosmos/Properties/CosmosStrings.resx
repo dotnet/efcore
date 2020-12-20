@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="CanConnectNotSupported" xml:space="preserve">
+    <value>The Cosmos database does not support 'CanConnect' or 'CanConnectAsync'.</value>
+  </data>
   <data name="ConnectionStringConflictingConfiguration" xml:space="preserve">
     <value>Both the connection string and account key or account endpoint were specified. Specify only one set of connection details.</value>
   </data>
@@ -214,6 +217,9 @@
   </data>
   <data name="ReverseAfterSkipTakeNotSupported" xml:space="preserve">
     <value>Reversing the ordering is not supported when limit or offset are already applied.</value>
+  </data>
+  <data name="TransactionsNotSupported" xml:space="preserve">
+    <value>The Cosmos database provider does not support transactions.</value>
   </data>
   <data name="UnableToBindMemberToEntityProjection" xml:space="preserve">
     <value>Unable to bind '{memberType}' '{member}' to an entity projection of '{entityType}'.</value>

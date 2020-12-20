@@ -721,6 +721,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 method);
 
         /// <summary>
+        ///     The 'Down' method for this migration has not been implemented. Both the 'Up' abd 'Down' methods must be implemented to support reverting migrations.
+        /// </summary>
+        public static string MigrationDownMissing
+            => GetString("MigrationDownMissing");
+
+        /// <summary>
         ///     The entity type '{entityType}' is mapped to the DbFunction named '{functionName}', but no DbFunction with that name was found in the model. Ensure that the entity type mapping is configured using the model name of a function in the model.
         /// </summary>
         public static string MappedFunctionNotFound([CanBeNull] object? entityType, [CanBeNull] object? functionName)
@@ -743,6 +749,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("MigrationNotFound", nameof(migrationName)),
                 migrationName);
+
+        /// <summary>
+        ///     SQL generation for the operation '{operation}' is not supported by the current database provider. Database providers must implement the appropriate method in 'MigrationsSqlGenerator' to support this operation.
+        /// </summary>
+        public static string MigrationSqlGenerationMissing([CanBeNull] object operation)
+            => string.Format(
+                GetString("MigrationSqlGenerationMissing", nameof(operation)),
+                operation);
 
         /// <summary>
         ///     Entity type '{entityType}' doesn't contain a property mapped to the store-generated concurrency token column '{missingColumn}' which is used by another entity type sharing the table '{table}'. Add a store-generated property to '{entityType}' which is mapped to the same column; it may be in shadow state.

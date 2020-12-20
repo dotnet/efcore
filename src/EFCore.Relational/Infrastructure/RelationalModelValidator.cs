@@ -1253,7 +1253,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                                 break;
                             default:
-                                throw new NotImplementedException(storeOverride.StoreObjectType.ToString());
+                                throw new NotSupportedException(storeOverride.StoreObjectType.ToString());
                         }
                     }
                 }

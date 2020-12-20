@@ -24,6 +24,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Cosmos.Properties.CosmosStrings", typeof(CosmosStrings).Assembly);
 
         /// <summary>
+        ///     The Cosmos database does not support 'CanConnect' or 'CanConnectAsync'.
+        /// </summary>
+        public static string CanConnectNotSupported
+            => GetString("CanConnectNotSupported");
+
+        /// <summary>
         ///     Both the connection string and account key or account endpoint were specified. Specify only one set of connection details.
         /// </summary>
         public static string ConnectionStringConflictingConfiguration
@@ -246,6 +252,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         /// </summary>
         public static string ReverseAfterSkipTakeNotSupported
             => GetString("ReverseAfterSkipTakeNotSupported");
+
+        /// <summary>
+        ///     The Cosmos database provider does not support transactions.
+        /// </summary>
+        public static string TransactionsNotSupported
+            => GetString("TransactionsNotSupported");
 
         /// <summary>
         ///     Unable to bind '{memberType}' '{member}' to an entity projection of '{entityType}'.

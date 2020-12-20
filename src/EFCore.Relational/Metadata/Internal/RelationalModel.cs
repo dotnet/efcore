@@ -1128,7 +1128,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 case DeleteBehavior.ClientCascade:
                     return ReferentialAction.Restrict;
                 default:
-                    throw new NotImplementedException(deleteBehavior.ToString());
+                    throw new NotSupportedException(deleteBehavior.ToString());
             }
         }
 

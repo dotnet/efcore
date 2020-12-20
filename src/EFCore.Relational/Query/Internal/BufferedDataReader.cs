@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly bool _detailedErrorsEnabled;
 
         private DbDataReader? _underlyingReader;
-        private List<BufferedDataRecord> _bufferedDataRecords = new List<BufferedDataRecord>();
+        private List<BufferedDataRecord> _bufferedDataRecords = new();
         private BufferedDataRecord _currentResultSet;
         private int _currentResultSetNumber;
         private int _recordsAffected;

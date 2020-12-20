@@ -198,6 +198,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 property, entityType);
 
         /// <summary>
+        ///     SQL Server does not support releasing a savepoint.
+        /// </summary>
+        public static string NoSavepointRelease
+            => GetString("NoSavepointRelease");
+
+        /// <summary>
         ///     SQL Server sequences cannot be used to generate values for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Sequences can only be used with integer properties.
         /// </summary>
         public static string SequenceBadType([CanBeNull] object? property, [CanBeNull] object? entityType, [CanBeNull] object? propertyType)

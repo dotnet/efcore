@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -265,9 +267,7 @@ namespace Microsoft.EntityFrameworkCore
                 => throw new NotImplementedException();
 
             public int ExecuteNonQuery(RelationalCommandParameterObject parameterObject)
-            {
-                return 0;
-            }
+                => 0;
 
             public Task<int> ExecuteNonQueryAsync(
                 RelationalCommandParameterObject parameterObject,
@@ -275,28 +275,23 @@ namespace Microsoft.EntityFrameworkCore
                 => Task.FromResult(0);
 
             public RelationalDataReader ExecuteReader(RelationalCommandParameterObject parameterObject)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public Task<RelationalDataReader> ExecuteReaderAsync(
                 RelationalCommandParameterObject parameterObject,
                 CancellationToken cancellationToken = default)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
+
+            public DbCommand CreateDbCommand(RelationalCommandParameterObject parameterObject, Guid commandId, DbCommandMethod commandMethod)
+                => throw new NotImplementedException();
 
             public object ExecuteScalar(RelationalCommandParameterObject parameterObject)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public Task<object> ExecuteScalarAsync(
                 RelationalCommandParameterObject parameterObject,
                 CancellationToken cancellationToken = default)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
         }
     }
 }
