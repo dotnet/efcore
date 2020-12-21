@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [ConditionalFact]
         public void Display_name_is_entity_type_name_when_no_CLR_type()
             => Assert.Equal(
-                "Everything.Is+Awesome<When.We, re.Living<Our.Dream>>",
+                "Everything.Is+Awesome<When.We, re.Living<Our.Dream>> (Dictionary<string, object>)",
                 CreateModel().AddEntityType("Everything.Is+Awesome<When.We, re.Living<Our.Dream>>").DisplayName());
 
         [ConditionalFact]
@@ -1069,7 +1069,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var customerForeignKey = orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType);
 
             Assert.Equal(
-                CoreStrings.NavigationToShadowEntity(nameof(Order.Customer), typeof(Order).Name, "Customer"),
+                CoreStrings.NavigationSingleWrongClrType(
+                    nameof(Order.Customer), typeof(Order).Name, "Customer", "Dictionary<string, object>"),
                 Assert.Throws<InvalidOperationException>(
                     () => customerForeignKey.SetDependentToPrincipal(Order.CustomerProperty)).Message);
         }
@@ -1397,26 +1398,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void Adding_CLR_skip_navigation_to_shadow_entity_type_throws()
-        {
-            var model = CreateModel();
-            var orderEntity = model.AddEntityType(nameof(Order));
-            var orderIdProperty = orderEntity.AddProperty(nameof(Order.Id), typeof(int));
-            var orderKey = orderEntity.AddKey(orderIdProperty);
-            var productEntity = model.AddEntityType(nameof(Product));
-            var orderProductEntity = model.AddEntityType(nameof(OrderProduct));
-            var orderProductFkProperty = orderProductEntity.AddProperty(nameof(OrderProduct.OrderId), typeof(int));
-            var orderProductForeignKey = orderProductEntity
-                .AddForeignKey(new[] { orderProductFkProperty }, orderKey, orderEntity);
-
-            Assert.Equal(
-                CoreStrings.ClrPropertyOnShadowEntity(nameof(Order.Products), nameof(Order)),
-                Assert.Throws<InvalidOperationException>(
-                    () => orderEntity.AddSkipNavigation(
-                        nameof(Order.Products), Order.ProductsProperty, productEntity, true, false)).Message);
-        }
-
-        [ConditionalFact]
         public void Adding_CLR_skip_navigation_targetting_a_shadow_entity_type_throws()
         {
             var model = CreateModel();
@@ -1430,7 +1411,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 .AddForeignKey(new[] { orderProductFkProperty }, orderKey, orderEntity);
 
             Assert.Equal(
-                CoreStrings.NavigationToShadowEntity(nameof(Order.Products), nameof(Order), nameof(Product)),
+                CoreStrings.NavigationCollectionWrongClrType(
+                    nameof(Order.Products), nameof(Order), "ICollection<Product>", "Dictionary<string, object>"),
                 Assert.Throws<InvalidOperationException>(
                     () => orderEntity.AddSkipNavigation(
                         nameof(Order.Products), Order.ProductsProperty, productEntity, true, false)).Message);
@@ -1823,17 +1805,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void AddProperty_throws_if_shadow_entity_type()
-        {
-            var entityType = CreateModel().AddEntityType("Customer");
-
-            Assert.Equal(
-                CoreStrings.ClrPropertyOnShadowEntity(nameof(Customer.Name), "Customer"),
-                Assert.Throws<InvalidOperationException>(
-                    () => entityType.AddProperty(Customer.NameProperty)).Message);
-        }
-
-        [ConditionalFact]
         public void AddProperty_throws_if_no_clr_property_or_field()
         {
             var entityType = CreateModel().AddEntityType(typeof(Customer));
@@ -2162,17 +2133,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     nameof(Customer.Orders),
                     nameof(Customer)),
                 Assert.Throws<InvalidOperationException>(() => entityType.AddServiceProperty(Customer.MoreOrdersProperty)).Message);
-        }
-
-        [ConditionalFact]
-        public void Adding_a_CLR_service_property_to_shadow_type_throws()
-        {
-            var model = CreateModel();
-            var entityType = model.AddEntityType(typeof(Customer).Name);
-
-            Assert.Equal(
-                CoreStrings.ClrPropertyOnShadowEntity(Order.CustomerIdProperty.Name, typeof(Customer).Name),
-                Assert.Throws<InvalidOperationException>(() => entityType.AddServiceProperty(Order.CustomerIdProperty)).Message);
         }
 
         [ConditionalFact]

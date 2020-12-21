@@ -202,7 +202,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (navigationToPrincipalName != null
                 && navigationToPrincipal.Value.MemberInfo == null
-                && dependentEntityType.HasClrType
                 && dependentEntityType.ClrType != Model.DefaultPropertyBagType)
             {
                 var navigationProperty = FindCompatibleClrMember(
@@ -215,7 +214,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (navigationToDependentName != null
                 && navigationToDependent.Value.MemberInfo == null
-                && principalEntityType.HasClrType
                 && principalEntityType.ClrType != Model.DefaultPropertyBagType)
             {
                 var navigationProperty = FindCompatibleClrMember(
@@ -474,7 +472,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             EntityType targetType,
             bool shouldThrow)
         {
-            var navigationProperty = sourceType.FindClrMember(navigationName);
+            var navigationProperty = sourceType.GetNavigationMemberInfo(navigationName);
             return !Navigation.IsCompatible(navigationName, navigationProperty, sourceType, targetType, null, shouldThrow)
                 ? null
                 : navigationProperty;
@@ -723,8 +721,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && !IsCompatible(
                     navigationToPrincipalProperty,
                     pointsToPrincipal: false,
-                    principalEntityType.ClrType,
-                    dependentEntityType.ClrType,
+                    principalEntityType,
+                    dependentEntityType,
                     shouldThrow: false,
                     out invertedShouldBeUnique))
             {
@@ -735,8 +733,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && !IsCompatible(
                     navigationToDependentProperty,
                     pointsToPrincipal: true,
-                    principalEntityType.ClrType,
-                    dependentEntityType.ClrType,
+                    principalEntityType,
+                    dependentEntityType,
                     shouldThrow: false,
                     out _))
             {
@@ -749,8 +747,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && !IsCompatible(
                     navigationToPrincipalProperty,
                     pointsToPrincipal: true,
-                    dependentEntityType.ClrType,
-                    principalEntityType.ClrType,
+                    dependentEntityType,
+                    principalEntityType,
                     shouldThrow && shouldInvert != null,
                     out _))
             {
@@ -768,8 +766,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && !IsCompatible(
                     navigationToDependentProperty,
                     pointsToPrincipal: false,
-                    dependentEntityType.ClrType,
-                    principalEntityType.ClrType,
+                    dependentEntityType,
+                    principalEntityType,
                     shouldThrow && shouldInvert != null,
                     out shouldBeUnique))
             {
@@ -834,8 +832,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     && !IsCompatible(
                         navigationToPrincipalProperty,
                         pointsToPrincipal: true,
-                        Metadata.DeclaringEntityType.ClrType,
-                        Metadata.PrincipalEntityType.ClrType,
+                        Metadata.DeclaringEntityType,
+                        Metadata.PrincipalEntityType,
                         shouldThrow: false,
                         out _))
                 {
@@ -847,8 +845,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     && !IsCompatible(
                         navigationToDependentProperty,
                         pointsToPrincipal: false,
-                        Metadata.DeclaringEntityType.ClrType,
-                        Metadata.PrincipalEntityType.ClrType,
+                        Metadata.DeclaringEntityType,
+                        Metadata.PrincipalEntityType,
                         shouldThrow: false,
                         out _))
                 {
@@ -872,8 +870,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static bool IsCompatible(
             [NotNull] MemberInfo navigationMember,
             bool pointsToPrincipal,
-            [NotNull] Type dependentType,
-            [NotNull] Type principalType,
+            [NotNull] EntityType dependentType,
+            [NotNull] EntityType principalType,
             bool shouldThrow,
             out bool? shouldBeUnique)
         {
@@ -881,12 +879,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (!pointsToPrincipal)
             {
                 var canBeUnique = Navigation.IsCompatible(
+                    navigationMember.Name,
                     navigationMember,
                     principalType,
                     dependentType,
                     shouldBeCollection: false,
                     shouldThrow: false);
                 var canBeNonUnique = Navigation.IsCompatible(
+                    navigationMember.Name,
                     navigationMember,
                     principalType,
                     dependentType,
@@ -902,6 +902,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     if (shouldThrow)
                     {
                         Navigation.IsCompatible(
+                            navigationMember.Name,
                             navigationMember,
                             principalType,
                             dependentType,
@@ -913,6 +914,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
             else if (!Navigation.IsCompatible(
+                navigationMember.Name,
                 navigationMember,
                 dependentType,
                 principalType,
@@ -1307,9 +1309,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (Metadata.PrincipalToDependent?.IsShadowProperty() == false
                 && !Navigation.IsCompatible(
+                    Metadata.PrincipalToDependent.Name,
                     Metadata.PrincipalToDependent.GetIdentifyingMemberInfo(),
-                    Metadata.PrincipalEntityType.ClrType,
-                    Metadata.DeclaringEntityType.ClrType,
+                    Metadata.PrincipalEntityType,
+                    Metadata.DeclaringEntityType,
                     !unique,
                     shouldThrow: false))
             {
@@ -2302,14 +2305,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.DebugAssert(
                 navigationToPrincipal?.Name == null
                 || navigationToPrincipal.Value.MemberInfo != null
-                || !dependentEntityTypeBuilder.Metadata.HasClrType
                 || dependentEntityTypeBuilder.Metadata.ClrType == Model.DefaultPropertyBagType,
                 "Principal navigation check failed");
 
             Check.DebugAssert(
                 navigationToDependent?.Name == null
                 || navigationToDependent.Value.MemberInfo != null
-                || !principalEntityTypeBuilder.Metadata.HasClrType
                 || principalEntityTypeBuilder.Metadata.ClrType == Model.DefaultPropertyBagType,
                 "Dependent navigation check failed");
 
@@ -3549,8 +3550,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             else
             {
                 if (Metadata.PrincipalEntityType.Name == entityTypeBuilder.Metadata.Name
-                    || (Metadata.PrincipalEntityType.HasClrType
-                        && Metadata.PrincipalEntityType.ClrType == entityTypeBuilder.Metadata.ClrType))
+                    || Metadata.PrincipalEntityType.ClrType == entityTypeBuilder.Metadata.ClrType)
                 {
                     principalEntityTypeBuilder = entityTypeBuilder;
                     principalEntityType = entityTypeBuilder.Metadata;
@@ -3603,8 +3603,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             else
             {
                 if ((Metadata.DeclaringEntityType.Name == entityTypeBuilder.Metadata.Name
-                        || (Metadata.DeclaringEntityType.HasClrType
-                            && Metadata.DeclaringEntityType.ClrType == entityTypeBuilder.Metadata.ClrType))
+                        || Metadata.DeclaringEntityType.ClrType == entityTypeBuilder.Metadata.ClrType)
                     && (!principalEntityType.HasSharedClrType
                         || principalEntityType != entityTypeBuilder.Metadata))
                 {
@@ -3619,8 +3618,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         using (ModelBuilder.Metadata.ConventionDispatcher.DelayConventions())
                         {
                             if (Metadata.DeclaringEntityType.HasSharedClrType
-                                || (Metadata.DeclaringEntityType.HasClrType
-                                    && model.IsShared(Metadata.DeclaringEntityType.ClrType)))
+                                || model.IsShared(Metadata.DeclaringEntityType.ClrType))
                             {
                                 if (Metadata.IsOwnership
                                     && Metadata.PrincipalToDependent != null)
@@ -3934,8 +3932,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     && !IsCompatible(
                         navigationToPrincipalProperty,
                         !inverted,
-                        inverted ? principalEntityType.ClrType : dependentEntityType.ClrType,
-                        inverted ? dependentEntityType.ClrType : principalEntityType.ClrType,
+                        inverted ? principalEntityType : dependentEntityType,
+                        inverted ? dependentEntityType : principalEntityType,
                         shouldThrow,
                         out invertedShouldBeUnique))
                 {
@@ -3988,8 +3986,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     && !IsCompatible(
                         navigationToDependentProperty,
                         inverted,
-                        inverted ? principalEntityType.ClrType : dependentEntityType.ClrType,
-                        inverted ? dependentEntityType.ClrType : principalEntityType.ClrType,
+                        inverted ? principalEntityType : dependentEntityType,
+                        inverted ? dependentEntityType : principalEntityType,
                         shouldThrow,
                         out toDependentShouldBeUnique))
                 {

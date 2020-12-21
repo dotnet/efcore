@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var principalKey = dependentEntityType.SetPrimaryKey(fk);
 
             Assert.Equal(
-                CoreStrings.ForeignKeyReferencedEntityKeyMismatch("{'Fk'}", "R"),
+                CoreStrings.ForeignKeyReferencedEntityKeyMismatch("{'Fk'}", "R (Dictionary<string, object>)"),
                 Assert.Throws<InvalidOperationException>(
                     () => dependentEntityType.AddForeignKey(new[] { fk }, principalKey, principalEntityType)).Message);
         }
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             principalEntityType.SetPrimaryKey(idProperty);
 
             Assert.Equal(
-                CoreStrings.ForeignKeyCountMismatch("{'P1', 'P2'}", "D", "{'Id'}", "P"),
+                CoreStrings.ForeignKeyCountMismatch("{'P1', 'P2'}", "D (Dictionary<string, object>)", "{'Id'}", "P (Dictionary<string, object>)"),
                 Assert.Throws<InvalidOperationException>(
                         () => dependentEntityType.AddForeignKey(
                             new[] { dependentProperty1, dependentProperty2 }, principalEntityType.FindPrimaryKey(), principalEntityType))
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 new[] { property2, property3 });
 
             Assert.Equal(
-                CoreStrings.ForeignKeyTypeMismatch("{'P1' : int, 'P2' : string}", "D", "{'Id1' : int, 'Id2' : int}", "P"),
+                CoreStrings.ForeignKeyTypeMismatch("{'P1' : int, 'P2' : string}", "D (Dictionary<string, object>)", "{'Id1' : int, 'Id2' : int}", "P (Dictionary<string, object>)"),
                 Assert.Throws<InvalidOperationException>(
                         () => dependentEntityType.AddForeignKey(
                             new[] { dependentProperty1, dependentProperty2 }, principalEntityType.FindPrimaryKey(), principalEntityType))

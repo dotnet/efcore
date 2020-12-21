@@ -530,16 +530,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             if (unique.HasValue
-                && PrincipalEntityType.HasClrType
-                && DeclaringEntityType.HasClrType
                 && PrincipalEntityType.ClrType != Model.DefaultPropertyBagType
                 && DeclaringEntityType.ClrType != Model.DefaultPropertyBagType
                 && PrincipalToDependent != null)
             {
                 if (!Internal.Navigation.IsCompatible(
+                    PrincipalToDependent.Name,
                     PrincipalToDependent.GetIdentifyingMemberInfo(),
-                    PrincipalEntityType.ClrType,
-                    DeclaringEntityType.ClrType,
+                    PrincipalEntityType,
+                    DeclaringEntityType,
                     !unique,
                     shouldThrow: false))
                 {
@@ -1277,9 +1276,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (navigationToPrincipal != null
                 && !Internal.Navigation.IsCompatible(
+                    navigationToPrincipal.Name,
                     navigationToPrincipal,
-                    dependentEntityType.ClrType!,
-                    principalEntityType.ClrType!,
+                    dependentEntityType,
+                    principalEntityType,
                     shouldBeCollection: false,
                     shouldThrow: shouldThrow))
             {
@@ -1288,9 +1288,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (navigationToDependent != null
                 && !Internal.Navigation.IsCompatible(
+                    navigationToDependent.Name,
                     navigationToDependent,
-                    principalEntityType.ClrType!,
-                    dependentEntityType.ClrType!,
+                    principalEntityType,
+                    dependentEntityType,
                     shouldBeCollection: !unique,
                     shouldThrow: shouldThrow))
             {

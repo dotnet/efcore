@@ -330,11 +330,6 @@ namespace Microsoft.EntityFrameworkCore
         [DebuggerStepThrough]
         public static string DisplayName([NotNull] this ITypeBase type)
         {
-            if (type.ClrType == null)
-            {
-                return type.Name;
-            }
-
             if (!type.HasSharedClrType)
             {
                 return type.ClrType.ShortDisplayName();

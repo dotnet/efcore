@@ -41,23 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected TypeBase([NotNull] string name, [NotNull] Model model, ConfigurationSource configurationSource)
-        {
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(model, nameof(model));
-
-            Name = name;
-            Model = model;
-            _configurationSource = configurationSource;
-            _hasSharedClrType = false;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         protected TypeBase([NotNull] Type type, [NotNull] Model model, ConfigurationSource configurationSource)
         {
             Check.NotNull(model, nameof(model));
@@ -96,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Type? ClrType { [DebuggerStepThrough] get; }
+        public virtual Type ClrType { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -113,15 +96,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string Name { [DebuggerStepThrough] get; }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [CA.MemberNotNullWhen(true, nameof(ClrType))]
-        public virtual bool HasClrType => ClrType is not null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -405,7 +379,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        Type? ITypeBase.ClrType
+        Type ITypeBase.ClrType
         {
             [DebuggerStepThrough] get => ClrType;
         }

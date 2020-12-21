@@ -4,7 +4,6 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -33,10 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             OwnedAttribute attribute,
             IConventionContext<IConventionEntityTypeBuilder> context)
         {
-            if (entityTypeBuilder.Metadata.HasClrType)
-            {
-                entityTypeBuilder.ModelBuilder.Owned(entityTypeBuilder.Metadata.ClrType, fromDataAnnotation: true);
-            }
+            entityTypeBuilder.ModelBuilder.Owned(entityTypeBuilder.Metadata.ClrType, fromDataAnnotation: true);
         }
     }
 }

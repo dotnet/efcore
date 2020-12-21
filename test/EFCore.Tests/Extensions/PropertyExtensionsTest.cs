@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore
             property2.SetValueConverter(new CastingConverter<int?, decimal>());
 
             Assert.Equal(
-                CoreStrings.ConverterPropertyMismatch("long", "Entity", "Property1", "int"),
+                CoreStrings.ConverterPropertyMismatch("long", "Entity (Dictionary<string, object>)", "Property1", "int"),
                 Assert.Throws<InvalidOperationException>(
                     () => property1.SetValueConverter(new CastingConverter<long, decimal>())).Message);
         }

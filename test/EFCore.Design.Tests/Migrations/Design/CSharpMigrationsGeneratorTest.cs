@@ -775,7 +775,7 @@ namespace MyNamespace
 
             var snapshot = CompileModelSnapshot(modelSnapshotCode, "MyNamespace.MySnapshot");
             var entityType = snapshot.Model.GetEntityTypes().Single();
-            Assert.Equal(typeof(EntityWithEveryPrimitive).FullName, entityType.DisplayName());
+            Assert.Equal(typeof(EntityWithEveryPrimitive).FullName + " (Dictionary<string, object>)", entityType.DisplayName());
 
             foreach (var property in modelBuilder.Model.GetEntityTypes().Single().GetProperties())
             {

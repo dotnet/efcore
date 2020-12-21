@@ -190,16 +190,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
-        public virtual void Detects_shadow_entities()
-        {
-            var model = CreateConventionlessModelBuilder().Model;
-            var entityType = model.AddEntityType("BewareTheShadows");
-            SetPrimaryKey(entityType);
-
-            VerifyError(CoreStrings.ShadowEntity("BewareTheShadows"), model);
-        }
-
-        [ConditionalFact]
         public virtual void Passes_on_shadow_key_created_explicitly()
         {
             var model = CreateConventionlessModelBuilder().Model;

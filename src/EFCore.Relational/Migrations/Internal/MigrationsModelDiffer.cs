@@ -1662,9 +1662,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 foreach (var targetSeed in targetEntityType.GetSeedData())
                 {
-                    _targetUpdateAdapter
-                        .CreateEntry(targetSeed, targetEntityType)
-                        .EntityState = EntityState.Added;
+                    var targetEntry = _targetUpdateAdapter.CreateEntry(targetSeed, targetEntityType);
+                    if (targetEntry.ToEntityEntry().Entity is Dictionary<string, object> targetBag)
+                    {
+                        targetBag.Remove((key, _, target) => !target.ContainsKey(key), targetSeed);
+                    }
+
+                    targetEntry.EntityState = EntityState.Added;
                 }
             }
 

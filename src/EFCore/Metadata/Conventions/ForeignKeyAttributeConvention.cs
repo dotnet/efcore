@@ -323,8 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         [ContractAnnotation("navigationName:null => null")]
         private MemberInfo FindForeignKeyAttributeOnProperty(IConventionEntityType entityType, string navigationName)
         {
-            if (string.IsNullOrWhiteSpace(navigationName)
-                || !entityType.HasClrType)
+            if (string.IsNullOrWhiteSpace(navigationName))
             {
                 return null;
             }

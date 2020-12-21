@@ -836,7 +836,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         DesignStrings.ForeignKeyScaffoldErrorPrincipalKeyNotFound(
                             foreignKey.DisplayName(),
                             string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, principalColumns),
-                            principalEntityType.DisplayName()));
+                            principalEntityType.Name));
 
                     return null;
                 }

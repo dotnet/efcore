@@ -34,14 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         Therefore, shadow types will only exist in migration model snapshots, etc.
         ///     </para>
         /// </summary>
-        Type? ClrType { get; }
-
-        /// <summary>
-        ///     Gets whether this entity type has an associated CLR type. An entity type without an associated CLR type is known as
-        ///     a shadow type.
-        /// </summary>
-        [CA.MemberNotNullWhen(true, nameof(ClrType))]
-        public bool HasClrType => ClrType != null;
+        Type ClrType { get; }
 
         /// <summary>
         ///     Gets whether this entity type can share its ClrType with other entities.

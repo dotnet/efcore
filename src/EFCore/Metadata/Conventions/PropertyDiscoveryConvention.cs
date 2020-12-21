@@ -63,15 +63,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private void Process(IConventionEntityTypeBuilder entityTypeBuilder)
         {
-            var entityType = entityTypeBuilder.Metadata;
-            if (entityType.HasClrType)
+            foreach (var propertyInfo in entityTypeBuilder.Metadata.GetRuntimeProperties().Values)
             {
-                foreach (var propertyInfo in entityType.GetRuntimeProperties().Values)
+                if (IsCandidatePrimitiveProperty(propertyInfo))
                 {
-                    if (IsCandidatePrimitiveProperty(propertyInfo))
-                    {
-                        entityTypeBuilder.Property(propertyInfo);
-                    }
+                    entityTypeBuilder.Property(propertyInfo);
                 }
             }
         }
