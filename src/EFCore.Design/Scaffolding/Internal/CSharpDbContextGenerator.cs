@@ -696,13 +696,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 canUseDataAnnotations = false;
                 lines.Add(
                     $".{nameof(ReferenceReferenceBuilder.HasPrincipalKey)}"
-                    + (foreignKey.IsUnique ? $"<{foreignKey.PrincipalEntityType.DisplayName()}>" : "")
+                    + (foreignKey.IsUnique ? $"<{foreignKey.PrincipalEntityType.Name}>" : "")
                     + $"({_code.Lambda(foreignKey.PrincipalKey.Properties, "p")})");
             }
 
             lines.Add(
                 $".{nameof(ReferenceReferenceBuilder.HasForeignKey)}"
-                + (foreignKey.IsUnique ? $"<{foreignKey.DeclaringEntityType.DisplayName()}>" : "")
+                + (foreignKey.IsUnique ? $"<{foreignKey.DeclaringEntityType.Name}>" : "")
                 + $"({_code.Lambda(foreignKey.Properties, "d")})");
 
             var defaultOnDeleteAction = foreignKey.IsRequired

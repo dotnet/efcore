@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             Assert.True(foreignKey.IsUnique);
 
             Assert.Equal(
-                CoreStrings.ShadowEntity("Order"),
+                CoreStrings.EntityRequiresKey("Order (Dictionary<string, object>)"),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
         }
 
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             Assert.False(foreignKey.IsUnique);
 
             Assert.Equal(
-                CoreStrings.ShadowEntity("Customer"),
+                CoreStrings.EntityRequiresKey("Customer (Dictionary<string, object>)"),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
         }
 
@@ -109,7 +109,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             var orderEntityType = modelBuilder.Entity(typeof(Order));
 
             Assert.Equal(
-                CoreStrings.NavigationToShadowEntity("Customer", typeof(Order).ShortDisplayName(), "Customer"),
+                CoreStrings.NavigationSingleWrongClrType(
+                    "Customer", typeof(Order).ShortDisplayName(), "Customer", "Dictionary<string, object>"),
                 Assert.Throws<InvalidOperationException>(() => orderEntityType.HasOne("Customer", "Customer")).Message);
         }
 

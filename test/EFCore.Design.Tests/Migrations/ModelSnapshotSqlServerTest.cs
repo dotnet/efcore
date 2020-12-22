@@ -1292,18 +1292,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 model =>
                 {
                     var joinEntity = model.FindEntityType("ManyToManyLeftManyToManyRight");
-                    Assert.NotNull(joinEntity);
+                    Assert.Equal(typeof(Dictionary<string, object>), joinEntity.ClrType);
                     Assert.Collection(
                         joinEntity.GetDeclaredProperties(),
                         p =>
                         {
                             Assert.Equal("LeftsId", p.Name);
-                            Assert.True(p.IsShadowProperty());
+                            Assert.False(p.IsShadowProperty());
                         },
                         p =>
                         {
                             Assert.Equal("RightsId", p.Name);
-                            Assert.True(p.IsShadowProperty());
+                            Assert.False(p.IsShadowProperty());
                         });
                     Assert.Collection(
                         joinEntity.FindDeclaredPrimaryKey().Properties,
@@ -1433,19 +1433,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 model =>
                 {
                     var joinEntity = model.FindEntityType("ManyToManyLeftManyToManyRight");
-                    Assert.NotNull(joinEntity);
+                    Assert.Equal(typeof(Dictionary<string, object>), joinEntity.ClrType);
                     Assert.Equal("MyJoinTable", joinEntity.GetTableName());
                     Assert.Collection(
                         joinEntity.GetDeclaredProperties(),
                         p =>
                         {
                             Assert.Equal("LeftsId", p.Name);
-                            Assert.True(p.IsShadowProperty());
+                            Assert.False(p.IsShadowProperty());
                         },
                         p =>
                         {
                             Assert.Equal("RightsId", p.Name);
-                            Assert.True(p.IsShadowProperty());
+                            Assert.False(p.IsShadowProperty());
                         });
                     Assert.Collection(
                         joinEntity.FindDeclaredPrimaryKey().Properties,

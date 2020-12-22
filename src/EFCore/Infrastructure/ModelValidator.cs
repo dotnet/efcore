@@ -53,7 +53,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             ((Model)model).IsValidated = true;
 
+#pragma warning disable CS0618 // Type or member is obsolete
             ValidateNoShadowEntities(model, logger);
+#pragma warning restore CS0618 // Type or member is obsolete
             ValidateIgnoredMembers(model, logger);
             ValidatePropertyMapping(model, logger);
             ValidateRelationships(model, logger);
@@ -162,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             entityType.DisplayName(), unmappedProperty.Name, unmappedProperty.ClrType.ShortDisplayName()));
                 }
 
-                if (!entityType.HasClrType)
+                if (entityType.ClrType == Model.DefaultPropertyBagType)
                 {
                     continue;
                 }
@@ -370,18 +372,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="model"> The model to validate. </param>
         /// <param name="logger"> The logger to use. </param>
+        [Obsolete("Shadow entity types cannot be created anymore")]
         protected virtual void ValidateNoShadowEntities(
             [NotNull] IModel model,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            Check.NotNull(model, nameof(model));
-
-            var firstShadowEntity = model.GetEntityTypes().FirstOrDefault(entityType => !entityType.HasClrType);
-            if (firstShadowEntity != null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.ShadowEntity(firstShadowEntity.DisplayName()));
-            }
         }
 
         /// <summary>
@@ -745,8 +740,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 ownership.PrincipalEntityType.DisplayName()));
                     }
                 }
-                else if (entityType.HasClrType
-                    && ((IMutableModel)model).IsOwned(entityType.ClrType))
+                else if (((IMutableModel)model).IsOwned(entityType.ClrType))
                 {
                     throw new InvalidOperationException(CoreStrings.OwnerlessOwnedType(entityType.DisplayName()));
                 }
@@ -1103,8 +1097,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 entityType.DisplayName(), key.Properties.Format()));
                     }
 
-                    entry = new InternalShadowEntityEntry(null, entityType);
-
+                    entry = new InternalClrEntityEntry(null, entityType, seedDatum);
                     identityMap.Add(keyValues, entry);
                 }
             }

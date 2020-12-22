@@ -59,8 +59,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             string entityInstanceName,
             Expression materializationContextExpression)
         {
-            Check.DebugAssert(entityType.HasClrType, "Cannot materialize shadow types.");
-
             if (entityType.IsAbstract())
             {
                 throw new InvalidOperationException(CoreStrings.CannotMaterializeAbstractType(entityType.DisplayName()));

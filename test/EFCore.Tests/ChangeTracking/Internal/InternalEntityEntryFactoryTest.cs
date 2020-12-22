@@ -14,28 +14,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     public class InternalEntityEntryFactoryTest
     {
         [ConditionalFact]
-        public void Creates_shadow_state_only_entry_when_entity_is_fully_shadow_state()
-        {
-            var model = CreateModel();
-            var entityType = model.AddEntityType("RedHook");
-            entityType.AddProperty("Long", typeof(int));
-            entityType.AddProperty("Hammer", typeof(string));
-            model.FinalizeModel();
-
-            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
-            var stateManager = contextServices.GetRequiredService<IStateManager>();
-            var factory = contextServices.GetRequiredService<IInternalEntityEntryFactory>();
-
-            var entry = factory.Create(stateManager, entityType, new Random());
-
-            Assert.IsType<InternalShadowEntityEntry>(entry);
-
-            Assert.Same(stateManager, entry.StateManager);
-            Assert.Same(entityType, entry.EntityType);
-            Assert.Null(entry.Entity);
-        }
-
-        [ConditionalFact]
         public void Creates_CLR_only_entry_when_entity_has_no_shadow_properties()
         {
             var model = CreateModel();

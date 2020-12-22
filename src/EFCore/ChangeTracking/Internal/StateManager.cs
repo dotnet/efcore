@@ -303,9 +303,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             var valueBuffer = new ValueBuffer(valuesArray);
-            var entity = entityType.HasClrType
-                ? EntityMaterializerSource.GetMaterializer(entityType)(new MaterializationContext(valueBuffer, Context))
-                : null;
+            var entity = EntityMaterializerSource.GetMaterializer(entityType)(new MaterializationContext(valueBuffer, Context));
 
             var shadowPropertyValueBuffer = new ValueBuffer(shadowPropertyValuesArray);
             var entry = _internalEntityEntryFactory.Create(this, entityType, entity, shadowPropertyValueBuffer);

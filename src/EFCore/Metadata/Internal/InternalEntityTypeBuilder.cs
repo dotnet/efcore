@@ -3325,10 +3325,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         "Owned types should only have ownership navigations point at it");
 
                     return existingTargetType.HasSharedClrType
-                        ? !existingTargetType.HasClrType
-                            ? ModelBuilder.Entity(existingTargetType.Name, configurationSource.Value, targetShouldBeOwned)
-                            : ModelBuilder.SharedTypeEntity(
-                                existingTargetType.Name, existingTargetType.ClrType, configurationSource.Value, targetShouldBeOwned)
+                        ? ModelBuilder.SharedTypeEntity(
+                            existingTargetType.Name, existingTargetType.ClrType, configurationSource.Value, targetShouldBeOwned)
                         : ModelBuilder.Entity(existingTargetType.ClrType, configurationSource.Value, targetShouldBeOwned);
                 }
 
@@ -3340,8 +3338,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            if (navigation.MemberInfo == null
-                && Metadata.HasClrType)
+            if (navigation.MemberInfo == null)
             {
                 if (Metadata.GetRuntimeProperties().TryGetValue(navigation.Name, out var propertyInfo))
                 {

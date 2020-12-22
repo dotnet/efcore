@@ -257,6 +257,7 @@
   </data>
   <data name="ClrPropertyOnShadowEntity" xml:space="preserve">
     <value>The property '{property}' cannot exist on type '{entityType}' because the type is marked as shadow state while the property is not. Shadow state types can only contain shadow state properties.</value>
+    <comment>Obsolete</comment>
   </data>
   <data name="CollectionIsReference" xml:space="preserve">
     <value>The property '{1_entityType}.{0_property}' is being accessed using '{collectionMethod}', but is defined in the model as a non-collection, reference navigation. Use '{referenceMethod}' to access reference navigations.</value>
@@ -1023,6 +1024,7 @@
   </data>
   <data name="NavigationFromShadowEntity" xml:space="preserve">
     <value>The navigation '{navigation}' cannot be added to the entity type '{entityType}' because it is defined in shadow state, and navigations properties cannot originate from shadow state entities.</value>
+    <comment>Obsolete</comment>
   </data>
   <data name="NavigationIsProperty" xml:space="preserve">
     <value>The property '{1_entityType}.{0_property}' is being accessed using the '{referenceMethod}' or '{collectionMethod}' method, but is defined in the model as a non-navigation. Use the '{propertyMethod}' method to access non-navigation properties.</value>
@@ -1041,6 +1043,7 @@
   </data>
   <data name="NavigationToShadowEntity" xml:space="preserve">
     <value>The navigation '{navigation}' cannot be added to the entity type '{entityType}' because the target entity type '{targetType}' is defined in shadow state, and navigations properties cannot point to shadow state entities.</value>
+    <comment>Obsolete</comment>
   </data>
   <data name="NoBackingField" xml:space="preserve">
     <value>No backing field was found for property '{1_entityType}.{0_property}'. Name the backing field so that it is discovered by convention, configure the backing field to use, or use a different '{propertyAccessMode}'.</value>
@@ -1085,6 +1088,7 @@
   </data>
   <data name="NonClrBaseType" xml:space="preserve">
     <value>The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{baseEntityType}' is a shadow state entity type while '{entityType}' is not.</value>
+    <comment>Obsolete</comment>
   </data>
   <data name="NonComparableKeyType" xml:space="preserve">
     <value>Property '{entityType}.{property}' cannot be used as a key because it has type '{providerType}' which does not implement 'IComparable&lt;T&gt;', 'IComparable' or 'IStructuralComparable'. Use 'HasConversion' in 'OnModelCreating' to wrap '{providerType}' with a type that can be compared.</value>
@@ -1110,6 +1114,7 @@
   </data>
   <data name="NonShadowBaseType" xml:space="preserve">
     <value>The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{entityType}' is a shadow state entity type while '{baseEntityType}' is not.</value>
+    <comment>Obsolete</comment>
   </data>
   <data name="NonUniqueRequiredDependentForeignKey" xml:space="preserve">
     <value>The foreign key {foreignKeyProperties} on the entity type '{declaringEntityType}' cannot have a required dependent end since it is not unique.</value>
@@ -1350,6 +1355,7 @@
   </data>
   <data name="ShadowEntity" xml:space="preserve">
     <value>The entity type '{entityType}' is in shadow state. A valid model requires all entity types to have a corresponding CLR type.</value>
+    <comment>Obsolete</comment>
   </data>
   <data name="SharedTypeDerivedType" xml:space="preserve">
     <value>The shared-type entity type '{entityType}' cannot have a base type.</value>

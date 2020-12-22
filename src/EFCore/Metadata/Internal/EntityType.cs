@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public EntityType([NotNull] string name, [NotNull] Model model, ConfigurationSource configurationSource)
-            : base(name, model, configurationSource)
+            : base(name, Model.DefaultPropertyBagType, model, configurationSource)
         {
             _properties = new SortedDictionary<string, Property>(new PropertyNameComparer(this));
             Builder = new InternalEntityTypeBuilder(this, model.Builder);
@@ -260,26 +260,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (newBaseType != null)
             {
-                if (HasClrType)
+                if (!newBaseType.ClrType.IsAssignableFrom(ClrType))
                 {
-                    if (!newBaseType.HasClrType)
-                    {
-                        throw new InvalidOperationException(CoreStrings.NonClrBaseType(this.DisplayName(), newBaseType.DisplayName()));
-                    }
-
-                    if (!newBaseType.ClrType.IsAssignableFrom(ClrType))
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.NotAssignableClrBaseType(
-                                this.DisplayName(), newBaseType.DisplayName(), ClrType.ShortDisplayName(),
-                                newBaseType.ClrType.ShortDisplayName()));
-                    }
-                }
-
-                if (!HasClrType
-                    && newBaseType.HasClrType)
-                {
-                    throw new InvalidOperationException(CoreStrings.NonShadowBaseType(this.DisplayName(), newBaseType.DisplayName()));
+                    throw new InvalidOperationException(
+                        CoreStrings.NotAssignableClrBaseType(
+                            this.DisplayName(), newBaseType.DisplayName(), ClrType.ShortDisplayName(),
+                            newBaseType.ClrType.ShortDisplayName()));
                 }
 
                 if (newBaseType.InheritsFrom(this))
@@ -1468,8 +1454,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 memberInfo = ClrType?.GetMembersInHierarchy(name).FirstOrDefault();
             }
 
-            if (ClrType != null
-                && ClrType != Model.DefaultPropertyBagType)
+            if (memberInfo != null)
             {
                 Navigation.IsCompatible(
                     name,
@@ -1632,7 +1617,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 memberInfo = ClrType?.GetMembersInHierarchy(name).FirstOrDefault();
             }
 
-            if (ClrType != null)
+            if (memberInfo != null)
             {
                 Navigation.IsCompatible(
                     name,
@@ -1671,11 +1656,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private Type? ValidateClrMember(string name, MemberInfo memberInfo, bool throwOnNameMismatch = true)
         {
-            if (ClrType == null)
-            {
-                throw new InvalidOperationException(CoreStrings.ClrPropertyOnShadowEntity(memberInfo.Name, this.DisplayName()));
-            }
-
             if (name != memberInfo.GetSimpleMemberName())
             {
                 if (memberInfo != FindIndexerPropertyInfo())
