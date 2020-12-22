@@ -51,6 +51,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private static readonly MethodInfo _likeMethodInfoWithEscape = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
             nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(string) });
 
+        private static readonly MethodInfo _randomMethodInfo = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
+            nameof(DbFunctionsExtensions.Random), new[] { typeof(DbFunctions) });
+
+        private static readonly MethodInfo _randomNextDoubleMethodInfo = typeof(Random).GetRequiredRuntimeMethod(
+            nameof(Random.NextDouble), Array.Empty<Type>());
+
         private static readonly MethodInfo _inMemoryLikeMethodInfo =
             typeof(InMemoryExpressionTranslatingExpressionVisitor).GetRequiredDeclaredMethod(nameof(InMemoryLike));
 
@@ -748,6 +754,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 }
 
                 return Expression.Call(_inMemoryLikeMethodInfo, visitedArguments);
+            }
+
+            if (methodCallExpression.Method == _randomMethodInfo)
+            {
+                return Expression.Call(Expression.New(typeof(Random)), _randomNextDoubleMethodInfo);
             }
 
             Expression? @object = null;

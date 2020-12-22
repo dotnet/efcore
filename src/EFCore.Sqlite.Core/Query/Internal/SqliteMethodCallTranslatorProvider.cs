@@ -37,6 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     new SqliteHexMethodTranslator(sqlExpressionFactory),
                     new SqliteMathTranslator(sqlExpressionFactory),
                     new SqliteObjectToStringTranslator(sqlExpressionFactory),
+                    new SqliteRandomTranslator(sqlExpressionFactory),
                     new SqliteRegexMethodTranslator(sqlExpressionFactory),
                     new SqliteStringMethodTranslator(sqlExpressionFactory),
                     new SqliteSubstrMethodTranslator(sqlExpressionFactory)

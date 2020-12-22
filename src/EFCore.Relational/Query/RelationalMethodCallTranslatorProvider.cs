@@ -58,7 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new EnumHasFlagTranslator(sqlExpressionFactory),
                     new GetValueOrDefaultTranslator(sqlExpressionFactory),
                     new ComparisonTranslator(sqlExpressionFactory),
-                    new ByteArraySequenceEqualTranslator(sqlExpressionFactory)
+                    new ByteArraySequenceEqualTranslator(sqlExpressionFactory),
+                    new RandomTranslator(sqlExpressionFactory)
                 });
             _sqlExpressionFactory = sqlExpressionFactory;
         }
