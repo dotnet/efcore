@@ -38,6 +38,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     new SqlServerFromPartsFunctionTranslator(sqlExpressionFactory, typeMappingSource),
                     new SqlServerFullTextSearchFunctionsTranslator(sqlExpressionFactory),
                     new SqlServerIsDateFunctionTranslator(sqlExpressionFactory),
+                    new SqlServerIsNumericFunctionTranslator(sqlExpressionFactory),
                     new SqlServerMathTranslator(sqlExpressionFactory),
                     new SqlServerNewGuidTranslator(sqlExpressionFactory),
                     new SqlServerObjectToStringTranslator(sqlExpressionFactory),
