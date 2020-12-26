@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using Xunit;
+using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -77,10 +78,37 @@ namespace Microsoft.EntityFrameworkCore
         public override Task Two_concurrency_issues_in_one_to_one_related_entities_can_be_handled_by_dealing_with_dependent_first()
             => Task.FromResult(true);
 
-        [ConditionalFact(Skip = "Throw DbUpdateException or DbUpdateConcurrencyException for in-memory database errors #23569")]
-        public override Task Adding_the_same_entity_twice_results_in_DbUpdateException()
+        [Fact]
+        public override async Task Adding_the_same_entity_twice_results_in_DbUpdateException()
         {
-            return Task.FromResult(true);
+            using var c = CreateF1Context();
+            await c.Database.CreateExecutionStrategy().ExecuteAsync(
+                c, async context =>
+                {
+                    using var transaction = BeginTransaction(context.Database);
+                    context.Teams.Add(
+                        new Team
+                        {
+                            Id = -1,
+                            Name = "Wubbsy Racing",
+                            Chassis = new Chassis { TeamId = -1, Name = "Wubbsy" }
+                        });
+
+                    using var innerContext = CreateF1Context();
+                    UseTransaction(innerContext.Database, transaction);
+                    innerContext.Teams.Add(
+                        new Team
+                        {
+                            Id = -1,
+                            Name = "Wubbsy Racing",
+                            Chassis = new Chassis { TeamId = -1, Name = "Wubbsy" }
+                        });
+
+                    await innerContext.SaveChangesAsync();
+
+                    await Assert.ThrowsAnyAsync<DbUpdateException>(() => context.SaveChangesAsync());
+                });
+            
         }
         [ConditionalFact(Skip = "Throw DbUpdateException or DbUpdateConcurrencyException for in-memory database errors #23569")]
         public override Task Deleting_the_same_entity_twice_results_in_DbUpdateConcurrencyException()
