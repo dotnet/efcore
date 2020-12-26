@@ -79,14 +79,19 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact(Skip = "Throw DbUpdateException or DbUpdateConcurrencyException for in-memory database errors #23569")]
         public override Task Adding_the_same_entity_twice_results_in_DbUpdateException()
-            => Task.FromResult(true);
-
+        {
+            return Task.FromResult(true);
+        }
         [ConditionalFact(Skip = "Throw DbUpdateException or DbUpdateConcurrencyException for in-memory database errors #23569")]
         public override Task Deleting_the_same_entity_twice_results_in_DbUpdateConcurrencyException()
-            => Task.FromResult(true);
+        {
+            return Task.FromResult(true);
+        }
 
         [ConditionalFact(Skip = "Throw DbUpdateException or DbUpdateConcurrencyException for in-memory database errors #23569")]
         public override Task Deleting_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException()
-            => Task.FromResult(true);
+        {
+            return Task.FromResult(true);
+        }
     }
 }
