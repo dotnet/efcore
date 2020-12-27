@@ -202,7 +202,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             {
                 ThrowNullabilityErrorException(entry, nullabilityErrors);
             }
-
+            var key = CreateKey(entry);
+            if(_rows.ContainsKey(key))
+                throw new DbUpdateConcurrencyException($"a key with the same value already esists ({key})");
             _rows.Add(CreateKey(entry), row);
 
             BumpValueGenerators(row);
