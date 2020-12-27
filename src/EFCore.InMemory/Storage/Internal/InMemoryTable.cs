@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             }
             var key = CreateKey(entry);
             if(_rows.ContainsKey(key))
-                throw new DbUpdateConcurrencyException($"a key with the same value already esists ({key})");
+                throw new DbUpdateConcurrencyException(InMemoryStrings.DuplicateKeyException(key),new[]{entry});
             _rows.Add(CreateKey(entry), row);
 
             BumpValueGenerators(row);
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         public virtual void Delete(IUpdateEntry entry)
         {
             var key = CreateKey(entry);
-
+            
             if (_rows.TryGetValue(key, out var row))
             {
                 var properties = entry.EntityType.GetProperties().ToList();
@@ -227,14 +227,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
                 for (var index = 0; index < properties.Count; index++)
                 {
-                    IsConcurrencyConflict(entry, properties[index], row[index], concurrencyConflicts);
+                    IsConcurrencyConflict(entry, properties[index], row[index], concurrencyConflicts, true);
                 }
 
                 if (concurrencyConflicts.Count > 0)
                 {
                     ThrowUpdateConcurrencyException(entry, concurrencyConflicts);
                 }
-
+                
                 _rows.Remove(key);
             }
             else
@@ -247,9 +247,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             IUpdateEntry entry,
             IProperty property,
             object rowValue,
-            Dictionary<IProperty, object> concurrencyConflicts)
+            Dictionary<IProperty, object> concurrencyConflicts,
+            bool checkAll=false)
         {
-            if (property.IsConcurrencyToken)
+            if (property.IsConcurrencyToken || checkAll)
             {
                 var comparer = property.GetKeyValueComparer();
                 var originalValue = entry.GetOriginalValue(property);
@@ -261,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 {
                     rowValue = converter.ConvertFromProvider(rowValue);
                 }
-
+                
                 if ((comparer != null && !comparer.Equals(rowValue, originalValue))
                     || (comparer == null && !StructuralComparisons.StructuralEqualityComparer.Equals(rowValue, originalValue)))
                 {
@@ -283,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         public virtual void Update(IUpdateEntry entry)
         {
             var key = CreateKey(entry);
-
+            
             if (_rows.TryGetValue(key, out var row))
             {
                 var properties = entry.EntityType.GetProperties().ToList();

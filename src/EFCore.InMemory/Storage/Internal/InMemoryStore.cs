@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 {
                     var entry = entries[i];
                     var entityType = entry.EntityType;
-
+                    
                     Check.DebugAssert(!entityType.IsAbstract(), "entityType is abstract");
 
                     var table = EnsureTable(entityType);

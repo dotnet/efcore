@@ -88,7 +88,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
             => string.Format(
                 GetString("UpdateConcurrencyTokenExceptionSensitive", nameof(entityType), nameof(keyValue), nameof(conflictingValues), nameof(databaseValues)),
                 entityType, keyValue, conflictingValues, databaseValues);
-
+        /// <summary>
+        ///     Attempt to add a duplicate entity with key='{key}'.
+        /// </summary>
+        public static string DuplicateKeyException(object key)
+            =>string.Format("a key with the same value already esists ({0})",key);
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name)!;

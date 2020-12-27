@@ -129,10 +129,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     using var innerContext = CreateF1Context();
                     UseTransaction(innerContext.Database, transaction);
-                    context.Drivers.Remove(innerContext.Drivers.Single(d => d.Name == DRIVER));
-
+                    innerContext.Drivers.Remove(innerContext.Drivers.Single(d => d.Name == DRIVER));
+                    
                     await innerContext.SaveChangesAsync();
-
+                    
                     await Assert.ThrowsAnyAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync());
                 });
         }
@@ -150,13 +150,14 @@ namespace Microsoft.EntityFrameworkCore
                         new Driver(){ Name=DRIVER}
                     );
                     await context.SaveChangesAsync();
+
                     using var transaction = BeginTransaction(context.Database);
                     context.Drivers.Remove(context.Drivers.Single(d => d.Name == DRIVER));
                         
 
                     using var innerContext = CreateF1Context();
                     UseTransaction(innerContext.Database, transaction);
-                    var driver = context.Drivers.Single(d => d.Name == DRIVER);
+                    var driver = innerContext.Drivers.Single(d => d.Name == DRIVER);
                     driver.Name="Felix";
                     await innerContext.SaveChangesAsync();
 
