@@ -765,7 +765,7 @@ namespace Microsoft.EntityFrameworkCore
                             .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
 
             protected override bool UsePooling
-                => false;
+                => false; // The IdentityServer ConfigurationDbContext has additional service dependencies
         }
     }
 }
