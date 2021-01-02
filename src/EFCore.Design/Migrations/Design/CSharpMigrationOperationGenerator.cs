@@ -726,18 +726,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             {
                 if (operation.Collation != null)
                 {
-                    builder
+                    if(!operation.Collation.Equals(operation.OldDatabase.Collation, StringComparison.OrdinalIgnoreCase)){
+                        builder
+                            .AppendLine()
+                            .Append("collation: ")
+                            .Append(Code.Literal(operation.Collation));
+                        builder
                         .AppendLine()
                         .Append("collation: ")
-                        .Append(Code.Literal(operation.Collation));
-                }
-
-                if (operation.OldDatabase.Collation != null)
-                {
-                    builder
-                        .AppendLine(",")
-                        .Append("oldCollation: ")
                         .Append(Code.Literal(operation.OldDatabase.Collation));
+                    }                    
                 }
 
                 builder.Append(")");
