@@ -718,28 +718,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         protected virtual void Generate([NotNull] AlterDatabaseOperation operation, [NotNull] IndentedStringBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder.Append(".AlterDatabase(");
+            Check.NotNull(builder, nameof(builder));            
 
             using (builder.Indent())
             {
                 if (operation.Collation != null)
                 {
                     if(!operation.Collation.Equals(operation.OldDatabase.Collation, StringComparison.OrdinalIgnoreCase)){
+                        builder.Append(".AlterDatabase(");
                         builder
                             .AppendLine()
                             .Append("collation: ")
                             .Append(Code.Literal(operation.Collation));
                         builder
-                        .AppendLine()
-                        .Append("collation: ")
-                        .Append(Code.Literal(operation.OldDatabase.Collation));
+                            .AppendLine()
+                            .Append("collation: ")
+                            .Append(Code.Literal(operation.OldDatabase.Collation));
+                        builder.Append(")");
                     }                    
                 }
-
-                builder.Append(")");
-
                 Annotations(operation.GetAnnotations(), builder);
                 OldAnnotations(operation.OldDatabase.GetAnnotations(), builder);
             }
