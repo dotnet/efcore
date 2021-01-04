@@ -47,6 +47,8 @@
       <PreCommands>$(PreCommands); export MSSQL_SA_PASSWORD=$(MSSQL_SA_PASSWORD); /opt/mssql/bin/sqlservr --accept-eula &amp;; export Test__SqlServer__DefaultConnection="Data Source=localhost;;Database=master;;User=sa;;Password=$(MSSQL_SA_PASSWORD);;Connect Timeout=60;;ConnectRetryCount=0"; sleep 120</PreCommands>
       <XUnitWorkItemTimeout>01:00:00</XUnitWorkItemTimeout>
     </XUnitProject>
+    <!-- Remove SqlServer Functional Tests till #23776 is resolved -->
+    <XUnitProject Remove="$(RepoRoot)/test/EFCore.SqlServer.FunctionalTests/*.csproj"/>
   </ItemGroup>
 
   <!-- Remove test projects which requires SqlServer from Ubuntu/OSX. -->
