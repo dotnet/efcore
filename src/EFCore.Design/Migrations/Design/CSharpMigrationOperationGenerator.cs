@@ -724,20 +724,31 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             using (builder.Indent())
             {
+                var needComma = false;
+
                 if (operation.Collation != null)
                 {
                     builder
                         .AppendLine()
                         .Append("collation: ")
                         .Append(Code.Literal(operation.Collation));
+
+                    needComma = true;
                 }
 
                 if (operation.OldDatabase.Collation != null)
                 {
+                    if (needComma)
+                    {
+                        builder.Append(",");
+                    }
+
                     builder
-                        .AppendLine(",")
+                        .AppendLine()
                         .Append("oldCollation: ")
                         .Append(Code.Literal(operation.OldDatabase.Collation));
+
+                    needComma = true;
                 }
 
                 builder.Append(")");

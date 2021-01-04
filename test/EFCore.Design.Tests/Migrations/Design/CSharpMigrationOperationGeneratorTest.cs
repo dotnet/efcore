@@ -804,8 +804,43 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + "    .OldAnnotation(\"bar\", \"foo\");",
                 o =>
                 {
+                    Assert.Equal("Some collation", o.Collation);
+                    Assert.Equal("Some other collation", o.OldDatabase.Collation);
                     Assert.Equal("bar", o["foo"]);
                     Assert.Equal("foo", o.OldDatabase["bar"]);
+                });
+        }
+
+        [ConditionalFact]
+        public void AlterDatabaseOperation_with_default_old_collation()
+        {
+            Test(
+                new AlterDatabaseOperation { Collation = "Some collation" },
+                "mb.AlterDatabase("
+                + _eol
+                + "    collation: \"Some collation\");",
+                o =>
+                {
+                    Assert.Equal("Some collation", o.Collation);
+                    Assert.Null(o.OldDatabase.Collation);
+                });
+        }
+
+        [ConditionalFact]
+        public void AlterDatabaseOperation_with_default_new_collation()
+        {
+            Test(
+                new AlterDatabaseOperation
+                {
+                    OldDatabase = { Collation = "Some collation" }
+                },
+                "mb.AlterDatabase("
+                + _eol
+                + "    oldCollation: \"Some collation\");",
+                o =>
+                {
+                    Assert.Null(o.Collation);
+                    Assert.Equal("Some collation", o.OldDatabase.Collation);
                 });
         }
 
