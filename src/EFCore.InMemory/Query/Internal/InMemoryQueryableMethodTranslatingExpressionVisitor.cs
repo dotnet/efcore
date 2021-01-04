@@ -1467,7 +1467,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         .Select(p => p.ClrType)
                         .Any(t => t.IsNullableType());
 
-
                     var outerKey = entityShaperExpression.CreateKeyValuesExpression(
                         navigation.IsOnDependent
                             ? foreignKey.Properties
