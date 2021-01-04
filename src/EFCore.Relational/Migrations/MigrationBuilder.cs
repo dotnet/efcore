@@ -477,7 +477,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] string collation = null,
             [CanBeNull] string oldCollation = null)
         {
-            var operation = new AlterDatabaseOperation { Collation = collation };
+            var operation = new AlterDatabaseOperation
+            {
+                Collation = collation,
+                OldDatabase =
+                {
+                    Collation = oldCollation
+                }
+            };
             Operations.Add(operation);
 
             return new AlterOperationBuilder<AlterDatabaseOperation>(operation);
