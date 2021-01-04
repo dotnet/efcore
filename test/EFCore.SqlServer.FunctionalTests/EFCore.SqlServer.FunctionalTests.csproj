@@ -5,6 +5,8 @@
     <AssemblyName>Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <SkipTests Condition="'$(OS)' != 'Windows_NT' AND '$(Test__SqlServer__DefaultConnection)' == ''">True</SkipTests>
+    <!-- Skipping tests pending investigation in https://github.com/dotnet/efcore/issues/23776 -->
+    <SkipTests>True</SkipTests>
   </PropertyGroup>
 
   <ItemGroup>
