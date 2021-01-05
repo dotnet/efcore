@@ -1241,5 +1241,102 @@ namespace Microsoft.Data.Sqlite
 
             Assert.Same(SqliteFactory.Instance, result);
         }
+
+        [Fact]
+        public void GetSchema_works()
+        {
+            using var connection = new SqliteConnection("Data Source=:memory:");
+
+            var dataTable = connection.GetSchema();
+
+            Assert.Equal(DbMetaDataCollectionNames.MetaDataCollections, dataTable.TableName);
+            Assert.Collection(
+                dataTable.Columns.Cast<DataColumn>(),
+                c => Assert.Equal(DbMetaDataColumnNames.CollectionName, c.ColumnName),
+                c => Assert.Equal(DbMetaDataColumnNames.NumberOfRestrictions, c.ColumnName),
+                c => Assert.Equal(DbMetaDataColumnNames.NumberOfIdentifierParts, c.ColumnName));
+            Assert.Collection(
+                dataTable.Rows.Cast<DataRow>().Select(r => r.ItemArray),
+                r => Assert.Equal(new object[] { DbMetaDataCollectionNames.MetaDataCollections, 0, 0 }, r),
+                r => Assert.Equal(new object[] { DbMetaDataCollectionNames.ReservedWords, 0, 0 }, r));
+        }
+
+        [Fact]
+        public void GetSchema_works_when_no_args()
+        {
+            using var connection = new SqliteConnection("Data Source=:memory:");
+
+            var dataTable = connection.GetSchema();
+
+            Assert.Equal(DbMetaDataCollectionNames.MetaDataCollections, dataTable.TableName);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        [InlineData("Unknown")]
+        public void GetSchema_throws_when_unknown_collection(string collectionName)
+        {
+            using var connection = new SqliteConnection("Data Source=:memory:");
+
+            var ex = Assert.Throws<ArgumentException>(() => connection.GetSchema(collectionName));
+
+            Assert.Equal(Resources.UnknownCollection(collectionName), ex.Message);
+        }
+
+        [Fact]
+        public void GetSchema_ignores_case()
+        {
+            using var connection = new SqliteConnection("Data Source=:memory:");
+
+            var dataTable = connection.GetSchema(DbMetaDataCollectionNames.MetaDataCollections.ToUpper());
+
+            Assert.Equal(DbMetaDataCollectionNames.MetaDataCollections, dataTable.TableName);
+        }
+
+        [Theory]
+        [InlineData(nameof(DbMetaDataCollectionNames.MetaDataCollections), 0)]
+        [InlineData(nameof(DbMetaDataCollectionNames.ReservedWords), 0)]
+        public void GetSchema_throws_when_unknown_restrictions(string collectionName, int maxRestrictions)
+        {
+            using var connection = new SqliteConnection("Data Source=:memory:");
+
+            var ex = Assert.Throws<ArgumentException>(
+                () => connection.GetSchema(
+                    collectionName,
+                    Enumerable.Repeat<string?>(null, maxRestrictions + 1).ToArray()));
+
+            Assert.Equal(Resources.TooManyRestrictions(collectionName), ex.Message);
+        }
+
+        [Fact]
+        public void GetSchema_allows_null()
+        {
+            using var connection = new SqliteConnection("Data Source=:memory:");
+
+            var dataTable = connection.GetSchema(DbMetaDataCollectionNames.MetaDataCollections, null!);
+
+            Assert.Equal(DbMetaDataCollectionNames.MetaDataCollections, dataTable.TableName);
+        }
+
+        [Fact]
+        public void GetSchema_ReservedWords_works()
+        {
+            using var connection = new SqliteConnection("Data Source=:memory:");
+            if (new Version(connection.ServerVersion) < new Version(3, 24, 0))
+            {
+                // Skip. Native functions not available
+                return;
+            }
+
+            var dataTable = connection.GetSchema(DbMetaDataCollectionNames.ReservedWords);
+
+            Assert.Equal(DbMetaDataCollectionNames.ReservedWords, dataTable.TableName);
+            Assert.Single(dataTable.Columns);
+            Assert.Contains(
+                dataTable.Rows.Cast<DataRow>(),
+                r => r.Field<string>(DbMetaDataColumnNames.ReservedWord) == "SELECT");
+        }
     }
 }

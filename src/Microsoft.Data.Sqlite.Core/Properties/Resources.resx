@@ -213,4 +213,10 @@
   <data name="EncryptionNotSupported" xml:space="preserve">
     <value>You specified a password in the connection string, but the native SQLite library '{libraryName}' doesn't support encryption.</value>
   </data>
+  <data name="TooManyRestrictions" xml:space="preserve">
+    <value>More restrictions were provided than the collection '{collectionName}' supports.</value>
+  </data>
+  <data name="UnknownCollection" xml:space="preserve">
+    <value>The requested collection '{collectionName}' is not defined.</value>
+  </data>
 </root>
