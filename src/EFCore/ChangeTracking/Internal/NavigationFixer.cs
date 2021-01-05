@@ -33,6 +33,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private readonly bool _useOldBehaviorFor23659
             = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23659", out var enabled) && enabled;
 
+        private readonly bool _useOldBehaviorFor23787
+            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23787", out var enabled) && enabled;
+
         private readonly IChangeDetector _changeDetector;
         private readonly IEntityGraphAttacher _attacher;
         private bool _inFixup;
@@ -832,7 +835,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 AddToCollection(otherEntry, skipNavigation.Inverse, entry, fromQuery);
                             }
 
-                            entry.AddToCollectionSnapshot(skipNavigation, otherEntity);
+                            if (!_useOldBehaviorFor23787)
+                            {
+                                entry.AddToCollectionSnapshot(skipNavigation, otherEntity);
+                            }
                         }
                     }
                 }
