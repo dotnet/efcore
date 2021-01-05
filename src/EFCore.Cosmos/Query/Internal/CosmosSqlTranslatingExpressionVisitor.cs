@@ -852,7 +852,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                 nodeType,
                                 CreatePropertyAccessExpression(left, p),
                                 CreatePropertyAccessExpression(right, p)))
-                    .Aggregate((l, r) => Expression.AndAlso(l, r)));
+                    .Aggregate((l, r) => nodeType == ExpressionType.Equal
+                        ? Expression.AndAlso(l, r)
+                        : Expression.OrElse(l, r)));
 
             return true;
         }

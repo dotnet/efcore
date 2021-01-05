@@ -1406,7 +1406,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                         return nodeType == ExpressionType.Equal
                             ? (Expression)comparison
                             : Expression.Not(comparison);
-                    }).Aggregate((l, r) => Expression.AndAlso(l, r)));
+                    }).Aggregate((l, r) => nodeType == ExpressionType.Equal
+                        ? Expression.AndAlso(l, r)
+                        : Expression.OrElse(l, r)));
 
             return true;
         }

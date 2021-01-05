@@ -7399,6 +7399,50 @@ FROM [LocustLeaders] AS [l]
 WHERE [l].[Discriminator] = N'LocustCommander'");
         }
 
+        public override async Task Composite_key_entity_equal(bool async)
+        {
+            await base.Composite_key_entity_equal(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
+FROM [Gears] AS [g]
+CROSS JOIN [Gears] AS [g0]
+WHERE ([g].[Nickname] = [g0].[Nickname]) AND ([g].[SquadId] = [g0].[SquadId])");
+        }
+
+        public override async Task Composite_key_entity_not_equal(bool async)
+        {
+            await base.Composite_key_entity_not_equal(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
+FROM [Gears] AS [g]
+CROSS JOIN [Gears] AS [g0]
+WHERE ([g].[Nickname] <> [g0].[Nickname]) OR ([g].[SquadId] <> [g0].[SquadId])");
+        }
+
+        public override async Task Composite_key_entity_equal_null(bool async)
+        {
+            await base.Composite_key_entity_equal_null(async);
+
+            AssertSql(
+                @"SELECT [l].[Name], [l].[Discriminator], [l].[LocustHordeId], [l].[ThreatLevel], [l].[ThreatLevelByte], [l].[ThreatLevelNullableByte], [l].[DefeatedByNickname], [l].[DefeatedBySquadId], [l].[HighCommandId]
+FROM [LocustLeaders] AS [l]
+LEFT JOIN [Gears] AS [g] ON ([l].[DefeatedByNickname] = [g].[Nickname]) AND ([l].[DefeatedBySquadId] = [g].[SquadId])
+WHERE ([l].[Discriminator] = N'LocustCommander') AND ([g].[Nickname] IS NULL OR [g].[SquadId] IS NULL)");
+        }
+
+        public override async Task Composite_key_entity_not_equal_null(bool async)
+        {
+            await base.Composite_key_entity_not_equal_null(async);
+
+            AssertSql(
+                @"SELECT [l].[Name], [l].[Discriminator], [l].[LocustHordeId], [l].[ThreatLevel], [l].[ThreatLevelByte], [l].[ThreatLevelNullableByte], [l].[DefeatedByNickname], [l].[DefeatedBySquadId], [l].[HighCommandId]
+FROM [LocustLeaders] AS [l]
+LEFT JOIN [Gears] AS [g] ON ([l].[DefeatedByNickname] = [g].[Nickname]) AND ([l].[DefeatedBySquadId] = [g].[SquadId])
+WHERE ([l].[Discriminator] = N'LocustCommander') AND ([g].[Nickname] IS NOT NULL AND [g].[SquadId] IS NOT NULL)");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

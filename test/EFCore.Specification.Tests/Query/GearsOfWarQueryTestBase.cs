@@ -7960,9 +7960,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Project_shadow_properties(bool async)
+        public virtual Task Project_shadow_properties(bool async)
         {
-            await AssertQuery(
+            return AssertQuery(
                 async,
                 ss => from g in ss.Set<Gear>()
                       select new
@@ -7971,6 +7971,60 @@ namespace Microsoft.EntityFrameworkCore.Query
                           AssignedCityName = EF.Property<string>(g, "AssignedCityName")
                       },
                 elementSorter: e => e.Nickname);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Composite_key_entity_equal(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from g1 in ss.Set<Gear>()
+                      from g2 in ss.Set<Gear>()
+                      where g1 == g2
+                      select new { g1, g2 },
+                elementSorter: e => (e.g1.Nickname, e.g2.Nickname),
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.g1, a.g1);
+                    AssertEqual(e.g2, a.g2);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Composite_key_entity_not_equal(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from g1 in ss.Set<Gear>()
+                      from g2 in ss.Set<Gear>()
+                      where g1 != g2
+                      select new { g1, g2 },
+                elementSorter: e => (e.g1.Nickname, e.g2.Nickname),
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.g1, a.g1);
+                    AssertEqual(e.g2, a.g2);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Composite_key_entity_equal_null(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<LocustLeader>().OfType<LocustCommander>().Where(lc => lc.DefeatedBy == null));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Composite_key_entity_not_equal_null(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<LocustLeader>().OfType<LocustCommander>().Where(lc => lc.DefeatedBy != null));
         }
 
         protected GearsOfWarContext CreateContext()
