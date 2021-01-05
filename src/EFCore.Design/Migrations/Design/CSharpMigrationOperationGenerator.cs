@@ -282,20 +282,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 builder
                     .AppendLine(",")
                     .Append("principalTable: ")
-                    .Append(Code.Literal(operation.PrincipalTable))
-                    .AppendLine(",");
+                    .Append(Code.Literal(operation.PrincipalTable));
 
-                if (operation.PrincipalColumns.Length == 1)
+                if (operation.PrincipalColumns != null)
                 {
-                    builder
-                        .Append("principalColumn: ")
-                        .Append(Code.Literal(operation.PrincipalColumns[0]));
-                }
-                else
-                {
-                    builder
-                        .Append("principalColumns: ")
-                        .Append(Code.Literal(operation.PrincipalColumns));
+                    if (operation.PrincipalColumns.Length == 1)
+                    {
+                        builder
+                            .AppendLine(",")
+                            .Append("principalColumn: ")
+                            .Append(Code.Literal(operation.PrincipalColumns[0]));
+                    }
+                    else
+                    {
+                        builder
+                            .AppendLine(",")
+                            .Append("principalColumns: ")
+                            .Append(Code.Literal(operation.PrincipalColumns));
+                    }
                 }
 
                 if (operation.OnUpdate != ReferentialAction.NoAction)
