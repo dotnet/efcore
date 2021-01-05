@@ -831,6 +831,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                                 AddToCollection(otherEntry, skipNavigation.Inverse, entry, fromQuery);
                             }
+
+                            entry.AddToCollectionSnapshot(skipNavigation, otherEntity);
                         }
                     }
                 }
