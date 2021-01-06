@@ -965,6 +965,7 @@ namespace Microsoft.EntityFrameworkCore
             var queryable = collectionEntry
                 .Query()
                 .Include(e => e.ThreeSkipFull.Where(e => e.Id == 13 || e.Id == 11))
+                .OrderBy(e => e.Id)
                 .Select(e => new { e.Id, e.Name, Count1 = e.OneSkipShared.Count, Count3 = e.ThreeSkipFull.Count });
 
             var projected = async
