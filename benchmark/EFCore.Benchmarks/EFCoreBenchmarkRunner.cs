@@ -20,33 +20,15 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
     {
         public static void Run(string[] args, Assembly assembly, IConfig config = null)
         {
-            if (config == null)
-            {
-                config = DefaultConfig.Instance;
-            }
+//             if (config == null)
+//             {
+//                 config = DefaultConfig.Instance;
+//             }
 
-            config = config.With(DefaultConfig.Instance.GetDiagnosers().Concat(new[] { MemoryDiagnoser.Default }).ToArray());
+//             config = config.With(DefaultConfig.Instance.GetDiagnosers().Concat(new[] { MemoryDiagnoser.Default }).ToArray());
 
-            var index = Array.FindIndex(args, s => s == "--perflab");
-            if (index >= 0)
-            {
-                var argList = args.ToList();
-                argList.RemoveAt(index);
-                args = argList.ToArray();
-
-                config = config
-                    .With(StatisticColumn.OperationsPerSecond, new ParamsSummaryColumn())
-                    .With(
-                        MarkdownExporter.GitHub, new CsvExporter(
-                            CsvSeparator.Comma,
-                            new SummaryStyle(
-                                printUnitsInHeader: true,
-                                SizeUnit.KB,
-                                TimeUnit.Microsecond,
-                                printUnitsInContent: false)));
-            }
-
-            BenchmarkSwitcher.FromAssembly(assembly).Run(args, config);
+//             BenchmarkSwitcher.FromAssembly(assembly).Run(args, config);
+            BenchmarkSwitcher.FromAssembly(assembly).Run(args);
         }
     }
 }
