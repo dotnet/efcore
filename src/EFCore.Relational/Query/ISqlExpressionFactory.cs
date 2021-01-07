@@ -445,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
         /// <returns> An expression representing a function call in a SQL tree. </returns>
         SqlFunctionExpression Function(
-            [NotNull] string schema,
+            [CanBeNull] string? schema,
             [NotNull] string name,
             [NotNull] IEnumerable<SqlExpression> arguments,
             bool nullable,
