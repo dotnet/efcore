@@ -17,10 +17,6 @@ namespace Microsoft.EntityFrameworkCore
     {
         private static readonly BindingFlags _bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic;
 
-        public EventSourceTest(EventSourceFixture fixture)
-        {
-        }
-
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
@@ -30,14 +26,11 @@ namespace Microsoft.EntityFrameworkCore
 
             for (var i = 1; i <= 3; i++)
             {
-                using (var context = new SomeDbContext())
-                {
-                    var _ = async
-                        ? await context.Foos.ToListAsync()
-                        : context.Foos.ToList();
+                using var context = new SomeDbContext();
 
-                    Assert.Equal(i, TotalQueries);
-                }
+                _ = async ? await context.Foos.ToListAsync() : context.Foos.ToList();
+
+                Assert.Equal(i, TotalQueries);
             }
         }
 
@@ -50,16 +43,13 @@ namespace Microsoft.EntityFrameworkCore
 
             for (var i = 1; i <= 3; i++)
             {
-                using (var context = new SomeDbContext())
-                {
-                    context.Add(new Foo());
+                using var context = new SomeDbContext();
 
-                    var _ = async
-                        ? await context.SaveChangesAsync()
-                        : context.SaveChanges();
+                context.Add(new Foo());
 
-                    Assert.Equal(i, TotalSaveChanges);
-                }
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+
+                Assert.Equal(i, TotalSaveChanges);
             }
         }
 
@@ -74,7 +64,6 @@ namespace Microsoft.EntityFrameworkCore
             for (var i = 1; i <= 3; i++)
             {
                 contexts.Add(new SomeDbContext());
-                var _ = contexts[i - 1].Model;
 
                 Assert.Equal(i, ActiveDbContexts);
             }
@@ -103,17 +92,14 @@ namespace Microsoft.EntityFrameworkCore
 
             for (var i = 1; i <= 3; i++)
             {
-                using (var context = new SomeDbContext())
-                {
-                    var query = context.Foos.Where(e => e.Id == new Guid("6898CFFC-3DCC-45A6-A472-A23057462EE6"));
+                using var context = new SomeDbContext();
 
-                    var _ = async
-                        ? await query.ToListAsync()
-                        : query.ToList();
+                var query = context.Foos.Where(e => e.Id == new Guid("6898CFFC-3DCC-45A6-A472-A23057462EE6"));
 
-                    Assert.Equal(1, CompiledQueryCacheInfoMisses);
-                    Assert.Equal(i - 1, CompiledQueryCacheInfoHits);
-                }
+                _ = async ? await query.ToListAsync() : query.ToList();
+
+                Assert.Equal(1, CompiledQueryCacheInfoMisses);
+                Assert.Equal(i - 1, CompiledQueryCacheInfoHits);
             }
         }
 
@@ -126,31 +112,30 @@ namespace Microsoft.EntityFrameworkCore
 
             for (var i = 1; i <= 3; i++)
             {
-                using (var context = new SomeDbContext())
+                using var context = new SomeDbContext();
+
+                var entity = new Foo();
+                context.Add(entity);
+                context.SaveChanges();
+
+                using (var innerContext = new SomeDbContext())
                 {
-                    var entity = new Foo();
-                    context.Add(entity);
-                    context.SaveChanges();
-
-                    using (var innerContext = new SomeDbContext())
-                    {
-                        innerContext.Foos.Find(entity.Id).Token = 1;
-                        innerContext.SaveChanges();
-                    }
-
-                    entity.Token = 2;
-
-                    if (async)
-                    {
-                        await Assert.ThrowsAsync<DbUpdateConcurrencyException>(async () => await context.SaveChangesAsync());
-                    }
-                    else
-                    {
-                        Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges());
-                    }
-
-                    Assert.Equal(i, TotalOptimisticConcurrencyFailures);
+                    innerContext.Foos.Find(entity.Id).Token = 1;
+                    innerContext.SaveChanges();
                 }
+
+                entity.Token = 2;
+
+                if (async)
+                {
+                    await Assert.ThrowsAsync<DbUpdateConcurrencyException>(async () => await context.SaveChangesAsync());
+                }
+                else
+                {
+                    Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges());
+                }
+
+                Assert.Equal(i, TotalOptimisticConcurrencyFailures);
             }
         }
 
@@ -163,53 +148,52 @@ namespace Microsoft.EntityFrameworkCore
 
             for (var i = 1; i <= 3; i++)
             {
-                using (var context = new SomeDbContext())
+                using var context = new SomeDbContext();
+
+                var executionCount = 0;
+                var executionStrategyMock = new ExecutionStrategyTest.TestExecutionStrategy(
+                    context,
+                    retryCount: 2,
+                    shouldRetryOn: e => e is ArgumentOutOfRangeException,
+                    getNextDelay: e => TimeSpan.FromTicks(0));
+
+                if (async)
                 {
-                    var executionCount = 0;
-                    var executionStrategyMock = new ExecutionStrategyTest.TestExecutionStrategy(
-                        context,
-                        retryCount: 2,
-                        shouldRetryOn: e => e is ArgumentOutOfRangeException,
-                        getNextDelay: e => TimeSpan.FromTicks(0));
-
-                    if (async)
-                    {
-                        Assert.IsType<ArgumentOutOfRangeException>(
-                            (await Assert.ThrowsAsync<RetryLimitExceededException>(
-                                () =>
-                                    executionStrategyMock.ExecuteAsync(
-                                        () =>
+                    Assert.IsType<ArgumentOutOfRangeException>(
+                        (await Assert.ThrowsAsync<RetryLimitExceededException>(
+                            () =>
+                                executionStrategyMock.ExecuteAsync(
+                                    () =>
+                                    {
+                                        if (executionCount++ < 3)
                                         {
-                                            if (executionCount++ < 3)
-                                            {
-                                                throw new ArgumentOutOfRangeException();
-                                            }
+                                            throw new ArgumentOutOfRangeException();
+                                        }
 
-                                            Assert.True(false);
-                                            return Task.FromResult(1);
-                                        }))).InnerException);
-                    }
-                    else
-                    {
-                        Assert.IsType<ArgumentOutOfRangeException>(
-                            Assert.Throws<RetryLimitExceededException>(
-                                () =>
-                                    executionStrategyMock.Execute(
-                                        () =>
-                                        {
-                                            if (executionCount++ < 3)
-                                            {
-                                                throw new ArgumentOutOfRangeException();
-                                            }
-
-                                            Assert.True(false);
-                                            return 0;
-                                        })).InnerException);
-                    }
-
-                    Assert.Equal(3, executionCount);
-                    Assert.Equal(i * 3, TotalExecutionStrategyOperationFailures);
+                                        Assert.True(false);
+                                        return Task.FromResult(1);
+                                    }))).InnerException);
                 }
+                else
+                {
+                    Assert.IsType<ArgumentOutOfRangeException>(
+                        Assert.Throws<RetryLimitExceededException>(
+                            () =>
+                                executionStrategyMock.Execute(
+                                    () =>
+                                    {
+                                        if (executionCount++ < 3)
+                                        {
+                                            throw new ArgumentOutOfRangeException();
+                                        }
+
+                                        Assert.True(false);
+                                        return 0;
+                                    })).InnerException);
+                }
+
+                Assert.Equal(3, executionCount);
+                Assert.Equal(i * 3, TotalExecutionStrategyOperationFailures);
             }
         }
 
@@ -303,12 +287,7 @@ namespace Microsoft.EntityFrameworkCore
     }
 
     [CollectionDefinition("EventSourceTest", DisableParallelization = true)]
-    public class EventSourceTestCollection : ICollectionFixture<EventSourceFixture>
-    {
-
-    }
-
-    public class EventSourceFixture
+    public class EventSourceTestCollection
     {
     }
 }
