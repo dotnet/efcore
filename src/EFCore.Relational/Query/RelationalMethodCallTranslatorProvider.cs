@@ -88,17 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var argumentsPropagateNullability = dbFunction.Parameters.Select(p => p.PropagatesNullability);
 
-                if (dbFunction.IsBuiltIn)
-                {
-                    return _sqlExpressionFactory.Function(
-                        dbFunction.Name,
-                        arguments,
-                        dbFunction.IsNullable,
-                        argumentsPropagateNullability,
-                        method.ReturnType.UnwrapNullableType());
-                }
-
-                return dbFunction.Schema is null
+                return dbFunction.IsBuiltIn
                     ? _sqlExpressionFactory.Function(
                         dbFunction.Name,
                         arguments,
