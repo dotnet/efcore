@@ -1011,10 +1011,9 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Contains(joinEntity, joinEntity.Three.JoinCompositeKeyFull);
                 }
 
-                // Issue #23814
-                //VerifyRelationshipSnapshots(context, joinEntities);
-                //VerifyRelationshipSnapshots(context, leftEntities);
-                //VerifyRelationshipSnapshots(context, rightEntities);
+                VerifyRelationshipSnapshots(context, joinEntities);
+                VerifyRelationshipSnapshots(context, leftEntities);
+                VerifyRelationshipSnapshots(context, rightEntities);
 
                 foreach (var entry in context.ChangeTracker.Entries())
                 {
@@ -1183,10 +1182,9 @@ namespace Microsoft.EntityFrameworkCore
                 var allLeft = context.ChangeTracker.Entries<EntityCompositeKey>().Select(e => e.Entity).OrderBy(e => e.Key2).ToList();
                 var allRight = context.ChangeTracker.Entries<EntityThree>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
 
-                // Issue #23814
-                // VerifyRelationshipSnapshots(context, joinEntries.Select(e => e.Entity));
-                // VerifyRelationshipSnapshots(context, allLeft);
-                // VerifyRelationshipSnapshots(context, allRight);
+                VerifyRelationshipSnapshots(context, joinEntries.Select(e => e.Entity));
+                VerifyRelationshipSnapshots(context, allLeft);
+                VerifyRelationshipSnapshots(context, allRight);
 
                 var count = 0;
                 foreach (var left in allLeft)
@@ -4553,6 +4551,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected void VerifyRelationshipSnapshots(DbContext context, IEnumerable<object> entities)
         {
+            var detectChanges = context.ChangeTracker.AutoDetectChangesEnabled;
             try
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = false;
@@ -4614,10 +4613,7 @@ namespace Microsoft.EntityFrameworkCore
             }
             finally
             {
-                if (RequiresDetectChanges)
-                {
-                    context.ChangeTracker.AutoDetectChangesEnabled = true;
-                }
+                context.ChangeTracker.AutoDetectChangesEnabled = detectChanges;
             }
         }
 
