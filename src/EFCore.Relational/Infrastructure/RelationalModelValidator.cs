@@ -1209,7 +1209,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         switch (storeOverride.StoreObjectType)
                         {
                             case StoreObjectType.Table:
-                                if (!entityType.GetDerivedTypes().Any(
+                                if (!entityType.GetDerivedTypesInclusive().Any(
                                     d =>
                                         d.GetTableName() == name
                                         && d.GetSchema() == schema))
@@ -1222,7 +1222,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                                 break;
                             case StoreObjectType.View:
-                                if (!entityType.GetDerivedTypes().Any(
+                                if (!entityType.GetDerivedTypesInclusive().Any(
                                     d =>
                                         d.GetViewName() == name
                                         && d.GetViewSchema() == schema))
@@ -1235,7 +1235,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                                 break;
                             case StoreObjectType.SqlQuery:
-                                if (!entityType.GetDerivedTypes().Any(d => d.GetDefaultSqlQueryName() == name))
+                                if (!entityType.GetDerivedTypesInclusive().Any(d => d.GetDefaultSqlQueryName() == name))
                                 {
                                     throw new InvalidOperationException(
                                         RelationalStrings.SqlQueryOverrideMismatch(
@@ -1244,7 +1244,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                                 break;
                             case StoreObjectType.Function:
-                                if (!entityType.GetDerivedTypes().Any(d => d.GetFunctionName() == name))
+                                if (!entityType.GetDerivedTypesInclusive().Any(d => d.GetFunctionName() == name))
                                 {
                                     throw new InvalidOperationException(
                                         RelationalStrings.FunctionOverrideMismatch(

@@ -1881,6 +1881,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     TestMethods.MethodFMi.DeclaringType.FullName + "." + TestMethods.MethodFMi.Name + "()", "C"), modelBuilder.Model);
         }
 
+        [ConditionalFact]
+        public virtual void Passes_for_relational_override_without_inheritance()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Person>(
+                e =>
+                {
+                    e.ToTable("foo");
+                    e.Property(p => p.Name).Metadata.SetColumnName("bar", StoreObjectIdentifier.Table("foo", null));
+                });
+
+            Validate(modelBuilder.Model);
+
+            Assert.DoesNotContain(LoggerFactory.Log, l => l.Level == LogLevel.Warning);
+        }
+
         private static void GenerateMapping(IMutableProperty property)
             => property.SetTypeMapping(
                 new TestRelationalTypeMappingSource(
