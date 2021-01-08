@@ -711,12 +711,24 @@ namespace Microsoft.Data.Sqlite
                             .AppendLine($"WHERE {columnType} != 'null'")
                             .AppendLine($"GROUP BY {columnType}")
                             .AppendLine("ORDER BY count() DESC")
-                            .AppendLine("LIMIT 1;").ToString();
+                            .AppendLine("LIMIT 2;").ToString();
 
-                        var type = (string?)command.ExecuteScalar();
+                        string? type = null;
+                        var variant = false;
+                        using (var reader = command.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                type = reader.GetString(0);
+                                variant = reader.Read();
+                            }
+                        }
+
                         schemaRow[DataType] =
                             (type != null)
-                                ? SqliteDataRecord.GetFieldType(type)
+                                ? variant
+                                    ? typeof(object)
+                                    : SqliteDataRecord.GetFieldType(type)
                                 : SqliteDataRecord.GetFieldTypeFromSqliteType(
                                     SqliteDataRecord.Sqlite3AffinityType(dataTypeName));
 

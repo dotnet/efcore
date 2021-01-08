@@ -2003,10 +2003,10 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Theory]
-        [InlineData("(0), (1), ('A')", typeof(long))]
-        [InlineData("('Z'), (1), ('A')", typeof(string))]
-        [InlineData("(0.1), (0.01), ('A')", typeof(double))]
-        [InlineData("(X'7E57'), (X'577E'), ('A')", typeof(byte[]))]
+        [InlineData("(0), (1), ('A')", typeof(object))]
+        [InlineData("('Z'), (1), ('A')", typeof(object))]
+        [InlineData("(0.1), (0.01), ('A')", typeof(object))]
+        [InlineData("(X'7E57'), (X'577E'), ('A')", typeof(object))]
         [InlineData("(NULL), (NULL), (NULL)", typeof(byte[]))]
         [InlineData("(NULL), ('A'), ('B')", typeof(string))]
         public void GetSchemaTable_DataType_works(string values, Type expectedType)
