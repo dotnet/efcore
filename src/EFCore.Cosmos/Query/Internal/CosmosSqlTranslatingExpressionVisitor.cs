@@ -843,6 +843,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     entityType.DisplayName()));
             }
 
+            var quirk = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore23779", out var enabled) && enabled;
             result = Visit(
                 primaryKeyProperties.Select(
                         p =>
@@ -850,7 +851,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                 nodeType,
                                 CreatePropertyAccessExpression(left, p),
                                 CreatePropertyAccessExpression(right, p)))
-                    .Aggregate((l, r) => Expression.AndAlso(l, r)));
+                    .Aggregate((l, r) => nodeType == ExpressionType.Equal || quirk
+                        ? Expression.AndAlso(l, r)
+                        : Expression.OrElse(l, r)));
 
             return true;
         }
