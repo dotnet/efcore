@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var entityType = model.AddEntityType(typeof(Customer).FullName);
 
-            Assert.Null(entityType.ClrType);
+            Assert.Equal(typeof(Dictionary<string, object>), entityType.ClrType);
             Assert.Equal(typeof(Customer).FullName, entityType.Name);
             Assert.NotNull(model.FindEntityType(typeof(Customer).FullName));
             Assert.Same(model, entityType.Model);
@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             model.AddEntityType(typeof(Customer));
 
             Assert.Equal(
-                CoreStrings.DuplicateEntityType(typeof(Customer).FullName),
+                CoreStrings.DuplicateEntityType(typeof(Customer).FullName + " (Dictionary<string, object>)"),
                 Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Customer).FullName)).Message);
         }
 

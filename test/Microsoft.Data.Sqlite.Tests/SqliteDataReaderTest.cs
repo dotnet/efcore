@@ -457,6 +457,62 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void GetStream_works_when_composite_pk()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                connection.ExecuteNonQuery(
+                    @"CREATE TABLE DataTable (Id1 INTEGER, Id2 INTEGER, Data BLOB, PRIMARY KEY (Id1, Id2));
+                    INSERT INTO DataTable VALUES (5, 6, X'01020304');");
+
+                var selectCommand = connection.CreateCommand();
+                selectCommand.CommandText = "SELECT Id1, Id2, Data FROM DataTable WHERE Id1 = 5 AND Id2 = 6";
+                using (var reader = selectCommand.ExecuteReader())
+                {
+                    Assert.True(reader.Read());
+                    using (var sourceStream = reader.GetStream(2))
+                    {
+                        Assert.IsType<MemoryStream>(sourceStream);
+                        var buffer = new byte[4];
+                        var bytesRead = sourceStream.Read(buffer, 0, 4);
+                        Assert.Equal(4, bytesRead);
+                        Assert.Equal(new byte[] { 0x01, 0x02, 0x03, 0x04 }, buffer);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void GetStream_works_when_composite_pk_and_rowid()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                connection.ExecuteNonQuery(
+                    @"CREATE TABLE DataTable (Id1 INTEGER, Id2 INTEGER, Data BLOB, PRIMARY KEY (Id1, Id2));
+                    INSERT INTO DataTable VALUES (5, 6, X'01020304');");
+
+                var selectCommand = connection.CreateCommand();
+                selectCommand.CommandText = "SELECT Id1, Id2, rowid, Data FROM DataTable WHERE Id1 = 5 AND Id2 = 6";
+                using (var reader = selectCommand.ExecuteReader())
+                {
+                    Assert.True(reader.Read());
+                    using (var sourceStream = reader.GetStream(3))
+                    {
+                        Assert.IsType<SqliteBlob>(sourceStream);
+                        var buffer = new byte[4];
+                        var bytesRead = sourceStream.Read(buffer, 0, 4);
+                        Assert.Equal(4, bytesRead);
+                        Assert.Equal(new byte[] { 0x01, 0x02, 0x03, 0x04 }, buffer);
+                    }
+                }
+            }
+        }
+
+        [Fact]
         public void GetStream_throws_when_closed()
         {
             X_throws_when_closed(r => r.GetStream(0), nameof(SqliteDataReader.GetStream));
@@ -851,6 +907,45 @@ namespace Microsoft.Data.Sqlite
             => GetFieldValue_works(
                 "SELECT 1;",
                 (int?)1);
+
+        [Fact]
+        public void GetFieldValue_of_Stream_works()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("SELECT x'7E57';"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    var stream = reader.GetFieldValue<Stream>(0);
+                    Assert.Equal(0x7E, stream.ReadByte());
+                    Assert.Equal(0x57, stream.ReadByte());
+                }
+            }
+        }
+
+        [Fact]
+        public void GetFieldValue_of_TextReader_works()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("SELECT 'test';"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    using (var textReader = reader.GetFieldValue<TextReader>(0))
+                    {
+                        Assert.Equal("test", textReader.ReadToEnd());
+                    }
+                }
+            }
+        }
 
         [Fact]
         public void GetFieldValue_of_TimeSpan_works()
@@ -1826,6 +1921,83 @@ namespace Microsoft.Data.Sqlite
                     Assert.True((bool)schema.Rows[3]["IsExpression"]);
                     Assert.Equal(DBNull.Value, schema.Rows[3]["IsAutoIncrement"]);
                     Assert.Equal(DBNull.Value, schema.Rows[3]["IsLong"]);
+                }
+            }
+        }
+
+        [Fact]
+        public void GetSchemaTable_works_when_view()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.ExecuteNonQuery(
+                    @"CREATE VIEW dual AS SELECT 'X' AS dummy;");
+
+                using (var reader = connection.ExecuteReader("SELECT * FROM dual;"))
+                {
+                    var schemaTable = reader.GetSchemaTable();
+                    Assert.Equal(1, schemaTable.Rows.Count);
+                    Assert.Equal("dummy", schemaTable.Rows[0][SchemaTableColumn.ColumnName]);
+                }
+            }
+        }
+
+        [Fact]
+        public void GetSchemaTable_works_when_virtual_table()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.ExecuteNonQuery("CREATE VIRTUAL TABLE dual USING fts3(dummy);");
+
+                using (var reader = connection.ExecuteReader("SELECT * FROM dual;"))
+                {
+                    var schemaTable = reader.GetSchemaTable();
+                    Assert.Equal(1, schemaTable.Rows.Count);
+                    Assert.Equal("dummy", schemaTable.Rows[0][SchemaTableColumn.ColumnName]);
+                }
+            }
+        }
+
+        [Fact]
+        public void GetSchemaTable_works_when_pragma()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("PRAGMA table_info('sqlite_master');"))
+                {
+                    var schemaTable = reader.GetSchemaTable();
+                    Assert.Equal(6, schemaTable.Rows.Count);
+                    Assert.Equal("cid", schemaTable.Rows[0][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("name", schemaTable.Rows[1][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("type", schemaTable.Rows[2][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("notnull", schemaTable.Rows[3][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("dflt_value", schemaTable.Rows[4][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("pk", schemaTable.Rows[5][SchemaTableColumn.ColumnName]);
+                }
+            }
+        }
+
+        [Fact]
+        public void GetSchemaTable_works_when_eponymous_virtual_table()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("SELECT * FROM pragma_table_info('sqlite_master');"))
+                {
+                    var schemaTable = reader.GetSchemaTable();
+                    Assert.Equal(6, schemaTable.Rows.Count);
+                    Assert.Equal("cid", schemaTable.Rows[0][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("name", schemaTable.Rows[1][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("type", schemaTable.Rows[2][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("notnull", schemaTable.Rows[3][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("dflt_value", schemaTable.Rows[4][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("pk", schemaTable.Rows[5][SchemaTableColumn.ColumnName]);
                 }
             }
         }

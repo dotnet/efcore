@@ -346,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
             return result;
         }
 
-        public static void WireUpInheritancePart1(
+        private static void WireUpInheritancePart1(
             IReadOnlyList<InheritanceBase1> ib1s,
             IReadOnlyList<InheritanceBase2> ib2s,
             IReadOnlyList<InheritanceLeaf1> il1s,
@@ -372,14 +372,14 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
             ((InheritanceDerived2)ib1s[2]).CollectionDifferentType = new List<InheritanceLeaf2> { il2s[0] };
         }
 
-        public static void WireUpInheritancePart2(
+        private static void WireUpInheritancePart2(
             IReadOnlyList<InheritanceBase2> ib2s,
             IReadOnlyList<InheritanceLeaf2> il2s)
         {
             il2s[0].BaseCollection = new List<InheritanceBase2> { ib2s[0] };
         }
 
-        public static void WireUpPart1(
+        private static void WireUpPart1(
             IReadOnlyList<Level1> l1s,
             IReadOnlyList<Level2> l2s,
             IReadOnlyList<Level3> l3s,
@@ -622,7 +622,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
             l4s[9].OneToMany_Required_Self4 = new List<Level4>();
         }
 
-        public static void WireUpInversePart1(
+        private static void WireUpInversePart1(
             IReadOnlyList<Level1> l1s,
             IReadOnlyList<Level2> l2s,
             IReadOnlyList<Level3> l3s,
@@ -908,7 +908,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
             l4s[9].OneToMany_Required_Self_Inverse4 = l4s[8];
         }
 
-        public static void WireUpPart2(
+        private static void WireUpPart2(
             IReadOnlyList<Level1> l1s,
             IReadOnlyList<Level2> l2s,
             IReadOnlyList<Level3> l3s,
@@ -1020,7 +1020,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
             l4s[9].OneToMany_Optional_Self4 = new List<Level4> { l4s[8] };
         }
 
-        public static void WireUpInversePart2(
+        private static void WireUpInversePart2(
             IReadOnlyList<Level1> l1s,
             IReadOnlyList<Level2> l2s,
             IReadOnlyList<Level3> l3s,
@@ -1059,9 +1059,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
 
             l3s[0].OneToOne_Optional_PK_Inverse3 = l2s[0];
             l3s[2].OneToOne_Optional_PK_Inverse3 = l2s[2];
-            l3s[5].OneToOne_Optional_PK_Inverse3 = l2s[4];
-            l3s[7].OneToOne_Optional_PK_Inverse3 = l2s[6];
-            l3s[9].OneToOne_Optional_PK_Inverse3 = l2s[8];
+            l3s[4].OneToOne_Optional_PK_Inverse3 = l2s[5];
+            l3s[6].OneToOne_Optional_PK_Inverse3 = l2s[7];
+            l3s[8].OneToOne_Optional_PK_Inverse3 = l2s[9];
 
             l3s[8].OneToOne_Optional_FK_Inverse3 = l2s[1];
             l3s[6].OneToOne_Optional_FK_Inverse3 = l2s[3];

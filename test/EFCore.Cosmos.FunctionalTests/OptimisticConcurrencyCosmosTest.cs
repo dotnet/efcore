@@ -10,9 +10,9 @@ using Microsoft.EntityFrameworkCore.Storage;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Cosmos
 {
-    public class OptimisticConcurrencyCosmosTest : OptimisticConcurrencyTestBase<F1CosmosFixture>
+    public class OptimisticConcurrencyCosmosTest : OptimisticConcurrencyTestBase<F1CosmosFixture<byte[]>, byte[]>
     {
-        public OptimisticConcurrencyCosmosTest(F1CosmosFixture fixture)
+        public OptimisticConcurrencyCosmosTest(F1CosmosFixture<byte[]> fixture)
             : base(fixture)
         {
             fixture.Reseed();

@@ -303,9 +303,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             var valueBuffer = new ValueBuffer(valuesArray);
-            var entity = entityType.HasClrType
-                ? EntityMaterializerSource.GetMaterializer(entityType)(new MaterializationContext(valueBuffer, Context))
-                : null;
+            var entity = EntityMaterializerSource.GetMaterializer(entityType)(new MaterializationContext(valueBuffer, Context));
 
             var shadowPropertyValueBuffer = new ValueBuffer(shadowPropertyValuesArray);
             var entry = _internalEntityEntryFactory.Create(this, entityType, entity, shadowPropertyValueBuffer);
@@ -686,6 +684,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual Task ResetStateAsync(CancellationToken cancellationToken = default)
         {
             ResetState();

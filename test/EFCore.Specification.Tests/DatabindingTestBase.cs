@@ -13,7 +13,7 @@ using Xunit;
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class DatabindingTestBase<TFixture> : IClassFixture<TFixture>
-        where TFixture : F1FixtureBase, new()
+        where TFixture : F1FixtureBase<byte[]>, new()
     {
         protected DatabindingTestBase(TFixture fixture)
             => Fixture = fixture;

@@ -130,7 +130,7 @@ namespace Microsoft.Data.Sqlite
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/database-errors">Database Errors</seealso>
         public virtual int DefaultTimeout
         {
-            get => _defaultTimeout ?? 30;
+            get => _defaultTimeout ?? ConnectionOptions.DefaultTimeout;
             set => _defaultTimeout = value;
         }
 
@@ -175,6 +175,11 @@ namespace Microsoft.Data.Sqlite
 
             var filename = ConnectionOptions.DataSource;
             var flags = 0;
+            
+            if (sqlite3_threadsafe() != 0)
+            {
+                flags |= SQLITE_OPEN_NOMUTEX;
+            }
 
             if (filename.StartsWith("file:", StringComparison.OrdinalIgnoreCase))
             {
@@ -678,6 +683,78 @@ namespace Microsoft.Data.Sqlite
                     destination.Close();
                 }
             }
+        }
+
+        /// <summary>
+        ///     Returns schema information for the data source of this conneciton.
+        /// </summary>
+        /// <returns>Schema information.</returns>
+        public override DataTable GetSchema()
+            => GetSchema(DbMetaDataCollectionNames.MetaDataCollections);
+
+        /// <summary>
+        ///     Returns schema information for the data source of this conneciton.
+        /// </summary>
+        /// <param name="collectionName">The name of the schema.</param>
+        /// <returns>Schema information.</returns>
+        public override DataTable GetSchema(string collectionName)
+            => GetSchema(collectionName, Array.Empty<string>());
+
+        /// <summary>
+        ///     Returns schema information for the data source of this conneciton.
+        /// </summary>
+        /// <param name="collectionName">The name of the schema.</param>
+        /// <param name="restrictionValues">The restrictions.</param>
+        /// <returns>Schema information.</returns>
+        public override DataTable GetSchema(string collectionName, string?[] restrictionValues)
+        {
+            if (restrictionValues is not null && restrictionValues.Length != 0)
+            {
+                throw new ArgumentException(Resources.TooManyRestrictions(collectionName));
+            }
+
+            if (string.Equals(collectionName, DbMetaDataCollectionNames.MetaDataCollections, StringComparison.OrdinalIgnoreCase))
+            {
+                return new DataTable(DbMetaDataCollectionNames.MetaDataCollections)
+                {
+                    Columns =
+                    {
+                        { DbMetaDataColumnNames.CollectionName },
+                        { DbMetaDataColumnNames.NumberOfRestrictions, typeof(int) },
+                        { DbMetaDataColumnNames.NumberOfIdentifierParts, typeof(int) }
+                    },
+                    Rows =
+                    {
+                        new object[] { DbMetaDataCollectionNames.MetaDataCollections, 0, 0 },
+                        new object[] { DbMetaDataCollectionNames.ReservedWords, 0, 0 }
+                    }
+                };
+            }
+            else if (string.Equals(collectionName, DbMetaDataCollectionNames.ReservedWords, StringComparison.OrdinalIgnoreCase))
+            {
+                var dataTable = new DataTable(DbMetaDataCollectionNames.ReservedWords)
+                {
+                    Columns =
+                    {
+                        { DbMetaDataColumnNames.ReservedWord }
+                    }
+                };
+
+                int rc;
+                string keyword;
+                var count = sqlite3_keyword_count();
+                for (var i = 0; i < count; i++)
+                {
+                    rc = sqlite3_keyword_name(i, out keyword);
+                    SqliteException.ThrowExceptionForRC(rc, null);
+
+                    dataTable.Rows.Add(new object[] { keyword });
+                }
+
+                return dataTable;
+            }
+
+            throw new ArgumentException(Resources.UnknownCollection(collectionName));
         }
 
         private void CreateFunctionCore<TState, TResult>(

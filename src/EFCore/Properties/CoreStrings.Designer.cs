@@ -388,6 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The property '{property}' cannot exist on type '{entityType}' because the type is marked as shadow state while the property is not. Shadow state types can only contain shadow state properties.
         /// </summary>
+        [Obsolete]
         public static string ClrPropertyOnShadowEntity([CanBeNull] object? property, [CanBeNull] object? entityType)
             => string.Format(
                 GetString("ClrPropertyOnShadowEntity", nameof(property), nameof(entityType)),
@@ -824,6 +825,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 invalidDependentType, invalidPrincipalType, dependentType, principalType);
 
         /// <summary>
+        ///     This enumerator cannot be reset.
+        /// </summary>
+        public static string EnumerableResetNotSupported
+            => GetString("EnumerableResetNotSupported");
+
+        /// <summary>
         ///     Cannot use multiple context instances within a single query execution. Ensure the query uses a single context instance.
         /// </summary>
         public static string ErrorInvalidQueryable
@@ -1165,11 +1172,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type);
 
         /// <summary>
-        ///     Entity Type Configuration of type {entityTypeConfigurationType} is invalid. The configuration have to implement IEntityTypeConfiguration&lt;{entityType}&gt; Interface.
+        ///     The entity type configuration of type '{entityTypeConfigurationType}' is invalid. The configuration specified using EntityTypeConfigurationAttribute has to implement 'IEntityTypeConfiguration&lt;{entityType}&gt;'.
         /// </summary>
-        public static string InvalidEntityTypeConfiguration([CanBeNull] object entityTypeConfigurationType, [CanBeNull] object entityType)
+        public static string InvalidEntityTypeConfigurationAttribute([CanBeNull] object? entityTypeConfigurationType, [CanBeNull] object? entityType)
             => string.Format(
-                GetString("InvalidEntityTypeConfiguration", nameof(entityTypeConfigurationType), nameof(entityType)),
+                GetString("InvalidEntityTypeConfigurationAttribute", nameof(entityTypeConfigurationType), nameof(entityType)),
                 entityTypeConfigurationType, entityType);
 
         /// <summary>
@@ -1598,6 +1605,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The navigation '{navigation}' cannot be added to the entity type '{entityType}' because it is defined in shadow state, and navigations properties cannot originate from shadow state entities.
         /// </summary>
+        [Obsolete]
         public static string NavigationFromShadowEntity([CanBeNull] object? navigation, [CanBeNull] object? entityType)
             => string.Format(
                 GetString("NavigationFromShadowEntity", nameof(navigation), nameof(entityType)),
@@ -1646,6 +1654,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The navigation '{navigation}' cannot be added to the entity type '{entityType}' because the target entity type '{targetType}' is defined in shadow state, and navigations properties cannot point to shadow state entities.
         /// </summary>
+        [Obsolete]
         public static string NavigationToShadowEntity([CanBeNull] object? navigation, [CanBeNull] object? entityType, [CanBeNull] object? targetType)
             => string.Format(
                 GetString("NavigationToShadowEntity", nameof(navigation), nameof(entityType), nameof(targetType)),
@@ -1756,6 +1765,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{baseEntityType}' is a shadow state entity type while '{entityType}' is not.
         /// </summary>
+        [Obsolete]
         public static string NonClrBaseType([CanBeNull] object? entityType, [CanBeNull] object? baseEntityType)
             => string.Format(
                 GetString("NonClrBaseType", nameof(entityType), nameof(baseEntityType)),
@@ -1821,6 +1831,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{entityType}' is a shadow state entity type while '{baseEntityType}' is not.
         /// </summary>
+        [Obsolete]
         public static string NonShadowBaseType([CanBeNull] object? entityType, [CanBeNull] object? baseEntityType)
             => string.Format(
                 GetString("NonShadowBaseType", nameof(entityType), nameof(baseEntityType)),
@@ -2285,6 +2296,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("RuntimeParameterMissingParameter");
 
         /// <summary>
+        ///     Savepoints are not supported by the database provider in use.
+        /// </summary>
+        public static string SavepointsNotSupported
+            => GetString("SavepointsNotSupported");
+
+        /// <summary>
         ///     The seed entity for entity type '{entityType}' cannot be added because a default value was provided for the required property '{property}'. Please provide a value different from '{defaultValue}'.
         /// </summary>
         public static string SeedDatumDefaultValue([CanBeNull] object? entityType, [CanBeNull] object? property, [CanBeNull] object? defaultValue)
@@ -2431,6 +2448,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The entity type '{entityType}' is in shadow state. A valid model requires all entity types to have a corresponding CLR type.
         /// </summary>
+        [Obsolete]
         public static string ShadowEntity([CanBeNull] object? entityType)
             => string.Format(
                 GetString("ShadowEntity", nameof(entityType)),

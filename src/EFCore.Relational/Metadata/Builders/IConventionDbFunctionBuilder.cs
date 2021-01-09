@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionDbFunctionBuilder HasTranslation(
-            [CanBeNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation,
+            [CanBeNull] Func<IReadOnlyList<SqlExpression>, SqlExpression> translation,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given translation can be set for the database function. </returns>
         bool CanSetTranslation(
-            [CanBeNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation,
+            [CanBeNull] Func<IReadOnlyList<SqlExpression>, SqlExpression> translation,
             bool fromDataAnnotation = false);
 
         /// <summary>

@@ -45,8 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private void DiscoverRelationships(IConventionEntityTypeBuilder entityTypeBuilder, IConventionContext context)
         {
-            if (!entityTypeBuilder.Metadata.HasClrType
-                || entityTypeBuilder.ModelBuilder.IsIgnored(entityTypeBuilder.Metadata.ClrType))
+            if (entityTypeBuilder.ModelBuilder.IsIgnored(entityTypeBuilder.Metadata.ClrType))
             {
                 return;
             }
@@ -982,15 +981,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
 
             var dictionaryBuilder = ImmutableSortedDictionary.CreateBuilder<PropertyInfo, Type>(MemberInfoNameComparer.Instance);
-            if (entityType.HasClrType)
+            foreach (var propertyInfo in entityType.GetRuntimeProperties().Values.OrderBy(p => p.Name))
             {
-                foreach (var propertyInfo in entityType.GetRuntimeProperties().Values.OrderBy(p => p.Name))
+                var targetType = FindCandidateNavigationPropertyType(propertyInfo);
+                if (targetType != null)
                 {
-                    var targetType = FindCandidateNavigationPropertyType(propertyInfo);
-                    if (targetType != null)
-                    {
-                        dictionaryBuilder[propertyInfo] = targetType;
-                    }
+                    dictionaryBuilder[propertyInfo] = targetType;
                 }
             }
 

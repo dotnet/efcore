@@ -240,6 +240,22 @@ namespace Microsoft.Data.Sqlite.Properties
                 GetString("EncryptionNotSupported", nameof(libraryName)),
                 libraryName);
 
+        /// <summary>
+        /// More restrictions were provided than the collection '{collectionName}' supports.
+        /// </summary>
+        public static string TooManyRestrictions(object collectionName)
+            => string.Format(
+                GetString("TooManyRestrictions", nameof(collectionName)),
+                collectionName);
+
+        /// <summary>
+        /// The requested collection '{collectionName}' is not defined.
+        /// </summary>
+        public static string UnknownCollection(object collectionName)
+            => string.Format(
+                GetString("UnknownCollection", nameof(collectionName)),
+                collectionName);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name)!;

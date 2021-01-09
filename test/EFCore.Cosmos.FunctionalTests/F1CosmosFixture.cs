@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Cosmos
 {
-    public class F1CosmosFixture : F1FixtureBase
+    public class F1CosmosFixture<TRowVersion> : F1FixtureBase<TRowVersion>
     {
         protected override ITestStoreFactory TestStoreFactory
             => CosmosTestStoreFactory.Instance;
@@ -42,12 +42,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     eb.Property<string>("Version").IsETagConcurrency();
                     eb.Property<int?>(Sponsor.ClientTokenPropertyName).IsConcurrencyToken(false);
                 });
+
             modelBuilder.Entity<TitleSponsor>()
                 .OwnsOne(
                     s => s.Details, eb =>
                     {
                         eb.Property<string>("Version").IsETagConcurrency();
-                        eb.Property<int?>(Sponsor.ClientTokenPropertyName);
+                        eb.Property<int?>(Sponsor.ClientTokenPropertyName).IsConcurrencyToken(false);
                     });
         }
     }

@@ -60,7 +60,19 @@ namespace Microsoft.Data.Sqlite
             => sqlite3_column_text(Handle, ordinal).utf8_to_string();
 
         public override T GetFieldValue<T>(int ordinal)
-            => base.GetFieldValue<T>(ordinal)!;
+        {
+            if (typeof(T) == typeof(Stream))
+            {
+                return (T)(object)GetStream(ordinal);
+            }
+
+            if (typeof(T) == typeof(TextReader))
+            {
+                return (T)(object)GetTextReader(ordinal);
+            }
+
+            return base.GetFieldValue<T>(ordinal)!;
+        }
 
         protected override byte[] GetBlob(int ordinal)
             => base.GetBlob(ordinal)!;
@@ -257,6 +269,7 @@ namespace Microsoft.Data.Sqlite
             if (!_rowidOrdinal.HasValue)
             {
                 _rowidOrdinal = -1;
+                var pkColumns = -1L;
 
                 for (var i = 0; i < FieldCount; i++)
                 {
@@ -298,8 +311,22 @@ namespace Microsoft.Data.Sqlite
                     if (string.Equals(dataType, "INTEGER", StringComparison.OrdinalIgnoreCase)
                         && primaryKey != 0)
                     {
-                        _rowidOrdinal = i;
-                        break;
+                        if (pkColumns < 0L)
+                        {
+                            using (var command = _connection.CreateCommand())
+                            {
+                                command.CommandText = "SELECT COUNT(*) FROM pragma_table_info($table) WHERE pk != 0;";
+                                command.Parameters.AddWithValue("$table", tableName);
+
+                                pkColumns = (long)command.ExecuteScalar()!;
+                            }
+                        }
+
+                        if (pkColumns == 1L)
+                        {
+                            _rowidOrdinal = i;
+                            break;
+                        }
                     }
                 }
 
@@ -316,6 +343,11 @@ namespace Microsoft.Data.Sqlite
 
             return new SqliteBlob(_connection, blobDatabaseName, blobTableName, blobColumnName, rowid, readOnly: true);
         }
+
+        public virtual TextReader GetTextReader(int ordinal)
+            => IsDBNull(ordinal)
+                ? new StringReader(string.Empty)
+                : new StreamReader(GetStream(ordinal), Encoding.UTF8);
 
         public bool Read()
         {

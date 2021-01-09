@@ -65,8 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 return result;
             }
 
-            if (xState != EntityState.Added
-                && x.Entries.Count > 0
+            if (x.Entries.Count > 0
                 && y.Entries.Count > 0)
             {
                 var xEntry = x.Entries[0];
@@ -83,15 +82,18 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     }
                 }
 
-                var xKey = xEntry.EntityType.FindPrimaryKey();
-                for (var i = 0; i < xKey.Properties.Count; i++)
+                if (xState != EntityState.Added)
                 {
-                    var xKeyProperty = xKey.Properties[i];
-
-                    result = xKeyProperty.GetCurrentValueComparer().Compare(xEntry, yEntry);
-                    if (result != 0)
+                    var xKey = xEntry.EntityType.FindPrimaryKey();
+                    for (var i = 0; i < xKey.Properties.Count; i++)
                     {
-                        return result;
+                        var xKeyProperty = xKey.Properties[i];
+
+                        result = xKeyProperty.GetCurrentValueComparer().Compare(xEntry, yEntry);
+                        if (result != 0)
+                        {
+                            return result;
+                        }
                     }
                 }
             }

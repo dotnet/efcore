@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -205,6 +206,55 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         public class CosmosGenericOneToOne : GenericOneToOne
         {
+            protected override TestModelBuilder CreateModelBuilder()
+                => CreateTestModelBuilder(CosmosTestHelpers.Instance);
+        }
+
+        public class CosmosGenericManyToMany : GenericManyToMany
+        {
+            [ConditionalFact]
+            public virtual void Can_use_shared_type_as_join_entity_with_partition_keys()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Ignore<OneToManyNavPrincipal>();
+                modelBuilder.Ignore<OneToOneNavPrincipal>();
+
+                modelBuilder.Entity<ManyToManyNavPrincipal>(mb =>
+                {
+                    mb.Property<string>("PartitionId");
+                    mb.HasPartitionKey("PartitionId");
+                });
+
+                modelBuilder.Entity<NavDependent>(mb =>
+                {
+                    mb.Property<string>("PartitionId");
+                    mb.HasPartitionKey("PartitionId");
+                });
+
+                modelBuilder.Entity<ManyToManyNavPrincipal>()
+                    .HasMany(e => e.Dependents)
+                    .WithMany(e => e.ManyToManyPrincipals)
+                    .UsingEntity<Dictionary<string, object>>(
+                        "JoinType",
+                        e => e.HasOne<NavDependent>().WithMany().HasForeignKey("DependentId", "PartitionId"),
+                        e => e.HasOne<ManyToManyNavPrincipal>().WithMany().HasForeignKey("PrincipalId", "PartitionId"),
+                        e =>
+                        {
+                            e.HasPartitionKey("PartitionId");
+                        });
+
+                var model = modelBuilder.FinalizeModel();
+
+                var joinType = model.FindEntityType("JoinType");
+                Assert.NotNull(joinType);
+                Assert.Equal(2, joinType.GetForeignKeys().Count());
+                Assert.Equal(3, joinType.FindPrimaryKey().Properties.Count);
+                Assert.Equal(6, joinType.GetProperties().Count());
+                Assert.Equal("PartitionId", joinType.GetPartitionKeyPropertyName());
+                Assert.Equal("PartitionId", joinType.FindPrimaryKey().Properties.Last().Name);
+            }
+
             protected override TestModelBuilder CreateModelBuilder()
                 => CreateTestModelBuilder(CosmosTestHelpers.Instance);
         }

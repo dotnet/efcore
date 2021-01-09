@@ -105,6 +105,41 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertTranslationFailed(() => base.Where_coalesce_with_anonymous_types(async));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Project_discriminator_columns(bool async)
+        {
+            await AssertQuery(
+                async,
+                ss => ss.Set<Gear>().Select(g => new { g.Nickname, Discriminator = EF.Property<string>(g, "Discriminator") }),
+                elementSorter: e => e.Nickname);
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<Gear>().OfType<Officer>().Select(g => new { g.Nickname, Discriminator = EF.Property<string>(g, "Discriminator") }),
+                elementSorter: e => e.Nickname);
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<Faction>().Select(f => new { f.Id, Discriminator = EF.Property<string>(f, "Discriminator") }),
+                elementSorter: e => e.Id);
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<Faction>().OfType<LocustHorde>().Select(lh => new { lh.Id, Discriminator = EF.Property<string>(lh, "Discriminator") }),
+                elementSorter: e => e.Id);
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<LocustLeader>().Select(ll => new { ll.Name, Discriminator = EF.Property<string>(ll, "Discriminator") }),
+                elementSorter: e => e.Name);
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<LocustLeader>().OfType<LocustCommander>().Select(ll => new { ll.Name, Discriminator = EF.Property<string>(ll, "Discriminator") }),
+                elementSorter: e => e.Name);
+        }
+
         protected virtual bool CanExecuteQueryString
             => false;
 

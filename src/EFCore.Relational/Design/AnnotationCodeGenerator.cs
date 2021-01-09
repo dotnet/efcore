@@ -185,10 +185,13 @@ namespace Microsoft.EntityFrameworkCore.Design
                                 computedColumnSql));
             }
 
-            GenerateSimpleFluentApiCall(
-                annotations,
-                RelationalAnnotationNames.IsFixedLength, nameof(RelationalPropertyBuilderExtensions.IsFixedLength),
-                methodCallCodeFragments);
+            if (TryGetAndRemove(annotations, RelationalAnnotationNames.IsFixedLength, out bool isFixedLength))
+            {
+                methodCallCodeFragments.Add(
+                        isFixedLength
+                        ? new MethodCallCodeFragment(nameof(RelationalAnnotationNames.IsFixedLength))
+                        : new MethodCallCodeFragment(nameof(RelationalAnnotationNames.IsFixedLength), isFixedLength));
+            }
 
             GenerateSimpleFluentApiCall(
                 annotations,

@@ -763,7 +763,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 }
 
                 public void Reset()
-                    => throw new NotImplementedException();
+                    => throw new NotSupportedException(CoreStrings.EnumerableResetNotSupported);
             }
         }
 

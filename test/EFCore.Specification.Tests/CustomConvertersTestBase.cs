@@ -489,6 +489,16 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public virtual void Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used()
+        {
+            using var context = CreateContext();
+            var query = context.Set<Blog>().Where(b => !b.IsVisible).ToList();
+
+            var result = Assert.Single(query);
+            Assert.Equal("http://rssblog.com", result.Url);
+        }
+
+        [ConditionalFact]
         public virtual void Where_bool_with_value_conversion_inside_comparison_doesnt_get_converted_twice()
         {
             using var context = CreateContext();

@@ -429,6 +429,28 @@ namespace TestNamespace
         }
 
         [ConditionalFact]
+        public void IsUnicode_works()
+        {
+            Test(
+                modelBuilder => {
+                    modelBuilder.Entity("Entity").Property<string>("UnicodeColumn").IsUnicode();
+                    modelBuilder.Entity("Entity").Property<string>("NonUnicodeColumn").IsUnicode(false);
+                },
+                new ModelCodeGenerationOptions(),
+                code => {
+                    Assert.Contains("Property(e => e.UnicodeColumn).IsUnicode()", code.ContextFile.Code);
+                    Assert.Contains("Property(e => e.NonUnicodeColumn).IsUnicode(false)", code.ContextFile.Code);
+                },
+                model =>
+                {
+                    var entity = model.FindEntityType("TestNamespace.Entity");
+                    Assert.True(entity.GetProperty("UnicodeColumn").IsUnicode());
+                    Assert.False(entity.GetProperty("NonUnicodeColumn").IsUnicode());
+                });
+        }
+
+
+        [ConditionalFact]
         public void ComputedColumnSql_works_stored()
         {
             Test(
@@ -814,6 +836,24 @@ namespace TestNamespace
                 },
                 model =>
                     Assert.Equal("date", model.FindEntityType("TestNamespace.Employee").GetProperty("HireDate").GetConfiguredColumnType()));
+        }
+
+        [ConditionalFact]
+        public void Is_fixed_length_annotation_should_be_scaffolded_without_optional_parameter()
+        {
+             Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "Employee",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("Name").HasMaxLength(5).IsFixedLength();
+                        }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = false },
+                code => Assert.Contains(".IsFixedLength()", code.ContextFile.Code),
+                model =>
+                    Assert.Equal(true, model.FindEntityType("TestNamespace.Employee").GetProperty("Name").IsFixedLength()));
         }
 
         private class TestCodeGeneratorPlugin : ProviderCodeGeneratorPlugin

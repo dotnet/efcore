@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 principalTable,
                 schema,
                 principalSchema,
-                new[] { principalColumn },
+                principalColumn != null ? new[] { principalColumn } : null,
                 onUpdate,
                 onDelete);
 
@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </param>
         /// <param name="principalColumns">
         ///     The columns to which the foreign key columns are constrained, or <see langword="null" /> to constrain to the primary key
-        ///     column.
+        ///     columns.
         /// </param>
         /// <param name="onUpdate"> The action to take on updates. </param>
         /// <param name="onDelete"> The action to take on deletes. </param>
@@ -477,7 +477,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] string collation = null,
             [CanBeNull] string oldCollation = null)
         {
-            var operation = new AlterDatabaseOperation { Collation = collation };
+            var operation = new AlterDatabaseOperation
+            {
+                Collation = collation,
+                OldDatabase =
+                {
+                    Collation = oldCollation
+                }
+            };
             Operations.Add(operation);
 
             return new AlterOperationBuilder<AlterDatabaseOperation>(operation);

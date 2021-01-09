@@ -20,7 +20,6 @@ namespace Microsoft.Data.Sqlite
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
-                connection.DefaultTimeout = 1;
                 connection.Open();
 
                 using (var transaction = connection.BeginTransaction())
@@ -29,7 +28,6 @@ namespace Microsoft.Data.Sqlite
 
                     Assert.Equal("SELECT 1;", command.CommandText);
                     Assert.Same(connection, command.Connection);
-                    Assert.Equal(1, command.CommandTimeout);
                     Assert.Same(transaction, command.Transaction);
                 }
             }
@@ -73,6 +71,54 @@ namespace Microsoft.Data.Sqlite
                     Assert.Equal(Resources.SetRequiresNoOpenReader("CommandText"), ex.Message);
                 }
             }
+        }
+
+        [Fact]
+        public void CommandTimeout_works()
+        {
+            var command = new SqliteCommand
+            {
+                Connection = new SqliteConnection("Command Timeout=1")
+                {
+                    DefaultTimeout = 2
+                },
+                CommandTimeout = 3
+            };
+
+            Assert.Equal(3, command.CommandTimeout);
+        }
+
+        [Fact]
+        public void CommandTimeout_defaults_to_connection()
+        {
+            var command = new SqliteCommand
+            {
+                Connection = new SqliteConnection("Default Timeout=1")
+                {
+                    DefaultTimeout = 2
+                }
+            };
+
+            Assert.Equal(2, command.CommandTimeout);
+        }
+
+        [Fact]
+        public void CommandTimeout_defaults_to_connection_string()
+        {
+            var command = new SqliteCommand
+            {
+                Connection = new SqliteConnection("Default Timeout=1")
+            };
+
+            Assert.Equal(1, command.CommandTimeout);
+        }
+
+        [Fact]
+        public void CommandTimeout_defaults_to_30()
+        {
+            var command = new SqliteCommand();
+
+            Assert.Equal(30, command.CommandTimeout);
         }
 
         [Fact]

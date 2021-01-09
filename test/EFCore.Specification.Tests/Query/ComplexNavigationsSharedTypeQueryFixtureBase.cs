@@ -13,10 +13,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class ComplexNavigationsSharedTypeQueryFixtureBase : ComplexNavigationsQueryFixtureBase, IQueryFixtureBase
     {
+        private ComplexNavigationsWeakData _expectedData;
+
         protected override string StoreName { get; } = "ComplexNavigationsOwned";
 
         public override ISetSource GetExpectedData()
-            => new ComplexNavigationsWeakData();
+        {
+            if (_expectedData == null)
+            {
+                _expectedData = new ComplexNavigationsWeakData();
+            }
+
+            return _expectedData;
+        }
 
         Func<DbContext, ISetSource> IQueryFixtureBase.GetSetSourceCreator()
             => context => new ComplexNavigationsWeakSetExtractor(context);
@@ -311,6 +320,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (typeof(TEntity) == typeof(InheritanceBase2))
                 {
                     return (IQueryable<TEntity>)InheritanceBaseTwos.AsQueryable();
+                }
+
+                if (typeof(TEntity) == typeof(InheritanceLeaf1))
+                {
+                    return (IQueryable<TEntity>)InheritanceLeafOnes.AsQueryable();
+                }
+
+                if (typeof(TEntity) == typeof(InheritanceLeaf2))
+                {
+                    return (IQueryable<TEntity>)InheritanceLeafTwos.AsQueryable();
                 }
 
                 throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));

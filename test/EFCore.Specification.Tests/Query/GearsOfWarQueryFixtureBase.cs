@@ -13,13 +13,31 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class GearsOfWarQueryFixtureBase : SharedStoreFixtureBase<GearsOfWarContext>, IQueryFixtureBase
     {
+        private GearsOfWarData _expectedData;
+
         protected override string StoreName { get; } = "GearsOfWarQueryTest";
 
         public Func<DbContext> GetContextCreator()
             => () => CreateContext();
 
         public virtual ISetSource GetExpectedData()
-            =>  new GearsOfWarData();
+        {
+            if (_expectedData == null)
+            {
+                _expectedData = new GearsOfWarData();
+            }
+
+            return _expectedData;
+        }
+
+        public virtual Dictionary<(Type, string), Func<object, object>> GetShadowPropertyMappings()
+            => new Dictionary<(Type, string), Func<object, object>>
+            {
+                {
+                    (typeof(Gear), "AssignedCityName"),
+                    e => GetExpectedData().Set<Gear>().AsEnumerable().SingleOrDefault(g => g.Nickname == ((Gear)e)?.Nickname)?.AssignedCity?.Name
+                },
+            };
 
         public IReadOnlyDictionary<Type, object> GetEntitySorters()
             => new Dictionary<Type, Func<object, object>>

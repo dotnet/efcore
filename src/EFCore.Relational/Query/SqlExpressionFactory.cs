@@ -636,7 +636,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <inheritdoc />
         public virtual SqlFunctionExpression Function(
-            string schema,
+            string? schema,
             string name,
             IEnumerable<SqlExpression> arguments,
             bool nullable,
@@ -644,7 +644,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Type returnType,
             RelationalTypeMapping? typeMapping = null)
         {
-            Check.NotNull(schema, nameof(schema));
+            Check.NullButNotEmpty(schema, nameof(schema));
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(arguments, nameof(arguments));
             Check.NotNull(argumentsPropagateNullability, nameof(argumentsPropagateNullability));

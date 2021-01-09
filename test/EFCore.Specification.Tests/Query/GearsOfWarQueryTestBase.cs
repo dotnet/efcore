@@ -37,6 +37,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
+        protected override Expression RewriteExpectedQueryExpression(Expression expectedQueryExpression)
+            => new ExpectedQueryRewritingVisitor(Fixture.GetShadowPropertyMappings())
+                .Visit(expectedQueryExpression);
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Negate_on_binary_expression(bool async)
@@ -1256,8 +1260,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => from g in ss.Set<Gear>()
-                        where (new { Name = g.LeaderNickname } ?? new { Name = g.FullName }) != null
-                        select g.Nickname);
+                      where (new { Name = g.LeaderNickname } ?? new { Name = g.FullName }) != null
+                      select g.Nickname);
         }
 
         [ConditionalTheory(Skip = "issue #8421")]
@@ -3284,7 +3288,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => from g1 in ss.Set<Gear>()
                       from g2 in ss.Set<Gear>()
-                      // ReSharper disable once PossibleUnintendedReferenceComparison
+                          // ReSharper disable once PossibleUnintendedReferenceComparison
                       where g1.Weapons == g2.Weapons
                       orderby g1.Nickname
                       select new { Nickname1 = g1.Nickname, Nickname2 = g2.Nickname },
@@ -6000,9 +6004,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var defaultValue = default(DateTimeOffset);
 
-        return AssertQuery(
-                async,
-                ss => ss.Set<Mission>().Where(m => ((DateTimeOffset?)m.Timeline).GetValueOrDefault() == defaultValue));
+            return AssertQuery(
+                    async,
+                    ss => ss.Set<Mission>().Where(m => ((DateTimeOffset?)m.Timeline).GetValueOrDefault() == defaultValue));
         }
 
         [ConditionalTheory]
@@ -7934,6 +7938,39 @@ namespace Microsoft.EntityFrameworkCore.Query
                                                  select t.IssueDate).FirstOrDefault()
                       where g.Tag.IssueDate > invalidTagIssueDate
                       select new { g.Nickname, invalidTagIssueDate });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task First_on_byte_array(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Squad>().Where(e => e.Banner.First() == 0x02));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Array_access_on_byte_array(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Squad>().Where(e => e.Banner5[2] == 0x06));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Project_shadow_properties(bool async)
+        {
+            await AssertQuery(
+                async,
+                ss => from g in ss.Set<Gear>()
+                      select new
+                      {
+                          g.Nickname,
+                          AssignedCityName = EF.Property<string>(g, "AssignedCityName")
+                      },
+                elementSorter: e => e.Nickname);
         }
 
         protected GearsOfWarContext CreateContext()

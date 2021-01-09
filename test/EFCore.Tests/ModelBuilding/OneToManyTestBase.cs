@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -1186,7 +1185,54 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 expectedPrincipalProperties.Add(fk.PrincipalKey.Properties.Single());
                 AssertEqual(expectedPrincipalProperties, principalType.GetProperties());
-                expectedDependentProperties.Add(fk.Properties.Single());
+                var fkProperty = fk.Properties.Single();
+                Assert.False(fkProperty.IsNullable);
+                expectedDependentProperties.Add(fkProperty);
+                AssertEqual(expectedDependentProperties, dependentType.GetProperties());
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+                Assert.Empty(principalType.GetIndexes());
+            }
+
+            [ConditionalFact]
+            public virtual void Can_specify_requiredness_after_OnDelete()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+                modelBuilder.Ignore<OrderDetails>();
+                modelBuilder.Ignore<CustomerDetails>();
+                modelBuilder.Entity<Customer>();
+                modelBuilder.Entity<Order>();
+
+                var dependentType = model.FindEntityType(typeof(Order));
+                var principalType = model.FindEntityType(typeof(Customer));
+                var expectedPrincipalProperties = principalType.GetProperties().ToList();
+                var expectedDependentProperties = dependentType.GetProperties().ToList();
+
+                modelBuilder
+                    .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
+                    .HasForeignKey("CustomerAlternateKey")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+                modelBuilder.FinalizeModel();
+
+                var fk = dependentType.GetForeignKeys().Single();
+
+                Assert.Equal("Customer", dependentType.GetNavigations().Single().Name);
+                Assert.Equal("Orders", principalType.GetNavigations().Single().Name);
+                Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
+                Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
+                Assert.Empty(principalType.GetForeignKeys());
+
+                var principalKey = principalType.FindPrimaryKey();
+                Assert.Same(principalKey, fk.PrincipalKey);
+
+                expectedPrincipalProperties.Add(fk.PrincipalKey.Properties.Single());
+                AssertEqual(expectedPrincipalProperties, principalType.GetProperties());
+                var fkProperty = fk.Properties.Single();
+                Assert.False(fkProperty.IsNullable);
+                expectedDependentProperties.Add(fkProperty);
                 AssertEqual(expectedDependentProperties, dependentType.GetProperties());
                 Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
                 Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);

@@ -83,7 +83,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && method.GetGenericMethodDefinition() is MethodInfo genericMethod
                 && (genericMethod == EntityFrameworkQueryableExtensions.IncludeMethodInfo
                     || genericMethod == EntityFrameworkQueryableExtensions.ThenIncludeAfterEnumerableMethodInfo
-                    || genericMethod == EntityFrameworkQueryableExtensions.ThenIncludeAfterReferenceMethodInfo))
+                    || genericMethod == EntityFrameworkQueryableExtensions.ThenIncludeAfterReferenceMethodInfo
+                    || genericMethod == EntityFrameworkQueryableExtensions.NotQuiteIncludeMethodInfo))
             {
                 var includeLambda = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
                 if (includeLambda.ReturnType.IsGenericType

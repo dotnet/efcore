@@ -1075,5 +1075,17 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] this DbFunctions _,
             Guid? arg)
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DataLength)));
+
+        /// <summary>
+        ///     Validate if the given string is a valid numeric.
+        ///     Corresponds to the SQL Server's ISNUMERIC(expression).
+        /// </summary>
+        /// <param name="_">The DbFunctions instance.</param>
+        /// <param name="expression">Expression to validate</param>
+        /// <returns>true for valid numeric and false otherwise.</returns>
+        public static bool IsNumeric(
+            [CanBeNull] this DbFunctions _,
+            [NotNull] string expression)
+            => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(IsNumeric)));
     }
 }

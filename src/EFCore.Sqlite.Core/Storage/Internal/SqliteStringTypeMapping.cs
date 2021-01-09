@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Text;
 using JetBrains.Annotations;
@@ -64,8 +65,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             var start = 0;
             int i;
             int length;
-            var concatenated = false;
             var openApostrophe = false;
+            var lengths = new List<int>();
+            var startIndexes = new List<int> { 0 };
             for (i = 0; i < stringValue.Length; i++)
             {
                 var lineFeed = stringValue[i] == '\n';
@@ -80,8 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                         {
                             if (builder.Length != 0)
                             {
-                                builder.Append(" || ");
-                                concatenated = true;
+                                lengths.Add(builder.Length - startIndexes[^1]);
+                                startIndexes.Add(builder.Length);
                             }
 
                             builder.Append('\'');
@@ -101,8 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
 
                         if (builder.Length != 0)
                         {
-                            builder.Append(" || ");
-                            concatenated = true;
+                            lengths.Add(builder.Length - startIndexes[^1]);
+                            startIndexes.Add(builder.Length);
                         }
 
                         builder
@@ -117,8 +119,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                         {
                             if (builder.Length != 0)
                             {
-                                builder.Append(" || ");
-                                concatenated = true;
+                                lengths.Add(builder.Length - startIndexes[^1]);
+                                startIndexes.Add(builder.Length);
                             }
 
                             builder.Append("'");
@@ -139,8 +141,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                 {
                     if (builder.Length != 0)
                     {
-                        builder.Append(" || ");
-                        concatenated = true;
+                        lengths.Add(builder.Length - startIndexes[^1]);
+                        startIndexes.Add(builder.Length);
                     }
 
                     builder.Append('\'');
@@ -155,19 +157,43 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                 builder.Append('\'');
             }
 
-            if (concatenated)
+            if (builder.Length != 0)
             {
-                builder
-                    .Insert(0, '(')
-                    .Append(')');
+                lengths.Add(builder.Length - startIndexes[^1]);
             }
 
-            if (builder.Length == 0)
+            if (lengths.Count == 0
+                && builder.Length == 0)
             {
-                builder.Append("''");
+                return "''";
             }
 
-            return builder.ToString();
+            var newBuilder = new StringBuilder();
+            GenerateBalancedTree(0, lengths.Count);
+
+            return newBuilder.ToString();
+
+            void GenerateBalancedTree(int start, int end)
+            {
+                var count = end - start;
+                if (count < 1)
+                {
+                    return;
+                }
+
+                if (count == 1)
+                {
+                    newBuilder.Append(builder, startIndexes[start], lengths[start]);
+                    return;
+                }
+
+                var mid = start + count / 2;
+                newBuilder.Append("(");
+                GenerateBalancedTree(start, mid);
+                newBuilder.Append(" || ");
+                GenerateBalancedTree(mid, end);
+                newBuilder.Append(")");
+            }
         }
     }
 }

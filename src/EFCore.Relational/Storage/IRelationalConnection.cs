@@ -30,11 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets or sets the connection string for the database.
         /// </summary>
-        string ConnectionString
-        {
-            get => throw new NotImplementedException();
-            [param: CanBeNull] set => throw new NotImplementedException();
-        }
+        string ConnectionString { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     <para>
@@ -47,11 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         Note that the connection must be disposed by application code since it was not created by Entity Framework.
         ///     </para>
         /// </summary>
-        DbConnection DbConnection
-        {
-            get => throw new NotImplementedException();
-            [param: CanBeNull] set => throw new NotImplementedException();
-        }
+        DbConnection DbConnection { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The <see cref="DbContext" /> currently in use, or null if not known.
@@ -86,6 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A task that represents the asynchronous operation, with a value of <see langword="true" /> if the connection
         ///     was actually opened.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task<bool> OpenAsync(CancellationToken cancellationToken, bool errorsExpected = false);
 
         /// <summary>

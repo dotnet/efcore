@@ -197,11 +197,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Test(
                 new AddForeignKeyOperation
                 {
-                    Table = "Post",
                     Name = "FK_Post_Blog_BlogId",
+                    Table = "Post",
                     Columns = new[] { "BlogId" },
-                    PrincipalTable = "Blog",
-                    PrincipalColumns = new[] { "Id" }
+                    PrincipalTable = "Blog"
                 },
                 "mb.AddForeignKey("
                 + _eol
@@ -211,15 +210,44 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol
                 + "    column: \"BlogId\","
                 + _eol
-                + "    principalTable: \"Blog\","
-                + _eol
-                + "    principalColumn: \"Id\");",
+                + "    principalTable: \"Blog\");",
                 o =>
                 {
-                    Assert.Equal("Post", o.Table);
                     Assert.Equal("FK_Post_Blog_BlogId", o.Name);
+                    Assert.Equal("Post", o.Table);
                     Assert.Equal(new[] { "BlogId" }, o.Columns);
                     Assert.Equal("Blog", o.PrincipalTable);
+                    Assert.Null(o.PrincipalColumns);
+                });
+        }
+
+        [ConditionalFact]
+        public void AddForeignKeyOperation_required_args_composite()
+        {
+            Test(
+                new AddForeignKeyOperation
+                {
+                    Name = "FK_Post_Blog_BlogId1_BlogId2",
+                    Table = "Post",
+                    Columns = new[] { "BlogId1", "BlogId2" },
+                    PrincipalTable = "Blog"
+                },
+                "mb.AddForeignKey("
+                + _eol
+                + "    name: \"FK_Post_Blog_BlogId1_BlogId2\","
+                + _eol
+                + "    table: \"Post\","
+                + _eol
+                + "    columns: new[] { \"BlogId1\", \"BlogId2\" },"
+                + _eol
+                + "    principalTable: \"Blog\");",
+                o =>
+                {
+                    Assert.Equal("FK_Post_Blog_BlogId1_BlogId2", o.Name);
+                    Assert.Equal("Post", o.Table);
+                    Assert.Equal(new[] { "BlogId1", "BlogId2" }, o.Columns);
+                    Assert.Equal("Blog", o.PrincipalTable);
+                    Assert.Null(o.PrincipalColumns);
                 });
         }
 
@@ -229,9 +257,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Test(
                 new AddForeignKeyOperation
                 {
+                    Name = "FK_Post_Blog_BlogId",
                     Schema = "dbo",
                     Table = "Post",
-                    Name = "FK_Post_Blog_BlogId",
                     Columns = new[] { "BlogId" },
                     PrincipalSchema = "my",
                     PrincipalTable = "Blog",
@@ -260,47 +288,64 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + "    onDelete: ReferentialAction.Cascade);",
                 o =>
                 {
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal("dbo", o.Schema);
                     Assert.Equal("FK_Post_Blog_BlogId", o.Name);
+                    Assert.Equal("dbo", o.Schema);
+                    Assert.Equal("Post", o.Table);
                     Assert.Equal(new[] { "BlogId" }, o.Columns);
-                    Assert.Equal("Blog", o.PrincipalTable);
                     Assert.Equal("my", o.PrincipalSchema);
+                    Assert.Equal("Blog", o.PrincipalTable);
                     Assert.Equal(new[] { "Id" }, o.PrincipalColumns);
+                    Assert.Equal(ReferentialAction.Restrict, o.OnUpdate);
                     Assert.Equal(ReferentialAction.Cascade, o.OnDelete);
                 });
         }
 
         [ConditionalFact]
-        public void AddForeignKeyOperation_composite()
+        public void AddForeignKeyOperation_all_args_composite()
         {
             Test(
                 new AddForeignKeyOperation
                 {
                     Name = "FK_Post_Blog_BlogId1_BlogId2",
+                    Schema = "dbo",
                     Table = "Post",
                     Columns = new[] { "BlogId1", "BlogId2" },
+                    PrincipalSchema = "my",
                     PrincipalTable = "Blog",
-                    PrincipalColumns = new[] { "Id1", "Id2" }
+                    PrincipalColumns = new[] { "Id1", "Id2" },
+                    OnUpdate = ReferentialAction.Restrict,
+                    OnDelete = ReferentialAction.Cascade
                 },
                 "mb.AddForeignKey("
                 + _eol
                 + "    name: \"FK_Post_Blog_BlogId1_BlogId2\","
                 + _eol
+                + "    schema: \"dbo\","
+                + _eol
                 + "    table: \"Post\","
                 + _eol
                 + "    columns: new[] { \"BlogId1\", \"BlogId2\" },"
                 + _eol
+                + "    principalSchema: \"my\","
+                + _eol
                 + "    principalTable: \"Blog\","
                 + _eol
-                + "    principalColumns: new[] { \"Id1\", \"Id2\" });",
+                + "    principalColumns: new[] { \"Id1\", \"Id2\" },"
+                + _eol
+                + "    onUpdate: ReferentialAction.Restrict,"
+                + _eol
+                + "    onDelete: ReferentialAction.Cascade);",
                 o =>
                 {
                     Assert.Equal("FK_Post_Blog_BlogId1_BlogId2", o.Name);
+                    Assert.Equal("dbo", o.Schema);
                     Assert.Equal("Post", o.Table);
                     Assert.Equal(new[] { "BlogId1", "BlogId2" }, o.Columns);
+                    Assert.Equal("my", o.PrincipalSchema);
                     Assert.Equal("Blog", o.PrincipalTable);
                     Assert.Equal(new[] { "Id1", "Id2" }, o.PrincipalColumns);
+                    Assert.Equal(ReferentialAction.Restrict, o.OnUpdate);
+                    Assert.Equal(ReferentialAction.Cascade, o.OnDelete);
                 });
         }
 
@@ -804,8 +849,43 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + "    .OldAnnotation(\"bar\", \"foo\");",
                 o =>
                 {
+                    Assert.Equal("Some collation", o.Collation);
+                    Assert.Equal("Some other collation", o.OldDatabase.Collation);
                     Assert.Equal("bar", o["foo"]);
                     Assert.Equal("foo", o.OldDatabase["bar"]);
+                });
+        }
+
+        [ConditionalFact]
+        public void AlterDatabaseOperation_with_default_old_collation()
+        {
+            Test(
+                new AlterDatabaseOperation { Collation = "Some collation" },
+                "mb.AlterDatabase("
+                + _eol
+                + "    collation: \"Some collation\");",
+                o =>
+                {
+                    Assert.Equal("Some collation", o.Collation);
+                    Assert.Null(o.OldDatabase.Collation);
+                });
+        }
+
+        [ConditionalFact]
+        public void AlterDatabaseOperation_with_default_new_collation()
+        {
+            Test(
+                new AlterDatabaseOperation
+                {
+                    OldDatabase = { Collation = "Some collation" }
+                },
+                "mb.AlterDatabase("
+                + _eol
+                + "    oldCollation: \"Some collation\");",
+                o =>
+                {
+                    Assert.Null(o.Collation);
+                    Assert.Equal("Some collation", o.OldDatabase.Collation);
                 });
         }
 

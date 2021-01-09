@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             break;
                         }
 
-                        throw new NotImplementedException(CoreStrings.UnhandledExpressionNode(obj.NodeType));
+                        throw new NotSupportedException(CoreStrings.UnhandledExpressionNode(obj.NodeType));
                 }
 
                 return hash.ToHashCode();

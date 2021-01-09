@@ -240,7 +240,7 @@ namespace Microsoft.Data.Sqlite
                 return (T)(object)checked((ushort)GetInt64(ordinal));
             }
 
-            return (T)GetValue(ordinal);
+            return (T)GetValue(ordinal)!;
         }
 
         public virtual object? GetValue(int ordinal)

@@ -28,6 +28,8 @@ namespace Microsoft.Data.Sqlite
         private const string PasswordKeyword = "Password";
         private const string ForeignKeysKeyword = "Foreign Keys";
         private const string RecursiveTriggersKeyword = "Recursive Triggers";
+        private const string DefaultTimeoutKeyword = "Default Timeout";
+        private const string CommandTimeoutKeyword = "Command Timeout";
 
         private enum Keywords
         {
@@ -36,7 +38,8 @@ namespace Microsoft.Data.Sqlite
             Cache,
             Password,
             ForeignKeys,
-            RecursiveTriggers
+            RecursiveTriggers,
+            DefaultTimeout
         }
 
         private static readonly IReadOnlyList<string> _validKeywords;
@@ -48,19 +51,21 @@ namespace Microsoft.Data.Sqlite
         private string _password = string.Empty;
         private bool? _foreignKeys;
         private bool _recursiveTriggers;
+        private int _defaultTimeout = 30;
 
         static SqliteConnectionStringBuilder()
         {
-            var validKeywords = new string[6];
+            var validKeywords = new string[7];
             validKeywords[(int)Keywords.DataSource] = DataSourceKeyword;
             validKeywords[(int)Keywords.Mode] = ModeKeyword;
             validKeywords[(int)Keywords.Cache] = CacheKeyword;
             validKeywords[(int)Keywords.Password] = PasswordKeyword;
             validKeywords[(int)Keywords.ForeignKeys] = ForeignKeysKeyword;
             validKeywords[(int)Keywords.RecursiveTriggers] = RecursiveTriggersKeyword;
+            validKeywords[(int)Keywords.DefaultTimeout] = DefaultTimeoutKeyword;
             _validKeywords = validKeywords;
 
-            _keywords = new Dictionary<string, Keywords>(8, StringComparer.OrdinalIgnoreCase)
+            _keywords = new Dictionary<string, Keywords>(10, StringComparer.OrdinalIgnoreCase)
             {
                 [DataSourceKeyword] = Keywords.DataSource,
                 [ModeKeyword] = Keywords.Mode,
@@ -68,10 +73,12 @@ namespace Microsoft.Data.Sqlite
                 [PasswordKeyword] = Keywords.Password,
                 [ForeignKeysKeyword] = Keywords.ForeignKeys,
                 [RecursiveTriggersKeyword] = Keywords.RecursiveTriggers,
+                [DefaultTimeoutKeyword] = Keywords.DefaultTimeout,
 
                 // aliases
                 [FilenameKeyword] = Keywords.DataSource,
-                [DataSourceNoSpaceKeyword] = Keywords.DataSource
+                [DataSourceNoSpaceKeyword] = Keywords.DataSource,
+                [CommandTimeoutKeyword] = Keywords.DefaultTimeout
             };
         }
 
@@ -186,6 +193,16 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
+        ///     Gets or sets the default <see cref="SqliteConnection.DefaultTimeout" /> value.
+        /// </summary>
+        /// <value>The default <see cref="SqliteConnection.DefaultTimeout" /> value.</value>
+        public int DefaultTimeout
+        {
+            get => _defaultTimeout;
+            set => base[DefaultTimeoutKeyword] = _defaultTimeout = value;
+        }
+
+        /// <summary>
         ///     Gets or sets the value associated with the specified key.
         /// </summary>
         /// <param name="keyword">The key.</param>
@@ -228,6 +245,10 @@ namespace Microsoft.Data.Sqlite
 
                     case Keywords.RecursiveTriggers:
                         RecursiveTriggers = Convert.ToBoolean(value, CultureInfo.InvariantCulture);
+                        return;
+
+                    case Keywords.DefaultTimeout:
+                        DefaultTimeout = Convert.ToInt32(value);
                         return;
 
                     default:
@@ -372,6 +393,9 @@ namespace Microsoft.Data.Sqlite
                 case Keywords.RecursiveTriggers:
                     return RecursiveTriggers;
 
+                case Keywords.DefaultTimeout:
+                    return DefaultTimeout;
+
                 default:
                     Debug.Assert(false, "Unexpected keyword: " + index);
                     return null;
@@ -409,6 +433,10 @@ namespace Microsoft.Data.Sqlite
 
                 case Keywords.RecursiveTriggers:
                     _recursiveTriggers = false;
+                    return;
+
+                case Keywords.DefaultTimeout:
+                    _defaultTimeout = 30;
                     return;
 
                 default:

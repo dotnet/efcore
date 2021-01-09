@@ -172,11 +172,9 @@ namespace Microsoft.EntityFrameworkCore
 
         private class FakeRelationalConnection : IRelationalConnection
         {
-            public string ConnectionString
-                => throw new NotImplementedException();
+            public string ConnectionString { get; set; }
 
-            public DbConnection DbConnection
-                => new FakeDbConnection();
+            public DbConnection DbConnection { get; set; } = new FakeDbConnection();
 
             public DbContext Context
                 => null;

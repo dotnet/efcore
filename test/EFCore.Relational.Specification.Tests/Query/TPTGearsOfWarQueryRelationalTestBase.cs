@@ -19,5 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             await base.Cast_to_derived_followed_by_include_and_FirstOrDefault(async);
         }
+
+        public override Task Project_discriminator_columns(bool async)
+            => Task.CompletedTask;
     }
 }

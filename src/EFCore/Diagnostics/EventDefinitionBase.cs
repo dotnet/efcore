@@ -103,8 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 LogLevel logLevel,
                 EventId eventId,
                 [CanBeNull] TState state,
-                [CanBeNull] Exception exception,
-                [NotNull] Func<TState, Exception, string> formatter)
+                Exception exception,
+                Func<TState, Exception, string> formatter)
             {
                 Message = formatter(state, exception);
             }
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 => true;
 
             IDisposable ILogger.BeginScope<TState>([CanBeNull] TState state)
-                => throw new NotImplementedException();
+                => throw new NotSupportedException();
         }
     }
 }

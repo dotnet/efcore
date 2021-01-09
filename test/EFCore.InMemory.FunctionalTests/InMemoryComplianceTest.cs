@@ -14,7 +14,6 @@ namespace Microsoft.EntityFrameworkCore
         {
             // No in-memory tests
             typeof(FunkyDataQueryTestBase<>),
-            typeof(OptimisticConcurrencyTestBase<>),
             typeof(StoreGeneratedTestBase<>),
             typeof(ConferencePlannerTestBase<>),
             typeof(ManyToManyQueryTestBase<>),
