@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore
             var exception = await Assert.ThrowsAsync<InvalidOperationException>(
                 async () =>
                 {
-                    using var context = CreateKeylessContextWithEmptyDatabase(async ? "1A" : "1S");
+                    using var context = CreateKeylessContextWithEmptyDatabase();
                     TestStore.Clean(context);
                     var _ = async
                         ? await context.Database.EnsureCreatedResilientlyAsync()
@@ -55,7 +55,8 @@ namespace Microsoft.EntityFrameworkCore
 
         protected abstract SeedingContext CreateContextWithEmptyDatabase(string testId);
 
-        protected abstract KeylessSeedingContext CreateKeylessContextWithEmptyDatabase(string testId);
+        protected virtual KeylessSeedingContext CreateKeylessContextWithEmptyDatabase()
+            => new KeylessSeedingContext(TestStore.AddProviderOptions(new DbContextOptionsBuilder()).Options);
 
         protected abstract class SeedingContext : DbContext
         {
@@ -79,12 +80,12 @@ namespace Microsoft.EntityFrameworkCore
             public string Species { get; set; }
         }
 
-        protected abstract class KeylessSeedingContext : DbContext
+        public class KeylessSeedingContext : DbContext
         {
-            public string TestId { get; }
-
-            protected KeylessSeedingContext(string testId)
-                => TestId = testId;
+            public KeylessSeedingContext(DbContextOptions options)
+                : base(options)
+            {
+            }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<KeylessSeed>()
@@ -95,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore
                 );
         }
 
-        protected class KeylessSeed
+        public class KeylessSeed
         {
             public string Species { get; set; }
         }
