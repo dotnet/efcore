@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Reflection;
+using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Running;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks
@@ -11,7 +13,13 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
     {
         public static void Run(string[] args, Assembly assembly, IConfig config = null)
         {
-            BenchmarkSwitcher.FromAssembly(assembly).Run(args);
+            config ??= DefaultConfig.Instance;
+
+            config = config
+                .AddDiagnoser(MemoryDiagnoser.Default)
+                .AddColumn(StatisticColumn.OperationsPerSecond);
+
+            BenchmarkSwitcher.FromAssembly(assembly).Run(args, config);
         }
     }
 }
