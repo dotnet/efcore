@@ -988,6 +988,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 var key = entityType.FindPrimaryKey();
                 if (key == null)
                 {
+                    if (entityType.GetSeedData().Any())
+                    {
+                        throw new InvalidOperationException(CoreStrings.SeedKeylessEntity(entityType.DisplayName()));
+                    }
                     continue;
                 }
 

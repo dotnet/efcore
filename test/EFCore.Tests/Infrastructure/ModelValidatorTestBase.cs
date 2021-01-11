@@ -247,6 +247,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public virtual ICollection<Order> Orders { get; set; }
         }
 
+        protected class KeylessSeed
+        {
+            public string Species { get; set; }
+        }
+
         protected ModelValidatorTestBase()
             => LoggerFactory = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Validation.Name || l == DbLoggerCategory.Model.Name);
 

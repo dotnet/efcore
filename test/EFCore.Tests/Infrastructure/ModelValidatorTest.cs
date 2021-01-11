@@ -1322,6 +1322,24 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(CoreStrings.SharedTypeDerivedType("Shared2 (C)"), modelBuilder.Model);
         }
 
+        [ConditionalFact]
+        public virtual void Seeding_keyless_entity_throws()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<KeylessSeed>(
+                e =>
+                {
+                    e.HasNoKey();
+                    e.HasData(
+                        new KeylessSeed
+                        {
+                            Species = "Apple"
+                        });
+                });
+
+            VerifyError(CoreStrings.SeedKeylessEntity(nameof(KeylessSeed)), modelBuilder.Model);
+        }
+
         // INotify interfaces not really implemented; just marking the classes to test metadata construction
         private class FullNotificationEntity : INotifyPropertyChanging, INotifyPropertyChanged
         {

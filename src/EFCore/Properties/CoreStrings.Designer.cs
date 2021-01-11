@@ -2382,6 +2382,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property);
 
         /// <summary>
+        ///     The seed entity for entity type '{entityType}' cannot be added because keyless entity types are not supported. Consider providing a key to seed data or use this entity for query only.
+        /// </summary>
+        public static string SeedKeylessEntity([CanBeNull] object? entityType)
+            => string.Format(
+                GetString("SeedKeylessEntity", nameof(entityType)),
+                entityType);
+
+        /// <summary>
         ///     The inverse for the navigation '{entityType}.{property}' cannot be the same navigation. Change the value in the [InverseProperty] attribute to a different navigation.
         /// </summary>
         public static string SelfReferencingNavigationWithInverseProperty([CanBeNull] object? entityType, [CanBeNull] object? property)

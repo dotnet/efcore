@@ -1,9 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -17,6 +19,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task Seeding_does_not_leave_context_contaminated(bool async)
         {
             using var context = CreateContextWithEmptyDatabase(async ? "1A" : "1S");
+            TestStore.Clean(context);
             var _ = async
                 ? await context.Database.EnsureCreatedResilientlyAsync()
                 : context.Database.EnsureCreatedResiliently();
@@ -31,7 +34,29 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("Orange", seeds[1].Species);
         }
 
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Seeding_keyless_entity_throws_exception(bool async)
+        {
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+                async () =>
+                {
+                    using var context = CreateKeylessContextWithEmptyDatabase();
+                    TestStore.Clean(context);
+                    var _ = async
+                        ? await context.Database.EnsureCreatedResilientlyAsync()
+                        : context.Database.EnsureCreatedResiliently();
+                });
+            Assert.Equal(CoreStrings.SeedKeylessEntity(nameof(KeylessSeed)), exception.Message);
+        }
+
+        protected abstract TestStore TestStore { get; }
+
         protected abstract SeedingContext CreateContextWithEmptyDatabase(string testId);
+
+        protected virtual KeylessSeedingContext CreateKeylessContextWithEmptyDatabase()
+            => new KeylessSeedingContext(TestStore.AddProviderOptions(new DbContextOptionsBuilder()).Options);
 
         protected abstract class SeedingContext : DbContext
         {
@@ -52,6 +77,27 @@ namespace Microsoft.EntityFrameworkCore
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
 
+            public string Species { get; set; }
+        }
+
+        public class KeylessSeedingContext : DbContext
+        {
+            public KeylessSeedingContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<KeylessSeed>()
+                    .HasNoKey()
+                    .HasData(
+                    new KeylessSeed { Species = "Apple" },
+                    new KeylessSeed { Species = "Orange" }
+                );
+        }
+
+        public class KeylessSeed
+        {
             public string Species { get; set; }
         }
     }

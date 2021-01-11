@@ -1329,6 +1329,9 @@
   <data name="SeedDatumSignedNumericValue" xml:space="preserve">
     <value>The seed entity for entity type '{entityType}' cannot be added because a non-zero value is required for property '{property}'. Consider providing a negative value to avoid collisions with non-seed data.</value>
   </data>
+  <data name="SeedKeylessEntity" xml:space="preserve">
+    <value>The seed entity for entity type '{entityType}' cannot be added because keyless entity types are not supported. Consider providing a key or removing the seed data.</value>
+  </data>
   <data name="SelfReferencingNavigationWithInverseProperty" xml:space="preserve">
     <value>The inverse for the navigation '{entityType}.{property}' cannot be the same navigation. Change the value in the [InverseProperty] attribute to a different navigation.</value>
   </data>
