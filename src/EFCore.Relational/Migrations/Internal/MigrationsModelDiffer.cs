@@ -1984,7 +1984,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             if (sourceProperty == null)
                             {
                                 if (targetProperty.GetAfterSaveBehavior() != PropertySaveBehavior.Save
-                                    && (targetProperty.ValueGenerated & ValueGenerated.OnUpdate) == 0)
+                                    && (targetProperty.ValueGenerated & ValueGenerated.OnUpdate) == 0
+                                    && (targetKeyMap.Count == 1 || entry.EntityType.Name == sourceEntityType.Name))
                                 {
                                     entryMapping.RecreateRow = true;
                                     break;
