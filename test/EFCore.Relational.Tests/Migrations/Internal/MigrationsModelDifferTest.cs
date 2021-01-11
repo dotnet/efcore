@@ -8218,6 +8218,98 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
+        public void SeedData_with_guid_AK_and_multiple_owned_types()
+        {
+            Execute(
+                target =>
+                {
+                    target.Entity<SomeEntity>(
+                        builder =>
+                        {
+                            builder.HasAlternateKey(x => x.Guid);
+                            builder.Property(x => x.Id).ValueGeneratedNever();
+
+                            var data = new[]
+                            {
+                                new SomeEntity(1L, new Guid("74520CF7-0C78-447C-8FE0-ED97A16A13F5"))
+                            };
+
+                            var owned = data.Select(x => new
+                            {
+                                SomeEntityId = x.Id,
+                            }).ToArray();
+
+                            builder.OwnsOne(x => x.OwnedEntity).HasData(owned);
+                            builder.HasData(data);
+                        });
+
+                    target.Entity<ApplicationUser>(
+                        builder => {
+                            builder.HasAlternateKey(x => x.Guid);
+
+                            var data = new[]
+                            {
+                                new ApplicationUser()
+                                {
+                                    Id = 12345,
+                                    Guid = new Guid("4C85B629-732A-4724-AA33-6E8108134BAE")
+                                }
+                            };
+
+                            var owned = data.Select(x => new
+                            {
+                                ApplicationUserId = x.Id,
+                            }).ToArray();
+
+                            builder.OwnsOne(x => x.OwnedEntity).HasData(owned);
+                            builder.HasData(data);
+                        });
+                },
+                target => { },
+                source => { },
+                Assert.Empty,
+                Assert.Empty);
+        }
+
+        protected class SomeEntity
+        {
+            public SomeEntity(long id, Guid guid)
+            {
+                Id = id;
+                Guid = guid;
+            }
+
+            public virtual SomeOwnedEntity OwnedEntity { get; private set; } = new SomeOwnedEntity();
+
+            public Guid Guid { get; protected set; }
+
+            public long Id { get; protected set; }
+
+        }
+
+        protected class ApplicationUser
+        {
+            private readonly SomeOwnedEntity _ownedEntity;
+
+
+            public ApplicationUser()
+            {
+                _ownedEntity = null!;
+            }
+
+            public virtual long Id { get; set; }
+
+            public virtual SomeOwnedEntity OwnedEntity => _ownedEntity;
+
+            public Guid Guid { get; set; }
+
+        }
+
+        protected class SomeOwnedEntity
+        {
+        }
+
+        [ConditionalFact]
         public void SeedData_and_PK_rename()
         {
             Execute(
