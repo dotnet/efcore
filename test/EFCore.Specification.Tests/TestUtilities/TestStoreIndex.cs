@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
@@ -37,6 +38,32 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                         _creationLocks.TryRemove(name, out _);
                     }
                 }
+            }
+        }
+
+        public virtual void CreateNonShared(string name, Action initializeDatabase)
+        {
+            var creationLock = _creationLocks.GetOrAdd(name, new object());
+
+            if (Monitor.TryEnter(creationLock))
+            {
+                try
+                {
+                    initializeDatabase?.Invoke();
+                }
+                finally
+                {
+                    Monitor.Exit(creationLock);
+                    if (!_creationLocks.TryRemove(name, out _))
+                    {
+                        throw new InvalidOperationException($"An attempt was made to initialize a non-shared store {name} from two different threads.");
+                    }
+                }
+            }
+            else
+            {
+                _creationLocks.TryRemove(name, out _);
+                throw new InvalidOperationException($"An attempt was made to initialize a non-shared store {name} from two different threads.");
             }
         }
     }

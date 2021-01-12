@@ -1683,6 +1683,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 26);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Repro9735(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Include(b => b.OrderDetails)
+                    .OrderBy(b => b.Customer.CustomerID != null)
+                    .ThenBy(b => b.Customer != null ? b.Customer.CustomerID : string.Empty)
+                    .Take(2),
+                entryCount: 6);
+        }
+
         protected virtual void ClearLog()
         {
         }
