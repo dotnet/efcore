@@ -26,13 +26,6 @@ namespace Microsoft.EntityFrameworkCore
 
         public class InMemoryApiConsistencyFixture : ApiConsistencyFixtureBase
         {
-            public override bool TryGetProviderOptionsDelegate(out Action<DbContextOptionsBuilder> configureOptions)
-            {
-                configureOptions = b => InMemoryTestHelpers.Instance.UseProviderOptions(b);
-
-                return true;
-            }
-
             public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>
             {
                 typeof(InMemoryServiceCollectionExtensions),

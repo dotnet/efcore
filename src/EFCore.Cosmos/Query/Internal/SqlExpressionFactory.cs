@@ -142,7 +142,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     throw new InvalidOperationException(
                         CosmosStrings.UnsupportedOperatorForSqlExpression(
                             sqlUnaryExpression.OperatorType, typeof(SqlUnaryExpression).ShortDisplayName()));
-                    ;
             }
 
             return new SqlUnaryExpression(sqlUnaryExpression.OperatorType, operand, resultType, resultTypeMapping);
