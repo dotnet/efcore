@@ -1479,6 +1479,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             : foreignKey.Properties,
                         makeNullable);
 
+                    if (foreignKey.Properties.Count > 1
+                        && !(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore23687", out var enabled) && enabled))
+                    {
+                        outerKey = Expression.New(AnonymousObject.AnonymousObjectCtor, outerKey);
+                        innerKey = Expression.New(AnonymousObject.AnonymousObjectCtor, innerKey);
+                    }
+
                     var outerKeySelector = Expression.Lambda(_expressionTranslator.Translate(outerKey), _queryExpression.CurrentParameter);
                     var innerKeySelector = Expression.Lambda(
                         _expressionTranslator.Translate(innerKey), innerQueryExpression.CurrentParameter);
