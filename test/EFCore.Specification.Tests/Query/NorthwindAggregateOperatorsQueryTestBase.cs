@@ -1986,5 +1986,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => ss.Set<Order>().Where(o => o.OrderID == 10243).Select(o => o.OrderID).DefaultIfEmpty());
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task All_true(bool async)
+        {
+            return AssertAll(
+                async,
+                ss => ss.Set<Customer>(),
+                predicate: x => true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Not_Any_false(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => !c.Orders.Any(o => false)).Select(c => c.CustomerID));
+        }
     }
 }
