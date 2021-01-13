@@ -83,7 +83,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             if (methodCallExpression.Method.IsGenericMethod
                 && methodCallExpression.Arguments.Count == 1
                 && methodCallExpression.Arguments[0].Type.TryGetSequenceType() != null
-                && string.Equals(methodCallExpression.Method.Name, "AsSplitQuery", StringComparison.Ordinal))
+                && (string.Equals(methodCallExpression.Method.Name, "AsSplitQuery", StringComparison.Ordinal)
+                    || string.Equals(methodCallExpression.Method.Name, "AsSingleQuery", StringComparison.Ordinal)))
             {
                 return Visit(methodCallExpression.Arguments[0]);
             }
@@ -1477,6 +1478,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             ? foreignKey.PrincipalKey.Properties
                             : foreignKey.Properties,
                         makeNullable);
+
+                    if (foreignKey.Properties.Count > 1
+                        && !(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore23687", out var enabled) && enabled))
+                    {
+                        outerKey = Expression.New(AnonymousObject.AnonymousObjectCtor, outerKey);
+                        innerKey = Expression.New(AnonymousObject.AnonymousObjectCtor, innerKey);
+                    }
 
                     var outerKeySelector = Expression.Lambda(_expressionTranslator.Translate(outerKey), _queryExpression.CurrentParameter);
                     var innerKeySelector = Expression.Lambda(
