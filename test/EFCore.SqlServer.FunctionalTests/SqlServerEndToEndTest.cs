@@ -330,6 +330,70 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public void Can_insert_non_owner_principal_for_owned()
+        {
+            using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+
+            var options = Fixture.CreateOptions(testDatabase);
+            using (var context = new FileContext(options))
+            {
+                context.Database.EnsureCreatedResiliently();
+
+                var category = new Category { };
+                context.Categories.Add(category);
+
+                context.SaveChanges();
+
+                var fileMetadata = new FileMetadata { };
+                context.FileMetadata.Add(fileMetadata);
+                category.Picture = new FileSource { FileId = fileMetadata.Id };
+
+                context.SaveChanges();
+            }
+        }
+
+        private class FileContext : DbContext
+        {
+            public FileContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<FileMetadata> FileMetadata { get; set; }
+            public DbSet<Category> Categories { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                base.OnModelCreating(modelBuilder);
+
+                modelBuilder.Entity<Category>(builder =>
+                {
+                    builder.OwnsOne(x => x.Picture, fileSource =>
+                    {
+                        fileSource.HasOne<FileMetadata>().WithOne().HasForeignKey<FileSource>(x => x.FileId);
+                    });
+                });
+            }
+        }
+
+        private sealed class FileMetadata
+        {
+            public Guid Id { get; set; }
+        }
+
+        private sealed class Category
+        {
+            public Guid Id { get; set; }
+
+            public FileSource Picture { get; set; }
+        }
+
+        private sealed class FileSource
+        {
+            public Guid? FileId { get; set; }
+        }
+
+        [ConditionalFact]
         public async Task Can_insert_TPT_dependents_with_identity()
         {
             using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
