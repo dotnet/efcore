@@ -24,8 +24,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private static readonly MethodInfo _isNullOrEmptyMethodInfo
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.IsNullOrEmpty), new[] { typeof(string) });
 
-        private static readonly MethodInfo _concatMethodInfo
+        private static readonly MethodInfo _concatMethodInfoTwoArgs
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.Concat), new[] { typeof(string), typeof(string) });
+
+        private static readonly MethodInfo _concatMethodInfoThreeArgs
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Concat), new[] { typeof(string), typeof(string), typeof(string) });
+
+        private static readonly MethodInfo _concatMethodInfoFourArgs
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Concat), new[] { typeof(string), typeof(string), typeof(string), typeof(string) });
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -67,11 +73,31 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         _sqlExpressionFactory.Constant(string.Empty)));
             }
 
-            if (Equals(method, _concatMethodInfo))
+            if (Equals(method, _concatMethodInfoTwoArgs))
             {
                 return _sqlExpressionFactory.Add(
                     arguments[0],
                     arguments[1]);
+            }
+
+            if (Equals(method, _concatMethodInfoThreeArgs))
+            {
+                return _sqlExpressionFactory.Add(
+                    arguments[0],
+                    _sqlExpressionFactory.Add(
+                        arguments[1],
+                        arguments[2]));
+            }
+
+            if(Equals(method, _concatMethodInfoFourArgs))
+            {
+                return _sqlExpressionFactory.Add(
+                    arguments[0],
+                    _sqlExpressionFactory.Add(
+                        arguments[1],
+                        _sqlExpressionFactory.Add(
+                            arguments[2],
+                            arguments[3])));
             }
 
             return null;
