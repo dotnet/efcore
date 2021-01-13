@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -228,13 +229,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var dependentEntry = context.Entry(dependent);
                     Assert.Equal(principal.Id, dependentEntry.Property("ParentId").CurrentValue);
                     Assert.Equal(useTrackGraph == null ? EntityState.Added : entityState, dependentEntry.State);
-                    Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + nameof(ChildPN), dependentEntry.Metadata.DisplayName());
+                    Assert.Equal(
+                        typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + nameof(ChildPN),
+                        dependentEntry.Metadata.DisplayName());
 
                     Assert.Same(subDependent, dependent.SubChild);
                     var subDependentEntry = context.Entry(subDependent);
                     Assert.Equal(principal.Id, subDependentEntry.Property("ParentId").CurrentValue);
                     Assert.Equal(useTrackGraph == null ? EntityState.Added : entityState, subDependentEntry.State);
-                    Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + nameof(ChildPN) + "." + nameof(ChildPN.SubChild) + "#" + nameof(SubChildPN), subDependentEntry.Metadata.DisplayName());
+                    Assert.Equal(
+                        typeof(ParentPN).ShortDisplayName()
+                        + "."
+                        + nameof(ParentPN.Child1)
+                        + "#"
+                        + nameof(ChildPN)
+                        + "."
+                        + nameof(ChildPN.SubChild)
+                        + "#"
+                        + nameof(SubChildPN), subDependentEntry.Metadata.DisplayName());
                 });
         }
 
@@ -309,7 +321,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var subDependentEntry = context.Entry(subDependent);
                     Assert.Equal(principal.Id, subDependentEntry.Property("ParentId").CurrentValue);
                     Assert.Equal(useTrackGraph == null ? EntityState.Added : entityState, subDependentEntry.State);
-                    Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child) + "." + nameof(Child.SubChild) + "#" + nameof(SubChild),
+                    Assert.Equal(
+                        typeof(Parent).ShortDisplayName()
+                        + "."
+                        + nameof(Parent.Child1)
+                        + "#"
+                        + nameof(Child)
+                        + "."
+                        + nameof(Child.SubChild)
+                        + "#"
+                        + nameof(SubChild),
                         subDependentEntry.Metadata.DisplayName());
                 });
         }
@@ -385,7 +406,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var subDependentEntry = context.Entry(subDependent);
                     Assert.Equal(principal.Id, subDependentEntry.Property("ParentId").CurrentValue);
                     Assert.Equal(useTrackGraph == null ? EntityState.Added : entityState, subDependentEntry.State);
-                    Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child) + "." + nameof(Child.SubChild) + "#" + nameof(Child.SubChild),
+                    Assert.Equal(
+                        typeof(Parent).ShortDisplayName()
+                        + "."
+                        + nameof(Parent.Child1)
+                        + "#"
+                        + nameof(Child)
+                        + "."
+                        + nameof(Child.SubChild)
+                        + "#"
+                        + nameof(Child.SubChild),
                         subDependentEntry.Metadata.DisplayName());
                 });
         }
@@ -521,13 +551,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var dependentEntry = context.Entry(dependent);
                     Assert.Equal(principal.Id, dependentEntry.Property("ParentId").CurrentValue);
                     Assert.Equal(useTrackGraph == null ? EntityState.Added : entityState, dependentEntry.State);
-                    Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection1) + "#" + nameof(ChildPN), dependentEntry.Metadata.DisplayName());
+                    Assert.Equal(
+                        typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection1) + "#" + nameof(ChildPN),
+                        dependentEntry.Metadata.DisplayName());
 
                     Assert.Contains(dependent.SubChildCollection, e => ReferenceEquals(e, subDependent));
                     var subDependentEntry = context.Entry(subDependent);
                     Assert.Equal(principal.Id, subDependentEntry.Property("ParentId").CurrentValue);
                     Assert.Equal(useTrackGraph == null ? EntityState.Added : entityState, subDependentEntry.State);
-                    Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection1) + "#" + nameof(ChildPN) + "." + nameof(ChildPN.SubChildCollection) + "#" + nameof(SubChildPN),
+                    Assert.Equal(
+                        typeof(ParentPN).ShortDisplayName()
+                        + "."
+                        + nameof(ParentPN.ChildCollection1)
+                        + "#"
+                        + nameof(ChildPN)
+                        + "."
+                        + nameof(ChildPN.SubChildCollection)
+                        + "#"
+                        + nameof(SubChildPN),
                         subDependentEntry.Metadata.DisplayName());
                 });
         }
@@ -668,7 +709,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var subDependentEntry = context.Entry(subDependent);
                     Assert.Equal(principal.Id, subDependentEntry.Property("ParentId").CurrentValue);
                     Assert.Equal(useTrackGraph == null ? EntityState.Added : entityState, subDependentEntry.State);
-                    Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection1) + "#" + nameof(Child) + "." + nameof(Child.SubChildCollection) + "#" + nameof(SubChild),
+                    Assert.Equal(
+                        typeof(Parent).ShortDisplayName()
+                        + "."
+                        + nameof(ParentPN.ChildCollection1)
+                        + "#"
+                        + nameof(Child)
+                        + "."
+                        + nameof(Child.SubChildCollection)
+                        + "#"
+                        + nameof(SubChild),
                         subDependentEntry.Metadata.DisplayName());
                 });
         }
@@ -809,7 +859,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var subDependentEntry = context.Entry(subDependent);
                     Assert.Equal(principal.Id, subDependentEntry.Property("ParentId").CurrentValue);
                     Assert.Equal(useTrackGraph == null ? EntityState.Added : entityState, subDependentEntry.State);
-                    Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child) + "." + nameof(Child.SubChildCollection) + "#" + nameof(SubChild),
+                    Assert.Equal(
+                        typeof(Parent).ShortDisplayName()
+                        + "."
+                        + nameof(Parent.ChildCollection1)
+                        + "#"
+                        + nameof(Child)
+                        + "."
+                        + nameof(Child.SubChildCollection)
+                        + "#"
+                        + nameof(SubChild),
                         subDependentEntry.Metadata.DisplayName());
                 });
         }
@@ -876,13 +935,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var dependentEntry2 = context.Entry(principal).Reference(p => p.Child2).TargetEntry;
             Assert.Equal(principal.Id, dependentEntry2.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, dependentEntry2.State);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child2) + "#" + nameof(ChildPN), dependentEntry2.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child2) + "#" + nameof(ChildPN),
+                dependentEntry2.Metadata.DisplayName());
 
             Assert.Same(subDependent2, dependent2.SubChild);
             var subDependentEntry = dependentEntry2.Reference(p => p.SubChild).TargetEntry;
             Assert.Equal(principal.Id, subDependentEntry.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, subDependentEntry.State);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child2) + "#" + nameof(ChildPN) + "." + nameof(ChildPN.SubChild) + "#" + nameof(SubChildPN), subDependentEntry.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName()
+                + "."
+                + nameof(ParentPN.Child2)
+                + "#"
+                + nameof(ChildPN)
+                + "."
+                + nameof(ChildPN.SubChild)
+                + "#"
+                + nameof(SubChildPN), subDependentEntry.Metadata.DisplayName());
 
             context.ChangeTracker.CascadeChanges();
 
@@ -940,14 +1010,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var dependentEntry2 = context.Entry(principal).Reference(p => p.Child1).TargetEntry;
             Assert.Equal(principal.Id, dependentEntry2.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, dependentEntry2.State);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child), dependentEntry2.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child),
+                dependentEntry2.Metadata.DisplayName());
 
             Assert.Same(subDependent2, dependent2.SubChild);
             Assert.Same(dependent2, subDependent2.Parent);
             var subDependentEntry = dependentEntry2.Reference(p => p.SubChild).TargetEntry;
             Assert.Equal(principal.Id, subDependentEntry.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, subDependentEntry.State);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child) + "." + nameof(ChildPN.SubChild) + "#" + nameof(SubChild), subDependentEntry.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName()
+                + "."
+                + nameof(Parent.Child1)
+                + "#"
+                + nameof(Child)
+                + "."
+                + nameof(ChildPN.SubChild)
+                + "#"
+                + nameof(SubChild), subDependentEntry.Metadata.DisplayName());
 
             context.ChangeTracker.CascadeChanges();
 
@@ -1038,12 +1119,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(entityState == EntityState.Added ? EntityState.Detached : EntityState.Deleted, dependentEntry1.State);
             Assert.Equal(principal.Id, dependentEntry2.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, dependentEntry2.State);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection2) + "#" + nameof(ChildPN), dependentEntry2.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection2) + "#" + nameof(ChildPN),
+                dependentEntry2.Metadata.DisplayName());
 
             Assert.Contains(dependent2.SubChildCollection, e => ReferenceEquals(e, subDependent2));
             Assert.Equal(principal.Id, subDependentEntry2.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, subDependentEntry2.State);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection2) + "#" + nameof(ChildPN) + "." + nameof(ChildPN.SubChildCollection) + "#" + nameof(SubChildPN), subDependentEntry2.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName()
+                + "."
+                + nameof(ParentPN.ChildCollection2)
+                + "#"
+                + nameof(ChildPN)
+                + "."
+                + nameof(ChildPN.SubChildCollection)
+                + "#"
+                + nameof(SubChildPN), subDependentEntry2.Metadata.DisplayName());
 
             context.ChangeTracker.CascadeChanges();
 
@@ -1135,14 +1227,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(entityState == EntityState.Added ? EntityState.Detached : EntityState.Deleted, dependentEntry1.State);
             Assert.Equal(principal.Id, dependentEntry2.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, dependentEntry2.State);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child), dependentEntry2.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child),
+                dependentEntry2.Metadata.DisplayName());
 
             Assert.Contains(dependent2.SubChildCollection, e => ReferenceEquals(e, subDependent2));
             Assert.Same(dependent2, subDependent2.Parent);
             Assert.Equal(principal.Id, subDependentEntry2.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, subDependentEntry2.State);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child) + "." + nameof(Child.SubChildCollection) + "#" + nameof(SubChild), subDependentEntry2.Metadata.DisplayName());
-    
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName()
+                + "."
+                + nameof(Parent.ChildCollection1)
+                + "#"
+                + nameof(Child)
+                + "."
+                + nameof(Child.SubChildCollection)
+                + "#"
+                + nameof(SubChild), subDependentEntry2.Metadata.DisplayName());
+
             context.ChangeTracker.CascadeChanges();
 
             Assert.True(context.ChangeTracker.HasChanges());
@@ -1206,13 +1309,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var dependentEntry2 = context.Entry(principal).Reference(p => p.Child2).TargetEntry;
             Assert.Equal(principal.Id, dependentEntry2.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, dependentEntry2.State);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child2) + "#" + nameof(ChildPN), dependentEntry2.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child2) + "#" + nameof(ChildPN),
+                dependentEntry2.Metadata.DisplayName());
 
             Assert.Same(subDependent, dependent.SubChild);
             var subDependentEntry = dependentEntry2.Reference(p => p.SubChild).TargetEntry;
             Assert.Equal(principal.Id, subDependentEntry.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, subDependentEntry.State);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child2) + "#" + nameof(ChildPN) + "." + nameof(ChildPN.SubChild) + "#" + nameof(SubChildPN),
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName()
+                + "."
+                + nameof(ParentPN.Child2)
+                + "#"
+                + nameof(ChildPN)
+                + "."
+                + nameof(ChildPN.SubChild)
+                + "#"
+                + nameof(SubChildPN),
                 subDependentEntry.Metadata.DisplayName());
 
             context.ChangeTracker.CascadeChanges();
@@ -1267,14 +1381,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var dependentEntry2 = context.Entry(principal).Reference(p => p.Child1).TargetEntry;
             Assert.Equal(principal.Id, dependentEntry2.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, dependentEntry2.State);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child), dependentEntry2.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child),
+                dependentEntry2.Metadata.DisplayName());
 
             Assert.Same(subDependent, dependent.SubChild);
             Assert.Same(dependent, subDependent.Parent);
             var subDependentEntry = dependentEntry2.Reference(p => p.SubChild).TargetEntry;
             Assert.Equal(principal.Id, subDependentEntry.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, subDependentEntry.State);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child) + "." + nameof(Child.SubChild) + "#" + nameof(SubChild), subDependentEntry.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName()
+                + "."
+                + nameof(Parent.Child1)
+                + "#"
+                + nameof(Child)
+                + "."
+                + nameof(Child.SubChild)
+                + "#"
+                + nameof(SubChild), subDependentEntry.Metadata.DisplayName());
 
             context.ChangeTracker.CascadeChanges();
 
@@ -1354,13 +1479,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var dependentEntry2 = context.Entry(principal).Collection(p => p.ChildCollection2).FindEntry(dependent);
             Assert.Equal(principal.Id, dependentEntry2.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, dependentEntry2.State);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection2) + "#" + nameof(ChildPN), dependentEntry2.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection2) + "#" + nameof(ChildPN),
+                dependentEntry2.Metadata.DisplayName());
 
             Assert.Contains(dependent.SubChildCollection, e => ReferenceEquals(e, subDependent));
             var subDependentEntry = dependentEntry2.Collection(p => p.SubChildCollection).FindEntry(subDependent);
             Assert.Equal(principal.Id, subDependentEntry.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, subDependentEntry.State);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection2) + "#" + nameof(ChildPN) + "." + nameof(ChildPN.SubChildCollection) + "#" + nameof(SubChildPN),
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName()
+                + "."
+                + nameof(ParentPN.ChildCollection2)
+                + "#"
+                + nameof(ChildPN)
+                + "."
+                + nameof(ChildPN.SubChildCollection)
+                + "#"
+                + nameof(SubChildPN),
                 subDependentEntry.Metadata.DisplayName());
 
             context.ChangeTracker.CascadeChanges();
@@ -1441,14 +1577,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var dependentEntry2 = context.Entry(principal).Collection(p => p.ChildCollection1).FindEntry(dependent);
             Assert.Equal(principal.Id, dependentEntry2.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, dependentEntry2.State);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child), dependentEntry2.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child),
+                dependentEntry2.Metadata.DisplayName());
 
             Assert.Contains(dependent.SubChildCollection, e => ReferenceEquals(e, subDependent));
             Assert.Same(dependent, subDependent.Parent);
             var subDependentEntry = dependentEntry2.Collection(p => p.SubChildCollection).FindEntry(subDependent);
             Assert.Equal(principal.Id, subDependentEntry.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, subDependentEntry.State);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child) + "." + nameof(Child.SubChildCollection) + "#" + nameof(SubChild), subDependentEntry.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName()
+                + "."
+                + nameof(Parent.ChildCollection1)
+                + "#"
+                + nameof(Child)
+                + "."
+                + nameof(Child.SubChildCollection)
+                + "#"
+                + nameof(SubChild), subDependentEntry.Metadata.DisplayName());
 
             context.ChangeTracker.CascadeChanges();
 
@@ -1508,7 +1655,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var dependent1Entry = context.Entry(principal).Reference(p => p.Child1).TargetEntry;
             Assert.Equal(principal.Id, dependent1Entry.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, dependent1Entry.State);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + nameof(ChildPN), dependent1Entry.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + nameof(ChildPN),
+                dependent1Entry.Metadata.DisplayName());
             Assert.Equal(
                 entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
                 dependent1Entry.GetInfrastructure().SharedIdentityEntry?.EntityState);
@@ -1516,7 +1665,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var dependent2Entry = context.Entry(principal).Reference(p => p.Child2).TargetEntry;
             Assert.Equal(principal.Id, dependent2Entry.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, dependent2Entry.State);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child2) + "#" + nameof(ChildPN), dependent2Entry.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child2) + "#" + nameof(ChildPN),
+                dependent2Entry.Metadata.DisplayName());
             Assert.Equal(
                 entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
                 dependent2Entry.GetInfrastructure().SharedIdentityEntry?.EntityState);
@@ -1525,13 +1676,31 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var subDependentEntry1 = dependent1Entry.Reference(p => p.SubChild).TargetEntry;
             Assert.Equal(principal.Id, subDependentEntry1.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, subDependentEntry1.State);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + nameof(ChildPN) + "." + nameof(ChildPN.SubChild) + "#" + nameof(SubChildPN), subDependentEntry1.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName()
+                + "."
+                + nameof(ParentPN.Child1)
+                + "#"
+                + nameof(ChildPN)
+                + "."
+                + nameof(ChildPN.SubChild)
+                + "#"
+                + nameof(SubChildPN), subDependentEntry1.Metadata.DisplayName());
 
             Assert.Same(subDependent2, dependent2.SubChild);
             var subDependentEntry2 = dependent2Entry.Reference(p => p.SubChild).TargetEntry;
             Assert.Equal(principal.Id, subDependentEntry2.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, subDependentEntry2.State);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child2) + "#" + nameof(ChildPN) + "." + nameof(ChildPN.SubChild) + "#" + nameof(SubChildPN), subDependentEntry2.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName()
+                + "."
+                + nameof(ParentPN.Child2)
+                + "#"
+                + nameof(ChildPN)
+                + "."
+                + nameof(ChildPN.SubChild)
+                + "#"
+                + nameof(SubChildPN), subDependentEntry2.Metadata.DisplayName());
 
             context.ChangeTracker.CascadeChanges();
 
@@ -1595,7 +1764,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var dependent1Entry = context.Entry(principal).Reference(p => p.Child1).TargetEntry;
             Assert.Equal(principal.Id, dependent1Entry.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, dependent1Entry.State);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child), dependent1Entry.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child),
+                dependent1Entry.Metadata.DisplayName());
             Assert.Equal(
                 entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
                 dependent1Entry.GetInfrastructure().SharedIdentityEntry?.EntityState);
@@ -1603,7 +1774,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var dependent2Entry = context.Entry(principal).Reference(p => p.Child2).TargetEntry;
             Assert.Equal(principal.Id, dependent2Entry.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, dependent2Entry.State);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child2) + "#" + nameof(Child), dependent2Entry.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child2) + "#" + nameof(Child),
+                dependent2Entry.Metadata.DisplayName());
             Assert.Equal(
                 entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
                 dependent2Entry.GetInfrastructure().SharedIdentityEntry?.EntityState);
@@ -1613,14 +1786,32 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var subDependentEntry1 = dependent1Entry.Reference(p => p.SubChild).TargetEntry;
             Assert.Equal(principal.Id, subDependentEntry1.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, subDependentEntry1.State);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child) + "." + nameof(Child.SubChild) + "#" + nameof(SubChild), subDependentEntry1.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName()
+                + "."
+                + nameof(Parent.Child1)
+                + "#"
+                + nameof(Child)
+                + "."
+                + nameof(Child.SubChild)
+                + "#"
+                + nameof(SubChild), subDependentEntry1.Metadata.DisplayName());
 
             Assert.Same(subDependent2, dependent2.SubChild);
             Assert.Same(dependent2, subDependent2.Parent);
             var subDependentEntry2 = dependent1Entry.Reference(p => p.SubChild).TargetEntry;
             Assert.Equal(principal.Id, subDependentEntry2.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, subDependentEntry2.State);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child) + "." + nameof(Child.SubChild) + "#" + nameof(SubChild), subDependentEntry2.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName()
+                + "."
+                + nameof(Parent.Child1)
+                + "#"
+                + nameof(Child)
+                + "."
+                + nameof(Child.SubChild)
+                + "#"
+                + nameof(SubChild), subDependentEntry2.Metadata.DisplayName());
 
             context.ChangeTracker.CascadeChanges();
 
@@ -1730,14 +1921,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.Equal(principal.Id, newDependentEntry1.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, newDependentEntry1.State);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection1) + "#" + nameof(ChildPN), newDependentEntry1.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection1) + "#" + nameof(ChildPN),
+                newDependentEntry1.Metadata.DisplayName());
             Assert.Equal(
                 entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
-                newDependentEntry1.GetInfrastructure().SharedIdentityEntry?.EntityState);            
+                newDependentEntry1.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
             Assert.Equal(principal.Id, newDependentEntry2.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, newDependentEntry2.State);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection2) + "#" + nameof(ChildPN), newDependentEntry2.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection2) + "#" + nameof(ChildPN),
+                newDependentEntry2.Metadata.DisplayName());
             Assert.Equal(
                 entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
                 newDependentEntry2.GetInfrastructure().SharedIdentityEntry?.EntityState);
@@ -1745,12 +1940,30 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Contains(dependent1.SubChildCollection, e => ReferenceEquals(e, subDependent1));
             Assert.Equal(principal.Id, newSubDependentEntry2.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, newSubDependentEntry2.State);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection2) + "#" + nameof(ChildPN) + "." + nameof(ChildPN.SubChildCollection) + "#" + nameof(SubChildPN), newSubDependentEntry2.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName()
+                + "."
+                + nameof(ParentPN.ChildCollection2)
+                + "#"
+                + nameof(ChildPN)
+                + "."
+                + nameof(ChildPN.SubChildCollection)
+                + "#"
+                + nameof(SubChildPN), newSubDependentEntry2.Metadata.DisplayName());
 
             Assert.Contains(dependent2.SubChildCollection, e => ReferenceEquals(e, subDependent2));
             Assert.Equal(principal.Id, newSubDependentEntry1.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, newSubDependentEntry1.State);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection1) + "#" + nameof(ChildPN) + "." + nameof(ChildPN.SubChildCollection) + "#" + nameof(SubChildPN), newSubDependentEntry1.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName()
+                + "."
+                + nameof(ParentPN.ChildCollection1)
+                + "#"
+                + nameof(ChildPN)
+                + "."
+                + nameof(ChildPN.SubChildCollection)
+                + "#"
+                + nameof(SubChildPN), newSubDependentEntry1.Metadata.DisplayName());
 
             context.ChangeTracker.CascadeChanges();
 
@@ -1861,14 +2074,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.Equal(principal.Id, newDependentEntry1.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, newDependentEntry1.State);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child), newDependentEntry1.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child),
+                newDependentEntry1.Metadata.DisplayName());
             Assert.Equal(
                 entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
                 newDependentEntry1.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
             Assert.Equal(principal.Id, newDependentEntry2.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, newDependentEntry2.State);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection2) + "#" + nameof(Child), newDependentEntry2.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection2) + "#" + nameof(Child),
+                newDependentEntry2.Metadata.DisplayName());
             Assert.Equal(
                 entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
                 newDependentEntry2.GetInfrastructure().SharedIdentityEntry?.EntityState);
@@ -1877,13 +2094,31 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(dependent1, subDependent1.Parent);
             Assert.Equal(principal.Id, newSubDependentEntry1.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, newSubDependentEntry1.State);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection2) + "#" + nameof(Child) + "." + nameof(Child.SubChildCollection) + "#" + nameof(Child.SubChild), newSubDependentEntry1.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName()
+                + "."
+                + nameof(Parent.ChildCollection2)
+                + "#"
+                + nameof(Child)
+                + "."
+                + nameof(Child.SubChildCollection)
+                + "#"
+                + nameof(Child.SubChild), newSubDependentEntry1.Metadata.DisplayName());
 
             Assert.Contains(dependent2.SubChildCollection, e => ReferenceEquals(e, subDependent2));
             Assert.Same(dependent2, subDependent2.Parent);
             Assert.Equal(principal.Id, newSubDependentEntry2.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, newSubDependentEntry2.State);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child) + "." + nameof(Child.SubChildCollection) + "#" + nameof(Child.SubChild), newSubDependentEntry2.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName()
+                + "."
+                + nameof(Parent.ChildCollection1)
+                + "#"
+                + nameof(Child)
+                + "."
+                + nameof(Child.SubChildCollection)
+                + "#"
+                + nameof(Child.SubChild), newSubDependentEntry2.Metadata.DisplayName());
 
             context.ChangeTracker.CascadeChanges();
 
@@ -1956,13 +2191,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var dependentEntry2 = context.Entry(principal2).Reference(p => p.Child1).TargetEntry;
                 Assert.Equal(principal2.Id, dependentEntry2.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, dependentEntry2.State);
-                Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + nameof(ChildPN), dependentEntry2.Metadata.DisplayName());
+                Assert.Equal(
+                    typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + nameof(ChildPN),
+                    dependentEntry2.Metadata.DisplayName());
 
                 Assert.Same(subDependent, dependent.SubChild);
                 var subDependentEntry = dependentEntry2.Reference(p => p.SubChild).TargetEntry;
                 Assert.Equal(principal2.Id, subDependentEntry.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, subDependentEntry.State);
-                Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + nameof(ChildPN) + "." + nameof(ChildPN.SubChild) + "#" + nameof(SubChildPN),
+                Assert.Equal(
+                    typeof(ParentPN).ShortDisplayName()
+                    + "."
+                    + nameof(ParentPN.Child1)
+                    + "#"
+                    + nameof(ChildPN)
+                    + "."
+                    + nameof(ChildPN.SubChild)
+                    + "#"
+                    + nameof(SubChildPN),
                     subDependentEntry.Metadata.DisplayName());
 
                 context.ChangeTracker.CascadeChanges();
@@ -2036,14 +2282,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var dependentEntry2 = context.Entry(principal2).Reference(p => p.Child1).TargetEntry;
                 Assert.Equal(EntityState.Added, dependentEntry2.State);
                 Assert.Equal(principal2.Id, dependentEntry2.Property("ParentId").CurrentValue);
-                Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child), dependentEntry2.Metadata.DisplayName());
+                Assert.Equal(
+                    typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child),
+                    dependentEntry2.Metadata.DisplayName());
 
                 Assert.Same(subDependent, dependent.SubChild);
                 Assert.Same(dependent, subDependent.Parent);
                 var subDependentEntry = dependentEntry2.Reference(p => p.SubChild).TargetEntry;
                 Assert.Equal(principal2.Id, subDependentEntry.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, subDependentEntry.State);
-                Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child) + "." + nameof(ChildPN.SubChild) + "#" + nameof(SubChild),
+                Assert.Equal(
+                    typeof(Parent).ShortDisplayName()
+                    + "."
+                    + nameof(Parent.Child1)
+                    + "#"
+                    + nameof(Child)
+                    + "."
+                    + nameof(ChildPN.SubChild)
+                    + "#"
+                    + nameof(SubChild),
                     subDependentEntry.Metadata.DisplayName());
 
                 context.ChangeTracker.CascadeChanges();
@@ -2148,14 +2405,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     .FindEntry(dependent);
                 Assert.Equal(principal2.Id, dependentEntry2.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, dependentEntry2.State);
-                Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection1) + "#" + nameof(ChildPN), dependentEntry2.Metadata.DisplayName());
+                Assert.Equal(
+                    typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection1) + "#" + nameof(ChildPN),
+                    dependentEntry2.Metadata.DisplayName());
 
                 Assert.Contains(dependent.SubChildCollection, e => ReferenceEquals(e, subDependent));
                 var subDependentEntry2 = dependentEntry2.Collection(p => p.SubChildCollection)
                     .FindEntry(subDependent);
                 Assert.Equal(principal2.Id, subDependentEntry2.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, subDependentEntry2.State);
-                Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection1) + "#" + nameof(ChildPN) + "." + nameof(ChildPN.SubChildCollection) + "#" + nameof(SubChildPN),
+                Assert.Equal(
+                    typeof(ParentPN).ShortDisplayName()
+                    + "."
+                    + nameof(ParentPN.ChildCollection1)
+                    + "#"
+                    + nameof(ChildPN)
+                    + "."
+                    + nameof(ChildPN.SubChildCollection)
+                    + "#"
+                    + nameof(SubChildPN),
                     subDependentEntry2.Metadata.DisplayName());
 
                 context.ChangeTracker.CascadeChanges();
@@ -2260,7 +2528,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     .FindEntry(dependent);
                 Assert.Equal(EntityState.Added, dependentEntry2.State);
                 Assert.Equal(principal2.Id, dependentEntry2.Property("ParentId").CurrentValue);
-                Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child), dependentEntry2.Metadata.DisplayName());
+                Assert.Equal(
+                    typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child),
+                    dependentEntry2.Metadata.DisplayName());
 
                 Assert.Contains(dependent.SubChildCollection, e => ReferenceEquals(e, subDependent));
                 Assert.Same(dependent, subDependent.Parent);
@@ -2268,7 +2538,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     .FindEntry(subDependent);
                 Assert.Equal(principal2.Id, subDependentEntry2.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, subDependentEntry2.State);
-                Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child) + "." + nameof(Child.SubChildCollection) + "#" + nameof(SubChild), subDependentEntry2.Metadata.DisplayName());
+                Assert.Equal(
+                    typeof(Parent).ShortDisplayName()
+                    + "."
+                    + nameof(Parent.ChildCollection1)
+                    + "#"
+                    + nameof(Child)
+                    + "."
+                    + nameof(Child.SubChildCollection)
+                    + "#"
+                    + nameof(SubChild), subDependentEntry2.Metadata.DisplayName());
 
                 context.ChangeTracker.CascadeChanges();
 
@@ -2347,25 +2626,47 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var dependent1Entry = context.Entry(principal1).Reference(p => p.Child1).TargetEntry;
                 Assert.Equal(principal1.Id, dependent1Entry.Property("ParentId").CurrentValue);
                 Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, dependent1Entry.State);
-                Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + nameof(ChildPN), dependent1Entry.Metadata.DisplayName());
+                Assert.Equal(
+                    typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + nameof(ChildPN),
+                    dependent1Entry.Metadata.DisplayName());
 
                 var dependent2Entry = context.Entry(principal2).Reference(p => p.Child1).TargetEntry;
                 Assert.Equal(principal2.Id, dependent2Entry.Property("ParentId").CurrentValue);
                 Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, dependent2Entry.State);
-                Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + nameof(ChildPN), dependent2Entry.Metadata.DisplayName());
+                Assert.Equal(
+                    typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + nameof(ChildPN),
+                    dependent2Entry.Metadata.DisplayName());
 
                 Assert.Same(subDependent1, dependent1.SubChild);
                 var subDependentEntry1 = dependent1Entry.Reference(p => p.SubChild).TargetEntry;
                 Assert.Equal(principal1.Id, subDependentEntry1.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, subDependentEntry1.State);
-                Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + nameof(ChildPN) + "." + nameof(ChildPN.SubChild) + "#" + nameof(SubChildPN),
+                Assert.Equal(
+                    typeof(ParentPN).ShortDisplayName()
+                    + "."
+                    + nameof(ParentPN.Child1)
+                    + "#"
+                    + nameof(ChildPN)
+                    + "."
+                    + nameof(ChildPN.SubChild)
+                    + "#"
+                    + nameof(SubChildPN),
                     subDependentEntry1.Metadata.DisplayName());
 
                 Assert.Same(subDependent2, dependent2.SubChild);
                 var subDependentEntry2 = dependent2Entry.Reference(p => p.SubChild).TargetEntry;
                 Assert.Equal(principal2.Id, subDependentEntry2.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, subDependentEntry2.State);
-                Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + nameof(ChildPN) + "." + nameof(ChildPN.SubChild) + "#" + nameof(SubChildPN),
+                Assert.Equal(
+                    typeof(ParentPN).ShortDisplayName()
+                    + "."
+                    + nameof(ParentPN.Child1)
+                    + "#"
+                    + nameof(ChildPN)
+                    + "."
+                    + nameof(ChildPN.SubChild)
+                    + "#"
+                    + nameof(SubChildPN),
                     subDependentEntry2.Metadata.DisplayName());
 
                 context.ChangeTracker.CascadeChanges();
@@ -2447,19 +2748,32 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var dependent1Entry = context.Entry(principal1).Reference(p => p.Child1).TargetEntry;
                 Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, dependent1Entry.State);
                 Assert.Equal(principal1.Id, dependent1Entry.Property("ParentId").CurrentValue);
-                Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child), dependent1Entry.Metadata.DisplayName());
+                Assert.Equal(
+                    typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child),
+                    dependent1Entry.Metadata.DisplayName());
 
                 var dependent2Entry = context.Entry(principal2).Reference(p => p.Child1).TargetEntry;
                 Assert.Equal(principal2.Id, dependent2Entry.Property("ParentId").CurrentValue);
                 Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, dependent2Entry.State);
-                Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child), dependent2Entry.Metadata.DisplayName());
+                Assert.Equal(
+                    typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child),
+                    dependent2Entry.Metadata.DisplayName());
 
                 Assert.Same(subDependent1, dependent1.SubChild);
                 Assert.Same(dependent1, subDependent1.Parent);
                 var subDependentEntry1 = dependent1Entry.Reference(p => p.SubChild).TargetEntry;
                 Assert.Equal(principal1.Id, subDependentEntry1.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, subDependentEntry1.State);
-                Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child) + "." + nameof(Child.SubChild) + "#" + nameof(Child.SubChild),
+                Assert.Equal(
+                    typeof(Parent).ShortDisplayName()
+                    + "."
+                    + nameof(Parent.Child1)
+                    + "#"
+                    + nameof(Child)
+                    + "."
+                    + nameof(Child.SubChild)
+                    + "#"
+                    + nameof(Child.SubChild),
                     subDependentEntry1.Metadata.DisplayName());
 
                 Assert.Same(subDependent2, dependent2.SubChild);
@@ -2467,7 +2781,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var subDependentEntry2 = dependent2Entry.Reference(p => p.SubChild).TargetEntry;
                 Assert.Equal(principal2.Id, subDependentEntry2.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, subDependentEntry2.State);
-                Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child) + "." + nameof(Child.SubChild) + "#" + nameof(Child.SubChild),
+                Assert.Equal(
+                    typeof(Parent).ShortDisplayName()
+                    + "."
+                    + nameof(Parent.Child1)
+                    + "#"
+                    + nameof(Child)
+                    + "."
+                    + nameof(Child.SubChild)
+                    + "#"
+                    + nameof(Child.SubChild),
                     subDependentEntry2.Metadata.DisplayName());
 
                 context.ChangeTracker.CascadeChanges();
@@ -2582,27 +2905,49 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     .FindEntry(dependent2);
                 Assert.Equal(principal1.Id, newDependentEntry2.Property("ParentId").CurrentValue);
                 Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, newDependentEntry2.State);
-                Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection1) + "#" + nameof(ChildPN), newDependentEntry2.Metadata.DisplayName());
+                Assert.Equal(
+                    typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection1) + "#" + nameof(ChildPN),
+                    newDependentEntry2.Metadata.DisplayName());
 
                 var newDependentEntry1 = context.Entry(principal2).Collection(p => p.ChildCollection1)
                     .FindEntry(dependent1);
                 Assert.Equal(principal2.Id, newDependentEntry1.Property("ParentId").CurrentValue);
                 Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, newDependentEntry1.State);
-                Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection1) + "#" + nameof(ChildPN), newDependentEntry1.Metadata.DisplayName());
+                Assert.Equal(
+                    typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection1) + "#" + nameof(ChildPN),
+                    newDependentEntry1.Metadata.DisplayName());
 
                 Assert.Contains(dependent1.SubChildCollection, e => ReferenceEquals(e, subDependent1));
                 var newSubDependentEntry1 = newDependentEntry1.Collection(p => p.SubChildCollection)
                     .FindEntry(subDependent1);
                 Assert.Equal(principal2.Id, newSubDependentEntry1.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, newSubDependentEntry1.State);
-                Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection1) + "#" + nameof(ChildPN) + "." + nameof(ChildPN.SubChildCollection) + "#" + nameof(SubChildPN), newSubDependentEntry1.Metadata.DisplayName());
+                Assert.Equal(
+                    typeof(ParentPN).ShortDisplayName()
+                    + "."
+                    + nameof(ParentPN.ChildCollection1)
+                    + "#"
+                    + nameof(ChildPN)
+                    + "."
+                    + nameof(ChildPN.SubChildCollection)
+                    + "#"
+                    + nameof(SubChildPN), newSubDependentEntry1.Metadata.DisplayName());
 
                 Assert.Contains(dependent2.SubChildCollection, e => ReferenceEquals(e, subDependent2));
                 var newSubDependentEntry2 = newDependentEntry2.Collection(p => p.SubChildCollection)
                     .FindEntry(subDependent2);
                 Assert.Equal(principal1.Id, newSubDependentEntry2.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, newSubDependentEntry2.State);
-                Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection1) + "#" + nameof(ChildPN) + "." + nameof(ChildPN.SubChildCollection) + "#" + nameof(SubChildPN), newSubDependentEntry2.Metadata.DisplayName());
+                Assert.Equal(
+                    typeof(ParentPN).ShortDisplayName()
+                    + "."
+                    + nameof(ParentPN.ChildCollection1)
+                    + "#"
+                    + nameof(ChildPN)
+                    + "."
+                    + nameof(ChildPN.SubChildCollection)
+                    + "#"
+                    + nameof(SubChildPN), newSubDependentEntry2.Metadata.DisplayName());
 
                 context.ChangeTracker.CascadeChanges();
 
@@ -2716,13 +3061,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     .FindEntry(dependent2);
                 Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, newDependentEntry2.State);
                 Assert.Equal(principal1.Id, newDependentEntry2.Property("ParentId").CurrentValue);
-                Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child), newDependentEntry2.Metadata.DisplayName());
+                Assert.Equal(
+                    typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child),
+                    newDependentEntry2.Metadata.DisplayName());
 
                 var newDependentEntry1 = context.Entry(principal2).Collection(p => p.ChildCollection1)
                     .FindEntry(dependent1);
                 Assert.Equal(principal2.Id, newDependentEntry1.Property("ParentId").CurrentValue);
                 Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, newDependentEntry1.State);
-                Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child), newDependentEntry1.Metadata.DisplayName());
+                Assert.Equal(
+                    typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child),
+                    newDependentEntry1.Metadata.DisplayName());
 
                 Assert.Contains(dependent1.SubChildCollection, e => ReferenceEquals(e, subDependent1));
                 Assert.Same(dependent1, subDependent1.Parent);
@@ -2730,7 +3079,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     .FindEntry(subDependent1);
                 Assert.Equal(principal2.Id, newSubDependentEntry1.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, newSubDependentEntry1.State);
-                Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child) + "." + nameof(Child.SubChildCollection) + "#" + nameof(Child.SubChild),
+                Assert.Equal(
+                    typeof(Parent).ShortDisplayName()
+                    + "."
+                    + nameof(Parent.ChildCollection1)
+                    + "#"
+                    + nameof(Child)
+                    + "."
+                    + nameof(Child.SubChildCollection)
+                    + "#"
+                    + nameof(Child.SubChild),
                     newSubDependentEntry1.Metadata.DisplayName());
 
                 Assert.Contains(dependent2.SubChildCollection, e => ReferenceEquals(e, subDependent2));
@@ -2739,7 +3097,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     .FindEntry(subDependent2);
                 Assert.Equal(principal1.Id, newSubDependentEntry2.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, newSubDependentEntry2.State);
-                Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child) + "." + nameof(Child.SubChildCollection) + "#" + nameof(Child.SubChild),
+                Assert.Equal(
+                    typeof(Parent).ShortDisplayName()
+                    + "."
+                    + nameof(Parent.ChildCollection1)
+                    + "#"
+                    + nameof(Child)
+                    + "."
+                    + nameof(Child.SubChildCollection)
+                    + "#"
+                    + nameof(Child.SubChild),
                     newSubDependentEntry2.Metadata.DisplayName());
 
                 context.ChangeTracker.CascadeChanges();
@@ -2807,13 +3174,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var dependentEntry2 = context.Entry(principal2).Reference(p => p.Child1).TargetEntry;
             Assert.Equal(principal2.Id, dependentEntry2.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, dependentEntry2.State);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + nameof(ChildPN), dependentEntry2.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + nameof(ChildPN),
+                dependentEntry2.Metadata.DisplayName());
 
             Assert.Same(subDependent, dependent.SubChild);
             var subDependentEntry = dependentEntry2.Reference(p => p.SubChild).TargetEntry;
             Assert.Equal(principal2.Id, subDependentEntry.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, subDependentEntry.State);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + nameof(ChildPN) + "." + nameof(ChildPN.SubChild) + "#" + nameof(SubChildPN),
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName()
+                + "."
+                + nameof(ParentPN.Child1)
+                + "#"
+                + nameof(ChildPN)
+                + "."
+                + nameof(ChildPN.SubChild)
+                + "#"
+                + nameof(SubChildPN),
                 subDependentEntry.Metadata.DisplayName());
 
             context.ChangeTracker.CascadeChanges();
@@ -2863,8 +3241,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             principal1.Child2 = null;
 
             if (entityState != EntityState.Added)
-            {                
-                Assert.Equal(CoreStrings.KeyReadOnly("ParentId", "Parent.Child2#Child"),
+            {
+                Assert.Equal(
+                    CoreStrings.KeyReadOnly("ParentId", "Parent.Child2#Child"),
                     Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
                 return;
             }
@@ -2885,14 +3264,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var dependentEntry2 = context.Entry(principal2).Reference(p => p.Child1).TargetEntry;
             Assert.Equal(principal2.Id, dependentEntry2.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, dependentEntry2.State);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child), dependentEntry2.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child),
+                dependentEntry2.Metadata.DisplayName());
 
             Assert.Same(subDependent, dependent.SubChild);
             Assert.Same(dependent, subDependent.Parent);
             var subDependentEntry = dependentEntry2.Reference(p => p.SubChild).TargetEntry;
             Assert.Equal(principal2.Id, subDependentEntry.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, subDependentEntry.State);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child) + "." + nameof(ChildPN.SubChild) + "#" + nameof(SubChild),
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName()
+                + "."
+                + nameof(Parent.Child1)
+                + "#"
+                + nameof(Child)
+                + "."
+                + nameof(ChildPN.SubChild)
+                + "#"
+                + nameof(SubChild),
                 subDependentEntry.Metadata.DisplayName());
 
             context.ChangeTracker.CascadeChanges();
@@ -2985,13 +3375,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var dependentEntry2 = context.Entry(principal2).Collection(p => p.ChildCollection1).FindEntry(dependent);
             Assert.Equal(principal2.Id, dependentEntry2.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, dependentEntry2.State);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection1) + "#" + nameof(ChildPN), dependentEntry2.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection1) + "#" + nameof(ChildPN),
+                dependentEntry2.Metadata.DisplayName());
 
             Assert.Contains(dependent.SubChildCollection, e => ReferenceEquals(e, subDependent));
             var subDependentEntry = dependentEntry2.Collection(p => p.SubChildCollection).FindEntry(subDependent);
             Assert.Equal(principal2.Id, subDependentEntry.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, subDependentEntry.State);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection1) + "#" + nameof(ChildPN) + "." + nameof(ChildPN.SubChildCollection) + "#" + nameof(SubChildPN),
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName()
+                + "."
+                + nameof(ParentPN.ChildCollection1)
+                + "#"
+                + nameof(ChildPN)
+                + "."
+                + nameof(ChildPN.SubChildCollection)
+                + "#"
+                + nameof(SubChildPN),
                 subDependentEntry.Metadata.DisplayName());
 
             context.ChangeTracker.CascadeChanges();
@@ -3071,7 +3472,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (entityState != EntityState.Added)
             {
-                Assert.Equal(CoreStrings.KeyReadOnly("ParentId", "Parent.ChildCollection2#Child"),
+                Assert.Equal(
+                    CoreStrings.KeyReadOnly("ParentId", "Parent.ChildCollection2#Child"),
                     Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
                 return;
             }
@@ -3092,14 +3494,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var dependentEntry2 = context.Entry(principal2).Collection(p => p.ChildCollection1).FindEntry(dependent);
             Assert.Equal(principal2.Id, dependentEntry2.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, dependentEntry2.State);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child), dependentEntry2.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child),
+                dependentEntry2.Metadata.DisplayName());
 
             Assert.Contains(dependent.SubChildCollection, e => ReferenceEquals(e, subDependent));
             Assert.Same(dependent, subDependent.Parent);
             var subDependentEntry = dependentEntry2.Collection(p => p.SubChildCollection).FindEntry(subDependent);
             Assert.Equal(principal2.Id, subDependentEntry.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, subDependentEntry.State);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child) + "." + nameof(Child.SubChildCollection) + "#" + nameof(SubChild), subDependentEntry.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName()
+                + "."
+                + nameof(Parent.ChildCollection1)
+                + "#"
+                + nameof(Child)
+                + "."
+                + nameof(Child.SubChildCollection)
+                + "#"
+                + nameof(SubChild), subDependentEntry.Metadata.DisplayName());
 
             context.ChangeTracker.CascadeChanges();
 
@@ -3167,7 +3580,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var dependent1Entry = context.Entry(principal1).Reference(p => p.Child2).TargetEntry;
             Assert.Equal(EntityState.Added, dependent1Entry.State);
             Assert.Equal(principal1.Id, dependent1Entry.Property("ParentId").CurrentValue);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child2) + "#" + nameof(ChildPN), dependent1Entry.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child2) + "#" + nameof(ChildPN),
+                dependent1Entry.Metadata.DisplayName());
             Assert.Equal(
                 entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
                 dependent1Entry.GetInfrastructure().SharedIdentityEntry?.EntityState);
@@ -3175,7 +3590,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var dependent2Entry = context.Entry(principal2).Reference(p => p.Child1).TargetEntry;
             Assert.Equal(principal2.Id, dependent2Entry.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, dependent2Entry.State);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + nameof(ChildPN), dependent2Entry.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + nameof(ChildPN),
+                dependent2Entry.Metadata.DisplayName());
             Assert.Equal(
                 entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
                 dependent2Entry.GetInfrastructure().SharedIdentityEntry?.EntityState);
@@ -3184,13 +3601,31 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var subDependentEntry1 = dependent1Entry.Reference(p => p.SubChild).TargetEntry;
             Assert.Equal(principal1.Id, subDependentEntry1.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, subDependentEntry1.State);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child2) + "#" + nameof(ChildPN) + "." + nameof(ChildPN.SubChild) + "#" + nameof(SubChildPN), subDependentEntry1.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName()
+                + "."
+                + nameof(ParentPN.Child2)
+                + "#"
+                + nameof(ChildPN)
+                + "."
+                + nameof(ChildPN.SubChild)
+                + "#"
+                + nameof(SubChildPN), subDependentEntry1.Metadata.DisplayName());
 
             Assert.Same(subDependent2, dependent2.SubChild);
             var subDependentEntry2 = dependent2Entry.Reference(p => p.SubChild).TargetEntry;
             Assert.Equal(principal2.Id, subDependentEntry2.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, subDependentEntry2.State);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + nameof(ChildPN) + "." + nameof(ChildPN.SubChild) + "#" + nameof(SubChildPN), subDependentEntry2.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName()
+                + "."
+                + nameof(ParentPN.Child1)
+                + "#"
+                + nameof(ChildPN)
+                + "."
+                + nameof(ChildPN.SubChild)
+                + "#"
+                + nameof(SubChildPN), subDependentEntry2.Metadata.DisplayName());
 
             context.ChangeTracker.CascadeChanges();
 
@@ -3247,7 +3682,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (entityState != EntityState.Added)
             {
-                Assert.Equal(CoreStrings.KeyReadOnly("ParentId", "Parent.Child2#Child"),
+                Assert.Equal(
+                    CoreStrings.KeyReadOnly("ParentId", "Parent.Child2#Child"),
                     Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
                 return;
             }
@@ -3269,7 +3705,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var dependent1Entry = context.Entry(principal1).Reference(p => p.Child2).TargetEntry;
             Assert.Equal(EntityState.Added, dependent1Entry.State);
             Assert.Equal(principal1.Id, dependent1Entry.Property("ParentId").CurrentValue);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child2) + "#" + nameof(Child), dependent1Entry.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child2) + "#" + nameof(Child),
+                dependent1Entry.Metadata.DisplayName());
             Assert.Equal(
                 entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
                 dependent1Entry.GetInfrastructure().SharedIdentityEntry?.EntityState);
@@ -3277,7 +3715,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var dependent2Entry = context.Entry(principal2).Reference(p => p.Child1).TargetEntry;
             Assert.Equal(principal2.Id, dependent2Entry.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, dependent2Entry.State);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child), dependent2Entry.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child),
+                dependent2Entry.Metadata.DisplayName());
             Assert.Equal(
                 entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
                 dependent1Entry.GetInfrastructure().SharedIdentityEntry?.EntityState);
@@ -3287,14 +3727,32 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var subDependentEntry1 = dependent1Entry.Reference(p => p.SubChild).TargetEntry;
             Assert.Equal(principal1.Id, subDependentEntry1.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, subDependentEntry1.State);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child2) + "#" + nameof(Child) + "." + nameof(Child.SubChild) + "#" + nameof(Child.SubChild), subDependentEntry1.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName()
+                + "."
+                + nameof(Parent.Child2)
+                + "#"
+                + nameof(Child)
+                + "."
+                + nameof(Child.SubChild)
+                + "#"
+                + nameof(Child.SubChild), subDependentEntry1.Metadata.DisplayName());
 
             Assert.Same(subDependent2, dependent2.SubChild);
             Assert.Same(dependent2, subDependent2.Parent);
             var subDependentEntry2 = dependent2Entry.Reference(p => p.SubChild).TargetEntry;
             Assert.Equal(principal2.Id, subDependentEntry2.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, subDependentEntry2.State);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child) + "." + nameof(Child.SubChild) + "#" + nameof(Child.SubChild), subDependentEntry2.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName()
+                + "."
+                + nameof(Parent.Child1)
+                + "#"
+                + nameof(Child)
+                + "."
+                + nameof(Child.SubChild)
+                + "#"
+                + nameof(Child.SubChild), subDependentEntry2.Metadata.DisplayName());
 
             context.ChangeTracker.CascadeChanges();
 
@@ -3415,14 +3873,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.Equal(EntityState.Added, newDependentEntry2.State);
             Assert.Equal(principal1.Id, newDependentEntry2.Property("ParentId").CurrentValue);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection2) + "#" + nameof(ChildPN), newDependentEntry2.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection2) + "#" + nameof(ChildPN),
+                newDependentEntry2.Metadata.DisplayName());
             Assert.Equal(
                 entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
                 newDependentEntry2.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
             Assert.Equal(principal2.Id, newDependentEntry1.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, newDependentEntry1.State);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection1) + "#" + nameof(ChildPN), newDependentEntry1.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection1) + "#" + nameof(ChildPN),
+                newDependentEntry1.Metadata.DisplayName());
             Assert.Equal(
                 entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
                 newDependentEntry1.GetInfrastructure().SharedIdentityEntry?.EntityState);
@@ -3430,13 +3892,31 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Contains(dependent1.SubChildCollection, e => ReferenceEquals(e, subDependent1));
             Assert.Equal(principal1.Id, newSubDependentEntry2.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, newSubDependentEntry2.State);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection2) + "#" + nameof(ChildPN) + "." + nameof(ChildPN.SubChildCollection) + "#" + nameof(SubChildPN),
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName()
+                + "."
+                + nameof(ParentPN.ChildCollection2)
+                + "#"
+                + nameof(ChildPN)
+                + "."
+                + nameof(ChildPN.SubChildCollection)
+                + "#"
+                + nameof(SubChildPN),
                 newSubDependentEntry2.Metadata.DisplayName());
 
             Assert.Contains(dependent2.SubChildCollection, e => ReferenceEquals(e, subDependent2));
             Assert.Equal(principal2.Id, newSubDependentEntry1.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, newSubDependentEntry1.State);
-            Assert.Equal(typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection1) + "#" + nameof(ChildPN) + "." + nameof(ChildPN.SubChildCollection) + "#" + nameof(SubChildPN),
+            Assert.Equal(
+                typeof(ParentPN).ShortDisplayName()
+                + "."
+                + nameof(ParentPN.ChildCollection1)
+                + "#"
+                + nameof(ChildPN)
+                + "."
+                + nameof(ChildPN.SubChildCollection)
+                + "#"
+                + nameof(SubChildPN),
                 newSubDependentEntry1.Metadata.DisplayName());
 
             context.ChangeTracker.CascadeChanges();
@@ -3544,7 +4024,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (entityState != EntityState.Added)
             {
-                Assert.Equal(CoreStrings.KeyReadOnly("ParentId", "Parent.ChildCollection2#Child"),
+                Assert.Equal(
+                    CoreStrings.KeyReadOnly("ParentId", "Parent.ChildCollection2#Child"),
                     Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
                 return;
             }
@@ -3565,14 +4046,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.Equal(EntityState.Added, newDependentEntry2.State);
             Assert.Equal(principal1.Id, newDependentEntry2.Property("ParentId").CurrentValue);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection2) + "#" + nameof(Child), newDependentEntry2.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection2) + "#" + nameof(Child),
+                newDependentEntry2.Metadata.DisplayName());
             Assert.Equal(
                 entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
                 newDependentEntry2.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
             Assert.Equal(principal2.Id, newDependentEntry1.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, newDependentEntry1.State);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child), newDependentEntry1.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child),
+                newDependentEntry1.Metadata.DisplayName());
             Assert.Equal(
                 entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
                 newDependentEntry2.GetInfrastructure().SharedIdentityEntry?.EntityState);
@@ -3581,13 +4066,31 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(dependent1, subDependent1.Parent);
             Assert.Equal(principal1.Id, newSubDependentEntry2.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, newSubDependentEntry2.State);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection2) + "#" + nameof(Child) + "." + nameof(Child.SubChildCollection) + "#" + nameof(Child.SubChild), newSubDependentEntry2.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName()
+                + "."
+                + nameof(Parent.ChildCollection2)
+                + "#"
+                + nameof(Child)
+                + "."
+                + nameof(Child.SubChildCollection)
+                + "#"
+                + nameof(Child.SubChild), newSubDependentEntry2.Metadata.DisplayName());
 
             Assert.Contains(dependent2.SubChildCollection, e => ReferenceEquals(e, subDependent2));
             Assert.Same(dependent2, subDependent2.Parent);
             Assert.Equal(principal2.Id, newSubDependentEntry1.Property("ParentId").CurrentValue);
             Assert.Equal(EntityState.Added, newSubDependentEntry1.State);
-            Assert.Equal(typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child) + "." + nameof(Child.SubChildCollection) + "#" + nameof(Child.SubChild), newSubDependentEntry1.Metadata.DisplayName());
+            Assert.Equal(
+                typeof(Parent).ShortDisplayName()
+                + "."
+                + nameof(Parent.ChildCollection1)
+                + "#"
+                + nameof(Child)
+                + "."
+                + nameof(Child.SubChildCollection)
+                + "#"
+                + nameof(Child.SubChild), newSubDependentEntry1.Metadata.DisplayName());
 
             context.ChangeTracker.CascadeChanges();
 
@@ -4258,6 +4761,72 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Equal(1, user.Roles.Count);
                 Assert.Equal("BASIC", user.Roles.Select(e => e.Value).Single());
             }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task SaveChanges_when_owner_has_PK_with_default_values(bool async)
+        {
+            using (var context = new OneRowContext(async))
+            {
+                var blog = new Blog { Type = new OwnedType { Value = "A" } };
+
+                _ = async
+                    ? await context.AddAsync(blog)
+                    : context.Add(blog);
+
+                Assert.Equal(EntityState.Added, context.Entry(blog).State);
+                Assert.Equal(EntityState.Added, context.Entry(blog.Type).State);
+                Assert.Equal(0, blog.Id);
+                Assert.Equal(0, context.Entry(blog.Type).Property<int>("BlogId").CurrentValue);
+
+                _ = async
+                    ? await context.SaveChangesAsync()
+                    : context.SaveChanges();
+
+                Assert.Equal(EntityState.Unchanged, context.Entry(blog).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(blog.Type).State);
+                Assert.Equal(0, blog.Id);
+                Assert.Equal(0, context.Entry(blog.Type).Property<int>("BlogId").CurrentValue);
+            }
+
+            using (var context = new OneRowContext(async))
+            {
+                // Trying to do the same thing again will throw since only one row can have ID zero.
+
+                context.Add(new Blog { Type = new OwnedType { Value = "A" } });
+                Assert.Throws<ArgumentException>(() => context.SaveChanges());
+            }
+        }
+
+        private class OneRowContext : DbContext
+        {
+            private readonly bool _async;
+
+            public OneRowContext(bool async)
+            {
+                _async = async;
+            }
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase(nameof(OneRowContext) + _async);
+
+            public DbSet<Blog> Blogs { get; set; }
+        }
+
+        public class Blog
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id { get; set; }
+
+            public OwnedType Type { get; set; }
+        }
+
+        [Owned]
+        public class OwnedType
+        {
+            public string Value { get; set; }
         }
 
         private class User
