@@ -1,28 +1,24 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Storage;
+using System.Linq;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class TestModificationCommandBatchFactory : IModificationCommandBatchFactory
     {
-        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
-        private readonly ISqlGenerationHelper _sqlGenerationHelper;
-        private readonly IUpdateSqlGenerator _updateSqlGenerator;
-        private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
+        private readonly ModificationCommandBatchFactoryDependencies _dependencies;
+        private readonly IDbContextOptions _options;
 
         public TestModificationCommandBatchFactory(
-            IRelationalCommandBuilderFactory commandBuilderFactory,
-            ISqlGenerationHelper sqlGenerationHelper,
-            IUpdateSqlGenerator updateSqlGenerator,
-            IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
+            ModificationCommandBatchFactoryDependencies dependencies,
+            IDbContextOptions options)
         {
-            _commandBuilderFactory = commandBuilderFactory;
-            _sqlGenerationHelper = sqlGenerationHelper;
-            _updateSqlGenerator = updateSqlGenerator;
-            _valueBufferFactoryFactory = valueBufferFactoryFactory;
+            _dependencies = dependencies;
+            _options = options;
         }
 
         public int CreateCount { get; private set; }
@@ -31,11 +27,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             CreateCount++;
 
-            return new SingularModificationCommandBatch(
-                _commandBuilderFactory,
-                _sqlGenerationHelper,
-                _updateSqlGenerator,
-                _valueBufferFactoryFactory);
+            var optionsExtension = _options.Extensions.OfType<FakeRelationalOptionsExtension>().FirstOrDefault();
+
+            return new TestModificationCommandBatch(_dependencies, optionsExtension?.MaxBatchSize);
         }
     }
 }

@@ -4,9 +4,11 @@
 using System;
 using System.Data.Common;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {

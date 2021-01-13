@@ -2,8 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Data.Common;
-using System.Data.SqlClient;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 using Xunit.Abstractions;
@@ -15,50 +16,53 @@ namespace Microsoft.EntityFrameworkCore.Query
         public FromSqlQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            // #9182
-            Fixture.TestStore.CloseConnection();
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        public override void From_sql_queryable_simple()
+        public override async Task FromSqlRaw_queryable_simple(bool async)
         {
-            base.From_sql_queryable_simple();
+            await base.FromSqlRaw_queryable_simple(async);
 
             AssertSql(
                 @"SELECT * FROM ""Customers"" WHERE ""ContactName"" LIKE '%z%'");
         }
 
-        public override void From_sql_queryable_simple_columns_out_of_order()
+        public override async Task FromSqlRaw_queryable_simple_columns_out_of_order(bool async)
         {
-            base.From_sql_queryable_simple_columns_out_of_order();
+            await base.FromSqlRaw_queryable_simple_columns_out_of_order(async);
 
             AssertSql(
                 @"SELECT ""Region"", ""PostalCode"", ""Phone"", ""Fax"", ""CustomerID"", ""Country"", ""ContactTitle"", ""ContactName"", ""CompanyName"", ""City"", ""Address"" FROM ""Customers""");
         }
 
-        public override void From_sql_queryable_simple_columns_out_of_order_and_extra_columns()
+        public override async Task FromSqlRaw_queryable_simple_columns_out_of_order_and_extra_columns(bool async)
         {
-            base.From_sql_queryable_simple_columns_out_of_order_and_extra_columns();
+            await base.FromSqlRaw_queryable_simple_columns_out_of_order_and_extra_columns(async);
 
             AssertSql(
                 @"SELECT ""Region"", ""PostalCode"", ""PostalCode"" AS ""Foo"", ""Phone"", ""Fax"", ""CustomerID"", ""Country"", ""ContactTitle"", ""ContactName"", ""CompanyName"", ""City"", ""Address"" FROM ""Customers""");
         }
 
-        public override void From_sql_queryable_composed()
+        public override async Task<string> FromSqlRaw_queryable_composed(bool async)
         {
-            base.From_sql_queryable_composed();
+            var queryString = await base.FromSqlRaw_queryable_composed(async);
 
-            AssertSql(
+            var expected =
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
     SELECT * FROM ""Customers""
 ) AS [c]
-WHERE CHARINDEX(N'z', [c].[ContactName]) > 0");
+WHERE [c].[ContactName] LIKE N'%z%'";
+
+            AssertSql(expected);
+            Assert.Equal(expected, queryString, ignoreLineEndingDifferences: true);
+
+            return null;
         }
 
-        public override void From_sql_queryable_composed_after_removing_whitespaces()
+        public override async Task FromSqlRaw_queryable_composed_after_removing_whitespaces(bool async)
         {
-            base.From_sql_queryable_composed_after_removing_whitespaces();
+            await base.FromSqlRaw_queryable_composed_after_removing_whitespaces(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -70,54 +74,94 @@ FROM (
     SELECT
     * FROM ""Customers""
 ) AS [c]
-WHERE CHARINDEX(N'z', [c].[ContactName]) > 0");
+WHERE [c].[ContactName] LIKE N'%z%'");
         }
 
-        public override void From_sql_queryable_composed_compiled()
+        public override async Task FromSqlRaw_queryable_composed_compiled(bool async)
         {
-            base.From_sql_queryable_composed_compiled();
+            await base.FromSqlRaw_queryable_composed_compiled(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
     SELECT * FROM ""Customers""
 ) AS [c]
-WHERE CHARINDEX(N'z', [c].[ContactName]) > 0");
+WHERE [c].[ContactName] LIKE N'%z%'");
         }
 
-        public override void From_sql_composed_contains()
+        public override async Task FromSqlRaw_queryable_composed_compiled_with_DbParameter(bool async)
         {
-            base.From_sql_composed_contains();
+            await base.FromSqlRaw_queryable_composed_compiled_with_DbParameter(async);
+
+            AssertSql(
+                @"customer='CONSH' (Nullable = false) (Size = 5)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @customer
+) AS [c]
+WHERE [c].[ContactName] LIKE N'%z%'");
+        }
+
+        public override async Task FromSqlRaw_queryable_composed_compiled_with_nameless_DbParameter(bool async)
+        {
+            await base.FromSqlRaw_queryable_composed_compiled_with_nameless_DbParameter(async);
+
+            AssertSql(
+                @"p0='CONSH' (Nullable = false) (Size = 5)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @p0
+) AS [c]
+WHERE [c].[ContactName] LIKE N'%z%'");
+        }
+
+        public override async Task FromSqlRaw_queryable_composed_compiled_with_parameter(bool async)
+        {
+            await base.FromSqlRaw_queryable_composed_compiled_with_parameter(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""CustomerID"" = N'CONSH'
+) AS [c]
+WHERE [c].[ContactName] LIKE N'%z%'");
+        }
+
+        public override async Task FromSqlRaw_composed_contains(bool async)
+        {
+            await base.FromSqlRaw_composed_contains(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (
-    SELECT [o].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM (
         SELECT * FROM ""Orders""
     ) AS [o]
-)");
+    WHERE [o].[CustomerID] = [c].[CustomerID])");
         }
 
-        public override void From_sql_composed_contains2()
+        public override async Task FromSqlRaw_composed_contains2(bool async)
         {
-            base.From_sql_composed_contains2();
+            await base.FromSqlRaw_composed_contains2(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[CustomerID] = N'ALFKI') AND [c].[CustomerID] IN (
-    SELECT [o].[CustomerID]
+WHERE ([c].[CustomerID] = N'ALFKI') AND EXISTS (
+    SELECT 1
     FROM (
         SELECT * FROM ""Orders""
     ) AS [o]
-)");
+    WHERE [o].[CustomerID] = [c].[CustomerID])");
         }
 
-        public override void From_sql_queryable_multiple_composed()
+        public override async Task FromSqlRaw_queryable_multiple_composed(bool async)
         {
-            base.From_sql_queryable_multiple_composed();
+            await base.FromSqlRaw_queryable_multiple_composed(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -130,59 +174,59 @@ CROSS JOIN (
 WHERE [c].[CustomerID] = [o].[CustomerID]");
         }
 
-        public override void From_sql_queryable_multiple_composed_with_closure_parameters()
+        public override async Task FromSqlRaw_queryable_multiple_composed_with_closure_parameters(bool async)
         {
-            base.From_sql_queryable_multiple_composed_with_closure_parameters();
+            await base.FromSqlRaw_queryable_multiple_composed_with_closure_parameters(async);
 
             AssertSql(
-                @"@__8__locals1_startDate_1='1997-01-01T00:00:00'
-@__8__locals1_endDate_2='1998-01-01T00:00:00'
+                @"p0='1997-01-01T00:00:00.0000000'
+p1='1998-01-01T00:00:00.0000000'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
     SELECT * FROM ""Customers""
 ) AS [c]
 CROSS JOIN (
-    SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @__8__locals1_startDate_1 AND @__8__locals1_endDate_2
+    SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @p0 AND @p1
 ) AS [o]
 WHERE [c].[CustomerID] = [o].[CustomerID]");
         }
 
-        public override void From_sql_queryable_multiple_composed_with_parameters_and_closure_parameters()
+        public override async Task FromSqlRaw_queryable_multiple_composed_with_parameters_and_closure_parameters(bool async)
         {
-            base.From_sql_queryable_multiple_composed_with_parameters_and_closure_parameters();
+            await base.FromSqlRaw_queryable_multiple_composed_with_parameters_and_closure_parameters(async);
 
             AssertSql(
-                @"@p0='London' (Size = 4000)
-@__8__locals1_startDate_1='1997-01-01T00:00:00'
-@__8__locals1_endDate_2='1998-01-01T00:00:00'
+                @"p0='London' (Size = 4000)
+p1='1997-01-01T00:00:00.0000000'
+p2='1998-01-01T00:00:00.0000000'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
     SELECT * FROM ""Customers"" WHERE ""City"" = @p0
 ) AS [c]
 CROSS JOIN (
-    SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @__8__locals1_startDate_1 AND @__8__locals1_endDate_2
+    SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @p1 AND @p2
 ) AS [o]
 WHERE [c].[CustomerID] = [o].[CustomerID]",
                 //
-                @"@p0='Berlin' (Size = 4000)
-@__8__locals1_startDate_1='1998-04-01T00:00:00'
-@__8__locals1_endDate_2='1998-05-01T00:00:00'
+                @"p0='Berlin' (Size = 4000)
+p1='1998-04-01T00:00:00.0000000'
+p2='1998-05-01T00:00:00.0000000'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
     SELECT * FROM ""Customers"" WHERE ""City"" = @p0
 ) AS [c]
 CROSS JOIN (
-    SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @__8__locals1_startDate_1 AND @__8__locals1_endDate_2
+    SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @p1 AND @p2
 ) AS [o]
 WHERE [c].[CustomerID] = [o].[CustomerID]");
         }
 
-        public override void From_sql_queryable_multiple_line_query()
+        public override async Task FromSqlRaw_queryable_multiple_line_query(bool async)
         {
-            base.From_sql_queryable_multiple_line_query();
+            await base.FromSqlRaw_queryable_multiple_line_query(async);
 
             AssertSql(
                 @"SELECT *
@@ -190,9 +234,9 @@ FROM ""Customers""
 WHERE ""City"" = 'London'");
         }
 
-        public override void From_sql_queryable_composed_multiple_line_query()
+        public override async Task FromSqlRaw_queryable_composed_multiple_line_query(bool async)
         {
-            base.From_sql_queryable_composed_multiple_line_query();
+            await base.FromSqlRaw_queryable_composed_multiple_line_query(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -203,58 +247,58 @@ FROM (
 WHERE [c].[City] = N'London'");
         }
 
-        public override void From_sql_queryable_with_parameters()
+        public override async Task FromSqlRaw_queryable_with_parameters(bool async)
         {
-            base.From_sql_queryable_with_parameters();
+            await base.FromSqlRaw_queryable_with_parameters(async);
 
             AssertSql(
-                @"@p0='London' (Size = 4000)
-@p1='Sales Representative' (Size = 4000)
+                @"p0='London' (Size = 4000)
+p1='Sales Representative' (Size = 4000)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
         }
 
-        public override void From_sql_queryable_with_parameters_inline()
+        public override async Task FromSqlRaw_queryable_with_parameters_inline(bool async)
         {
-            base.From_sql_queryable_with_parameters_inline();
+            await base.FromSqlRaw_queryable_with_parameters_inline(async);
 
             AssertSql(
-                @"@p0='London' (Size = 4000)
-@p1='Sales Representative' (Size = 4000)
+                @"p0='London' (Size = 4000)
+p1='Sales Representative' (Size = 4000)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
         }
 
-        public override void From_sql_queryable_with_parameters_interpolated()
+        public override async Task FromSqlInterpolated_queryable_with_parameters_interpolated(bool async)
         {
-            base.From_sql_queryable_with_parameters_interpolated();
+            await base.FromSqlInterpolated_queryable_with_parameters_interpolated(async);
 
             AssertSql(
-                @"@p0='London' (Size = 4000)
-@p1='Sales Representative' (Size = 4000)
+                @"p0='London' (Size = 4000)
+p1='Sales Representative' (Size = 4000)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
         }
 
-        public override void From_sql_queryable_with_parameters_inline_interpolated()
+        public override async Task FromSqlInterpolated_queryable_with_parameters_inline_interpolated(bool async)
         {
-            base.From_sql_queryable_with_parameters_inline_interpolated();
+            await base.FromSqlInterpolated_queryable_with_parameters_inline_interpolated(async);
 
             AssertSql(
-                @"@p0='London' (Size = 4000)
-@p1='Sales Representative' (Size = 4000)
+                @"p0='London' (Size = 4000)
+p1='Sales Representative' (Size = 4000)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
         }
 
-        public override void From_sql_queryable_multiple_composed_with_parameters_and_closure_parameters_interpolated()
+        public override async Task FromSqlInterpolated_queryable_multiple_composed_with_parameters_and_closure_parameters_interpolated(bool async)
         {
-            base.From_sql_queryable_multiple_composed_with_parameters_and_closure_parameters_interpolated();
+            await base.FromSqlInterpolated_queryable_multiple_composed_with_parameters_and_closure_parameters_interpolated(async);
 
             AssertSql(
-                @"@p0='London' (Size = 4000)
-@p1='1997-01-01T00:00:00'
-@p2='1998-01-01T00:00:00'
+                @"p0='London' (Size = 4000)
+p1='1997-01-01T00:00:00.0000000'
+p2='1998-01-01T00:00:00.0000000'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
@@ -265,9 +309,9 @@ CROSS JOIN (
 ) AS [o]
 WHERE [c].[CustomerID] = [o].[CustomerID]",
                 //
-                @"@p0='Berlin' (Size = 4000)
-@p1='1998-04-01T00:00:00'
-@p2='1998-05-01T00:00:00'
+                @"p0='Berlin' (Size = 4000)
+p1='1998-04-01T00:00:00.0000000'
+p2='1998-05-01T00:00:00.0000000'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
@@ -279,22 +323,22 @@ CROSS JOIN (
 WHERE [c].[CustomerID] = [o].[CustomerID]");
         }
 
-        public override void From_sql_queryable_with_null_parameter()
+        public override async Task FromSqlRaw_queryable_with_null_parameter(bool async)
         {
-            base.From_sql_queryable_with_null_parameter();
+            await base.FromSqlRaw_queryable_with_null_parameter(async);
 
             AssertSql(
-                @"@p0='' (Nullable = false)
+                @"p0=NULL (Nullable = false)
 
 SELECT * FROM ""Employees"" WHERE ""ReportsTo"" = @p0 OR (""ReportsTo"" IS NULL AND @p0 IS NULL)");
         }
 
-        public override void From_sql_queryable_with_parameters_and_closure()
+        public override async Task<string> FromSqlRaw_queryable_with_parameters_and_closure(bool async)
         {
-            base.From_sql_queryable_with_parameters_and_closure();
+            var queryString = await base.FromSqlRaw_queryable_with_parameters_and_closure(async);
 
             AssertSql(
-                @"@p0='London' (Size = 4000)
+                @"p0='London' (Size = 4000)
 @__contactTitle_1='Sales Representative' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -302,11 +346,23 @@ FROM (
     SELECT * FROM ""Customers"" WHERE ""City"" = @p0
 ) AS [c]
 WHERE [c].[ContactTitle] = @__contactTitle_1");
+
+            Assert.Equal(
+                @"DECLARE p0 nvarchar(4000) = N'London';
+DECLARE @__contactTitle_1 nvarchar(4000) = N'Sales Representative';
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""City"" = @p0
+) AS [c]
+WHERE [c].[ContactTitle] = @__contactTitle_1", queryString, ignoreLineEndingDifferences: true);
+
+            return null;
         }
 
-        public override void From_sql_queryable_simple_cache_key_includes_query_string()
+        public override async Task FromSqlRaw_queryable_simple_cache_key_includes_query_string(bool async)
         {
-            base.From_sql_queryable_simple_cache_key_includes_query_string();
+            await base.FromSqlRaw_queryable_simple_cache_key_includes_query_string(async);
 
             AssertSql(
                 @"SELECT * FROM ""Customers"" WHERE ""City"" = 'London'",
@@ -314,93 +370,74 @@ WHERE [c].[ContactTitle] = @__contactTitle_1");
                 @"SELECT * FROM ""Customers"" WHERE ""City"" = 'Seattle'");
         }
 
-        public override void From_sql_queryable_with_parameters_cache_key_includes_parameters()
+        public override async Task FromSqlRaw_queryable_with_parameters_cache_key_includes_parameters(bool async)
         {
-            base.From_sql_queryable_with_parameters_cache_key_includes_parameters();
+            await base.FromSqlRaw_queryable_with_parameters_cache_key_includes_parameters(async);
 
             AssertSql(
-                @"@p0='London' (Size = 4000)
-@p1='Sales Representative' (Size = 4000)
+                @"p0='London' (Size = 4000)
+p1='Sales Representative' (Size = 4000)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1",
                 //
-                @"@p0='Madrid' (Size = 4000)
-@p1='Accounting Manager' (Size = 4000)
+                @"p0='Madrid' (Size = 4000)
+p1='Accounting Manager' (Size = 4000)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
         }
 
-        public override void From_sql_queryable_simple_as_no_tracking_not_composed()
+        public override async Task FromSqlRaw_queryable_simple_as_no_tracking_not_composed(bool async)
         {
-            base.From_sql_queryable_simple_as_no_tracking_not_composed();
+            await base.FromSqlRaw_queryable_simple_as_no_tracking_not_composed(async);
 
             AssertSql(
                 @"SELECT * FROM ""Customers""");
         }
 
-        public override void From_sql_queryable_simple_projection_composed()
+        public override async Task FromSqlRaw_queryable_simple_projection_composed(bool async)
         {
-            base.From_sql_queryable_simple_projection_composed();
+            await base.FromSqlRaw_queryable_simple_projection_composed(async);
 
             AssertSql(
                 @"SELECT [p].[ProductName]
 FROM (
     SELECT *
     FROM ""Products""
-    WHERE ""Discontinued"" <> 1
+    WHERE ""Discontinued"" <> CAST(1 AS bit)
     AND ((""UnitsInStock"" + ""UnitsOnOrder"") < ""ReorderLevel"")
 ) AS [p]");
         }
 
-        public override void From_sql_queryable_simple_include()
+        public override async Task FromSqlRaw_queryable_simple_include(bool async)
         {
-            base.From_sql_queryable_simple_include();
+            await base.FromSqlRaw_queryable_simple_include(async);
 
             AssertSql(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
     SELECT * FROM ""Customers""
 ) AS [c]
-ORDER BY [c].[CustomerID]",
-                //
-                @"SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
-FROM [Orders] AS [c.Orders]
-INNER JOIN (
-    SELECT [c0].[CustomerID]
-    FROM (
-        SELECT * FROM ""Customers""
-    ) AS [c0]
-) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
-ORDER BY [t].[CustomerID]");
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
-        public override void From_sql_queryable_simple_composed_include()
+        public override async Task FromSqlRaw_queryable_simple_composed_include(bool async)
         {
-            base.From_sql_queryable_simple_composed_include();
+            await base.FromSqlRaw_queryable_simple_composed_include(async);
 
             AssertSql(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
     SELECT * FROM ""Customers""
 ) AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 WHERE [c].[City] = N'London'
-ORDER BY [c].[CustomerID]",
-                //
-                @"SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
-FROM [Orders] AS [c.Orders]
-INNER JOIN (
-    SELECT [c0].[CustomerID]
-    FROM (
-        SELECT * FROM ""Customers""
-    ) AS [c0]
-    WHERE [c0].[City] = N'London'
-) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
-ORDER BY [t].[CustomerID]");
+ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
-        public override void From_sql_annotations_do_not_affect_successive_calls()
+        public override async Task FromSqlRaw_annotations_do_not_affect_successive_calls(bool async)
         {
-            base.From_sql_annotations_do_not_affect_successive_calls();
+            await base.FromSqlRaw_annotations_do_not_affect_successive_calls(async);
 
             AssertSql(
                 @"SELECT * FROM ""Customers"" WHERE ""ContactName"" LIKE '%z%'",
@@ -409,9 +446,9 @@ ORDER BY [t].[CustomerID]");
 FROM [Customers] AS [c]");
         }
 
-        public override void From_sql_composed_with_nullable_predicate()
+        public override async Task FromSqlRaw_composed_with_nullable_predicate(bool async)
         {
-            base.From_sql_composed_with_nullable_predicate();
+            await base.FromSqlRaw_composed_with_nullable_predicate(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -419,11 +456,12 @@ FROM (
     SELECT * FROM ""Customers""
 ) AS [c]
 WHERE ([c].[ContactName] = [c].[CompanyName]) OR ([c].[ContactName] IS NULL AND [c].[CompanyName] IS NULL)");
+            ;
         }
 
-        public override void From_sql_with_dbParameter()
+        public override async Task FromSqlRaw_with_dbParameter(bool async)
         {
-            base.From_sql_with_dbParameter();
+            await base.FromSqlRaw_with_dbParameter(async);
 
             AssertSql(
                 @"@city='London' (Nullable = false) (Size = 6)
@@ -431,25 +469,34 @@ WHERE ([c].[ContactName] = [c].[CompanyName]) OR ([c].[ContactName] IS NULL AND 
 SELECT * FROM ""Customers"" WHERE ""City"" = @city");
         }
 
-        public override void From_sql_with_dbParameter_mixed()
+        public override async Task FromSqlRaw_with_dbParameter_without_name_prefix(bool async)
         {
-            base.From_sql_with_dbParameter_mixed();
+            await base.FromSqlRaw_with_dbParameter_without_name_prefix(async);
+            AssertSql(
+                @"city='London' (Nullable = false) (Size = 6)
+
+SELECT * FROM ""Customers"" WHERE ""City"" = @city");
+        }
+
+        public override async Task FromSqlRaw_with_dbParameter_mixed(bool async)
+        {
+            await base.FromSqlRaw_with_dbParameter_mixed(async);
 
             AssertSql(
-                @"@p0='London' (Size = 4000)
+                @"p0='London' (Size = 4000)
 @title='Sales Representative' (Nullable = false) (Size = 20)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @title",
                 //
                 @"@city='London' (Nullable = false) (Size = 6)
-@p1='Sales Representative' (Size = 4000)
+p1='Sales Representative' (Size = 4000)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = @p1");
         }
 
-        public override void From_sql_with_db_parameters_called_multiple_times()
+        public override async Task FromSqlRaw_with_db_parameters_called_multiple_times(bool async)
         {
-            base.From_sql_with_db_parameters_called_multiple_times();
+            await base.FromSqlRaw_with_db_parameters_called_multiple_times(async);
 
             AssertSql(
                 @"@id='ALFKI' (Nullable = false) (Size = 5)
@@ -461,225 +508,263 @@ SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @id",
 SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @id");
         }
 
-        public override void From_sql_with_SelectMany_and_include()
+        public override async Task FromSqlRaw_with_SelectMany_and_include(bool async)
         {
-            base.From_sql_with_SelectMany_and_include();
+            await base.FromSqlRaw_with_SelectMany_and_include(async);
 
             AssertSql(
-                @"SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region], [c2].[CustomerID], [c2].[Address], [c2].[City], [c2].[CompanyName], [c2].[ContactName], [c2].[ContactTitle], [c2].[Country], [c2].[Fax], [c2].[Phone], [c2].[PostalCode], [c2].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
     SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'ALFKI'
-) AS [c1]
+) AS [c]
 CROSS JOIN (
     SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'AROUT'
-) AS [c2]
-ORDER BY [c2].[CustomerID]",
-                //
-                @"SELECT [c2.Orders].[OrderID], [c2.Orders].[CustomerID], [c2.Orders].[EmployeeID], [c2.Orders].[OrderDate]
-FROM [Orders] AS [c2.Orders]
-INNER JOIN (
-    SELECT DISTINCT [c20].[CustomerID]
-    FROM (
-        SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'ALFKI'
-    ) AS [c10]
-    CROSS JOIN (
-        SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'AROUT'
-    ) AS [c20]
-) AS [t] ON [c2.Orders].[CustomerID] = [t].[CustomerID]
-ORDER BY [t].[CustomerID]");
+) AS [c0]
+LEFT JOIN [Orders] AS [o] ON [c0].[CustomerID] = [o].[CustomerID]
+ORDER BY [c].[CustomerID], [c0].[CustomerID], [o].[OrderID]");
         }
 
-        public override void From_sql_with_join_and_include()
+        public override async Task FromSqlRaw_with_join_and_include(bool async)
         {
-            base.From_sql_with_join_and_include();
+            await base.FromSqlRaw_with_join_and_include(async);
 
             AssertSql(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
 FROM (
     SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'ALFKI'
 ) AS [c]
 INNER JOIN (
     SELECT * FROM ""Orders"" WHERE ""OrderID"" <> 1
 ) AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-ORDER BY [o].[OrderID]",
-                //
-                @"SELECT [o.OrderDetails].[OrderID], [o.OrderDetails].[ProductID], [o.OrderDetails].[Discount], [o.OrderDetails].[Quantity], [o.OrderDetails].[UnitPrice]
-FROM [Order Details] AS [o.OrderDetails]
-INNER JOIN (
-    SELECT DISTINCT [o0].[OrderID]
-    FROM (
-        SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'ALFKI'
-    ) AS [c0]
-    INNER JOIN (
-        SELECT * FROM ""Orders"" WHERE ""OrderID"" <> 1
-    ) AS [o0] ON [c0].[CustomerID] = [o0].[CustomerID]
-) AS [t] ON [o.OrderDetails].[OrderID] = [t].[OrderID]
-ORDER BY [t].[OrderID]");
+LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+ORDER BY [c].[CustomerID], [o].[OrderID], [o0].[OrderID], [o0].[ProductID]");
         }
 
-        [Fact]
-        public virtual void From_sql_in_subquery_with_dbParameter()
+        public override async Task FromSqlInterpolated_with_inlined_db_parameter(bool async)
         {
-            using (var context = CreateContext())
-            {
-                var actual = context.Orders.Where(
-                        o =>
-                            context.Customers
-                                .FromSql(
-                                    @"SELECT * FROM ""Customers"" WHERE ""City"" = @city",
-                                    // ReSharper disable once FormatStringProblem
-                                    new SqlParameter("@city", "London"))
-                                .Select(c => c.CustomerID)
-                                .Contains(o.CustomerID))
-                    .ToArray();
+            await base.FromSqlInterpolated_with_inlined_db_parameter(async);
 
-                Assert.Equal(46, actual.Length);
+            AssertSql(
+                @"@somename='ALFKI' (Nullable = false) (Size = 5)
 
-                AssertSql(
-                    @"@city='London' (Nullable = false) (Size = 6)
+SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @somename");
+        }
+
+        public override async Task FromSqlInterpolated_with_inlined_db_parameter_without_name_prefix(bool async)
+        {
+            await base.FromSqlInterpolated_with_inlined_db_parameter_without_name_prefix(async);
+
+            AssertSql(
+                @"somename='ALFKI' (Nullable = false) (Size = 5)
+
+SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @somename");
+        }
+
+        public override async Task FromSqlInterpolated_parameterization_issue_12213(bool async)
+        {
+            await base.FromSqlInterpolated_parameterization_issue_12213(async);
+
+            AssertSql(
+                @"p0='10300'
+
+SELECT [o].[OrderID]
+FROM (
+    SELECT * FROM ""Orders"" WHERE ""OrderID"" >= @p0
+) AS [o]",
+                //
+                @"@__max_0='10400'
+p0='10300'
+
+SELECT [o].[OrderID]
+FROM [Orders] AS [o]
+WHERE ([o].[OrderID] <= @__max_0) AND EXISTS (
+    SELECT 1
+    FROM (
+        SELECT * FROM ""Orders"" WHERE ""OrderID"" >= @p0
+    ) AS [o0]
+    WHERE [o0].[OrderID] = [o].[OrderID])",
+                //
+                @"@__max_0='10400'
+p0='10300'
+
+SELECT [o].[OrderID]
+FROM [Orders] AS [o]
+WHERE ([o].[OrderID] <= @__max_0) AND EXISTS (
+    SELECT 1
+    FROM (
+        SELECT * FROM ""Orders"" WHERE ""OrderID"" >= @p0
+    ) AS [o0]
+    WHERE [o0].[OrderID] = [o].[OrderID])");
+        }
+
+        public override async Task FromSqlRaw_does_not_parameterize_interpolated_string(bool async)
+        {
+            await base.FromSqlRaw_does_not_parameterize_interpolated_string(async);
+
+            AssertSql(
+                @"p0='10250'
+
+SELECT * FROM ""Orders"" WHERE ""OrderID"" < @p0");
+        }
+
+        public override async Task Entity_equality_through_fromsql(bool async)
+        {
+            await base.Entity_equality_through_fromsql(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM (
+    SELECT * FROM ""Orders""
+) AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+WHERE [c].[CustomerID] = N'VINET'");
+        }
+
+        public override async Task FromSqlRaw_with_set_operation(bool async)
+        {
+            await base.FromSqlRaw_with_set_operation(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""City"" = 'London'
+) AS [c]
+UNION ALL
+SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""City"" = 'Berlin'
+) AS [c0]");
+        }
+
+        public override async Task Line_endings_after_Select(bool async)
+        {
+            await base.Line_endings_after_Select(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT
+    * FROM ""Customers""
+) AS [c]
+WHERE [c].[City] = N'Seattle'");
+        }
+
+        public override async Task FromSql_with_db_parameter_in_split_query(bool async)
+        {
+            await base.FromSql_with_db_parameter_in_split_query(async);
+
+            AssertSql(
+                @"customerID='ALFKI' (Nullable = false) (Size = 5)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @customerID
+) AS [c]
+ORDER BY [c].[CustomerID]",
+                //
+                @"customerID='ALFKI' (Nullable = false) (Size = 5)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @customerID
+) AS [c]
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+ORDER BY [c].[CustomerID], [o].[OrderID]",
+                //
+                @"customerID='ALFKI' (Nullable = false) (Size = 5)
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [c].[CustomerID], [o].[OrderID]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @customerID
+) AS [c]
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+INNER JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+ORDER BY [c].[CustomerID], [o].[OrderID]");
+        }
+
+        public override async Task FromSqlRaw_in_subquery_with_dbParameter(bool async)
+        {
+            await base.FromSqlRaw_in_subquery_with_dbParameter(async);
+
+            AssertSql(
+                @"@city='London' (Nullable = false) (Size = 6)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] IN (
-    SELECT [c].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM (
         SELECT * FROM ""Customers"" WHERE ""City"" = @city
     ) AS [c]
-)");
-            }
+    WHERE [c].[CustomerID] = [o].[CustomerID])");
         }
 
-        [Fact]
-        public virtual void From_sql_in_subquery_with_positional_dbParameter_without_name()
+        public override async Task FromSqlRaw_in_subquery_with_positional_dbParameter_without_name(bool async)
         {
-            using (var context = CreateContext())
-            {
-                var actual = context.Orders.Where(
-                        o =>
-                            context.Customers
-                                .FromSql(
-                                    @"SELECT * FROM ""Customers"" WHERE ""City"" = {0}",
-                                    // ReSharper disable once FormatStringProblem
-                                    new SqlParameter { Value = "London" })
-                                .Select(c => c.CustomerID)
-                                .Contains(o.CustomerID))
-                    .ToArray();
+            await base.FromSqlRaw_in_subquery_with_positional_dbParameter_without_name(async);
 
-                Assert.Equal(46, actual.Length);
-
-                AssertSql(
-                    @"@p0='London' (Nullable = false) (Size = 6)
+            AssertSql(
+                @"p0='London' (Nullable = false) (Size = 6)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] IN (
-    SELECT [c].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM (
         SELECT * FROM ""Customers"" WHERE ""City"" = @p0
     ) AS [c]
-)");
-            }
+    WHERE [c].[CustomerID] = [o].[CustomerID])");
         }
 
-        [Fact]
-        public virtual void From_sql_in_subquery_with_positional_dbParameter_with_name()
+        public override async Task FromSqlRaw_in_subquery_with_positional_dbParameter_with_name(bool async)
         {
-            using (var context = CreateContext())
-            {
-                var actual = context.Orders.Where(
-                        o =>
-                            context.Customers
-                                .FromSql(
-                                    @"SELECT * FROM ""Customers"" WHERE ""City"" = {0}",
-                                    // ReSharper disable once FormatStringProblem
-                                    new SqlParameter("@city", "London"))
-                                .Select(c => c.CustomerID)
-                                .Contains(o.CustomerID))
-                    .ToArray();
+            await base.FromSqlRaw_in_subquery_with_positional_dbParameter_with_name(async);
 
-                Assert.Equal(46, actual.Length);
-
-                AssertSql(
-                    @"@city='London' (Nullable = false) (Size = 6)
+            AssertSql(
+                @"@city='London' (Nullable = false) (Size = 6)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] IN (
-    SELECT [c].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM (
         SELECT * FROM ""Customers"" WHERE ""City"" = @city
     ) AS [c]
-)");
-            }
+    WHERE [c].[CustomerID] = [o].[CustomerID])");
         }
 
-        [Fact]
-        public virtual void From_sql_with_dbParameter_mixed_in_subquery()
+        public override async Task FromSqlRaw_with_dbParameter_mixed_in_subquery(bool async)
         {
-            using (var context = CreateContext())
-            {
-                const string city = "London";
-                const string title = "Sales Representative";
+            await base.FromSqlRaw_with_dbParameter_mixed_in_subquery(async);
 
-                var actual = context.Orders.Where(
-                        o =>
-                            context.Customers
-                                .FromSql(
-                                    @"SELECT * FROM ""Customers"" WHERE ""City"" = {0} AND ""ContactTitle"" = @title",
-                                    city,
-                                    // ReSharper disable once FormatStringProblem
-                                    new SqlParameter("@title", title))
-                                .Select(c => c.CustomerID)
-                                .Contains(o.CustomerID))
-                    .ToArray();
-
-                Assert.Equal(26, actual.Length);
-
-                actual = context.Orders.Where(
-                        o =>
-                            context.Customers
-                                .FromSql(
-                                    @"SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = {1}",
-                                    // ReSharper disable once FormatStringProblem
-                                    new SqlParameter("@city", city),
-                                    title)
-                                .Select(c => c.CustomerID)
-                                .Contains(o.CustomerID))
-                    .ToArray();
-
-                Assert.Equal(26, actual.Length);
-
-                AssertSql(
-                    @"@title='Sales Representative' (Nullable = false) (Size = 20)
+            AssertSql(
+                @"p0='London' (Size = 4000)
+@title='Sales Representative' (Nullable = false) (Size = 20)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] IN (
-    SELECT [c].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM (
-        SELECT * FROM ""Customers"" WHERE ""City"" = N'London' AND ""ContactTitle"" = @title
+        SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @title
     ) AS [c]
-)",
-                    //
-                    @"@city='London' (Nullable = false) (Size = 6)
+    WHERE [c].[CustomerID] = [o].[CustomerID])",
+                //
+                @"@city='London' (Nullable = false) (Size = 6)
+p1='Sales Representative' (Size = 4000)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] IN (
-    SELECT [c].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM (
-        SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = N'Sales Representative'
+        SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = @p1
     ) AS [c]
-)");
-            }
+    WHERE [c].[CustomerID] = [o].[CustomerID])");
         }
 
         protected override DbParameter CreateDbParameter(string name, object value)
-            => new SqlParameter
-            {
-                ParameterName = name,
-                Value = value
-            };
+            => new SqlParameter { ParameterName = name, Value = value };
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

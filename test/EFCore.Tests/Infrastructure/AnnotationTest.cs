@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public class AnnotationTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Members_check_arguments()
         {
             Assert.Equal(
@@ -18,13 +18,27 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 Assert.Throws<ArgumentException>(() => new Annotation("", "Kake")).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_annotation()
         {
             var annotation = new Annotation("Foo", "Bar");
 
             Assert.Equal("Foo", annotation.Name);
             Assert.Equal("Bar", annotation.Value);
+        }
+
+        [ConditionalFact]
+        public void NegativeNumberArguments_PrecisionAttribute_Throws()
+        {
+            Assert.Equal(
+                AbstractionsStrings.ArgumentIsNegativeNumber("precision"),
+                Assert.Throws<ArgumentException>(() => new PrecisionAttribute(-1)).Message);
+            Assert.Equal(
+                AbstractionsStrings.ArgumentIsNegativeNumber("scale"),
+                Assert.Throws<ArgumentException>(() => new PrecisionAttribute(3, -2)).Message);
+            Assert.Equal(
+                AbstractionsStrings.ArgumentIsNegativeNumber("precision"),
+                Assert.Throws<ArgumentException>(() => new PrecisionAttribute(-5, 4)).Message);
         }
     }
 }

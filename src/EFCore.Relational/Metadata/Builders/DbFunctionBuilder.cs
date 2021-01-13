@@ -1,67 +1,75 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
-    ///     <para>
-    ///         Provides a simple API for configuring a <see cref="DbFunction" />.
-    ///     </para>
-    ///     <para>
-    ///         Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
-    ///         and it is not designed to be directly constructed in your application code.
-    ///     </para>
+    ///     Provides a simple API for configuring a <see cref="IMutableDbFunction" />.
     /// </summary>
-    public class DbFunctionBuilder
+    public class DbFunctionBuilder : DbFunctionBuilderBase
     {
-        private readonly InternalDbFunctionBuilder _builder;
-
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public DbFunctionBuilder([NotNull] DbFunction function)
+        [EntityFrameworkInternal]
+        public DbFunctionBuilder([NotNull] IMutableDbFunction function)
+            : base(function)
         {
-            Check.NotNull(function, nameof(function));
-
-            _builder = new InternalDbFunctionBuilder(function);
         }
-
-        /// <summary>
-        ///     Metadata representing the function being configured.
-        /// </summary>
-        public virtual IMutableDbFunction Metadata => _builder.Metadata;
 
         /// <summary>
         ///     Sets the name of the database function.
         /// </summary>
         /// <param name="name"> The name of the function in the database. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual DbFunctionBuilder HasName([NotNull] string name)
-        {
-            Check.NotEmpty(name, nameof(name));
-
-            _builder.HasName(name, ConfigurationSource.Explicit);
-
-            return this;
-        }
+        public new virtual DbFunctionBuilder HasName([NotNull] string name)
+            => (DbFunctionBuilder)base.HasName(name);
 
         /// <summary>
         ///     Sets the schema of the database function.
         /// </summary>
         /// <param name="schema"> The schema of the function in the database. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual DbFunctionBuilder HasSchema([CanBeNull] string schema)
+        public new virtual DbFunctionBuilder HasSchema([CanBeNull] string schema)
+            => (DbFunctionBuilder)base.HasSchema(schema);
+
+        /// <summary>
+        ///     Marks whether the database function is built-in.
+        /// </summary>
+        /// <param name="builtIn"> The value indicating whether the database function is built-in. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual DbFunctionBuilder IsBuiltIn(bool builtIn = true)
+            => (DbFunctionBuilder)base.IsBuiltIn(builtIn);
+
+        /// <summary>
+        ///     Marks whether the database function can return null value.
+        /// </summary>
+        /// <param name="nullable"> The value indicating whether the database function can return null. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual DbFunctionBuilderBase IsNullable(bool nullable = true)
         {
-            _builder.HasSchema(schema, ConfigurationSource.Explicit);
+            Builder.IsNullable(nullable, ConfigurationSource.Explicit);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Sets the return store type of the database function.
+        /// </summary>
+        /// <param name="storeType"> The return store type of the function in the database. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual DbFunctionBuilder HasStoreType([CanBeNull] string storeType)
+        {
+            Builder.HasStoreType(storeType, ConfigurationSource.Explicit);
 
             return this;
         }
@@ -79,39 +87,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="translation"> The translation to use. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual DbFunctionBuilder HasTranslation([NotNull] Func<IReadOnlyCollection<Expression>, Expression> translation)
+        public virtual DbFunctionBuilder HasTranslation([NotNull] Func<IReadOnlyList<SqlExpression>, SqlExpression> translation)
         {
-            Check.NotNull(translation, nameof(translation));
-
-            _builder.HasTranslation(translation);
+            Builder.HasTranslation(translation, ConfigurationSource.Explicit);
 
             return this;
         }
-
-        #region Hidden System.Object members
-
-        /// <summary>
-        ///     Returns a string that represents the current object.
-        /// </summary>
-        /// <returns> A string that represents the current object. </returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString() => base.ToString();
-
-        /// <summary>
-        ///     Determines whether the specified object is equal to the current object.
-        /// </summary>
-        /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => base.Equals(obj);
-
-        /// <summary>
-        ///     Serves as the default hash function.
-        /// </summary>
-        /// <returns> A hash code for the current object. </returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public override int GetHashCode() => base.GetHashCode();
-
-        #endregion
     }
 }

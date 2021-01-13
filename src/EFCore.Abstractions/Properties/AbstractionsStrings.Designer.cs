@@ -5,36 +5,59 @@ using System.Reflection;
 using System.Resources;
 using JetBrains.Annotations;
 
-namespace Microsoft.EntityFrameworkCore.Internal
+#nullable enable
+
+namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
-    ///		This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     <para>
+    ///		    String resources used in EF exceptions, etc.
+    ///     </para>
+    ///     <para>
+    ///		    These strings are exposed publicly for use by database providers and extensions.
+    ///         It is unusual for application code to need these strings.
+    ///     </para>
     /// </summary>
     public static class AbstractionsStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.AbstractionsStrings", typeof(AbstractionsStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.AbstractionsStrings", typeof(AbstractionsStrings).Assembly);
 
         /// <summary>
         ///     The string argument '{argumentName}' cannot be empty.
         /// </summary>
-        public static string ArgumentIsEmpty([CanBeNull] object argumentName)
+        public static string ArgumentIsEmpty([CanBeNull] object? argumentName)
             => string.Format(
                 GetString("ArgumentIsEmpty", nameof(argumentName)),
                 argumentName);
 
         /// <summary>
+        ///     The number argument '{argumentName}' cannot be negative number.
+        /// </summary>
+        public static string ArgumentIsNegativeNumber([CanBeNull] object argumentName)
+            => string.Format(
+                GetString("ArgumentIsNegativeNumber", nameof(argumentName)),
+                argumentName);
+
+        /// <summary>
+        ///     The collection argument '{argumentName}' must not contain any empty elements.
+        /// </summary>
+        public static string CollectionArgumentHasEmptyElements([CanBeNull] object? argumentName)
+            => string.Format(
+                GetString("CollectionArgumentHasEmptyElements", nameof(argumentName)),
+                argumentName);
+
+        /// <summary>
         ///     The collection argument '{argumentName}' must contain at least one element.
         /// </summary>
-        public static string CollectionArgumentIsEmpty([CanBeNull] object argumentName)
+        public static string CollectionArgumentIsEmpty([CanBeNull] object? argumentName)
             => string.Format(
                 GetString("CollectionArgumentIsEmpty", nameof(argumentName)),
                 argumentName);
 
         private static string GetString(string name, params string[] formatterNames)
         {
-            var value = _resourceManager.GetString(name);
+            var value = _resourceManager.GetString(name)!;
             for (var i = 0; i < formatterNames.Length; i++)
             {
                 value = value.Replace("{" + formatterNames[i] + "}", "{" + i + "}");
@@ -44,3 +67,4 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
     }
 }
+

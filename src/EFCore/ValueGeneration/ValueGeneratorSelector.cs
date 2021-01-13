@@ -3,11 +3,11 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
@@ -19,13 +19,20 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     ///         This type is typically used by database providers (and other extensions). It is generally
     ///         not used in application code.
     ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
+    ///     </para>
     /// </summary>
     public class ValueGeneratorSelector : IValueGeneratorSelector
     {
         /// <summary>
         ///     The cache being used to store value generator instances.
         /// </summary>
-        public virtual IValueGeneratorCache Cache => Dependencies.Cache;
+        public virtual IValueGeneratorCache Cache
+            => Dependencies.Cache;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValueGeneratorSelector" /> class.
@@ -66,13 +73,12 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
             if (factory == null)
             {
-                var mapping = property.FindMapping();
-                factory = mapping?.ValueGeneratorFactory;
+                var mapping = property.GetTypeMapping();
+                factory = mapping.ValueGeneratorFactory;
 
                 if (factory == null)
                 {
-                    var converter = mapping?.Converter
-                                    ?? property.GetValueConverter();
+                    var converter = mapping.Converter;
 
                     if (converter != null)
                     {
@@ -111,12 +117,12 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
             if (propertyType == typeof(string))
             {
-                return new StringValueGenerator(generateTemporaryValues: false);
+                return new StringValueGenerator();
             }
 
             if (propertyType == typeof(byte[]))
             {
-                return new BinaryValueGenerator(generateTemporaryValues: false);
+                return new BinaryValueGenerator();
             }
 
             throw new NotSupportedException(

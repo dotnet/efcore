@@ -4,11 +4,14 @@
 using System;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -23,10 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTransaction>
     {
-        private readonly IRelationalConnection _relationalConnection;
         private readonly DbTransaction _dbTransaction;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> _logger;
         private readonly bool _transactionOwned;
+        private readonly ISqlGenerationHelper _sqlGenerationHelper;
 
         private bool _connectionClosed;
         private bool _disposed;
@@ -36,41 +38,53 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="connection"> The connection to the database. </param>
         /// <param name="transaction"> The underlying <see cref="DbTransaction" />. </param>
+        /// <param name="transactionId"> The correlation ID for the transaction. </param>
         /// <param name="logger"> The logger to write to. </param>
         /// <param name="transactionOwned">
         ///     A value indicating whether the transaction is owned by this class (i.e. if it can be disposed when this class is disposed).
         /// </param>
+        /// <param name="sqlGenerationHelper"> The SQL generation helper to use. </param>
         public RelationalTransaction(
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
+            Guid transactionId,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger,
-            bool transactionOwned)
+            bool transactionOwned,
+            [NotNull] ISqlGenerationHelper sqlGenerationHelper)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(transaction, nameof(transaction));
             Check.NotNull(logger, nameof(logger));
+            Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
 
             if (connection.DbConnection != transaction.Connection)
             {
                 throw new InvalidOperationException(RelationalStrings.TransactionAssociatedWithDifferentConnection);
             }
 
-            _relationalConnection = connection;
+            Connection = connection;
+            TransactionId = transactionId;
 
             _dbTransaction = transaction;
-            _logger = logger;
+            Logger = logger;
             _transactionOwned = transactionOwned;
+            _sqlGenerationHelper = sqlGenerationHelper;
         }
 
         /// <summary>
-        ///     A correlation ID that allows this transaction to be identified and
-        ///     correlated across multiple database calls.
+        ///     The connection.
         /// </summary>
-        public virtual Guid TransactionId { get; } = Guid.NewGuid();
+        protected virtual IRelationalConnection Connection { get; }
 
         /// <summary>
-        ///     Commits all changes made to the database in the current transaction.
+        ///     The logger.
         /// </summary>
+        protected virtual IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> Logger { get; }
+
+        /// <inheritdoc />
+        public virtual Guid TransactionId { get; }
+
+        /// <inheritdoc />
         public virtual void Commit()
         {
             var startTime = DateTimeOffset.UtcNow;
@@ -78,10 +92,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             try
             {
-                _dbTransaction.Commit();
+                var interceptionResult = Logger.TransactionCommitting(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime);
 
-                _logger.TransactionCommitted(
-                    _relationalConnection,
+                if (!interceptionResult.IsSuppressed)
+                {
+                    _dbTransaction.Commit();
+                }
+
+                Logger.TransactionCommitted(
+                    Connection,
                     _dbTransaction,
                     TransactionId,
                     startTime,
@@ -89,23 +112,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
             catch (Exception e)
             {
-                _logger.TransactionError(
-                    _relationalConnection,
+                Logger.TransactionError(
+                    Connection,
                     _dbTransaction,
                     TransactionId,
                     "Commit",
                     e,
                     startTime,
                     stopwatch.Elapsed);
+
                 throw;
             }
 
             ClearTransaction();
         }
 
-        /// <summary>
-        ///     Discards all changes made to the database in the current transaction.
-        /// </summary>
+        /// <inheritdoc />
         public virtual void Rollback()
         {
             var startTime = DateTimeOffset.UtcNow;
@@ -113,10 +135,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             try
             {
-                _dbTransaction.Rollback();
+                var interceptionResult = Logger.TransactionRollingBack(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime);
 
-                _logger.TransactionRolledBack(
-                    _relationalConnection,
+                if (!interceptionResult.IsSuppressed)
+                {
+                    _dbTransaction.Rollback();
+                }
+
+                Logger.TransactionRolledBack(
+                    Connection,
                     _dbTransaction,
                     TransactionId,
                     startTime,
@@ -124,23 +155,391 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
             catch (Exception e)
             {
-                _logger.TransactionError(
-                    _relationalConnection,
+                Logger.TransactionError(
+                    Connection,
                     _dbTransaction,
                     TransactionId,
                     "Rollback",
                     e,
                     startTime,
                     stopwatch.Elapsed);
+
                 throw;
             }
 
             ClearTransaction();
         }
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <inheritdoc />
+        public virtual async Task CommitAsync(CancellationToken cancellationToken = default)
+        {
+            var startTime = DateTimeOffset.UtcNow;
+            var stopwatch = Stopwatch.StartNew();
+
+            try
+            {
+                var interceptionResult = await Logger.TransactionCommittingAsync(
+                        Connection,
+                        _dbTransaction,
+                        TransactionId,
+                        startTime,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (!interceptionResult.IsSuppressed)
+                {
+                    await _dbTransaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+                }
+
+                await Logger.TransactionCommittedAsync(
+                        Connection,
+                        _dbTransaction,
+                        TransactionId,
+                        startTime,
+                        stopwatch.Elapsed,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                await Logger.TransactionErrorAsync(
+                        Connection,
+                        _dbTransaction,
+                        TransactionId,
+                        "Commit",
+                        e,
+                        startTime,
+                        stopwatch.Elapsed,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+
+                throw;
+            }
+
+            await ClearTransactionAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <inheritdoc />
+        public virtual async Task RollbackAsync(CancellationToken cancellationToken = default)
+        {
+            var startTime = DateTimeOffset.UtcNow;
+            var stopwatch = Stopwatch.StartNew();
+
+            try
+            {
+                var interceptionResult = await Logger.TransactionRollingBackAsync(
+                        Connection,
+                        _dbTransaction,
+                        TransactionId,
+                        startTime,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (!interceptionResult.IsSuppressed)
+                {
+                    await _dbTransaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+                }
+
+                await Logger.TransactionRolledBackAsync(
+                        Connection,
+                        _dbTransaction,
+                        TransactionId,
+                        startTime,
+                        stopwatch.Elapsed,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                await Logger.TransactionErrorAsync(
+                        Connection,
+                        _dbTransaction,
+                        TransactionId,
+                        "Rollback",
+                        e,
+                        startTime,
+                        stopwatch.Elapsed,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+
+                throw;
+            }
+
+            await ClearTransactionAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <inheritdoc />
+        public virtual void CreateSavepoint(string name)
+        {
+            var startTime = DateTimeOffset.UtcNow;
+            var stopwatch = Stopwatch.StartNew();
+
+            try
+            {
+                var interceptionResult = Logger.CreatingTransactionSavepoint(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime);
+
+                if (!interceptionResult.IsSuppressed)
+                {
+                    using var command = Connection.DbConnection.CreateCommand();
+                    command.Transaction = _dbTransaction;
+                    command.CommandText = _sqlGenerationHelper.GenerateCreateSavepointStatement(name);
+                    command.ExecuteNonQuery();
+                }
+
+                Logger.CreatedTransactionSavepoint(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime);
+            }
+            catch (Exception e)
+            {
+                Logger.TransactionError(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    "CreateSavepoint",
+                    e,
+                    startTime,
+                    stopwatch.Elapsed);
+
+                throw;
+            }
+        }
+
+        /// <inheritdoc />
+        public virtual async Task CreateSavepointAsync(string name, CancellationToken cancellationToken = default)
+        {
+            var startTime = DateTimeOffset.UtcNow;
+            var stopwatch = Stopwatch.StartNew();
+
+            try
+            {
+                var interceptionResult = await Logger.CreatingTransactionSavepointAsync(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime,
+                    cancellationToken).ConfigureAwait(false);
+
+                if (!interceptionResult.IsSuppressed)
+                {
+                    using var command = Connection.DbConnection.CreateCommand();
+                    command.Transaction = _dbTransaction;
+                    command.CommandText = _sqlGenerationHelper.GenerateCreateSavepointStatement(name);
+                    await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+                }
+
+                await Logger.CreatedTransactionSavepointAsync(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime,
+                    cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                await Logger.TransactionErrorAsync(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    "CreateSavepoint",
+                    e,
+                    startTime,
+                    stopwatch.Elapsed,
+                    cancellationToken).ConfigureAwait(false);
+
+                throw;
+            }
+        }
+
+        /// <inheritdoc />
+        public virtual void RollbackToSavepoint(string name)
+        {
+            var startTime = DateTimeOffset.UtcNow;
+            var stopwatch = Stopwatch.StartNew();
+
+            try
+            {
+                var interceptionResult = Logger.RollingBackToTransactionSavepoint(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime);
+
+                if (!interceptionResult.IsSuppressed)
+                {
+                    using var command = Connection.DbConnection.CreateCommand();
+                    command.Transaction = _dbTransaction;
+                    command.CommandText = _sqlGenerationHelper.GenerateRollbackToSavepointStatement(name);
+                    command.ExecuteNonQuery();
+                }
+
+                Logger.RolledBackToTransactionSavepoint(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime);
+            }
+            catch (Exception e)
+            {
+                Logger.TransactionError(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    "RollbackToSavepoint",
+                    e,
+                    startTime,
+                    stopwatch.Elapsed);
+
+                throw;
+            }
+        }
+
+        /// <inheritdoc />
+        public virtual async Task RollbackToSavepointAsync(string name, CancellationToken cancellationToken = default)
+        {
+            var startTime = DateTimeOffset.UtcNow;
+            var stopwatch = Stopwatch.StartNew();
+
+            try
+            {
+                var interceptionResult = await Logger.RollingBackToTransactionSavepointAsync(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime,
+                    cancellationToken).ConfigureAwait(false);
+
+                if (!interceptionResult.IsSuppressed)
+                {
+                    using var command = Connection.DbConnection.CreateCommand();
+                    command.Transaction = _dbTransaction;
+                    command.CommandText = _sqlGenerationHelper.GenerateRollbackToSavepointStatement(name);
+                    await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+                }
+
+                await Logger.RolledBackToTransactionSavepointAsync(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime,
+                    cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                await Logger.TransactionErrorAsync(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    "RollbackToSavepoint",
+                    e,
+                    startTime,
+                    stopwatch.Elapsed,
+                    cancellationToken).ConfigureAwait(false);
+
+                throw;
+            }
+        }
+
+        /// <inheritdoc />
+        public virtual void ReleaseSavepoint(string name)
+        {
+            var startTime = DateTimeOffset.UtcNow;
+            var stopwatch = Stopwatch.StartNew();
+
+            try
+            {
+                var interceptionResult = Logger.ReleasingTransactionSavepoint(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime);
+
+                if (!interceptionResult.IsSuppressed)
+                {
+                    using var command = Connection.DbConnection.CreateCommand();
+                    command.Transaction = _dbTransaction;
+                    command.CommandText = _sqlGenerationHelper.GenerateReleaseSavepointStatement(name);
+                    command.ExecuteNonQuery();
+                }
+
+                Logger.ReleasedTransactionSavepoint(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime);
+            }
+            catch (Exception e)
+            {
+                Logger.TransactionError(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    "ReleaseSavepoint",
+                    e,
+                    startTime,
+                    stopwatch.Elapsed);
+
+                throw;
+            }
+        }
+
+        /// <inheritdoc />
+        public virtual async Task ReleaseSavepointAsync(string name, CancellationToken cancellationToken = default)
+        {
+            var startTime = DateTimeOffset.UtcNow;
+            var stopwatch = Stopwatch.StartNew();
+
+            try
+            {
+                var interceptionResult = await Logger.ReleasingTransactionSavepointAsync(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime,
+                    cancellationToken).ConfigureAwait(false);
+
+                if (!interceptionResult.IsSuppressed)
+                {
+                    using var command = Connection.DbConnection.CreateCommand();
+                    command.Transaction = _dbTransaction;
+                    command.CommandText = _sqlGenerationHelper.GenerateReleaseSavepointStatement(name);
+                    await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+                }
+
+                await Logger.ReleasedTransactionSavepointAsync(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime,
+                    cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                await Logger.TransactionErrorAsync(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    "ReleaseSavepoint",
+                    e,
+                    startTime,
+                    stopwatch.Elapsed,
+                    cancellationToken).ConfigureAwait(false);
+
+                throw;
+            }
+        }
+
+        /// <inheritdoc />
+        public virtual bool SupportsSavepoints
+            => true;
+
+        /// <inheritdoc />
         public virtual void Dispose()
         {
             if (!_disposed)
@@ -151,8 +550,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     _dbTransaction.Dispose();
 
-                    _logger.TransactionDisposed(
-                        _relationalConnection,
+                    Logger.TransactionDisposed(
+                        Connection,
                         _dbTransaction,
                         TransactionId,
                         DateTimeOffset.UtcNow);
@@ -162,20 +561,67 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        private void ClearTransaction()
+        /// <inheritdoc />
+        public virtual async ValueTask DisposeAsync()
         {
-            Debug.Assert(_relationalConnection.CurrentTransaction == null || _relationalConnection.CurrentTransaction == this);
+            if (!_disposed)
+            {
+                _disposed = true;
 
-            _relationalConnection.UseTransaction(null);
+                if (_transactionOwned)
+                {
+                    await _dbTransaction.DisposeAsync().ConfigureAwait(false);
+
+                    Logger.TransactionDisposed(
+                        Connection,
+                        _dbTransaction,
+                        TransactionId,
+                        DateTimeOffset.UtcNow);
+                }
+
+                await ClearTransactionAsync().ConfigureAwait(false);
+            }
+        }
+
+        /// <summary>
+        ///     Remove the underlying transaction from the connection
+        /// </summary>
+        protected virtual void ClearTransaction()
+        {
+            Check.DebugAssert(
+                Connection.CurrentTransaction == null || Connection.CurrentTransaction == this,
+                "Connection.CurrentTransaction is unexpected instance");
+
+            Connection.UseTransaction(null);
 
             if (!_connectionClosed)
             {
                 _connectionClosed = true;
 
-                _relationalConnection.Close();
+                Connection.Close();
             }
         }
 
-        DbTransaction IInfrastructure<DbTransaction>.Instance => _dbTransaction;
+        /// <summary>
+        ///     Remove the underlying transaction from the connection
+        /// </summary>
+        protected virtual async Task ClearTransactionAsync(CancellationToken cancellationToken = default)
+        {
+            Check.DebugAssert(
+                Connection.CurrentTransaction == null || Connection.CurrentTransaction == this,
+                "Connection.CurrentTransaction is unexpected instance");
+
+            await Connection.UseTransactionAsync(null, cancellationToken).ConfigureAwait(false);
+
+            if (!_connectionClosed)
+            {
+                _connectionClosed = true;
+
+                await Connection.CloseAsync().ConfigureAwait(false);
+            }
+        }
+
+        DbTransaction IInfrastructure<DbTransaction>.Instance
+            => _dbTransaction;
     }
 }

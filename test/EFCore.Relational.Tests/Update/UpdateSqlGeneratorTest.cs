@@ -18,10 +18,13 @@ namespace Microsoft.EntityFrameworkCore.Update
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                         TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())));
 
-        protected override TestHelpers TestHelpers => RelationalTestHelpers.Instance;
+        protected override TestHelpers TestHelpers
+            => RelationalTestHelpers.Instance;
 
-        protected override string RowsAffected => "provider_specific_rowcount()";
+        protected override string RowsAffected
+            => "provider_specific_rowcount()";
 
-        protected override string Identity => "provider_specific_identity()";
+        protected override string Identity
+            => "provider_specific_identity()";
     }
 }

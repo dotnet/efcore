@@ -1,10 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
@@ -16,13 +18,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ///     <para>
     ///         Database providers typically implement this service by inheriting from <see cref="HistoryRepository" />.
     ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
+    ///     </para>
     /// </summary>
     public interface IHistoryRepository
     {
         /// <summary>
         ///     Checks whether or not the history table exists.
         /// </summary>
-        /// <returns> <c>True</c> if the table already exists, <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if the table already exists, <see langword="false" /> otherwise. </returns>
         bool Exists();
 
         /// <summary>
@@ -31,8 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains
-        ///     <c>True</c> if the table already exists, <c>false</c> otherwise.
+        ///     <see langword="true" /> if the table already exists, <see langword="false" /> otherwise.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task<bool> ExistsAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -49,6 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     A task that represents the asynchronous operation. The task result contains
         ///     the list of applied migrations, as <see cref="HistoryRow" /> entities.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync(
             CancellationToken cancellationToken = default);
 

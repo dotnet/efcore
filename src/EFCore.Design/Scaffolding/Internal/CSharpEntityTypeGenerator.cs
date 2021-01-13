@@ -9,40 +9,48 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class CSharpEntityTypeGenerator : ICSharpEntityTypeGenerator
     {
+        private readonly IAnnotationCodeGenerator _annotationCodeGenerator;
         private readonly ICSharpHelper _code;
 
-        private IndentedStringBuilder _sb;
+        private IndentedStringBuilder _sb = null!;
         private bool _useDataAnnotations;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CSharpEntityTypeGenerator(
+            [NotNull] IAnnotationCodeGenerator annotationCodeGenerator,
             [NotNull] ICSharpHelper cSharpHelper)
         {
             Check.NotNull(cSharpHelper, nameof(cSharpHelper));
 
+            _annotationCodeGenerator = annotationCodeGenerator;
             _code = cSharpHelper;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string WriteCode(IEntityType entityType, string @namespace, bool useDataAnnotations)
         {
@@ -59,6 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 _sb.AppendLine("using System.ComponentModel.DataAnnotations;");
                 _sb.AppendLine("using System.ComponentModel.DataAnnotations.Schema;");
+                _sb.AppendLine("using Microsoft.EntityFrameworkCore;"); // For attributes coming out of Abstractions
             }
 
             foreach (var ns in entityType.GetProperties()
@@ -69,6 +78,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 _sb.AppendLine($"using {ns};");
             }
+
+            _sb.AppendLine();
+            _sb.AppendLine("#nullable disable");
 
             _sb.AppendLine();
             _sb.AppendLine($"namespace {@namespace}");
@@ -85,13 +97,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void GenerateClass(
-            [NotNull] IEntityType entityType)
+        protected virtual void GenerateClass([NotNull] IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
+
+            GenerateComment(entityType.GetComment());
 
             if (_useDataAnnotations)
             {
@@ -113,26 +128,51 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void GenerateEntityTypeDataAnnotations(
-            [NotNull] IEntityType entityType)
+        protected virtual void GenerateEntityTypeDataAnnotations([NotNull] IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
+            GenerateKeylessAttribute(entityType);
             GenerateTableAttribute(entityType);
+            GenerateIndexAttributes(entityType);
+
+            var annotations = _annotationCodeGenerator
+                .FilterIgnoredAnnotations(entityType.GetAnnotations())
+                .ToDictionary(a => a.Name, a => a);
+            _annotationCodeGenerator.RemoveAnnotationsHandledByConventions(entityType, annotations);
+
+            foreach (var attribute in _annotationCodeGenerator.GenerateDataAnnotationAttributes(entityType, annotations))
+            {
+                var attributeWriter = new AttributeWriter(attribute.Type.Name);
+                foreach (var argument in attribute.Arguments)
+                {
+                    attributeWriter.AddParameter(_code.UnknownLiteral(argument));
+                }
+            }
+        }
+
+        private void GenerateKeylessAttribute(IEntityType entityType)
+        {
+            if (entityType.FindPrimaryKey() == null)
+            {
+                _sb.AppendLine(new AttributeWriter(nameof(KeylessAttribute)).ToString());
+            }
         }
 
         private void GenerateTableAttribute(IEntityType entityType)
         {
-            var tableName = entityType.Relational().TableName;
-            var schema = entityType.Relational().Schema;
-            var defaultSchema = entityType.Model.Relational().DefaultSchema;
+            var tableName = entityType.GetTableName();
+            var schema = entityType.GetSchema();
+            var defaultSchema = entityType.Model.GetDefaultSchema();
 
             var schemaParameterNeeded = schema != null && schema != defaultSchema;
-            var tableAttributeNeeded = schemaParameterNeeded || tableName != null && tableName != entityType.Scaffolding().DbSetName;
-
+            var isView = entityType.GetViewName() != null;
+            var tableAttributeNeeded = !isView && (schemaParameterNeeded || tableName != null && tableName != entityType.GetDbSetName());
             if (tableAttributeNeeded)
             {
                 var tableAttribute = new AttributeWriter(nameof(TableAttribute));
@@ -148,16 +188,53 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
+        private void GenerateIndexAttributes(IEntityType entityType)
+        {
+            // Do not generate IndexAttributes for indexes which
+            // would be generated anyway by convention.
+            foreach (var index in entityType.GetIndexes().Where(
+                i => ConfigurationSource.Convention != ((IConventionIndex)i).GetConfigurationSource()))
+            {
+                // If there are annotations that cannot be represented using an IndexAttribute then use fluent API instead.
+                var annotations = _annotationCodeGenerator
+                    .FilterIgnoredAnnotations(index.GetAnnotations())
+                    .ToDictionary(a => a.Name, a => a);
+                _annotationCodeGenerator.RemoveAnnotationsHandledByConventions(index, annotations);
+
+                if (annotations.Count == 0)
+                {
+                    var indexAttribute = new AttributeWriter(nameof(IndexAttribute));
+                    foreach (var property in index.Properties)
+                    {
+                        indexAttribute.AddParameter($"nameof({property.Name})");
+                    }
+
+                    if (index.Name != null)
+                    {
+                        indexAttribute.AddParameter($"{nameof(IndexAttribute.Name)} = {_code.Literal(index.Name)}");
+                    }
+
+                    if (index.IsUnique)
+                    {
+                        indexAttribute.AddParameter($"{nameof(IndexAttribute.IsUnique)} = {_code.Literal(index.IsUnique)}");
+                    }
+
+                    _sb.AppendLine(indexAttribute.ToString());
+                }
+            }
+        }
+
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void GenerateConstructor(
-            [NotNull] IEntityType entityType)
+        protected virtual void GenerateConstructor([NotNull] IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            var collectionNavigations = entityType.GetNavigations().Where(n => n.IsCollection()).ToList();
+            var collectionNavigations = entityType.GetNavigations().Where(n => n.IsCollection).ToList();
 
             if (collectionNavigations.Count > 0)
             {
@@ -168,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     foreach (var navigation in collectionNavigations)
                     {
-                        _sb.AppendLine($"{navigation.Name} = new HashSet<{navigation.GetTargetType().Name}>();");
+                        _sb.AppendLine($"{navigation.Name} = new HashSet<{navigation.TargetEntityType.Name}>();");
                     }
                 }
 
@@ -178,16 +255,19 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void GenerateProperties(
-            [NotNull] IEntityType entityType)
+        protected virtual void GenerateProperties([NotNull] IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            foreach (var property in entityType.GetProperties().OrderBy(p => p.Scaffolding().ColumnOrdinal))
+            foreach (var property in entityType.GetProperties().OrderBy(p => p.GetColumnOrdinal()))
             {
+                GenerateComment(property.GetComment());
+
                 if (_useDataAnnotations)
                 {
                     GeneratePropertyDataAnnotations(property);
@@ -198,11 +278,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void GeneratePropertyDataAnnotations(
-            [NotNull] IProperty property)
+        protected virtual void GeneratePropertyDataAnnotations([NotNull] IProperty property)
         {
             Check.NotNull(property, nameof(property));
 
@@ -210,32 +291,36 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             GenerateRequiredAttribute(property);
             GenerateColumnAttribute(property);
             GenerateMaxLengthAttribute(property);
+            GenerateUnicodeAttribute(property);
+            GeneratePrecisionAttribute(property);
+
+            var annotations = _annotationCodeGenerator
+                .FilterIgnoredAnnotations(property.GetAnnotations())
+                .ToDictionary(a => a.Name, a => a);
+            _annotationCodeGenerator.RemoveAnnotationsHandledByConventions(property, annotations);
+
+            foreach (var attribute in _annotationCodeGenerator.GenerateDataAnnotationAttributes(property, annotations))
+            {
+                var attributeWriter = new AttributeWriter(attribute.Type.Name);
+                foreach (var argument in attribute.Arguments)
+                {
+                    attributeWriter.AddParameter(_code.UnknownLiteral(argument));
+                }
+            }
         }
 
         private void GenerateKeyAttribute(IProperty property)
         {
-            var key = property.AsProperty().PrimaryKey;
-
-            if (key?.Properties.Count == 1)
+            var key = property.FindContainingPrimaryKey();
+            if (key != null)
             {
-                if (key is Key concreteKey
-                    && key.Properties.SequenceEqual(new KeyDiscoveryConvention(null).DiscoverKeyProperties(concreteKey.DeclaringEntityType, concreteKey.DeclaringEntityType.GetProperties().ToList())))
-                {
-                    return;
-                }
-
-                if (key.Relational().Name != ConstraintNamer.GetDefaultName(key))
-                {
-                    return;
-                }
-
-                _sb.AppendLine(new AttributeWriter(nameof(KeyAttribute)));
+                _sb.AppendLine(new AttributeWriter(nameof(KeyAttribute)).ToString());
             }
         }
 
         private void GenerateColumnAttribute(IProperty property)
         {
-            var columnName = property.Relational().ColumnName;
+            var columnName = property.GetColumnBaseName();
             var columnType = property.GetConfiguredColumnType();
 
             var delimitedColumnName = columnName != null && columnName != property.Name ? _code.Literal(columnName) : null;
@@ -255,7 +340,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     columnAttribute.AddParameter($"{nameof(ColumnAttribute.TypeName)} = {delimitedColumnType}");
                 }
 
-                _sb.AppendLine(columnAttribute);
+                _sb.AppendLine(columnAttribute.ToString());
+            }
+        }
+
+        private void GenerateRequiredAttribute(IProperty property)
+        {
+            if (!property.IsNullable
+                && property.ClrType.IsNullableType()
+                && !property.IsPrimaryKey())
+            {
+                _sb.AppendLine(new AttributeWriter(nameof(RequiredAttribute)).ToString());
             }
         }
 
@@ -276,28 +371,57 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        private void GenerateRequiredAttribute(IProperty property)
+        private void GenerateUnicodeAttribute(IProperty property)
         {
-            if (!property.IsNullable
-                && property.ClrType.IsNullableType()
-                && !property.IsPrimaryKey())
+            if (property.ClrType != typeof(string))
             {
-                _sb.AppendLine(new AttributeWriter(nameof(RequiredAttribute)).ToString());
+                return;
+            }
+
+            var unicode = property.IsUnicode();
+            if (unicode.HasValue)
+            {
+                var unicodeAttribute = new AttributeWriter(nameof(UnicodeAttribute));
+                if (!unicode.Value)
+                {
+                    unicodeAttribute.AddParameter(_code.Literal(false));
+                }
+                _sb.AppendLine(unicodeAttribute.ToString());
+            }
+        }
+
+        private void GeneratePrecisionAttribute(IProperty property)
+        {
+            var precision = property.GetPrecision();
+            if (precision.HasValue)
+            {
+                var precisionAttribute = new AttributeWriter(nameof(PrecisionAttribute));
+                precisionAttribute.AddParameter(_code.Literal(precision.Value));
+
+                var scale = property.GetScale();
+                if (scale.HasValue)
+                {
+                    precisionAttribute.AddParameter(_code.Literal(scale.Value));
+                }
+
+                _sb.AppendLine(precisionAttribute.ToString());
             }
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void GenerateNavigationProperties(
-            [NotNull] IEntityType entityType)
+        protected virtual void GenerateNavigationProperties([NotNull] IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
             var sortedNavigations = entityType.GetNavigations()
-                .OrderBy(n => n.IsDependentToPrincipal() ? 0 : 1)
-                .ThenBy(n => n.IsCollection() ? 1 : 0);
+                .OrderBy(n => n.IsOnDependent ? 0 : 1)
+                .ThenBy(n => n.IsCollection ? 1 : 0)
+                .ToList();
 
             if (sortedNavigations.Any())
             {
@@ -310,9 +434,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         GenerateNavigationDataAnnotations(navigation);
                     }
 
-                    var referencedTypeName = navigation.GetTargetType().Name;
-                    var navigationType = navigation.IsCollection() ? $"ICollection<{referencedTypeName}>" : referencedTypeName;
-                    _sb.AppendLine($"public {navigationType} {navigation.Name} {{ get; set; }}");
+                    var referencedTypeName = navigation.TargetEntityType.Name;
+                    var navigationType = navigation.IsCollection ? $"ICollection<{referencedTypeName}>" : referencedTypeName;
+                    _sb.AppendLine($"public virtual {navigationType} {navigation.Name} {{ get; set; }}");
                 }
             }
         }
@@ -325,15 +449,22 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateForeignKeyAttribute(INavigation navigation)
         {
-            if (navigation.IsDependentToPrincipal())
+            if (navigation.IsOnDependent)
             {
                 if (navigation.ForeignKey.PrincipalKey.IsPrimaryKey())
                 {
                     var foreignKeyAttribute = new AttributeWriter(nameof(ForeignKeyAttribute));
 
-                    foreignKeyAttribute.AddParameter(
-                        _code.Literal(
-                            string.Join(",", navigation.ForeignKey.Properties.Select(p => p.Name))));
+                    if (navigation.ForeignKey.Properties.Count > 1)
+                    {
+                        foreignKeyAttribute.AddParameter(
+                            _code.Literal(
+                                string.Join(",", navigation.ForeignKey.Properties.Select(p => p.Name))));
+                    }
+                    else
+                    {
+                        foreignKeyAttribute.AddParameter($"nameof({navigation.ForeignKey.Properties.First().Name})");
+                    }
 
                     _sb.AppendLine(foreignKeyAttribute.ToString());
                 }
@@ -344,29 +475,48 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             if (navigation.ForeignKey.PrincipalKey.IsPrimaryKey())
             {
-                var inverseNavigation = navigation.FindInverse();
+                var inverseNavigation = navigation.Inverse;
 
                 if (inverseNavigation != null)
                 {
                     var inversePropertyAttribute = new AttributeWriter(nameof(InversePropertyAttribute));
 
-                    inversePropertyAttribute.AddParameter(_code.Literal(inverseNavigation.Name));
+                    inversePropertyAttribute.AddParameter(
+                        !navigation.DeclaringEntityType.GetPropertiesAndNavigations().Any(
+                            m => m.Name == inverseNavigation.DeclaringEntityType.Name)
+                            ? $"nameof({inverseNavigation.DeclaringEntityType.Name}.{inverseNavigation.Name})"
+                            : _code.Literal(inverseNavigation.Name));
 
                     _sb.AppendLine(inversePropertyAttribute.ToString());
                 }
             }
         }
 
-        private class AttributeWriter
+        private void GenerateComment(string comment)
         {
-            private readonly string _attibuteName;
+            if (!string.IsNullOrWhiteSpace(comment))
+            {
+                _sb.AppendLine("/// <summary>");
+
+                foreach (var line in comment.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None))
+                {
+                    _sb.AppendLine($"/// {System.Security.SecurityElement.Escape(line)}");
+                }
+
+                _sb.AppendLine("/// </summary>");
+            }
+        }
+
+        private sealed class AttributeWriter
+        {
+            private readonly string _attributeName;
             private readonly List<string> _parameters = new List<string>();
 
             public AttributeWriter([NotNull] string attributeName)
             {
                 Check.NotEmpty(attributeName, nameof(attributeName));
 
-                _attibuteName = attributeName;
+                _attributeName = attributeName;
             }
 
             public void AddParameter([NotNull] string parameter)
@@ -377,13 +527,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             public override string ToString()
-                => "[" + (_parameters.Count == 0
-                       ? StripAttribute(_attibuteName)
-                       : StripAttribute(_attibuteName) + "(" + string.Join(", ", _parameters) + ")") + "]";
+                => "["
+                    + (_parameters.Count == 0
+                        ? StripAttribute(_attributeName)
+                        : StripAttribute(_attributeName) + "(" + string.Join(", ", _parameters) + ")")
+                    + "]";
 
             private static string StripAttribute([NotNull] string attributeName)
                 => attributeName.EndsWith("Attribute", StringComparison.Ordinal)
-                    ? attributeName.Substring(0, attributeName.Length - 9)
+                    ? attributeName[..^9]
                     : attributeName;
         }
     }

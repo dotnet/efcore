@@ -11,24 +11,13 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class QueryProviderTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Non_generic_ExecuteQuery_does_not_throw()
         {
             var context = new TestContext();
             Func<IQueryable<TestEntity>, int> func = Queryable.Count;
             IQueryable q = context.TestEntities;
             var expr = Expression.Call(null, func.GetMethodInfo(), q.Expression);
-            Assert.Equal(0, q.Provider.Execute<int>(expr));
-            Assert.Equal(0, (int)q.Provider.Execute(expr));
-        }
-
-        [Fact]
-        public void Non_generic_ExecuteQuery_does_not_throw_incorrect_pattern()
-        {
-            var context = new TestContext();
-            Func<IQueryable<TestEntity>, int> func = Queryable.Count;
-            IQueryable q = context.TestEntities;
-            var expr = Expression.Call(null, func.GetMethodInfo(), Expression.Constant(q));
             Assert.Equal(0, q.Provider.Execute<int>(expr));
             Assert.Equal(0, (int)q.Provider.Execute(expr));
         }
@@ -45,7 +34,9 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<TestEntity> TestEntities { get; set; }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
+                => optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString());
         }
 
         #endregion

@@ -1,13 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
@@ -27,16 +26,24 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
     ///         first resolve the object from the dependency injection container, then replace selected
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
+    ///     </para>
     /// </summary>
-    public sealed class CommandBatchPreparerDependencies
+    public sealed record CommandBatchPreparerDependencies
     {
         /// <summary>
         ///     <para>
         ///         Creates the service dependencies parameter object for a <see cref="CommandBatchPreparer" />.
         ///     </para>
         ///     <para>
-        ///         This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///         directly from your code. This API may change or be removed in future releases.
+        ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///         any release. You should only use it directly in your code with extreme caution and knowing that
+        ///         doing so can result in application failures when updating to a new Entity Framework Core release.
         ///     </para>
         ///     <para>
         ///         Do not call this constructor directly from either provider or application code as it may change
@@ -46,13 +53,19 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///         injection container, then replace selected services using the 'With...' methods. Do not call
         ///         the constructor at any point in this process.
         ///     </para>
+        ///     <para>
+        ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///         any release. You should only use it directly in your code with extreme caution and knowing that
+        ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     </para>
         /// </summary>
+        [EntityFrameworkInternal]
         public CommandBatchPreparerDependencies(
             [NotNull] IModificationCommandBatchFactory modificationCommandBatchFactory,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] IComparer<ModificationCommand> modificationCommandComparer,
             [NotNull] IKeyValueIndexFactorySource keyValueIndexFactorySource,
-            [NotNull] Func<IStateManager> stateManager,
             [NotNull] ILoggingOptions loggingOptions,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger,
             [NotNull] IDbContextOptions options)
@@ -61,186 +74,65 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             ParameterNameGeneratorFactory = parameterNameGeneratorFactory;
             ModificationCommandComparer = modificationCommandComparer;
             KeyValueIndexFactorySource = keyValueIndexFactorySource;
-            StateManager = stateManager;
             LoggingOptions = loggingOptions;
             UpdateLogger = updateLogger;
             Options = options;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IModificationCommandBatchFactory ModificationCommandBatchFactory { get; }
+        public IModificationCommandBatchFactory ModificationCommandBatchFactory { get; [param: NotNull] init; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IParameterNameGeneratorFactory ParameterNameGeneratorFactory { get; }
+        public IParameterNameGeneratorFactory ParameterNameGeneratorFactory { get; [param: NotNull] init; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IComparer<ModificationCommand> ModificationCommandComparer { get; }
+        public IComparer<ModificationCommand> ModificationCommandComparer { get; [param: NotNull] init; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IKeyValueIndexFactorySource KeyValueIndexFactorySource { get; }
+        public IKeyValueIndexFactorySource KeyValueIndexFactorySource { get; [param: NotNull] init; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public Func<IStateManager> StateManager { get; }
+        public ILoggingOptions LoggingOptions { get; [param: NotNull] init; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public ILoggingOptions LoggingOptions { get; }
+        public IDiagnosticsLogger<DbLoggerCategory.Update> UpdateLogger { get; [param: NotNull] init; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Update> UpdateLogger { get; }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public IDbContextOptions Options { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="modificationCommandBatchFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public CommandBatchPreparerDependencies With([NotNull] IModificationCommandBatchFactory modificationCommandBatchFactory)
-            => new CommandBatchPreparerDependencies(
-                modificationCommandBatchFactory,
-                ParameterNameGeneratorFactory,
-                ModificationCommandComparer,
-                KeyValueIndexFactorySource,
-                StateManager,
-                LoggingOptions,
-                UpdateLogger,
-                Options);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="parameterNameGeneratorFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public CommandBatchPreparerDependencies With([NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory)
-            => new CommandBatchPreparerDependencies(
-                ModificationCommandBatchFactory,
-                parameterNameGeneratorFactory,
-                ModificationCommandComparer,
-                KeyValueIndexFactorySource,
-                StateManager,
-                LoggingOptions,
-                UpdateLogger,
-                Options);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="modificationCommandComparer"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public CommandBatchPreparerDependencies With([NotNull] IComparer<ModificationCommand> modificationCommandComparer)
-            => new CommandBatchPreparerDependencies(
-                ModificationCommandBatchFactory,
-                ParameterNameGeneratorFactory,
-                modificationCommandComparer,
-                KeyValueIndexFactorySource,
-                StateManager,
-                LoggingOptions,
-                UpdateLogger,
-                Options);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="keyValueIndexFactorySource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public CommandBatchPreparerDependencies With([NotNull] IKeyValueIndexFactorySource keyValueIndexFactorySource)
-            => new CommandBatchPreparerDependencies(
-                ModificationCommandBatchFactory,
-                ParameterNameGeneratorFactory,
-                ModificationCommandComparer,
-                keyValueIndexFactorySource,
-                StateManager,
-                LoggingOptions,
-                UpdateLogger,
-                Options);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="stateManager"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public CommandBatchPreparerDependencies With([NotNull] Func<IStateManager> stateManager)
-            => new CommandBatchPreparerDependencies(
-                ModificationCommandBatchFactory,
-                ParameterNameGeneratorFactory,
-                ModificationCommandComparer,
-                KeyValueIndexFactorySource,
-                stateManager,
-                LoggingOptions,
-                UpdateLogger,
-                Options);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="loggingOptions"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public CommandBatchPreparerDependencies With([NotNull] ILoggingOptions loggingOptions)
-            => new CommandBatchPreparerDependencies(
-                ModificationCommandBatchFactory,
-                ParameterNameGeneratorFactory,
-                ModificationCommandComparer,
-                KeyValueIndexFactorySource,
-                StateManager,
-                loggingOptions,
-                UpdateLogger,
-                Options);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="updateLogger"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public CommandBatchPreparerDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
-            => new CommandBatchPreparerDependencies(
-                ModificationCommandBatchFactory,
-                ParameterNameGeneratorFactory,
-                ModificationCommandComparer,
-                KeyValueIndexFactorySource,
-                StateManager,
-                LoggingOptions,
-                updateLogger,
-                Options);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="options"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public CommandBatchPreparerDependencies With([NotNull] IDbContextOptions options)
-            => new CommandBatchPreparerDependencies(
-                ModificationCommandBatchFactory,
-                ParameterNameGeneratorFactory,
-                ModificationCommandComparer,
-                KeyValueIndexFactorySource,
-                StateManager,
-                LoggingOptions,
-                UpdateLogger,
-                options);
+        public IDbContextOptions Options { get; [param: NotNull] init; }
     }
 }

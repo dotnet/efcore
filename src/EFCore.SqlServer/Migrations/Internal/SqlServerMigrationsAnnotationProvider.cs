@@ -6,15 +6,24 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     <para>
+    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///         any release. You should only use it directly in your code with extreme caution and knowing that
+    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
+    ///     </para>
     /// </summary>
     public class SqlServerMigrationsAnnotationProvider : MigrationsAnnotationProvider
     {
@@ -22,96 +31,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         ///     Initializes a new instance of this class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+#pragma warning disable EF1001 // Internal EF Core API usage.
         public SqlServerMigrationsAnnotationProvider([NotNull] MigrationsAnnotationProviderDependencies dependencies)
+#pragma warning restore EF1001 // Internal EF Core API usage.
             : base(dependencies)
         {
         }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override IEnumerable<IAnnotation> For(IModel model) => ForRemove(model);
+        /// <inheritdoc />
+        public override IEnumerable<IAnnotation> ForRemove(IRelationalModel model)
+            => model.GetAnnotations().Where(a => a.Name != SqlServerAnnotationNames.EditionOptions);
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override IEnumerable<IAnnotation> For(IEntityType entityType) => ForRemove(entityType);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override IEnumerable<IAnnotation> For(IKey key)
-        {
-            var isClustered = key.SqlServer().IsClustered;
-            if (isClustered.HasValue)
-            {
-                yield return new Annotation(
-                    SqlServerAnnotationNames.Clustered,
-                    isClustered.Value);
-            }
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override IEnumerable<IAnnotation> For(IIndex index)
-        {
-            var isClustered = index.SqlServer().IsClustered;
-            if (isClustered.HasValue)
-            {
-                yield return new Annotation(
-                    SqlServerAnnotationNames.Clustered,
-                    isClustered.Value);
-            }
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override IEnumerable<IAnnotation> For(IProperty property)
-        {
-            if (property.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn)
-            {
-                yield return new Annotation(
-                    SqlServerAnnotationNames.ValueGenerationStrategy,
-                    SqlServerValueGenerationStrategy.IdentityColumn);
-            }
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override IEnumerable<IAnnotation> ForRemove(IModel model)
-        {
-            if (model.GetEntityTypes().Any(e => e.BaseType == null && e.SqlServer().IsMemoryOptimized))
-            {
-                yield return new Annotation(
-                    SqlServerAnnotationNames.MemoryOptimized,
-                    true);
-            }
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override IEnumerable<IAnnotation> ForRemove(IEntityType entityType)
-        {
-            if (IsMemoryOptimized(entityType))
-            {
-                yield return new Annotation(
-                    SqlServerAnnotationNames.MemoryOptimized,
-                    true);
-            }
-        }
-
-        private static bool IsMemoryOptimized(IEntityType entityType)
-            => entityType.GetAllBaseTypesInclusive().Any(t => t.SqlServer().IsMemoryOptimized);
+        /// <inheritdoc />
+        public override IEnumerable<IAnnotation> ForRemove(ITable table)
+            => table.GetAnnotations();
     }
 }

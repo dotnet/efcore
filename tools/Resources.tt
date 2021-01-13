@@ -18,30 +18,65 @@
 using System;
 using System.Reflection;
 using System.Resources;
-using JetBrains.Annotations;
 <#
     if (!model.NoDiagnostics)
     {
 #>
+using System.Threading;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 <#
     }
+    else
+    {
 #>
+using JetBrains.Annotations;
+<#
+    }
+#>
+
+#nullable enable
 
 namespace <#= model.Namespace #>
 {
+<#
+    if (model.Namespace.EndsWith("Internal")
+        || model.AccessModifier == "internal")
+    {
+#>
     /// <summary>
-    ///		This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+<#
+    }
+    else
+    {
+#>
+    /// <summary>
+    ///     <para>
+    ///		    String resources used in EF exceptions, etc.
+    ///     </para>
+    ///     <para>
+    ///		    These strings are exposed publicly for use by database providers and extensions.
+    ///         It is unusual for application code to need these strings.
+    ///     </para>
+    /// </summary>
+<#
+    }
+#>
     <#= model.AccessModifier #> static class <#= model.Class #>
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("<#= model.ResourceName #>", typeof(<#= model.Class #>).GetTypeInfo().Assembly);
+            = new ResourceManager("<#= model.ResourceName #>", typeof(<#= model.Class #>).Assembly);
 <#
     foreach (var resource in model.Resources)
     {
+        if (!resource.ForLogging)
+        {
 #>
 
         /// <summary>
@@ -55,44 +90,20 @@ namespace <#= model.Namespace #>
 #>
         /// </summary>
 <#
-        if (resource.ForLogging)
-        {
-            if (resource.Types.Count() > 6)
+            if (resource.Obsolete)
             {
 #>
-        public static readonly FallbackEventDefinition <#= resource.Name #>
-            = new FallbackEventDefinition(
-                <#= resource.EventId #>,
-                LogLevel.<#= resource.Level #>,
-                "<#= resource.EventId #>",
-                _resourceManager.GetString("<#= resource.Name #>"));
+        [Obsolete]
 <#
             }
-            else
-            {
-                var genericTypes = resource.Types.Any() ? ("<" + List(resource.Types) + ">") : "";
-#>
-        public static readonly EventDefinition<#= genericTypes #> <#= resource.Name #>
-            = new EventDefinition<#= genericTypes #>(
-                <#= resource.EventId #>,
-                LogLevel.<#= resource.Level #>,
-                "<#= resource.EventId #>",
-                LoggerMessage.Define<#= genericTypes #>(
-                    LogLevel.<#= resource.Level #>,
-                    <#= resource.EventId #>,
-                    _resourceManager.GetString("<#= resource.Name #>")));
-<#
-            }
-        }
-        else
-        {
+
             if (resource.Parameters.Any())
             {
 #>
-        public static string <#= resource.Name #>(<#= List("[CanBeNull] object ", resource.Parameters) #>)
+        public static string <#= resource.Name #>(<#= List("[CanBeNull] object? ", resource.Parameters.Select(e => e.ParamString)) #>)
             => string.Format(
-                GetString("<#= resource.Name #>", <#= List("nameof(", resource.Parameters, ")") #>),
-                <#= List(resource.Parameters) #>);
+                GetString("<#= resource.Name #>", <#= List(resource.Parameters.Select(e => e.NameOfString)) #>),
+                <#= List(resource.Parameters.Select(e => e.ParamString)) #>);
 <#
             }
             else
@@ -108,7 +119,7 @@ namespace <#= model.Namespace #>
 
         private static string GetString(string name, params string[] formatterNames)
         {
-            var value = _resourceManager.GetString(name);
+            var value = _resourceManager.GetString(name)!;
             for (var i = 0; i < formatterNames.Length; i++)
             {
                 value = value.Replace("{" + formatterNames[i] + "}", "{" + i + "}");
@@ -118,6 +129,103 @@ namespace <#= model.Namespace #>
         }
     }
 }
+
+<#
+    if (!model.NoDiagnostics)
+    {
+#>
+namespace <#= model.Namespace.EndsWith(".Internal") ? model.Namespace : (model.Namespace + ".Internal") #>
+{
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    <#= model.AccessModifier #> static class <#= model.DiagnosticsClass #>
+    {
+        private static readonly ResourceManager _resourceManager
+            = new ResourceManager("<#= model.ResourceName #>", typeof(<#= model.DiagnosticsClass #>).Assembly);
+<#
+        foreach (var resource in model.Resources)
+        {
+            if (resource.ForLogging)
+            {
+#>
+
+        /// <summary>
+<#
+                foreach (var line in Lines(resource.Value))
+                {
+#>
+        ///     <#= Xml(line) #>
+<#
+                }
+#>
+        /// </summary>
+<#
+                if (resource.Types.Count() > 6)
+                {
+#>
+        public static FallbackEventDefinition <#= resource.Name #>([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((<#= model.LoggingDefinitionsClass #>)logger.Definitions).<#= resource.Name #>;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((<#= model.LoggingDefinitionsClass #>)logger.Definitions).<#= resource.Name #>,
+                    () => new FallbackEventDefinition(
+                        logger.Options,
+                        <#= resource.EventId #>,
+                        LogLevel.<#= resource.Level #>,
+                        "<#= resource.EventId #>",
+                        _resourceManager.GetString("<#= resource.Name #>")!));
+            }
+
+            return (FallbackEventDefinition)definition;
+        }
+<#
+                }
+                else
+                {
+                    var genericTypes = resource.Types.Any() ? ("<" + List(resource.Types) + ">") : "";
+                    if (resource.Obsolete)
+                    {
+#>
+        [Obsolete]
+<#
+                    }
+#>
+        public static EventDefinition<#= genericTypes #> <#= resource.Name #>([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((<#= model.LoggingDefinitionsClass #>)logger.Definitions).<#= resource.Name #>;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((<#= model.LoggingDefinitionsClass #>)logger.Definitions).<#= resource.Name #>,
+                    () => new EventDefinition<#= genericTypes #>(
+                        logger.Options,
+                        <#= resource.EventId #>,
+                        LogLevel.<#= resource.Level #>,
+                        "<#= resource.EventId #>",
+                        level => LoggerMessage.Define<#= genericTypes #>(
+                            level,
+                            <#= resource.EventId #>,
+                            _resourceManager.GetString("<#= resource.Name #>")!)));
+            }
+
+            return (EventDefinition<#= genericTypes #>)definition;
+        }
+<#
+                }
+            }
+        }
+#>
+    }
+}
+<#
+    }
+#>
 <#+
     ResourceFile LoadResources()
     {
@@ -126,6 +234,11 @@ namespace <#= model.Namespace #>
         if (Session.ContainsKey("AccessModifier"))
         {
             result.AccessModifier = (string)Session["AccessModifier"];
+        };
+
+        if (Session.ContainsKey("LoggingDefinitionsClass"))
+        {
+            result.LoggingDefinitionsClass = (string)Session["LoggingDefinitionsClass"];
         };
 
         var services = (IServiceProvider)Host;
@@ -161,15 +274,30 @@ namespace <#= model.Namespace #>
 
         result.Class = Path.GetFileNameWithoutExtension(resourceFile);
 
+        result.DiagnosticsClass = result.Class.Replace("Strings", "Resources");
+
         result.ResourceName = resourceNamespace + "." + result.Class;
 
+        List<ResXDataNode> sortedResources;
         using (var reader = new ResXResourceReader(resourceFile))
         {
             reader.UseResXDataNodes = true;
-
-            result.Resources = Enumerable.ToList(
+            sortedResources = Enumerable.ToList(
                 from DictionaryEntry r in reader
-                select new Resource((ResXDataNode)r.Value));
+                orderby r.Key
+                select (ResXDataNode)r.Value);
+
+            result.Resources = sortedResources
+                .Select(r => new Resource(r))
+                .ToList();
+        }
+
+        using (var writer = new ResXResourceWriter(resourceFile))
+        {
+            foreach (var node in sortedResources)
+                writer.AddResource(node);
+
+            writer.Generate();
         }
 
         return result;
@@ -192,9 +320,11 @@ namespace <#= model.Namespace #>
         public string Namespace { get; set; }
         public string AccessModifier { get; set; } = "public";
         public string Class { get; set; }
+        public string DiagnosticsClass { get; set; }
         public string ResourceName { get; set; }
         public IEnumerable<Resource> Resources { get; set; }
         public bool NoDiagnostics { get; set; }
+        public string LoggingDefinitionsClass { get; set; }
     }
 
     class Resource
@@ -203,24 +333,46 @@ namespace <#= model.Namespace #>
         {
             Name = node.Name;
             Value = (string)node.GetValue((ITypeResolutionService)null);
-            Parameters = Regex.Matches(Value, @"\{(\w+)\}")
+            var parameters = Regex.Matches(Value, @"\{(\w+)\}")
                 .Cast<Match>()
                 .Select(m => m.Groups[1].Value)
                 .Distinct()
+                .Select(n => ("nameof(" + n + ")", n))
                 .ToList();
 
+            foreach (var parameter in parameters.ToList())
+            {
+                var rawString = parameter.Item2;
+                var underscoreIndex = rawString.IndexOf('_');
+                if (underscoreIndex > 0)
+                {
+                    var newIndex = int.Parse(rawString.Substring(0, underscoreIndex));
+                    parameters[newIndex] = ("\"" + rawString + "\"", rawString.Substring(underscoreIndex + 1));
+                }
+            }
+
+            Parameters = parameters;
+
             var eventInfo = node.Comment.Split(' ');
-            Level = eventInfo.FirstOrDefault() ?? "BadLevel";
-            EventId = eventInfo.Skip(1).FirstOrDefault() ?? "BadEventId";
-            Types = eventInfo.Skip(2).ToList();
+            var argumentsRead = 0;
+            if (eventInfo.FirstOrDefault() == "Obsolete")
+            {
+                Obsolete = true;
+                argumentsRead++;
+            }
+
+            Level = eventInfo.Skip(argumentsRead++).FirstOrDefault() ?? "BadLevel";
+            EventId = eventInfo.Skip(argumentsRead++).FirstOrDefault() ?? "BadEventId";
+            Types = eventInfo.Skip(argumentsRead++).ToList();
         }
 
         public string Name { get; }
         public string Value { get; }
         public string EventId { get; }
         public string Level { get; }
+        public bool Obsolete { get; }
         public bool ForLogging => Name.StartsWith("Log");
-        public IEnumerable<string> Parameters { get; }
+        public IEnumerable<(string NameOfString, string ParamString)> Parameters { get; }
         public IEnumerable<string> Types { get; }
     }
 #>

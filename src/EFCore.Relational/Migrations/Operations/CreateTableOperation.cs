@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
@@ -9,18 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     /// <summary>
     ///     A <see cref="MigrationOperation" /> for creating a new table.
     /// </summary>
-    public class CreateTableOperation : MigrationOperation
+    [DebuggerDisplay("CREATE TABLE {Name}")]
+    public class CreateTableOperation : TableOperation
     {
-        /// <summary>
-        ///     The name of the table.
-        /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
-
-        /// <summary>
-        ///     The schema that contains the table, or <c>null</c> if the default schema should be used.
-        /// </summary>
-        public virtual string Schema { get; [param: CanBeNull] set; }
-
         /// <summary>
         ///     The <see cref="AddPrimaryKeyOperation" /> representing the creation of the primary key for the table.
         /// </summary>
@@ -40,5 +32,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         ///     A list of <see cref="AddUniqueConstraintOperation" /> for creating unique constraints in the table.
         /// </summary>
         public virtual List<AddUniqueConstraintOperation> UniqueConstraints { get; } = new List<AddUniqueConstraintOperation>();
+
+        /// <summary>
+        ///     A list of <see cref="AddCheckConstraintOperation" /> for creating check constraints in the table.
+        /// </summary>
+        public virtual List<AddCheckConstraintOperation> CheckConstraints { get; } = new List<AddCheckConstraintOperation>();
     }
 }

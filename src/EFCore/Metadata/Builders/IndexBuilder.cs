@@ -11,42 +11,40 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
     ///     <para>
-    ///         Provides a simple API for configuring an <see cref="Index" />.
+    ///         Provides a simple API for configuring an <see cref="IMutableIndex" />.
     ///     </para>
     ///     <para>
     ///         Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class IndexBuilder : IInfrastructure<IMutableModel>, IInfrastructure<InternalIndexBuilder>
+    public class IndexBuilder : IInfrastructure<IConventionIndexBuilder>
     {
-        private readonly InternalIndexBuilder _builder;
-
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IndexBuilder([NotNull] InternalIndexBuilder builder)
+        [EntityFrameworkInternal]
+        public IndexBuilder([NotNull] IMutableIndex index)
         {
-            Check.NotNull(builder, nameof(builder));
-
-            _builder = builder;
+            Builder = ((Index)index).Builder;
         }
 
         /// <summary>
         ///     The internal builder being used to configure the index.
         /// </summary>
-        InternalIndexBuilder IInfrastructure<InternalIndexBuilder>.Instance => _builder;
+        IConventionIndexBuilder IInfrastructure<IConventionIndexBuilder>.Instance
+            => Builder;
+
+        private InternalIndexBuilder Builder { get; }
 
         /// <summary>
         ///     The index being configured.
         /// </summary>
-        public virtual IMutableIndex Metadata => Builder.Metadata;
-
-        /// <summary>
-        ///     The model that the index belongs to.
-        /// </summary>
-        IMutableModel IInfrastructure<IMutableModel>.Instance => Builder.ModelBuilder.Metadata;
+        public virtual IMutableIndex Metadata
+            => Builder.Metadata;
 
         /// <summary>
         ///     Adds or updates an annotation on the index. If an annotation with the key specified in
@@ -78,8 +76,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return this;
         }
 
-        private InternalIndexBuilder Builder => this.GetInfrastructure<InternalIndexBuilder>();
-
         #region Hidden System.Object members
 
         /// <summary>
@@ -87,22 +83,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString() => base.ToString();
+        public override string ToString()
+            => base.ToString();
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
+        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => base.Equals(obj);
+        // ReSharper disable once BaseObjectEqualsIsObjectEquals
+        public override bool Equals(object obj)
+            => base.Equals(obj);
 
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
         /// <returns> A hash code for the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override int GetHashCode() => base.GetHashCode();
+        // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
+        public override int GetHashCode()
+            => base.GetHashCode();
 
         #endregion
     }

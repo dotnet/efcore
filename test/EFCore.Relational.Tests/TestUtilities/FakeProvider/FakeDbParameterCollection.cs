@@ -12,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
     {
         private readonly List<object> _parameters = new List<object>();
 
-        public override int Count => _parameters.Count;
+        public override int Count
+            => _parameters.Count;
 
         public override int Add(object value)
         {
@@ -28,14 +29,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
             => _parameters.GetEnumerator();
 
         public override object SyncRoot
-        {
-            get { throw new NotImplementedException(); }
-        }
+            => throw new NotImplementedException();
 
         public override void AddRange(Array values)
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         public override void Clear()
         {

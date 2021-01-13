@@ -4,6 +4,8 @@
 using System;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
@@ -15,14 +17,15 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Creates a new instance of this converter.
         /// </summary>
         /// <param name="mappingHints">
-        ///     Hints that can be used by the <see cref="ITypeMappingSource"/> to create data types with appropriate
+        ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
         public BytesToStringConverter(
-            [CanBeNull] ConverterMappingHints mappingHints = null)
+            [CanBeNull] ConverterMappingHints? mappingHints = null)
             : base(
-                v => v == null ? null : Convert.ToBase64String(v),
-                v => v == null ? null : Convert.FromBase64String(v),
+                // TODO-NULLABLE: Null is already sanitized externally, clean up as part of #13850
+                v => v == null ? null! : Convert.ToBase64String(v),
+                v => v == null ? null! : Convert.FromBase64String(v),
                 mappingHints)
         {
         }
@@ -31,6 +34,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(typeof(byte[]), typeof(string), i => new BytesToStringConverter(i.MappingHints));
+            = new(typeof(byte[]), typeof(string), i => new BytesToStringConverter(i.MappingHints));
     }
 }

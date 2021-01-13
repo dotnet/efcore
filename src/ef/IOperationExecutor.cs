@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -9,12 +9,12 @@ namespace Microsoft.EntityFrameworkCore.Tools
 {
     internal interface IOperationExecutor : IDisposable
     {
-        IDictionary AddMigration(string name, string outputDir, string contextType);
+        IDictionary AddMigration(string name, string outputDir, string contextType, string @namespace);
         IDictionary RemoveMigration(string contextType, bool force);
-        IEnumerable<IDictionary> GetMigrations(string contextType);
+        IEnumerable<IDictionary> GetMigrations(string contextType, string connectionString, bool noConnect);
         void DropDatabase(string contextType);
         IDictionary GetContextInfo(string name);
-        void UpdateDatabase(string migration, string contextType);
+        void UpdateDatabase(string migration, string connectionString, string contextType);
         IEnumerable<IDictionary> GetContextTypes();
 
         IDictionary ScaffoldContext(
@@ -27,8 +27,14 @@ namespace Microsoft.EntityFrameworkCore.Tools
             IEnumerable<string> tableFilters,
             bool useDataAnnotations,
             bool overwriteFiles,
-            bool useDatabaseNames);
+            bool useDatabaseNames,
+            string entityNamespace,
+            string dbContextNamespace,
+            bool suppressOnConfiguring,
+            bool noPluralize);
 
-        string ScriptMigration(string fromMigration, string toMigration, bool idempotent, string contextType);
+        string ScriptMigration(string fromMigration, string toMigration, bool idempotent, bool noTransactions, string contextType);
+
+        string ScriptDbContext(string contextType);
     }
 }

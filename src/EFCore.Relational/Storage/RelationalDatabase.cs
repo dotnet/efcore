@@ -1,12 +1,16 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -17,6 +21,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
     ///         not used in application code.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
     public class RelationalDatabase : Database
@@ -46,12 +56,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="entries"> Entries representing the changes to be persisted. </param>
         /// <returns> The number of state entries persisted to the database. </returns>
-        public override int SaveChanges(
-            IReadOnlyList<IUpdateEntry> entries)
-            => RelationalDependencies.BatchExecutor.Execute(
+        public override int SaveChanges(IList<IUpdateEntry> entries)
+        {
+            Check.NotNull(entries, nameof(entries));
+
+            return RelationalDependencies.BatchExecutor.Execute(
                 RelationalDependencies.BatchPreparer.BatchCommands(
-                    Check.NotNull(entries, nameof(entries))),
+                    entries,
+                    Dependencies.UpdateAdapterFactory.Create()),
                 RelationalDependencies.Connection);
+        }
 
         /// <summary>
         ///     Asynchronously persists changes from the supplied entries to the database.
@@ -62,13 +76,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A task that represents the asynchronous save operation. The task result contains the
         ///     number of entries persisted to the database.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public override Task<int> SaveChangesAsync(
-            IReadOnlyList<IUpdateEntry> entries,
+            IList<IUpdateEntry> entries,
             CancellationToken cancellationToken = default)
-            => RelationalDependencies.BatchExecutor.ExecuteAsync(
+        {
+            Check.NotNull(entries, nameof(entries));
+
+            return RelationalDependencies.BatchExecutor.ExecuteAsync(
                 RelationalDependencies.BatchPreparer.BatchCommands(
-                    Check.NotNull(entries, nameof(entries))),
+                    entries,
+                    Dependencies.UpdateAdapterFactory.Create()),
                 RelationalDependencies.Connection,
                 cancellationToken);
+        }
     }
 }

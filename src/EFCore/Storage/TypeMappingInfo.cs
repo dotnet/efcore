@@ -6,9 +6,10 @@ using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -30,12 +31,35 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Creates a new instance of <see cref="TypeMappingInfo" />.
         /// </summary>
         /// <param name="principals"> The principal property chain for the property for which mapping is needed. </param>
-        public TypeMappingInfo(IReadOnlyList<IProperty> principals)
+        /// <param name="fallbackUnicode">
+        ///     Specifies a fallback Specifies Unicode or ANSI mapping for the mapping, in case one isn't found at the core
+        ///     level, or <see langword="null" /> for default.
+        /// </param>
+        /// <param name="fallbackSize">
+        ///     Specifies a fallback size for the mapping, in case one isn't found at the core level, or <see langword="null" /> for
+        ///     default.
+        /// </param>
+        /// <param name="fallbackPrecision">
+        ///     Specifies a fallback precision for the mapping, in case one isn't found at the core level, or <see langword="null" />
+        ///     for default.
+        /// </param>
+        /// <param name="fallbackScale">
+        ///     Specifies a fallback scale for the mapping, in case one isn't found at the core level, or <see langword="null" /> for
+        ///     default.
+        /// </param>
+        public TypeMappingInfo(
+            [NotNull] IReadOnlyList<IProperty> principals,
+            bool? fallbackUnicode = null,
+            int? fallbackSize = null,
+            int? fallbackPrecision = null,
+            int? fallbackScale = null)
         {
             Check.NotNull(principals, nameof(principals));
 
-            ValueConverter customConverter = null;
+            ValueConverter? customConverter = null;
             int? size = null;
+            int? precision = null;
+            int? scale = null;
             bool? isUnicode = null;
             for (var i = 0; i < principals.Count; i++)
             {
@@ -48,6 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         customConverter = converter;
                     }
                 }
+
                 if (size == null)
                 {
                     var maxLength = principal.GetMaxLength();
@@ -56,6 +81,25 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         size = maxLength;
                     }
                 }
+
+                if (precision == null)
+                {
+                    var precisionFromProperty = principal.GetPrecision();
+                    if (precisionFromProperty != null)
+                    {
+                        precision = precisionFromProperty;
+                    }
+                }
+
+                if (scale == null)
+                {
+                    var scaleFromProperty = principal.GetScale();
+                    if (scaleFromProperty != null)
+                    {
+                        scale = scaleFromProperty;
+                    }
+                }
+
                 if (isUnicode == null)
                 {
                     var unicode = principal.IsUnicode();
@@ -69,64 +113,57 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var mappingHints = customConverter?.MappingHints;
             var property = principals[0];
 
-            IsKeyOrIndex = property.IsKeyOrForeignKey() || property.IsIndex();
-            Size = size ?? mappingHints?.Size;
-            IsUnicode = isUnicode ?? mappingHints?.IsUnicode;
+            IsKeyOrIndex = property.IsKey() || property.IsForeignKey() || property.IsIndex();
+            Size = size ?? mappingHints?.Size ?? fallbackSize;
+            IsUnicode = isUnicode ?? mappingHints?.IsUnicode ?? fallbackUnicode;
             IsRowVersion = property.IsConcurrencyToken && property.ValueGenerated == ValueGenerated.OnAddOrUpdate;
             ClrType = (customConverter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
-            Scale = mappingHints?.Scale;
-            Precision = mappingHints?.Precision;
-        }
-
-        /// <summary>
-        ///     Creates a new instance of <see cref="TypeMappingInfo" />.
-        /// </summary>
-        /// <param name="type"> The CLR type in the model for which mapping is needed. </param>
-        public TypeMappingInfo([NotNull] Type type)
-        {
-            Check.NotNull(type, nameof(type));
-
-            ClrType = type.UnwrapNullableType();
-
-            IsKeyOrIndex = false;
-            Size = null;
-            IsUnicode = null;
-            IsRowVersion = null;
-            Precision = null;
-            Scale = null;
+            Scale = scale ?? mappingHints?.Scale ?? fallbackScale;
+            Precision = precision ?? mappingHints?.Precision ?? fallbackPrecision;
         }
 
         /// <summary>
         ///     Creates a new instance of <see cref="TypeMappingInfo" />.
         /// </summary>
         /// <param name="member"> The property or field for which mapping is needed. </param>
-        public TypeMappingInfo([NotNull] MemberInfo member)
+        /// <param name="unicode"> Specifies Unicode or ANSI mapping, or <see langword="null" /> for default. </param>
+        /// <param name="size"> Specifies a size for the mapping, or <see langword="null" /> for default. </param>
+        /// <param name="precision"> Specifies a precision for the mapping, or <see langword="null" /> for default. </param>
+        /// <param name="scale"> Specifies a scale for the mapping, or <see langword="null" /> for default. </param>
+        public TypeMappingInfo(
+            [NotNull] MemberInfo member,
+            bool? unicode = null,
+            int? size = null,
+            int? precision = null,
+            int? scale = null)
             : this(Check.NotNull(member, nameof(member)).GetMemberType())
         {
+            IsUnicode = unicode;
+            Size = size;
+            Precision = precision;
+            Scale = scale;
         }
 
         /// <summary>
         ///     Creates a new instance of <see cref="TypeMappingInfo" />.
         /// </summary>
         /// <param name="type"> The CLR type in the model for which mapping is needed. </param>
-        /// <param name="keyOrIndex"> If <c>true</c>, then a special mapping for a key or index may be returned. </param>
-        /// <param name="unicode"> Specifies Unicode or ANSI mapping, or <c>null</c> for default. </param>
-        /// <param name="size"> Specifies a size for the mapping, or <c>null</c> for default. </param>
-        /// <param name="rowVersion"> Specifies a row-version, or <c>null</c> for default. </param>
-        /// <param name="precision"> Specifies a precision for the mapping, or <c>null</c> for default. </param>
-        /// <param name="scale"> Specifies a scale for the mapping, or <c>null</c> for default. </param>
+        /// <param name="keyOrIndex"> If <see langword="true" />, then a special mapping for a key or index may be returned. </param>
+        /// <param name="unicode"> Specifies Unicode or ANSI mapping, or <see langword="null" /> for default. </param>
+        /// <param name="size"> Specifies a size for the mapping, or <see langword="null" /> for default. </param>
+        /// <param name="rowVersion"> Specifies a row-version, or <see langword="null" /> for default. </param>
+        /// <param name="precision"> Specifies a precision for the mapping, or <see langword="null" /> for default. </param>
+        /// <param name="scale"> Specifies a scale for the mapping, or <see langword="null" /> for default. </param>
         public TypeMappingInfo(
-            [NotNull] Type type,
-            bool keyOrIndex,
+            [CanBeNull] Type? type = null,
+            bool keyOrIndex = false,
             bool? unicode = null,
             int? size = null,
             bool? rowVersion = null,
             int? precision = null,
             int? scale = null)
         {
-            Check.NotNull(type, nameof(type));
-
-            ClrType = type.UnwrapNullableType();
+            ClrType = type?.UnwrapNullableType();
 
             IsKeyOrIndex = keyOrIndex;
             Size = size;
@@ -141,10 +178,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="source"> The source info. </param>
         /// <param name="converter"> The converter to apply. </param>
-        /// <param name="unicode"> Specifies Unicode or ANSI mapping, or <c>null</c> for default. </param>
-        /// <param name="size"> Specifies a size for the mapping, or <c>null</c> for default. </param>
-        /// <param name="precision"> Specifies a precision for the mapping, or <c>null</c> for default. </param>
-        /// <param name="scale"> Specifies a scale for the mapping, or <c>null</c> for default. </param>
+        /// <param name="unicode"> Specifies Unicode or ANSI mapping, or <see langword="null" /> for default. </param>
+        /// <param name="size"> Specifies a size for the mapping, or <see langword="null" /> for default. </param>
+        /// <param name="precision"> Specifies a precision for the mapping, or <see langword="null" /> for default. </param>
+        /// <param name="scale"> Specifies a scale for the mapping, or <see langword="null" /> for default. </param>
         public TypeMappingInfo(
             TypeMappingInfo source,
             ValueConverterInfo converter,
@@ -207,48 +244,40 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public int? Scale { get; }
 
         /// <summary>
-        ///     The CLR type in the model.
+        ///     The CLR type in the model. May be null if type information is conveyed via other means
+        ///     (e.g. the store name in a relational type mapping info)
         /// </summary>
-        public Type ClrType { get; }
+        public Type? ClrType { get; }
 
         /// <summary>
         ///     Compares this <see cref="TypeMappingInfo" /> to another to check if they represent the same mapping.
         /// </summary>
         /// <param name="other"> The other object. </param>
-        /// <returns> <c>True</c> if they represent the same mapping; <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if they represent the same mapping; <see langword="false" /> otherwise. </returns>
         public bool Equals(TypeMappingInfo other)
             => ClrType == other.ClrType
-               && IsKeyOrIndex == other.IsKeyOrIndex
-               && Size == other.Size
-               && IsUnicode == other.IsUnicode
-               && IsRowVersion == other.IsRowVersion
-               && Precision == other.Precision
-               && Scale == other.Scale;
+                && IsKeyOrIndex == other.IsKeyOrIndex
+                && Size == other.Size
+                && IsUnicode == other.IsUnicode
+                && IsRowVersion == other.IsRowVersion
+                && Precision == other.Precision
+                && Scale == other.Scale;
 
         /// <summary>
         ///     Compares this <see cref="TypeMappingInfo" /> to another to check if they represent the same mapping.
         /// </summary>
         /// <param name="obj"> The other object. </param>
-        /// <returns> <c>True</c> if they represent the same mapping; <c>false</c> otherwise. </returns>
-        public override bool Equals(object obj)
+        /// <returns> <see langword="true" /> if they represent the same mapping; <see langword="false" /> otherwise. </returns>
+        public override bool Equals(object? obj)
             => obj != null
-               && obj.GetType() == GetType()
-               && Equals((TypeMappingInfo)obj);
+                && obj.GetType() == GetType()
+                && Equals((TypeMappingInfo)obj);
 
         /// <summary>
         ///     Returns a hash code for this object.
         /// </summary>
         /// <returns> The hash code. </returns>
         public override int GetHashCode()
-        {
-            var hashCode = ClrType?.GetHashCode() ?? 0;
-            hashCode = (hashCode * 397) ^ IsKeyOrIndex.GetHashCode();
-            hashCode = (hashCode * 397) ^ (Size?.GetHashCode() ?? 0);
-            hashCode = (hashCode * 397) ^ (IsUnicode?.GetHashCode() ?? 0);
-            hashCode = (hashCode * 397) ^ (IsRowVersion?.GetHashCode() ?? 0);
-            hashCode = (hashCode * 397) ^ (Scale?.GetHashCode() ?? 0);
-            hashCode = (hashCode * 397) ^ (Precision?.GetHashCode() ?? 0);
-            return hashCode;
-        }
+            => HashCode.Combine(ClrType, IsKeyOrIndex, Size, IsUnicode, IsRowVersion, Scale, Precision);
     }
 }

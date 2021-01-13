@@ -4,61 +4,96 @@ using System;
 using System.Reflection;
 using System.Resources;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Logging;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
-    ///		This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static class ProxiesStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.ProxiesStrings", typeof(ProxiesStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.ProxiesStrings", typeof(ProxiesStrings).Assembly);
 
         /// <summary>
-        ///     UseLazyLoadingProxies requires AddEntityFrameworkProxies to be called on the internal service provider used.
+        ///     The type '{dictionaryType}' used for shared entity type '{entityType}' is not suitable for use as a change-tracking proxy because its indexer property is not virtual. Consider using an implementation of '{interfaceType}' that allows overriding of the indexer.
         /// </summary>
-        public static string ProxyServicesMissing
-            => GetString("ProxyServicesMissing");
+        public static string DictionaryCannotBeProxied([CanBeNull] object? dictionaryType, [CanBeNull] object? entityType, [CanBeNull] object? interfaceType)
+            => string.Format(
+                GetString("DictionaryCannotBeProxied", nameof(dictionaryType), nameof(entityType), nameof(interfaceType)),
+                dictionaryType, entityType, interfaceType);
 
         /// <summary>
-        ///     Entity type '{entityType}' is sealed. UseLazyLoadingProxies requires all entity types to be public, unsealed, have virtual navigation properties, and have a public or protected constructor.
+        ///     The type '{clrType}' is configured as a shared-type entity type, but the entity type name is not known. Ensure that CreateProxy is called on a DbSet created specifically for the shared-type entity type through use of a 'DbContext.Set' overload that accepts an entity type name.
         /// </summary>
-        public static string ItsASeal([CanBeNull] object entityType)
+        public static string EntityTypeNotFoundShared([CanBeNull] object? clrType)
+            => string.Format(
+                GetString("EntityTypeNotFoundShared", nameof(clrType)),
+                clrType);
+
+        /// <summary>
+        ///     Cannot create a proxy for '{typeName}' because it is mapped to multiple owned entity types. Proxy creation is not supported for owned types used more than once in the model.
+        /// </summary>
+        [Obsolete]
+        public static string EntityTypeNotFoundWeak([CanBeNull] object? typeName)
+            => string.Format(
+                GetString("EntityTypeNotFoundWeak", nameof(typeName)),
+                typeName);
+
+        /// <summary>
+        ///     Property '{property}' on entity type '{entityType}' is mapped without a CLR property. 'UseChangeTrackingProxies' requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. 'UseLazyLoadingProxies' requires only the navigation properties be virtual.
+        /// </summary>
+        public static string FieldProperty([CanBeNull] object? property, [CanBeNull] object? entityType)
+            => string.Format(
+                GetString("FieldProperty", nameof(property), nameof(entityType)),
+                property, entityType);
+
+        /// <summary>
+        ///     Entity type '{entityType}' is sealed. 'UseChangeTrackingProxies' requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. 'UseLazyLoadingProxies' requires only the navigation properties be virtual.
+        /// </summary>
+        public static string ItsASeal([CanBeNull] object? entityType)
             => string.Format(
                 GetString("ItsASeal", nameof(entityType)),
                 entityType);
 
         /// <summary>
-        ///     Navigation property '{navigation}' on entity type '{entityType}' is not virtual. UseLazyLoadingProxies requires all entity types to be public, unsealed, have virtual navigation properties, and have a public or protected constructor.
+        ///     The mapped indexer property on entity type '{entityType}' is not virtual. 'UseChangeTrackingProxies' requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. 'UseLazyLoadingProxies' requires only the navigation properties be virtual.
         /// </summary>
-        public static string NonVirtualNavigation([CanBeNull] object navigation, [CanBeNull] object entityType)
+        public static string NonVirtualIndexerProperty([CanBeNull] object? entityType)
             => string.Format(
-                GetString("NonVirtualNavigation", nameof(navigation), nameof(entityType)),
-                navigation, entityType);
+                GetString("NonVirtualIndexerProperty", nameof(entityType)),
+                entityType);
 
         /// <summary>
-        ///     Navigation property '{navigation}' on entity type '{entityType}' is mapped without a CLR property. UseLazyLoadingProxies requires all entity types to be public, unsealed, have virtual navigation properties, and have a public or protected constructor.
+        ///     Property '{1_entityType}.{0_property}' is not virtual. 'UseChangeTrackingProxies' requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. 'UseLazyLoadingProxies' requires only the navigation properties be virtual.
         /// </summary>
-        public static string FieldNavigation([CanBeNull] object navigation, [CanBeNull] object entityType)
+        public static string NonVirtualProperty([CanBeNull] object? property, [CanBeNull] object? entityType)
             => string.Format(
-                GetString("FieldNavigation", nameof(navigation), nameof(entityType)),
-                navigation, entityType);
+                GetString("NonVirtualProperty", "0_property", "1_entityType"),
+                property, entityType);
 
         /// <summary>
-        ///     Unable to create proxy for '{entityType}' because proxies are not enabled. Call 'DbContextOptionsBuilder.UseLazyLoadingProxies' to enable lazy-loading proxies.
+        ///     Unable to create proxy for '{entityType}' because proxies are not enabled. Call 'DbContextOptionsBuilder.UseChangeTrackingProxies' or 'DbContextOptionsBuilder.UseLazyLoadingProxies' to enable proxies.
         /// </summary>
-        public static string ProxiesNotEnabled([CanBeNull] object entityType)
+        public static string ProxiesNotEnabled([CanBeNull] object? entityType)
             => string.Format(
                 GetString("ProxiesNotEnabled", nameof(entityType)),
                 entityType);
 
+        /// <summary>
+        ///     'UseChangeTrackingProxies' and 'UseLazyLoadingProxies' each require AddEntityFrameworkProxies to be called on the internal service provider used.
+        /// </summary>
+        public static string ProxyServicesMissing
+            => GetString("ProxyServicesMissing");
+
         private static string GetString(string name, params string[] formatterNames)
         {
-            var value = _resourceManager.GetString(name);
+            var value = _resourceManager.GetString(name)!;
             for (var i = 0; i < formatterNames.Length; i++)
             {
                 value = value.Replace("{" + formatterNames[i] + "}", "{" + i + "}");
@@ -68,3 +103,4 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
     }
 }
+

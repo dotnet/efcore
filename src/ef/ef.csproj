@@ -6,11 +6,17 @@
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
+    <!--
+      This keeps ef.exe targeting the default version of .NET Core for netcoreapp2.0,
+      which maximizes the machines on which this tool will be compatible.
+    -->
+    <TargetLatestDotNetRuntime Condition=" '$(IsServicingBuild)' == 'true' ">false</TargetLatestDotNetRuntime>
+    <CheckEolTargetFramework>False</CheckEolTargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Include="..\Shared\CodeAnnotations.cs" />
-    <Compile Include="..\EFCore\Internal\ProductInfo.cs" />
+    <Compile Include="..\EFCore\Infrastructure\ProductInfo.cs" />
     <Compile Include="..\EFCore.Design\Design\IOperationReportHandler.cs" />
     <Compile Include="..\EFCore.Design\Design\IOperationResultHandler.cs" />
     <Compile Include="..\EFCore.Design\Design\OperationReportHandler.cs" />
@@ -19,6 +25,7 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Configuration" />
   </ItemGroup>
 
   <ItemGroup>
@@ -41,7 +48,7 @@
   </ItemGroup>
 
   <Target Name="BuildX86" AfterTargets="Build" Condition=" '$(TargetFramework)' == 'net461' And '$(Platform)' != 'x86' ">
-    <MSBuild Projects="$(MSBuildProjectFullPath)" Properties="TargetFramework=$(TargetFramework);Platform=x86;Configuration=$(Configuration);BuildNumber=$(BuildNumber)" Targets="Build" />
+    <MSBuild Projects="$(MSBuildProjectFullPath)" Properties="TargetFramework=$(TargetFramework);Platform=x86;Configuration=$(Configuration)" Targets="Build" />
   </Target>
 
 </Project>

@@ -2,11 +2,16 @@
 
   <PropertyGroup>
     <Description>Shared design-time components for Entity Framework Core tools.</Description>
-    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+    <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.Design</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <CodeAnalysisRuleSet>..\EFCore.ruleset</CodeAnalysisRuleSet>
+    <DevelopmentDependency>True</DevelopmentDependency>
+  </PropertyGroup>
+
+  <!-- NB: Source from dotnet/runtime has a different header -->
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);SA1636</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,15 +24,19 @@
       <PackagePath>build</PackagePath>
     </None>
   </ItemGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\EFCore.Relational\EFCore.Relational.csproj" PrivateAssets="contentfiles;build" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Hosting.WebHostBuilderFactory.Sources" PrivateAssets="All" Version="$(MicrosoftAspNetCoreHostingWebHostBuilderFactorySourcesPackageVersion)" />
-    <PackageReference Include="Microsoft.CSharp" Version="$(MicrosoftCSharpPackageVersion)" />
-    <PackageReference Include="StyleCop.Analyzers" Version="$(StyleCopAnalyzersPackageVersion)" PrivateAssets="All" />
+    <PackageReference Include="Humanizer.Core" Version="2.8.26" />
+    <PackageReference Include="Microsoft.Extensions.HostFactoryResolver.Sources" PrivateAssets="All" Version="$(MicrosoftExtensionsHostFactoryResolverSourcesVersion)" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="..\stylecop.json" />
   </ItemGroup>
 
   <ItemGroup>

@@ -17,14 +17,13 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     public static class InMemoryDbContextOptionsExtensions
     {
-        private const string LegacySharedName = "___Shared_Database___";
-
         /// <summary>
         ///     Configures the context to connect to an in-memory database.
         ///     The in-memory database is shared anywhere the same name is used, but only for a given
         ///     service provider. To use the same in-memory database across service providers, call
-        ///     <see cref="UseInMemoryDatabase{TContext}(DbContextOptionsBuilder{TContext},string,InMemoryDatabaseRoot,Action{InMemoryDbContextOptionsBuilder})" />
-        ///     passing a shared <see cref="InMemoryDatabaseRoot"/> on which to root the database.
+        ///     <see
+        ///         cref="UseInMemoryDatabase{TContext}(DbContextOptionsBuilder{TContext},string,InMemoryDatabaseRoot,Action{InMemoryDbContextOptionsBuilder})" />
+        ///     passing a shared <see cref="InMemoryDatabaseRoot" /> on which to root the database.
         /// </summary>
         /// <typeparam name="TContext"> The type of context being configured. </typeparam>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
@@ -47,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The in-memory database is shared anywhere the same name is used, but only for a given
         ///     service provider. To use the same in-memory database across service providers, call
         ///     <see cref="UseInMemoryDatabase(DbContextOptionsBuilder,string,InMemoryDatabaseRoot,Action{InMemoryDbContextOptionsBuilder})" />
-        ///     passing a shared <see cref="InMemoryDatabaseRoot"/> on which to root the database.
+        ///     passing a shared <see cref="InMemoryDatabaseRoot" /> on which to root the database.
         /// </summary>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
         /// <param name="databaseName">
@@ -76,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseRoot">
         ///     All in-memory databases will be rooted in this object, allowing the application
         ///     to control their lifetime. This is useful when sometimes the context instance
-        ///     is created explicitly with <c>new</c> while at other times it is resolved using dependency injection.
+        ///     is created explicitly with <see langword="new" /> while at other times it is resolved using dependency injection.
         /// </param>
         /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
@@ -102,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseRoot">
         ///     All in-memory databases will be rooted in this object, allowing the application
         ///     to control their lifetime. This is useful when sometimes the context instance
-        ///     is created explicitly with <c>new</c> while at other times it is resolved using dependency injection.
+        ///     is created explicitly with <see langword="new" /> while at other times it is resolved using dependency injection.
         /// </param>
         /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
@@ -116,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotEmpty(databaseName, nameof(databaseName));
 
             var extension = optionsBuilder.Options.FindExtension<InMemoryOptionsExtension>()
-                            ?? new InMemoryOptionsExtension();
+                ?? new InMemoryOptionsExtension();
 
             extension = extension.WithStoreName(databaseName);
 
@@ -124,6 +123,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 extension = extension.WithDatabaseRoot(databaseRoot);
             }
+
+            extension = extension.WithNullabilityCheckEnabled(true);
 
             ConfigureWarnings(optionsBuilder);
 
@@ -135,41 +136,53 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Configures the context to connect to the legacy shared in-memory database.
-        ///     This method is obsolete. Use
-        ///     <see cref="UseInMemoryDatabase{TContext}(DbContextOptionsBuilder{TContext},Action{InMemoryDbContextOptionsBuilder})" /> instead.
+        ///     <para>
+        ///         Enables nullability check for all properties across all entities within the in-memory database.
+        ///     </para>
         /// </summary>
         /// <typeparam name="TContext"> The type of context being configured. </typeparam>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
-        /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>
-        /// <returns> The options builder so that further configuration can be chained. </returns>
-        [Obsolete("Use UseInMemoryDatabase(string, InMemoryDatabaseRoot) instead.")]
-        public static DbContextOptionsBuilder<TContext> UseInMemoryDatabase<TContext>(
+        /// <param name="nullabilityCheckEnabled"> If <see langword="true" />, then nullability check is enforced. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static DbContextOptionsBuilder<TContext> EnableNullabilityCheck<TContext>(
             [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
-            [CanBeNull] Action<InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null)
+            bool nullabilityCheckEnabled = true)
             where TContext : DbContext
-            => optionsBuilder.UseInMemoryDatabase(LegacySharedName, null, inMemoryOptionsAction);
+            => (DbContextOptionsBuilder<TContext>)EnableNullabilityCheck(
+                (DbContextOptionsBuilder)optionsBuilder, nullabilityCheckEnabled);
 
         /// <summary>
-        ///     Configures the context to connect to the legacy shared in-memory database.
-        ///     This method is obsolete. Use <see cref="UseInMemoryDatabase(DbContextOptionsBuilder,Action{InMemoryDbContextOptionsBuilder})" />
-        ///     instead.
+        ///     <para>
+        ///         Enables nullability check for all properties across all entities within the in-memory database.
+        ///     </para>
         /// </summary>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
-        /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>
-        /// <returns> The options builder so that further configuration can be chained. </returns>
-        [Obsolete("Use UseInMemoryDatabase(string, InMemoryDatabaseRoot) instead.")]
-        public static DbContextOptionsBuilder UseInMemoryDatabase(
+        /// <param name="nullabilityCheckEnabled"> If <see langword="true" />, then nullability check is enforced. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static DbContextOptionsBuilder EnableNullabilityCheck(
             [NotNull] this DbContextOptionsBuilder optionsBuilder,
-            [CanBeNull] Action<InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null)
-            => optionsBuilder.UseInMemoryDatabase(LegacySharedName, null, inMemoryOptionsAction);
+            bool nullabilityCheckEnabled = true)
+        {
+            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
+
+            var extension = optionsBuilder.Options.FindExtension<InMemoryOptionsExtension>()
+                ?? new InMemoryOptionsExtension();
+
+            extension = extension.WithNullabilityCheckEnabled(nullabilityCheckEnabled);
+
+            ConfigureWarnings(optionsBuilder);
+
+            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
+
+            return optionsBuilder;
+        }
 
         private static void ConfigureWarnings(DbContextOptionsBuilder optionsBuilder)
         {
             // Set warnings defaults
             var coreOptionsExtension
                 = optionsBuilder.Options.FindExtension<CoreOptionsExtension>()
-                  ?? new CoreOptionsExtension();
+                ?? new CoreOptionsExtension();
 
             coreOptionsExtension = coreOptionsExtension.WithWarningsConfiguration(
                 coreOptionsExtension.WarningsConfiguration.TryWithExplicit(

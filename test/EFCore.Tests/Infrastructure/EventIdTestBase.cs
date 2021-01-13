@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -18,7 +17,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public void TestEventLogging(
             Type eventIdType,
             Type loggerExtensionsType,
-            IDictionary<Type, Func<object>> fakeFactories)
+            Type loggerDefinitionsType,
+            IDictionary<Type, Func<object>> fakeFactories,
+            Dictionary<string, IList<string>> eventMappings = null)
         {
             var eventIdFields = eventIdType.GetTypeInfo()
                 .DeclaredFields
@@ -32,93 +33,117 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .ToList();
 
             var loggerMethods = declaredMethods
-                .ToDictionary(m => m.Name);
+                .GroupBy(e => e.Name)
+                .ToDictionary(m => m.Key, e => e.First());
 
             foreach (var eventIdField in eventIdFields)
             {
                 var eventName = eventIdField.Name;
-                Assert.Contains(eventName, loggerMethods.Keys);
-
-                var loggerMethod = loggerMethods[eventName];
-
-                var loggerParameters = loggerMethod.GetParameters();
-                var category = loggerParameters[0].ParameterType.GenericTypeArguments[0];
-
-                if (category.GetTypeInfo().ContainsGenericParameters)
+                if (eventMappings == null
+                    || !eventMappings.TryGetValue(eventName, out var mappedNames))
                 {
-                    category = typeof(DbLoggerCategory.Infrastructure);
-                    loggerMethod = loggerMethod.MakeGenericMethod(category);
+                    mappedNames = new List<string> { eventName };
                 }
 
-                var eventId = (EventId)eventIdField.GetValue(null);
-
-                Assert.InRange(eventId.Id, CoreEventId.CoreBaseId, ushort.MaxValue);
-
-                var categoryName = Activator.CreateInstance(category).ToString();
-                Assert.Equal(categoryName + "." + eventName, eventId.Name);
-
-                var testLogger = (TestLoggerBase)Activator.CreateInstance(typeof(TestLogger<>).MakeGenericType(category));
-                var testDiagnostics = (TestDiagnosticSource)testLogger.DiagnosticSource;
-
-                var args = new object[loggerParameters.Length];
-                args[0] = testLogger;
-
-                for (var i = 1; i < args.Length; i++)
+                foreach (var mappedName in mappedNames)
                 {
-                    var type = loggerParameters[i].ParameterType;
+                    Assert.Contains(mappedName, loggerMethods.Keys);
 
-                    if (fakeFactories.TryGetValue(type, out var factory))
+                    var loggerMethod = loggerMethods[mappedName];
+
+                    var loggerParameters = loggerMethod.GetParameters();
+                    var category = loggerParameters[0].ParameterType.GenericTypeArguments[0];
+
+                    if (category.ContainsGenericParameters)
                     {
-                        args[i] = factory();
+                        category = typeof(DbLoggerCategory.Infrastructure);
+                        loggerMethod = loggerMethod.MakeGenericMethod(category);
                     }
-                    else
+
+                    var eventId = (EventId)eventIdField.GetValue(null);
+
+                    Assert.InRange(eventId.Id, CoreEventId.CoreBaseId, ushort.MaxValue);
+
+                    var categoryName = Activator.CreateInstance(category).ToString();
+                    Assert.Equal(categoryName + "." + eventName, eventId.Name);
+
+                    var testLogger =
+                        (TestLoggerBase)Activator.CreateInstance(typeof(TestLogger<,>).MakeGenericType(category, loggerDefinitionsType));
+                    var testDiagnostics = (TestDiagnosticSource)testLogger.DiagnosticSource;
+                    var contextLogger = (TestDbContextLogger)testLogger.DbContextLogger;
+
+                    var args = new object[loggerParameters.Length];
+                    args[0] = testLogger;
+
+                    for (var i = 1; i < args.Length; i++)
                     {
-                        try
+                        var type = loggerParameters[i].ParameterType;
+
+                        if (fakeFactories.TryGetValue(type, out var factory))
                         {
-                            args[i] = Activator.CreateInstance(type);
-                        }
-                        catch (Exception)
-                        {
-                            Assert.True(false, "Need to add factory for type " + type.DisplayName());
-                        }
-                    }
-                }
-
-                foreach (var enableFor in new[] { "Foo", eventId.Name })
-                {
-                    testDiagnostics.EnableFor = enableFor;
-
-                    var logged = false;
-                    foreach (LogLevel logLevel in Enum.GetValues(typeof(LogLevel)))
-                    {
-                        testLogger.EnabledFor = logLevel;
-                        testLogger.LoggedAt = null;
-                        testDiagnostics.LoggedEventName = null;
-
-                        loggerMethod.Invoke(null, args);
-
-                        if (testLogger.LoggedAt != null)
-                        {
-                            Assert.Equal(logLevel, testLogger.LoggedAt);
-                            logged = true;
-                        }
-
-                        if (enableFor == eventId.Name
-                            && categoryName != DbLoggerCategory.Scaffolding.Name)
-                        {
-                            Assert.Equal(eventId.Name, testDiagnostics.LoggedEventName);
-                            if (testDiagnostics.LoggedMessage != null)
-                            {
-                                Assert.Equal(testLogger.Message, testDiagnostics.LoggedMessage);
-                            }
+                            args[i] = factory();
                         }
                         else
                         {
-                            Assert.Null(testDiagnostics.LoggedEventName);
+                            try
+                            {
+                                args[i] = Activator.CreateInstance(type);
+                            }
+                            catch (Exception)
+                            {
+                                Assert.True(
+                                    false,
+                                    "Need to add fake test factory for type "
+                                    + type.DisplayName()
+                                    + " in class "
+                                    + eventIdType.Name
+                                    + "Test");
+                            }
                         }
                     }
 
-                    Assert.True(logged, "Failed for " + eventId.Name);
+                    foreach (var enableFor in new[] { "Foo", eventId.Name })
+                    {
+                        testDiagnostics.EnableFor = enableFor;
+
+                        var logged = false;
+                        foreach (LogLevel logLevel in Enum.GetValues(typeof(LogLevel)))
+                        {
+                            testLogger.EnabledFor = logLevel;
+                            testLogger.LoggedAt = null;
+                            testDiagnostics.LoggedEventName = null;
+
+                            loggerMethod.Invoke(null, args);
+
+                            if (testLogger.LoggedAt != null)
+                            {
+                                Assert.Equal(logLevel, testLogger.LoggedAt);
+                                logged = true;
+
+                                if (categoryName != DbLoggerCategory.Scaffolding.Name)
+                                {
+                                    Assert.Equal(logLevel, contextLogger.LoggedAt);
+                                    Assert.Equal(eventId, contextLogger.LoggedEvent);
+                                }
+                            }
+
+                            if (enableFor == eventId.Name
+                                && categoryName != DbLoggerCategory.Scaffolding.Name)
+                            {
+                                Assert.Equal(eventId.Name, testDiagnostics.LoggedEventName);
+                                if (testDiagnostics.LoggedMessage != null)
+                                {
+                                    Assert.Equal(testLogger.Message, testDiagnostics.LoggedMessage);
+                                }
+                            }
+                            else
+                            {
+                                Assert.Null(testDiagnostics.LoggedEventName);
+                            }
+                        }
+
+                        Assert.True(logged, "Failed for " + eventId.Name);
+                    }
                 }
             }
         }

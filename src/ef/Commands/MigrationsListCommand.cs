@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections;
@@ -9,11 +9,12 @@ using Microsoft.EntityFrameworkCore.Tools.Properties;
 namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     // ReSharper disable once ArrangeTypeModifiers
-    partial class MigrationsListCommand
+    internal partial class MigrationsListCommand
     {
-        protected override int Execute()
+        protected override int Execute(string[] args)
         {
-            var migrations = CreateExecutor().GetMigrations(Context.Value()).ToList();
+            using var executor = CreateExecutor(args);
+            var migrations = executor.GetMigrations(Context.Value(), _connection.Value(), _noConnect.HasValue()).ToList();
 
             if (_json.HasValue())
             {
@@ -24,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 ReportResults(migrations);
             }
 
-            return base.Execute();
+            return base.Execute(args);
         }
 
         private static void ReportJsonResults(IReadOnlyList<IDictionary> migrations)
@@ -42,7 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 Reporter.WriteData("  {");
                 Reporter.WriteData("    \"id\": \"" + migrations[i]["Id"] + "\",");
                 Reporter.WriteData("    \"name\": \"" + migrations[i]["Name"] + "\",");
-                Reporter.WriteData("    \"safeName\": \"" + safeName + "\"");
+                Reporter.WriteData("    \"safeName\": \"" + safeName + "\",");
+                Reporter.WriteData("    \"applied\": " + Json.Literal(migrations[i]["Applied"] as bool?));
 
                 var line = "  }";
                 if (i != migrations.Count - 1)
@@ -61,7 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             var any = false;
             foreach (var migration in migrations)
             {
-                Reporter.WriteData(migration["Id"] as string);
+                var id = migration["Id"] as string;
+                var applied = migration["Applied"] as bool?;
+                Reporter.WriteData($"{id}{(applied != false ? null : Resources.Pending)}");
                 any = true;
             }
 

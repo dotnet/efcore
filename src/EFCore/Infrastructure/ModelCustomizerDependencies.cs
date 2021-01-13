@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -23,8 +23,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         first resolve the object from the dependency injection container, then replace selected
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />.
+    ///         This means a single instance of each service is used by many <see cref="DbContext" /> instances.
+    ///         The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
+    ///     </para>
     /// </summary>
-    public sealed class ModelCustomizerDependencies
+    public sealed record ModelCustomizerDependencies
     {
         /// <summary>
         ///     <para>
@@ -38,7 +44,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         injection container, then replace selected services using the 'With...' methods. Do not call
         ///         the constructor at any point in this process.
         ///     </para>
+        ///     <para>
+        ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///         any release. You should only use it directly in your code with extreme caution and knowing that
+        ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     </para>
         /// </summary>
+        [EntityFrameworkInternal]
         public ModelCustomizerDependencies([NotNull] IDbSetFinder setFinder)
         {
             Check.NotNull(setFinder, nameof(setFinder));
@@ -50,14 +63,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Gets the <see cref="IDbSetFinder" /> that will locate the <see cref="DbSet{TEntity}" /> properties
         ///     on the derived context.
         /// </summary>
-        public IDbSetFinder SetFinder { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="setFinder"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModelCustomizerDependencies With([NotNull] IDbSetFinder setFinder)
-            => new ModelCustomizerDependencies(setFinder);
+        public IDbSetFinder SetFinder { get; [param: NotNull] init; }
     }
 }

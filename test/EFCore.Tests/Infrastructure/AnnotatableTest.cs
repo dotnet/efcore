@@ -3,14 +3,14 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public class AnnotatableTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_add_and_remove_annotation()
         {
             var annotatable = new Annotatable();
@@ -24,8 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Equal("Bar", annotatable["Foo"]);
             Assert.Same(annotation, annotatable.FindAnnotation("Foo"));
 
-            Assert.Same(annotation, annotatable.GetOrAddAnnotation("Foo", "Baz"));
-
             Assert.Equal(new[] { annotation }, annotatable.GetAnnotations().ToArray());
 
             Assert.Same(annotation, annotatable.RemoveAnnotation(annotation.Name));
@@ -36,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Null(annotatable.FindAnnotation("Foo"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Addind_duplicate_annotation_throws()
         {
             var annotatable = new Annotatable();
@@ -44,15 +42,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             annotatable.AddAnnotation("Foo", "Bar");
 
             Assert.Equal(
-                CoreStrings.DuplicateAnnotation("Foo"),
+                CoreStrings.DuplicateAnnotation("Foo", annotatable.ToString()),
                 Assert.Throws<InvalidOperationException>(() => annotatable.AddAnnotation("Foo", "Bar")).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_model_annotations()
         {
             var annotatable = new Annotatable();
-            var annotation = annotatable.GetOrAddAnnotation("Foo", "Bar");
+            var annotation = annotatable.AddAnnotation("Foo", "Bar");
 
             Assert.NotNull(annotation);
             Assert.Same(annotation, annotatable.FindAnnotation("Foo"));
@@ -70,11 +68,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Empty(annotatable.GetAnnotations());
 
             Assert.Equal(
-                CoreStrings.AnnotationNotFound("Foo"),
+                CoreStrings.AnnotationNotFound("Foo", "Microsoft.EntityFrameworkCore.Infrastructure.Annotatable"),
                 Assert.Throws<InvalidOperationException>(() => annotatable.GetAnnotation("Foo")).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Annotations_are_ordered_by_name()
         {
             var annotatable = new Annotatable();

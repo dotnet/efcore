@@ -4,10 +4,11 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
@@ -15,28 +16,36 @@ using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
-using ScaffoldingAnnotationNames = Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal.ScaffoldingAnnotationNames;
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore.Internal
 {
     public class RelationalDatabaseModelFactoryTest
     {
         private readonly IScaffoldingModelFactory _factory;
         private readonly TestOperationReporter _reporter;
 
-        private static DatabaseColumn IdColumn => new DatabaseColumn
-        {
-            Name = "Id",
-            StoreType = "int"
-        };
+        private static readonly DatabaseModel Database;
+        private static readonly DatabaseTable Table;
+        private static readonly DatabaseColumn IdColumn;
+        private static readonly DatabasePrimaryKey IdPrimaryKey;
 
-        private static readonly DatabasePrimaryKey IdPrimaryKey = new DatabasePrimaryKey
+        static RelationalDatabaseModelFactoryTest()
         {
-            Columns =
+            Database = new DatabaseModel();
+            Table = new DatabaseTable { Database = Database, Name = "Foo" };
+            IdColumn = new DatabaseColumn
             {
-                IdColumn
-            }
-        };
+                Table = Table,
+                Name = "Id",
+                StoreType = "int"
+            };
+            IdPrimaryKey = new DatabasePrimaryKey
+            {
+                Table = Table,
+                Name = "IdPrimaryKey",
+                Columns = { IdColumn }
+            };
+        }
 
         public RelationalDatabaseModelFactoryTest()
         {
@@ -52,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore
                 .GetRequiredService<IScaffoldingModelFactory>();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Creates_entity_types()
         {
             var info = new DatabaseModel
@@ -61,47 +70,52 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     new DatabaseTable
                     {
+                        Database = Database,
                         Name = "tableWithSchema",
                         Schema = "public",
-                        Columns =
-                        {
-                            IdColumn
-                        },
+                        Columns = { IdColumn },
                         PrimaryKey = IdPrimaryKey
                     },
                     new DatabaseTable
                     {
+                        Database = Database,
                         Name = "noSchema",
-                        Columns =
-                        {
-                            IdColumn
-                        },
+                        Columns = { IdColumn },
                         PrimaryKey = IdPrimaryKey
                     },
-                    new DatabaseTable
-                    {
-                        Name = "notScaffoldable"
-                    }
+                    new DatabaseTable { Database = Database, Name = "noPrimaryKey" },
+                    new DatabaseView { Database = Database, Name = "view" }
                 }
             };
-            var model = _factory.Create(info, false);
+            var model = _factory.Create(info, new ModelReverseEngineerOptions());
             Assert.Collection(
                 model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
+                vwtable =>
+                {
+                    Assert.Equal("noPrimaryKey", vwtable.GetTableName());
+                    Assert.Empty(vwtable.GetKeys());
+                },
                 table =>
                 {
-                    Assert.Equal("noSchema", table.Relational().TableName);
-                    Assert.Null(table.Relational().Schema);
+                    Assert.Equal("noSchema", table.GetTableName());
+                    Assert.Null(table.GetSchema());
                 },
                 pgtable =>
                 {
-                    Assert.Equal("tableWithSchema", pgtable.Relational().TableName);
-                    Assert.Equal("public", pgtable.Relational().Schema);
+                    Assert.Equal("tableWithSchema", pgtable.GetTableName());
+                    Assert.Equal("public", pgtable.GetSchema());
+                },
+                view =>
+                {
+                    Assert.Equal("view", view.GetViewName());
+                    Assert.Null(view.GetTableName());
+                    Assert.NotNull(view.FindAnnotation(RelationalAnnotationNames.ViewDefinitionSql));
                 }
             );
-            Assert.NotEmpty(model.Scaffolding().EntityTypeErrors.Values);
+            Assert.Empty(model.GetEntityTypeErrors().Values);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Creates_entity_types_case_insensitive()
         {
             var info = new DatabaseModel
@@ -110,29 +124,25 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     new DatabaseTable
                     {
+                        Database = Database,
                         Name = "TestTable",
-                        Columns =
-                        {
-                            IdColumn
-                        },
+                        Columns = { IdColumn },
                         PrimaryKey = IdPrimaryKey
                     },
                     new DatabaseTable
                     {
+                        Database = Database,
                         Name = "TESTTABLE",
-                        Columns =
-                        {
-                            IdColumn
-                        },
+                        Columns = { IdColumn },
                         PrimaryKey = IdPrimaryKey
                     }
                 }
             };
-            var model = _factory.Create(info, false);
+            var model = _factory.Create(info, new ModelReverseEngineerOptions());
             Assert.Equal(2, model.GetEntityTypes().Select(et => et.Name).Distinct(StringComparer.OrdinalIgnoreCase).Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Loads_column_types()
         {
             var info = new DatabaseModel
@@ -141,24 +151,28 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     new DatabaseTable
                     {
+                        Database = Database,
                         Name = "Jobs",
                         Columns =
                         {
                             IdColumn,
                             new DatabaseColumn
                             {
+                                Table = Table,
                                 Name = "occupation",
                                 StoreType = "nvarchar(max)",
                                 DefaultValueSql = "\"dev\""
                             },
                             new DatabaseColumn
                             {
+                                Table = Table,
                                 Name = "salary",
                                 StoreType = "int",
                                 IsNullable = true
                             },
                             new DatabaseColumn
                             {
+                                Table = Table,
                                 Name = "modified",
                                 StoreType = "nvarchar(max)",
                                 IsNullable = false,
@@ -166,12 +180,14 @@ namespace Microsoft.EntityFrameworkCore
                             },
                             new DatabaseColumn
                             {
+                                Table = Table,
                                 Name = "created",
                                 StoreType = "nvarchar(max)",
                                 ValueGenerated = ValueGenerated.OnAdd
                             },
                             new DatabaseColumn
                             {
+                                Table = Table,
                                 Name = "current",
                                 StoreType = "nvarchar(max)",
                                 ComputedColumnSql = "compute_this()"
@@ -182,7 +198,8 @@ namespace Microsoft.EntityFrameworkCore
                 }
             };
 
-            var entityType = (EntityType)_factory.Create(info, false).FindEntityType("Jobs");
+            var entityType =
+                (EntityType)_factory.Create(info, new ModelReverseEngineerOptions { NoPluralize = true }).FindEntityType("Jobs");
 
             Assert.Collection(
                 entityType.GetProperties(),
@@ -193,38 +210,38 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 col1 =>
                 {
-                    Assert.Equal("created", col1.Relational().ColumnName);
+                    Assert.Equal("created", col1.GetColumnBaseName());
                     Assert.Equal(ValueGenerated.OnAdd, col1.ValueGenerated);
                 },
                 col2 =>
                 {
                     Assert.Equal("Current", col2.Name);
                     Assert.Equal(typeof(string), col2.ClrType);
-                    Assert.Equal("compute_this()", col2.Relational().ComputedColumnSql);
+                    Assert.Equal("compute_this()", col2.GetComputedColumnSql());
                 },
                 col3 =>
                 {
-                    Assert.Equal("modified", col3.Relational().ColumnName);
+                    Assert.Equal("modified", col3.GetColumnBaseName());
                     Assert.Equal(ValueGenerated.OnAddOrUpdate, col3.ValueGenerated);
                 },
                 col4 =>
                 {
-                    Assert.Equal("occupation", col4.Relational().ColumnName);
+                    Assert.Equal("occupation", col4.GetColumnBaseName());
                     Assert.Equal(typeof(string), col4.ClrType);
                     Assert.False(col4.IsColumnNullable());
                     Assert.Null(col4.GetMaxLength());
-                    Assert.Equal("\"dev\"", col4.Relational().DefaultValueSql);
+                    Assert.Equal("\"dev\"", col4.GetDefaultValueSql());
                 },
                 col5 =>
                 {
                     Assert.Equal("Salary", col5.Name);
                     Assert.Equal(typeof(int?), col5.ClrType);
                     Assert.True(col5.IsColumnNullable());
-                    Assert.Null(col5.Relational().DefaultValue);
+                    Assert.Null(col5.GetDefaultValue());
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Use_database_names_for_columns()
         {
             var info = new DatabaseModel
@@ -233,22 +250,26 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     new DatabaseTable
                     {
+                        Database = Database,
                         Name = "NaturalProducts",
                         Columns =
                         {
                             IdColumn,
                             new DatabaseColumn
                             {
+                                Table = Table,
                                 Name = "ProductSKU",
                                 StoreType = "nvarchar(max)"
                             },
                             new DatabaseColumn
                             {
+                                Table = Table,
                                 Name = "supplierID",
                                 StoreType = "nvarchar(max)"
                             },
                             new DatabaseColumn
                             {
+                                Table = Table,
                                 Name = "Vendor_Discount",
                                 StoreType = "nvarchar(max)"
                             }
@@ -258,17 +279,19 @@ namespace Microsoft.EntityFrameworkCore
                 }
             };
 
-            var entityType = _factory.Create(info, useDatabaseNames: true).FindEntityType("NaturalProducts");
+            var entityType = _factory
+                .Create(info, new ModelReverseEngineerOptions { UseDatabaseNames = true, NoPluralize = true })
+                .FindEntityType("NaturalProducts");
 
             Assert.Collection(
                 entityType.GetProperties(),
-                pk => { Assert.Equal("Id", pk.Name); },
-                col1 => { Assert.Equal("ProductSKU", col1.Name); },
-                col2 => { Assert.Equal("Vendor_Discount", col2.Name); },
-                col3 => { Assert.Equal("supplierID", col3.Name); });
+                pk => Assert.Equal("Id", pk.Name),
+                col1 => Assert.Equal("ProductSKU", col1.Name),
+                col2 => Assert.Equal("Vendor_Discount", col2.Name),
+                col3 => Assert.Equal("supplierID", col3.Name));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Do_not_use_database_names_for_columns()
         {
             var info = new DatabaseModel
@@ -277,22 +300,26 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     new DatabaseTable
                     {
+                        Database = Database,
                         Name = "NaturalProducts",
                         Columns =
                         {
                             IdColumn,
                             new DatabaseColumn
                             {
+                                Table = Table,
                                 Name = "ProductSKU",
                                 StoreType = "nvarchar(max)"
                             },
                             new DatabaseColumn
                             {
+                                Table = Table,
                                 Name = "supplierID",
                                 StoreType = "nvarchar(max)"
                             },
                             new DatabaseColumn
                             {
+                                Table = Table,
                                 Name = "Vendor_Discount",
                                 StoreType = "nvarchar(max)"
                             }
@@ -302,28 +329,29 @@ namespace Microsoft.EntityFrameworkCore
                 }
             };
 
-            var entityType = _factory.Create(info, useDatabaseNames: false).FindEntityType("NaturalProducts");
+            var entityType = _factory.Create(info, new ModelReverseEngineerOptions { NoPluralize = true })
+                .FindEntityType("NaturalProducts");
 
             Assert.Collection(
                 entityType.GetProperties(),
-                pk => { Assert.Equal("Id", pk.Name); },
-                col1 => { Assert.Equal("ProductSku", col1.Name); },
-                col2 => { Assert.Equal("SupplierId", col2.Name); },
-                col3 => { Assert.Equal("VendorDiscount", col3.Name); });
+                pk => Assert.Equal("Id", pk.Name),
+                col1 => Assert.Equal("ProductSku", col1.Name),
+                col2 => Assert.Equal("SupplierId", col2.Name),
+                col3 => Assert.Equal("VendorDiscount", col3.Name));
         }
 
-        [Theory]
-        [InlineData("nvarchar(450)", null, null)]
-        [InlineData("alias for string", "nvarchar(450)", "alias for string")]
-        public void Column_type_annotation(string StoreType, string underlyingType, string expectedColumnType)
+        [ConditionalTheory]
+        [InlineData("nvarchar(450)", null)]
+        [InlineData("datetime2(4)", null)]
+        [InlineData("DateTime2(4)", "DateTime2(4)")]
+        public void Column_type_annotation(string storeType, string expectedColumnType)
         {
             var column = new DatabaseColumn
             {
+                Table = Table,
                 Name = "Col",
-                StoreType = StoreType
+                StoreType = storeType
             };
-
-            column.SetUnderlyingStoreType(underlyingType);
 
             var info = new DatabaseModel
             {
@@ -331,32 +359,30 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     new DatabaseTable
                     {
+                        Database = Database,
                         Name = "A",
-                        Columns =
-                        {
-                            column
-                        },
+                        Columns = { column },
                         PrimaryKey = new DatabasePrimaryKey
                         {
-                            Columns =
-                            {
-                                column
-                            }
+                            Table = Table,
+                            Name = "PK_Foo",
+                            Columns = { column }
                         }
                     }
                 }
             };
 
-            var property = (Property)_factory.Create(info, false).FindEntityType("A").FindProperty("Col");
+            var property = (Property)_factory.Create(info, new ModelReverseEngineerOptions()).FindEntityType("A").FindProperty("Col");
 
-            Assert.Equal(expectedColumnType, property.Relational().ColumnType);
+            Assert.Equal(expectedColumnType, property.GetColumnType());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Column_ordinal_annotation()
         {
             var col1 = new DatabaseColumn
             {
+                Table = Table,
                 Name = "Col1",
                 StoreType = "nvarchar(max)"
             };
@@ -366,43 +392,45 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     new DatabaseTable
                     {
+                        Database = Database,
                         Name = "A",
                         Columns =
                         {
                             col1,
                             new DatabaseColumn
                             {
+                                Table = Table,
                                 Name = "Col2",
                                 StoreType = "nvarchar(max)"
                             },
                             new DatabaseColumn
                             {
+                                Table = Table,
                                 Name = "Col3",
                                 StoreType = "nvarchar(max)"
                             }
                         },
                         PrimaryKey = new DatabasePrimaryKey
                         {
-                            Columns =
-                            {
-                                col1
-                            }
+                            Table = Table,
+                            Name = "PK_Foo",
+                            Columns = { col1 }
                         }
                     }
                 }
             };
 
-            var entityTypeA = _factory.Create(info, false).FindEntityType("A");
+            var entityTypeA = _factory.Create(info, new ModelReverseEngineerOptions()).FindEntityType("A");
             var property1 = (Property)entityTypeA.FindProperty("Col1");
             var property2 = (Property)entityTypeA.FindProperty("Col2");
             var property3 = (Property)entityTypeA.FindProperty("Col3");
 
-            Assert.Equal(0, property1.Scaffolding().ColumnOrdinal);
-            Assert.Equal(1, property2.Scaffolding().ColumnOrdinal);
-            Assert.Equal(2, property3.Scaffolding().ColumnOrdinal);
+            Assert.Equal(0, property1.GetColumnOrdinal());
+            Assert.Equal(1, property2.GetColumnOrdinal());
+            Assert.Equal(2, property3.GetColumnOrdinal());
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData("cheese")]
         [InlineData(null)]
         public void Unmappable_column_type(string StoreType)
@@ -413,34 +441,32 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     new DatabaseTable
                     {
+                        Database = Database,
                         Name = "E",
-                        Columns =
-                        {
-                            IdColumn
-                        },
+                        Columns = { IdColumn },
                         PrimaryKey = IdPrimaryKey
                     }
                 }
             };
 
-            info.Tables.First()
-                .Columns.Add(
-                    new DatabaseColumn
-                    {
-                        Table = info.Tables.First(),
-                        Name = "Coli",
-                        StoreType = StoreType
-                    });
+            info.Tables.First().Columns.Add(
+                new DatabaseColumn
+                {
+                    Table = info.Tables.First(),
+                    Name = "Coli",
+                    StoreType = StoreType
+                });
 
-            Assert.Single(_factory.Create(info, false).FindEntityType("E").GetProperties());
+            Assert.Single(_factory.Create(info, new ModelReverseEngineerOptions()).FindEntityType("E").GetProperties());
             Assert.Single(_reporter.Messages, t => t.Contains(DesignStrings.CannotFindTypeMappingForColumn("E.Coli", StoreType)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(new[] { "Id" }, 1)]
         [InlineData(new[] { "Id", "AltId" }, 2)]
+#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
         public void Primary_key(string[] keyProps, int length)
-
+#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
         {
             var info = new DatabaseModel
             {
@@ -448,14 +474,16 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     new DatabaseTable
                     {
+                        Database = Database,
                         Name = "PkTable",
-                        PrimaryKey = new DatabasePrimaryKey()
+                        PrimaryKey = new DatabasePrimaryKey { Table = Table, Name = "MyPk" }
                     }
                 }
             };
             foreach (var column in keyProps.Select(
                 k => new DatabaseColumn
                 {
+                    Table = Table,
                     Name = k,
                     StoreType = "int"
                 }))
@@ -463,119 +491,266 @@ namespace Microsoft.EntityFrameworkCore
                 info.Tables[0].Columns.Add(column);
                 info.Tables[0].PrimaryKey.Columns.Add(column);
             }
-            var model = (EntityType)_factory.Create(info, false).GetEntityTypes().Single();
 
-            Assert.Equal(keyProps, model.FindPrimaryKey().Properties.Select(p => p.Relational().ColumnName).ToArray());
+            var model = (EntityType)_factory.Create(info, new ModelReverseEngineerOptions()).GetEntityTypes().Single();
+
+            Assert.Equal("MyPk", model.FindPrimaryKey().GetName());
+            Assert.Equal(keyProps, model.FindPrimaryKey().Properties.Select(p => p.GetColumnBaseName()).ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
+        public void Unique_constraint()
+        {
+            var myColumn = new DatabaseColumn
+            {
+                Table = Table,
+                Name = "MyColumn",
+                StoreType = "int"
+            };
+
+            var databaseModel = new DatabaseModel
+            {
+                Tables =
+                {
+                    new DatabaseTable
+                    {
+                        Database = Database,
+                        Name = "MyTable",
+                        Columns = { IdColumn, myColumn },
+                        PrimaryKey = IdPrimaryKey,
+                        UniqueConstraints =
+                        {
+                            new DatabaseUniqueConstraint
+                            {
+                                Table = Table,
+                                Name = "MyUniqueConstraint",
+                                Columns = { myColumn }
+                            }
+                        }
+                    }
+                }
+            };
+
+            var entityType = (EntityType)_factory.Create(databaseModel, new ModelReverseEngineerOptions()).GetEntityTypes().Single();
+            var index = entityType.GetIndexes().Single();
+
+            Assert.True(index.IsUnique);
+            Assert.Equal("MyUniqueConstraint", index.GetDatabaseName());
+            Assert.Same(entityType.FindProperty("MyColumn"), index.Properties.Single());
+        }
+
+        [ConditionalFact]
+        public void Unique_constraint_without_name()
+        {
+            var myColumn = new DatabaseColumn
+            {
+                Table = Table,
+                Name = "MyColumn",
+                StoreType = "int"
+            };
+
+            var databaseModel = new DatabaseModel
+            {
+                Tables =
+                {
+                    new DatabaseTable
+                    {
+                        Database = Database,
+                        Name = "MyTable",
+                        Columns = { IdColumn, myColumn },
+                        PrimaryKey = IdPrimaryKey,
+                        UniqueConstraints =
+                        {
+                            new DatabaseUniqueConstraint
+                            {
+                                Table = Table,
+                                Columns = { myColumn }
+                            }
+                        }
+                    }
+                }
+            };
+
+            var entityType = (EntityType)_factory.Create(databaseModel, new ModelReverseEngineerOptions()).GetEntityTypes().Single();
+            var index = entityType.GetIndexes().Single();
+
+            Assert.True(index.IsUnique);
+            Assert.Equal("IX_MyTable_MyColumn", index.GetDatabaseName());
+            Assert.Same(entityType.FindProperty("MyColumn"), index.Properties.Single());
+        }
+
+        [ConditionalFact]
+        public void Unique_constraint_with_empty_string_name()
+        {
+            var myColumn = new DatabaseColumn
+            {
+                Table = Table,
+                Name = "MyColumn",
+                StoreType = "int"
+            };
+
+            var databaseModel = new DatabaseModel
+            {
+                Tables =
+                {
+                    new DatabaseTable
+                    {
+                        Database = Database,
+                        Name = "MyTable",
+                        Columns = { IdColumn, myColumn },
+                        PrimaryKey = IdPrimaryKey,
+                        UniqueConstraints =
+                        {
+                            new DatabaseUniqueConstraint
+                            {
+                                Table = Table,
+                                Name = "",
+                                Columns = { myColumn }
+                            }
+                        }
+                    }
+                }
+            };
+
+            var entityType = (EntityType)_factory.Create(databaseModel, new ModelReverseEngineerOptions()).GetEntityTypes().Single();
+            var index = entityType.GetIndexes().Single();
+
+            Assert.True(index.IsUnique);
+            Assert.Equal("IX_MyTable_MyColumn", index.GetDatabaseName());
+            Assert.Same(entityType.FindProperty("MyColumn"), index.Properties.Single());
+        }
+
+        [ConditionalFact]
         public void Indexes_and_alternate_keys()
         {
             var c1 = new DatabaseColumn
             {
+                Table = Table,
                 Name = "C1",
                 StoreType = "int"
             };
             var table = new DatabaseTable
             {
+                Database = Database,
                 Name = "T",
                 Columns =
                 {
                     c1,
                     new DatabaseColumn
                     {
+                        Table = Table,
                         Name = "C2",
                         StoreType = "int"
                     },
                     new DatabaseColumn
                     {
+                        Table = Table,
                         Name = "C3",
                         StoreType = "int"
                     }
                 },
                 PrimaryKey = new DatabasePrimaryKey
                 {
-                    Columns =
-                    {
-                        c1
-                    }
+                    Table = Table,
+                    Name = "PK_Foo",
+                    Columns = { c1 }
                 }
             };
             table.Indexes.Add(
                 new DatabaseIndex
                 {
+                    Table = Table,
                     Name = "IDX_C1",
-                    Columns =
-                    {
-                        table.Columns.ElementAt(0)
-                    },
+                    Columns = { table.Columns.ElementAt(0) },
                     IsUnique = false
                 });
             table.Indexes.Add(
                 new DatabaseIndex
                 {
-                    Name = "UNQ_C2",
-                    Columns =
-                    {
-                        table.Columns.ElementAt(1)
-                    },
+                    Table = Table,
+                    Name = "IDX_C2",
+                    Columns = { table.Columns.ElementAt(1) },
                     IsUnique = true
                 });
             table.Indexes.Add(
                 new DatabaseIndex
                 {
+                    Table = Table,
+                    Name = "",
+                    Columns = { table.Columns.ElementAt(2) },
+                    IsUnique = true
+                });
+            table.Indexes.Add(
+                new DatabaseIndex
+                {
+                    Table = Table,
                     Name = "IDX_C2_C1",
-                    Columns =
-                    {
-                        table.Columns.ElementAt(1),
-                        table.Columns.ElementAt(0)
-                    },
+                    Columns = { table.Columns.ElementAt(1), table.Columns.ElementAt(0) },
                     IsUnique = false
                 });
             table.Indexes.Add(
                 new DatabaseIndex
                 {
-                    /*Name ="UNQ_C3_C1",*/
-                    Columns =
-                    {
-                        table.Columns.ElementAt(2),
-                        table.Columns.ElementAt(0)
-                    },
+                    Table = Table,
+                    Columns = { table.Columns.ElementAt(1), table.Columns.ElementAt(2) },
+                    IsUnique = false
+                });
+            table.Indexes.Add(
+                new DatabaseIndex
+                {
+                    Table = Table,
+                    Name = "UNQ_C3_C1",
+                    Columns = { table.Columns.ElementAt(2), table.Columns.ElementAt(0) },
                     IsUnique = true
                 });
 
-            var info = new DatabaseModel
-            {
-                Tables =
-                {
-                    table
-                }
-            };
+            var info = new DatabaseModel { Tables = { table } };
 
-            var entityType = (EntityType)_factory.Create(info, false).GetEntityTypes().Single();
+            var entityType = (EntityType)_factory.Create(info, new ModelReverseEngineerOptions()).GetEntityTypes().Single();
 
             Assert.Collection(
                 entityType.GetIndexes(),
-                indexColumn1 =>
+                t =>
                 {
-                    Assert.False(indexColumn1.IsUnique);
-                    Assert.Equal("IDX_C1", indexColumn1.Relational().Name);
-                    Assert.Same(entityType.FindProperty("C1"), indexColumn1.Properties.Single());
+                    Assert.True(t.IsUnique);
+                    Assert.Null(t.Name);
+                    Assert.Equal("IX_T_C3", t.GetDatabaseName());
+                    Assert.Same(entityType.FindProperty("C3"), t.Properties.Single());
                 },
-                uniqueColumn2 =>
+                t =>
                 {
-                    Assert.True(uniqueColumn2.IsUnique);
-                    Assert.Same(entityType.FindProperty("C2"), uniqueColumn2.Properties.Single());
+                    Assert.False(t.IsUnique);
+                    Assert.Null(t.Name);
+                    Assert.Equal("IX_T_C2_C3", t.GetDatabaseName());
+                    Assert.Equal(new[] { "C2", "C3" }, t.Properties.Select(c => c.Name).ToArray());
                 },
-                indexColumn2Column1 =>
+                t =>
                 {
-                    Assert.False(indexColumn2Column1.IsUnique);
-                    Assert.Equal(new[] { "C2", "C1" }, indexColumn2Column1.Properties.Select(c => c.Name).ToArray());
+                    Assert.False(t.IsUnique);
+                    Assert.Equal("IDX_C1", t.Name);
+                    Assert.Equal("IDX_C1", t.GetDatabaseName());
+                    Assert.Same(entityType.FindProperty("C1"), t.Properties.Single());
                 },
-                uniqueColumn3Column1 =>
+                t =>
                 {
-                    Assert.True(uniqueColumn3Column1.IsUnique);
-                    Assert.Equal(new[] { "C3", "C1" }, uniqueColumn3Column1.Properties.Select(c => c.Name).ToArray());
+                    Assert.True(t.IsUnique);
+                    Assert.Equal("IDX_C2", t.Name);
+                    Assert.Equal("IDX_C2", t.GetDatabaseName());
+                    Assert.Same(entityType.FindProperty("C2"), t.Properties.Single());
+                },
+                t =>
+                {
+                    Assert.False(t.IsUnique);
+                    Assert.Equal("IDX_C2_C1", t.Name);
+                    Assert.Equal("IDX_C2_C1", t.GetDatabaseName());
+                    Assert.Equal(new[] { "C2", "C1" }, t.Properties.Select(c => c.Name).ToArray());
+                },
+                t =>
+                {
+                    Assert.True(t.IsUnique);
+                    Assert.Equal("UNQ_C3_C1", t.Name);
+                    Assert.Equal("UNQ_C3_C1", t.GetDatabaseName());
+                    Assert.Equal(new[] { "C3", "C1" }, t.Properties.Select(c => c.Name).ToArray());
                 }
             );
 
@@ -583,27 +758,26 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(0, entityType.GetKeys().Count(k => !k.IsPrimaryKey()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Foreign_key()
-
         {
             var parentTable = new DatabaseTable
             {
+                Database = Database,
                 Name = "Parent",
-                Columns =
-                {
-                    IdColumn
-                },
+                Columns = { IdColumn },
                 PrimaryKey = IdPrimaryKey
             };
             var childrenTable = new DatabaseTable
             {
+                Database = Database,
                 Name = "Children",
                 Columns =
                 {
                     IdColumn,
                     new DatabaseColumn
                     {
+                        Table = Table,
                         Name = "ParentId",
                         StoreType = "int",
                         IsNullable = true
@@ -615,28 +789,16 @@ namespace Microsoft.EntityFrameworkCore
                 new DatabaseForeignKey
                 {
                     Table = childrenTable,
+                    Name = "FK_Foo",
+                    Columns = { childrenTable.Columns.ElementAt(1) },
                     PrincipalTable = parentTable,
-                    OnDelete = ReferentialAction.Cascade,
-                    Columns =
-                    {
-                        childrenTable.Columns.ElementAt(1)
-                    },
-                    PrincipalColumns =
-                    {
-                        parentTable.Columns.ElementAt(0)
-                    }
+                    PrincipalColumns = { parentTable.Columns.ElementAt(0) },
+                    OnDelete = ReferentialAction.Cascade
                 });
 
             var model = _factory.Create(
-                new DatabaseModel
-                {
-                    Tables =
-                    {
-                        parentTable,
-                        childrenTable
-                    }
-                },
-                false);
+                new DatabaseModel { Tables = { parentTable, childrenTable } },
+                new ModelReverseEngineerOptions { NoPluralize = true });
 
             var parent = (EntityType)model.FindEntityType("Parent");
 
@@ -653,54 +815,148 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(parent.GetProperties().First(), principalKey.Properties[0]);
         }
 
-        [Fact]
-        public void Unique_foreign_key()
+        [ConditionalFact]
+        public void Foreign_key_from_keyless_table()
+        {
+            var databaseModel = new DatabaseModel();
+            var masterTable = new DatabaseTable { Database = databaseModel, Name = "Master" };
+            var idColumn = new DatabaseColumn
+            {
+                Table = masterTable,
+                Name = "Id",
+                StoreType = "int"
+            };
+            masterTable.Columns.Add(idColumn);
+            masterTable.PrimaryKey = new DatabasePrimaryKey
+            {
+                Table = masterTable,
+                Name = null,
+                Columns = { idColumn }
+            };
+            databaseModel.Tables.Add(masterTable);
+            var detailTable = new DatabaseTable { Database = databaseModel, Name = "Detail" };
+            var masterIdColumn = new DatabaseColumn
+            {
+                Table = detailTable,
+                Name = "MasterId",
+                StoreType = "int"
+            };
+            detailTable.Columns.Add(masterIdColumn);
+            detailTable.ForeignKeys.Add(
+                new DatabaseForeignKey
+                {
+                    Table = detailTable,
+                    Name = null,
+                    Columns = { masterIdColumn },
+                    PrincipalTable = masterTable,
+                    PrincipalColumns = { idColumn }
+                });
+            databaseModel.Tables.Add(detailTable);
 
+            var model = _factory.Create(databaseModel, new ModelReverseEngineerOptions());
+
+            var detail = model.FindEntityType("Detail");
+            var foreignKey = Assert.Single(detail.GetForeignKeys());
+            Assert.Equal("Master", foreignKey.DependentToPrincipal.Name);
+            Assert.Null(foreignKey.PrincipalToDependent);
+        }
+
+        [ConditionalFact]
+        public void Foreign_key_to_unique_constraint()
+        {
+            var keyColumn = new DatabaseColumn
+            {
+                Table = Table,
+                Name = "Key",
+                StoreType = "int",
+                IsNullable = false
+            };
+
+            var parentTable = new DatabaseTable
+            {
+                Database = Database,
+                Name = "Parent",
+                Columns = { IdColumn, keyColumn },
+                PrimaryKey = IdPrimaryKey
+            };
+
+            parentTable.UniqueConstraints.Add(
+                new DatabaseUniqueConstraint
+                {
+                    Table = parentTable,
+                    Name = "AK_Foo",
+                    Columns = { keyColumn }
+                });
+
+            var childrenTable = new DatabaseTable
+            {
+                Database = Database,
+                Name = "Children",
+                Columns = { IdColumn },
+                PrimaryKey = IdPrimaryKey
+            };
+
+            childrenTable.ForeignKeys.Add(
+                new DatabaseForeignKey
+                {
+                    Table = childrenTable,
+                    Name = "FK_Foo",
+                    Columns = { childrenTable.Columns.ElementAt(0) },
+                    PrincipalTable = parentTable,
+                    PrincipalColumns = { parentTable.Columns.ElementAt(1) },
+                    OnDelete = ReferentialAction.Cascade,
+                });
+
+            var model = _factory.Create(
+                new DatabaseModel { Tables = { parentTable, childrenTable } },
+                new ModelReverseEngineerOptions { NoPluralize = true });
+
+            var parent = (EntityType)model.FindEntityType("Parent");
+
+            var children = (EntityType)model.FindEntityType("Children");
+
+            Assert.NotEmpty(parent.GetReferencingForeignKeys());
+            var fk = Assert.Single(children.GetForeignKeys());
+            Assert.True(fk.IsUnique);
+            Assert.Equal(DeleteBehavior.Cascade, fk.DeleteBehavior);
+
+            var principalKey = fk.PrincipalKey;
+
+            Assert.Same(parent, principalKey.DeclaringEntityType);
+            Assert.Same(parent.GetProperties().First(p => p.Name == "Key"), principalKey.Properties[0]);
+        }
+
+        [ConditionalFact]
+        public void Unique_foreign_key()
         {
             var parentTable = new DatabaseTable
             {
+                Database = Database,
                 Name = "Parent",
-                Columns =
-                {
-                    IdColumn
-                },
+                Columns = { IdColumn },
                 PrimaryKey = IdPrimaryKey
             };
             var childrenTable = new DatabaseTable
             {
+                Database = Database,
                 Name = "Children",
-                Columns =
-                {
-                    IdColumn
-                },
+                Columns = { IdColumn },
                 PrimaryKey = IdPrimaryKey
             };
             childrenTable.ForeignKeys.Add(
                 new DatabaseForeignKey
                 {
                     Table = childrenTable,
+                    Name = "FK_Foo",
+                    Columns = { childrenTable.Columns.ElementAt(0) },
                     PrincipalTable = parentTable,
-                    OnDelete = ReferentialAction.NoAction,
-                    Columns =
-                    {
-                        childrenTable.Columns.ElementAt(0)
-                    },
-                    PrincipalColumns =
-                    {
-                        parentTable.Columns.ElementAt(0)
-                    }
+                    PrincipalColumns = { parentTable.Columns.ElementAt(0) },
+                    OnDelete = ReferentialAction.NoAction
                 });
 
             var model = _factory.Create(
-                new DatabaseModel
-                {
-                    Tables =
-                    {
-                        parentTable,
-                        childrenTable
-                    }
-                },
-                false);
+                new DatabaseModel { Tables = { parentTable, childrenTable } },
+                new ModelReverseEngineerOptions { NoPluralize = true });
 
             var children = (EntityType)model.FindEntityType("Children");
 
@@ -709,50 +965,49 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(DeleteBehavior.ClientSetNull, fk.DeleteBehavior);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Composite_foreign_key()
-
         {
             var ida = new DatabaseColumn
             {
+                Table = Table,
                 Name = "Id_A",
                 StoreType = "int"
             };
             var idb = new DatabaseColumn
             {
+                Table = Table,
                 Name = "Id_B",
                 StoreType = "int"
             };
             var parentTable = new DatabaseTable
             {
+                Database = Database,
                 Name = "Parent",
-                Columns =
-                {
-                    ida,
-                    idb
-                },
+                Columns = { ida, idb },
                 PrimaryKey = new DatabasePrimaryKey
                 {
-                    Columns =
-                    {
-                        ida,
-                        idb
-                    }
+                    Table = Table,
+                    Name = "PK_Foo",
+                    Columns = { ida, idb }
                 }
             };
             var childrenTable = new DatabaseTable
             {
+                Database = Database,
                 Name = "Children",
                 Columns =
                 {
                     IdColumn,
                     new DatabaseColumn
                     {
+                        Table = Table,
                         Name = "ParentId_A",
                         StoreType = "int"
                     },
                     new DatabaseColumn
                     {
+                        Table = Table,
                         Name = "ParentId_B",
                         StoreType = "int"
                     }
@@ -763,30 +1018,16 @@ namespace Microsoft.EntityFrameworkCore
                 new DatabaseForeignKey
                 {
                     Table = childrenTable,
+                    Name = "FK_Foo",
+                    Columns = { childrenTable.Columns.ElementAt(1), childrenTable.Columns.ElementAt(2) },
                     PrincipalTable = parentTable,
-                    OnDelete = ReferentialAction.SetNull,
-                    Columns =
-                    {
-                        childrenTable.Columns.ElementAt(1),
-                        childrenTable.Columns.ElementAt(2)
-                    },
-                    PrincipalColumns =
-                    {
-                        parentTable.Columns.ElementAt(0),
-                        parentTable.Columns.ElementAt(1)
-                    }
+                    PrincipalColumns = { parentTable.Columns.ElementAt(0), parentTable.Columns.ElementAt(1) },
+                    OnDelete = ReferentialAction.SetNull
                 });
 
             var model = _factory.Create(
-                new DatabaseModel
-                {
-                    Tables =
-                    {
-                        parentTable,
-                        childrenTable
-                    }
-                },
-                false);
+                new DatabaseModel { Tables = { parentTable, childrenTable } },
+                new ModelReverseEngineerOptions { NoPluralize = true });
 
             var parent = (EntityType)model.FindEntityType("Parent");
 
@@ -805,18 +1046,19 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("IdB", principalKey.Properties[1].Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void It_loads_self_referencing_foreign_key()
-
         {
             var table = new DatabaseTable
             {
+                Database = Database,
                 Name = "ItemsList",
                 Columns =
                 {
                     IdColumn,
                     new DatabaseColumn
                     {
+                        Table = Table,
                         Name = "ParentId",
                         StoreType = "int",
                         IsNullable = false
@@ -828,47 +1070,38 @@ namespace Microsoft.EntityFrameworkCore
                 new DatabaseForeignKey
                 {
                     Table = table,
+                    Name = "FK_Foo",
+                    Columns = { table.Columns.ElementAt(1) },
                     PrincipalTable = table,
-                    Columns =
-                    {
-                        table.Columns.ElementAt(1)
-                    },
-                    PrincipalColumns =
-                    {
-                        table.Columns.ElementAt(0)
-                    }
+                    PrincipalColumns = { table.Columns.ElementAt(0) }
                 });
 
             var model = _factory.Create(
-                new DatabaseModel
-                {
-                    Tables =
-                    {
-                        table
-                    }
-                },
-                false);
+                new DatabaseModel { Tables = { table } },
+                new ModelReverseEngineerOptions());
             var list = model.FindEntityType("ItemsList");
 
             Assert.NotEmpty(list.GetReferencingForeignKeys());
             Assert.NotEmpty(list.GetForeignKeys());
 
-            var principalKey = list.FindForeignKeys(list.FindProperty("ParentId")).SingleOrDefault().PrincipalKey;
+            var principalKey = list.FindForeignKeys(list.FindProperty("ParentId")).Single().PrincipalKey;
             Assert.Equal("ItemsList", principalKey.DeclaringEntityType.Name);
             Assert.Equal("Id", principalKey.Properties[0].Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void It_logs_warning_for_bad_foreign_key()
         {
             var parentTable = new DatabaseTable
             {
+                Database = Database,
                 Name = "Parent",
                 Columns =
                 {
                     IdColumn,
                     new DatabaseColumn
                     {
+                        Table = Table,
                         Name = "NotPkId",
                         StoreType = "int"
                     }
@@ -877,12 +1110,14 @@ namespace Microsoft.EntityFrameworkCore
             };
             var childrenTable = new DatabaseTable
             {
+                Database = Database,
                 Name = "Children",
                 Columns =
                 {
                     IdColumn,
                     new DatabaseColumn
                     {
+                        Table = Table,
                         Name = "ParentId",
                         StoreType = "int"
                     }
@@ -893,46 +1128,94 @@ namespace Microsoft.EntityFrameworkCore
                 new DatabaseForeignKey
                 {
                     Table = childrenTable,
+                    Name = "FK_Foo",
+                    Columns = { childrenTable.Columns.ElementAt(1) },
                     PrincipalTable = parentTable,
-                    Columns =
-                    {
-                        childrenTable.Columns.ElementAt(1)
-                    },
-                    PrincipalColumns =
-                    {
-                        parentTable.Columns.ElementAt(1)
-                    }
+                    PrincipalColumns = { parentTable.Columns.ElementAt(1) }
                 });
 
             _factory.Create(
-                new DatabaseModel
-                {
-                    Tables =
-                    {
-                        parentTable,
-                        childrenTable
-                    }
-                },
-                false);
+                new DatabaseModel { Tables = { parentTable, childrenTable } },
+                new ModelReverseEngineerOptions());
 
             Assert.Single(
                 _reporter.Messages, t => t.Contains(
-                    "warn: " +
-                    DesignStrings.ForeignKeyScaffoldErrorPrincipalKeyNotFound(
+                    "warn: "
+                    + DesignStrings.ForeignKeyScaffoldErrorPrincipalKeyNotFound(
                         childrenTable.ForeignKeys.ElementAt(0).DisplayName(), "NotPkId", "Parent")));
         }
 
-        [Fact]
+        [ConditionalFact]
+        public void It_logs_warning_for_duplicate_foreign_key()
+        {
+            var parentTable = new DatabaseTable
+            {
+                Database = Database,
+                Name = "Parent",
+                Columns =
+                {
+                    IdColumn
+                },
+                PrimaryKey = IdPrimaryKey
+            };
+            var childrenTable = new DatabaseTable
+            {
+                Database = Database,
+                Name = "Children",
+                Columns =
+                {
+                    IdColumn,
+                    new DatabaseColumn
+                    {
+                        Table = Table,
+                        Name = "ParentId",
+                        StoreType = "int"
+                    }
+                },
+                PrimaryKey = IdPrimaryKey
+            };
+            childrenTable.ForeignKeys.Add(
+                new DatabaseForeignKey
+                {
+                    Table = childrenTable,
+                    Name = "FK_Foo",
+                    Columns = { childrenTable.Columns.ElementAt(1) },
+                    PrincipalTable = parentTable,
+                    PrincipalColumns = { parentTable.Columns.ElementAt(0) }
+                });
+            childrenTable.ForeignKeys.Add(
+                new DatabaseForeignKey
+                {
+                    Table = childrenTable,
+                    Name = "FK_Another_Foo",
+                    Columns = { childrenTable.Columns.ElementAt(1) },
+                    PrincipalTable = parentTable,
+                    PrincipalColumns = { parentTable.Columns.ElementAt(0) }
+                });
+
+            _factory.Create(
+                new DatabaseModel { Tables = { parentTable, childrenTable } },
+                new ModelReverseEngineerOptions());
+
+            Assert.Single(
+                _reporter.Messages, t => t.Contains(
+                    "warn: "
+                    + DesignStrings.ForeignKeyWithSameFacetsExists(childrenTable.ForeignKeys.ElementAt(1).DisplayName(), "FK_Foo")));
+        }
+
+        [ConditionalFact]
         public void Unique_nullable_index_unused_by_foreign_key()
         {
             var table = new DatabaseTable
             {
+                Database = Database,
                 Name = "Friends",
                 Columns =
                 {
                     IdColumn,
                     new DatabaseColumn
                     {
+                        Table = Table,
                         Name = "BuddyId",
                         StoreType = "int",
                         IsNullable = true
@@ -943,36 +1226,24 @@ namespace Microsoft.EntityFrameworkCore
             table.Indexes.Add(
                 new DatabaseIndex
                 {
-                    Columns =
-                    {
-                        table.Columns.ElementAt(1)
-                    },
-                    IsUnique = true
+                    Table = Table,
+                    Name = "IX_Foo",
+                    IsUnique = true,
+                    Columns = { table.Columns.ElementAt(1) }
                 });
             table.ForeignKeys.Add(
                 new DatabaseForeignKey
                 {
                     Table = table,
+                    Name = "FK_Foo",
+                    Columns = { table.Columns.ElementAt(1) },
                     PrincipalTable = table,
-                    Columns =
-                    {
-                        table.Columns.ElementAt(1)
-                    },
-                    PrincipalColumns =
-                    {
-                        table.Columns.ElementAt(0)
-                    }
+                    PrincipalColumns = { table.Columns.ElementAt(0) }
                 });
 
             var model = _factory.Create(
-                new DatabaseModel
-                {
-                    Tables =
-                    {
-                        table
-                    }
-                },
-                false).FindEntityType("Friends");
+                new DatabaseModel { Tables = { table } },
+                new ModelReverseEngineerOptions { NoPluralize = true }).FindEntityType("Friends");
 
             var buddyIdProperty = model.FindProperty("BuddyId");
             Assert.NotNull(buddyIdProperty);
@@ -985,17 +1256,19 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(model.FindPrimaryKey(), fk.PrincipalKey);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Unique_nullable_index_used_by_foreign_key()
         {
             var table = new DatabaseTable
             {
+                Database = Database,
                 Name = "Friends",
                 Columns =
                 {
                     IdColumn,
                     new DatabaseColumn
                     {
+                        Table = Table,
                         Name = "BuddyId",
                         StoreType = "int",
                         IsNullable = true
@@ -1006,37 +1279,24 @@ namespace Microsoft.EntityFrameworkCore
             table.Indexes.Add(
                 new DatabaseIndex
                 {
+                    Table = Table,
                     Name = "FriendsNameUniqueIndex",
-                    Columns =
-                    {
-                        table.Columns.ElementAt(1)
-                    },
+                    Columns = { table.Columns.ElementAt(1) },
                     IsUnique = true
                 });
             table.ForeignKeys.Add(
                 new DatabaseForeignKey
                 {
                     Table = table,
+                    Name = "FK_Foo",
+                    Columns = { table.Columns.ElementAt(1) },
                     PrincipalTable = table,
-                    Columns =
-                    {
-                        table.Columns.ElementAt(1)
-                    },
-                    PrincipalColumns =
-                    {
-                        table.Columns.ElementAt(1)
-                    }
+                    PrincipalColumns = { table.Columns.ElementAt(1) }
                 });
 
             var model = _factory.Create(
-                new DatabaseModel
-                {
-                    Tables =
-                    {
-                        table
-                    }
-                },
-                false).FindEntityType("Friends");
+                new DatabaseModel { Tables = { table } },
+                new ModelReverseEngineerOptions { NoPluralize = true }).FindEntityType("Friends");
 
             var buddyIdProperty = model.FindProperty("BuddyId");
             Assert.NotNull(buddyIdProperty);
@@ -1050,54 +1310,54 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Single(
                 _reporter.Messages, t => t.Contains(
-                    "warn: " +
-                    DesignStrings.ForeignKeyPrincipalEndContainsNullableColumns(
+                    "warn: "
+                    + DesignStrings.ForeignKeyPrincipalEndContainsNullableColumns(
                         table.ForeignKeys.ElementAt(0).DisplayName(), "FriendsNameUniqueIndex", "Friends.BuddyId")));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Unique_index_composite_foreign_key()
         {
             var ida = new DatabaseColumn
             {
+                Table = Table,
                 Name = "Id_A",
                 StoreType = "int"
             };
             var idb = new DatabaseColumn
             {
+                Table = Table,
                 Name = "Id_B",
                 StoreType = "int"
             };
             var parentTable = new DatabaseTable
             {
+                Database = Database,
                 Name = "Parent",
-                Columns =
-                {
-                    ida,
-                    idb
-                },
+                Columns = { ida, idb },
                 PrimaryKey = new DatabasePrimaryKey
                 {
-                    Columns =
-                    {
-                        ida,
-                        idb
-                    }
+                    Table = Table,
+                    Name = "PK_Foo",
+                    Columns = { ida, idb }
                 }
             };
             var childrenTable = new DatabaseTable
             {
+                Database = Database,
                 Name = "Children",
                 Columns =
                 {
                     IdColumn,
                     new DatabaseColumn
                     {
+                        Table = Table,
                         Name = "ParentId_A",
                         StoreType = "int"
                     },
                     new DatabaseColumn
                     {
+                        Table = Table,
                         Name = "ParentId_B",
                         StoreType = "int"
                     }
@@ -1107,40 +1367,24 @@ namespace Microsoft.EntityFrameworkCore
             childrenTable.Indexes.Add(
                 new DatabaseIndex
                 {
+                    Table = Table,
+                    Name = "IX_Foo",
                     IsUnique = true,
-                    Columns =
-                    {
-                        childrenTable.Columns.ElementAt(1),
-                        childrenTable.Columns.ElementAt(2)
-                    }
+                    Columns = { childrenTable.Columns.ElementAt(1), childrenTable.Columns.ElementAt(2) }
                 });
             childrenTable.ForeignKeys.Add(
                 new DatabaseForeignKey
                 {
                     Table = childrenTable,
+                    Name = "FK_Foo",
+                    Columns = { childrenTable.Columns.ElementAt(1), childrenTable.Columns.ElementAt(2) },
                     PrincipalTable = parentTable,
-                    Columns =
-                    {
-                        childrenTable.Columns.ElementAt(1),
-                        childrenTable.Columns.ElementAt(2)
-                    },
-                    PrincipalColumns =
-                    {
-                        parentTable.Columns.ElementAt(0),
-                        parentTable.Columns.ElementAt(1)
-                    }
+                    PrincipalColumns = { parentTable.Columns.ElementAt(0), parentTable.Columns.ElementAt(1) }
                 });
 
             var model = _factory.Create(
-                new DatabaseModel
-                {
-                    Tables =
-                    {
-                        parentTable,
-                        childrenTable
-                    }
-                },
-                false);
+                new DatabaseModel { Tables = { parentTable, childrenTable } },
+                new ModelReverseEngineerOptions { NoPluralize = true });
             var parent = model.FindEntityType("Parent");
             var children = model.FindEntityType("Children");
 
@@ -1150,7 +1394,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(parent.FindPrimaryKey(), fk.PrincipalKey);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Unique_names()
         {
             var info = new DatabaseModel
@@ -1159,17 +1403,20 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     new DatabaseTable
                     {
+                        Database = Database,
                         Name = "E F",
                         Columns =
                         {
                             IdColumn,
                             new DatabaseColumn
                             {
+                                Table = Table,
                                 Name = "San itized",
                                 StoreType = "int"
                             },
                             new DatabaseColumn
                             {
+                                Table = Table,
                                 Name = "San+itized",
                                 StoreType = "int"
                             }
@@ -1178,49 +1425,47 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     new DatabaseTable
                     {
+                        Database = Database,
                         Name = "E+F",
-                        Columns =
-                        {
-                            IdColumn
-                        },
+                        Columns = { IdColumn },
                         PrimaryKey = IdPrimaryKey
                     }
                 }
             };
 
-            var model = _factory.Create(info, false);
+            var model = _factory.Create(info, new ModelReverseEngineerOptions());
 
             Assert.Collection(
                 model.GetEntityTypes().Cast<EntityType>(),
                 ef1 =>
                 {
-                    Assert.Equal("E F", ef1.Relational().TableName);
+                    Assert.Equal("E F", ef1.GetTableName());
                     Assert.Equal("EF", ef1.Name);
                     Assert.Collection(
                         ef1.GetProperties(),
-                        id => { Assert.Equal("Id", id.Name); },
+                        id => Assert.Equal("Id", id.Name),
                         s1 =>
                         {
                             Assert.Equal("SanItized", s1.Name);
-                            Assert.Equal("San itized", s1.Relational().ColumnName);
+                            Assert.Equal("San itized", s1.GetColumnBaseName());
                         },
                         s2 =>
                         {
                             Assert.Equal("SanItized1", s2.Name);
-                            Assert.Equal("San+itized", s2.Relational().ColumnName);
+                            Assert.Equal("San+itized", s2.GetColumnBaseName());
                         });
                 },
                 ef2 =>
                 {
-                    Assert.Equal("E+F", ef2.Relational().TableName);
+                    Assert.Equal("E+F", ef2.GetTableName());
                     Assert.Equal("EF1", ef2.Name);
                     var id = Assert.Single(ef2.GetProperties());
                     Assert.Equal("Id", id.Name);
-                    Assert.Equal("Id", id.Relational().ColumnName);
+                    Assert.Equal("Id", id.GetColumnBaseName());
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Sequences()
         {
             var info = new DatabaseModel
@@ -1229,16 +1474,17 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     new DatabaseSequence
                     {
+                        Database = Database,
                         Name = "CountByThree",
                         IncrementBy = 3
                     }
                 }
             };
 
-            var model = (Model)_factory.Create(info, false);
+            var model = _factory.Create(info, new ModelReverseEngineerOptions());
 
             Assert.Collection(
-                model.Relational().Sequences, first =>
+                model.GetSequences(), first =>
                 {
                     Assert.NotNull(first);
                     Assert.Equal("CountByThree", first.Name);
@@ -1250,7 +1496,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void DbSet_annotation_is_set()
         {
             var info = new DatabaseModel
@@ -1259,21 +1505,19 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     new DatabaseTable
                     {
+                        Database = Database,
                         Name = "Blog",
-                        Columns =
-                        {
-                            IdColumn
-                        },
+                        Columns = { IdColumn },
                         PrimaryKey = IdPrimaryKey
                     }
                 }
             };
 
-            var model = _factory.Create(info, false);
-            Assert.Equal("Blog", model.GetEntityTypes().Single().Scaffolding().DbSetName);
+            var model = _factory.Create(info, new ModelReverseEngineerOptions { NoPluralize = true });
+            Assert.Equal("Blog", model.GetEntityTypes().Single().GetDbSetName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Pluralization_of_entity_and_DbSet()
         {
             var info = new DatabaseModel
@@ -1282,20 +1526,16 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     new DatabaseTable
                     {
+                        Database = Database,
                         Name = "Blog",
-                        Columns =
-                        {
-                            IdColumn
-                        },
+                        Columns = { IdColumn },
                         PrimaryKey = IdPrimaryKey
                     },
                     new DatabaseTable
                     {
+                        Database = Database,
                         Name = "Posts",
-                        Columns =
-                        {
-                            IdColumn
-                        },
+                        Columns = { IdColumn },
                         PrimaryKey = IdPrimaryKey
                     }
                 }
@@ -1303,7 +1543,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var services = new ServiceCollection()
                 .AddEntityFrameworkDesignTimeServices(_reporter)
-                .AddSingleton<IPluralizer, FakePluralizer>()
+                .AddSingleton<IPluralizer, HumanizerPluralizer>()
                 .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>();
             new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
 
@@ -1311,63 +1551,116 @@ namespace Microsoft.EntityFrameworkCore
                 .BuildServiceProvider()
                 .GetRequiredService<IScaffoldingModelFactory>();
 
-            var model = factory.Create(info, false);
+            var model = factory.Create(info, new ModelReverseEngineerOptions());
 
             Assert.Collection(
                 model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
                 entity =>
                 {
-                    Assert.Equal("Blog", entity.Relational().TableName);
+                    Assert.Equal("Blog", entity.GetTableName());
                     Assert.Equal("Blog", entity.Name);
-                    Assert.Equal("Blogs", entity.Scaffolding().DbSetName);
+                    Assert.Equal("Blogs", entity.GetDbSetName());
                 },
                 entity =>
                 {
-                    Assert.Equal("Posts", entity.Relational().TableName);
+                    Assert.Equal("Posts", entity.GetTableName());
                     Assert.Equal("Post", entity.Name);
-                    Assert.Equal("Posts", entity.Scaffolding().DbSetName);
-                }
-            );
-
-            model = factory.Create(info, true);
-
-            Assert.Collection(
-                model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
-                entity =>
-                {
-                    Assert.Equal("Blog", entity.Relational().TableName);
-                    Assert.Equal("Blog", entity.Name);
-                    Assert.Equal("Blog", entity.Scaffolding().DbSetName);
-                },
-                entity =>
-                {
-                    Assert.Equal("Posts", entity.Relational().TableName);
-                    Assert.Equal("Posts", entity.Name);
-                    Assert.Equal("Posts", entity.Scaffolding().DbSetName);
+                    Assert.Equal("Posts", entity.GetDbSetName());
                 }
             );
         }
 
-        [Fact]
+        [ConditionalFact]
+        public void Pluralization_of_entity_and_DbSet_noPluralize()
+        {
+            var info = new DatabaseModel
+            {
+                Tables =
+                {
+                    new DatabaseTable
+                    {
+                        Database = Database,
+                        Name = "Blog",
+                        Columns = { IdColumn },
+                        PrimaryKey = IdPrimaryKey
+                    },
+                    new DatabaseTable
+                    {
+                        Database = Database,
+                        Name = "Posts",
+                        Columns = { IdColumn },
+                        PrimaryKey = IdPrimaryKey
+                    }
+                }
+            };
+
+            var services = new ServiceCollection()
+                .AddEntityFrameworkDesignTimeServices(_reporter)
+                .AddSingleton<IPluralizer, HumanizerPluralizer>()
+                .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>();
+            new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
+
+            var factory = services
+                .BuildServiceProvider()
+                .GetRequiredService<IScaffoldingModelFactory>();
+
+            var model = factory.Create(info, new ModelReverseEngineerOptions { NoPluralize = true });
+
+            Assert.Collection(
+                model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
+                entity =>
+                {
+                    Assert.Equal("Blog", entity.GetTableName());
+                    Assert.Equal("Blog", entity.Name);
+                    Assert.Equal("Blog", entity.GetDbSetName());
+                },
+                entity =>
+                {
+                    Assert.Equal("Posts", entity.GetTableName());
+                    Assert.Equal("Posts", entity.Name);
+                    Assert.Equal("Posts", entity.GetDbSetName());
+                }
+            );
+
+            model = factory.Create(info, new ModelReverseEngineerOptions { UseDatabaseNames = true, NoPluralize = true });
+
+            Assert.Collection(
+                model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
+                entity =>
+                {
+                    Assert.Equal("Blog", entity.GetTableName());
+                    Assert.Equal("Blog", entity.Name);
+                    Assert.Equal("Blog", entity.GetDbSetName());
+                },
+                entity =>
+                {
+                    Assert.Equal("Posts", entity.GetTableName());
+                    Assert.Equal("Posts", entity.Name);
+                    Assert.Equal("Posts", entity.GetDbSetName());
+                }
+            );
+        }
+
+        [ConditionalFact]
         public void Pluralization_of_collection_navigations()
         {
             var blogTable = new DatabaseTable
             {
+                Database = Database,
                 Name = "Blog",
-                Columns =
-                {
-                    IdColumn
-                },
+                Columns = { IdColumn },
                 PrimaryKey = IdPrimaryKey
             };
             var postTable = new DatabaseTable
             {
+                Database = Database,
                 Name = "Post",
                 Columns =
                 {
                     IdColumn,
                     new DatabaseColumn
                     {
+                        Table = Table,
                         Name = "BlogId",
                         StoreType = "int",
                         IsNullable = true
@@ -1380,30 +1673,18 @@ namespace Microsoft.EntityFrameworkCore
                 new DatabaseForeignKey
                 {
                     Table = postTable,
+                    Name = "FK_Foo",
+                    Columns = { postTable.Columns.ElementAt(1) },
                     PrincipalTable = blogTable,
-                    OnDelete = ReferentialAction.Cascade,
-                    Columns =
-                    {
-                        postTable.Columns.ElementAt(1)
-                    },
-                    PrincipalColumns =
-                    {
-                        blogTable.Columns.ElementAt(0)
-                    }
+                    PrincipalColumns = { blogTable.Columns.ElementAt(0) },
+                    OnDelete = ReferentialAction.Cascade
                 });
 
-            var info = new DatabaseModel
-            {
-                Tables =
-                {
-                    blogTable,
-                    postTable
-                }
-            };
+            var info = new DatabaseModel { Tables = { blogTable, postTable } };
 
             var services = new ServiceCollection()
                 .AddEntityFrameworkDesignTimeServices(_reporter)
-                .AddSingleton<IPluralizer, FakePluralizer>()
+                .AddSingleton<IPluralizer, HumanizerPluralizer>()
                 .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>();
             new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
 
@@ -1411,7 +1692,7 @@ namespace Microsoft.EntityFrameworkCore
                 .BuildServiceProvider()
                 .GetRequiredService<IScaffoldingModelFactory>();
 
-            var model = factory.Create(info, false);
+            var model = factory.Create(info, new ModelReverseEngineerOptions());
 
             Assert.Collection(
                 model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
@@ -1428,7 +1709,75 @@ namespace Microsoft.EntityFrameworkCore
             );
         }
 
-        [Fact]
+        [ConditionalFact]
+        public void Pluralization_of_collection_navigations_noPluralize()
+        {
+            var blogTable = new DatabaseTable
+            {
+                Database = Database,
+                Name = "Blog",
+                Columns = { IdColumn },
+                PrimaryKey = IdPrimaryKey
+            };
+            var postTable = new DatabaseTable
+            {
+                Database = Database,
+                Name = "Post",
+                Columns =
+                {
+                    IdColumn,
+                    new DatabaseColumn
+                    {
+                        Table = Table,
+                        Name = "BlogId",
+                        StoreType = "int",
+                        IsNullable = true
+                    }
+                },
+                PrimaryKey = IdPrimaryKey
+            };
+
+            postTable.ForeignKeys.Add(
+                new DatabaseForeignKey
+                {
+                    Table = postTable,
+                    Name = "FK_Foo",
+                    Columns = { postTable.Columns.ElementAt(1) },
+                    PrincipalTable = blogTable,
+                    PrincipalColumns = { blogTable.Columns.ElementAt(0) },
+                    OnDelete = ReferentialAction.Cascade
+                });
+
+            var info = new DatabaseModel { Tables = { blogTable, postTable } };
+
+            var services = new ServiceCollection()
+                .AddEntityFrameworkDesignTimeServices(_reporter)
+                .AddSingleton<IPluralizer, HumanizerPluralizer>()
+                .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>();
+            new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
+
+            var factory = services
+                .BuildServiceProvider()
+                .GetRequiredService<IScaffoldingModelFactory>();
+
+            var model = factory.Create(info, new ModelReverseEngineerOptions { NoPluralize = true });
+
+            Assert.Collection(
+                model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
+                entity =>
+                {
+                    Assert.Equal("Blog", entity.Name);
+                    Assert.Equal("Post", entity.GetNavigations().Single().Name);
+                },
+                entity =>
+                {
+                    Assert.Equal("Post", entity.Name);
+                    Assert.Equal("Blog", entity.GetNavigations().Single().Name);
+                }
+            );
+        }
+
+        [ConditionalFact]
         public void Not_null_bool_column_with_default_value_is_made_nullable()
         {
             var dbModel = new DatabaseModel
@@ -1437,12 +1786,14 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     new DatabaseTable
                     {
+                        Database = Database,
                         Name = "Table",
                         Columns =
                         {
                             IdColumn,
                             new DatabaseColumn
                             {
+                                Table = Table,
                                 Name = "NonNullBoolWithDefault",
                                 StoreType = "bit",
                                 DefaultValueSql = "Default",
@@ -1450,6 +1801,7 @@ namespace Microsoft.EntityFrameworkCore
                             },
                             new DatabaseColumn
                             {
+                                Table = Table,
                                 Name = "NonNullBoolWithoutDefault",
                                 StoreType = "bit",
                                 IsNullable = false
@@ -1460,7 +1812,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             };
 
-            var model = _factory.Create(dbModel, false);
+            var model = _factory.Create(dbModel, new ModelReverseEngineerOptions());
 
             var columns = model.FindEntityType("Table").GetProperties().ToList();
 
@@ -1471,7 +1823,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("Default", columns.First(c => c.Name == "NonNullBoolWithDefault")[RelationalAnnotationNames.DefaultValueSql]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Nullable_column_with_default_value_sql_does_not_generate_warning()
         {
             var dbModel = new DatabaseModel
@@ -1480,12 +1832,14 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     new DatabaseTable
                     {
+                        Database = Database,
                         Name = "Table",
                         Columns =
                         {
                             IdColumn,
                             new DatabaseColumn
                             {
+                                Table = Table,
                                 Name = "NullBoolWithDefault",
                                 StoreType = "bit",
                                 DefaultValueSql = "Default",
@@ -1497,7 +1851,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             };
 
-            var model = _factory.Create(dbModel, false);
+            var model = _factory.Create(dbModel, new ModelReverseEngineerOptions());
 
             var columns = model.FindEntityType("Table").GetProperties().ToList();
 
@@ -1508,26 +1862,30 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Empty(_reporter.Messages);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Correct_arguments_to_scaffolding_typemapper()
         {
             var principalPkColumn = new DatabaseColumn
             {
+                Table = Table,
                 Name = "PrimaryKey",
                 StoreType = "nvarchar(450)"
             };
             var principalAkColumn = new DatabaseColumn
             {
+                Table = Table,
                 Name = "AlternateKey",
                 StoreType = "nvarchar(450)"
             };
             var principalIndexColumn = new DatabaseColumn
             {
+                Table = Table,
                 Name = "Index",
                 StoreType = "nvarchar(450)"
             };
             var rowversionColumn = new DatabaseColumn
             {
+                Table = Table,
                 Name = "Rowversion",
                 StoreType = "rowversion",
                 ValueGenerated = ValueGenerated.OnAddOrUpdate,
@@ -1536,6 +1894,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var principalTable = new DatabaseTable
             {
+                Database = Database,
                 Name = "Principal",
                 Columns =
                 {
@@ -1546,118 +1905,300 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 PrimaryKey = new DatabasePrimaryKey
                 {
-                    Columns =
-                    {
-                        principalPkColumn
-                    }
+                    Table = Table,
+                    Name = "PK_Foo",
+                    Columns = { principalPkColumn }
                 },
                 UniqueConstraints =
                 {
                     new DatabaseUniqueConstraint
                     {
-                        Columns =
-                        {
-                            principalAkColumn
-                        }
+                        Table = Table,
+                        Name = "AK_Foo",
+                        Columns = { principalAkColumn }
                     }
                 },
                 Indexes =
                 {
                     new DatabaseIndex
                     {
-                        Columns =
-                        {
-                            principalIndexColumn
-                        }
+                        Table = Table,
+                        Name = "IX_Foo",
+                        Columns = { principalIndexColumn }
                     }
                 }
             };
 
             var dependentIdColumn = new DatabaseColumn
             {
+                Table = Table,
                 Name = "Id",
                 StoreType = "int"
             };
             var dependentFkColumn = new DatabaseColumn
             {
+                Table = Table,
                 Name = "BlogAlternateKey",
                 StoreType = "nvarchar(450)"
             };
 
             var dependentTable = new DatabaseTable
             {
+                Database = Database,
                 Name = "Dependent",
-                Columns =
-                {
-                    dependentIdColumn,
-                    dependentFkColumn
-                },
+                Columns = { dependentIdColumn, dependentFkColumn },
                 PrimaryKey = new DatabasePrimaryKey
                 {
-                    Columns =
-                    {
-                        dependentIdColumn
-                    }
+                    Table = Table,
+                    Name = "PK_Foo",
+                    Columns = { dependentIdColumn }
                 },
                 Indexes =
                 {
                     new DatabaseIndex
                     {
-                        Columns =
-                        {
-                            dependentFkColumn
-                        }
+                        Table = Table,
+                        Name = "IX_Foo",
+                        Columns = { dependentFkColumn }
                     }
                 },
                 ForeignKeys =
                 {
                     new DatabaseForeignKey
                     {
-                        Columns =
-                        {
-                            dependentFkColumn
-                        },
+                        Table = Table,
+                        Name = "FK_Foo",
+                        Columns = { dependentFkColumn },
                         PrincipalTable = principalTable,
-                        PrincipalColumns =
-                        {
-                            principalAkColumn
-                        }
+                        PrincipalColumns = { principalAkColumn }
                     }
                 }
+            };
+
+            var dbModel = new DatabaseModel { Tables = { principalTable, dependentTable } };
+
+            var model = _factory.Create(dbModel, new ModelReverseEngineerOptions());
+
+            Assert.Null(model.FindEntityType("Principal").FindProperty("PrimaryKey").GetColumnType());
+            Assert.Null(model.FindEntityType("Principal").FindProperty("AlternateKey").GetColumnType());
+            Assert.Null(model.FindEntityType("Principal").FindProperty("Index").GetColumnType());
+            Assert.Null(model.FindEntityType("Principal").FindProperty("Rowversion").GetColumnType());
+            Assert.Null(model.FindEntityType("Dependent").FindProperty("BlogAlternateKey").GetColumnType());
+        }
+
+        [ConditionalFact]
+        public void Unmapped_column_is_ignored()
+        {
+            var columnWithUnknownType = new DatabaseColumn
+            {
+                Table = Table,
+                Name = "ColumnWithUnknownStoreType",
+                StoreType = "unknown_type"
             };
 
             var dbModel = new DatabaseModel
             {
                 Tables =
                 {
-                    principalTable,
-                    dependentTable
+                    new DatabaseTable
+                    {
+                        Database = Database,
+                        Name = "Table",
+                        Columns = { IdColumn, columnWithUnknownType },
+                        PrimaryKey = IdPrimaryKey
+                    }
                 }
             };
 
-            var model = _factory.Create(dbModel, false);
+            var model = _factory.Create(dbModel, new ModelReverseEngineerOptions());
 
-            Assert.Null(model.FindEntityType("Principal").FindProperty("PrimaryKey").Relational().ColumnType);
-            Assert.Null(model.FindEntityType("Principal").FindProperty("AlternateKey").Relational().ColumnType);
-            Assert.Null(model.FindEntityType("Principal").FindProperty("Index").Relational().ColumnType);
-            Assert.Null(model.FindEntityType("Principal").FindProperty("Rowversion").Relational().ColumnType);
-            Assert.Null(model.FindEntityType("Dependent").FindProperty("BlogAlternateKey").Relational().ColumnType);
+            var columns = model.FindEntityType("Table").GetProperties().ToList();
+
+            Assert.Single(columns);
         }
 
-        public class FakePluralizer : IPluralizer
+        [ConditionalFact]
+        public void Column_and_table_comments()
         {
-            public string Pluralize(string name)
+            var database = new DatabaseModel
             {
-                return name.EndsWith("s")
-                    ? name
-                    : name + "s";
-            }
+                Tables =
+                {
+                    new DatabaseTable
+                    {
+                        Database = Database,
+                        Name = "Table",
+                        Comment = "A table",
+                        Columns =
+                        {
+                            IdColumn,
+                            new DatabaseColumn
+                            {
+                                Table = Table,
+                                Name = "Column",
+                                StoreType = "int",
+                                Comment = "An int column"
+                            }
+                        }
+                    }
+                }
+            };
 
-            public string Singularize(string name)
+            var model = _factory.Create(database, new ModelReverseEngineerOptions());
+
+            var table = model.FindEntityType("Table");
+            Assert.Equal("A table", table.GetComment());
+
+            var column = model.FindEntityType("Table").GetProperty("Column");
+            Assert.Equal("An int column", column.GetComment());
+        }
+
+        [ConditionalFact]
+        public void Database_collation()
+        {
+            var database = new DatabaseModel
             {
-                return name.EndsWith("s")
-                    ? name.Substring(0, name.Length - 1)
-                    : name;
+                Collation = "SomeDatabaseCollation"
+            };
+
+            var model = _factory.Create(database, new ModelReverseEngineerOptions());
+            Assert.Equal("SomeDatabaseCollation", model.GetCollation());
+        }
+
+        [ConditionalFact]
+        public void Column_collation()
+        {
+            var database = new DatabaseModel
+            {
+                Tables =
+                {
+                    new DatabaseTable
+                    {
+                        Database = Database,
+                        Name = "Table",
+                        Columns =
+                        {
+                            IdColumn,
+                            new DatabaseColumn
+                            {
+                                Table = Table,
+                                Name = "Column",
+                                StoreType = "int",
+                                Collation = "SomeColumnCollation"
+                            }
+                        }
+                    }
+                }
+            };
+
+            var model = _factory.Create(database, new ModelReverseEngineerOptions());
+
+            var column = model.FindEntityType("Table").GetProperty("Column");
+            Assert.Equal("SomeColumnCollation", column.GetCollation());
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false, false)]
+        [InlineData(false, false, true)]
+        [InlineData(false, true, false)]
+        [InlineData(false, true, true)]
+        [InlineData(true, false, false)]
+        [InlineData(true, false, true)]
+        [InlineData(true, true, false)]
+        [InlineData(true, true, true)]
+        public void UseDatabaseNames_and_NoPluralize_work_together(
+            bool useDatabaseNames,
+            bool noPluralize,
+            bool pluralTables)
+        {
+            var userTableName = pluralTables ? "users" : "user";
+            var postTableName = pluralTables ? "posts" : "post";
+            var databaseModel = new DatabaseModel
+            {
+                Tables =
+                {
+                    new DatabaseTable
+                    {
+                        Name = userTableName,
+                        Columns = { new DatabaseColumn { Name = "id", StoreType = "int" } },
+                        PrimaryKey = new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("id") } }
+                    },
+                    new DatabaseTable
+                    {
+                        Name = postTableName,
+                        Columns =
+                        {
+                            new DatabaseColumn { Name = "id", StoreType = "int" },
+                            new DatabaseColumn { Name = "author_id", StoreType = "int" }
+                        },
+                        PrimaryKey = new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("id") } },
+                        ForeignKeys =
+                        {
+                            new DatabaseForeignKey
+                            {
+                                PrincipalTable = new DatabaseTableRef(userTableName),
+                                Columns = { new DatabaseColumnRef("author_id") },
+                                PrincipalColumns = { new DatabaseColumnRef("id") }
+                            }
+                        }
+                    }
+                }
+            };
+
+            var model = _factory.Create(
+                databaseModel,
+                new ModelReverseEngineerOptions { UseDatabaseNames = useDatabaseNames, NoPluralize = noPluralize });
+
+            var user = Assert.Single(model.GetEntityTypes().Where(e => e.GetTableName() == userTableName));
+            var id = Assert.Single(user.GetProperties().Where(p => p.GetColumnBaseName() == "id"));
+            var foreignKey = Assert.Single(user.GetReferencingForeignKeys());
+            if (useDatabaseNames && noPluralize)
+            {
+                Assert.Equal(userTableName, user.Name);
+                Assert.Equal(userTableName, user[ScaffoldingAnnotationNames.DbSetName]);
+                Assert.Equal("id", id.Name);
+                Assert.Equal(postTableName, foreignKey.PrincipalToDependent.Name);
+                Assert.Equal("author_id", Assert.Single(foreignKey.Properties).Name);
+                Assert.Equal("author", foreignKey.DependentToPrincipal.Name);
+            }
+            else if (useDatabaseNames)
+            {
+                Assert.Equal("user", user.Name);
+                Assert.Equal("users", user[ScaffoldingAnnotationNames.DbSetName]);
+                Assert.Equal("id", id.Name);
+                Assert.Equal("posts", foreignKey.PrincipalToDependent.Name);
+                Assert.Equal("author_id", Assert.Single(foreignKey.Properties).Name);
+                Assert.Equal("author", foreignKey.DependentToPrincipal.Name);
+            }
+            else if (noPluralize)
+            {
+                if (pluralTables)
+                {
+                    Assert.Equal("Users", user.Name);
+                    Assert.Equal("Users", user[ScaffoldingAnnotationNames.DbSetName]);
+                    Assert.Equal("Id", id.Name);
+                    Assert.Equal("Posts", foreignKey.PrincipalToDependent.Name);
+                    Assert.Equal("AuthorId", Assert.Single(foreignKey.Properties).Name);
+                    Assert.Equal("Author", foreignKey.DependentToPrincipal.Name);
+                }
+                else
+                {
+                    Assert.Equal("User", user.Name);
+                    Assert.Equal("User", user[ScaffoldingAnnotationNames.DbSetName]);
+                    Assert.Equal("Id", id.Name);
+                    Assert.Equal("Post", foreignKey.PrincipalToDependent.Name);
+                    Assert.Equal("AuthorId", Assert.Single(foreignKey.Properties).Name);
+                    Assert.Equal("Author", foreignKey.DependentToPrincipal.Name);
+                }
+            }
+            else
+            {
+                Assert.Equal("User", user.Name);
+                Assert.Equal("Users", user[ScaffoldingAnnotationNames.DbSetName]);
+                Assert.Equal("Id", id.Name);
+                Assert.Equal("Posts", foreignKey.PrincipalToDependent.Name);
+                Assert.Equal("AuthorId", Assert.Single(foreignKey.Properties).Name);
+                Assert.Equal("Author", foreignKey.DependentToPrincipal.Name);
             }
         }
     }

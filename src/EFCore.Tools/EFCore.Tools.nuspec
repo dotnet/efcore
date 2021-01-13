@@ -1,35 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata minClientVersion="3.6">
+    $CommonMetadataElements$
     <minClientVersion>3.6</minClientVersion>
-    <id>$id$</id>
-    <version>$version$</version>
-    <authors>$author$</authors>
-    <copyright>$copyright$</copyright>
-    <licenseUrl>$licenseUrl$</licenseUrl>
-    <iconUrl>$iconUrl$</iconUrl>
-    <projectUrl>$projectUrl$</projectUrl>
-    <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <developmentDependency>true</developmentDependency>
-    <description>$description$</description>
-    <tags>$tags$</tags>
-    <serviceable>true</serviceable>
-    <repository type="$repositoryType$" url="$repositoryUrl$" commit="$repositoryCommit$" />
     <dependencies>
-      <group targetFramework=".NETStandard2.0">
+      <group targetFramework=".NET5.0">
         <dependency id="Microsoft.EntityFrameworkCore.Design" version="$version$" />
       </group>
     </dependencies>
   </metadata>
   <files>
-    <file src="lib/**/*" target="" />
-    <file src="tools/**/*" target=""/>
-    <file src="../ef/bin/$configuration$/net461/ef.exe" target="tools/net461/any/" />
-    <file src="../ef/bin/$configuration$/net461/ef.pdb" target="tools/net461/any/" />
-    <file src="../ef/bin/x86/$configuration$/net461/ef.exe" target="tools/net461/win-x86/" />
-    <file src="../ef/bin/x86/$configuration$/net461/ef.pdb" target="tools/net461/win-x86/" />
-    <file src="../ef/bin/$configuration$/netcoreapp2.0/ef.dll" target="tools/netcoreapp2.0/any/" />
-    <file src="../ef/bin/$configuration$/netcoreapp2.0/ef.pdb" target="tools/netcoreapp2.0/any/" />
-    <file src="../ef/bin/$configuration$/netcoreapp2.0/ef.runtimeconfig.json" target="tools/netcoreapp2.0/any/" />
+    $CommonFileElements$
+    <file src="lib\**\*" target="lib/" />
+    <file src="tools\**\*" target="tools/" />
+    <file src="$intermediateOutputPath$*.psd1" target="tools/" />
+    <file src="../../artifacts/bin/ef/$configuration$/net461/ef.exe" target="tools/net461/any/" />
+    <file src="../../artifacts/bin/ef/$configuration$/net461/ef.pdb" target="tools/net461/any/" />
+    <file src="../../artifacts/bin/ef/x86/$configuration$/net461/ef.exe" target="tools/net461/win-x86/" />
+    <file src="../../artifacts/bin/ef/x86/$configuration$/net461/ef.pdb" target="tools/net461/win-x86/" />
+    <file src="../../artifacts/bin/ef/$configuration$/netcoreapp2.0/ef.dll" target="tools/netcoreapp2.0/any/" />
+    <file src="../../artifacts/bin/ef/$configuration$/netcoreapp2.0/ef.pdb" target="tools/netcoreapp2.0/any/" />
+    <file src="../../artifacts/bin/ef/$configuration$/netcoreapp2.0/ef.runtimeconfig.json" target="tools/netcoreapp2.0/any/" />
   </files>
 </package>

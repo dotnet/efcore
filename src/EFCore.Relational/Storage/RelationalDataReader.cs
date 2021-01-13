@@ -8,8 +8,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -22,13 +23,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public class RelationalDataReader : IDisposable
+    public class RelationalDataReader : IDisposable, IAsyncDisposable
     {
         private readonly IRelationalConnection _connection;
         private readonly DbCommand _command;
         private readonly DbDataReader _reader;
         private readonly Guid _commandId;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _logger;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command>? _logger;
         private readonly DateTimeOffset _startTime;
         private readonly Stopwatch _stopwatch;
 
@@ -49,12 +50,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] DbCommand command,
             [NotNull] DbDataReader reader,
             Guid commandId,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command>? logger)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(command, nameof(command));
             Check.NotNull(reader, nameof(reader));
-            Check.NotNull(logger, nameof(logger));
 
             _connection = connection;
             _command = command;
@@ -66,49 +66,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        [Obsolete("Use other constructor for testing.")]
-        protected RelationalDataReader([NotNull] DbDataReader reader)
-        {
-            // For testing
-            Check.NotNull(reader, nameof(reader));
-
-            _reader = reader;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        [Obsolete("Use other constructor for testing, passing in a fake connection.")]
-        protected RelationalDataReader(
-            [NotNull] DbCommand command,
-            [NotNull] DbDataReader reader,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
-        {
-            // For testing
-            Check.NotNull(command, nameof(command));
-            Check.NotNull(reader, nameof(reader));
-            Check.NotNull(logger, nameof(logger));
-
-            _command = command;
-            _reader = reader;
-            _logger = logger;
-            _startTime = DateTimeOffset.UtcNow;
-            _stopwatch = Stopwatch.StartNew();
-        }
-
-        /// <summary>
         ///     Gets the underlying reader for the result set.
         /// </summary>
-        public virtual DbDataReader DbDataReader => _reader;
+        public virtual DbDataReader DbDataReader
+            => _reader;
 
         /// <summary>
-        ///     Calls Read on the underlying DbDataReader.
+        ///     Gets the underlying command for the result set.
         /// </summary>
-        /// <returns>true if there are more rows; otherwise false.</returns>
+        public virtual DbCommand DbCommand
+            => _command;
+
+        /// <summary>
+        ///     Calls <see cref="DbDataReader.Read()" /> on the underlying <see cref="System.Data.Common.DbDataReader" />.
+        /// </summary>
+        /// <returns> <see langword="true" /> if there are more rows; otherwise <see langword="false" />. </returns>
         public virtual bool Read()
         {
             _readCount++;
@@ -117,9 +89,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Calls Read on the underlying DbDataReader.
+        ///     Calls <see cref="DbDataReader.ReadAsync(CancellationToken)" /> on the underlying
+        ///     <see cref="System.Data.Common.DbDataReader" />.
         /// </summary>
-        /// <returns>true if there are more rows; otherwise false.</returns>
+        /// <returns> <see langword="true" /> if there are more rows; otherwise <see langword="false" />. </returns>
         public virtual Task<bool> ReadAsync(CancellationToken cancellationToken = default)
         {
             _readCount++;
@@ -134,22 +107,76 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (!_disposed)
             {
-                _reader.Dispose();
-                _command.Parameters.Clear();
-                _command.Dispose();
-                _connection.Close();
+                var interceptionResult = default(InterceptionResult);
+                try
+                {
+                    _reader.Close(); // can throw
 
-                _logger.DataReaderDisposing(
-                    _connection,
-                    _command,
-                    _reader,
-                    _commandId,
-                    _reader.RecordsAffected,
-                    _readCount,
-                    _startTime,
-                    _stopwatch.Elapsed);
+                    if (_logger != null)
+                    {
+                        interceptionResult = _logger.DataReaderDisposing(
+                            _connection,
+                            _command,
+                            _reader,
+                            _commandId,
+                            _reader.RecordsAffected,
+                            _readCount,
+                            _startTime,
+                            _stopwatch.Elapsed); // can throw
+                    }
+                }
+                finally
+                {
+                    _disposed = true;
 
-                _disposed = true;
+                    if (!interceptionResult.IsSuppressed)
+                    {
+                        _reader.Dispose();
+                        _command.Parameters.Clear();
+                        _command.Dispose();
+                        _connection.Close();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public virtual async ValueTask DisposeAsync()
+        {
+            if (!_disposed)
+            {
+                var interceptionResult = default(InterceptionResult);
+                try
+                {
+                    _reader.Close(); // can throw
+
+                    if (_logger != null)
+                    {
+                        interceptionResult = _logger.DataReaderDisposing(
+                            _connection,
+                            _command,
+                            _reader,
+                            _commandId,
+                            _reader.RecordsAffected,
+                            _readCount,
+                            _startTime,
+                            _stopwatch.Elapsed); // can throw
+                    }
+                }
+                finally
+                {
+                    _disposed = true;
+
+                    if (!interceptionResult.IsSuppressed)
+                    {
+                        await _reader.DisposeAsync().ConfigureAwait(false);
+                        _command.Parameters.Clear();
+                        await _command.DisposeAsync().ConfigureAwait(false);
+                        await _connection.CloseAsync().ConfigureAwait(false);
+                    }
+                }
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.DotNet.Cli.CommandLine;
@@ -14,6 +14,13 @@ namespace Microsoft.EntityFrameworkCore.Tools
         public static string Literal(string text)
             => text != null
                 ? "\"" + text.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\""
+                : "null";
+
+        public static string Literal(bool? value)
+            => value.HasValue
+                ? value.Value
+                    ? "true"
+                    : "false"
                 : "null";
     }
 }

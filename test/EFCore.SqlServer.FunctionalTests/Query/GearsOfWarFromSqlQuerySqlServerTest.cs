@@ -26,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override void ClearLog()
             => Fixture.TestSqlLoggerFactory.Clear();
 
-        private string Sql => Fixture.TestSqlLoggerFactory.Sql;
+        private string Sql
+            => Fixture.TestSqlLoggerFactory.Sql;
     }
 }

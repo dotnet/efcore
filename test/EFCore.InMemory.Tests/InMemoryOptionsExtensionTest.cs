@@ -15,14 +15,14 @@ namespace Microsoft.EntityFrameworkCore
         private static readonly MethodInfo _applyServices
             = typeof(InMemoryOptionsExtension).GetTypeInfo().DeclaredMethods.Single(m => m.Name == "ApplyServices");
 
-        [Fact]
+        [ConditionalFact]
         public void Adds_in_memory_services()
         {
             var services = new ServiceCollection();
 
             _applyServices.Invoke(new InMemoryOptionsExtension(), new object[] { services });
 
-            Assert.True(services.Any(sd => sd.ServiceType == typeof(IInMemoryDatabase)));
+            Assert.Contains(services, sd => sd.ServiceType == typeof(IInMemoryDatabase));
         }
     }
 }

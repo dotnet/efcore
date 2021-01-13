@@ -1,17 +1,22 @@
-﻿﻿// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -21,13 +26,13 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class ModelSourceTest
     {
-        private readonly IModelValidator _coreModelValidator
-            = InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelValidator>();
+        private readonly IConventionSetBuilder _nullConventionSetBuilder =
+            new NullConventionSetBuilder();
 
-        private readonly NullConventionSetBuilder _nullConventionSetBuilder
-            = new NullConventionSetBuilder();
+        private readonly ModelDependencies _testModelDependencies =
+            new ModelDependencies(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>());
 
-        [Fact]
+        [ConditionalFact]
         public void OnModelCreating_is_only_called_once()
         {
             const int threadCount = 5;
@@ -38,10 +43,8 @@ namespace Microsoft.EntityFrameworkCore
                 0, threadCount,
                 i =>
                 {
-                    using (var context = new SlowContext())
-                    {
-                        models[i] = context.Model;
-                    }
+                    using var context = new SlowContext();
+                    models[i] = context.Model;
                 });
 
             Assert.NotNull(models[0]);
@@ -65,25 +68,42 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(nameof(SlowContext));
+                => optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase(nameof(SlowContext));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adds_all_entities_based_on_all_distinct_entity_types_found()
         {
             var setFinder = new FakeSetFinder();
+            var context = InMemoryTestHelpers.Instance.CreateContext();
+            var serviceProvider = context.GetInfrastructure();
 
             var model = CreateDefaultModelSource(setFinder)
-                .GetModel(InMemoryTestHelpers.Instance.CreateContext(), _nullConventionSetBuilder, _coreModelValidator);
+                .GetModel(
+                    context,
+                    new RuntimeConventionSetBuilder(
+                        new ProviderConventionSetBuilder(
+                            serviceProvider.GetRequiredService<ProviderConventionSetBuilderDependencies>() with { SetFinder = setFinder }),
+                        new List<IConventionSetPlugin>()),
+                    serviceProvider.GetRequiredService<ModelDependencies>());
 
             Assert.Equal(
                 new[] { typeof(SetA).DisplayName(), typeof(SetB).DisplayName() },
                 model.GetEntityTypes().Select(e => e.Name).ToArray());
         }
 
+        private class FakeModelValidator : IModelValidator
+        {
+            public void Validate(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            {
+            }
+        }
+
         private class FakeSetFinder : IDbSetFinder
         {
-            public IReadOnlyList<DbSetProperty> FindSets(DbContext context)
+            public IReadOnlyList<DbSetProperty> FindSets(Type contextType)
                 => new[]
                 {
                     new DbSetProperty("One", typeof(SetA), setter: null),
@@ -110,27 +130,35 @@ namespace Microsoft.EntityFrameworkCore
             public int Id { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Caches_model_by_context_type()
         {
             var modelSource = CreateDefaultModelSource(new DbSetFinder());
 
-            var model1 = modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _coreModelValidator);
-            var model2 = modelSource.GetModel(new Context2(), _nullConventionSetBuilder, _coreModelValidator);
+            var model1 = modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _testModelDependencies);
+            var model2 = modelSource.GetModel(new Context2(), _nullConventionSetBuilder, _testModelDependencies);
 
             Assert.NotSame(model1, model2);
-            Assert.Same(model1, modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _coreModelValidator));
-            Assert.Same(model2, modelSource.GetModel(new Context2(), _nullConventionSetBuilder, _coreModelValidator));
+            Assert.Same(model1, modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _testModelDependencies));
+            Assert.Same(model2, modelSource.GetModel(new Context2(), _nullConventionSetBuilder, _testModelDependencies));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Stores_model_version_information_as_annotation_on_model()
         {
             var modelSource = CreateDefaultModelSource(new DbSetFinder());
 
-            var model = modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _coreModelValidator);
+            var model = modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _testModelDependencies);
+            var packageVersion = typeof(Context1).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
+                .Single(m => m.Key == "PackageVersion").Value;
 
-            Assert.StartsWith("2.2.0", model.GetProductVersion(), StringComparison.OrdinalIgnoreCase);
+            var prereleaseIndex = packageVersion.IndexOf("-", StringComparison.Ordinal);
+            if (prereleaseIndex != -1)
+            {
+                packageVersion = packageVersion.Substring(0, prereleaseIndex);
+            }
+
+            Assert.StartsWith(packageVersion, model.GetProductVersion(), StringComparison.OrdinalIgnoreCase);
         }
 
         private class Context1 : DbContext
@@ -141,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        private IModelSource CreateDefaultModelSource(IDbSetFinder setFinder)
+        private static IModelSource CreateDefaultModelSource(IDbSetFinder setFinder)
             => new ConcreteModelSource(setFinder);
 
         private class ConcreteModelSource : ModelSource
@@ -149,11 +177,17 @@ namespace Microsoft.EntityFrameworkCore
             public ConcreteModelSource(IDbSetFinder setFinder)
                 : base(
                     new ModelSourceDependencies(
-                        InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ICoreConventionSetBuilder>(),
                         new ModelCustomizer(new ModelCustomizerDependencies(setFinder)),
-                        InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelCacheKeyFactory>()))
+                        InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelCacheKeyFactory>(),
+                        new MemoryCache(new MemoryCacheOptions { SizeLimit = 200 })))
             {
             }
+        }
+
+        private class NullConventionSetBuilder : IConventionSetBuilder
+        {
+            public ConventionSet CreateConventionSet()
+                => new ConventionSet();
         }
     }
 }

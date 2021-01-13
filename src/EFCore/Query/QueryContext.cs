@@ -7,43 +7,54 @@ using System.Linq;
 using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
-    ///     The principal data structure used by a compiled query during execution.
+    ///     <para>
+    ///         The principal data structure used by a compiled query during execution.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
     /// </summary>
-    public class QueryContext : IDisposable, IParameterValues
+    public abstract class QueryContext : IParameterValues
     {
-        private readonly Func<IQueryBuffer> _queryBufferFactory;
-
-        private readonly IDictionary<string, object> _parameterValues = new Dictionary<string, object>();
-
-        private IQueryBuffer _queryBuffer;
+        private readonly IDictionary<string, object?> _parameterValues = new Dictionary<string, object?>();
+        private IStateManager? _stateManager;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     <para>
+        ///         Creates a new <see cref="QueryContext" /> instance.
+        ///     </para>
+        ///     <para>
+        ///         This type is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
         /// </summary>
-        public QueryContext(
-            [NotNull] QueryContextDependencies dependencies,
-            [NotNull] Func<IQueryBuffer> queryBufferFactory)
+        /// <param name="dependencies"> The dependencies to use. </param>
+        protected QueryContext(
+            [NotNull] QueryContextDependencies dependencies)
         {
-            Check.NotNull(queryBufferFactory, nameof(queryBufferFactory));
             Check.NotNull(dependencies, nameof(dependencies));
 
-            _queryBufferFactory = queryBufferFactory;
             Dependencies = dependencies;
         }
 
         /// <summary>
-        ///     Gets the current DbContext.
+        ///     The current DbContext in using while executing the query.
         /// </summary>
-        public virtual DbContext Context => Dependencies.CurrentDbContext.Context;
+        public virtual DbContext Context
+            => Dependencies.CurrentContext.Context;
 
         /// <summary>
         ///     Parameter object containing dependencies for this service.
@@ -51,55 +62,67 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual QueryContextDependencies Dependencies { get; }
 
         /// <summary>
-        ///     The query buffer.
+        ///     Sets the navigation for given entity as loaded.
         /// </summary>
-        public virtual IQueryBuffer QueryBuffer
-            => _queryBuffer ?? (_queryBuffer = _queryBufferFactory());
+        /// <param name="entity"> The entity instance. </param>
+        /// <param name="navigation"> The navigation property. </param>
+        public virtual void SetNavigationIsLoaded([NotNull] object entity, [NotNull] INavigationBase navigation)
+        {
+            Check.NotNull(entity, nameof(entity));
+            Check.NotNull(navigation, nameof(navigation));
 
-        /// <summary>
-        ///     The state manager.
-        /// </summary>
-        /// <value>
-        ///     The state manager.
-        /// </value>
-        public virtual IStateManager StateManager => Dependencies.StateManager;
+            // InitializeStateManager will populate the field before calling here
+            _stateManager!.TryGetEntry(entity).SetIsLoaded(navigation);
+        }
 
         /// <summary>
         ///     The query provider.
         /// </summary>
-        /// <value>
-        ///     The query provider.
-        /// </value>
-        public virtual IQueryProvider QueryProvider => Dependencies.QueryProvider;
+        [Obsolete("The service requiring IQueryProvider should inject it directly.")]
+        public virtual IQueryProvider QueryProvider
+            => Dependencies.QueryProvider;
 
         /// <summary>
-        ///     Gets the concurrency detector.
+        ///     The execution strategy factory to use while executing the query.
         /// </summary>
-        /// <value>
-        ///     The concurrency detector.
-        /// </value>
-        public virtual IConcurrencyDetector ConcurrencyDetector => Dependencies.ConcurrencyDetector;
+        public virtual IExecutionStrategyFactory ExecutionStrategyFactory
+            => Dependencies.ExecutionStrategyFactory;
 
         /// <summary>
-        ///     Gets or sets the cancellation token.
+        ///     The concurrency detector to use while executing the query.
         /// </summary>
-        /// <value>
-        ///     The cancellation token.
-        /// </value>
+        public virtual IConcurrencyDetector ConcurrencyDetector
+            => Dependencies.ConcurrencyDetector;
+
+        /// <summary>
+        ///     The cancellation token to use while executing the query.
+        /// </summary>
         public virtual CancellationToken CancellationToken { get; set; }
 
         /// <summary>
-        ///     The parameter values.
+        ///     The command logger to use while executing the query.
         /// </summary>
-        public virtual IReadOnlyDictionary<string, object> ParameterValues
-            => (IReadOnlyDictionary<string, object>)_parameterValues;
+        public virtual IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger
+            => Dependencies.CommandLogger;
 
         /// <summary>
-        ///     Adds a parameter.
+        ///     The query logger to use while executing the query.
+        /// </summary>
+        public virtual IDiagnosticsLogger<DbLoggerCategory.Query> QueryLogger
+            => Dependencies.QueryLogger;
+
+        /// <summary>
+        ///     The parameter values to use while executing the query.
+        /// </summary>
+        public virtual IReadOnlyDictionary<string, object?> ParameterValues
+            => (IReadOnlyDictionary<string, object?>)_parameterValues;
+
+        /// <summary>
+        ///     Adds a parameter to <see cref="ParameterValues" /> for this query.
         /// </summary>
         /// <param name="name"> The name. </param>
         /// <param name="value"> The value. </param>
-        public virtual void AddParameter(string name, object value)
+        public virtual void AddParameter(string name, object? value)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -107,65 +130,47 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Sets a parameter value.
+        ///     Initializes the <see cref="IStateManager" /> to be used with this QueryContext.
         /// </summary>
-        /// <param name="name"> The name. </param>
-        /// <param name="value"> The value. </param>
-        public virtual void SetParameter(string name, object value)
+        /// <param name="standAlone"> Whether a stand-alone <see cref="IStateManager" /> should be created to perform identity resolution. </param>
+        public virtual void InitializeStateManager(bool standAlone = false)
         {
-            Check.NotEmpty(name, nameof(name));
+            Check.DebugAssert(
+                _stateManager == null, 
+                "The 'InitializeStateManager' method has been called multiple times on the current query context. This method is intended to be called only once before query enumeration starts.");
 
-            _parameterValues[name] = value;
+            _stateManager = standAlone
+                ? new StateManager(Dependencies.StateManager.Dependencies)
+                : Dependencies.StateManager;
         }
 
         /// <summary>
-        ///     Removes a parameter by name.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        /// <param name="name"> The name. </param>
-        /// <returns>
-        ///     The parameter value.
-        /// </returns>
-        public virtual object RemoveParameter(string name)
-        {
-            Check.NotEmpty(name, nameof(name));
-
-            var value = _parameterValues[name];
-
-            _parameterValues.Remove(name);
-
-            return value;
-        }
+        [EntityFrameworkInternal]
+        public virtual InternalEntityEntry TryGetEntry(
+            [NotNull] IKey key,
+            [NotNull] object[] keyValues,
+            bool throwOnNullKey,
+            out bool hasNullKey)
+            // InitializeStateManager will populate the field before calling here
+            => _stateManager!.TryGetEntry(key, keyValues, throwOnNullKey, out hasNullKey);
 
         /// <summary>
-        ///     Notify the state manager that a tracking query is starting.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void BeginTrackingQuery() => StateManager.BeginTrackingQuery();
-
-        /// <summary>
-        ///     Start tracking an entity.
-        /// </summary>
-        /// <param name="entity"> The entity. </param>
-        /// <param name="entityTrackingInfo"> Information describing how to track the entity. </param>
-        public virtual void StartTracking(
+        [EntityFrameworkInternal]
+        public virtual InternalEntityEntry StartTracking(
+            [NotNull] IEntityType entityType,
             [NotNull] object entity,
-            [NotNull] EntityTrackingInfo entityTrackingInfo)
-        {
-            if (_queryBuffer != null)
-            {
-                _queryBuffer.StartTracking(entity, entityTrackingInfo);
-            }
-            else
-            {
-                entityTrackingInfo.StartTracking(StateManager, entity, ValueBuffer.Empty);
-            }
-        }
-
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public virtual void Dispose()
-        {
-            _queryBuffer?.Dispose();
-        }
+            ValueBuffer valueBuffer)
+            // InitializeStateManager will populate the field before calling here
+            => _stateManager!.StartTrackingFromQuery(entityType, entity, valueBuffer);
     }
 }

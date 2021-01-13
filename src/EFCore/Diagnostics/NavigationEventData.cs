@@ -9,10 +9,9 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
-    ///     A <see cref="DiagnosticSource" /> event payload class for events that have
-    ///     a navigation.
+    ///     A <see cref="DiagnosticSource" /> event payload class for events that have an <see cref="INavigation" />.
     /// </summary>
-    public class NavigationEventData : EventData
+    public class NavigationEventData : EventData, INavigationBaseEventData
     {
         /// <summary>
         ///     Constructs the event payload.
@@ -33,5 +32,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     The navigation.
         /// </summary>
         public virtual INavigation Navigation { get; }
+
+        /// <summary>
+        ///     The navigation.
+        /// </summary>
+        INavigationBase INavigationBaseEventData.NavigationBase
+            => Navigation;
     }
 }

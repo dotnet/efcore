@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
@@ -16,6 +17,11 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
     ///         not used in application code.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class ValueGeneratorCache : IValueGeneratorCache
@@ -32,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         private readonly ConcurrentDictionary<CacheKey, ValueGenerator> _cache
             = new ConcurrentDictionary<CacheKey, ValueGenerator>();
 
-        private readonly struct CacheKey
+        private readonly struct CacheKey : IEquatable<CacheKey>
         {
             public CacheKey(IProperty property, IEntityType entityType, Func<IProperty, IEntityType, ValueGenerator> factory)
             {
@@ -47,26 +53,14 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
             public Func<IProperty, IEntityType, ValueGenerator> Factory { get; }
 
-            private bool Equals(CacheKey other)
+            public bool Equals(CacheKey other)
                 => Property.Equals(other.Property) && EntityType.Equals(other.EntityType);
 
             public override bool Equals(object obj)
-            {
-                if (obj is null)
-                {
-                    return false;
-                }
-
-                return obj is CacheKey && Equals((CacheKey)obj);
-            }
+                => obj is CacheKey cacheKey && Equals(cacheKey);
 
             public override int GetHashCode()
-            {
-                unchecked
-                {
-                    return (Property.GetHashCode() * 397) ^ EntityType.GetHashCode();
-                }
-            }
+                => HashCode.Combine(Property, EntityType);
         }
 
         /// <summary>
@@ -81,7 +75,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <param name="factory"> Factory to create a new value generator if one is not present in the cache. </param>
         /// <returns> The existing or newly created value generator. </returns>
         public virtual ValueGenerator GetOrAdd(
-            IProperty property, IEntityType entityType, Func<IProperty, IEntityType, ValueGenerator> factory)
+            IProperty property,
+            IEntityType entityType,
+            Func<IProperty, IEntityType, ValueGenerator> factory)
         {
             Check.NotNull(property, nameof(property));
             Check.NotNull(factory, nameof(factory));

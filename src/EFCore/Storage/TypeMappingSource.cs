@@ -1,19 +1,18 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
-#pragma warning disable 1574
-#pragma warning disable CS0419 // Ambiguous reference in cref attribute
+#nullable enable
+
+#pragma warning disable 1574, CS0419 // Ambiguous reference in cref attribute
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -25,11 +24,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         This type is typically used by database providers (and other extensions). It is generally
     ///         not used in application code.
     ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
+    ///     </para>
     /// </summary>
     public abstract class TypeMappingSource : TypeMappingSourceBase
     {
-        private readonly ConcurrentDictionary<(TypeMappingInfo, Type, ValueConverter), CoreTypeMapping> _explicitMappings
-            = new ConcurrentDictionary<(TypeMappingInfo, Type, ValueConverter), CoreTypeMapping>();
+        private readonly ConcurrentDictionary<(TypeMappingInfo, Type?, ValueConverter?), CoreTypeMapping?> _explicitMappings
+            = new ConcurrentDictionary<(TypeMappingInfo, Type?, ValueConverter?), CoreTypeMapping?>();
 
         /// <summary>
         ///     Initializes a new instance of the this class.
@@ -40,12 +44,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
         }
 
-        private CoreTypeMapping FindMappingWithConversion(
+        private CoreTypeMapping? FindMappingWithConversion(
             in TypeMappingInfo mappingInfo,
-            [CanBeNull] IReadOnlyList<IProperty> principals)
+            [CanBeNull] IReadOnlyList<IProperty>? principals)
         {
-            Type providerClrType = null;
-            ValueConverter customConverter = null;
+            Type? providerClrType = null;
+            ValueConverter? customConverter = null;
             if (principals != null)
             {
                 for (var i = 0; i < principals.Count; i++)
@@ -59,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             providerClrType = providerType.UnwrapNullableType();
                         }
                     }
+
                     if (customConverter == null)
                     {
                         var converter = principal.GetValueConverter();
@@ -76,9 +81,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     var (info, providerType, converter) = k;
                     var mapping = providerType == null
-                                  || providerType == info.ClrType
-                        ? FindMapping(info)
-                        : null;
+                        || providerType == info.ClrType
+                            ? FindMapping(info)
+                            : null;
 
                     if (mapping == null)
                     {
@@ -142,10 +147,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
-        public override CoreTypeMapping FindMapping(IProperty property)
+        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        public override CoreTypeMapping? FindMapping(IProperty property)
         {
-            var mapping = property.FindMapping();
+            var mapping = property.FindTypeMapping();
             if (mapping != null)
             {
                 return mapping;
@@ -169,8 +174,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         /// <param name="type"> The CLR type. </param>
-        /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
-        public override CoreTypeMapping FindMapping(Type type)
+        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        public override CoreTypeMapping? FindMapping(Type type)
             => FindMappingWithConversion(new TypeMappingInfo(type), null);
 
         /// <summary>
@@ -187,8 +192,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         /// <param name="member"> The field or property. </param>
-        /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
-        public override CoreTypeMapping FindMapping(MemberInfo member)
+        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        public override CoreTypeMapping? FindMapping(MemberInfo member)
             => FindMappingWithConversion(new TypeMappingInfo(member), null);
     }
 }

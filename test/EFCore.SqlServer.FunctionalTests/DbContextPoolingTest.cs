@@ -4,9 +4,13 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,35 +24,63 @@ using Xunit.Abstractions;
 // ReSharper disable VirtualMemberCallInConstructor
 namespace Microsoft.EntityFrameworkCore
 {
-    public class DbContextPoolingTest
+    public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         private static IServiceProvider BuildServiceProvider<TContextService, TContext>(int poolSize = 32)
-            where TContext : DbContext, TContextService
             where TContextService : class
+            where TContext : DbContext, TContextService
             => new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
                 .AddDbContextPool<TContextService, TContext>(
-                    ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString),
+                    ob =>
+                        ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                            .EnableServiceProviderCaching(false),
                     poolSize)
                 .AddDbContextPool<ISecondContext, SecondContext>(
-                    ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString),
-                    poolSize)
-                .BuildServiceProvider();
+                    ob =>
+                        ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                            .EnableServiceProviderCaching(false),
+                    poolSize).BuildServiceProvider();
 
         private static IServiceProvider BuildServiceProvider<TContext>(int poolSize = 32)
             where TContext : DbContext
             => new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
                 .AddDbContextPool<TContext>(
-                    ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString),
+                    ob =>
+                        ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                            .EnableServiceProviderCaching(false),
                     poolSize)
                 .AddDbContextPool<SecondContext>(
-                    ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString),
+                    ob =>
+                        ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                            .EnableServiceProviderCaching(false),
+                    poolSize)
+                .BuildServiceProvider();
+
+        private static IServiceProvider BuildServiceProviderWithFactory<TContext>(int poolSize = 32)
+            where TContext : DbContext
+            => new ServiceCollection()
+                .AddPooledDbContextFactory<TContext>(
+                    ob =>
+                        ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                            .EnableServiceProviderCaching(false),
+                    poolSize)
+                .AddDbContextPool<SecondContext>(
+                    ob =>
+                        ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                            .EnableServiceProviderCaching(false),
                     poolSize)
                 .BuildServiceProvider();
 
         private interface IPooledContext
         {
+        }
+
+        private class DefaultOptionsPooledContext : DbContext
+        {
+            public DefaultOptionsPooledContext(DbContextOptions options)
+                : base(options)
+            {
+            }
         }
 
         private class PooledContext : DbContext, IPooledContext
@@ -64,7 +96,11 @@ namespace Microsoft.EntityFrameworkCore
                 Interlocked.Increment(ref InstanceCount);
 
                 ChangeTracker.AutoDetectChangesEnabled = false;
+                ChangeTracker.LazyLoadingEnabled = false;
                 Database.AutoTransactionsEnabled = false;
+                Database.AutoSavepointsEnabled = false;
+                ChangeTracker.CascadeDeleteTiming = CascadeTiming.Never;
+                ChangeTracker.DeleteOrphansTiming = CascadeTiming.Never;
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -106,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Invalid_pool_size()
         {
             Assert.Throws<ArgumentOutOfRangeException>(
@@ -114,9 +150,15 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Throws<ArgumentOutOfRangeException>(
                 () => BuildServiceProvider<PooledContext>(poolSize: -1));
+
+            Assert.Throws<ArgumentOutOfRangeException>(
+                () => BuildServiceProviderWithFactory<PooledContext>(poolSize: 0));
+
+            Assert.Throws<ArgumentOutOfRangeException>(
+                () => BuildServiceProviderWithFactory<PooledContext>(poolSize: -1));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public void Options_modified_in_on_configuring(bool useInterface)
@@ -142,11 +184,30 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [ConditionalFact]
+        public void Options_modified_in_on_configuring_with_factory()
+        {
+            var serviceProvider = BuildServiceProviderWithFactory<PooledContext>();
+            var scopedProvider = serviceProvider.CreateScope().ServiceProvider;
+
+            PooledContext.ModifyOptions = true;
+
+            try
+            {
+                var factory = scopedProvider.GetService<IDbContextFactory<PooledContext>>();
+                Assert.Throws<InvalidOperationException>(() => factory.CreateDbContext());
+            }
+            finally
+            {
+                PooledContext.ModifyOptions = false;
+            }
+        }
+
         private class BadCtorContext : DbContext
         {
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_when_used_with_parameterless_constructor_context()
         {
             var serviceCollection = new ServiceCollection();
@@ -162,43 +223,203 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Throws<ArgumentException>(
                     () => serviceCollection.AddDbContextPool<BadCtorContext>(
                         (_, __) => { })).Message);
+
+            Assert.Equal(
+                CoreStrings.DbContextMissingConstructor(nameof(BadCtorContext)),
+                Assert.Throws<ArgumentException>(
+                    () => serviceCollection.AddPooledDbContextFactory<BadCtorContext>(
+                        (_, __) => { })).Message);
         }
 
-        [Fact]
-        public void Can_pool_non_derived_context()
+        [ConditionalFact]
+        public void Throws_when_pooled_context_constructor_has_more_than_one_parameter()
         {
-            var serviceProvider = BuildServiceProvider<DbContext>();
+            var serviceProvider
+                = new ServiceCollection().AddDbContextPool<TwoParameterConstructorContext>(_ => { }).BuildServiceProvider();
+
+            using var scope = serviceProvider.CreateScope();
+
+            Assert.Equal(
+                CoreStrings.PoolingContextCtorError(nameof(TwoParameterConstructorContext)),
+                Assert.Throws<InvalidOperationException>(() => scope.ServiceProvider.GetService<TwoParameterConstructorContext>()).Message);
+        }
+
+        private class TwoParameterConstructorContext : DbContext
+        {
+            public TwoParameterConstructorContext(DbContextOptions options, string x)
+                : base(options)
+            {
+            }
+        }
+
+        [ConditionalFact]
+        public void Throws_when_pooled_context_constructor_wrong_parameter()
+        {
+            var serviceProvider
+                = new ServiceCollection().AddDbContextPool<WrongParameterConstructorContext>(_ => { }).BuildServiceProvider();
+
+            using var scope = serviceProvider.CreateScope();
+
+            Assert.Equal(
+                CoreStrings.PoolingContextCtorError(nameof(WrongParameterConstructorContext)),
+                Assert.Throws<InvalidOperationException>(() => scope.ServiceProvider.GetService<WrongParameterConstructorContext>()).Message);
+        }
+
+        private class WrongParameterConstructorContext : DbContext
+        {
+            public WrongParameterConstructorContext(string x)
+                : base(new DbContextOptions<WrongParameterConstructorContext>())
+            {
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public async Task Can_pool_non_derived_context(bool useFactory, bool async)
+        {
+            var serviceProvider = useFactory
+                ? BuildServiceProviderWithFactory<DbContext>()
+                : BuildServiceProvider<DbContext>();
 
             var serviceScope1 = serviceProvider.CreateScope();
+            var context1 = GetContext(serviceScope1);
 
+            var serviceScope2 = serviceProvider.CreateScope();
+            var context2 = GetContext(serviceScope2);
+
+            Assert.NotSame(context1, context2);
+
+            var id1 = context1.ContextId;
+            var id2 = context2.ContextId;
+
+            Assert.NotEqual(default, id1.InstanceId);
+            Assert.NotEqual(id1, id2);
+            Assert.NotEqual(id1.InstanceId, id2.InstanceId);
+            Assert.Equal(1, id1.Lease);
+            Assert.Equal(1, id2.Lease);
+
+            if (useFactory)
+            {
+                await Dispose(context1, async);
+            }
+
+            await Dispose(serviceScope1, async);
+            await Dispose(serviceScope2, async);
+
+            if (useFactory)
+            {
+                await Dispose(context2, async);
+            }
+
+            var id1d = context1.ContextId;
+            var id2d = context2.ContextId;
+
+            Assert.Equal(id1, id1d);
+            Assert.Equal(id1.InstanceId, id1d.InstanceId);
+            Assert.Equal(1, id1d.Lease);
+            Assert.Equal(1, id2d.Lease);
+
+            var serviceScope3 = serviceProvider.CreateScope();
+            var context3 = GetContext(serviceScope3);
+
+            var id1r = context3.ContextId;
+
+            Assert.Same(context1, context3);
+            Assert.Equal(id1.InstanceId, id1r.InstanceId);
+            Assert.NotEqual(default, id1r.InstanceId);
+            Assert.NotEqual(id1, id1r);
+            Assert.Equal(2, id1r.Lease);
+
+            var serviceScope4 = serviceProvider.CreateScope();
+            var context4 = GetContext(serviceScope4);
+
+            var id2r = context4.ContextId;
+
+            Assert.Same(context2, context4);
+            Assert.Equal(id2.InstanceId, id2r.InstanceId);
+            Assert.NotEqual(default, id2r.InstanceId);
+            Assert.NotEqual(id2, id2r);
+            Assert.Equal(2, id2r.Lease);
+
+            DbContext GetContext(IServiceScope serviceScope)
+                => useFactory
+                    ? serviceScope.ServiceProvider.GetService<IDbContextFactory<DbContext>>().CreateDbContext()
+                    : serviceScope.ServiceProvider.GetService<DbContext>();
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task ContextIds_make_sense_when_not_pooling(bool async)
+        {
+            var serviceProvider = new ServiceCollection()
+                .AddDbContext<DbContext>(
+                    ob
+                        => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                            .EnableServiceProviderCaching(false))
+                .BuildServiceProvider();
+
+            var serviceScope1 = serviceProvider.CreateScope();
             var context1 = serviceScope1.ServiceProvider.GetService<DbContext>();
 
             var serviceScope2 = serviceProvider.CreateScope();
-
             var context2 = serviceScope2.ServiceProvider.GetService<DbContext>();
 
             Assert.NotSame(context1, context2);
 
-            serviceScope1.Dispose();
-            serviceScope2.Dispose();
+            var id1 = context1.ContextId;
+            var id2 = context2.ContextId;
+
+            Assert.NotEqual(default, id1.InstanceId);
+            Assert.NotEqual(default, id2.InstanceId);
+
+            Assert.NotEqual(id1, id2);
+            Assert.Equal(0, id1.Lease);
+            Assert.Equal(0, id2.Lease);
+
+            await Dispose(serviceScope1, async);
+            await Dispose(serviceScope2, async);
+
+            var id1d = context1.ContextId;
+            var id2d = context2.ContextId;
+
+            Assert.Equal(id1.InstanceId, id1d.InstanceId);
+            Assert.Equal(id2.InstanceId, id2d.InstanceId);
+            Assert.Equal(0, id1d.Lease);
+            Assert.Equal(0, id2d.Lease);
 
             var serviceScope3 = serviceProvider.CreateScope();
-
             var context3 = serviceScope3.ServiceProvider.GetService<DbContext>();
 
-            Assert.Same(context1, context3);
+            var id1r = context3.ContextId;
+
+            Assert.NotSame(context1, context3);
+            Assert.NotEqual(default, id1r.InstanceId);
+            Assert.NotEqual(id1.InstanceId, id1r.InstanceId);
+            Assert.NotEqual(id1, id1r);
+            Assert.Equal(0, id1r.Lease);
 
             var serviceScope4 = serviceProvider.CreateScope();
-
             var context4 = serviceScope4.ServiceProvider.GetService<DbContext>();
 
-            Assert.Same(context2, context4);
+            var id2r = context4.ContextId;
+
+            Assert.NotSame(context2, context4);
+            Assert.NotEqual(default, id2r.InstanceId);
+            Assert.NotEqual(id2.InstanceId, id2r.InstanceId);
+            Assert.NotEqual(id2, id2r);
+            Assert.Equal(0, id2r.Lease);
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Contexts_are_pooled(bool useInterface)
+        [ConditionalTheory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public async Task Contexts_are_pooled(bool useInterface, bool async)
         {
             var serviceProvider = useInterface
                 ? BuildServiceProvider<IPooledContext, PooledContext>()
@@ -229,8 +450,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.NotSame(context1, context2);
             Assert.NotSame(secondContext1, secondContext2);
 
-            serviceScope1.Dispose();
-            serviceScope2.Dispose();
+            await Dispose(serviceScope1, async);
+            await Dispose(serviceScope2, async);
 
             var serviceScope3 = serviceProvider.CreateScope();
             var scopedProvider3 = serviceScope3.ServiceProvider;
@@ -261,10 +482,46 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(secondContext2, secondContext4);
         }
 
-        [Theory]
-        [InlineData(true)]
+        [ConditionalTheory]
         [InlineData(false)]
-        public void Context_configuration_is_reset(bool useInterface)
+        [InlineData(true)]
+        public async Task Contexts_are_pooled_with_factory(bool async)
+        {
+            var factory = BuildServiceProviderWithFactory<PooledContext>().GetService<IDbContextFactory<PooledContext>>();
+
+            var context1 = factory.CreateDbContext();
+            var secondContext1 = factory.CreateDbContext();
+
+            var context2 = factory.CreateDbContext();
+            var secondContext2 = factory.CreateDbContext();
+
+            Assert.NotSame(context1, context2);
+            Assert.NotSame(secondContext1, secondContext2);
+
+            await Dispose(context1, async);
+            await Dispose(secondContext1, async);
+            await Dispose(context2, async);
+            await Dispose(secondContext2, async);
+
+            var context3 = factory.CreateDbContext();
+            var secondContext3 = factory.CreateDbContext();
+
+            Assert.Same(context1, context3);
+            Assert.Same(secondContext1, secondContext3);
+
+            var context4 = factory.CreateDbContext();
+            var secondContext4 = factory.CreateDbContext();
+
+            Assert.Same(context2, context4);
+            Assert.Same(secondContext2, secondContext4);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public async Task Context_configuration_is_reset(bool useInterface, bool async)
         {
             var serviceProvider = useInterface
                 ? BuildServiceProvider<IPooledContext, PooledContext>()
@@ -278,10 +535,25 @@ namespace Microsoft.EntityFrameworkCore
                 : scopedProvider.GetService<PooledContext>();
 
             context1.ChangeTracker.AutoDetectChangesEnabled = true;
+            context1.ChangeTracker.LazyLoadingEnabled = true;
             context1.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            context1.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
+            context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
             context1.Database.AutoTransactionsEnabled = true;
+            context1.Database.AutoSavepointsEnabled = true;
+            context1.SavingChanges += (sender, args) => { };
+            context1.SavedChanges += (sender, args) => { };
+            context1.SaveChangesFailed += (sender, args) => { };
 
-            serviceScope.Dispose();
+            Assert.NotNull(GetContextEventField(context1, nameof(DbContext.SavingChanges)));
+            Assert.NotNull(GetContextEventField(context1, nameof(DbContext.SavedChanges)));
+            Assert.NotNull(GetContextEventField(context1, nameof(DbContext.SaveChangesFailed)));
+
+            await Dispose(serviceScope, async);
+
+            Assert.Null(GetContextEventField(context1, nameof(DbContext.SavingChanges)));
+            Assert.Null(GetContextEventField(context1, nameof(DbContext.SavedChanges)));
+            Assert.Null(GetContextEventField(context1, nameof(DbContext.SaveChangesFailed)));
 
             serviceScope = serviceProvider.CreateScope();
             scopedProvider = serviceScope.ServiceProvider;
@@ -293,59 +565,276 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(context1, context2);
 
             Assert.False(context2.ChangeTracker.AutoDetectChangesEnabled);
+            Assert.False(context2.ChangeTracker.LazyLoadingEnabled);
             Assert.Equal(QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
+            Assert.Equal(CascadeTiming.Never, context2.ChangeTracker.CascadeDeleteTiming);
+            Assert.Equal(CascadeTiming.Never, context2.ChangeTracker.DeleteOrphansTiming);
             Assert.False(context2.Database.AutoTransactionsEnabled);
+            Assert.False(context2.Database.AutoSavepointsEnabled);
         }
 
-        [Theory]
-        [InlineData(true)]
+        [ConditionalTheory]
         [InlineData(false)]
-        public void State_manager_is_reset(bool useInterface)
+        [InlineData(true)]
+        public async Task Context_configuration_is_reset_with_factory(bool async)
         {
-            var weakRef = Scoper(
-                () =>
-                    {
-                        var serviceProvider = useInterface
-                            ? BuildServiceProvider<IPooledContext, PooledContext>()
-                            : BuildServiceProvider<PooledContext>();
+            var factory = BuildServiceProviderWithFactory<PooledContext>().GetService<IDbContextFactory<PooledContext>>();
 
-                        var serviceScope = serviceProvider.CreateScope();
-                        var scopedProvider = serviceScope.ServiceProvider;
+            var context1 = factory.CreateDbContext();
 
-                        var context1 = useInterface
-                            ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-                            : scopedProvider.GetService<PooledContext>();
+            context1.ChangeTracker.AutoDetectChangesEnabled = true;
+            context1.ChangeTracker.LazyLoadingEnabled = true;
+            context1.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            context1.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
+            context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
+            context1.Database.AutoTransactionsEnabled = true;
+            context1.Database.AutoSavepointsEnabled = true;
+            context1.SavingChanges += (sender, args) => { };
+            context1.SavedChanges += (sender, args) => { };
+            context1.SaveChangesFailed += (sender, args) => { };
 
-                        var entity = context1.Customers.First(c => c.CustomerId == "ALFKI");
+            Assert.NotNull(GetContextEventField(context1, nameof(DbContext.SavingChanges)));
+            Assert.NotNull(GetContextEventField(context1, nameof(DbContext.SavedChanges)));
+            Assert.NotNull(GetContextEventField(context1, nameof(DbContext.SaveChangesFailed)));
 
-                        Assert.Equal(expected: 1, actual: context1.ChangeTracker.Entries().Count());
+            await Dispose(context1, async);
 
-                        serviceScope.Dispose();
+            Assert.Null(GetContextEventField(context1, nameof(DbContext.SavingChanges)));
+            Assert.Null(GetContextEventField(context1, nameof(DbContext.SavedChanges)));
+            Assert.Null(GetContextEventField(context1, nameof(DbContext.SaveChangesFailed)));
 
-                        serviceScope = serviceProvider.CreateScope();
-                        scopedProvider = serviceScope.ServiceProvider;
+            var context2 = factory.CreateDbContext();
 
-                        var context2 = useInterface
-                            ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-                            : scopedProvider.GetService<PooledContext>();
+            Assert.Same(context1, context2);
 
-                        Assert.Same(context1, context2);
-                        Assert.Empty(context2.ChangeTracker.Entries());
+            Assert.False(context2.ChangeTracker.AutoDetectChangesEnabled);
+            Assert.False(context2.ChangeTracker.LazyLoadingEnabled);
+            Assert.Equal(QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
+            Assert.Equal(CascadeTiming.Never, context2.ChangeTracker.CascadeDeleteTiming);
+            Assert.Equal(CascadeTiming.Never, context2.ChangeTracker.DeleteOrphansTiming);
+            Assert.False(context2.Database.AutoTransactionsEnabled);
+            Assert.False(context2.Database.AutoSavepointsEnabled);
+        }
 
-                        return new WeakReference(entity);
-                    });
+        [ConditionalFact]
+        public void Change_tracker_can_be_cleared_without_resetting_context_config()
+        {
+            var context = new PooledContext(
+                new DbContextOptionsBuilder().UseSqlServer(
+                    SqlServerNorthwindTestStoreFactory.NorthwindConnectionString).Options);
+
+            Assert.Null(GetContextEventField(context, nameof(DbContext.SavingChanges)));
+            Assert.Null(GetContextEventField(context, nameof(DbContext.SavedChanges)));
+            Assert.Null(GetContextEventField(context, nameof(DbContext.SaveChangesFailed)));
+
+            context.ChangeTracker.AutoDetectChangesEnabled = true;
+            context.ChangeTracker.LazyLoadingEnabled = true;
+            context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            context.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
+            context.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
+            context.Database.AutoTransactionsEnabled = true;
+            context.Database.AutoSavepointsEnabled = true;
+            context.ChangeTracker.Tracked += ChangeTracker_OnTracked;
+            context.ChangeTracker.StateChanged += ChangeTracker_OnStateChanged;
+            context.SavingChanges += (sender, args) => { };
+            context.SavedChanges += (sender, args) => { };
+            context.SaveChangesFailed += (sender, args) => { };
+
+            context.ChangeTracker.Clear();
+
+            Assert.True(context.ChangeTracker.AutoDetectChangesEnabled);
+            Assert.True(context.ChangeTracker.LazyLoadingEnabled);
+            Assert.Equal(QueryTrackingBehavior.NoTracking, context.ChangeTracker.QueryTrackingBehavior);
+            Assert.Equal(CascadeTiming.Immediate, context.ChangeTracker.CascadeDeleteTiming);
+            Assert.Equal(CascadeTiming.Immediate, context.ChangeTracker.DeleteOrphansTiming);
+            Assert.True(context.Database.AutoTransactionsEnabled);
+            Assert.True(context.Database.AutoSavepointsEnabled);
+
+            Assert.False(_changeTracker_OnTracked);
+            Assert.False(_changeTracker_OnStateChanged);
+
+            context.Customers.Attach(
+                new PooledContext.Customer { CustomerId = "C" }).State = EntityState.Modified;
+
+            Assert.True(_changeTracker_OnTracked);
+            Assert.True(_changeTracker_OnStateChanged);
+
+            Assert.NotNull(GetContextEventField(context, nameof(DbContext.SavingChanges)));
+            Assert.NotNull(GetContextEventField(context, nameof(DbContext.SavedChanges)));
+            Assert.NotNull(GetContextEventField(context, nameof(DbContext.SaveChangesFailed)));
+        }
+
+        private object GetContextEventField(DbContext context, string eventName)
+            => typeof(DbContext)
+                .GetField(eventName, BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.Instance)
+                .GetValue(context);
+        private bool _changeTracker_OnTracked;
+
+        private void ChangeTracker_OnTracked(object sender, EntityTrackedEventArgs e)
+            => _changeTracker_OnTracked = true;
+
+        private bool _changeTracker_OnStateChanged;
+
+        private void ChangeTracker_OnStateChanged(object sender, EntityStateChangedEventArgs e)
+            => _changeTracker_OnStateChanged = true;
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Default_Context_configuration_is_reset(bool async)
+        {
+            var serviceProvider = BuildServiceProvider<DefaultOptionsPooledContext>();
+
+            var serviceScope = serviceProvider.CreateScope();
+            var scopedProvider = serviceScope.ServiceProvider;
+
+            var context1 = scopedProvider.GetService<DefaultOptionsPooledContext>();
+
+            context1.ChangeTracker.AutoDetectChangesEnabled = false;
+            context1.ChangeTracker.LazyLoadingEnabled = false;
+            context1.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            context1.Database.AutoTransactionsEnabled = false;
+            context1.Database.AutoSavepointsEnabled = false;
+            context1.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
+            context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
+
+            await Dispose(serviceScope, async);
+
+            serviceScope = serviceProvider.CreateScope();
+            scopedProvider = serviceScope.ServiceProvider;
+
+            var context2 = scopedProvider.GetService<DefaultOptionsPooledContext>();
+
+            Assert.Same(context1, context2);
+
+            Assert.True(context2.ChangeTracker.AutoDetectChangesEnabled);
+            Assert.True(context2.ChangeTracker.LazyLoadingEnabled);
+            Assert.Equal(QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
+            Assert.Equal(CascadeTiming.Immediate, context2.ChangeTracker.CascadeDeleteTiming);
+            Assert.Equal(CascadeTiming.Immediate, context2.ChangeTracker.DeleteOrphansTiming);
+            Assert.True(context2.Database.AutoTransactionsEnabled);
+            Assert.True(context2.Database.AutoSavepointsEnabled);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Default_Context_configuration_is_reset_with_factory(bool async)
+        {
+            var factory = BuildServiceProviderWithFactory<DefaultOptionsPooledContext>()
+                .GetService<IDbContextFactory<DefaultOptionsPooledContext>>();
+
+            var context1 = factory.CreateDbContext();
+
+            context1.ChangeTracker.AutoDetectChangesEnabled = false;
+            context1.ChangeTracker.LazyLoadingEnabled = false;
+            context1.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            context1.Database.AutoTransactionsEnabled = false;
+            context1.Database.AutoSavepointsEnabled = false;
+            context1.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
+            context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
+
+            await Dispose(context1, async);
+
+            var context2 = factory.CreateDbContext();
+
+            Assert.Same(context1, context2);
+
+            Assert.True(context2.ChangeTracker.AutoDetectChangesEnabled);
+            Assert.True(context2.ChangeTracker.LazyLoadingEnabled);
+            Assert.Equal(QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
+            Assert.Equal(CascadeTiming.Immediate, context2.ChangeTracker.CascadeDeleteTiming);
+            Assert.Equal(CascadeTiming.Immediate, context2.ChangeTracker.DeleteOrphansTiming);
+            Assert.True(context2.Database.AutoTransactionsEnabled);
+            Assert.True(context2.Database.AutoSavepointsEnabled);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public async Task State_manager_is_reset(bool useInterface, bool async)
+        {
+            var weakRef = await Scoper(
+                async () =>
+                {
+                    var serviceProvider = useInterface
+                        ? BuildServiceProvider<IPooledContext, PooledContext>()
+                        : BuildServiceProvider<PooledContext>();
+
+                    var serviceScope = serviceProvider.CreateScope();
+                    var scopedProvider = serviceScope.ServiceProvider;
+
+                    var context1 = useInterface
+                        ? (PooledContext)scopedProvider.GetService<IPooledContext>()
+                        : scopedProvider.GetService<PooledContext>();
+
+                    var entity = context1.Customers.First(c => c.CustomerId == "ALFKI");
+
+                    Assert.Single(context1.ChangeTracker.Entries());
+
+                    await Dispose(serviceScope, async);
+
+                    serviceScope = serviceProvider.CreateScope();
+                    scopedProvider = serviceScope.ServiceProvider;
+
+                    var context2 = useInterface
+                        ? (PooledContext)scopedProvider.GetService<IPooledContext>()
+                        : scopedProvider.GetService<PooledContext>();
+
+                    Assert.Same(context1, context2);
+                    Assert.Empty(context2.ChangeTracker.Entries());
+
+                    return new WeakReference(entity);
+                });
 
             GC.Collect();
 
             Assert.False(weakRef.IsAlive);
         }
 
-        private static T Scoper<T>(Func<T> getter) => getter();
+        private static async Task<T> Scoper<T>(Func<Task<T>> getter)
+            => await getter();
 
-        [Theory]
-        [InlineData(true)]
+        [ConditionalTheory]
         [InlineData(false)]
-        public void Pool_disposes_context_when_context_not_pooled(bool useInterface)
+        [InlineData(true)]
+        public async Task State_manager_is_reset_with_factory(bool async)
+        {
+            var weakRef = await Scoper(
+                async () =>
+                {
+                    var factory = BuildServiceProviderWithFactory<PooledContext>()
+                        .GetService<IDbContextFactory<PooledContext>>();
+
+                    var context1 = factory.CreateDbContext();
+
+                    var entity = context1.Customers.First(c => c.CustomerId == "ALFKI");
+
+                    Assert.Single(context1.ChangeTracker.Entries());
+
+                    await Dispose(context1, async);
+
+                    var context2 = factory.CreateDbContext();
+
+                    Assert.Same(context1, context2);
+                    Assert.Empty(context2.ChangeTracker.Entries());
+
+                    return new WeakReference(entity);
+                });
+
+            GC.Collect();
+
+            Assert.False(weakRef.IsAlive);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public async Task Pool_disposes_context_when_context_not_pooled(bool useInterface, bool async)
         {
             var serviceProvider = useInterface
                 ? BuildServiceProvider<IPooledContext, PooledContext>()
@@ -370,16 +859,18 @@ namespace Microsoft.EntityFrameworkCore
                 ? (PooledContext)scopedProvider2.GetService<IPooledContext>()
                 : scopedProvider2.GetService<PooledContext>();
 
-            serviceScope1.Dispose();
-            serviceScope2.Dispose();
+            await Dispose(serviceScope1, async);
+            await Dispose(serviceScope2, async);
 
             Assert.Throws<ObjectDisposedException>(() => context.Customers.ToList());
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Pool_disposes_contexts_when_disposed(bool useInterface)
+        [ConditionalTheory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public async Task Pool_disposes_contexts_when_disposed(bool useInterface, bool async)
         {
             var serviceProvider = useInterface
                 ? BuildServiceProvider<IPooledContext, PooledContext>()
@@ -392,17 +883,19 @@ namespace Microsoft.EntityFrameworkCore
                 ? (PooledContext)scopedProvider.GetService<IPooledContext>()
                 : scopedProvider.GetService<PooledContext>();
 
-            serviceScope.Dispose();
+            await Dispose(serviceScope, async);
 
-            ((IDisposable)serviceProvider).Dispose();
+            await Dispose((IDisposable)serviceProvider, async);
 
             Assert.Throws<ObjectDisposedException>(() => context.Customers.ToList());
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Object_in_pool_is_disposed(bool useInterface)
+        [ConditionalTheory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public async Task Object_in_pool_is_disposed(bool useInterface, bool async)
         {
             var serviceProvider = useInterface
                 ? BuildServiceProvider<IPooledContext, PooledContext>()
@@ -415,37 +908,91 @@ namespace Microsoft.EntityFrameworkCore
                 ? (PooledContext)scopedProvider.GetService<IPooledContext>()
                 : scopedProvider.GetService<PooledContext>();
 
-            serviceScope.Dispose();
+            await Dispose(serviceScope, async);
 
             Assert.Throws<ObjectDisposedException>(() => context.Customers.ToList());
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Double_dispose_does_not_enter_pool_twice(bool useInterface)
+        [ConditionalTheory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public async Task Double_dispose_does_not_enter_pool_twice(bool useInterface, bool async)
         {
             var serviceProvider = useInterface
                 ? BuildServiceProvider<IPooledContext, PooledContext>()
                 : BuildServiceProvider<PooledContext>();
 
-            var contextPool = serviceProvider.GetService<DbContextPool<PooledContext>>();
+            var scope = serviceProvider.CreateScope();
+            var lease = scope.ServiceProvider.GetRequiredService<IScopedDbContextLease<PooledContext>>();
+            var context = lease.Context;
 
-            var context = contextPool.Rent();
+            await Dispose(scope, async);
+            await Dispose(scope, async);
 
-            context.Dispose();
-            context.Dispose();
+            using var scope1 = serviceProvider.CreateScope();
+            var lease1 = scope1.ServiceProvider.GetRequiredService<IScopedDbContextLease<PooledContext>>();
 
-            var context1 = contextPool.Rent();
-            var context2 = contextPool.Rent();
+            using var scope2 = serviceProvider.CreateScope();
+            var lease2 = scope2.ServiceProvider.GetRequiredService<IScopedDbContextLease<PooledContext>>();
 
+            Assert.Same(context, lease1.Context);
+            Assert.NotSame(lease1.Context, lease2.Context);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public async Task Double_dispose_with_standalone_lease_does_not_enter_pool_twice(bool useInterface, bool async)
+        {
+            var serviceProvider = useInterface
+                ? BuildServiceProvider<IPooledContext, PooledContext>()
+                : BuildServiceProvider<PooledContext>();
+
+            var pool = serviceProvider.GetRequiredService<IDbContextPool<PooledContext>>();
+            var lease = new DbContextLease(pool, standalone: true);
+            var context = lease.Context;
+
+            await Dispose(context, async);
+            await Dispose(context, async);
+
+            using var context1 = new DbContextLease(pool, standalone: true).Context;
+            using var context2 = new DbContextLease(pool, standalone: true).Context;
+
+            Assert.Same(context, context1);
             Assert.NotSame(context1, context2);
         }
 
-        [Theory]
-        [InlineData(true)]
+        [ConditionalTheory]
         [InlineData(false)]
-        public void Provider_services_are_reset(bool useInterface)
+        [InlineData(true)]
+        public async Task Can_double_dispose_with_factory(bool async)
+        {
+            var factory = BuildServiceProviderWithFactory<PooledContext>()
+                .GetService<IDbContextFactory<PooledContext>>();
+
+            var context = factory.CreateDbContext();
+
+            context.Customers.Load();
+
+            await Dispose(context, async);
+
+            Assert.Throws<ObjectDisposedException>(() => context.Customers.ToList());
+
+            await Dispose(context, async);
+
+            Assert.Throws<ObjectDisposedException>(() => context.Customers.ToList());
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public async Task Provider_services_are_reset(bool useInterface, bool async)
         {
             var serviceProvider = useInterface
                 ? BuildServiceProvider<IPooledContext, PooledContext>()
@@ -462,7 +1009,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.NotNull(context1.Database.CurrentTransaction);
 
-            serviceScope.Dispose();
+            await Dispose(serviceScope, async);
 
             serviceScope = serviceProvider.CreateScope();
             scopedProvider = serviceScope.ServiceProvider;
@@ -478,7 +1025,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.NotNull(context2.Database.CurrentTransaction);
 
-            serviceScope.Dispose();
+            await Dispose(serviceScope, async);
 
             serviceScope = serviceProvider.CreateScope();
             scopedProvider = serviceScope.ServiceProvider;
@@ -492,9 +1039,41 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Provider_services_are_reset_with_factory(bool async)
+        {
+            var factory = BuildServiceProviderWithFactory<PooledContext>()
+                .GetService<IDbContextFactory<PooledContext>>();
+
+            var context1 = factory.CreateDbContext();
+
+            context1.Database.BeginTransaction();
+
+            Assert.NotNull(context1.Database.CurrentTransaction);
+
+            await Dispose(context1, async);
+
+            var context2 = factory.CreateDbContext();
+
+            Assert.Same(context1, context2);
+            Assert.Null(context2.Database.CurrentTransaction);
+
+            context2.Database.BeginTransaction();
+
+            Assert.NotNull(context2.Database.CurrentTransaction);
+
+            await Dispose(context2, async);
+
+            var context3 = factory.CreateDbContext();
+
+            Assert.Same(context2, context3);
+            Assert.Null(context3.Database.CurrentTransaction);
+        }
+
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
-        [PlatformSkipCondition(TestPlatform.Linux, SkipReason = "Test is flaky on CI.")]
         public void Double_dispose_concurrency_test(bool useInterface)
         {
             var serviceProvider = useInterface
@@ -502,28 +1081,27 @@ namespace Microsoft.EntityFrameworkCore
                 : BuildServiceProvider<PooledContext>();
 
             Parallel.For(
-                fromInclusive: 0, toExclusive: 100, body: s =>
-                    {
-                        using (var scope = serviceProvider.CreateScope())
-                        {
-                            var scopedProvider = scope.ServiceProvider;
+                fromInclusive: 0, toExclusive: 32, body: s =>
+                {
+                    using var scope = serviceProvider.CreateScope();
+                    var scopedProvider = scope.ServiceProvider;
 
-                            var context = useInterface
-                                ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-                                : scopedProvider.GetService<PooledContext>();
+                    var context = useInterface
+                        ? (PooledContext)scopedProvider.GetService<IPooledContext>()
+                        : scopedProvider.GetService<PooledContext>();
 
-                            var _ = context.Customers.ToList();
+                    var _ = context.Customers.ToList();
 
-                            context.Dispose();
-                        }
-                    });
+                    context.Dispose();
+                });
         }
 
         [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
-        [PlatformSkipCondition(TestPlatform.Linux, SkipReason = "Test is flaky on CI.")]
-        public async Task Concurrency_test(bool useInterface)
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public async Task Concurrency_test(bool useInterface, bool async)
         {
             PooledContext.InstanceCount = 0;
             PooledContext.DisposedCount = 0;
@@ -538,18 +1116,16 @@ namespace Microsoft.EntityFrameworkCore
             {
                 while (_stopwatch.IsRunning)
                 {
-                    using (var serviceScope = serviceProvider.CreateScope())
-                    {
-                        var scopedProvider = serviceScope.ServiceProvider;
+                    using var serviceScope = serviceProvider.CreateScope();
+                    var scopedProvider = serviceScope.ServiceProvider;
 
-                        var context = useInterface
-                            ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-                            : scopedProvider.GetService<PooledContext>();
+                    var context = useInterface
+                        ? (PooledContext)scopedProvider.GetService<IPooledContext>()
+                        : scopedProvider.GetService<PooledContext>();
 
-                        await context.Customers.AsNoTracking().FirstAsync(c => c.CustomerId == "ALFKI");
+                    await context.Customers.AsNoTracking().FirstAsync(c => c.CustomerId == "ALFKI");
 
-                        Interlocked.Increment(ref _requests);
-                    }
+                    Interlocked.Increment(ref _requests);
                 }
             }
 
@@ -611,10 +1187,22 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        private async Task Dispose(IDisposable disposable, bool async)
+        {
+            if (async)
+            {
+                await ((IAsyncDisposable)disposable).DisposeAsync();
+            }
+            else
+            {
+                disposable.Dispose();
+            }
+        }
+
         private readonly ITestOutputHelper _testOutputHelper = null;
 
         // ReSharper disable once UnusedParameter.Local
-        public DbContextPoolingTest(ITestOutputHelper testOutputHelper)
+        public DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
         {
             //_testOutputHelper = testOutputHelper;
         }

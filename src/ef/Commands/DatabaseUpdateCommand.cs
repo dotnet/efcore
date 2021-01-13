@@ -1,16 +1,18 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     // ReSharper disable once ArrangeTypeModifiers
-    partial class DatabaseUpdateCommand
+    internal partial class DatabaseUpdateCommand
     {
-        protected override int Execute()
+        protected override int Execute(string[] args)
         {
-            CreateExecutor().UpdateDatabase(_migration.Value, Context.Value());
+            using var executor = CreateExecutor(args);
 
-            return base.Execute();
+            executor.UpdateDatabase(_migration.Value, _connection.Value(), Context.Value());
+
+            return base.Execute(args);
         }
     }
 }

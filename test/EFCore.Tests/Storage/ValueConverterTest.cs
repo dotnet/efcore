@@ -4,9 +4,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Internal;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Xunit;
 
@@ -14,10 +16,68 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class ValueConverterTest
     {
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Value_converters_are_run_for_in_memory_database(bool async)
+        {
+            using (var context = new InMemoryConvertersContext())
+            {
+                context.Add(
+                    new Person
+                    {
+                        Id = async ? 1 : 2,
+                        ConvertedGoingIn = new DateTime(2015, 1, 10, 8, 8, 8, DateTimeKind.Local),
+                        ConvertedComingOut = new DateTime(2015, 1, 10, 9, 9, 9, DateTimeKind.Local)
+                    });
+
+                Assert.Equal(1, async ? await context.SaveChangesAsync() : context.SaveChanges());
+            }
+
+            using (var context = new InMemoryConvertersContext())
+            {
+                var person = context.Set<Person>().Find(async ? 1L : 2L);
+
+                Assert.Equal(DateTimeKind.Utc, person.ConvertedGoingIn.Kind);
+                Assert.Equal(new DateTime(2015, 1, 10, 8, 8, 8, DateTimeKind.Utc), person.ConvertedGoingIn);
+
+                Assert.Equal(DateTimeKind.Utc, person.ConvertedComingOut.Kind);
+                Assert.Equal(new DateTime(2015, 1, 10, 9, 9, 9, DateTimeKind.Utc), person.ConvertedComingOut);
+            }
+        }
+
+        private class InMemoryConvertersContext : DbContext
+        {
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase(nameof(ValueComparerTest));
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Person>(
+                    b =>
+                    {
+                        b.Property(o => o.ConvertedComingOut)
+                            .HasConversion(v => v, v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+
+                        b.Property(o => o.ConvertedGoingIn)
+                            .HasConversion(v => DateTime.SpecifyKind(v, DateTimeKind.Utc), v => v);
+                    });
+            }
+        }
+
+        private class Person
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public long Id { get; set; }
+
+            public DateTime ConvertedGoingIn { get; set; }
+            public DateTime ConvertedComingOut { get; set; }
+        }
+
         private static readonly ValueConverter<uint, int> _uIntToInt
             = new CastingConverter<uint, int>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_access_raw_converters()
         {
             Assert.Same(_uIntToInt.ConvertFromProviderExpression, ((ValueConverter)_uIntToInt).ConvertFromProviderExpression);
@@ -30,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(uint.MaxValue, _uIntToInt.ConvertFromProviderExpression.Compile()(-1));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_exact_types_with_non_nullable_converter()
         {
             Assert.Equal(1, _uIntToInt.ConvertToProvider((uint)1));
@@ -40,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(uint.MaxValue, _uIntToInt.ConvertFromProvider(-1));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_nullable_types_with_non_nullable_converter()
         {
             Assert.Equal(1, _uIntToInt.ConvertToProvider((uint?)1));
@@ -50,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(uint.MaxValue, _uIntToInt.ConvertFromProvider((int?)-1));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_non_exact_types_with_non_nullable_converter()
         {
             Assert.Equal(1, _uIntToInt.ConvertToProvider((ushort)1));
@@ -63,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((uint)1, _uIntToInt.ConvertFromProvider(1));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_non_exact_nullable_types_with_non_nullable_converter()
         {
             Assert.Equal(1, _uIntToInt.ConvertToProvider((ushort?)1));
@@ -76,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((uint)1, _uIntToInt.ConvertFromProvider((int?)1));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_handle_nulls_with_non_nullable_converter()
         {
             Assert.Null(_uIntToInt.ConvertToProvider(null));
@@ -86,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly ValueConverter<uint?, int?> _nullableUIntToNullableInt
             = new CastingConverter<uint?, int?>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_exact_types_with_nullable_converter()
         {
             Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToProvider((uint?)1));
@@ -96,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((uint?)uint.MaxValue, _nullableUIntToNullableInt.ConvertFromProvider((int?)-1));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_non_nullable_types_with_nullable_converter()
         {
             Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToProvider((uint?)1));
@@ -106,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((uint?)uint.MaxValue, _nullableUIntToNullableInt.ConvertFromProvider((int?)-1));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_non_exact_types_with_nullable_converter()
         {
             Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToProvider((ushort?)1));
@@ -119,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromProvider((int?)1));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_non_exact_nullable_types_with_nullable_converter()
         {
             Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToProvider((ushort)1));
@@ -132,24 +192,42 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromProvider(1));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_handle_nulls_with_nullable_converter()
         {
             Assert.Null(_nullableUIntToNullableInt.ConvertToProvider(null));
             Assert.Null(_nullableUIntToNullableInt.ConvertFromProvider(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_cast_between_numeric_types()
         {
             var types = new[]
             {
-                typeof(sbyte), typeof(short), typeof(int), typeof(long),
-                typeof(byte), typeof(ushort), typeof(uint), typeof(ulong),
-                typeof(char), typeof(double), typeof(float), typeof(decimal),
-                typeof(sbyte?), typeof(short?), typeof(int?), typeof(long?),
-                typeof(byte?), typeof(ushort?), typeof(uint?), typeof(ulong?),
-                typeof(char?), typeof(double?), typeof(float?), typeof(decimal?)
+                typeof(sbyte),
+                typeof(short),
+                typeof(int),
+                typeof(long),
+                typeof(byte),
+                typeof(ushort),
+                typeof(uint),
+                typeof(ulong),
+                typeof(char),
+                typeof(double),
+                typeof(float),
+                typeof(decimal),
+                typeof(sbyte?),
+                typeof(short?),
+                typeof(int?),
+                typeof(long?),
+                typeof(byte?),
+                typeof(ushort?),
+                typeof(uint?),
+                typeof(ulong?),
+                typeof(char?),
+                typeof(double?),
+                typeof(float?),
+                typeof(decimal?)
             };
 
             foreach (var fromType in types)
@@ -196,7 +274,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly ValueConverter<Beatles, int> _enumToNumber
             = new EnumToNumberConverter<Beatles, int>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_compose_to_strings()
         {
             var converter
@@ -211,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("0", converter(default));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_compose_to_strings_object()
         {
             var converter = _enumToNumber.ComposeWith(_intToString).ConvertToProvider;
@@ -225,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_compose_to_enums()
         {
             var converter
@@ -240,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(default, converter("0"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_compose_to_enums_object()
         {
             var converter = _enumToNumber.ComposeWith(_intToString).ConvertFromProvider;
@@ -262,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Ringo = -1
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_compose_converters_with_mismatched_types()
         {
             Assert.Equal(
@@ -271,7 +349,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     () => _enumToNumber.ComposeWith(_uIntToInt)).Message);
         }
 
+#pragma warning disable xUnit1013 // Public method should be marked as test
         public static void OrderingTest<TModel, TProvider>(
+#pragma warning restore xUnit1013 // Public method should be marked as test
             ValueConverter<TModel, TProvider> converter,
             params TModel[] values)
         {
@@ -286,7 +366,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     .ToArray());
         }
 
+#pragma warning disable xUnit1013 // Public method should be marked as test
         public static void OrderingTest<TModel>(
+#pragma warning restore xUnit1013 // Public method should be marked as test
             ValueConverter<TModel, byte[]> converter,
             params TModel[] values)
         {

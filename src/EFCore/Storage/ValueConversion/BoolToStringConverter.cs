@@ -6,6 +6,8 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
@@ -17,19 +19,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Creates a new instance of this converter. A case-insensitive first character test is used
         ///     when converting from the store.
         /// </summary>
-        /// <param name="falseValue"> The string to use for <c>false</c>. </param>
-        /// <param name="trueValue"> The string to use for <c>true</c>. </param>
+        /// <param name="falseValue"> The string to use for <see langword="false" />. </param>
+        /// <param name="trueValue"> The string to use for <see langword="true" />. </param>
         /// <param name="mappingHints">
-        ///     Hints that can be used by the <see cref="ITypeMappingSource"/> to create data types with appropriate
+        ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
         public BoolToStringConverter(
             [NotNull] string falseValue,
             [NotNull] string trueValue,
-            [CanBeNull] ConverterMappingHints mappingHints = null)
+            [CanBeNull] ConverterMappingHints? mappingHints = null)
             : base(
-                Check.NotEmpty(falseValue, nameof(falseValue)),
-                Check.NotEmpty(trueValue, nameof(trueValue)),
+                Check.NotNull(falseValue, nameof(falseValue)),
+                Check.NotNull(trueValue, nameof(trueValue)),
                 FromProvider(trueValue),
                 new ConverterMappingHints(size: Math.Max(falseValue.Length, trueValue.Length)).With(mappingHints))
         {
@@ -39,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(
+            = new(
                 typeof(bool),
                 typeof(string),
                 i => new BoolToStringConverter("0", "1", i.MappingHints),
@@ -50,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             var testChar = trueValue.ToUpperInvariant()[0];
 
             return v => !string.IsNullOrEmpty(v)
-                        && v.ToUpperInvariant()[0] == testChar;
+                && v.ToUpperInvariant()[0] == testChar;
         }
     }
 }

@@ -11,68 +11,54 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
     public class FakeRelationalDatabaseCreator : IRelationalDatabaseCreator
     {
         public bool EnsureDeleted()
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         public Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         public bool EnsureCreated()
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         public Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
+
+        public bool CanConnect()
+            => throw new NotImplementedException();
+
+        public Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
 
         public bool Exists()
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         public Task<bool> ExistsAsync(CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
+
+        public bool HasTables()
+            => throw new NotImplementedException();
+
+        public Task<bool> HasTablesAsync(CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
 
         public void Create()
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         public Task CreateAsync(CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         public void Delete()
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         public Task DeleteAsync(CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         public void CreateTables()
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         public Task CreateTablesAsync(CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         public string GenerateCreateScript()
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
     }
 }

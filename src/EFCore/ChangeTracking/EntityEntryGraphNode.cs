@@ -11,23 +11,31 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
-    ///     Provides access to change tracking information and operations for a node in a
-    ///     graph of entities that is being traversed.
+    ///     <para>
+    ///         Provides access to change tracking information and operations for a node in a
+    ///         graph of entities that is being traversed.
+    ///     </para>
+    ///     <para>
+    ///         See <see cref="M:ChangeTracker.TrackGraph" /> for information on how graph nodes are used.
+    ///     </para>
     /// </summary>
     public class EntityEntryGraphNode : IInfrastructure<InternalEntityEntry>
     {
-        private readonly InternalEntityEntry _sourceEntry;
         private readonly InternalEntityEntry _entry;
+        private readonly InternalEntityEntry _sourceEntry;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
+        [EntityFrameworkInternal]
         public EntityEntryGraphNode(
             [NotNull] InternalEntityEntry entry,
             [CanBeNull] InternalEntityEntry sourceEntry,
-            [CanBeNull] INavigation inboundNavigation)
+            [CanBeNull] INavigationBase inboundNavigation)
         {
             Check.NotNull(entry, nameof(entry));
 
@@ -37,24 +45,37 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     Gets the entry tracking information about this entity.
+        ///     <para>
+        ///         An <see cref="EntityEntry" /> for the entity instance from which a navigation property was traversed to the the instance
+        ///         represented by this node.
+        ///     </para>
+        ///     <para>
+        ///         See <see cref="M:ChangeTracker.TrackGraph" /> for information on how graph nodes are used.
+        ///     </para>
         /// </summary>
-        public virtual EntityEntry SourceEntry => _sourceEntry == null ? null : new EntityEntry(_sourceEntry);
+        public virtual EntityEntry SourceEntry
+            => _sourceEntry == null ? null : new EntityEntry(_sourceEntry);
 
         /// <summary>
-        ///     Gets the navigation property that is being traversed to reach this node in the graph.
+        ///     <para>
+        ///         Gets the navigation property that is being traversed to reach this node in the graph.
+        ///     </para>
+        ///     <para>
+        ///         See <see cref="M:ChangeTracker.TrackGraph" /> for information on how graph nodes are used.
+        ///     </para>
         /// </summary>
-        public virtual INavigation InboundNavigation { get; }
+        public virtual INavigationBase InboundNavigation { get; }
 
         /// <summary>
-        ///     Gets or sets state that will be available to all nodes that are visited after this node.
+        ///     <para>
+        ///         An <see cref="EntityEntry" /> for the entity instance represented by this node.
+        ///     </para>
+        ///     <para>
+        ///         See <see cref="M:ChangeTracker.TrackGraph" /> for information on how graph nodes are used.
+        ///     </para>
         /// </summary>
-        public virtual object NodeState { get; [param: CanBeNull] set; }
-
-        /// <summary>
-        ///     Gets the entry tracking information about this entity.
-        /// </summary>
-        public virtual EntityEntry Entry => new EntityEntry(_entry);
+        public virtual EntityEntry Entry
+            => new EntityEntry(_entry);
 
         /// <summary>
         ///     <para>
@@ -65,7 +86,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         application code.
         ///     </para>
         /// </summary>
-        InternalEntityEntry IInfrastructure<InternalEntityEntry>.Instance => _entry;
+        [EntityFrameworkInternal]
+        InternalEntityEntry IInfrastructure<InternalEntityEntry>.Instance
+            => _entry;
 
         /// <summary>
         ///     Creates a new node for the entity that is being traversed next in the graph.
@@ -79,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public virtual EntityEntryGraphNode CreateNode(
             [NotNull] EntityEntryGraphNode currentNode,
             [NotNull] InternalEntityEntry internalEntityEntry,
-            [NotNull] INavigation reachedVia)
+            [NotNull] INavigationBase reachedVia)
         {
             Check.NotNull(currentNode, nameof(currentNode));
             Check.NotNull(internalEntityEntry, nameof(internalEntityEntry));
@@ -88,10 +111,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             return new EntityEntryGraphNode(
                 internalEntityEntry,
                 currentNode.Entry.GetInfrastructure(),
-                reachedVia)
-            {
-                NodeState = Check.NotNull(currentNode, nameof(currentNode)).NodeState
-            };
+                reachedVia);
         }
     }
 }

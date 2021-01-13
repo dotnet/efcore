@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.DotNet.Cli.CommandLine;
@@ -11,6 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         private CommandArgument _name;
         private CommandOption _outputDir;
         private CommandOption _json;
+        private CommandOption _namespace;
 
         public override void Configure(CommandLineApplication command)
         {
@@ -20,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 
             _outputDir = command.Option("-o|--output-dir <PATH>", Resources.MigrationsOutputDirDescription);
             _json = Json.ConfigureOption(command);
+            _namespace = command.Option("-n|--namespace <NAMESPACE>", Resources.MigrationsNamespaceDescription);
 
             base.Configure(command);
         }

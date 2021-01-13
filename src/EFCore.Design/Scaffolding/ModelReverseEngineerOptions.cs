@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding
@@ -13,5 +13,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// </summary>
         /// <value> A value indicating whether to use the database schema names directly. </value>
         public virtual bool UseDatabaseNames { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether to use the pluralizer.
+        /// </summary>
+        /// <value> A value indicating whether to use the pluralizer. </value>
+        public virtual bool NoPluralize { get; set; }
     }
 }

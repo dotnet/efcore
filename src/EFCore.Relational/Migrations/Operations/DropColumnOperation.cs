@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Diagnostics;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
@@ -8,13 +9,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     /// <summary>
     ///     A <see cref="MigrationOperation" /> for dropping an existing column.
     /// </summary>
-    public class DropColumnOperation : MigrationOperation
+    [DebuggerDisplay("ALTER TABLE {Table} DROP COLUMN {Name}")]
+    public class DropColumnOperation : MigrationOperation, ITableMigrationOperation
     {
         /// <summary>
         ///     Creates a new instance of the <see cref="DropColumnOperation" />.
         /// </summary>
         // ReSharper disable once VirtualMemberCallInConstructor
-        public DropColumnOperation() => IsDestructiveChange = true;
+        public DropColumnOperation()
+            => IsDestructiveChange = true;
 
         /// <summary>
         ///     The name of the column.
@@ -22,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string Name { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     The schema that contains the table, or <c>null</c> if the default schema should be used.
+        ///     The schema that contains the table, or <see langword="null" /> if the default schema should be used.
         /// </summary>
         public virtual string Schema { get; [param: CanBeNull] set; }
 

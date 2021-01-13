@@ -4,8 +4,8 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore
@@ -34,7 +34,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets the extensions that store the configured options.
         /// </summary>
-        public virtual IEnumerable<IDbContextOptionsExtension> Extensions => _extensions.Values;
+        public virtual IEnumerable<IDbContextOptionsExtension> Extensions
+            => _extensions.Values;
 
         /// <summary>
         ///     Gets the extension of the specified type. Returns null if no extension of the specified type is configured.
@@ -58,15 +59,17 @@ namespace Microsoft.EntityFrameworkCore
             {
                 throw new InvalidOperationException(CoreStrings.OptionsExtensionNotFound(typeof(TExtension).ShortDisplayName()));
             }
+
             return extension;
         }
 
         /// <summary>
-        ///     Adds the given extension to the options.
+        ///     Adds the given extension to the underlying options and creates a new
+        ///     <see cref="DbContextOptions" /> with the extension added.
         /// </summary>
         /// <typeparam name="TExtension"> The type of extension to be added. </typeparam>
         /// <param name="extension"> The extension to be added. </param>
-        /// <returns> The same options instance so that multiple calls can be chained. </returns>
+        /// <returns> The new options instance with the given extension added. </returns>
         public abstract DbContextOptions WithExtension<TExtension>([NotNull] TExtension extension)
             where TExtension : class, IDbContextOptionsExtension;
 
@@ -81,10 +84,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Specifies that no further configuration of this options object should occur.
         /// </summary>
-        public virtual void Freeze() => IsFrozen = true;
+        public virtual void Freeze()
+            => IsFrozen = true;
 
         /// <summary>
-        ///     Returns true if <see cref="Freeze" />. has been called. A frozen options object cannot be further
+        ///     Returns <see langword="true" /> if <see cref="Freeze" /> has been called. A frozen options object cannot be further
         ///     configured with <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" />.
         /// </summary>
         public virtual bool IsFrozen { get; private set; }

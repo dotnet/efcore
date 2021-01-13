@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections;
@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Tools.Properties;
 namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     // ReSharper disable once ArrangeTypeModifiers
-    partial class DbContextScaffoldCommand
+    internal partial class DbContextScaffoldCommand
     {
         protected override void Validate()
         {
@@ -18,15 +18,17 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             {
                 throw new CommandException(Resources.MissingArgument(_connection.Name));
             }
+
             if (string.IsNullOrEmpty(_provider.Value))
             {
                 throw new CommandException(Resources.MissingArgument(_provider.Name));
             }
         }
 
-        protected override int Execute()
+        protected override int Execute(string[] args)
         {
-            var result = CreateExecutor().ScaffoldContext(
+            using var executor = CreateExecutor(args);
+            var result = executor.ScaffoldContext(
                 _provider.Value,
                 _connection.Value,
                 _outputDir.Value(),
@@ -36,13 +38,17 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 _tables.Values,
                 _dataAnnotations.HasValue(),
                 _force.HasValue(),
-                _useDatabaseNames.HasValue());
+                _useDatabaseNames.HasValue(),
+                _namespace.Value(),
+                _contextNamespace.Value(),
+                _suppressOnConfiguring.HasValue(),
+                _noPluralize.HasValue());
             if (_json.HasValue())
             {
                 ReportJsonResults(result);
             }
 
-            return base.Execute();
+            return base.Execute(args);
         }
 
         private static void ReportJsonResults(IDictionary result)

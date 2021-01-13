@@ -4,13 +4,25 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Metadata about the shape of entities, the relationships between them, and how they map to the database. A model is typically
-    ///     created by overriding the <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> method on a derived context, or
-    ///     using <see cref="ModelBuilder" />.
+    ///     <para>
+    ///         Metadata about the shape of entities, the relationships between them, and how they map to
+    ///         the database. A model is typically created by overriding the
+    ///         <see cref="DbContext.OnModelCreating(ModelBuilder)" /> method on a derived
+    ///         <see cref="DbContext" />.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
+    ///     </para>
     /// </summary>
     public interface IModel : IAnnotatable
     {
@@ -21,22 +33,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IEnumerable<IEntityType> GetEntityTypes();
 
         /// <summary>
-        ///     Gets the entity type with the given name. Returns null if no entity type with the given name is found
+        ///     Gets the entity type with the given name. Returns <see langword="null"/> if no entity type with the given name is found
+        ///     or the given CLR type is being used by shared type entity type
         ///     or the entity type has a defining navigation.
         /// </summary>
         /// <param name="name"> The name of the entity type to find. </param>
-        /// <returns> The entity type, or null if none are found. </returns>
-        IEntityType FindEntityType([NotNull] string name);
+        /// <returns> The entity type, or <see langword="null"/> if none are found. </returns>
+        IEntityType? FindEntityType([NotNull] string name);
 
         /// <summary>
-        ///     Gets the entity type for the given name, defining navigation name
-        ///     and the defining entity type. Returns null if no matching entity type is found.
+        ///     Gets the entity type for the given base name, defining navigation name
+        ///     and the defining entity type. Returns <see langword="null"/> if no matching entity type is found.
         /// </summary>
         /// <param name="name"> The name of the entity type to find. </param>
         /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
-        /// <returns> The entity type, or null if none are found. </returns>
-        IEntityType FindEntityType(
+        /// <returns> The entity type, or <see langword="null"/> if none are found. </returns>
+        IEntityType? FindEntityType(
             [NotNull] string name,
             [NotNull] string definingNavigationName,
             [NotNull] IEntityType definingEntityType);

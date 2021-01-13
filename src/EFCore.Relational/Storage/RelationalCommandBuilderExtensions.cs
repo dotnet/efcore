@@ -2,10 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
+using System.IO;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -15,51 +20,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public static class RelationalCommandBuilderExtensions
     {
         /// <summary>
-        ///     Appends an object to the command text.
-        /// </summary>
-        /// <param name="commandBuilder"> The command builder. </param>
-        /// <param name="o"> The object to be written. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static IRelationalCommandBuilder Append(
-            [NotNull] this IRelationalCommandBuilder commandBuilder,
-            [NotNull] object o)
-        {
-            Check.NotNull(commandBuilder, nameof(commandBuilder));
-            Check.NotNull(o, nameof(o));
-
-            commandBuilder.Instance.Append(o);
-
-            return commandBuilder;
-        }
-
-        /// <summary>
-        ///     Appends a blank line to the command text.
-        /// </summary>
-        /// <param name="commandBuilder"> The command builder. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static IRelationalCommandBuilder AppendLine([NotNull] this IRelationalCommandBuilder commandBuilder)
-        {
-            Check.NotNull(commandBuilder, nameof(commandBuilder));
-
-            commandBuilder.Instance.AppendLine();
-
-            return commandBuilder;
-        }
-
-        /// <summary>
         ///     Appends an object to the command text on a new line.
         /// </summary>
         /// <param name="commandBuilder"> The command builder. </param>
-        /// <param name="o"> The object to be written. </param>
+        /// <param name="value"> The object to be written. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static IRelationalCommandBuilder AppendLine(
             [NotNull] this IRelationalCommandBuilder commandBuilder,
-            [NotNull] object o)
+            [NotNull] string value)
         {
             Check.NotNull(commandBuilder, nameof(commandBuilder));
-            Check.NotNull(o, nameof(o));
+            Check.NotNull(value, nameof(value));
 
-            commandBuilder.Instance.AppendLine(o);
+            commandBuilder.Append(value).AppendLine();
 
             return commandBuilder;
         }
@@ -69,44 +42,43 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Each line read from the object is appended on a new line.
         /// </summary>
         /// <param name="commandBuilder"> The command builder. </param>
-        /// <param name="o"> The object to be written. </param>
+        /// <param name="value"> The object to be written. </param>
+        /// <param name="skipFinalNewline"> If <see langword="true" />, then the final newline character is skipped. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static IRelationalCommandBuilder AppendLines(
             [NotNull] this IRelationalCommandBuilder commandBuilder,
-            [NotNull] object o)
+            [NotNull] string value,
+            bool skipFinalNewline = false)
         {
             Check.NotNull(commandBuilder, nameof(commandBuilder));
-            Check.NotNull(o, nameof(o));
+            Check.NotNull(value, nameof(value));
 
-            commandBuilder.Instance.AppendLines(o);
+            using (var reader = new StringReader(value))
+            {
+                var first = true;
+                string? line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        commandBuilder.AppendLine();
+                    }
 
-            return commandBuilder;
-        }
+                    if (line.Length != 0)
+                    {
+                        commandBuilder.Append(line);
+                    }
+                }
+            }
 
-        /// <summary>
-        ///     Increments the indent of subsequent lines.
-        /// </summary>
-        /// <param name="commandBuilder"> The command builder. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static IRelationalCommandBuilder IncrementIndent([NotNull] this IRelationalCommandBuilder commandBuilder)
-        {
-            Check.NotNull(commandBuilder, nameof(commandBuilder));
-
-            commandBuilder.Instance.IncrementIndent();
-
-            return commandBuilder;
-        }
-
-        /// <summary>
-        ///     Decrements the indent of subsequent lines.
-        /// </summary>
-        /// <param name="commandBuilder"> The command builder. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static IRelationalCommandBuilder DecrementIndent([NotNull] this IRelationalCommandBuilder commandBuilder)
-        {
-            Check.NotNull(commandBuilder, nameof(commandBuilder));
-
-            commandBuilder.Instance.DecrementIndent();
+            if (!skipFinalNewline)
+            {
+                commandBuilder.AppendLine();
+            }
 
             return commandBuilder;
         }
@@ -117,15 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="commandBuilder"> The command builder. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static IDisposable Indent([NotNull] this IRelationalCommandBuilder commandBuilder)
-            => Check.NotNull(commandBuilder, nameof(commandBuilder)).Instance.Indent();
-
-        /// <summary>
-        ///     Gets the length of the command text.
-        /// </summary>
-        /// <param name="commandBuilder"> The command builder. </param>
-        /// <returns> The length of the command text. </returns>
-        public static int GetLength([NotNull] this IRelationalCommandBuilder commandBuilder)
-            => Check.NotNull(commandBuilder, nameof(commandBuilder)).Instance.Length;
+            => new Indenter(Check.NotNull(commandBuilder, nameof(commandBuilder)));
 
         /// <summary>
         ///     Adds a parameter.
@@ -149,9 +113,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotEmpty(invariantName, nameof(invariantName));
             Check.NotEmpty(name, nameof(name));
 
-            commandBuilder.ParameterBuilder.AddParameter(invariantName, name);
-
-            return commandBuilder;
+            return commandBuilder.AddParameter(
+                new DynamicRelationalParameter(
+                    Check.NotEmpty(invariantName, nameof(invariantName)),
+                    Check.NotEmpty(name, nameof(name)),
+                    commandBuilder.TypeMappingSource));
         }
 
         /// <summary>
@@ -185,9 +151,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(typeMapping, nameof(typeMapping));
 
-            commandBuilder.ParameterBuilder.AddParameter(invariantName, name, typeMapping, nullable);
-
-            return commandBuilder;
+            return commandBuilder.AddParameter(
+                new TypeMappedRelationalParameter(
+                    invariantName,
+                    name,
+                    typeMapping,
+                    nullable));
         }
 
         /// <summary>
@@ -204,6 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </param>
         /// <param name="property"> The property that the type for this parameter will come from. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        [Obsolete("Use overload with relationalTypeMapping")]
         public static IRelationalCommandBuilder AddParameter(
             [NotNull] this IRelationalCommandBuilder commandBuilder,
             [NotNull] string invariantName,
@@ -215,9 +185,47 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(property, nameof(property));
 
-            commandBuilder.ParameterBuilder.AddParameter(invariantName, name, property);
+            return commandBuilder.AddParameter(
+                new TypeMappedRelationalParameter(
+                    invariantName,
+                    name,
+                    property.GetRelationalTypeMapping(),
+                    property.IsNullable));
+        }
 
-            return commandBuilder;
+        /// <summary>
+        ///     Adds a parameter.
+        /// </summary>
+        /// <param name="commandBuilder"> The command builder. </param>
+        /// <param name="invariantName">
+        ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
+        ///     placeholder for a parameter and not the actual value. This is because the same command can be
+        ///     reused multiple times with different parameter values.
+        /// </param>
+        /// <param name="name">
+        ///     The name to be used for the parameter when the command is executed against the database.
+        /// </param>
+        /// <param name="relationalTypeMapping"> The relational type mapping for this parameter. </param>
+        /// <param name="nullable"> A value indicating whether the parameter could contain a null value. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static IRelationalCommandBuilder AddParameter(
+            [NotNull] this IRelationalCommandBuilder commandBuilder,
+            [NotNull] string invariantName,
+            [NotNull] string name,
+            [NotNull] RelationalTypeMapping relationalTypeMapping,
+            bool? nullable)
+        {
+            Check.NotNull(commandBuilder, nameof(commandBuilder));
+            Check.NotEmpty(invariantName, nameof(invariantName));
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(relationalTypeMapping, nameof(relationalTypeMapping));
+
+            return commandBuilder.AddParameter(
+                new TypeMappedRelationalParameter(
+                    invariantName,
+                    name,
+                    relationalTypeMapping,
+                    nullable));
         }
 
         /// <summary>
@@ -230,20 +238,24 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     placeholder for a parameter and not the actual value. This is because the same command can be
         ///     reused multiple times with different parameter values.
         /// </param>
-        /// <param name="buildAction">
-        ///     The action to add the multiple parameters that this placeholder represents.
-        /// </param>
+        /// <param name="subParameters"> The parameters to include in the composite. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static IRelationalCommandBuilder AddCompositeParameter(
             [NotNull] this IRelationalCommandBuilder commandBuilder,
             [NotNull] string invariantName,
-            [NotNull] Action<IRelationalParameterBuilder> buildAction)
+            [NotNull] IReadOnlyList<IRelationalParameter> subParameters)
         {
             Check.NotNull(commandBuilder, nameof(commandBuilder));
             Check.NotEmpty(invariantName, nameof(invariantName));
-            Check.NotNull(buildAction, nameof(buildAction));
+            Check.NotNull(subParameters, nameof(subParameters));
 
-            commandBuilder.ParameterBuilder.AddCompositeParameter(invariantName, buildAction);
+            if (subParameters.Count > 0)
+            {
+                commandBuilder.AddParameter(
+                    new CompositeRelationalParameter(
+                        invariantName,
+                        subParameters));
+            }
 
             return commandBuilder;
         }
@@ -268,9 +280,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotEmpty(invariantName, nameof(invariantName));
             Check.NotNull(dbParameter, nameof(dbParameter));
 
-            commandBuilder.ParameterBuilder.AddRawParameter(invariantName, dbParameter);
-
-            return commandBuilder;
+            return commandBuilder.AddParameter(
+                new RawRelationalParameter(invariantName, dbParameter));
         }
 
         /// <summary>
@@ -289,6 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The property that values for this parameter will come from.
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        [Obsolete("Use overload with relationalTypeMapping")]
         public static IRelationalCommandBuilder AddPropertyParameter(
             [NotNull] this IRelationalCommandBuilder commandBuilder,
             [NotNull] string invariantName,
@@ -300,9 +312,27 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(property, nameof(property));
 
-            commandBuilder.ParameterBuilder.AddPropertyParameter(invariantName, name, property);
+            return commandBuilder.AddParameter(
+                new TypeMappedPropertyRelationalParameter(
+                    invariantName,
+                    name,
+                    property.GetRelationalTypeMapping(),
+                    property));
+        }
 
-            return commandBuilder;
+        private sealed class Indenter : IDisposable
+        {
+            private readonly IRelationalCommandBuilder _builder;
+
+            public Indenter(IRelationalCommandBuilder builder)
+            {
+                _builder = builder;
+
+                _builder.IncrementIndent();
+            }
+
+            public void Dispose()
+                => _builder.DecrementIndent();
         }
     }
 }

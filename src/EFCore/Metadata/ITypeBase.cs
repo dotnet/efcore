@@ -3,6 +3,9 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -23,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     <para>
-        ///         Gets the CLR class that is used to represent instances of this type. Returns null if the type does not have a
-        ///         corresponding CLR class (known as a shadow type).
+        ///         Gets the CLR class that is used to represent instances of this type.
+        ///         Returns <see langword="null" /> if the type does not have a corresponding CLR class (known as a shadow type).
         ///     </para>
         ///     <para>
         ///         Shadow types are not currently supported in a model that is used at runtime with a <see cref="DbContext" />.
@@ -32,5 +35,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     </para>
         /// </summary>
         Type ClrType { get; }
+
+        /// <summary>
+        ///     Gets whether this entity type can share its ClrType with other entities.
+        /// </summary>
+        [CA.MemberNotNullWhen(true, nameof(ClrType))]
+        bool HasSharedClrType { get; }
+
+        /// <summary>
+        ///     Gets whether this entity type has an indexer which is able to contain arbitrary properties.
+        /// </summary>
+        bool IsPropertyBag { get; }
     }
 }

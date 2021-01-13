@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -15,6 +17,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the properties that this index is defined on.
         /// </summary>
         IReadOnlyList<IProperty> Properties { get; }
+
+        /// <summary>
+        ///     Gets the name of this index.
+        /// </summary>
+        string? Name { get; }
 
         /// <summary>
         ///     Gets a value indicating whether the values assigned to the indexed properties are unique.

@@ -1,10 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -24,8 +24,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         first resolve the object from the dependency injection container, then replace selected
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />.
+    ///         This means a single instance of each service is used by many <see cref="DbContext" /> instances.
+    ///         The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
+    ///     </para>
     /// </summary>
-    public sealed class RelationalModelValidatorDependencies
+    public sealed record RelationalModelValidatorDependencies
     {
         /// <summary>
         ///     <para>
@@ -43,52 +49,25 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         injection container, then replace selected services using the 'With...' methods. Do not call
         ///         the constructor at any point in this process.
         ///     </para>
+        ///     <para>
+        ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///         any release. You should only use it directly in your code with extreme caution and knowing that
+        ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     </para>
         /// </summary>
-        /// <param name="typeMapper"> The type mapper. </param>
-        /// <param name="typeMappingSource"> The type mapper. </param>
+        [EntityFrameworkInternal]
         public RelationalModelValidatorDependencies(
-#pragma warning disable 618
-            [NotNull] IRelationalTypeMapper typeMapper,
-#pragma warning restore 618
             [NotNull] IRelationalTypeMappingSource typeMappingSource)
         {
-            Check.NotNull(typeMapper, nameof(typeMapper));
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
-#pragma warning disable 618
-            TypeMapper = typeMapper;
-#pragma warning restore 618
             TypeMappingSource = typeMappingSource;
         }
 
         /// <summary>
-        ///     Gets the type mapper.
-        /// </summary>
-        [Obsolete("Use TypeMappingSource.")]
-        public IRelationalTypeMapper TypeMapper { get; }
-
-        /// <summary>
         ///     The type mapper.
         /// </summary>
-        public IRelationalTypeMappingSource TypeMappingSource { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="typeMapper"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        [Obsolete("Use IRelationalTypeMappingSource.")]
-        public RelationalModelValidatorDependencies With([NotNull] IRelationalTypeMapper typeMapper)
-            => new RelationalModelValidatorDependencies(typeMapper, TypeMappingSource);
-        
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalModelValidatorDependencies With([NotNull] IRelationalTypeMappingSource typeMappingSource)
-#pragma warning disable 618
-            => new RelationalModelValidatorDependencies(TypeMapper, typeMappingSource);
-#pragma warning restore 618
+        public IRelationalTypeMappingSource TypeMappingSource { get; [param: NotNull] init; }
     }
 }

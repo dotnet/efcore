@@ -6,17 +6,21 @@ using System;
 namespace JetBrains.Annotations
 {
     [AttributeUsage(
-        AttributeTargets.Method | AttributeTargets.Parameter |
-        AttributeTargets.Property | AttributeTargets.Delegate |
-        AttributeTargets.Field)]
+        AttributeTargets.Method
+        | AttributeTargets.Parameter
+        | AttributeTargets.Property
+        | AttributeTargets.Delegate
+        | AttributeTargets.Field)]
     internal sealed class NotNullAttribute : Attribute
     {
     }
 
     [AttributeUsage(
-        AttributeTargets.Method | AttributeTargets.Parameter |
-        AttributeTargets.Property | AttributeTargets.Delegate |
-        AttributeTargets.Field)]
+        AttributeTargets.Method
+        | AttributeTargets.Parameter
+        | AttributeTargets.Property
+        | AttributeTargets.Delegate
+        | AttributeTargets.Field)]
     internal sealed class CanBeNullAttribute : Attribute
     {
     }
@@ -69,7 +73,8 @@ namespace JetBrains.Annotations
         }
 
         public UsedImplicitlyAttribute(
-            ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags)
+            ImplicitUseKindFlags useKindFlags,
+            ImplicitUseTargetFlags targetFlags)
         {
             UseKindFlags = useKindFlags;
             TargetFlags = targetFlags;

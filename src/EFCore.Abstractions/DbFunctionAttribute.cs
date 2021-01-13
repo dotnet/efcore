@@ -1,9 +1,11 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -17,8 +19,10 @@ namespace Microsoft.EntityFrameworkCore
     public class DbFunctionAttribute : Attribute
 #pragma warning restore CA1813 // Avoid unsealed attributes
     {
-        private string _functionName;
-        private string _schema;
+        private string? _name;
+        private string? _schema;
+        private bool _builtIn;
+        private bool? _nullable;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DbFunctionAttribute" /> class.
@@ -30,39 +34,62 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Initializes a new instance of the <see cref="DbFunctionAttribute" /> class.
         /// </summary>
-        /// <param name="functionName">The name of the function in the database.</param>
+        /// <param name="name">The name of the function in the database.</param>
         /// <param name="schema">The schema of the function in the database.</param>
-        public DbFunctionAttribute([NotNull] string functionName, [CanBeNull] string schema = null)
+        public DbFunctionAttribute([NotNull] string name, [CanBeNull] string? schema = null)
         {
-            Check.NotEmpty(functionName, nameof(functionName));
+            Check.NotEmpty(name, nameof(name));
 
-            _functionName = functionName;
+            _name = name;
             _schema = schema;
         }
 
         /// <summary>
         ///     The name of the function in the database.
         /// </summary>
-        public virtual string FunctionName
+        public virtual string? Name
         {
-            get => _functionName;
+            get => _name;
             [param: NotNull]
             set
             {
                 Check.NotEmpty(value, nameof(value));
 
-                _functionName = value;
+                _name = value;
             }
         }
 
         /// <summary>
         ///     The schema of the function in the database.
         /// </summary>
-        public virtual string Schema
+        public virtual string? Schema
         {
             get => _schema;
-            [param: CanBeNull]
-            set => _schema = value;
+            [param: CanBeNull] set => _schema = value;
         }
+
+        /// <summary>
+        ///     The value indicating whether the database function is built-in or not.
+        /// </summary>
+        public virtual bool IsBuiltIn
+        {
+            get => _builtIn;
+            set => _builtIn = value;
+        }
+
+        /// <summary>
+        ///     The value indicating whether the database function can return null result or not.
+        /// </summary>
+        public virtual bool IsNullable
+        {
+            get => _nullable ?? true;
+            set => _nullable = value;
+        }
+
+        /// <summary>
+        ///     Checks whether <see cref="IsNullable" /> has been explicitly set to a value.
+        /// </summary>
+        public bool IsNullableHasValue
+            => _nullable.HasValue;
     }
 }

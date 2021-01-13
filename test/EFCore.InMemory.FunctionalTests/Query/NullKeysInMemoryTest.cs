@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public class NullKeysInMemoryFixture : NullKeysFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => InMemoryTestStoreFactory.Instance;
         }
     }
 }

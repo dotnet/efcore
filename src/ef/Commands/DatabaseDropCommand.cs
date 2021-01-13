@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore.Tools.Properties;
 namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     // ReSharper disable once ArrangeTypeModifiers
-    partial class DatabaseDropCommand
+    internal partial class DatabaseDropCommand
     {
-        protected override int Execute()
+        protected override int Execute(string[] args)
         {
-            var executor = CreateExecutor();
+            using var executor = CreateExecutor(args);
 
             void LogDropCommand(Func<object, object, string> resource)
             {
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 
             executor.DropDatabase(Context.Value());
 
-            return base.Execute();
+            return base.Execute(args);
         }
     }
 }

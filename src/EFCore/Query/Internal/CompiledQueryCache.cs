@@ -3,78 +3,89 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     <para>
+    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///         any release. You should only use it directly in your code with extreme caution and knowing that
+    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
+    ///     </para>
     /// </summary>
     public class CompiledQueryCache : ICompiledQueryCache
     {
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public const string CompiledQueryParameterPrefix = "__";
-
-        private static readonly ConcurrentDictionary<object, object> _querySyncObjects
+        private static readonly ConcurrentDictionary<object, object> _locks
             = new ConcurrentDictionary<object, object>();
 
         private readonly IMemoryCache _memoryCache;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CompiledQueryCache([NotNull] IMemoryCache memoryCache)
-        {
-            _memoryCache = memoryCache;
-        }
+            => _memoryCache = memoryCache;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Func<QueryContext, TResult> GetOrAddQuery<TResult>(
-            object cacheKey, Func<Func<QueryContext, TResult>> compiler)
-            => GetOrAddQueryCore(cacheKey, compiler);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual Func<QueryContext, IAsyncEnumerable<TResult>> GetOrAddAsyncQuery<TResult>(
-            object cacheKey, Func<Func<QueryContext, IAsyncEnumerable<TResult>>> compiler)
-            => GetOrAddQueryCore(cacheKey, compiler);
-
-        private Func<QueryContext, TFunc> GetOrAddQueryCore<TFunc>(
-            object cacheKey, Func<Func<QueryContext, TFunc>> compiler)
+            object cacheKey,
+            Func<Func<QueryContext, TResult>> compiler)
         {
-            retry:
-            if (!_memoryCache.TryGetValue(cacheKey, out Func<QueryContext, TFunc> compiledQuery))
+            // ReSharper disable once InconsistentlySynchronizedField
+            if (_memoryCache.TryGetValue(cacheKey, out Func<QueryContext, TResult> compiledQuery))
             {
-                if (!_querySyncObjects.TryAdd(cacheKey, value: null))
-                {
-                    goto retry;
-                }
-
-                try
-                {
-                    compiledQuery = compiler();
-
-                    _memoryCache.Set(cacheKey, compiledQuery);
-                }
-                finally
-                {
-                    _querySyncObjects.TryRemove(cacheKey, out _);
-                }
+                EntityFrameworkEventSource.Log.CompiledQueryCacheHit();
+                return compiledQuery;
             }
 
-            return compiledQuery;
+            // When multiple threads attempt to start processing the same query (program startup / thundering
+            // herd), have only one actually process and block the others.
+            // Note that the following synchronization isn't perfect - some race conditions may cause concurrent
+            // processing. This is benign (and rare).
+            var compilationLock = _locks.GetOrAdd(cacheKey, _ => new object());
+            try
+            {
+                lock (compilationLock)
+                {
+                    if (_memoryCache.TryGetValue(cacheKey, out compiledQuery))
+                    {
+                        EntityFrameworkEventSource.Log.CompiledQueryCacheHit();
+                    }
+                    else
+                    {
+                        EntityFrameworkEventSource.Log.CompiledQueryCacheMiss();
+
+                        compiledQuery = compiler();
+                        _memoryCache.Set(cacheKey, compiledQuery, new MemoryCacheEntryOptions { Size = 10 });
+                    }
+
+                    return compiledQuery;
+                }
+            }
+            finally
+            {
+                _locks.TryRemove(cacheKey, out _);
+            }
         }
     }
 }

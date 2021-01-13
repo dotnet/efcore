@@ -27,12 +27,5 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             : base(optionsBuilder)
         {
         }
-
-        /// <summary>
-        ///     Suppresses enforcement of foreign keys in the database.
-        /// </summary>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual SqliteDbContextOptionsBuilder SuppressForeignKeyEnforcement(bool suppressForeignKeyEnforcement = true)
-            => WithOption(e => e.WithEnforceForeignKeys(!suppressForeignKeyEnforcement));
     }
 }

@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class ShadowFixupTest
     {
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: true, setToPrincipal: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: false, setToPrincipal: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: true, setToPrincipal: false, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: true, setToPrincipal: false, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: true, setToPrincipal: true, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: false, setToPrincipal: false, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -87,52 +87,57 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         private void Add_principal_and_dependent_one_to_many(
-            EntityState entityState, bool principalFirst, bool setFk, bool setToPrincipal, bool setToDependent)
+            EntityState entityState,
+            bool principalFirst,
+            bool setFk,
+            bool setToPrincipal,
+            bool setToDependent)
         {
-            using (var context = new FixupContext())
+            using var context = new FixupContext();
+            var principal = new Category(77);
+            var dependent = new Product(78);
+            var principalEntry = context.Entry(principal);
+            var dependentEntry = context.Entry(dependent);
+            if (setFk)
             {
-                var principal = new Category(77);
-                var dependent = new Product(78);
-                var principalEntry = context.Entry(principal);
-                var dependentEntry = context.Entry(dependent);
-                if (setFk)
-                {
-                    dependentEntry.Property("CategoryId").CurrentValue = principal.Id;
-                }
-                if (setToPrincipal)
-                {
-                    dependentEntry.Navigation("Category").CurrentValue = principal;
-                }
-                if (setToDependent)
-                {
-                    var collection = new HashSet<object> { dependent };
-                    principalEntry.Collection("Products").CurrentValue = collection;
-                }
-
-                if (principalFirst)
-                {
-                    principalEntry.State = entityState;
-                }
-                dependentEntry.State = entityState;
-                if (!principalFirst)
-                {
-                    principalEntry.State = entityState;
-                }
-
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, dependentEntry.Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependentEntry.Navigation("Category").CurrentValue);
-                            Assert.Equal(new[] { dependent }, principalEntry.Collection("Products").CurrentValue);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                dependentEntry.Property("CategoryId").CurrentValue = principal.Id;
             }
+
+            if (setToPrincipal)
+            {
+                dependentEntry.Navigation("Category").CurrentValue = principal;
+            }
+
+            if (setToDependent)
+            {
+                var collection = new HashSet<object> { dependent };
+                principalEntry.Collection("Products").CurrentValue = collection;
+            }
+
+            if (principalFirst)
+            {
+                principalEntry.State = entityState;
+            }
+
+            dependentEntry.State = entityState;
+            if (!principalFirst)
+            {
+                principalEntry.State = entityState;
+            }
+
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, dependentEntry.Property("CategoryId").CurrentValue);
+                    Assert.Same(principal, dependentEntry.Navigation("Category").CurrentValue);
+                    Assert.Equal(new[] { dependent }, principalEntry.Collection("Products").CurrentValue);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -142,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: true, setToPrincipal: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -152,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: false, setToPrincipal: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -162,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: true, setToPrincipal: false, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -172,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: true, setToPrincipal: false, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -182,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: true, setToPrincipal: true, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -192,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: false, setToPrincipal: false, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -203,48 +208,53 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         private void Add_principal_and_dependent_one_to_one(
-            EntityState entityState, bool principalFirst, bool setFk, bool setToPrincipal, bool setToDependent)
+            EntityState entityState,
+            bool principalFirst,
+            bool setFk,
+            bool setToPrincipal,
+            bool setToDependent)
         {
-            using (var context = new FixupContext())
+            using var context = new FixupContext();
+            var principal = new Parent(77);
+            var dependent = new Child(78);
+            var principalEntry = context.Entry(principal);
+            var dependentEntry = context.Entry(dependent);
+            if (setFk)
             {
-                var principal = new Parent(77);
-                var dependent = new Child(78);
-                var principalEntry = context.Entry(principal);
-                var dependentEntry = context.Entry(dependent);
-                if (setFk)
-                {
-                    dependentEntry.Property("ParentId").CurrentValue = principal.Id;
-                }
-                if (setToPrincipal)
-                {
-                    dependentEntry.Navigation("Parent").CurrentValue = principal;
-                }
-                if (setToDependent)
-                {
-                    principalEntry.Navigation("Child").CurrentValue = dependent;
-                }
-
-                if (principalFirst)
-                {
-                    principalEntry.State = entityState;
-                }
-                dependentEntry.State = entityState;
-                if (!principalFirst)
-                {
-                    principalEntry.State = entityState;
-                }
-
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, dependentEntry.Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependentEntry.Navigation("Parent").CurrentValue);
-                            Assert.Same(dependent, principalEntry.Navigation("Child").CurrentValue);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                dependentEntry.Property("ParentId").CurrentValue = principal.Id;
             }
+
+            if (setToPrincipal)
+            {
+                dependentEntry.Navigation("Parent").CurrentValue = principal;
+            }
+
+            if (setToDependent)
+            {
+                principalEntry.Navigation("Child").CurrentValue = dependent;
+            }
+
+            if (principalFirst)
+            {
+                principalEntry.State = entityState;
+            }
+
+            dependentEntry.State = entityState;
+            if (!principalFirst)
+            {
+                principalEntry.State = entityState;
+            }
+
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, dependentEntry.Property("ParentId").CurrentValue);
+                    Assert.Same(principal, dependentEntry.Navigation("Parent").CurrentValue);
+                    Assert.Same(dependent, principalEntry.Navigation("Child").CurrentValue);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
         private class Parent
@@ -306,32 +316,36 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 var category = modelBuilder.Entity<Category>().Metadata;
 
-                modelBuilder.Entity<Product>(b =>
+                modelBuilder.Entity<Product>(
+                    b =>
                     {
                         var fk = b.Metadata.AddForeignKey(
                             new[] { b.Property<int>("CategoryId").Metadata },
                             category.FindPrimaryKey(),
                             category);
-                        fk.HasDependentToPrincipal("Category");
-                        fk.HasPrincipalToDependent("Products");
+                        fk.SetDependentToPrincipal("Category");
+                        fk.SetPrincipalToDependent("Products");
                     });
 
                 var parent = modelBuilder.Entity<Parent>().Metadata;
 
-                modelBuilder.Entity<Child>(b =>
+                modelBuilder.Entity<Child>(
+                    b =>
                     {
                         var fk = b.Metadata.AddForeignKey(
                             new[] { b.Property<int>("ParentId").Metadata },
                             parent.FindPrimaryKey(),
                             parent);
                         fk.IsUnique = true;
-                        fk.HasDependentToPrincipal("Parent");
-                        fk.HasPrincipalToDependent("Child");
+                        fk.SetDependentToPrincipal("Parent");
+                        fk.SetPrincipalToDependent("Child");
                     });
             }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(nameof(FixupContext));
+                => optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase(nameof(FixupContext));
         }
 
         private void AssertFixup(DbContext context, Action asserts)

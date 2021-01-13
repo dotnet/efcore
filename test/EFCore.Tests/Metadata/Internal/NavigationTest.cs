@@ -4,15 +4,15 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class NavigationTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Use_of_custom_INavigation_throws()
         {
             var navigation = new FakeNavigation();
@@ -24,40 +24,85 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class FakeNavigation : INavigation
         {
-            public object this[string name] => throw new NotImplementedException();
-            public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
-            public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();
+            public object this[string name]
+                => throw new NotImplementedException();
+
+            public IAnnotation FindAnnotation(string name)
+                => throw new NotImplementedException();
+
+            public IEnumerable<IAnnotation> GetAnnotations()
+                => throw new NotImplementedException();
+
             public string Name { get; }
             public ITypeBase DeclaringType { get; }
             public Type ClrType { get; }
             public PropertyInfo PropertyInfo { get; }
             public FieldInfo FieldInfo { get; }
-            public bool IsShadowProperty { get; }
             public IEntityType DeclaringEntityType { get; }
             public IForeignKey ForeignKey { get; }
             public bool IsEagerLoaded { get; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_navigation()
         {
             var foreignKey = CreateForeignKey();
 
-            var navigation = foreignKey.HasDependentToPrincipal(E.DeceptionProperty);
+            var navigation = foreignKey.SetDependentToPrincipal(E.DeceptionProperty);
 
             Assert.Same(foreignKey, navigation.ForeignKey);
             Assert.Equal(nameof(E.Deception), navigation.Name);
             Assert.Same(foreignKey.DeclaringEntityType, navigation.DeclaringEntityType);
         }
 
-        private ForeignKey CreateForeignKey()
+        [ConditionalFact]
+        public virtual void Detects_navigations_to_keyless_types()
         {
-            var model = new Model();
+            IMutableModel model = new Model();
+            var entityType = model.AddEntityType(typeof(B));
+            var idProperty = entityType.AddProperty("id", typeof(int));
+            var key = entityType.SetPrimaryKey(idProperty);
+            var keylessType = model.AddEntityType(typeof(A));
+            keylessType.IsKeyless = true;
+            var fkProperty = keylessType.AddProperty("p", typeof(int));
+            var fk = keylessType.AddForeignKey(fkProperty, key, entityType);
+            Assert.Equal(
+                CoreStrings.NavigationToKeylessType(nameof(B.ManyAs), nameof(A)),
+                Assert.Throws<InvalidOperationException>(() => fk.SetPrincipalToDependent(nameof(B.ManyAs))).Message);
+        }
+
+        private IMutableForeignKey CreateForeignKey()
+        {
+            IMutableModel model = new Model();
             var entityType = model.AddEntityType(typeof(E));
             var idProperty = entityType.AddProperty("id", typeof(int));
             var key = entityType.SetPrimaryKey(idProperty);
             var fkProperty = entityType.AddProperty("p", typeof(int));
             return entityType.AddForeignKey(fkProperty, key, entityType);
+        }
+
+        protected class A
+        {
+            public int Id { get; set; }
+
+            public int? P0 { get; set; }
+            public int? P1 { get; set; }
+            public int? P2 { get; set; }
+            public int? P3 { get; set; }
+        }
+
+        protected class B
+        {
+            public int Id { get; set; }
+
+            public int? P0 { get; set; }
+            public int? P1 { get; set; }
+            public int? P2 { get; set; }
+            public int? P3 { get; set; }
+
+            public A A { get; set; }
+            public A AnotherA { get; set; }
+            public ICollection<A> ManyAs { get; set; }
         }
 
         private class E

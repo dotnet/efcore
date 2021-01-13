@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,11 +9,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
@@ -24,6 +26,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ///     <para>
     ///         Database providers must inherit from this class to implement provider-specific functionality.
     ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
+    ///     </para>
     /// </summary>
     // TODO: Leverage query pipeline for GetAppliedMigrations
     // TODO: Leverage update pipeline for GetInsertScript & GetDeleteScript
@@ -34,9 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         public const string DefaultTableName = "__EFMigrationsHistory";
 
-        private readonly LazyRef<IModel> _model;
-        private readonly LazyRef<string> _migrationIdColumnName;
-        private readonly LazyRef<string> _productVersionColumnName;
+        private IModel _model;
+        private string _migrationIdColumnName;
+        private string _productVersionColumnName;
 
         /// <summary>
         ///     Initializes a new instance of this class.
@@ -51,26 +59,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var relationalOptions = RelationalOptionsExtension.Extract(dependencies.Options);
             TableName = relationalOptions?.MigrationsHistoryTableName ?? DefaultTableName;
             TableSchema = relationalOptions?.MigrationsHistoryTableSchema;
-            _model = new LazyRef<IModel>(
-                () =>
-                    {
-                        var conventionSet = Dependencies.CoreConventionSetBuilder.CreateConventionSet();
-                        var modelBuilder = new ModelBuilder(Dependencies.ConventionSetBuilder.AddConventions(conventionSet));
-
-                        modelBuilder.Entity<HistoryRow>(
-                            x =>
-                                {
-                                    ConfigureTable(x);
-                                    x.ToTable(TableName, TableSchema);
-                                });
-
-                        return modelBuilder.Model;
-                    });
-            var entityType = new LazyRef<IEntityType>(() => _model.Value.FindEntityType(typeof(HistoryRow)));
-            _migrationIdColumnName = new LazyRef<string>(
-                () => entityType.Value.FindProperty(nameof(HistoryRow.MigrationId)).Relational().ColumnName);
-            _productVersionColumnName = new LazyRef<string>(
-                () => entityType.Value.FindProperty(nameof(HistoryRow.ProductVersion)).Relational().ColumnName);
         }
 
         /// <summary>
@@ -81,7 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     A helper class for generation of SQL.
         /// </summary>
-        protected virtual ISqlGenerationHelper SqlGenerationHelper => Dependencies.SqlGenerationHelper;
+        protected virtual ISqlGenerationHelper SqlGenerationHelper
+            => Dependencies.SqlGenerationHelper;
 
         /// <summary>
         ///     THe history table name.
@@ -89,19 +78,51 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected virtual string TableName { get; }
 
         /// <summary>
-        ///     The schema that contains the history table, or <c>null</c> if the default schema should be used.
+        ///     The schema that contains the history table, or <see langword="null" /> if the default schema should be used.
         /// </summary>
         protected virtual string TableSchema { get; }
 
         /// <summary>
         ///     The name of the column that holds the Migration identifier.
         /// </summary>
-        protected virtual string MigrationIdColumnName => _migrationIdColumnName.Value;
+        protected virtual string MigrationIdColumnName
+            => _migrationIdColumnName ??= EnsureModel()
+                .FindEntityType(typeof(HistoryRow))
+                .FindProperty(nameof(HistoryRow.MigrationId))
+                .GetColumnBaseName();
+
+        private IModel EnsureModel()
+        {
+            if (_model == null)
+            {
+                var conventionSet = Dependencies.ConventionSetBuilder.CreateConventionSet();
+
+                // Use public API to remove the convention, issue #214
+                ConventionSet.Remove(conventionSet.ModelInitializedConventions, typeof(DbSetFindingConvention));
+                ConventionSet.Remove(conventionSet.ModelInitializedConventions, typeof(RelationalDbFunctionAttributeConvention));
+
+                var modelBuilder = new ModelBuilder(conventionSet);
+                modelBuilder.Entity<HistoryRow>(
+                    x =>
+                    {
+                        ConfigureTable(x);
+                        x.ToTable(TableName, TableSchema);
+                    });
+
+                _model = modelBuilder.FinalizeModel();
+            }
+
+            return _model;
+        }
 
         /// <summary>
         ///     The name of the column that contains the Entity Framework product version.
         /// </summary>
-        protected virtual string ProductVersionColumnName => _productVersionColumnName.Value;
+        protected virtual string ProductVersionColumnName
+            => _productVersionColumnName ??= EnsureModel()
+                .FindEntityType(typeof(HistoryRow))
+                .FindProperty(nameof(HistoryRow.ProductVersion))
+                .GetColumnBaseName();
 
         /// <summary>
         ///     Overridden by database providers to generate SQL that tests for existence of the history table.
@@ -111,11 +132,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Checks whether or not the history table exists.
         /// </summary>
-        /// <returns> <c>True</c> if the table already exists, <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if the table already exists, <see langword="false" /> otherwise. </returns>
         public virtual bool Exists()
             => Dependencies.DatabaseCreator.Exists()
-               && InterpretExistsResult(
-                   Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalar(Dependencies.Connection));
+                && InterpretExistsResult(
+                    Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalar(
+                        new RelationalCommandParameterObject(
+                            Dependencies.Connection,
+                            null,
+                            null,
+                            Dependencies.CurrentContext.Context,
+                            Dependencies.CommandLogger)));
 
         /// <summary>
         ///     Checks whether or not the history table exists.
@@ -123,18 +150,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains
-        ///     <c>True</c> if the table already exists, <c>false</c> otherwise.
+        ///     <see langword="true" /> if the table already exists, <see langword="false" /> otherwise.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async Task<bool> ExistsAsync(CancellationToken cancellationToken = default)
-            => await Dependencies.DatabaseCreator.ExistsAsync(cancellationToken)
-               && InterpretExistsResult(
-                   await Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalarAsync(
-                       Dependencies.Connection, cancellationToken: cancellationToken));
+            => await Dependencies.DatabaseCreator.ExistsAsync(cancellationToken).ConfigureAwait(false)
+                && InterpretExistsResult(
+                    await Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalarAsync(
+                        new RelationalCommandParameterObject(
+                            Dependencies.Connection,
+                            null,
+                            null,
+                            Dependencies.CurrentContext.Context,
+                            Dependencies.CommandLogger),
+                        cancellationToken).ConfigureAwait(false));
 
         /// <summary>
         ///     Interprets the result of executing <see cref="ExistsSql" />.
         /// </summary>
-        /// <returns>true if the table exists; otherwise, false.</returns>
+        /// <returns><see langword="true" /> if the table already exists, <see langword="false" /> otherwise.</returns>
         protected abstract bool InterpretExistsResult([NotNull] object value);
 
         /// <summary>
@@ -150,8 +184,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns> The SQL script. </returns>
         public virtual string GetCreateScript()
         {
-            var operations = Dependencies.ModelDiffer.GetDifferences(null, _model.Value);
-            var commandList = Dependencies.MigrationsSqlGenerator.Generate(operations, _model.Value);
+            var model = EnsureModel();
+
+            var operations = Dependencies.ModelDiffer.GetDifferences(null, model.GetRelationalModel());
+            var commandList = Dependencies.MigrationsSqlGenerator.Generate(operations, model);
 
             return string.Concat(commandList.Select(c => c.CommandText));
         }
@@ -185,12 +221,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 var command = Dependencies.RawSqlCommandBuilder.Build(GetAppliedMigrationsSql);
 
-                using (var reader = command.ExecuteReader(Dependencies.Connection))
+                using var reader = command.ExecuteReader(
+                    new RelationalCommandParameterObject(
+                        Dependencies.Connection,
+                        null,
+                        null,
+                        Dependencies.CurrentContext.Context,
+                        Dependencies.CommandLogger));
+                while (reader.Read())
                 {
-                    while (reader.Read())
-                    {
-                        rows.Add(new HistoryRow(reader.DbDataReader.GetString(0), reader.DbDataReader.GetString(1)));
-                    }
+                    rows.Add(new HistoryRow(reader.DbDataReader.GetString(0), reader.DbDataReader.GetString(1)));
                 }
             }
 
@@ -205,21 +245,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     A task that represents the asynchronous operation. The task result contains
         ///     the list of applied migrations, as <see cref="HistoryRow" /> entities.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync(
             CancellationToken cancellationToken = default)
         {
             var rows = new List<HistoryRow>();
 
-            if (await ExistsAsync(cancellationToken))
+            if (await ExistsAsync(cancellationToken).ConfigureAwait(false))
             {
                 var command = Dependencies.RawSqlCommandBuilder.Build(GetAppliedMigrationsSql);
 
-                using (var reader = await command.ExecuteReaderAsync(Dependencies.Connection, cancellationToken: cancellationToken))
+                await using var reader = await command.ExecuteReaderAsync(
+                    new RelationalCommandParameterObject(
+                        Dependencies.Connection,
+                        null,
+                        null,
+                        Dependencies.CurrentContext.Context,
+                        Dependencies.CommandLogger),
+                    cancellationToken).ConfigureAwait(false);
+                while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
                 {
-                    while (await reader.ReadAsync(cancellationToken))
-                    {
-                        rows.Add(new HistoryRow(reader.DbDataReader.GetString(0), reader.DbDataReader.GetString(1)));
-                    }
+                    rows.Add(new HistoryRow(reader.DbDataReader.GetString(0), reader.DbDataReader.GetString(1)));
                 }
             }
 

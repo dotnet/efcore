@@ -1,20 +1,16 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if !Test20
 using System;
-using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
     [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
-    public class ConvertToProviderTypesSqlServerTest : ConvertToProviderTypesTestBase<ConvertToProviderTypesSqlServerTest.ConvertToProviderTypesSqlServerFixture>
+    public class ConvertToProviderTypesSqlServerTest : ConvertToProviderTypesTestBase<
+        ConvertToProviderTypesSqlServerTest.ConvertToProviderTypesSqlServerFixture>
     {
         public ConvertToProviderTypesSqlServerTest(ConvertToProviderTypesSqlServerFixture fixture)
             : base(fixture)
@@ -22,28 +18,22 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void Warning_when_suspicious_conversion_in_sql()
-        {
-            using (var context = CreateContext())
-            {
-                Assert.Contains(
-                    RelationalStrings.LogValueConversionSqlLiteralWarning
-                        .GenerateMessage(
-                            typeof(decimal).ShortDisplayName(),
-                            new NumberToBytesConverter<decimal>().GetType().ShortDisplayName()),
-                    Assert.Throws<InvalidOperationException>(
-                        () =>
-                            context.Set<BuiltInDataTypes>().Where(b => b.TestDecimal > 123.0m).ToList()).Message);
-            }
-        }
-
-        [ConditionalFact]
         public virtual void Columns_have_expected_data_types()
         {
-            var actual = BuiltInDataTypesSqlServerTest.QueryForColumnTypes(CreateContext());
+            var actual = BuiltInDataTypesSqlServerTest.QueryForColumnTypes(
+                CreateContext(),
+                nameof(ObjectBackedDataTypes), nameof(NullableBackedDataTypes), nameof(NonNullableBackedDataTypes));
 
-            const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 450]
+            const string expected = @"Animal.Id ---> [int] [Precision = 10 Scale = 0]
+AnimalDetails.AnimalId ---> [nullable int] [Precision = 10 Scale = 0]
+AnimalDetails.BoolField ---> [int] [Precision = 10 Scale = 0]
+AnimalDetails.Id ---> [int] [Precision = 10 Scale = 0]
+AnimalIdentification.AnimalId ---> [int] [Precision = 10 Scale = 0]
+AnimalIdentification.Id ---> [int] [Precision = 10 Scale = 0]
+AnimalIdentification.Method ---> [nvarchar] [MaxLength = 6]
+BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 450]
 BinaryForeignKeyDataType.Id ---> [int] [Precision = 10 Scale = 0]
+BinaryKeyDataType.Ex ---> [nullable nvarchar] [MaxLength = -1]
 BinaryKeyDataType.Id ---> [nvarchar] [MaxLength = 450]
 BuiltInDataTypes.Enum16 ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypes.Enum32 ---> [bigint] [Precision = 19 Scale = 0]
@@ -153,11 +143,17 @@ BuiltInNullableDataTypesShadow.TestNullableUnsignedInt16 ---> [nullable decimal]
 BuiltInNullableDataTypesShadow.TestNullableUnsignedInt32 ---> [nullable decimal] [Precision = 20 Scale = 0]
 BuiltInNullableDataTypesShadow.TestNullableUnsignedInt64 ---> [nullable decimal] [Precision = 20 Scale = 0]
 BuiltInNullableDataTypesShadow.TestString ---> [nullable nvarchar] [MaxLength = -1]
+DateTimeEnclosure.DateTimeOffset ---> [nullable datetimeoffset] [Precision = 7]
+DateTimeEnclosure.Id ---> [int] [Precision = 10 Scale = 0]
+EmailTemplate.Id ---> [uniqueidentifier]
+EmailTemplate.TemplateType ---> [int] [Precision = 10 Scale = 0]
 MaxLengthDataTypes.ByteArray5 ---> [nullable nvarchar] [MaxLength = 8]
 MaxLengthDataTypes.ByteArray9000 ---> [nullable nvarchar] [MaxLength = -1]
 MaxLengthDataTypes.Id ---> [int] [Precision = 10 Scale = 0]
 MaxLengthDataTypes.String3 ---> [nullable varbinary] [MaxLength = 3]
 MaxLengthDataTypes.String9000 ---> [nullable varbinary] [MaxLength = -1]
+StringEnclosure.Id ---> [int] [Precision = 10 Scale = 0]
+StringEnclosure.Value ---> [nullable nvarchar] [MaxLength = -1]
 StringForeignKeyDataType.Id ---> [int] [Precision = 10 Scale = 0]
 StringForeignKeyDataType.StringKeyDataTypeId ---> [nullable varbinary] [MaxLength = 900]
 StringKeyDataType.Id ---> [varbinary] [MaxLength = 900]
@@ -172,28 +168,42 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
         }
 
+        public override void Object_to_string_conversion()
+        {
+            // Return values are not string
+        }
+
         public class ConvertToProviderTypesSqlServerFixture : ConvertToProviderTypesFixtureBase
         {
-            public override bool StrictEquality => true;
+            public override bool StrictEquality
+                => true;
 
-            public override bool SupportsAnsi => true;
+            public override bool SupportsAnsi
+                => true;
 
-            public override bool SupportsUnicodeToAnsiConversion => true;
+            public override bool SupportsUnicodeToAnsiConversion
+                => true;
 
-            public override bool SupportsLargeStringComparisons => true;
+            public override bool SupportsLargeStringComparisons
+                => true;
 
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
 
-            public override bool SupportsBinaryKeys => true;
+            public override bool SupportsBinaryKeys
+                => true;
 
-            public override DateTime DefaultDateTime => new DateTime();
+            public override bool SupportsDecimalComparisons
+                => true;
+
+            public override DateTime DefaultDateTime
+                => new DateTime();
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base
                     .AddOptions(builder)
                     .ConfigureWarnings(
-                        c => c.Log(RelationalEventId.QueryClientEvaluationWarning)
-                            .Log(SqlServerEventId.DecimalTypeDefaultWarning));
+                        c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
@@ -204,4 +214,3 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
         }
     }
 }
-#endif

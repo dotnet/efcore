@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// <summary>
         ///     The index name.
         /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string Name { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The ordered list of columns that make up the index.
@@ -33,8 +33,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         public virtual bool IsUnique { get; set; }
 
         /// <summary>
-        ///     The filter expression, or <c>null</c> if the index has no filter.
+        ///     The filter expression, or <see langword="null" /> if the index has no filter.
         /// </summary>
         public virtual string Filter { get; [param: CanBeNull] set; }
+
+        /// <inheritdoc />
+        public override string ToString()
+            => Name ?? "<UNKNOWN>";
     }
 }

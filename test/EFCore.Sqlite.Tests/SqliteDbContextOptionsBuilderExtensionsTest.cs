@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SqliteDbContextOptionsBuilderExtensionsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_add_extension_with_max_batch_size()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(123, extension.MaxBatchSize);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_extension_with_command_timeout()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(30, extension.CommandTimeout);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_extension_with_connection_string()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
@@ -42,10 +42,9 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal("Database=Crunchie", extension.ConnectionString);
             Assert.Null(extension.Connection);
-            Assert.True(extension.EnforceForeignKeys);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_extension_with_connection_string_using_generic_options()
         {
             var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
@@ -57,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(extension.Connection);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_extension_with_connection()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
@@ -71,7 +70,20 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(extension.ConnectionString);
         }
 
-        [Fact]
+        [ConditionalFact]
+        public void Can_add_extension_with_no_connection()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
+
+            optionsBuilder.UseSqlite();
+
+            var extension = optionsBuilder.Options.Extensions.OfType<SqliteOptionsExtension>().Single();
+
+            Assert.Null(extension.Connection);
+            Assert.Null(extension.ConnectionString);
+        }
+
+        [ConditionalFact]
         public void Can_add_extension_with_connection_using_generic_options()
         {
             var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
@@ -83,18 +95,6 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Same(connection, extension.Connection);
             Assert.Null(extension.ConnectionString);
-        }
-
-        [Fact]
-        public void Can_suppress_foreign_keys()
-        {
-            var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
-
-            optionsBuilder.UseSqlite("some string", b => b.SuppressForeignKeyEnforcement());
-
-            var extension = optionsBuilder.Options.Extensions.OfType<SqliteOptionsExtension>().Single();
-
-            Assert.False(extension.EnforceForeignKeys);
         }
     }
 }

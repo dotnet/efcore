@@ -1,37 +1,87 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
+using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
+
+// ReSharper disable MethodHasAsyncOverload
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class TransactionSqlServerTest : TransactionTestBase<TransactionSqlServerTest.TransactionSqlServerFixture>, IDisposable
+    public class TransactionSqlServerTest : TransactionTestBase<TransactionSqlServerTest.TransactionSqlServerFixture>
     {
         public TransactionSqlServerTest(TransactionSqlServerFixture fixture)
             : base(fixture)
         {
-            TestSqlServerRetryingExecutionStrategy.Suspended = true;
         }
 
-        protected override bool SnapshotSupported => true;
+        // Test relies on savepoints, which are disabled when MARS is enabled
+        public override Task SaveChanges_implicitly_creates_savepoint(bool async)
+            => new SqlConnectionStringBuilder(TestStore.ConnectionString).MultipleActiveResultSets
+                ? Task.CompletedTask
+                : base.SaveChanges_implicitly_creates_savepoint(async);
 
-#if NET461
-        protected override bool AmbientTransactionsSupported => true;
-#endif
+        // Savepoints cannot be released in SQL Server
+        public override Task Savepoint_can_be_released(bool async)
+            => Task.CompletedTask;
 
-        public virtual void Dispose()
+        // Test relies on savepoints, which are disabled when MARS is enabled
+        public override Task SaveChanges_uses_explicit_transaction_with_failure_behavior(bool async, bool autoTransaction)
+            => new SqlConnectionStringBuilder(TestStore.ConnectionString).MultipleActiveResultSets
+                ? Task.CompletedTask
+                : base.SaveChanges_uses_explicit_transaction_with_failure_behavior(async, autoTransaction);
+
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Savepoints_are_disabled_with_MARS(bool async)
         {
-            TestSqlServerRetryingExecutionStrategy.Suspended = false;
+            await using var context = CreateContextWithConnectionString(
+                SqlServerTestStore.CreateConnectionString(TestStore.Name, multipleActiveResultSets: true));
+
+            await using var transaction = await context.Database.BeginTransactionAsync();
+
+            var orderId = 300;
+            foreach (var _ in context.Set<TransactionCustomer>())
+            {
+                context.Add(new TransactionOrder { Id = orderId++, Name = "Order " + orderId });
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+            }
+
+            await transaction.CommitAsync();
+
+            Assert.Contains(Fixture.ListLoggerFactory.Log, t => t.Id == SqlServerEventId.SavepointsDisabledBecauseOfMARS);
         }
+
+        protected override bool SnapshotSupported
+            => true;
+
+        protected override bool AmbientTransactionsSupported
+            => true;
 
         protected override DbContext CreateContextWithConnectionString()
+            => CreateContextWithConnectionString(null);
+
+        protected DbContext CreateContextWithConnectionString(string connectionString)
         {
             var options = Fixture.AddOptions(
                     new DbContextOptionsBuilder()
-                        .UseSqlServer(TestStore.ConnectionString, b => b.ApplyConfiguration().CommandTimeout(SqlServerTestStore.CommandTimeout)))
+                        .UseSqlServer(
+                            connectionString ?? TestStore.ConnectionString,
+                            b => b.ApplyConfiguration().ExecutionStrategy(c => new SqlServerExecutionStrategy(c))))
+                .ConfigureWarnings(b => b.Log(SqlServerEventId.SavepointsDisabledBecauseOfMARS))
                 .UseInternalServiceProvider(Fixture.ServiceProvider);
 
             return new DbContext(options.Options);
@@ -39,35 +89,33 @@ namespace Microsoft.EntityFrameworkCore
 
         public class TransactionSqlServerFixture : TransactionFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
 
-            protected override void Seed(DbContext context)
+            protected override void Seed(PoolableDbContext context)
             {
                 base.Seed(context);
 
-                context.Database.ExecuteSqlCommand("ALTER DATABASE [" + StoreName + "] SET ALLOW_SNAPSHOT_ISOLATION ON");
-                context.Database.ExecuteSqlCommand("ALTER DATABASE [" + StoreName + "] SET READ_COMMITTED_SNAPSHOT ON");
+                context.Database.ExecuteSqlRaw("ALTER DATABASE [" + StoreName + "] SET ALLOW_SNAPSHOT_ISOLATION ON");
+                context.Database.ExecuteSqlRaw("ALTER DATABASE [" + StoreName + "] SET READ_COMMITTED_SNAPSHOT ON");
             }
 
             public override void Reseed()
             {
-                using (var context = CreateContext())
-                {
-                    context.Set<TransactionCustomer>().RemoveRange(context.Set<TransactionCustomer>());
-                    context.SaveChanges();
+                using var context = CreateContext();
+                context.Set<TransactionCustomer>().RemoveRange(context.Set<TransactionCustomer>());
+                context.Set<TransactionOrder>().RemoveRange(context.Set<TransactionOrder>());
+                context.SaveChanges();
 
-                    base.Seed(context);
-                }
+                base.Seed(context);
             }
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             {
                 new SqlServerDbContextOptionsBuilder(
-                        base.AddOptions(builder)
-                            .ConfigureWarnings(
-                                w => w.Log(RelationalEventId.QueryClientEvaluationWarning)
-                                      .Log(CoreEventId.FirstWithoutOrderByAndFilterWarning)))
-                    .MaxBatchSize(1);
+                        base.AddOptions(builder))
+                    .ExecutionStrategy(c => new SqlServerExecutionStrategy(c));
+                builder.ConfigureWarnings(b => b.Log(SqlServerEventId.SavepointsDisabledBecauseOfMARS));
                 return builder;
             }
         }

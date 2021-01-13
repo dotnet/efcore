@@ -1,19 +1,20 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Reflection;
-using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Hosting.WebHostBuilderFactory;
+using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class AppServiceProviderFactory
     {
@@ -21,8 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private readonly IOperationReporter _reporter;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public AppServiceProviderFactory([NotNull] Assembly startupAssembly, [NotNull] IOperationReporter reporter)
         {
@@ -31,55 +34,59 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IServiceProvider Create([NotNull] string[] args)
         {
-            _reporter.WriteVerbose(DesignStrings.FindingServiceProvider);
+            _reporter.WriteVerbose(DesignStrings.FindingServiceProvider(_startupAssembly.GetName().Name));
 
-            return CreateFromBuildWebHost(args)
-                   ?? CreateEmptyServiceProvider();
+            return CreateFromHosting(args)
+                ?? CreateEmptyServiceProvider();
         }
 
-        private IServiceProvider CreateFromBuildWebHost(string[] args)
+        private IServiceProvider CreateFromHosting(string[] args)
         {
-            _reporter.WriteVerbose(DesignStrings.FindingBuildWebHost);
+            _reporter.WriteVerbose(DesignStrings.FindingHostingServices);
 
-            var webHostFactoryResult = WebHostFactoryResolver.ResolveWebHostFactory<object, object>(_startupAssembly);
-            switch (webHostFactoryResult.ResultKind)
+            var serviceProviderFactory = HostFactoryResolver.ResolveServiceProviderFactory(_startupAssembly);
+            if (serviceProviderFactory == null)
             {
-                case FactoryResolutionResultKind.Success:
-                    break;
-                case FactoryResolutionResultKind.NoEntryPoint:
-                    _reporter.WriteVerbose(DesignStrings.NoEntryPoint(_startupAssembly.GetName().Name));
-                    return null;
-                case FactoryResolutionResultKind.NoCreateWebHostBuilder:
-                case FactoryResolutionResultKind.NoBuildWebHost:
-                    _reporter.WriteVerbose(DesignStrings.NoBuildWebHost(webHostFactoryResult.ProgramType.DisplayName()));
-                    return null;
-                default:
-                    Debug.Fail("Unexpected value: " + webHostFactoryResult.ResultKind);
-                    return null;
+                _reporter.WriteVerbose(DesignStrings.NoCreateHostBuilder);
+
+                return null;
             }
 
-            // TODO: Remove when dotnet/cli#6617 is fixed
-            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            if (environment == null)
+            var aspnetCoreEnvironment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            var dotnetEnvironment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT");
+            var environment = aspnetCoreEnvironment
+                ?? dotnetEnvironment
+                ?? "Development";
+            if (aspnetCoreEnvironment == null)
             {
-                environment = "Development";
                 Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", environment);
             }
 
+            if (dotnetEnvironment == null)
+            {
+                Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", environment);
+            }
+
             _reporter.WriteVerbose(DesignStrings.UsingEnvironment(environment));
-            _reporter.WriteVerbose(DesignStrings.UsingBuildWebHost(webHostFactoryResult.ProgramType.ShortDisplayName()));
 
             try
             {
-                var webHost = webHostFactoryResult.WebHostFactory(args);
-                var webHostType = webHost.GetType();
-                var servicesProperty = webHostType.GetTypeInfo().GetDeclaredProperty("Services");
-                var services = (IServiceProvider)servicesProperty.GetValue(webHost);
+                var services = serviceProviderFactory(args);
+                if (services == null)
+                {
+                    _reporter.WriteWarning(DesignStrings.MalformedCreateHostBuilder);
+
+                    return null;
+                }
+
+                _reporter.WriteVerbose(DesignStrings.UsingHostingServices);
 
                 return services.CreateScope().ServiceProvider;
             }
@@ -91,18 +98,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 }
 
                 _reporter.WriteVerbose(ex.ToString());
-                _reporter.WriteWarning(DesignStrings.InvokeBuildWebHostFailed(webHostFactoryResult.ProgramType.ShortDisplayName(), ex.Message));
+                _reporter.WriteWarning(DesignStrings.InvokeCreateHostBuilderFailed(ex.Message));
 
                 return null;
             }
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual Type FindProgramClass()
-            => _startupAssembly.EntryPoint?.DeclaringType;
 
         private IServiceProvider CreateEmptyServiceProvider()
         {

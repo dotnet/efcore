@@ -3,26 +3,37 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     <para>
+    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///         any release. You should only use it directly in your code with extreme caution and knowing that
+    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
+    ///     </para>
     /// </summary>
     public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateSqlGenerator
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerUpdateSqlGenerator(
             [NotNull] UpdateSqlGeneratorDependencies dependencies)
@@ -31,8 +42,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ResultSetMapping AppendBulkInsertOperation(
             StringBuilder commandStringBuilder,
@@ -44,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                     o =>
                         !o.IsKey
                         || !o.IsRead
-                        || o.Property?.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn))
+                        || o.Property?.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn))
             {
                 return AppendInsertOperation(commandStringBuilder, modificationCommands[0], commandPosition);
             }
@@ -55,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 
             var defaultValuesOnly = writeOperations.Count == 0;
             var nonIdentityOperations = modificationCommands[0].ColumnModifications
-                .Where(o => o.Property?.SqlServer().ValueGenerationStrategy != SqlServerValueGenerationStrategy.IdentityColumn)
+                .Where(o => o.Property?.GetValueGenerationStrategy() != SqlServerValueGenerationStrategy.IdentityColumn)
                 .ToList();
 
             if (defaultValuesOnly)
@@ -86,11 +99,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 
             if (defaultValuesOnly)
             {
-                return AppendBulkInsertWithServerValuesOnly(commandStringBuilder, modificationCommands, commandPosition, nonIdentityOperations, keyOperations, readOperations);
+                return AppendBulkInsertWithServerValuesOnly(
+                    commandStringBuilder, modificationCommands, commandPosition, nonIdentityOperations, keyOperations, readOperations);
             }
 
             if (modificationCommands[0].Entries.SelectMany(e => e.EntityType.GetAllBaseTypesInclusive())
-                .Any(e => e.SqlServer().IsMemoryOptimized))
+                .Any(e => e.IsMemoryOptimized()))
             {
                 if (!nonIdentityOperations.Any(o => o.IsRead && o.IsKey))
                 {
@@ -103,14 +117,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                 {
                     foreach (var modification in modificationCommands)
                     {
-                        AppendInsertOperationWithServerKeys(commandStringBuilder, modification, keyOperations, readOperations, commandPosition++);
+                        AppendInsertOperationWithServerKeys(
+                            commandStringBuilder, modification, keyOperations, readOperations, commandPosition++);
                     }
                 }
 
                 return ResultSetMapping.LastInResultSet;
             }
 
-            return AppendBulkInsertWithServerValues(commandStringBuilder, modificationCommands, commandPosition, writeOperations, keyOperations, readOperations);
+            return AppendBulkInsertWithServerValues(
+                commandStringBuilder, modificationCommands, commandPosition, writeOperations, keyOperations, readOperations);
         }
 
         private ResultSetMapping AppendBulkInsertWithoutServerValues(
@@ -118,20 +134,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             IReadOnlyList<ModificationCommand> modificationCommands,
             List<ColumnModification> writeOperations)
         {
-            Debug.Assert(writeOperations.Count > 0);
+            Check.DebugAssert(writeOperations.Count > 0, $"writeOperations.Count is {writeOperations.Count}");
 
             var name = modificationCommands[0].TableName;
             var schema = modificationCommands[0].Schema;
 
             AppendInsertCommandHeader(commandStringBuilder, name, schema, writeOperations);
             AppendValuesHeader(commandStringBuilder, writeOperations);
-            AppendValues(commandStringBuilder, writeOperations);
+            AppendValues(commandStringBuilder, name, schema, writeOperations);
             for (var i = 1; i < modificationCommands.Count; i++)
             {
-                commandStringBuilder.Append(",").AppendLine();
-                AppendValues(commandStringBuilder, modificationCommands[i].ColumnModifications.Where(o => o.IsWrite).ToList());
+                commandStringBuilder.AppendLine(",");
+                AppendValues(
+                    commandStringBuilder, name, schema, modificationCommands[i].ColumnModifications.Where(o => o.IsWrite).ToList());
             }
-            commandStringBuilder.Append(SqlGenerationHelper.StatementTerminator).AppendLine();
+
+            commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
 
             return ResultSetMapping.NoResultSet;
         }
@@ -176,7 +194,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                 FullPositionColumnName);
             commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
 
-            AppendSelectCommand(commandStringBuilder, readOperations, keyOperations, InsertedTableBaseName, commandPosition, name, schema, orderColumn: PositionColumnName);
+            AppendSelectCommand(
+                commandStringBuilder, readOperations, keyOperations, InsertedTableBaseName, commandPosition, name, schema,
+                orderColumn: PositionColumnName);
 
             return ResultSetMapping.NotLastInResultSet;
         }
@@ -196,12 +216,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             AppendInsertCommandHeader(commandStringBuilder, name, schema, nonIdentityOperations);
             AppendOutputClause(commandStringBuilder, keyOperations, InsertedTableBaseName, commandPosition);
             AppendValuesHeader(commandStringBuilder, nonIdentityOperations);
-            AppendValues(commandStringBuilder, nonIdentityOperations);
+            AppendValues(commandStringBuilder, name, schema, nonIdentityOperations);
             for (var i = 1; i < modificationCommands.Count; i++)
             {
-                commandStringBuilder.Append(",").AppendLine();
-                AppendValues(commandStringBuilder, nonIdentityOperations);
+                commandStringBuilder.AppendLine(",");
+                AppendValues(commandStringBuilder, name, schema, nonIdentityOperations);
             }
+
             commandStringBuilder.Append(SqlGenerationHelper.StatementTerminator);
 
             AppendSelectCommand(commandStringBuilder, readOperations, keyOperations, InsertedTableBaseName, commandPosition, name, schema);
@@ -228,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             AppendValues(commandStringBuilder, writeOperations, "0");
             for (var i = 1; i < modificationCommands.Count; i++)
             {
-                commandStringBuilder.Append(",").AppendLine();
+                commandStringBuilder.AppendLine(",");
                 AppendValues(
                     commandStringBuilder,
                     modificationCommands[i].ColumnModifications.Where(o => o.IsWrite).ToList(),
@@ -271,10 +292,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                     toInsertTableAlias,
                     SqlGenerationHelper,
                     (sb, o, alias, helper) =>
-                        {
-                            sb.Append(alias).Append(".");
-                            helper.DelimitIdentifier(sb, o.ColumnName);
-                        })
+                    {
+                        sb.Append(alias).Append(".");
+                        helper.DelimitIdentifier(sb, o.ColumnName);
+                    })
                 .Append(")");
         }
 
@@ -291,16 +312,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                         operations,
                         SqlGenerationHelper,
                         (sb, o, helper) =>
+                        {
+                            if (o.IsWrite)
                             {
-                                if (o.IsWrite)
-                                {
-                                    helper.GenerateParameterName(sb, o.ParameterName);
-                                }
-                                else
-                                {
-                                    sb.Append("DEFAULT");
-                                }
-                            })
+                                helper.GenerateParameterName(sb, o.ParameterName);
+                            }
+                            else
+                            {
+                                sb.Append("DEFAULT");
+                            }
+                        })
                     .Append(", ")
                     .Append(additionalLiteral)
                     .Append(")");
@@ -323,10 +344,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                     operations,
                     this,
                     (sb, o, generator) =>
-                        {
-                            generator.SqlGenerationHelper.DelimitIdentifier(sb, o.ColumnName);
-                            sb.Append(" ").Append(generator.GetTypeNameForCopy(o.Property));
-                        });
+                    {
+                        generator.SqlGenerationHelper.DelimitIdentifier(sb, o.ColumnName);
+                        sb.Append(" ").Append(generator.GetTypeNameForCopy(o.Property));
+                    });
 
             if (additionalColumns != null)
             {
@@ -334,32 +355,29 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                     .Append(", ")
                     .Append(additionalColumns);
             }
+
             commandStringBuilder
                 .Append(")")
-                .Append(SqlGenerationHelper.StatementTerminator)
-                .AppendLine();
+                .AppendLine(SqlGenerationHelper.StatementTerminator);
         }
 
         private string GetTypeNameForCopy(IProperty property)
         {
-            var typeName = property.SqlServer().ColumnType;
+            var typeName = property.GetColumnType();
             if (typeName == null)
             {
-                var principalProperty = property.FindPrincipal();
+                var principalProperty = property.FindFirstPrincipal();
 
-                typeName = principalProperty?.SqlServer().ColumnType
-                           ?? Dependencies.TypeMappingSource.FindMapping(property.ClrType)?.StoreType;
+                typeName = principalProperty?.GetColumnType()
+                    ?? Dependencies.TypeMappingSource.FindMapping(property.ClrType)?.StoreType;
             }
 
-            if (property.ClrType == typeof(byte[])
+            return property.ClrType == typeof(byte[])
                 && typeName != null
                 && (typeName.Equals("rowversion", StringComparison.OrdinalIgnoreCase)
-                    || typeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase)))
-            {
-                return property.IsNullable ? "varbinary(8)" : "binary(8)";
-            }
-
-            return typeName;
+                    || typeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase))
+                    ? property.IsNullable ? "varbinary(8)" : "binary(8)"
+                    : typeName;
         }
 
         // ReSharper disable once ParameterTypeCanBeEnumerable.Local
@@ -377,10 +395,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                     operations,
                     SqlGenerationHelper,
                     (sb, o, helper) =>
-                        {
-                            sb.Append("INSERTED.");
-                            helper.DelimitIdentifier(sb, o.ColumnName);
-                        });
+                    {
+                        sb.Append("INSERTED.");
+                        helper.DelimitIdentifier(sb, o.ColumnName);
+                    });
 
             if (additionalColumns != null)
             {
@@ -410,10 +428,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             AppendInsertCommandHeader(commandStringBuilder, name, schema, writeOperations);
             AppendOutputClause(commandStringBuilder, keyOperations, InsertedTableBaseName, commandPosition);
             AppendValuesHeader(commandStringBuilder, writeOperations);
-            AppendValues(commandStringBuilder, writeOperations);
+            AppendValues(commandStringBuilder, name, schema, writeOperations);
             commandStringBuilder.Append(SqlGenerationHelper.StatementTerminator);
 
-            return AppendSelectCommand(commandStringBuilder, readOperations, keyOperations, InsertedTableBaseName, commandPosition, name, schema);
+            return AppendSelectCommand(
+                commandStringBuilder, readOperations, keyOperations, InsertedTableBaseName, commandPosition, name, schema);
         }
 
         private ResultSetMapping AppendSelectCommand(
@@ -436,21 +455,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                 .Append(" FROM ");
             SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, tableName, schema);
             commandStringBuilder
-                .Append(" t")
-                .AppendLine()
+                .AppendLine(" t")
                 .Append("INNER JOIN ")
                 .Append(insertedTableName).Append(insertedTableIndex)
                 .Append(" i")
                 .Append(" ON ")
                 .AppendJoin(
                     keyOperations, (sb, c) =>
-                        {
-                            sb.Append("(");
-                            SqlGenerationHelper.DelimitIdentifier(sb, c.ColumnName, "t");
-                            sb.Append(" = ");
-                            SqlGenerationHelper.DelimitIdentifier(sb, c.ColumnName, "i");
-                            sb.Append(")");
-                        }, " AND ");
+                    {
+                        sb.Append("(");
+                        SqlGenerationHelper.DelimitIdentifier(sb, c.ColumnName, "t");
+                        sb.Append(" = ");
+                        SqlGenerationHelper.DelimitIdentifier(sb, c.ColumnName, "i");
+                        sb.Append(")");
+                    }, " AND ");
 
             if (orderColumn != null)
             {
@@ -461,38 +479,48 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             }
 
             commandStringBuilder
-                .Append(SqlGenerationHelper.StatementTerminator).AppendLine()
+                .AppendLine(SqlGenerationHelper.StatementTerminator)
                 .AppendLine();
 
             return ResultSetMapping.LastInResultSet;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override ResultSetMapping AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema, int commandPosition)
+        protected override ResultSetMapping AppendSelectAffectedCountCommand(
+            StringBuilder commandStringBuilder,
+            string name,
+            string schema,
+            int commandPosition)
         {
             commandStringBuilder
                 .Append("SELECT @@ROWCOUNT")
-                .Append(SqlGenerationHelper.StatementTerminator).AppendLine()
+                .AppendLine(SqlGenerationHelper.StatementTerminator)
                 .AppendLine();
 
             return ResultSetMapping.LastInResultSet;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override void AppendBatchHeader(StringBuilder commandStringBuilder)
             => commandStringBuilder
                 .Append("SET NOCOUNT ON")
-                .Append(SqlGenerationHelper.StatementTerminator).AppendLine();
+                .AppendLine(SqlGenerationHelper.StatementTerminator);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)
         {
@@ -503,8 +531,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
             => commandStringBuilder

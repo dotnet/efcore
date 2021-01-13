@@ -5,91 +5,112 @@ using System;
 using System.Data;
 using System.Data.Common;
 using System.Linq.Expressions;
+using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class SqlServerUdtTypeMapping : RelationalTypeMapping
     {
-        private static Action<DbParameter, string> _udtTypeNameSetter;
+        private static Action<DbParameter, string>? _udtTypeNameSetter;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerUdtTypeMapping(
             [NotNull] Type clrType,
             [NotNull] string storeType,
+            [NotNull] Func<object, Expression> literalGenerator,
             StoreTypePostfix storeTypePostfix = StoreTypePostfix.None,
-            [CanBeNull] string udtTypeName = null,
-            [CanBeNull] ValueConverter converter = null,
-            [CanBeNull] ValueComparer comparer = null,
-            [CanBeNull] ValueComparer keyComparer = null,
+            [CanBeNull] string? udtTypeName = null,
+            [CanBeNull] ValueConverter? converter = null,
+            [CanBeNull] ValueComparer? comparer = null,
+            [CanBeNull] ValueComparer? keyComparer = null,
             DbType? dbType = null,
             bool unicode = false,
             int? size = null,
             bool fixedLength = false,
             int? precision = null,
             int? scale = null)
-            : base(new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(
-                    clrType, converter, comparer, keyComparer), storeType, storeTypePostfix, dbType, unicode, size, fixedLength, precision, scale))
+            : base(
+                new RelationalTypeMappingParameters(
+                    new CoreTypeMappingParameters(
+                        clrType, converter, comparer, keyComparer), storeType, storeTypePostfix, dbType, unicode, size, fixedLength,
+                    precision, scale))
 
         {
+            LiteralGenerator = literalGenerator;
             UdtTypeName = udtTypeName ?? storeType;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected SqlServerUdtTypeMapping(RelationalTypeMappingParameters parameters, [CanBeNull] string udtTypeName)
+        protected SqlServerUdtTypeMapping(
+            RelationalTypeMappingParameters parameters,
+            [NotNull] Func<object, Expression> literalGenerator,
+            [CanBeNull] string? udtTypeName)
             : base(parameters)
         {
+            LiteralGenerator = literalGenerator;
             UdtTypeName = udtTypeName ?? parameters.StoreType;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string UdtTypeName { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new SqlServerUdtTypeMapping(Parameters.WithStoreTypeAndSize(storeType, size), UdtTypeName);
+        public virtual Func<object, Expression> LiteralGenerator { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Creates a copy of this mapping.
         /// </summary>
-        public override CoreTypeMapping Clone(ValueConverter converter)
-            => new SqlServerUdtTypeMapping(Parameters.WithComposedConverter(converter), UdtTypeName);
+        /// <param name="parameters"> The parameters for this mapping. </param>
+        /// <returns> The newly created mapping. </returns>
+        protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
+            => new SqlServerUdtTypeMapping(parameters, LiteralGenerator, UdtTypeName);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override void ConfigureParameter(DbParameter parameter)
             => SetUdtTypeName(parameter);
 
         private void SetUdtTypeName(DbParameter parameter)
         {
-            NonCapturingLazyInitializer.EnsureInitialized(
+            LazyInitializer.EnsureInitialized(
                 ref _udtTypeNameSetter,
-                parameter.GetType(),
-                CreateUdtTypeNameAccessor);
+                () => CreateUdtTypeNameAccessor(parameter.GetType()));
 
             if (parameter.Value != null
                 && parameter.Value != DBNull.Value)
@@ -97,6 +118,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 _udtTypeNameSetter(parameter, UdtTypeName);
             }
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override Expression GenerateCodeLiteral(object value)
+            => LiteralGenerator(value);
 
         private static Action<DbParameter, string> CreateUdtTypeNameAccessor(Type paramType)
         {
@@ -106,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             return Expression.Lambda<Action<DbParameter, string>>(
                 Expression.Call(
                     Expression.Convert(paramParam, paramType),
-                    paramType.GetProperty("UdtTypeName").SetMethod,
+                    paramType.GetProperty("UdtTypeName")!.SetMethod!,
                     valueParam),
                 paramParam,
                 valueParam).Compile();

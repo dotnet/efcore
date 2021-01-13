@@ -4,6 +4,8 @@
 using System;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
@@ -16,10 +18,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Creates a new instance of this converter.
         /// </summary>
         /// <param name="mappingHints">
-        ///     Hints that can be used by the <see cref="ITypeMappingSource"/> to create data types with appropriate
+        ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public DateTimeToBinaryConverter([CanBeNull] ConverterMappingHints mappingHints = null)
+        public DateTimeToBinaryConverter([CanBeNull] ConverterMappingHints? mappingHints = null)
             : base(
                 v => v.ToBinary(),
                 v => DateTime.FromBinary(v),
@@ -31,6 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(typeof(DateTime), typeof(long), i => new DateTimeToBinaryConverter(i.MappingHints));
+            = new(typeof(DateTime), typeof(long), i => new DateTimeToBinaryConverter(i.MappingHints));
     }
 }

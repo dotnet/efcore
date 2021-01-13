@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>$(StandardTestTfms)</TargetFrameworks>
+    <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.Proxies.Tests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
   </PropertyGroup>
@@ -15,12 +15,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\EFCore.Proxies\EFCore.Proxies.csproj" />
     <ProjectReference Include="..\EFCore.Tests\EFCore.Tests.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="TestUtilities\FakeProvider\FakeDbCommand.cs">
-      <SubType>Component</SubType>
-    </Compile>
   </ItemGroup>
 
 </Project>

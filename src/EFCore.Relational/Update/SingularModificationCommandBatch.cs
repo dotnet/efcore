@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Update
 {
@@ -20,38 +19,25 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Creates a new <see cref="SingularModificationCommandBatch" /> instance.
         /// </summary>
-        /// <param name="commandBuilderFactory"> The builder to build commands. </param>
-        /// <param name="sqlGenerationHelper"> A helper for SQL generation. </param>
-        /// <param name="updateSqlGenerator"> A SQL generator for insert, update, and delete commands. </param>
-        /// <param name="valueBufferFactoryFactory">
-        ///     A factory for creating factories for creating <see cref="ValueBuffer" />s to be used when reading from the data reader.
-        /// </param>
-        public SingularModificationCommandBatch(
-            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] IUpdateSqlGenerator updateSqlGenerator,
-            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
-            : base(
-                commandBuilderFactory,
-                sqlGenerationHelper,
-                updateSqlGenerator,
-                valueBufferFactoryFactory)
+        /// <param name="dependencies"> Service dependencies. </param>
+        public SingularModificationCommandBatch([NotNull] ModificationCommandBatchFactoryDependencies dependencies)
+            : base(dependencies)
         {
         }
 
         /// <summary>
-        ///     Only returns <c>true</c> if the no command has already been added.
+        ///     Only returns <see langword="true" /> if the no command has already been added.
         /// </summary>
         /// <param name="modificationCommand"> The command to potentially add. </param>
-        /// <returns> <c>True</c> if no command has already been added. </returns>
+        /// <returns> <see langword="true" /> if no command has already been added. </returns>
         protected override bool CanAddCommand(ModificationCommand modificationCommand)
             => ModificationCommands.Count == 0;
 
         /// <summary>
-        ///     Returns <c>true</c> since only a single command is generated so the command text must be valid.
+        ///     Returns <see langword="true" /> since only a single command is generated so the command text must be valid.
         /// </summary>
         /// <returns>
-        ///     <c>True</c>
+        ///     <see langword="true" />
         /// </returns>
         protected override bool IsCommandTextValid()
             => true;

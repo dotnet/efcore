@@ -4,9 +4,8 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
@@ -21,31 +20,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         public const string InitialDatabase = "0";
 
-        private readonly LazyRef<IModel> _targetModel;
-        private readonly LazyRef<List<MigrationOperation>> _upOperations;
-        private readonly LazyRef<List<MigrationOperation>> _downOperations;
-
-        /// <summary>
-        ///     Creates a <see cref="Migration" /> instance.
-        /// </summary>
-        protected Migration()
-        {
-            _targetModel = new LazyRef<IModel>(
-                () =>
-                    {
-                        var modelBuilder = new ModelBuilder(new ConventionSet());
-                        BuildTargetModel(modelBuilder);
-
-                        return modelBuilder.Model;
-                    });
-            _upOperations = new LazyRef<List<MigrationOperation>>(() => BuildOperations(Up));
-            _downOperations = new LazyRef<List<MigrationOperation>>(() => BuildOperations(Down));
-        }
+        private IModel _targetModel;
+        private List<MigrationOperation> _upOperations;
+        private List<MigrationOperation> _downOperations;
 
         /// <summary>
         ///     The <see cref="IModel" /> that the database will map to after the migration has been applied.
         /// </summary>
-        public virtual IModel TargetModel => _targetModel.Value;
+        public virtual IModel TargetModel
+        {
+            get
+            {
+                IModel Create()
+                {
+                    var modelBuilder = new ModelBuilder();
+                    BuildTargetModel(modelBuilder);
+
+                    return modelBuilder.Model;
+                }
+
+                return _targetModel ??= Create();
+            }
+        }
 
         /// <summary>
         ///     <para>
@@ -57,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         with regard to this migration.
         ///     </para>
         /// </summary>
-        public virtual IReadOnlyList<MigrationOperation> UpOperations => _upOperations.Value;
+        public virtual IReadOnlyList<MigrationOperation> UpOperations
+            => _upOperations ??= BuildOperations(Up);
 
         /// <summary>
         ///     <para>
@@ -69,7 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         state that it was in before this migration was applied.
         ///     </para>
         /// </summary>
-        public virtual IReadOnlyList<MigrationOperation> DownOperations => _downOperations.Value;
+        public virtual IReadOnlyList<MigrationOperation> DownOperations
+            => _downOperations ??= BuildOperations(Down);
 
         /// <summary>
         ///     <para>
@@ -83,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public virtual string ActiveProvider { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     Implemented to builds the <see cref="TargetModel" />.
+        ///     Implemented to build the <see cref="TargetModel" />.
         /// </summary>
         /// <param name="modelBuilder"> The <see cref="ModelBuilder" /> to use to build the model. </param>
         protected virtual void BuildTargetModel([NotNull] ModelBuilder modelBuilder)
@@ -99,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         previous migration so that it is up-to-date with regard to this migration.
         ///     </para>
         ///     <para>
-        ///         This method must be overridden in each class the inherits from <see cref="Migration" />.
+        ///         This method must be overridden in each class that inherits from <see cref="Migration" />.
         ///     </para>
         /// </summary>
         /// <param name="migrationBuilder"> The <see cref="MigrationBuilder" /> that will build the operations. </param>
@@ -114,16 +112,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         this migration so that it returns to the state that it was in before this migration was applied.
         ///     </para>
         ///     <para>
-        ///         This method must be overridden in each class the inherits from <see cref="Migration" /> if
+        ///         This method must be overridden in each class that inherits from <see cref="Migration" /> if
         ///         both 'up' and 'down' migrations are to be supported. If it is not overridden, then calling it
         ///         will throw and it will not be possible to migrate in the 'down' direction.
         ///     </para>
         /// </summary>
         /// <param name="migrationBuilder"> The <see cref="MigrationBuilder" /> that will build the operations. </param>
         protected virtual void Down([NotNull] MigrationBuilder migrationBuilder)
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotSupportedException(RelationalStrings.MigrationDownMissing);
 
         private List<MigrationOperation> BuildOperations(Action<MigrationBuilder> buildAction)
         {

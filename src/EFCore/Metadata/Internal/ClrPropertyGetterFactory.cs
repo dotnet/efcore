@@ -10,33 +10,38 @@ using Microsoft.EntityFrameworkCore.Internal;
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class ClrPropertyGetterFactory : ClrAccessorFactory<IClrPropertyGetter>
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override IClrPropertyGetter Create(IPropertyBase property)
+            => property as IClrPropertyGetter ?? Create(property.GetMemberInfo(forMaterialization: false, forSet: false), property);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override IClrPropertyGetter CreateGeneric<TEntity, TValue, TNonNullableEnumValue>(
-            PropertyInfo propertyInfo, IPropertyBase propertyBase)
+            MemberInfo memberInfo,
+            IPropertyBase propertyBase)
         {
-            var memberInfo = propertyBase?.GetMemberInfo(forConstruction: false, forSet: false)
-                             ?? propertyInfo.FindGetterProperty();
-
-            if (memberInfo == null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.NoGetter(propertyInfo.Name, propertyInfo.DeclaringType.ShortDisplayName(), nameof(PropertyAccessMode)));
-            }
-
             var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
 
             Expression readExpression;
-            if (memberInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity).GetTypeInfo()))
+            if (memberInfo.DeclaringType.IsAssignableFrom(typeof(TEntity)))
             {
-                readExpression = Expression.MakeMemberAccess(entityParameter, memberInfo);
+                readExpression = PropertyBase.CreateMemberAccess(propertyBase, entityParameter, memberInfo);
             }
             else
             {
@@ -53,11 +58,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         Expression.Condition(
                             Expression.ReferenceEqual(converted, Expression.Constant(null)),
                             Expression.Default(memberInfo.GetMemberType()),
-                            Expression.MakeMemberAccess(converted, memberInfo))
+                            PropertyBase.CreateMemberAccess(propertyBase, converted, memberInfo))
                     });
             }
 
-            var hasDefaultValueExpression = Expression.Equal(readExpression, Expression.Default(memberInfo.GetMemberType()));
+            var hasDefaultValueExpression = readExpression.MakeHasDefaultValue(propertyBase);
+
+            if (readExpression.Type != typeof(TValue))
+            {
+                readExpression = Expression.Condition(
+                    hasDefaultValueExpression,
+                    Expression.Constant(default(TValue), typeof(TValue)),
+                    Expression.Convert(readExpression, typeof(TValue)));
+            }
 
             return new ClrPropertyGetter<TEntity, TValue>(
                 Expression.Lambda<Func<TEntity, TValue>>(readExpression, entityParameter).Compile(),

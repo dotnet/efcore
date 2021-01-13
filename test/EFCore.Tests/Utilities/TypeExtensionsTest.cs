@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -16,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 {
     public class TypeExtensionsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void GetSequenceType_finds_element_type()
         {
             Assert.Equal(typeof(int), typeof(IEnumerable<int>).GetSequenceType());
@@ -25,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal(typeof(int), typeof(List<int>).GetSequenceType());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsInteger_returns_true_only_for_integer_types()
         {
             Assert.True(typeof(long).IsInteger());
@@ -63,31 +62,31 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetDeclaredConstructor_finds_ctor_no_args()
         {
             var constructorInfo = typeof(CtorFixture).GetDeclaredConstructor(null);
 
             Assert.NotNull(constructorInfo);
-            Assert.Equal(0, constructorInfo.GetParameters().Length);
+            Assert.Empty(constructorInfo.GetParameters());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetDeclaredConstructor_returns_null_when_no_match()
         {
             Assert.Null(typeof(CtorFixture).GetDeclaredConstructor(new[] { typeof(string) }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetDeclaredConstructor_finds_ctor_args()
         {
             var constructorInfo = typeof(CtorFixture).GetDeclaredConstructor(new[] { typeof(int) });
 
             Assert.NotNull(constructorInfo);
-            Assert.Equal(1, constructorInfo.GetParameters().Length);
+            Assert.Single(constructorInfo.GetParameters());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsNullableType_when_value_or_nullable_type()
         {
             Assert.True(typeof(string).IsNullableType());
@@ -96,13 +95,13 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.True(typeof(int?).IsNullableType());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Element_type_should_return_input_type_when_not_sequence_type()
         {
             Assert.Equal(typeof(string), typeof(string));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_any_property_returns_any_property()
         {
             Assert.Same(typeof(TindersticksII), typeof(TindersticksII).GetAnyProperty("ElDiabloEnElOjo").DeclaringType);
@@ -170,7 +169,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             public virtual int VertrauenII { get; protected set; }
             public virtual int TalkToMe { protected get; set; }
 
-            public virtual int NoMoreAffairs => 1995;
+            public virtual int NoMoreAffairs
+                => 1995;
 
             public virtual int Singing
             {
@@ -192,7 +192,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             private int MySister { get; set; }
             protected override int TinyTears { get; set; }
 
-            public override int SnowyInFSharpMinor => 1995;
+            public override int SnowyInFSharpMinor
+                => 1995;
 
             public override int Seaweed
             {
@@ -202,7 +203,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             public override int VertrauenII { get; protected set; }
             public override int TalkToMe { protected get; set; }
 
-            public override int NoMoreAffairs => 1995;
+            public override int NoMoreAffairs
+                => 1995;
 
             public override int Singing
             {
@@ -213,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             public new virtual int CherryBlossoms { get; set; }
             public new int ShesGone { get; set; }
             public virtual int VertrauenIII { get; set; }
-            public new static int SleepySong { get; set; }
+            public static new int SleepySong { get; set; }
         }
 
         public class TindersticksIICd : TindersticksIIVinyl
@@ -222,7 +224,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             private int MySister { get; set; }
             protected override int TinyTears { get; set; }
 
-            public override int SnowyInFSharpMinor => 1995;
+            public override int SnowyInFSharpMinor
+                => 1995;
 
             public override int Seaweed
             {
@@ -232,7 +235,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             public override int VertrauenII { get; protected set; }
             public override int TalkToMe { protected get; set; }
 
-            public override int NoMoreAffairs => 1995;
+            public override int NoMoreAffairs
+                => 1995;
 
             public override int Singing
             {
@@ -243,10 +247,10 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             public override int CherryBlossoms { get; set; }
             public override int Mistakes { get; set; }
             public override int VertrauenIII { get; set; }
-            public new static int SleepySong { get; set; }
+            public static new int SleepySong { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TryGetElementType_returns_element_type_for_given_interface()
         {
             Assert.Same(typeof(string), typeof(ICollection<string>).TryGetElementType(typeof(ICollection<>)));
@@ -257,27 +261,27 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Same(typeof(string), typeof(MultipleImplementor<Random, string>).TryGetElementType(typeof(IEnumerable<>)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TryGetElementType_returns_element_type_for_given_class()
         {
             Assert.Same(typeof(string), typeof(Collection<string>).TryGetElementType(typeof(Collection<>)));
             Assert.Same(typeof(int), typeof(List<int>).TryGetElementType(typeof(List<>)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TryGetElementType_returns_null_if_type_is_generic_type_definition()
         {
             Assert.Null(typeof(ICollection<>).TryGetElementType(typeof(ICollection<>)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TryGetElementType_returns_null_if_type_doesnt_implement_interface()
         {
             Assert.Null(typeof(ICollection<string>).TryGetElementType(typeof(IObservable<>)));
             Assert.Null(typeof(Random).TryGetElementType(typeof(IObservable<>)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TryGetElementType_returns_null_if_type_doesnt_implement_class()
         {
             Assert.Null(typeof(ICollection<string>).TryGetElementType(typeof(List<>)));
@@ -285,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         // CodePlex 2014
-        [Fact]
+        [ConditionalFact]
         public void TryGetElementType_returns_null_when_ICollection_implemented_more_than_once()
         {
             Assert.Null(typeof(RoleCollection2014).TryGetElementType(typeof(ICollection<>)));
@@ -319,6 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         {
         }
 
+#pragma warning disable CA1061 // Do not hide base class methods
         private class RoleCollection2014 : List<Role2014>, IRoleCollection2014
         {
             public new IEnumerator<IRole2014> GetEnumerator()
@@ -348,6 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
             public bool IsReadOnly { get; private set; }
         }
+#pragma warning restore CA1061 // Do not hide base class methods
 
         private class Role2014 : IRole2014
         {
@@ -355,16 +361,16 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             public string Permissions { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetBaseTypes_return_all_base_types()
         {
             Assert.Equal(3, typeof(MultipleHierarchy).GetBaseTypes().Count());
-            Assert.True(typeof(MultipleHierarchy).GetBaseTypes().Contains(typeof(Some)));
-            Assert.True(typeof(MultipleHierarchy).GetBaseTypes().Contains(typeof(Base)));
-            Assert.True(typeof(MultipleHierarchy).GetBaseTypes().Contains(typeof(object)));
+            Assert.Contains(typeof(Some), typeof(MultipleHierarchy).GetBaseTypes());
+            Assert.Contains(typeof(Base), typeof(MultipleHierarchy).GetBaseTypes());
+            Assert.Contains(typeof(object), typeof(MultipleHierarchy).GetBaseTypes());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetBaseTypes_return_empty_if_no_base_type_exists()
         {
             Assert.False(typeof(object).GetBaseTypes().Any());
@@ -384,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
         // ReSharper restore InconsistentNaming
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_default_value_for_type()
         {
             Assert.False((bool)typeof(bool).GetDefaultValue());
@@ -437,7 +443,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Default
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetConstructibleTypes_works()
         {
             var assembly = MockAssembly.Create(
@@ -469,7 +475,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetNamespaces_works()
         {
             // Predefined Types
@@ -478,11 +484,17 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal(new[] { "System.Collections.Generic", "System" }, typeof(List<Guid>).GetNamespaces().ToArray());
 
             Assert.Equal(new[] { "Microsoft.EntityFrameworkCore.Utilities" }, typeof(A).GetNamespaces().ToArray());
-            Assert.Equal(new[] { "System.Collections.Generic", "Microsoft.EntityFrameworkCore.Utilities" }, typeof(List<A>).GetNamespaces().ToArray());
-            Assert.Equal(new[] { "System.Collections.Generic", "System", "System.Collections.Generic", "Microsoft.EntityFrameworkCore.Utilities" }, typeof(Dictionary<Version, List<A>>).GetNamespaces().ToArray());
+            Assert.Equal(
+                new[] { "System.Collections.Generic", "Microsoft.EntityFrameworkCore.Utilities" },
+                typeof(List<A>).GetNamespaces().ToArray());
+            Assert.Equal(
+                new[] { "System.Collections.Generic", "System", "System.Collections.Generic", "Microsoft.EntityFrameworkCore.Utilities" },
+                typeof(Dictionary<Version, List<A>>).GetNamespaces().ToArray());
 
             Assert.Equal(new[] { "Microsoft.EntityFrameworkCore.Utilities", "System" }, typeof(Outer<Guid>).GetNamespaces().ToArray());
-            Assert.Equal(new[] { "Microsoft.EntityFrameworkCore.Utilities", "System.Collections.Generic", "System" }, typeof(Outer<List<Guid>>).GetNamespaces().ToArray());
+            Assert.Equal(
+                new[] { "Microsoft.EntityFrameworkCore.Utilities", "System.Collections.Generic", "System" },
+                typeof(Outer<List<Guid>>).GetNamespaces().ToArray());
         }
 
         private class Outer<T>

@@ -1,0 +1,4 @@
+<#
+    Session["ResourceFile"] = "Resources.resx";
+#>
+<#@ include file="..\..\..\tools\SqliteResources.tt" #>

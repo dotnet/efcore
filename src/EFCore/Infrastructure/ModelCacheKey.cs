@@ -39,9 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The key to compare this key to.
         /// </param>
         /// <returns>
-        ///     True if the key is for the same context type, otherwise false.
+        ///     <see langword="true" /> if the key is for the same context type, otherwise <see langword="false" />.
         /// </returns>
-        protected virtual bool Equals([NotNull] ModelCacheKey other) => _dbContextType == other._dbContextType;
+        protected virtual bool Equals([NotNull] ModelCacheKey other)
+            => _dbContextType == other._dbContextType;
 
         /// <summary>
         ///     Determines if this key is equivalent to a given object (i.e. if they are keys for the same context type).
@@ -50,9 +51,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The object to compare this key to.
         /// </param>
         /// <returns>
-        ///     True if the object is a <see cref="ModelCacheKey" /> and is for the same context type, otherwise false.
+        ///     <see langword="true" /> if the object is a <see cref="ModelCacheKey" /> and is for the same context type, otherwise
+        ///     <see langword="false" />.
         /// </returns>
-        public override bool Equals(object obj) => (obj is ModelCacheKey otherAsKey) && Equals(otherAsKey);
+        public override bool Equals(object obj)
+            => (obj is ModelCacheKey otherAsKey) && Equals(otherAsKey);
 
         /// <summary>
         ///     Gets the hash code for the key.
@@ -60,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>
         ///     The hash code for the key.
         /// </returns>
-        public override int GetHashCode() => _dbContextType?.GetHashCode() ?? 0;
+        public override int GetHashCode()
+            => _dbContextType?.GetHashCode() ?? 0;
     }
 }

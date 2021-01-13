@@ -4,11 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
@@ -27,9 +28,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         where TEntity : class
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         public EntityEntry([NotNull] InternalEntityEntry internalEntry)
             : base(internalEntry)
         {
@@ -38,7 +42,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     Gets the entity being tracked by this entry.
         /// </summary>
-        public new virtual TEntity Entity => (TEntity)base.Entity;
+        public new virtual TEntity Entity
+            => (TEntity)base.Entity;
 
         /// <summary>
         ///     Provides access to change tracking information and operations for a given
@@ -54,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             Check.NotNull(propertyExpression, nameof(propertyExpression));
 
-            return new PropertyEntry<TEntity, TProperty>(InternalEntry, propertyExpression.GetPropertyAccess().Name);
+            return new PropertyEntry<TEntity, TProperty>(InternalEntry, propertyExpression.GetMemberAccess().GetSimpleMemberName());
         }
 
         /// <summary>
@@ -75,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             Check.NotNull(propertyExpression, nameof(propertyExpression));
 
-            return new ReferenceEntry<TEntity, TProperty>(InternalEntry, propertyExpression.GetPropertyAccess().Name);
+            return new ReferenceEntry<TEntity, TProperty>(InternalEntry, propertyExpression.GetMemberAccess().GetSimpleMemberName());
         }
 
         /// <summary>
@@ -96,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             Check.NotNull(propertyExpression, nameof(propertyExpression));
 
-            return new CollectionEntry<TEntity, TProperty>(InternalEntry, propertyExpression.GetPropertyAccess().Name);
+            return new CollectionEntry<TEntity, TProperty>(InternalEntry, propertyExpression.GetMemberAccess().GetSimpleMemberName());
         }
 
         /// <summary>

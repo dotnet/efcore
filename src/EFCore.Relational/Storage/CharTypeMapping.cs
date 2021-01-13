@@ -1,9 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -33,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="CharTypeMapping" /> class.
         /// </summary>
-        /// <param name="parameters"> Parameter object for <see cref="RelationalTypeMapping"/>. </param>
+        /// <param name="parameters"> Parameter object for <see cref="RelationalTypeMapping" />. </param>
         protected CharTypeMapping(RelationalTypeMappingParameters parameters)
             : base(parameters)
         {
@@ -42,24 +45,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a copy of this mapping.
         /// </summary>
-        /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
+        /// <param name="parameters"> The parameters for this mapping. </param>
         /// <returns> The newly created mapping. </returns>
-        public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new CharTypeMapping(Parameters.WithStoreTypeAndSize(storeType, size));
+        protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
+            => new CharTypeMapping(parameters);
 
         /// <summary>
-        ///    Returns a new copy of this type mapping with the given <see cref="ValueConverter"/>
-        ///    added.
+        ///     Generates the SQL representation of a non-null literal value.
         /// </summary>
-        /// <param name="converter"> The converter to use. </param>
-        /// <returns> A new type mapping </returns>
-        public override CoreTypeMapping Clone(ValueConverter converter)
-            => new CharTypeMapping(Parameters.WithComposedConverter(converter));
+        /// <param name="value">The literal value.</param>
+        /// <returns>
+        ///     The generated string.
+        /// </returns>
+        protected override string GenerateNonNullSqlLiteral(object value)
+        {
+            // NB: We can get Int32 values here too due to compiler-introduced convert nodes
+            var charValue = Convert.ToChar(Check.NotNull(value, nameof(value)));
+            if (charValue == '\'')
+            {
+                return "''''";
+            }
 
-        /// <summary>
-        ///     Gets the string format to be used to generate SQL literals of this type.
-        /// </summary>
-        protected override string SqlLiteralFormatString => "'{0}'";
+            return "'" + charValue + "'";
+        }
     }
 }

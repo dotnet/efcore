@@ -1,4 +1,4 @@
-﻿<Project>
+<Project>
 
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
 
@@ -10,47 +10,53 @@
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <IncludeSource>false</IncludeSource>
-    <EnableApiCheck>false</EnableApiCheck>
     <Description>Entity Framework Core Tools for the NuGet Package Manager Console in Visual Studio.
 
 Enables these commonly used commands:
 Add-Migration
 Drop-Database
 Get-DbContext
+Get-Migration
+Remove-Migration
 Scaffold-DbContext
-Script-Migrations
+Script-Migration
 Update-Database
   </Description>
+    <CheckEolTargetFramework>False</CheckEolTargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ef\ef.csproj" />
   </ItemGroup>
 
-  <Target Name="SetPackageProperties" BeforeTargets="GenerateNuspec">
+  <ItemGroup>
+    <GeneratedContent Include="*.psd1.in" />
+  </ItemGroup>
+
+  <Target Name="SetPackageProperties" BeforeTargets="InitializeStandardNuspecProperties" DependsOnTargets="Build">
     <PropertyGroup>
+      <DevelopmentDependency>true</DevelopmentDependency>
+
       <!-- Make sure we create a symbols.nupkg -->
       <IncludeSymbols>true</IncludeSymbols>
-      
-      <NuspecProperties>
-        id=$(PackageId);
-        version=$(PackageVersion);
-        configuration=$(Configuration);
-        tags=$(PackageTags.Replace(';',' '));
-        projectUrl=$(PackageProjectUrl);
-        licenseUrl=$(PackageLicenseUrl);
-        iconUrl=$(PackageIconUrl);
-        repositoryUrl=$(RepositoryUrl);
-        repositoryType=$(RepositoryType);
-        repositoryCommit=$(RepositoryCommit);
-        author=$(Authors);
-        copyright=$(Copyright);
-        description=$(Description);
-      </NuspecProperties>
     </PropertyGroup>
+
+    <ItemGroup>
+      <NuspecProperty Include="version=$(PackageVersion)" />
+      <NuspecProperty Include="configuration=$(Configuration)" />
+      <NuspecProperty Include="intermediateOutputPath=$(IntermediateOutputPath)" />
+    </ItemGroup>
   </Target>
 
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+
+  <Target Name="GenerateContent"
+    BeforeTargets="GenerateNuspec"
+    Inputs="$(MSBuildAllProjects);@(GeneratedContent)"
+    Outputs="@(GeneratedContent->'$(IntermediateOutputPath)%(FileName)'">
+    <!-- TODO: Use dotnet/arcade#204 when available -->
+    <WriteLinesToFile Lines="$([System.IO.File]::ReadAllText('%(GeneratedContent.Identity)').Replace('${VersionPrefix}', $(VersionPrefix)))" File="$(IntermediateOutputPath)%(FileName)" Overwrite="True" />
+  </Target>
 
   <Target Name="Compile" />
   <Target Name="CopyFilesToOutputDirectory" />

@@ -1,39 +1,48 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Query.Internal;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class SqlServerQueryCompilationContext : RelationalQueryCompilationContext
     {
+        private readonly bool _multipleActiveResultSetsEnabled;
+
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerQueryCompilationContext(
             [NotNull] QueryCompilationContextDependencies dependencies,
-            [NotNull] ILinqOperatorProvider linqOperatorProvider,
-            [NotNull] IQueryMethodProvider queryMethodProvider,
-            bool trackQueryResults)
-            : base(
-                dependencies,
-                linqOperatorProvider,
-                queryMethodProvider,
-                trackQueryResults)
+            [NotNull] RelationalQueryCompilationContextDependencies relationalDependencies,
+            bool async,
+            bool multipleActiveResultSetsEnabled)
+            : base(dependencies, relationalDependencies, async)
         {
+            _multipleActiveResultSetsEnabled = multipleActiveResultSetsEnabled;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override bool IsLateralJoinSupported => true;
+        public override bool IsBuffering
+            => base.IsBuffering
+                || (QuerySplittingBehavior == EntityFrameworkCore.QuerySplittingBehavior.SplitQuery
+                    && !_multipleActiveResultSetsEnabled);
     }
 }

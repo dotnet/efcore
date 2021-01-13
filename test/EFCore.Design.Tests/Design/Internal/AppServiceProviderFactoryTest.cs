@@ -7,18 +7,19 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+#pragma warning disable RCS1102 // Make class static.
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     public class AppServiceProviderFactoryTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Create_works()
         {
             var factory = new TestAppServiceProviderFactory(
-                MockAssembly.Create(typeof(Program)),
-                typeof(Program));
+                MockAssembly.Create(typeof(Program)));
 
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", null);
+            Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", null);
             var services = factory.Create(new[] { "arg1" });
 
             Assert.NotNull(services.GetRequiredService<TestService>());
@@ -29,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             public static TestWebHost BuildWebHost(string[] args)
             {
                 Assert.Equal("Development", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
+                Assert.Equal("Development", Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT"));
                 Assert.Equal(args, new[] { "arg1" });
 
                 return new TestWebHost(
@@ -42,12 +44,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_works_when_no_BuildWebHost()
         {
             var factory = new TestAppServiceProviderFactory(
-                MockAssembly.Create(typeof(ProgramWithoutBuildWebHost)),
-                typeof(ProgramWithoutBuildWebHost));
+                MockAssembly.Create(typeof(ProgramWithoutBuildWebHost)));
 
             var services = factory.Create(Array.Empty<string>());
 
@@ -58,25 +59,23 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_works_when_BuildWebHost_throws()
         {
             var reporter = new TestOperationReporter();
             var factory = new TestAppServiceProviderFactory(
                 MockAssembly.Create(typeof(ProgramWithThrowingBuildWebHost)),
-                typeof(ProgramWithThrowingBuildWebHost),
                 reporter);
 
             var services = factory.Create(Array.Empty<string>());
 
             Assert.NotNull(services);
             Assert.Contains(
-                "warn: " +
-                DesignStrings.InvokeBuildWebHostFailed(nameof(ProgramWithThrowingBuildWebHost), "This is a test."),
+                "warn: " + DesignStrings.InvokeCreateHostBuilderFailed("This is a test."),
                 reporter.Messages);
         }
 
-        private class ProgramWithThrowingBuildWebHost
+        private static class ProgramWithThrowingBuildWebHost
         {
             public static TestWebHost BuildWebHost(string[] args)
                 => throw new Exception("This is a test.");

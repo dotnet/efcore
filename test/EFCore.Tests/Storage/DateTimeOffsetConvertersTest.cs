@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly DateTimeOffsetToStringConverter _dateTimeOffsetToString
             = new DateTimeOffsetToStringConverter();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_DateTimeOffset_to_string()
         {
             var converter = _dateTimeOffsetToString.ConvertToProviderExpression.Compile();
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 converter(new DateTimeOffset()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_string_to_DateTimeOffset()
         {
             var converter = _dateTimeOffsetToString.ConvertFromProviderExpression.Compile();
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly DateTimeOffsetToBytesConverter _dateTimeOffsetToBytes
             = new DateTimeOffsetToBytesConverter();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_DateTimeOffset_to_bytes()
         {
             var converter = _dateTimeOffsetToBytes.ConvertToProviderExpression.Compile();
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 converter(new DateTimeOffset()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_bytes_to_DateTimeOffset()
         {
             var converter = _dateTimeOffsetToBytes.ConvertFromProviderExpression.Compile();
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly DateTimeOffsetToBinaryConverter _dateTimeOffsetToBinary
             = new DateTimeOffsetToBinaryConverter();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_DateTimeOffset_to_binary()
         {
             var converter = _dateTimeOffsetToBinary.ConvertToProviderExpression.Compile();
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(0, converter(new DateTimeOffset()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_binary_to_DateTimeOffset()
         {
             var converter = _dateTimeOffsetToBinary.ConvertFromProviderExpression.Compile();

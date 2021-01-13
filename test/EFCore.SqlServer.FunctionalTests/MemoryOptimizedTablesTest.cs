@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -18,7 +17,8 @@ namespace Microsoft.EntityFrameworkCore
     {
         protected MemoryOptimizedTablesFixture Fixture { get; }
 
-        public MemoryOptimizedTablesTest(MemoryOptimizedTablesFixture fixture) => Fixture = fixture;
+        public MemoryOptimizedTablesTest(MemoryOptimizedTablesFixture fixture)
+            => Fixture = fixture;
 
         [ConditionalFact]
         public void Can_create_memoryOptimized_table()
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
                 var fastUns = new[] { new FastUn { Name = "First 'un", BigUn = bigUn }, new FastUn { Name = "Second 'un", BigUn = bigUn } };
                 using (var context = CreateContext())
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     // ReSharper disable once CoVariantArrayConversion
                     context.AddRange(fastUns);
@@ -48,16 +48,18 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TestStore CreateTestStore()
         {
-            TestStore = SqlServerTestStore.GetOrCreate(nameof(MemoryOptimizedTablesTest));
+            TestStore = SqlServerTestStore.Create(nameof(MemoryOptimizedTablesTest));
             TestStore.Initialize(null, CreateContext, c => { });
             return TestStore;
         }
 
-        private MemoryOptimizedContext CreateContext() => new MemoryOptimizedContext(Fixture.CreateOptions(TestStore));
+        private MemoryOptimizedContext CreateContext()
+            => new MemoryOptimizedContext(Fixture.CreateOptions(TestStore));
 
         public class MemoryOptimizedTablesFixture : ServiceProviderFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
         }
 
         private class MemoryOptimizedContext : DbContext
@@ -74,13 +76,13 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder
                     .Entity<FastUn>(
                         eb =>
-                            {
-                                eb.ForSqlServerIsMemoryOptimized();
-                                eb.HasIndex(e => e.Name).IsUnique();
-                                eb.HasOne(e => e.BigUn).WithMany(e => e.FastUns).IsRequired().OnDelete(DeleteBehavior.Restrict);
-                            });
+                        {
+                            eb.IsMemoryOptimized();
+                            eb.HasIndex(e => e.Name).IsUnique();
+                            eb.HasOne(e => e.BigUn).WithMany(e => e.FastUns).IsRequired().OnDelete(DeleteBehavior.Restrict);
+                        });
 
-                modelBuilder.Entity<BigUn>().ForSqlServerIsMemoryOptimized();
+                modelBuilder.Entity<BigUn>().IsMemoryOptimized();
             }
         }
 

@@ -3,10 +3,12 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -22,13 +24,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="value"> The object to get the mapping for. </param>
         /// <returns> The type mapping to be used. </returns>
         public static RelationalTypeMapping GetMappingForValue(
-            [CanBeNull] this IRelationalTypeMappingSource typeMappingSource,
-            [CanBeNull] object value)
+            [CanBeNull] this IRelationalTypeMappingSource? typeMappingSource,
+            [CanBeNull] object? value)
             => value == null
-               || value == DBNull.Value
-               || typeMappingSource == null
-                ? RelationalTypeMapping.NullMapping
-                : typeMappingSource.GetMapping(value.GetType());
+                || value == DBNull.Value
+                || typeMappingSource == null
+                    ? RelationalTypeMapping.NullMapping
+                    : typeMappingSource.GetMapping(value.GetType());
 
         /// <summary>
         ///     Gets the relational database type for a given property, throwing if no mapping is found.
@@ -95,6 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] string typeName)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
+            // Note: Empty string is allowed for store type name because SQLite
             Check.NotNull(typeName, nameof(typeName));
 
             var mapping = typeMappingSource.FindMapping(typeName);
@@ -103,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 return mapping;
             }
 
-            throw new InvalidOperationException(RelationalStrings.UnsupportedType(typeName));
+            throw new InvalidOperationException(RelationalStrings.UnsupportedStoreType(typeName));
         }
     }
 }

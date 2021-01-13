@@ -22,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public abstract class FieldMappingSqliteFixtureBase : FieldMappingFixtureBase
             {
-                protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+                protected override ITestStoreFactory TestStoreFactory
+                    => SqliteTestStoreFactory.Instance;
             }
         }
 
@@ -88,11 +89,15 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             // Cannot force property access when properties missing getter/setter
-            public override void Include_collection_read_only_props()
+            public override void Simple_query_read_only_props(bool tracking)
             {
             }
 
-            public override void Include_reference_read_only_props()
+            public override void Include_collection_read_only_props(bool tracking)
+            {
+            }
+
+            public override void Include_reference_read_only_props(bool tracking)
             {
             }
 
@@ -104,15 +109,15 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override void Query_with_conditional_constant_read_only_props()
+            public override void Query_with_conditional_constant_read_only_props(bool tracking)
             {
             }
 
-            public override void Query_with_conditional_param_read_only_props()
+            public override void Query_with_conditional_param_read_only_props(bool tracking)
             {
             }
 
-            public override void Projection_read_only_props()
+            public override void Projection_read_only_props(bool tracking)
             {
             }
 
@@ -120,11 +125,15 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override void Include_collection_read_only_props_with_named_fields()
+            public override void Simple_query_read_only_props_with_named_fields(bool tracking)
             {
             }
 
-            public override void Include_reference_read_only_props_with_named_fields()
+            public override void Include_collection_read_only_props_with_named_fields(bool tracking)
+            {
+            }
+
+            public override void Include_reference_read_only_props_with_named_fields(bool tracking)
             {
             }
 
@@ -136,15 +145,15 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override void Query_with_conditional_constant_read_only_props_with_named_fields()
+            public override void Query_with_conditional_constant_read_only_props_with_named_fields(bool tracking)
             {
             }
 
-            public override void Query_with_conditional_param_read_only_props_with_named_fields()
+            public override void Query_with_conditional_param_read_only_props_with_named_fields(bool tracking)
             {
             }
 
-            public override void Projection_read_only_props_with_named_fields()
+            public override void Projection_read_only_props_with_named_fields(bool tracking)
             {
             }
 
@@ -152,11 +161,15 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override void Include_collection_write_only_props()
+            public override void Simple_query_write_only_props(bool tracking)
             {
             }
 
-            public override void Include_reference_write_only_props()
+            public override void Include_collection_write_only_props(bool tracking)
+            {
+            }
+
+            public override void Include_reference_write_only_props(bool tracking)
             {
             }
 
@@ -168,15 +181,15 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override void Query_with_conditional_constant_write_only_props()
+            public override void Query_with_conditional_constant_write_only_props(bool tracking)
             {
             }
 
-            public override void Query_with_conditional_param_write_only_props()
+            public override void Query_with_conditional_param_write_only_props(bool tracking)
             {
             }
 
-            public override void Projection_write_only_props()
+            public override void Projection_write_only_props(bool tracking)
             {
             }
 
@@ -184,11 +197,15 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override void Include_collection_write_only_props_with_named_fields()
+            public override void Simple_query_write_only_props_with_named_fields(bool tracking)
             {
             }
 
-            public override void Include_reference_write_only_props_with_named_fields()
+            public override void Include_collection_write_only_props_with_named_fields(bool tracking)
+            {
+            }
+
+            public override void Include_reference_write_only_props_with_named_fields(bool tracking)
             {
             }
 
@@ -200,15 +217,15 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override void Query_with_conditional_constant_write_only_props_with_named_fields()
+            public override void Query_with_conditional_constant_write_only_props_with_named_fields(bool tracking)
             {
             }
 
-            public override void Query_with_conditional_param_write_only_props_with_named_fields()
+            public override void Query_with_conditional_param_write_only_props_with_named_fields(bool tracking)
             {
             }
 
-            public override void Projection_write_only_props_with_named_fields()
+            public override void Projection_write_only_props_with_named_fields(bool tracking)
             {
             }
 
@@ -216,11 +233,15 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override void Include_collection_fields_only()
+            public override void Simple_query_fields_only(bool tracking)
             {
             }
 
-            public override void Include_reference_fields_only()
+            public override void Include_collection_fields_only(bool tracking)
+            {
+            }
+
+            public override void Include_reference_fields_only(bool tracking)
             {
             }
 
@@ -232,15 +253,15 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override void Query_with_conditional_constant_fields_only()
+            public override void Query_with_conditional_constant_fields_only(bool tracking)
             {
             }
 
-            public override void Query_with_conditional_param_fields_only()
+            public override void Query_with_conditional_param_fields_only(bool tracking)
             {
             }
 
-            public override void Projection_fields_only()
+            public override void Projection_fields_only(bool tracking)
             {
             }
 
@@ -248,11 +269,15 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override void Include_collection_fields_only_for_navs_too()
+            public override void Simple_query_fields_only_for_navs_too(bool tracking)
             {
             }
 
-            public override void Include_reference_fields_only_only_for_navs_too()
+            public override void Include_collection_fields_only_for_navs_too(bool tracking)
+            {
+            }
+
+            public override void Include_reference_fields_only_only_for_navs_too(bool tracking)
             {
             }
 
@@ -264,19 +289,75 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override void Query_with_conditional_constant_fields_only_only_for_navs_too()
+            public override void Query_with_conditional_constant_fields_only_only_for_navs_too(bool tracking)
             {
             }
 
-            public override void Query_with_conditional_param_fields_only_only_for_navs_too()
+            public override void Query_with_conditional_param_fields_only_only_for_navs_too(bool tracking)
             {
             }
 
-            public override void Projection_fields_only_only_for_navs_too()
+            public override void Projection_fields_only_only_for_navs_too(bool tracking)
             {
             }
 
             public override void Update_fields_only_only_for_navs_too()
+            {
+            }
+
+            public override void Include_collection_full_props(bool tracking)
+            {
+            }
+
+            public override void Include_reference_full_props(bool tracking)
+            {
+            }
+
+            public override void Load_collection_full_props()
+            {
+            }
+
+            public override void Load_reference_full_props()
+            {
+            }
+
+            public override void Update_full_props()
+            {
+            }
+
+            public override void Simple_query_props_with_IReadOnlyCollection(bool tracking)
+            {
+            }
+
+            public override void Include_collection_props_with_IReadOnlyCollection(bool tracking)
+            {
+            }
+
+            public override void Include_reference_props_with_IReadOnlyCollection(bool tracking)
+            {
+            }
+
+            public override void Load_collection_props_with_IReadOnlyCollection()
+            {
+            }
+
+            public override void Load_reference_props_with_IReadOnlyCollection()
+            {
+            }
+
+            public override void Query_with_conditional_constant_props_with_IReadOnlyCollection(bool tracking)
+            {
+            }
+
+            public override void Query_with_conditional_param_props_with_IReadOnlyCollection(bool tracking)
+            {
+            }
+
+            public override void Projection_props_with_IReadOnlyCollection(bool tracking)
+            {
+            }
+
+            public override void Update_props_with_IReadOnlyCollection()
             {
             }
 

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.IO;
@@ -8,14 +8,17 @@ using Microsoft.EntityFrameworkCore.Tools.Properties;
 namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     // ReSharper disable once ArrangeTypeModifiers
-    partial class MigrationsScriptCommand
+    internal partial class MigrationsScriptCommand
     {
-        protected override int Execute()
+        protected override int Execute(string[] args)
         {
-            var sql = CreateExecutor().ScriptMigration(
+            using var executor = CreateExecutor(args);
+
+            var sql = executor.ScriptMigration(
                 _from.Value,
                 _to.Value,
                 _idempotent.HasValue(),
+                _noTransactions.HasValue(),
                 Context.Value());
 
             if (!_output.HasValue())
@@ -40,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 File.WriteAllText(output, sql, Encoding.UTF8);
             }
 
-            return base.Execute();
+            return base.Execute(args);
         }
     }
 }

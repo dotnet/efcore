@@ -4,6 +4,8 @@
 using System.Text;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
@@ -16,15 +18,16 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// </summary>
         /// <param name="encoding"> The string encoding to use. </param>
         /// <param name="mappingHints">
-        ///     Hints that can be used by the <see cref="ITypeMappingSource"/> to create data types with appropriate
+        ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
         public StringToBytesConverter(
             [NotNull] Encoding encoding,
-            [CanBeNull] ConverterMappingHints mappingHints = null)
+            [CanBeNull] ConverterMappingHints? mappingHints = null)
             : base(
-                v => v == null ? null : encoding.GetBytes(v),
-                v => v == null ? null : encoding.GetString(v),
+                // TODO-NULLABLE: Null is already sanitized externally, clean up as part of #13850
+                v => v == null ? null! : encoding.GetBytes(v),
+                v => v == null ? null! : encoding.GetString(v),
                 mappingHints)
         {
         }
@@ -33,6 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(typeof(string), typeof(byte[]), i => new StringToBytesConverter(Encoding.UTF8, i.MappingHints));
+            = new(typeof(string), typeof(byte[]), i => new StringToBytesConverter(Encoding.UTF8, i.MappingHints));
     }
 }

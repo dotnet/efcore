@@ -6,11 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
@@ -18,16 +16,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
     /// <summary>
     ///     Used to generate code for migrations.
     /// </summary>
-#pragma warning disable CA1012 // Abstract types should not have constructors
-    // Already shipped
     public abstract class MigrationsCodeGenerator : IMigrationsCodeGenerator
-#pragma warning restore CA1012 // Abstract types should not have constructors
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="MigrationsCodeGenerator" /> class.
         /// </summary>
         /// <param name="dependencies"> The dependencies. </param>
-        public MigrationsCodeGenerator([NotNull] MigrationsCodeGeneratorDependencies dependencies)
+        protected MigrationsCodeGenerator([NotNull] MigrationsCodeGeneratorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -44,7 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         ///     Gets the programming language supported by this service.
         /// </summary>
         /// <value> The language. </value>
-        public virtual string Language => null;
+        public virtual string Language
+            => null;
 
         /// <summary>
         ///     Parameter object containing dependencies for this service.
@@ -72,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="contextType"> The migration's <see cref="DbContext" /> type. </param>
         /// <param name="migrationName"> The migration's name. </param>
         /// <param name="migrationId"> The migration's ID. </param>
-        /// <param name="targetModel"> The migraiton's target model. </param>
+        /// <param name="targetModel"> The migration's target model. </param>
         /// <returns> The migration metadata code. </returns>
         public abstract string GenerateMetadata(
             string migrationNamespace,
@@ -140,8 +136,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         {
                             yield return ns;
                         }
-
-                        continue;
                     }
                 }
             }
@@ -186,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         protected virtual IEnumerable<string> GetNamespaces([NotNull] IModel model)
             => model.GetEntityTypes().SelectMany(
                     e => e.GetDeclaredProperties()
-                        .SelectMany(p => (p.FindMapping()?.Converter?.ProviderClrType ?? p.ClrType).GetNamespaces()))
+                        .SelectMany(p => (FindValueConverter(p)?.ProviderClrType ?? p.ClrType).GetNamespaces()))
                 .Concat(GetAnnotationNamespaces(GetAnnotatables(model)));
 
         private static IEnumerable<IAnnotatable> GetAnnotatables(IModel model)
@@ -219,36 +213,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
         }
 
-        private static IEnumerable<string> GetAnnotationNamespaces(IEnumerable<IAnnotatable> items)
-        {
-            var ignoredAnnotations = new List<string>
-            {
-                RelationshipDiscoveryConvention.NavigationCandidatesAnnotationName,
-                RelationshipDiscoveryConvention.AmbiguousNavigationsAnnotationName,
-                InversePropertyAttributeConvention.InverseNavigationsAnnotationName,
-                CoreAnnotationNames.TypeMapping,
-                CoreAnnotationNames.ValueComparer,
-                CoreAnnotationNames.KeyValueComparer,
-                CoreAnnotationNames.ConstructorBinding,
-                CoreAnnotationNames.NavigationAccessModeAnnotation,
-                CoreAnnotationNames.OwnedTypesAnnotation,
-                CoreAnnotationNames.PropertyAccessModeAnnotation,
-                CoreAnnotationNames.ProviderClrType,
-                CoreAnnotationNames.ValueConverter,
-                CoreAnnotationNames.ValueGeneratorFactoryAnnotation
-            };
+        private IEnumerable<string> GetAnnotationNamespaces(IEnumerable<IAnnotatable> items)
+            => items.SelectMany(
+                i => Dependencies.AnnotationCodeGenerator.FilterIgnoredAnnotations(i.GetAnnotations())
+                    .Select(a => new { Annotatable = i, Annotation = a })
+                    .SelectMany(a => GetProviderType(a.Annotatable, a.Annotation.Value.GetType()).GetNamespaces()));
 
-            var ignoredAnnotationTypes = new List<string>
-            {
-                RelationalAnnotationNames.DbFunction,
-                RelationalAnnotationNames.SequencePrefix
-            };
+        private ValueConverter FindValueConverter(IProperty property)
+            => (property.FindTypeMapping()
+                ?? Dependencies.RelationalTypeMappingSource.FindMapping(property))?.Converter;
 
-            return items.SelectMany(i => i.GetAnnotations())
-                .Where(a => a.Value != null
-                            && !ignoredAnnotations.Contains(a.Name)
-                            && !ignoredAnnotationTypes.Any(p => a.Name.StartsWith(p, StringComparison.Ordinal)))
-                .SelectMany(a => a.Value.GetType().GetNamespaces());
-        }
+        private Type GetProviderType(IAnnotatable annotatable, Type valueType)
+            => annotatable is IProperty property
+                && valueType.UnwrapNullableType() == property.ClrType.UnwrapNullableType()
+                    ? FindValueConverter(property)?.ProviderClrType ?? valueType
+                    : valueType;
     }
 }

@@ -1,0 +1,46 @@
+<Project>
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <EFCoreSqliteNetTopologySuiteFile>$(IntermediateOutputPath)EFCoreSqliteNetTopologySuite$(DefaultLanguageSourceExtension)</EFCoreSqliteNetTopologySuiteFile>
+  </PropertyGroup>
+  <Choose>
+    <When Condition="'$(Language)' == 'F#'">
+      <Choose>
+        <When Condition="'$(OutputType)' == 'Exe' OR '$(OutputType)' == 'WinExe'">
+          <PropertyGroup>
+            <CodeFragmentItemGroup>CompileBefore</CodeFragmentItemGroup>
+          </PropertyGroup>
+        </When>
+        <Otherwise>
+          <PropertyGroup>
+            <CodeFragmentItemGroup>CompileAfter</CodeFragmentItemGroup>
+          </PropertyGroup>
+        </Otherwise>
+      </Choose>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <CodeFragmentItemGroup>Compile</CodeFragmentItemGroup>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+  <Target Name="AddEFCoreSqliteNetTopologySuite"
+          BeforeTargets="CoreCompile"
+          DependsOnTargets="PrepareForBuild"
+          Condition="'$(DesignTimeBuild)' != 'True'"
+          Inputs="$(MSBuildAllProjects)"
+          Outputs="$(EFCoreSqliteNetTopologySuiteFile)">
+    <ItemGroup>
+      <EFCoreSqliteNetTopologySuiteServices Include="Microsoft.EntityFrameworkCore.Design.DesignTimeServicesReferenceAttribute">
+        <_Parameter1>Microsoft.EntityFrameworkCore.Sqlite.Design.Internal.SqliteNetTopologySuiteDesignTimeServices, Microsoft.EntityFrameworkCore.Sqlite.NetTopologySuite</_Parameter1>
+        <_Parameter2>Microsoft.EntityFrameworkCore.Sqlite</_Parameter2>
+      </EFCoreSqliteNetTopologySuiteServices>
+    </ItemGroup>
+    <WriteCodeFragment AssemblyAttributes="@(EFCoreSqliteNetTopologySuiteServices)"
+                       Language="$(Language)"
+                       OutputFile="$(EFCoreSqliteNetTopologySuiteFile)">
+      <Output TaskParameter="OutputFile" ItemName="$(CodeFragmentItemGroup)" />
+      <Output TaskParameter="OutputFile" ItemName="FileWrites" />
+    </WriteCodeFragment>
+  </Target>
+</Project>

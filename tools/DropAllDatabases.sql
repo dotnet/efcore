@@ -15,6 +15,10 @@ WHILE @@FETCH_STATUS = 0
 BEGIN
     PRINT 'DROP DATABASE [' + REPLACE( @name, ']', ']]' ) + ']'
     PRINT 'GO'
+
+    PRINT 'IF(db_id(''' + REPLACE( @name, '''', '''''') + ''') IS NOT NULL)'
+    PRINT 'EXEC sp_detach_db ''' + REPLACE( @name, '''', '''''') + ''''
+    PRINT 'GO'
     
     FETCH NEXT FROM db 
     INTO @name

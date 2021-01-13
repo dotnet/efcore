@@ -3,8 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -12,11 +11,12 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class EndToEndInMemoryTest : IClassFixture<InMemoryFixture>
     {
-        public EndToEndInMemoryTest(InMemoryFixture fixture) => Fixture = fixture;
+        public EndToEndInMemoryTest(InMemoryFixture fixture)
+            => Fixture = fixture;
 
         protected InMemoryFixture Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_use_different_entity_types_end_to_end()
         {
             Can_add_update_delete_end_to_end<Private>();
@@ -32,29 +32,29 @@ namespace Microsoft.EntityFrameworkCore
         private void Can_add_update_delete_end_to_end<T>()
             where T : class, new()
         {
-            var type = typeof(T);
-            var model = new Model();
-
-            var entityType = model.AddEntityType(type);
-            var idProperty = entityType.AddProperty("Id", typeof(int));
-            var nameProperty = entityType.AddProperty("Name", typeof(string));
-            entityType.GetOrSetPrimaryKey(idProperty);
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            modelBuilder.Entity<T>(
+                eb =>
+                {
+                    eb.Property<int>("Id");
+                    eb.Property<string>("Name");
+                });
 
             var optionsBuilder = new DbContextOptionsBuilder()
-                .UseModel(model)
+                .UseModel(modelBuilder.FinalizeModel())
                 .UseInMemoryDatabase(nameof(EndToEndInMemoryTest))
                 .UseInternalServiceProvider(Fixture.ServiceProvider);
 
             T entity;
             using (var context = new DbContext(optionsBuilder.Options))
             {
-                var entry = context.ChangeTracker.GetInfrastructure().GetOrCreateEntry(new T());
-                entity = (T)entry.Entity;
+                var entry = context.Entry(new T());
+                entity = entry.Entity;
 
-                entry[idProperty] = 42;
-                entry[nameProperty] = "The";
+                entry.Property("Id").CurrentValue = 42;
+                entry.Property("Name").CurrentValue = "The";
 
-                entry.SetEntityState(EntityState.Added);
+                entry.State = EntityState.Added;
 
                 context.SaveChanges();
             }
@@ -65,10 +65,10 @@ namespace Microsoft.EntityFrameworkCore
                 var entityEntry = context.Entry(entityFromStore);
 
                 Assert.NotSame(entity, entityFromStore);
-                Assert.Equal(42, entityEntry.Property(idProperty.Name).CurrentValue);
-                Assert.Equal("The", entityEntry.Property(nameProperty.Name).CurrentValue);
+                Assert.Equal(42, entityEntry.Property("Id").CurrentValue);
+                Assert.Equal("The", entityEntry.Property("Name").CurrentValue);
 
-                entityEntry.GetInfrastructure()[nameProperty] = "A";
+                entityEntry.Property("Name").CurrentValue = "A";
 
                 context.Update(entityFromStore);
 
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore
                 var entityFromStore = context.Set<T>().Single();
                 var entry = context.Entry(entityFromStore);
 
-                Assert.Equal("A", entry.Property(nameProperty.Name).CurrentValue);
+                Assert.Equal("A", entry.Property("Name").CurrentValue);
 
                 context.Remove(entityFromStore);
 

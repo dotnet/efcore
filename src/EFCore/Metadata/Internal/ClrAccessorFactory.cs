@@ -9,8 +9,10 @@ using JetBrains.Annotations;
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public abstract class ClrAccessorFactory<TAccessor>
         where TAccessor : class
@@ -19,20 +21,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             = typeof(ClrAccessorFactory<TAccessor>).GetTypeInfo().GetDeclaredMethods(nameof(CreateGeneric)).Single();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual TAccessor Create([NotNull] IPropertyBase property)
-            => property as TAccessor ?? Create(null, property);
+        public abstract TAccessor Create([NotNull] IPropertyBase property);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual TAccessor Create([NotNull] PropertyInfo propertyInfo)
-            => Create(propertyInfo, null);
+        public virtual TAccessor Create([NotNull] MemberInfo memberInfo)
+            => Create(memberInfo, null);
 
-        private TAccessor Create(PropertyInfo propertyInfo, IPropertyBase propertyBase)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected virtual TAccessor Create([NotNull] MemberInfo memberInfo, [CanBeNull] IPropertyBase propertyBase)
         {
             var boundMethod = propertyBase != null
                 ? _genericCreate.MakeGenericMethod(
@@ -40,13 +51,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     propertyBase.ClrType,
                     propertyBase.ClrType.UnwrapNullableType())
                 : _genericCreate.MakeGenericMethod(
-                    propertyInfo.DeclaringType,
-                    propertyInfo.PropertyType,
-                    propertyInfo.PropertyType.UnwrapNullableType());
+                    memberInfo.DeclaringType,
+                    memberInfo.GetMemberType(),
+                    memberInfo.GetMemberType().UnwrapNullableType());
 
             try
             {
-                return (TAccessor)boundMethod.Invoke(this, new object[] { propertyInfo, propertyBase });
+                return (TAccessor)boundMethod.Invoke(
+                    this, new object[] { memberInfo, propertyBase });
             }
             catch (TargetInvocationException e) when (e.InnerException != null)
             {
@@ -55,11 +67,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected abstract TAccessor CreateGeneric<TEntity, TValue, TNonNullableEnumValue>(
-            [CanBeNull] PropertyInfo propertyInfo,
+            [CanBeNull] MemberInfo memberInfo,
             [CanBeNull] IPropertyBase propertyBase)
             where TEntity : class;
     }

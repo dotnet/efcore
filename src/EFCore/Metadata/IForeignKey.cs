@@ -2,7 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -39,12 +42,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the navigation property on the dependent entity type that points to the principal entity.
         /// </summary>
-        INavigation DependentToPrincipal { get; }
+        INavigation? DependentToPrincipal { get; }
 
         /// <summary>
         ///     Gets the navigation property on the principal entity type that points to the dependent entity.
         /// </summary>
-        INavigation PrincipalToDependent { get; }
+        INavigation? PrincipalToDependent { get; }
 
         /// <summary>
         ///     Gets a value indicating whether the values assigned to the foreign key properties are unique.
@@ -52,14 +55,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool IsUnique { get; }
 
         /// <summary>
-        ///     Gets a value indicating if this relationship is required. If true, the dependent entity must always be
-        ///     assigned to a valid principal entity.
+        ///     Gets a value indicating whether the principal entity is required.
+        ///     If <see langword="true" />, the dependent entity must always be assigned to a valid principal entity.
         /// </summary>
         bool IsRequired { get; }
 
         /// <summary>
-        ///     Gets or sets a value indicating whether this relationship defines ownership. If true, the dependent entity must always be
-        ///     accessed via the navigation from the principal entity.
+        ///     Gets a value indicating whether the dependent entity is required.
+        ///     If <see langword="true" />, the principal entity must always have a valid dependent entity assigned.
+        /// </summary>
+        bool IsRequiredDependent { get; }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether this relationship defines an ownership.
+        ///     If <see langword="true" />, the dependent entity must always be accessed via the navigation from the principal entity.
         /// </summary>
         bool IsOwnership { get; }
 
@@ -68,5 +77,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     principal is deleted or the relationship is severed.
         /// </summary>
         DeleteBehavior DeleteBehavior { get; }
+
+        /// <summary>
+        ///     Gets the skip navigations using this foreign key.
+        /// </summary>
+        /// <returns> The skip navigations using this foreign key. </returns>
+        IEnumerable<ISkipNavigation> GetReferencingSkipNavigations()
+            => PrincipalEntityType.GetSkipNavigations().Where(n => !n.IsOnDependent && n.ForeignKey == this)
+                .Concat(DeclaringEntityType.GetSkipNavigations().Where(n => n.IsOnDependent && n.ForeignKey == this));
     }
 }

@@ -3,46 +3,69 @@
 using System;
 using System.Reflection;
 using System.Resources;
+using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.InMemory.Internal
 {
     /// <summary>
-    ///		This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static class InMemoryStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.InMemory.Properties.InMemoryStrings", typeof(InMemoryStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.InMemory.Properties.InMemoryStrings", typeof(InMemoryStrings).Assembly);
 
         /// <summary>
-        ///     Saved {count} entities to in-memory store.
+        ///     Cannot apply 'DefaultIfEmpty' after a client-evaluated projection. Consider applying 'DefaultIfEmpty' before last 'Select' or use 'AsEnumerable' before 'DefaultIfEmpty' to apply it on client-side.
         /// </summary>
-        public static readonly EventDefinition<int> LogSavedChanges
-            = new EventDefinition<int>(
-                InMemoryEventId.ChangesSaved,
-                LogLevel.Information,
-                "InMemoryEventId.ChangesSaved",
-                LoggerMessage.Define<int>(
-                    LogLevel.Information,
-                    InMemoryEventId.ChangesSaved,
-                    _resourceManager.GetString("LogSavedChanges")));
+        public static string DefaultIfEmptyAppliedAfterProjection
+            => GetString("DefaultIfEmptyAppliedAfterProjection");
 
         /// <summary>
-        ///     Transactions are not supported by the in-memory store. See http://go.microsoft.com/fwlink/?LinkId=800142
+        ///     The specified entity type '{derivedType}' is not derived from '{entityType}'.
         /// </summary>
-        public static readonly EventDefinition LogTransactionsNotSupported
-            = new EventDefinition(
-                InMemoryEventId.TransactionIgnoredWarning,
-                LogLevel.Warning,
-                "InMemoryEventId.TransactionIgnoredWarning",
-                LoggerMessage.Define(
-                    LogLevel.Warning,
-                    InMemoryEventId.TransactionIgnoredWarning,
-                    _resourceManager.GetString("LogTransactionsNotSupported")));
+        public static string InvalidDerivedTypeInEntityProjection([CanBeNull] object? derivedType, [CanBeNull] object? entityType)
+            => string.Format(
+                GetString("InvalidDerivedTypeInEntityProjection", nameof(derivedType), nameof(entityType)),
+                derivedType, entityType);
+
+        /// <summary>
+        ///     There is no query string because the in-memory provider does not use a string-based query language.
+        /// </summary>
+        public static string NoQueryStrings
+            => GetString("NoQueryStrings");
+
+        /// <summary>
+        ///     Required properties '{requiredProperties}' are missing for the instance of entity type '{entityType}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the entity key value.
+        /// </summary>
+        public static string NullabilityErrorException([CanBeNull] object? requiredProperties, [CanBeNull] object? entityType)
+            => string.Format(
+                GetString("NullabilityErrorException", nameof(requiredProperties), nameof(entityType)),
+                requiredProperties, entityType);
+
+        /// <summary>
+        ///     Required properties '{requiredProperties}' are missing for the instance of entity type '{entityType}' with the key value '{keyValue}'.
+        /// </summary>
+        public static string NullabilityErrorExceptionSensitive([CanBeNull] object? requiredProperties, [CanBeNull] object? entityType, [CanBeNull] object? keyValue)
+            => string.Format(
+                GetString("NullabilityErrorExceptionSensitive", nameof(requiredProperties), nameof(entityType), nameof(keyValue)),
+                requiredProperties, entityType, keyValue);
+
+        /// <summary>
+        ///     Unable to bind '{memberType}' '{member}' to entity projection of '{entityType}'.
+        /// </summary>
+        public static string UnableToBindMemberToEntityProjection([CanBeNull] object? memberType, [CanBeNull] object? member, [CanBeNull] object? entityType)
+            => string.Format(
+                GetString("UnableToBindMemberToEntityProjection", nameof(memberType), nameof(member), nameof(entityType)),
+                memberType, member, entityType);
 
         /// <summary>
         ///     Attempted to update or delete an entity that does not exist in the store.
@@ -53,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
         /// <summary>
         ///     Conflicts were detected for instance of entity type '{entityType}' on the concurrency token properties {properties}. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.
         /// </summary>
-        public static string UpdateConcurrencyTokenException([CanBeNull] object entityType, [CanBeNull] object properties)
+        public static string UpdateConcurrencyTokenException([CanBeNull] object? entityType, [CanBeNull] object? properties)
             => string.Format(
                 GetString("UpdateConcurrencyTokenException", nameof(entityType), nameof(properties)),
                 entityType, properties);
@@ -61,20 +84,83 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
         /// <summary>
         ///     Conflicts were detected for instance of entity type '{entityType}' with the key value '{keyValue}' on the concurrency token property values {conflictingValues}, with corresponding database values {databaseValues}.
         /// </summary>
-        public static string UpdateConcurrencyTokenExceptionSensitive([CanBeNull] object entityType, [CanBeNull] object keyValue, [CanBeNull] object conflictingValues, [CanBeNull] object databaseValues)
+        public static string UpdateConcurrencyTokenExceptionSensitive([CanBeNull] object? entityType, [CanBeNull] object? keyValue, [CanBeNull] object? conflictingValues, [CanBeNull] object? databaseValues)
             => string.Format(
                 GetString("UpdateConcurrencyTokenExceptionSensitive", nameof(entityType), nameof(keyValue), nameof(conflictingValues), nameof(databaseValues)),
                 entityType, keyValue, conflictingValues, databaseValues);
 
         private static string GetString(string name, params string[] formatterNames)
         {
-            var value = _resourceManager.GetString(name);
+            var value = _resourceManager.GetString(name)!;
             for (var i = 0; i < formatterNames.Length; i++)
             {
                 value = value.Replace("{" + formatterNames[i] + "}", "{" + i + "}");
             }
 
             return value;
+        }
+    }
+}
+
+namespace Microsoft.EntityFrameworkCore.InMemory.Internal
+{
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static class InMemoryResources
+    {
+        private static readonly ResourceManager _resourceManager
+            = new ResourceManager("Microsoft.EntityFrameworkCore.InMemory.Properties.InMemoryStrings", typeof(InMemoryResources).Assembly);
+
+        /// <summary>
+        ///     Saved {count} entities to in-memory store.
+        /// </summary>
+        public static EventDefinition<int> LogSavedChanges([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.InMemoryLoggingDefinitions)logger.Definitions).LogSavedChanges;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.InMemoryLoggingDefinitions)logger.Definitions).LogSavedChanges,
+                    () => new EventDefinition<int>(
+                        logger.Options,
+                        InMemoryEventId.ChangesSaved,
+                        LogLevel.Information,
+                        "InMemoryEventId.ChangesSaved",
+                        level => LoggerMessage.Define<int>(
+                            level,
+                            InMemoryEventId.ChangesSaved,
+                            _resourceManager.GetString("LogSavedChanges")!)));
+            }
+
+            return (EventDefinition<int>)definition;
+        }
+
+        /// <summary>
+        ///     Transactions are not supported by the in-memory store. See http://go.microsoft.com/fwlink/?LinkId=800142
+        /// </summary>
+        public static EventDefinition LogTransactionsNotSupported([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.InMemoryLoggingDefinitions)logger.Definitions).LogTransactionsNotSupported;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.InMemoryLoggingDefinitions)logger.Definitions).LogTransactionsNotSupported,
+                    () => new EventDefinition(
+                        logger.Options,
+                        InMemoryEventId.TransactionIgnoredWarning,
+                        LogLevel.Warning,
+                        "InMemoryEventId.TransactionIgnoredWarning",
+                        level => LoggerMessage.Define(
+                            level,
+                            InMemoryEventId.TransactionIgnoredWarning,
+                            _resourceManager.GetString("LogTransactionsNotSupported")!)));
+            }
+
+            return (EventDefinition)definition;
         }
     }
 }

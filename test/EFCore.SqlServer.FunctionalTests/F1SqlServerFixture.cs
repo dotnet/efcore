@@ -6,24 +6,32 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class F1SqlServerFixture : F1RelationalFixture
+    public class F1ULongSqlServerFixture : F1SqlServerFixtureBase<ulong>
     {
-        protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+    }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+    public class F1SqlServerFixture : F1SqlServerFixtureBase<byte[]>
+    {
+    }
+
+    public abstract class F1SqlServerFixtureBase<TRowVersion> : F1RelationalFixture<TRowVersion>
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerTestStoreFactory.Instance;
+
+        public override TestHelpers TestHelpers
+            => SqlServerTestHelpers.Instance;
+
+        protected override void BuildModelExternal(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder, context);
-
-            modelBuilder.Entity<Chassis>().Property<byte[]>("Version").IsRowVersion();
-            modelBuilder.Entity<Driver>().Property<byte[]>("Version").IsRowVersion();
-
-            modelBuilder.Entity<Team>().Property<byte[]>("Version")
-                .ValueGeneratedOnAddOrUpdate()
-                .IsConcurrencyToken();
+            base.BuildModelExternal(modelBuilder);
 
             modelBuilder.Entity<TitleSponsor>()
-                .OwnsOne(s => s.Details)
-                .Property(d => d.Space).HasColumnType("decimal(18,2)");
+                .OwnsOne(
+                    s => s.Details, eb =>
+                    {
+                        eb.Property(d => d.Space).HasColumnType("decimal(18,2)");
+                    });
         }
     }
 }

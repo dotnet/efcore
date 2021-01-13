@@ -10,7 +10,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class NorthwindQuerySqlServerFixture<TModelCustomizer> : NorthwindQueryRelationalFixture<TModelCustomizer>
         where TModelCustomizer : IModelCustomizer, new()
     {
-        protected override ITestStoreFactory TestStoreFactory => SqlServerNorthwindTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerNorthwindTestStoreFactory.Instance;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
@@ -22,10 +23,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             modelBuilder.Entity<Employee>(
                 b =>
-                    {
-                        b.Property(c => c.EmployeeID).HasColumnType("int");
-                        b.Property(c => c.ReportsTo).HasColumnType("int");
-                    });
+                {
+                    b.Property(c => c.EmployeeID).HasColumnType("int");
+                    b.Property(c => c.ReportsTo).HasColumnType("int");
+                });
 
             modelBuilder.Entity<Order>(
                 b =>
@@ -40,10 +41,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             modelBuilder.Entity<Product>(
                 b =>
-                    {
-                        b.Property(p => p.UnitPrice).HasColumnType("money");
-                        b.Property(p => p.UnitsInStock).HasColumnType("smallint");
-                    });
+                {
+                    b.Property(p => p.UnitPrice).HasColumnType("money");
+                    b.Property(p => p.UnitsInStock).HasColumnType("smallint");
+                });
 
             modelBuilder.Entity<MostExpensiveProduct>()
                 .Property(p => p.UnitPrice)

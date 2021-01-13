@@ -1,5 +1,10 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
@@ -20,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     /// </summary>
-    public sealed class MigrationsCodeGeneratorDependencies
+    public sealed record MigrationsCodeGeneratorDependencies
     {
         /// <summary>
         ///     <para>
@@ -34,10 +39,30 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         ///         injection container, then replace selected services using the 'With...' methods. Do not call
         ///         the constructor at any point in this process.
         ///     </para>
+        ///     <para>
+        ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///         any release. You should only use it directly in your code with extreme caution and knowing that
+        ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     </para>
         /// </summary>
-        // ReSharper disable once EmptyConstructor
-        public MigrationsCodeGeneratorDependencies()
+        [EntityFrameworkInternal]
+        public MigrationsCodeGeneratorDependencies(
+            [NotNull] IRelationalTypeMappingSource relationalTypeMappingSource,
+            [NotNull] IAnnotationCodeGenerator annotationCodeGenerator)
         {
+            RelationalTypeMappingSource = relationalTypeMappingSource;
+            AnnotationCodeGenerator = annotationCodeGenerator;
         }
+
+        /// <summary>
+        ///     The type mapper.
+        /// </summary>
+        public IRelationalTypeMappingSource RelationalTypeMappingSource { get; [param: NotNull] init; }
+
+        /// <summary>
+        ///     The annotation code generator.
+        /// </summary>
+        public IAnnotationCodeGenerator AnnotationCodeGenerator { get; [param: NotNull] init; }
     }
 }

@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.TestModels;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -16,13 +15,15 @@ namespace Microsoft.EntityFrameworkCore
         protected EndToEndTest(CrossStoreFixture fixture)
         {
             Fixture = fixture;
-            TestStore = Fixture.CreateTestStore(TestStoreFactory);
+            TestStore = Fixture.CreateTestStore(TestStoreFactory, "CrossStoreTest");
         }
 
         protected CrossStoreFixture Fixture { get; }
         protected abstract ITestStoreFactory TestStoreFactory { get; }
         protected TestStore TestStore { get; }
-        public void Dispose() => TestStore.Dispose();
+
+        public void Dispose()
+            => TestStore.Dispose();
 
         [ConditionalFact]
         public virtual void Can_save_changes_and_query()
@@ -30,11 +31,13 @@ namespace Microsoft.EntityFrameworkCore
             int secondId;
             using (var context = CreateContext())
             {
-                context.SimpleEntities.Add(new SimpleEntity { StringProperty = "Entity 1" });
+                context.SimpleEntities.Add(
+                    new SimpleEntity { StringProperty = "Entity 1" });
 
                 Assert.Equal(1, context.SaveChanges());
 
-                var second = context.SimpleEntities.Add(new SimpleEntity { StringProperty = "Entity 2" }).Entity;
+                var second = context.SimpleEntities.Add(
+                    new SimpleEntity { StringProperty = "Entity 2" }).Entity;
                 context.Entry(second).Property(SimpleEntity.ShadowPropertyName).CurrentValue = "shadow";
 
                 Assert.Equal(1, context.SaveChanges());
@@ -68,7 +71,8 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected CrossStoreContext CreateContext() => Fixture.CreateContext(TestStore);
+        protected CrossStoreContext CreateContext()
+            => Fixture.CreateContext(TestStore);
     }
 
     public class InMemoryEndToEndTest : EndToEndTest, IClassFixture<CrossStoreFixture>
@@ -78,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory
+            => InMemoryTestStoreFactory.Instance;
     }
 
     [SqlServerConfiguredCondition]
@@ -89,7 +94,8 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerTestStoreFactory.Instance;
     }
 
     public class SqliteEndToEndTest : EndToEndTest, IClassFixture<CrossStoreFixture>
@@ -99,6 +105,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory
+            => SqliteTestStoreFactory.Instance;
     }
 }

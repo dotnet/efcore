@@ -1,23 +1,16 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
 
-namespace Microsoft.EntityFrameworkCore.Internal
+namespace Microsoft.EntityFrameworkCore.Utilities
 {
-    /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
-    /// </summary>
     [DebuggerStepThrough]
     internal static class DictionaryExtensions
     {
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public static TValue GetOrAddNew<TKey, TValue>(
             [NotNull] this IDictionary<TKey, TValue> source,
             [NotNull] TKey key)
@@ -28,16 +21,69 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 value = new TValue();
                 source.Add(key, value);
             }
+
             return value;
         }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public static TValue Find<TKey, TValue>(
-            [NotNull] this IDictionary<TKey, TValue> source,
+            [NotNull] this IReadOnlyDictionary<TKey, TValue> source,
             [NotNull] TKey key)
             => !source.TryGetValue(key, out var value) ? default : value;
+
+        public static void Remove<TKey, TValue>(
+            [NotNull] this IDictionary<TKey, TValue> source,
+            [NotNull] Func<TKey, TValue, bool> predicate)
+            => source.Remove((k, v, p) => p(k, v), predicate);
+
+        public static void Remove<TKey, TValue, TState>(
+            [NotNull] this IDictionary<TKey, TValue> source,
+            [NotNull] Func<TKey, TValue, TState, bool> predicate,
+            [CanBeNull] TState state)
+        {
+            var found = false;
+            var firstRemovedKey = default(TKey);
+            List<KeyValuePair<TKey, TValue>> pairsRemainder = null;
+            foreach (var pair in source)
+            {
+                if (found)
+                {
+                    if (pairsRemainder == null)
+                    {
+                        pairsRemainder = new List<KeyValuePair<TKey, TValue>>();
+                    }
+
+                    pairsRemainder.Add(pair);
+                    continue;
+                }
+
+                if (!predicate(pair.Key, pair.Value, state))
+                {
+                    continue;
+                }
+
+                if (!found)
+                {
+                    found = true;
+                    firstRemovedKey = pair.Key;
+                }
+            }
+
+            if (found)
+            {
+                source.Remove(firstRemovedKey);
+                if (pairsRemainder == null)
+                {
+                    return;
+                }
+
+                foreach (var pair in pairsRemainder)
+                {
+                    if (predicate(pair.Key, pair.Value, state))
+                    {
+                        source.Remove(pair.Key);
+                    }
+                }
+            }
+        }
     }
 }

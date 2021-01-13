@@ -1,22 +1,21 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if !Test20
 using System;
 using System.Collections.Generic;
-using System.Data;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
-    public class EverythingIsStringsSqlServerTest : BuiltInDataTypesTestBase<EverythingIsStringsSqlServerTest.EverythingIsStringsSqlServerFixture>
+    public class EverythingIsStringsSqlServerTest : BuiltInDataTypesTestBase<
+        EverythingIsStringsSqlServerTest.EverythingIsStringsSqlServerFixture>
     {
         public EverythingIsStringsSqlServerTest(EverythingIsStringsSqlServerFixture fixture)
             : base(fixture)
@@ -26,10 +25,18 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void Columns_have_expected_data_types()
         {
-            var actual = BuiltInDataTypesSqlServerTest.QueryForColumnTypes(CreateContext());
+            var actual = BuiltInDataTypesSqlServerTest.QueryForColumnTypes(
+                CreateContext(),
+                nameof(ObjectBackedDataTypes),
+                nameof(NullableBackedDataTypes),
+                nameof(NonNullableBackedDataTypes),
+                nameof(Animal),
+                nameof(AnimalDetails),
+                nameof(AnimalIdentification));
 
             const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 450]
 BinaryForeignKeyDataType.Id ---> [nvarchar] [MaxLength = 64]
+BinaryKeyDataType.Ex ---> [nullable nvarchar] [MaxLength = -1]
 BinaryKeyDataType.Id ---> [nvarchar] [MaxLength = 450]
 BuiltInDataTypes.Enum16 ---> [nvarchar] [MaxLength = -1]
 BuiltInDataTypes.Enum32 ---> [nvarchar] [MaxLength = -1]
@@ -139,11 +146,17 @@ BuiltInNullableDataTypesShadow.TestNullableUnsignedInt16 ---> [nullable nvarchar
 BuiltInNullableDataTypesShadow.TestNullableUnsignedInt32 ---> [nullable nvarchar] [MaxLength = 64]
 BuiltInNullableDataTypesShadow.TestNullableUnsignedInt64 ---> [nullable nvarchar] [MaxLength = 64]
 BuiltInNullableDataTypesShadow.TestString ---> [nullable nvarchar] [MaxLength = -1]
+DateTimeEnclosure.DateTimeOffset ---> [nullable nvarchar] [MaxLength = 48]
+DateTimeEnclosure.Id ---> [nvarchar] [MaxLength = 64]
+EmailTemplate.Id ---> [nvarchar] [MaxLength = 36]
+EmailTemplate.TemplateType ---> [nvarchar] [MaxLength = -1]
 MaxLengthDataTypes.ByteArray5 ---> [nullable nvarchar] [MaxLength = 8]
 MaxLengthDataTypes.ByteArray9000 ---> [nullable nvarchar] [MaxLength = -1]
 MaxLengthDataTypes.Id ---> [nvarchar] [MaxLength = 64]
 MaxLengthDataTypes.String3 ---> [nullable nvarchar] [MaxLength = 3]
 MaxLengthDataTypes.String9000 ---> [nullable nvarchar] [MaxLength = -1]
+StringEnclosure.Id ---> [nvarchar] [MaxLength = 64]
+StringEnclosure.Value ---> [nullable nvarchar] [MaxLength = -1]
 StringForeignKeyDataType.Id ---> [nvarchar] [MaxLength = 64]
 StringForeignKeyDataType.StringKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 450]
 StringKeyDataType.Id ---> [nvarchar] [MaxLength = 450]
@@ -158,42 +171,75 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
         }
 
+        public override void Can_read_back_mapped_enum_from_collection_first_or_default()
+        {
+            // The query needs to generate TOP(1)
+        }
+
+        public override void Can_read_back_bool_mapped_as_int_through_navigation()
+        {
+            // Column is mapped as int rather than string
+        }
+
+        public override void Can_compare_enum_to_constant()
+        {
+            // Column is mapped as int rather than string
+        }
+
+        public override void Can_compare_enum_to_parameter()
+        {
+            // Column is mapped as int rather than string
+        }
+
         public class EverythingIsStringsSqlServerFixture : BuiltInDataTypesFixtureBase
         {
-            public override bool StrictEquality => true;
+            public override bool StrictEquality
+                => true;
 
-            public override bool SupportsAnsi => true;
+            public override bool SupportsAnsi
+                => true;
 
-            public override bool SupportsUnicodeToAnsiConversion => true;
+            public override bool SupportsUnicodeToAnsiConversion
+                => true;
 
-            public override bool SupportsLargeStringComparisons => true;
+            public override bool SupportsLargeStringComparisons
+                => true;
 
             protected override string StoreName { get; } = "EverythingIsStrings";
 
-            protected override ITestStoreFactory TestStoreFactory => SqlServerStringsTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerStringsTestStoreFactory.Instance;
 
-            public override bool SupportsBinaryKeys => true;
+            public override bool SupportsBinaryKeys
+                => true;
 
-            public override DateTime DefaultDateTime => new DateTime();
+            public override bool SupportsDecimalComparisons
+                => true;
+
+            public override DateTime DefaultDateTime
+                => new DateTime();
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base
                     .AddOptions(builder)
                     .ConfigureWarnings(
-                        c => c.Log(RelationalEventId.QueryClientEvaluationWarning)
-                            .Log(SqlServerEventId.DecimalTypeDefaultWarning));
+                        c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
                 base.OnModelCreating(modelBuilder, context);
 
                 modelBuilder.Entity<MaxLengthDataTypes>().Property(e => e.ByteArray5).HasMaxLength(8);
+
+                modelBuilder.Ignore<Animal>();
+                modelBuilder.Ignore<AnimalIdentification>();
+                modelBuilder.Ignore<AnimalDetails>();
             }
         }
 
         public class SqlServerStringsTestStoreFactory : SqlServerTestStoreFactory
         {
-            public new static SqlServerStringsTestStoreFactory Instance { get; } = new SqlServerStringsTestStoreFactory();
+            public static new SqlServerStringsTestStoreFactory Instance { get; } = new SqlServerStringsTestStoreFactory();
 
             public override IServiceCollection AddProviderServices(IServiceCollection serviceCollection)
                 => base.AddProviderServices(
@@ -203,23 +249,19 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
         public class SqlServerStringsTypeMappingSource : RelationalTypeMappingSource
         {
             private readonly SqlServerStringTypeMapping _fixedLengthUnicodeString
-                = new SqlServerStringTypeMapping("nchar", dbType: DbType.String, unicode: true);
+                = new SqlServerStringTypeMapping(unicode: true, fixedLength: true);
 
             private readonly SqlServerStringTypeMapping _variableLengthUnicodeString
-                = new SqlServerStringTypeMapping("nvarchar", dbType: null, unicode: true);
+                = new SqlServerStringTypeMapping(unicode: true);
 
             private readonly SqlServerStringTypeMapping _fixedLengthAnsiString
-                = new SqlServerStringTypeMapping("char", dbType: DbType.AnsiString);
+                = new SqlServerStringTypeMapping(fixedLength: true);
 
             private readonly SqlServerStringTypeMapping _variableLengthAnsiString
-                = new SqlServerStringTypeMapping("varchar", dbType: DbType.AnsiString);
+                = new SqlServerStringTypeMapping();
 
             private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
 
-            /// <summary>
-            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
             public SqlServerStringsTypeMappingSource(
                 TypeMappingSourceDependencies dependencies,
                 RelationalTypeMappingSourceDependencies relationalDependencies)
@@ -258,32 +300,31 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                         || _storeTypeMappings.TryGetValue(storeTypeNameBase, out mapping))
                     {
                         return clrType == null
-                               || mapping.ClrType == clrType
-                            ? mapping
-                            : null;
+                            || mapping.ClrType == clrType
+                                ? mapping
+                                : null;
                     }
                 }
 
-                if (clrType != null)
+                if (clrType == typeof(string))
                 {
-                    if (clrType == typeof(string))
+                    var isAnsi = mappingInfo.IsUnicode == false;
+                    var isFixedLength = mappingInfo.IsFixedLength == true;
+                    var baseName = isAnsi ? "varchar" : "nvarchar";
+                    var maxSize = isAnsi ? 8000 : 4000;
+
+                    var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)(isAnsi ? 900 : 450) : null);
+                    if (size > maxSize)
                     {
-                        var isAnsi = mappingInfo.IsUnicode == false;
-                        var baseName = isAnsi ? "varchar" : "nvarchar";
-                        var maxSize = isAnsi ? 8000 : 4000;
-
-                        var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)(isAnsi ? 900 : 450) : null);
-                        if (size > maxSize)
-                        {
-                            size = null;
-                        }
-
-                        return new SqlServerStringTypeMapping(
-                            baseName + "(" + (size == null ? "max" : size.ToString()) + ")",
-                            isAnsi ? DbType.AnsiString : (DbType?)null,
-                            !isAnsi,
-                            size);
+                        size = isFixedLength ? maxSize : (int?)null;
                     }
+
+                    return new SqlServerStringTypeMapping(
+                        baseName + "(" + (size == null ? "max" : size.ToString()) + ")",
+                        !isAnsi,
+                        size,
+                        isFixedLength,
+                        storeTypePostfix: size == null ? StoreTypePostfix.None : (StoreTypePostfix?)null);
                 }
 
                 return null;
@@ -291,4 +332,3 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
         }
     }
 }
-#endif

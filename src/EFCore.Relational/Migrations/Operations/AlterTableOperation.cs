@@ -1,8 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Diagnostics;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
@@ -10,26 +10,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     /// <summary>
     ///     A <see cref="MigrationOperation" /> to alter an existing table.
     /// </summary>
-    public class AlterTableOperation : MigrationOperation, IAlterMigrationOperation
+    [DebuggerDisplay("ALTER TABLE {Name}")]
+    public class AlterTableOperation : TableOperation, IAlterMigrationOperation
     {
-        /// <summary>
-        ///     The name of the table.
-        /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
-
-        /// <summary>
-        ///     The schema that contains the table, or <c>null</c> if the default schema should be used.
-        /// </summary>
-        public virtual string Schema { get; [param: CanBeNull] set; }
-
         /// <summary>
         ///     An operation representing the table as it was before being altered.
         /// </summary>
-        public virtual Annotatable OldTable { get; [param: NotNull] set; } = new Annotatable();
+        public virtual TableOperation OldTable { get; [param: NotNull] set; } = new CreateTableOperation();
 
-        /// <summary>
-        ///     The <see cref="OldTable" /> exposed to examine annotations.
-        /// </summary>
-        IMutableAnnotatable IAlterMigrationOperation.OldAnnotations => OldTable;
+        /// <inheritdoc />
+        IMutableAnnotatable IAlterMigrationOperation.OldAnnotations
+            => OldTable;
     }
 }

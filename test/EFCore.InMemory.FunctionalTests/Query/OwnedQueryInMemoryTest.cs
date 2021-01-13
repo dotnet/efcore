@@ -1,7 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -14,35 +16,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
-#if Test20
-        public override void No_ignored_include_warning_when_implicit_load()
+        [ConditionalTheory(Skip = "issue #19742")]
+        public override Task Projecting_collection_correlated_with_keyless_entity_after_navigation_works_using_parent_identifiers(bool async)
         {
+            return base.Projecting_collection_correlated_with_keyless_entity_after_navigation_works_using_parent_identifiers(async);
         }
-
-        public override void Query_for_base_type_loads_all_owned_navs()
-        {
-        }
-
-        public override void Query_for_branch_type_loads_all_owned_navs()
-        {
-        }
-
-        public override void Query_for_leaf_type_loads_all_owned_navs()
-        {
-        }
-
-        public override void Query_when_group_by()
-        {
-        }
-
-        public override void Query_when_subquery()
-        {
-        }
-#endif
 
         public class OwnedQueryInMemoryFixture : OwnedQueryFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => InMemoryTestStoreFactory.Instance;
         }
     }
 }

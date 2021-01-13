@@ -1,10 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data;
 using System.Globalization;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -43,20 +46,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a copy of this mapping.
         /// </summary>
-        /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
+        /// <param name="parameters"> The parameters for this mapping. </param>
         /// <returns> The newly created mapping. </returns>
-        public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new DoubleTypeMapping(Parameters.WithStoreTypeAndSize(storeType, size));
-
-        /// <summary>
-        ///     Returns a new copy of this type mapping with the given <see cref="ValueConverter" />
-        ///     added.
-        /// </summary>
-        /// <param name="converter"> The converter to use. </param>
-        /// <returns> A new type mapping </returns>
-        public override CoreTypeMapping Clone(ValueConverter converter)
-            => new DoubleTypeMapping(Parameters.WithComposedConverter(converter));
+        protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
+            => new DoubleTypeMapping(parameters);
 
         /// <summary>
         ///     Generates the SQL representation of a literal value.
@@ -67,19 +60,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         protected override string GenerateNonNullSqlLiteral(object value)
         {
-            var doubleValue = (double)value;
+            var doubleValue = Convert.ToDouble(value);
             var literal = doubleValue.ToString("G17", CultureInfo.InvariantCulture);
 
-            if (!literal.Contains("E")
+            return !literal.Contains("E")
                 && !literal.Contains("e")
                 && !literal.Contains(".")
                 && !double.IsNaN(doubleValue)
-                && !double.IsInfinity(doubleValue))
-            {
-                return literal + ".0";
-            }
-
-            return literal;
+                && !double.IsInfinity(doubleValue)
+                    ? literal + ".0"
+                    : literal;
         }
     }
 }

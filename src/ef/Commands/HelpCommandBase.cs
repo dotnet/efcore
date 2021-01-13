@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.DotNet.Cli.CommandLine;
@@ -16,11 +16,11 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             base.Configure(command);
         }
 
-        protected override int Execute()
+        protected override int Execute(string[] args)
         {
             _command.ShowHelp();
 
-            return base.Execute();
+            return base.Execute(args);
         }
     }
 }

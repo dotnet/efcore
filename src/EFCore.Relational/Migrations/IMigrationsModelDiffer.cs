@@ -5,25 +5,34 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     /// <summary>
-    ///     A service for finding differences between two <see cref="IModel" />s and transforming
-    ///     those differences into <see cref="MigrationOperation" />s that can be used to
-    ///     update the database.
+    ///     <para>
+    ///         A service for finding differences between two <see cref="IRelationalModel" />s and transforming
+    ///         those differences into <see cref="MigrationOperation" />s that can be used to
+    ///         update the database.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
+    ///     </para>
     /// </summary>
     public interface IMigrationsModelDiffer
     {
         /// <summary>
-        ///     Checks whether or not there are differences between the two models.
+        ///     Checks whether there are differences between the two models.
         /// </summary>
         /// <param name="source"> The first model. </param>
         /// <param name="target"> The second model. </param>
         /// <returns>
-        ///     <c>True</c>
+        ///     <see langword="true" /> if there are any differences and <see langword="false" /> otherwise.
         /// </returns>
-        bool HasDifferences([CanBeNull] IModel source, [CanBeNull] IModel target);
+        bool HasDifferences([CanBeNull] IRelationalModel source, [CanBeNull] IRelationalModel target);
 
         /// <summary>
         ///     Finds the differences between two models.
@@ -34,6 +43,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     A list of the operations that need to applied to the database to migrate it
         ///     from mapping to the source model so that is now mapping to the target model.
         /// </returns>
-        IReadOnlyList<MigrationOperation> GetDifferences([CanBeNull] IModel source, [CanBeNull] IModel target);
+        IReadOnlyList<MigrationOperation> GetDifferences([CanBeNull] IRelationalModel source, [CanBeNull] IRelationalModel target);
     }
 }

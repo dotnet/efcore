@@ -1,13 +1,17 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -23,22 +27,53 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     /// </summary>
     public class CollectionEntry : NavigationEntry
     {
+        private ICollectionLoader _loader;
+
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         public CollectionEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] string name)
             : base(internalEntry, name, collection: true)
         {
+            LocalDetectChanges();
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         public CollectionEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] INavigation navigation)
             : base(internalEntry, navigation)
         {
+            LocalDetectChanges();
+        }
+
+        private void LocalDetectChanges()
+        {
+            var collection = CurrentValue;
+            if (collection != null)
+            {
+                var targetType = Metadata.TargetEntityType;
+                var context = InternalEntry.StateManager.Context;
+
+                var changeDetector = context.ChangeTracker.AutoDetectChangesEnabled
+                    && !((Model)context.Model).SkipDetectChanges
+                        ? context.GetDependencies().ChangeDetector
+                        : null;
+
+                foreach (var entity in collection.OfType<object>().ToList())
+                {
+                    var entry = InternalEntry.StateManager.GetOrCreateEntry(entity, targetType);
+                    changeDetector?.DetectChanges(entry);
+                }
+            }
         }
 
         /// <summary>
@@ -48,8 +83,113 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public new virtual IEnumerable CurrentValue
         {
-            get { return (IEnumerable)base.CurrentValue; }
-            [param: CanBeNull] set { base.CurrentValue = value; }
+            get => (IEnumerable)base.CurrentValue;
+            [param: CanBeNull] set => base.CurrentValue = value;
+        }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether any of foreign key property values associated
+        ///     with this navigation property have been modified and should be updated in the database
+        ///     when <see cref="DbContext.SaveChanges()" /> is called.
+        /// </summary>
+        public override bool IsModified
+        {
+            get
+            {
+                var stateManager = InternalEntry.StateManager;
+
+                if (Metadata is ISkipNavigation skipNavigation)
+                {
+                    if (InternalEntry.EntityState != EntityState.Unchanged
+                        && InternalEntry.EntityState != EntityState.Detached)
+                    {
+                        return true;
+                    }
+
+                    var joinEntityType = skipNavigation.JoinEntityType;
+                    var foreignKey = skipNavigation.ForeignKey;
+                    var inverseForeignKey = skipNavigation.Inverse.ForeignKey;
+                    foreach (var joinEntry in stateManager.Entries)
+                    {
+                        if (joinEntry.EntityType == joinEntityType
+                            && stateManager.FindPrincipal(joinEntry, foreignKey) == InternalEntry
+                            && (joinEntry.EntityState == EntityState.Added
+                                || joinEntry.EntityState == EntityState.Deleted
+                                || foreignKey.Properties.Any(joinEntry.IsModified)
+                                || inverseForeignKey.Properties.Any(joinEntry.IsModified)
+                                || (stateManager.FindPrincipal(joinEntry, inverseForeignKey)?.EntityState == EntityState.Deleted)))
+                        {
+                            return true;
+                        }
+                    }
+                }
+                else
+                {
+                    var navigationValue = CurrentValue;
+                    if (navigationValue != null)
+                    {
+                        var targetEntityType = Metadata.TargetEntityType;
+                        var foreignKey = ((INavigation)Metadata).ForeignKey;
+
+                        foreach (var relatedEntity in navigationValue)
+                        {
+                            var relatedEntry = stateManager.TryGetEntry(relatedEntity, targetEntityType);
+
+                            if (relatedEntry != null
+                                && (relatedEntry.EntityState == EntityState.Added
+                                    || relatedEntry.EntityState == EntityState.Deleted
+                                    || foreignKey.Properties.Any(relatedEntry.IsModified)))
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+
+                return false;
+            }
+            set
+            {
+                var stateManager = InternalEntry.StateManager;
+
+                if (Metadata is ISkipNavigation skipNavigation)
+                {
+                    var joinEntityType = skipNavigation.JoinEntityType;
+                    var foreignKey = skipNavigation.ForeignKey;
+                    foreach (var joinEntry in stateManager
+                        .GetEntriesForState(added: !value, modified: !value, deleted: !value, unchanged: value).Where(
+                            e => e.EntityType == joinEntityType
+                                && stateManager.FindPrincipal(e, foreignKey) == InternalEntry)
+                        .ToList())
+                    {
+                        joinEntry.SetEntityState(value ? EntityState.Modified : EntityState.Unchanged);
+                    }
+                }
+                else
+                {
+                    var foreignKey = ((INavigation)Metadata).ForeignKey;
+                    var navigationValue = CurrentValue;
+                    if (navigationValue != null)
+                    {
+                        foreach (var relatedEntity in navigationValue)
+                        {
+                            var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.TargetEntityType);
+                            if (relatedEntry != null)
+                            {
+                                var anyNonPk = foreignKey.Properties.Any(p => !p.IsPrimaryKey());
+                                foreach (var property in foreignKey.Properties)
+                                {
+                                    if (anyNonPk
+                                        && !property.IsPrimaryKey())
+                                    {
+                                        relatedEntry.SetPropertyModified(property, isModified: value, acceptChanges: false);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -65,7 +205,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             EnsureInitialized();
 
-            base.Load();
+            if (!IsLoaded)
+            {
+                TargetLoader.Load(InternalEntry);
+            }
         }
 
         /// <summary>
@@ -77,21 +220,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         Note that entities that are already being tracked are not overwritten with new data from the database.
         ///     </para>
         ///     <para>
-        ///         Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///         Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///         that any asynchronous operations have completed before calling another method on this context.
         ///     </para>
         /// </summary>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
-        /// <returns>
-        ///     A task that represents the asynchronous save operation.
-        /// </returns>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <returns> A task that represents the asynchronous save operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public override Task LoadAsync(CancellationToken cancellationToken = default)
         {
             EnsureInitialized();
 
-            return base.LoadAsync(cancellationToken);
+            return IsLoaded
+                ? Task.CompletedTask
+                : TargetLoader.LoadAsync(InternalEntry, cancellationToken);
         }
 
         /// <summary>
@@ -108,14 +250,43 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             EnsureInitialized();
 
-            return base.Query();
+            return TargetLoader.Query(InternalEntry);
+        }
+
+        private void EnsureInitialized()
+            => Metadata.GetCollectionAccessor().GetOrCreate(InternalEntry.Entity, forMaterialization: true);
+
+        /// <summary>
+        ///     The <see cref="EntityEntry" /> of an entity this navigation targets.
+        /// </summary>
+        /// <param name="entity"> The entity to get the entry for. </param>
+        /// <value> An entry for an entity that this navigation targets. </value>
+        public virtual EntityEntry FindEntry([NotNull] object entity)
+        {
+            var entry = GetInternalTargetEntry(entity);
+            return entry == null
+                ? null
+                : new EntityEntry(entry);
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void EnsureInitialized()
-            => InternalEntry.GetOrCreateCollection(Metadata);
+        [EntityFrameworkInternal]
+        protected virtual InternalEntityEntry GetInternalTargetEntry([NotNull] object entity)
+            => CurrentValue == null
+                || !Metadata.GetCollectionAccessor().Contains(InternalEntry.Entity, entity)
+                    ? null
+                    : InternalEntry.StateManager.GetOrCreateEntry(entity, Metadata.TargetEntityType);
+
+        private ICollectionLoader TargetLoader
+            => _loader ??= Metadata is ISkipNavigation skipNavigation
+                ? skipNavigation.GetManyToManyLoader()
+                : new EntityFinderCollectionLoaderAdapter(
+                    InternalEntry.StateManager.CreateEntityFinder(Metadata.TargetEntityType),
+                    (INavigation)Metadata);
     }
 }

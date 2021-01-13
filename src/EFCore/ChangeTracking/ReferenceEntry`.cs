@@ -26,18 +26,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         where TProperty : class
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         public ReferenceEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] string name)
             : base(internalEntry, name)
         {
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         public ReferenceEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] INavigation navigation)
             : base(internalEntry, navigation)
         {
@@ -47,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     The <see cref="EntityEntry{TEntity}" /> to which this member belongs.
         /// </summary>
         /// <value> An entry for the entity that owns this member. </value>
-        public new virtual EntityEntry<TEntity> EntityEntry => new EntityEntry<TEntity>(InternalEntry);
+        public new virtual EntityEntry<TEntity> EntityEntry
+            => new EntityEntry<TEntity>(InternalEntry);
 
         /// <summary>
         ///     The <see cref="EntityEntry{TEntity}" /> of the entity this navigation targets.
@@ -69,8 +76,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public new virtual TProperty CurrentValue
         {
-            get { return this.GetInfrastructure().GetCurrentValue<TProperty>(Metadata); }
-            [param: CanBeNull] set { base.CurrentValue = value; }
+            get => this.GetInfrastructure().GetCurrentValue<TProperty>(Metadata);
+            [param: CanBeNull] set => base.CurrentValue = value;
         }
 
         /// <summary>

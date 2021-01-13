@@ -15,1579 +15,1467 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class ShadowFkFixupTest
     {
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_many_FK_set_both_navs_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78, Category = principal };
-                principal.Products.Add(dependent);
+            using var context = new FixupContext();
+            var principal = new Category { Id = 77 };
+            var dependent = new Product { Id = 78, Category = principal };
+            principal.Products.Add(dependent);
 
-                context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Same(principal, dependent.Category);
+                    Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_many_FK_not_set_both_navs_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78, Category = principal };
-                principal.Products.Add(dependent);
+            using var context = new FixupContext();
+            var principal = new Category { Id = 77 };
+            var dependent = new Product { Id = 78, Category = principal };
+            principal.Products.Add(dependent);
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Same(principal, dependent.Category);
+                    Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_many_FK_set_no_navs_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78 };
+            using var context = new FixupContext();
+            var principal = new Category { Id = 77 };
+            var dependent = new Product { Id = 78 };
 
-                context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Same(principal, dependent.Category);
+                    Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_many_FK_set_principal_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78 };
-                principal.Products.Add(dependent);
+            using var context = new FixupContext();
+            var principal = new Category { Id = 77 };
+            var dependent = new Product { Id = 78 };
+            principal.Products.Add(dependent);
 
-                context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Same(principal, dependent.Category);
+                    Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_many_FK_set_dependent_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78, Category = principal };
+            using var context = new FixupContext();
+            var principal = new Category { Id = 77 };
+            var dependent = new Product { Id = 78, Category = principal };
 
-                context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Same(principal, dependent.Category);
+                    Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_many_FK_not_set_principal_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78 };
-                principal.Products.Add(dependent);
+            using var context = new FixupContext();
+            var principal = new Category { Id = 77 };
+            var dependent = new Product { Id = 78 };
+            principal.Products.Add(dependent);
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Same(principal, dependent.Category);
+                    Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_many_FK_not_set_dependent_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78, Category = principal };
+            using var context = new FixupContext();
+            var principal = new Category { Id = 77 };
+            var dependent = new Product { Id = 78, Category = principal };
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Same(principal, dependent.Category);
+                    Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_many_FK_set_both_navs_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78, Category = principal };
-                principal.Products.Add(dependent);
+            using var context = new FixupContext();
+            var principal = new Category { Id = 77 };
+            var dependent = new Product { Id = 78, Category = principal };
+            principal.Products.Add(dependent);
 
-                context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Same(principal, dependent.Category);
+                    Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_many_FK_not_set_both_navs_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78, Category = principal };
-                principal.Products.Add(dependent);
+            using var context = new FixupContext();
+            var principal = new Category { Id = 77 };
+            var dependent = new Product { Id = 78, Category = principal };
+            principal.Products.Add(dependent);
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Same(principal, dependent.Category);
+                    Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_many_FK_set_no_navs_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78 };
+            using var context = new FixupContext();
+            var principal = new Category { Id = 77 };
+            var dependent = new Product { Id = 78 };
 
-                context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Same(principal, dependent.Category);
+                    Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_many_FK_set_principal_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78 };
-                principal.Products.Add(dependent);
+            using var context = new FixupContext();
+            var principal = new Category { Id = 77 };
+            var dependent = new Product { Id = 78 };
+            principal.Products.Add(dependent);
 
-                context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Same(principal, dependent.Category);
+                    Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_many_FK_set_dependent_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78, Category = principal };
+            using var context = new FixupContext();
+            var principal = new Category { Id = 77 };
+            var dependent = new Product { Id = 78, Category = principal };
 
-                context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Same(principal, dependent.Category);
+                    Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_many_FK_not_set_principal_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78 };
-                principal.Products.Add(dependent);
+            using var context = new FixupContext();
+            var principal = new Category { Id = 77 };
+            var dependent = new Product { Id = 78 };
+            principal.Products.Add(dependent);
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Same(principal, dependent.Category);
+                    Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_many_FK_not_set_dependent_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78, Category = principal };
+            using var context = new FixupContext();
+            var principal = new Category { Id = 77 };
+            var dependent = new Product { Id = 78, Category = principal };
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Same(principal, dependent.Category);
+                    Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_many_prin_uni_FK_set_no_navs_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new CategoryPN { Id = 77 };
-                var dependent = new ProductPN { Id = 78 };
+            using var context = new FixupContext();
+            var principal = new CategoryPN { Id = 77 };
+            var dependent = new ProductPN { Id = 78 };
 
-                context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_many_prin_uni_FK_set_no_navs_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new CategoryPN { Id = 77 };
-                var dependent = new ProductPN { Id = 78 };
+            using var context = new FixupContext();
+            var principal = new CategoryPN { Id = 77 };
+            var dependent = new ProductPN { Id = 78 };
 
-                context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_many_prin_uni_FK_set_principal_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new CategoryPN { Id = 77 };
-                var dependent = new ProductPN { Id = 78 };
-                principal.Products.Add(dependent);
+            using var context = new FixupContext();
+            var principal = new CategoryPN { Id = 77 };
+            var dependent = new ProductPN { Id = 78 };
+            principal.Products.Add(dependent);
 
-                context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_many_prin_uni_FK_not_set_principal_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new CategoryPN { Id = 77 };
-                var dependent = new ProductPN { Id = 78 };
-                principal.Products.Add(dependent);
+            using var context = new FixupContext();
+            var principal = new CategoryPN { Id = 77 };
+            var dependent = new ProductPN { Id = 78 };
+            principal.Products.Add(dependent);
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_many_prin_uni_FK_set_principal_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new CategoryPN { Id = 77 };
-                var dependent = new ProductPN { Id = 78 };
-                principal.Products.Add(dependent);
+            using var context = new FixupContext();
+            var principal = new CategoryPN { Id = 77 };
+            var dependent = new ProductPN { Id = 78 };
+            principal.Products.Add(dependent);
 
-                context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_many_prin_uni_FK_not_set_principal_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new CategoryPN { Id = 77 };
-                var dependent = new ProductPN { Id = 78 };
-                principal.Products.Add(dependent);
+            using var context = new FixupContext();
+            var principal = new CategoryPN { Id = 77 };
+            var dependent = new ProductPN { Id = 78 };
+            principal.Products.Add(dependent);
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_many_dep_uni_FK_set_no_navs_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new CategoryDN { Id = 77 };
-                var dependent = new ProductDN { Id = 78 };
+            using var context = new FixupContext();
+            var principal = new CategoryDN { Id = 77 };
+            var dependent = new ProductDN { Id = 78 };
 
-                context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Same(principal, dependent.Category);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_many_dep_uni_FK_set_dependent_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new CategoryDN { Id = 77 };
-                var dependent = new ProductDN { Id = 78, Category = principal };
+            using var context = new FixupContext();
+            var principal = new CategoryDN { Id = 77 };
+            var dependent = new ProductDN { Id = 78, Category = principal };
 
-                context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Same(principal, dependent.Category);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_many_dep_uni_FK_not_set_dependent_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new CategoryDN { Id = 77 };
-                var dependent = new ProductDN { Id = 78, Category = principal };
+            using var context = new FixupContext();
+            var principal = new CategoryDN { Id = 77 };
+            var dependent = new ProductDN { Id = 78, Category = principal };
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Same(principal, dependent.Category);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_many_dep_uni_FK_set_no_navs_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new CategoryDN { Id = 77 };
-                var dependent = new ProductDN { Id = 78 };
+            using var context = new FixupContext();
+            var principal = new CategoryDN { Id = 77 };
+            var dependent = new ProductDN { Id = 78 };
 
-                context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Same(principal, dependent.Category);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_many_dep_uni_FK_set_dependent_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new CategoryDN { Id = 77 };
-                var dependent = new ProductDN { Id = 78, Category = principal };
+            using var context = new FixupContext();
+            var principal = new CategoryDN { Id = 77 };
+            var dependent = new ProductDN { Id = 78, Category = principal };
 
-                context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Same(principal, dependent.Category);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_many_dep_uni_FK_not_set_dependent_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new CategoryDN { Id = 77 };
-                var dependent = new ProductDN { Id = 78, Category = principal };
+            using var context = new FixupContext();
+            var principal = new CategoryDN { Id = 77 };
+            var dependent = new ProductDN { Id = 78, Category = principal };
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Same(principal, dependent.Category);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_many_no_navs_FK_set_no_navs_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new CategoryNN { Id = 77 };
-                var dependent = new ProductNN { Id = 78 };
+            using var context = new FixupContext();
+            var principal = new CategoryNN { Id = 77 };
+            var dependent = new ProductNN { Id = 78 };
 
-                context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_many_no_navs_FK_set_no_navs_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new CategoryNN { Id = 77 };
-                var dependent = new ProductNN { Id = 78 };
+            using var context = new FixupContext();
+            var principal = new CategoryNN { Id = 77 };
+            var dependent = new ProductNN { Id = 78 };
 
-                context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("CategoryId").CurrentValue = principal.Id;
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_one_FK_set_both_navs_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78, Parent = principal };
-                principal.Child = dependent;
+            using var context = new FixupContext();
+            var principal = new Parent { Id = 77 };
+            var dependent = new Child { Id = 78, Parent = principal };
+            principal.Child = dependent;
 
-                context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Same(principal, dependent.Parent);
+                    Assert.Same(dependent, principal.Child);
+                    Assert.Same(dependent, principal.Child);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_one_FK_not_set_both_navs_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78, Parent = principal };
-                principal.Child = dependent;
+            using var context = new FixupContext();
+            var principal = new Parent { Id = 77 };
+            var dependent = new Child { Id = 78, Parent = principal };
+            principal.Child = dependent;
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Same(principal, dependent.Parent);
+                    Assert.Same(dependent, principal.Child);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_one_FK_set_no_navs_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78 };
+            using var context = new FixupContext();
+            var principal = new Parent { Id = 77 };
+            var dependent = new Child { Id = 78 };
 
-                context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Same(principal, dependent.Parent);
+                    Assert.Same(dependent, principal.Child);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_one_FK_set_principal_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78 };
-                principal.Child = dependent;
+            using var context = new FixupContext();
+            var principal = new Parent { Id = 77 };
+            var dependent = new Child { Id = 78 };
+            principal.Child = dependent;
 
-                context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Same(principal, dependent.Parent);
+                    Assert.Same(dependent, principal.Child);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_one_FK_set_dependent_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78, Parent = principal };
+            using var context = new FixupContext();
+            var principal = new Parent { Id = 77 };
+            var dependent = new Child { Id = 78, Parent = principal };
 
-                context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Same(principal, dependent.Parent);
+                    Assert.Same(dependent, principal.Child);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_one_FK_not_set_principal_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78 };
-                principal.Child = dependent;
+            using var context = new FixupContext();
+            var principal = new Parent { Id = 77 };
+            var dependent = new Child { Id = 78 };
+            principal.Child = dependent;
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Same(principal, dependent.Parent);
+                    Assert.Same(dependent, principal.Child);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_one_FK_not_set_dependent_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78, Parent = principal };
+            using var context = new FixupContext();
+            var principal = new Parent { Id = 77 };
+            var dependent = new Child { Id = 78, Parent = principal };
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Same(principal, dependent.Parent);
+                    Assert.Same(dependent, principal.Child);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_one_FK_set_both_navs_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78, Parent = principal };
-                principal.Child = dependent;
+            using var context = new FixupContext();
+            var principal = new Parent { Id = 77 };
+            var dependent = new Child { Id = 78, Parent = principal };
+            principal.Child = dependent;
 
-                context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Same(principal, dependent.Parent);
+                    Assert.Same(dependent, principal.Child);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_one_FK_not_set_both_navs_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78, Parent = principal };
-                principal.Child = dependent;
+            using var context = new FixupContext();
+            var principal = new Parent { Id = 77 };
+            var dependent = new Child { Id = 78, Parent = principal };
+            principal.Child = dependent;
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Same(principal, dependent.Parent);
+                    Assert.Same(dependent, principal.Child);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_one_FK_set_no_navs_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78 };
+            using var context = new FixupContext();
+            var principal = new Parent { Id = 77 };
+            var dependent = new Child { Id = 78 };
 
-                context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Same(principal, dependent.Parent);
+                    Assert.Same(dependent, principal.Child);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_one_FK_set_principal_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78 };
-                principal.Child = dependent;
+            using var context = new FixupContext();
+            var principal = new Parent { Id = 77 };
+            var dependent = new Child { Id = 78 };
+            principal.Child = dependent;
 
-                context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Same(principal, dependent.Parent);
+                    Assert.Same(dependent, principal.Child);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_one_FK_set_dependent_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78, Parent = principal };
+            using var context = new FixupContext();
+            var principal = new Parent { Id = 77 };
+            var dependent = new Child { Id = 78, Parent = principal };
 
-                context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Same(principal, dependent.Parent);
+                    Assert.Same(dependent, principal.Child);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_one_FK_not_set_principal_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78 };
-                principal.Child = dependent;
+            using var context = new FixupContext();
+            var principal = new Parent { Id = 77 };
+            var dependent = new Child { Id = 78 };
+            principal.Child = dependent;
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Same(principal, dependent.Parent);
+                    Assert.Same(dependent, principal.Child);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_one_FK_not_set_dependent_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78, Parent = principal };
+            using var context = new FixupContext();
+            var principal = new Parent { Id = 77 };
+            var dependent = new Child { Id = 78, Parent = principal };
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Same(principal, dependent.Parent);
+                    Assert.Same(dependent, principal.Child);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_one_prin_uni_FK_set_no_navs_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new ParentPN { Id = 77 };
-                var dependent = new ChildPN { Id = 78 };
+            using var context = new FixupContext();
+            var principal = new ParentPN { Id = 77 };
+            var dependent = new ChildPN { Id = 78 };
 
-                context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Same(dependent, principal.Child);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_one_prin_uni_FK_set_no_navs_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new ParentPN { Id = 77 };
-                var dependent = new ChildPN { Id = 78 };
+            using var context = new FixupContext();
+            var principal = new ParentPN { Id = 77 };
+            var dependent = new ChildPN { Id = 78 };
 
-                context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Same(dependent, principal.Child);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_one_prin_uni_FK_set_principal_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new ParentPN { Id = 77 };
-                var dependent = new ChildPN { Id = 78 };
-                principal.Child = dependent;
+            using var context = new FixupContext();
+            var principal = new ParentPN { Id = 77 };
+            var dependent = new ChildPN { Id = 78 };
+            principal.Child = dependent;
 
-                context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Same(dependent, principal.Child);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_one_prin_uni_FK_not_set_principal_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new ParentPN { Id = 77 };
-                var dependent = new ChildPN { Id = 78 };
-                principal.Child = dependent;
+            using var context = new FixupContext();
+            var principal = new ParentPN { Id = 77 };
+            var dependent = new ChildPN { Id = 78 };
+            principal.Child = dependent;
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Same(dependent, principal.Child);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_one_prin_uni_FK_set_principal_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new ParentPN { Id = 77 };
-                var dependent = new ChildPN { Id = 78 };
-                principal.Child = dependent;
+            using var context = new FixupContext();
+            var principal = new ParentPN { Id = 77 };
+            var dependent = new ChildPN { Id = 78 };
+            principal.Child = dependent;
 
-                context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Same(dependent, principal.Child);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_one_prin_uni_FK_not_set_principal_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new ParentPN { Id = 77 };
-                var dependent = new ChildPN { Id = 78 };
-                principal.Child = dependent;
+            using var context = new FixupContext();
+            var principal = new ParentPN { Id = 77 };
+            var dependent = new ChildPN { Id = 78 };
+            principal.Child = dependent;
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Same(dependent, principal.Child);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_one_dep_uni_FK_set_no_navs_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new ParentDN { Id = 77 };
-                var dependent = new ChildDN { Id = 78 };
+            using var context = new FixupContext();
+            var principal = new ParentDN { Id = 77 };
+            var dependent = new ChildDN { Id = 78 };
 
-                context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Same(principal, dependent.Parent);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_one_dep_uni_FK_set_dependent_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new ParentDN { Id = 77 };
-                var dependent = new ChildDN { Id = 78, Parent = principal };
+            using var context = new FixupContext();
+            var principal = new ParentDN { Id = 77 };
+            var dependent = new ChildDN { Id = 78, Parent = principal };
 
-                context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Same(principal, dependent.Parent);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_one_dep_uni_FK_not_set_dependent_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new ParentDN { Id = 77 };
-                var dependent = new ChildDN { Id = 78, Parent = principal };
+            using var context = new FixupContext();
+            var principal = new ParentDN { Id = 77 };
+            var dependent = new ChildDN { Id = 78, Parent = principal };
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Same(principal, dependent.Parent);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_one_dep_uni_FK_set_no_navs_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new ParentDN { Id = 77 };
-                var dependent = new ChildDN { Id = 78 };
+            using var context = new FixupContext();
+            var principal = new ParentDN { Id = 77 };
+            var dependent = new ChildDN { Id = 78 };
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Same(principal, dependent.Parent);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_one_dep_uni_FK_set_dependent_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new ParentDN { Id = 77 };
-                var dependent = new ChildDN { Id = 78, Parent = principal };
+            using var context = new FixupContext();
+            var principal = new ParentDN { Id = 77 };
+            var dependent = new ChildDN { Id = 78, Parent = principal };
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Same(principal, dependent.Parent);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_one_dep_uni_FK_not_set_dependent_nav_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new ParentDN { Id = 77 };
-                var dependent = new ChildDN { Id = 78, Parent = principal };
+            using var context = new FixupContext();
+            var principal = new ParentDN { Id = 77 };
+            var dependent = new ChildDN { Id = 78, Parent = principal };
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Same(principal, dependent.Parent);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_dependent_then_principal_one_to_one_no_navs_FK_set_no_navs_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new ParentNN { Id = 77 };
-                var dependent = new ChildNN { Id = 78 };
+            using var context = new FixupContext();
+            var principal = new ParentNN { Id = 77 };
+            var dependent = new ChildNN { Id = 78 };
 
-                context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
 
-                context.Entry(dependent).State = entityState;
-                context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
         public void Add_principal_then_dependent_one_to_one_no_navs_FK_set_no_navs_set(EntityState entityState)
         {
-            using (var context = new FixupContext())
-            {
-                var principal = new ParentNN { Id = 77 };
-                var dependent = new ChildNN { Id = 78 };
+            using var context = new FixupContext();
+            var principal = new ParentNN { Id = 77 };
+            var dependent = new ChildNN { Id = 78 };
 
-                context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
+            context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
 
-                context.Entry(principal).State = entityState;
-                context.Entry(dependent).State = entityState;
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
 
-                AssertFixup(
-                    context,
-                    () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
-            }
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
         }
 
         private class Parent
@@ -1699,6 +1587,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public int Id { get; set; }
 
             public Category Category { get; set; }
+
             // ReSharper disable once CollectionNeverUpdated.Local
             public ICollection<SpecialOffer> SpecialOffers { get; }
         }
@@ -1767,7 +1656,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(nameof(FixupContext));
+                => optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase(nameof(FixupContext));
         }
 
         private void AssertFixup(DbContext context, Action asserts)

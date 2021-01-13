@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -20,43 +20,49 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     Gets the contract version of this handler.
         /// </summary>
         /// <value> The contract version of this handler. </value>
-        public virtual int Version => 0;
+        public virtual int Version
+            => 0;
 
         /// <summary>
         ///     Gets a value indicating whether a result is available.
         /// </summary>
         /// <value>A value indicating whether a result is available.</value>
-        public virtual bool HasResult => _hasResult;
+        public virtual bool HasResult
+            => _hasResult;
 
         /// <summary>
         ///     Gets the result.
         /// </summary>
         /// <value>The result.</value>
-        public virtual object Result => _result;
+        public virtual object Result
+            => _result;
 
         /// <summary>
         ///     Gets the type of the exception if any.
         /// </summary>
         /// <value>The exception type.</value>
-        public virtual string ErrorType => _errorType;
+        public virtual string ErrorType
+            => _errorType;
 
         /// <summary>
         ///     Gets the error message if any.
         /// </summary>
         /// <value>The error message.</value>
-        public virtual string ErrorMessage => _errorMessage;
+        public virtual string ErrorMessage
+            => _errorMessage;
 
         /// <summary>
         ///     Get the error stack trace if any.
         /// </summary>
         /// <value> The stack trace. </value>
         /// <remarks>
-        ///     When an <see cref="OperationException" /> is recieved, the stack trace should not be shown by default.
+        ///     When an <see cref="OperationException" /> is received, the stack trace should not be shown by default.
         /// </remarks>
-        public virtual string ErrorStackTrace => _errorStackTrace;
+        public virtual string ErrorStackTrace
+            => _errorStackTrace;
 
         /// <summary>
-        ///     Invoked when a result is availalbe.
+        ///     Invoked when a result is available.
         /// </summary>
         /// <param name="value"> The result. </param>
         public virtual void OnResult(object value)

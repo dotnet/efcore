@@ -19,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class FieldMappingSqlServerFixture : FieldMappingFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
         }
     }
 }
