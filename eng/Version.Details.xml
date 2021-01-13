@@ -45,9 +45,9 @@
       <Uri>https://github.com/dotnet/runtime</Uri>
       <Sha>cf258a14b70ad9069470a108f13765e0e5988f51</Sha>
     </Dependency>
-    <Dependency Name="System.Diagnostics.DiagnosticSource" Version="5.0.0">
-      <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>cf258a14b70ad9069470a108f13765e0e5988f51</Sha>
+    <Dependency Name="System.Diagnostics.DiagnosticSource" Version="5.0.1">
+      <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
+      <Sha>cb5f173b9696d9d00a544b953d95190ab3b56df2</Sha>
     </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
