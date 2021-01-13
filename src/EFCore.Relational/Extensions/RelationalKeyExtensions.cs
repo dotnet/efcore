@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -97,12 +98,13 @@ namespace Microsoft.EntityFrameworkCore
             }
             else
             {
-                var propertyNames = key.Properties.GetColumnNames(storeObject);
-                if (propertyNames == null)
+                var columnNames = key.Properties.GetColumnNames(storeObject);
+                if (columnNames == null)
                 {
                     return null;
                 }
 
+                var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23672", out var enabled) && enabled;
                 var rootKey = key;
 
                 // Limit traversal to avoid getting stuck in a cycle (validation will throw for these later)
@@ -114,7 +116,9 @@ namespace Microsoft.EntityFrameworkCore
                         .FindRowInternalForeignKeys(storeObject)
                         .SelectMany(fk => fk.PrincipalEntityType.GetKeys()))
                     {
-                        if (otherKey.Properties.GetColumnNames(storeObject).SequenceEqual(propertyNames))
+                        var otherColumnNames = otherKey.Properties.GetColumnNames(storeObject);
+                        if ((otherColumnNames != null || useOldBehavior)
+                            && otherColumnNames.SequenceEqual(columnNames))
                         {
                             linkedKey = otherKey;
                             break;
@@ -138,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore
                     .Append("AK_")
                     .Append(storeObject.Name)
                     .Append("_")
-                    .AppendJoin(propertyNames, "_")
+                    .AppendJoin(columnNames, "_")
                     .ToString();
             }
 
