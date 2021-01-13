@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -44,9 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var columnNames = foreignKey.Properties.GetColumnNames(storeObject);
             var duplicateColumnNames = duplicateForeignKey.Properties.GetColumnNames(storeObject);
             if (columnNames is null
-                || duplicateColumnNames is null
-                || principalTable is null
-                || duplicatePrincipalTable is null)
+                || duplicateColumnNames is null)
             {
                 if (shouldThrow)
                 {
@@ -66,11 +65,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            var principalColumns = foreignKey.PrincipalKey.Properties.GetColumnNames(principalTable.Value);
-            var duplicatePrincipalColumns = duplicateForeignKey.PrincipalKey.Properties.GetColumnNames(principalTable.Value);
-            if (principalTable != duplicatePrincipalTable
-                || principalColumns == null
-                || duplicatePrincipalColumns == null)
+            if (principalTable is null
+                || duplicatePrincipalTable is null
+                || principalTable != duplicatePrincipalTable
+                || !(foreignKey.PrincipalKey.Properties.GetColumnNames(principalTable.Value)
+                    is IReadOnlyList<string> principalColumns)
+                || !(duplicateForeignKey.PrincipalKey.Properties.GetColumnNames(principalTable.Value)
+                    is IReadOnlyList<string> duplicatePrincipalColumns))
             {
                 if (shouldThrow)
                 {
@@ -81,7 +82,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
                             foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                            foreignKey.GetConstraintName(storeObject, principalTable.Value),
+                            principalTable.HasValue
+                                ? foreignKey.GetConstraintName(storeObject, principalTable.Value)
+                                : foreignKey.GetDefaultName(),
                             principalType.GetSchemaQualifiedTableName(),
                             duplicatePrincipalType.GetSchemaQualifiedTableName()));
                 }

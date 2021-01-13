@@ -14,6 +14,8 @@ using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
 {
     /// <summary>
@@ -26,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         where TGeometry : Geometry
     {
         private static readonly MethodInfo _getBytes
-            = typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFieldValue), new[] { typeof(int) })
+            = typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFieldValue), new[] { typeof(int) })!
                 .MakeGenericMethod(typeof(byte[]));
 
         /// <summary>
@@ -49,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         protected SqliteGeometryTypeMapping(
             RelationalTypeMappingParameters parameters,
-            [CanBeNull] ValueConverter<TGeometry, byte[]> converter)
+            [CanBeNull] ValueConverter<TGeometry, byte[]>? converter)
             : base(parameters, converter)
         {
         }
@@ -128,9 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             => typeof(WKTReader);
 
         private static GaiaGeoReader CreateReader(NtsGeometryServices geometryServices)
-            => new GaiaGeoReader(
-                geometryServices.DefaultCoordinateSequenceFactory,
-                geometryServices.DefaultPrecisionModel);
+            => new(geometryServices.DefaultCoordinateSequenceFactory, geometryServices.DefaultPrecisionModel);
 
         private static GaiaGeoWriter CreateWriter(string storeType)
         {

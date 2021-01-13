@@ -47,12 +47,6 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RelationalApiConsistencyFixture : ApiConsistencyFixtureBase
         {
-            public override bool TryGetProviderOptionsDelegate(out Action<DbContextOptionsBuilder> configureOptions)
-            {
-                configureOptions = null;
-                return false;
-            }
-
             private static Dictionary<Type, (Type Mutable, Type Convention, Type ConventionBuilder)> _metadataTypes
                 => new Dictionary<Type, (Type, Type, Type)>
                 {

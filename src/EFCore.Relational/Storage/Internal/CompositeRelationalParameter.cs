@@ -8,6 +8,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
     /// <summary>
@@ -27,22 +29,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public CompositeRelationalParameter(
             [NotNull] string invariantName,
             [NotNull] IReadOnlyList<IRelationalParameter> relationalParameters)
-
+            : base(invariantName)
         {
-            Check.NotNull(invariantName, nameof(invariantName));
             Check.NotNull(relationalParameters, nameof(relationalParameters));
 
-            InvariantName = invariantName;
             RelationalParameters = relationalParameters;
         }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override string InvariantName { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -58,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override void AddDbParameter(DbCommand command, object value)
+        public override void AddDbParameter(DbCommand command, object? value)
         {
             Check.NotNull(command, nameof(command));
             Check.NotNull(value, nameof(value));

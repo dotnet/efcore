@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -54,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(principals, nameof(principals));
 
-            ValueConverter customConverter = null;
+            ValueConverter? customConverter = null;
             int? size = null;
             int? precision = null;
             int? scale = null;
@@ -153,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="precision"> Specifies a precision for the mapping, or <see langword="null" /> for default. </param>
         /// <param name="scale"> Specifies a scale for the mapping, or <see langword="null" /> for default. </param>
         public TypeMappingInfo(
-            [CanBeNull] Type type = null,
+            [CanBeNull] Type? type = null,
             bool keyOrIndex = false,
             bool? unicode = null,
             int? size = null,
@@ -245,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The CLR type in the model. May be null if type information is conveyed via other means
         ///     (e.g. the store name in a relational type mapping info)
         /// </summary>
-        public Type ClrType { get; }
+        public Type? ClrType { get; }
 
         /// <summary>
         ///     Compares this <see cref="TypeMappingInfo" /> to another to check if they represent the same mapping.
@@ -266,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="obj"> The other object. </param>
         /// <returns> <see langword="true" /> if they represent the same mapping; <see langword="false" /> otherwise. </returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && obj.GetType() == GetType()
                 && Equals((TypeMappingInfo)obj);

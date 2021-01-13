@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
@@ -32,6 +34,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <returns> The converters available. </returns>
         IEnumerable<ValueConverterInfo> Select(
             [NotNull] Type modelClrType,
-            [CanBeNull] Type providerClrType = null);
+            [CanBeNull] Type? providerClrType = null);
     }
 }

@@ -6,6 +6,8 @@ using System.Data.Common;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -26,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="name"> The name of the column. </param>
         /// <param name="getFieldValue"> A function to get field value for the column from the reader. </param>
         [Obsolete("Use constructor which also takes IPropertyBase.")]
-        public ReaderColumn(bool nullable, [CanBeNull] string name, [NotNull] Func<DbDataReader, int[], T> getFieldValue)
+        public ReaderColumn(bool nullable, [CanBeNull] string? name, [NotNull] Func<DbDataReader, int[], T> getFieldValue)
             : this(nullable, name, property: null, getFieldValue)
         {
         }
@@ -40,8 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="getFieldValue"> A function to get field value for the column from the reader. </param>
         public ReaderColumn(
             bool nullable,
-            [CanBeNull] string name,
-            [CanBeNull] IPropertyBase property,
+            [CanBeNull] string? name,
+            [CanBeNull] IPropertyBase? property,
             [NotNull] Func<DbDataReader, int[], T> getFieldValue)
             : base(typeof(T), nullable, name, property)
         {

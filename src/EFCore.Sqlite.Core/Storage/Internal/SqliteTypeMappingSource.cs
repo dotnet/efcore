@@ -8,6 +8,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
 {
     /// <summary>
@@ -67,43 +69,41 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         private const string BlobTypeName = "BLOB";
         private const string TextTypeName = "TEXT";
 
-        private static readonly LongTypeMapping _integer = new LongTypeMapping(IntegerTypeName);
-        private static readonly DoubleTypeMapping _real = new DoubleTypeMapping(RealTypeName);
-        private static readonly ByteArrayTypeMapping _blob = new ByteArrayTypeMapping(BlobTypeName);
-        private static readonly SqliteStringTypeMapping _text = new SqliteStringTypeMapping(TextTypeName);
+        private static readonly LongTypeMapping _integer = new(IntegerTypeName);
+        private static readonly DoubleTypeMapping _real = new(RealTypeName);
+        private static readonly ByteArrayTypeMapping _blob = new(BlobTypeName);
+        private static readonly SqliteStringTypeMapping _text = new(TextTypeName);
 
-        private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings
-            = new Dictionary<Type, RelationalTypeMapping>
-            {
-                { typeof(string), _text },
-                { typeof(byte[]), _blob },
-                { typeof(bool), new BoolTypeMapping(IntegerTypeName) },
-                { typeof(byte), new ByteTypeMapping(IntegerTypeName) },
-                { typeof(char), new CharTypeMapping(TextTypeName) },
-                { typeof(int), new IntTypeMapping(IntegerTypeName) },
-                { typeof(long), _integer },
-                { typeof(sbyte), new SByteTypeMapping(IntegerTypeName) },
-                { typeof(short), new ShortTypeMapping(IntegerTypeName) },
-                { typeof(uint), new UIntTypeMapping(IntegerTypeName) },
-                { typeof(ulong), new SqliteULongTypeMapping(IntegerTypeName) },
-                { typeof(ushort), new UShortTypeMapping(IntegerTypeName) },
-                { typeof(DateTime), new SqliteDateTimeTypeMapping(TextTypeName) },
-                { typeof(DateTimeOffset), new SqliteDateTimeOffsetTypeMapping(TextTypeName) },
-                { typeof(TimeSpan), new TimeSpanTypeMapping(TextTypeName) },
-                { typeof(decimal), new SqliteDecimalTypeMapping(TextTypeName) },
-                { typeof(double), _real },
-                { typeof(float), new FloatTypeMapping(RealTypeName) },
-                { typeof(Guid), new SqliteGuidTypeMapping(TextTypeName) }
-            };
+        private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings = new()
+        {
+            { typeof(string), _text },
+            { typeof(byte[]), _blob },
+            { typeof(bool), new BoolTypeMapping(IntegerTypeName) },
+            { typeof(byte), new ByteTypeMapping(IntegerTypeName) },
+            { typeof(char), new CharTypeMapping(TextTypeName) },
+            { typeof(int), new IntTypeMapping(IntegerTypeName) },
+            { typeof(long), _integer },
+            { typeof(sbyte), new SByteTypeMapping(IntegerTypeName) },
+            { typeof(short), new ShortTypeMapping(IntegerTypeName) },
+            { typeof(uint), new UIntTypeMapping(IntegerTypeName) },
+            { typeof(ulong), new SqliteULongTypeMapping(IntegerTypeName) },
+            { typeof(ushort), new UShortTypeMapping(IntegerTypeName) },
+            { typeof(DateTime), new SqliteDateTimeTypeMapping(TextTypeName) },
+            { typeof(DateTimeOffset), new SqliteDateTimeOffsetTypeMapping(TextTypeName) },
+            { typeof(TimeSpan), new TimeSpanTypeMapping(TextTypeName) },
+            { typeof(decimal), new SqliteDecimalTypeMapping(TextTypeName) },
+            { typeof(double), _real },
+            { typeof(float), new FloatTypeMapping(RealTypeName) },
+            { typeof(Guid), new SqliteGuidTypeMapping(TextTypeName) }
+        };
 
-        private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings
-            = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
-            {
-                { IntegerTypeName, _integer },
-                { RealTypeName, _real },
-                { BlobTypeName, _blob },
-                { TextTypeName, _text }
-            };
+        private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings = new(StringComparer.OrdinalIgnoreCase)
+        {
+            { IntegerTypeName, _integer },
+            { RealTypeName, _real },
+            { BlobTypeName, _blob },
+            { TextTypeName, _text }
+        };
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
+        protected override RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)
         {
             var mapping = FindRawMapping(mappingInfo);
 
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                     : mapping;
         }
 
-        private RelationalTypeMapping FindRawMapping(RelationalTypeMappingInfo mappingInfo)
+        private RelationalTypeMapping? FindRawMapping(RelationalTypeMappingInfo mappingInfo)
         {
             var clrType = mappingInfo.ClrType;
             if (clrType != null
@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             return mapping;
         }
 
-        private readonly Func<string, RelationalTypeMapping>[] _typeRules =
+        private readonly Func<string, RelationalTypeMapping?>[] _typeRules =
         {
             name => Contains(name, "INT")
                 ? _integer

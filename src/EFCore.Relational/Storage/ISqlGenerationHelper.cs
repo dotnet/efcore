@@ -5,6 +5,8 @@ using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -104,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="name"> The identifier to delimit. </param>
         /// <param name="schema"> The schema of the identifier. </param>
         /// <returns> The generated string. </returns>
-        string DelimitIdentifier([NotNull] string name, [CanBeNull] string schema);
+        string DelimitIdentifier([NotNull] string name, [CanBeNull] string? schema);
 
         /// <summary>
         ///     Writes the delimited SQL representation of an identifier (column name, table name, etc.).
@@ -112,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="builder"> The <see cref="StringBuilder" /> to write generated string to. </param>
         /// <param name="name"> The identifier to delimit. </param>
         /// <param name="schema"> The schema of the identifier. </param>
-        void DelimitIdentifier([NotNull] StringBuilder builder, [NotNull] string name, [CanBeNull] string schema);
+        void DelimitIdentifier([NotNull] StringBuilder builder, [NotNull] string name, [CanBeNull] string? schema);
 
         /// <summary>
         ///     Generates a SQL comment.

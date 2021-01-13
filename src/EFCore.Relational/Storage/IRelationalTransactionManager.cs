@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -49,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="transaction"> The transaction to be used. </param>
         /// <returns> An instance of <see cref="IDbTransaction" /> that wraps the provided transaction. </returns>
-        IDbContextTransaction UseTransaction([CanBeNull] DbTransaction transaction);
+        IDbContextTransaction? UseTransaction([CanBeNull] DbTransaction? transaction);
 
         /// <summary>
         ///     Specifies an existing <see cref="DbTransaction" /> to be used for database operations.
@@ -57,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="transaction"> The transaction to be used. </param>
         /// <param name="transactionId"> The unique identifier for the transaction. </param>
         /// <returns> An instance of <see cref="IDbTransaction" /> that wraps the provided transaction. </returns>
-        IDbContextTransaction UseTransaction([CanBeNull] DbTransaction transaction, Guid transactionId);
+        IDbContextTransaction? UseTransaction([CanBeNull] DbTransaction? transaction, Guid transactionId);
 
         /// <summary>
         ///     Specifies an existing <see cref="DbTransaction" /> to be used for database operations.
@@ -66,8 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> An instance of <see cref="IDbTransaction" /> that wraps the provided transaction. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        Task<IDbContextTransaction> UseTransactionAsync(
-            [CanBeNull] DbTransaction transaction,
+        Task<IDbContextTransaction?> UseTransactionAsync(
+            [CanBeNull] DbTransaction? transaction,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -78,8 +80,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> An instance of <see cref="IDbTransaction" /> that wraps the provided transaction. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        Task<IDbContextTransaction> UseTransactionAsync(
-            [CanBeNull] DbTransaction transaction,
+        Task<IDbContextTransaction?> UseTransactionAsync(
+            [CanBeNull] DbTransaction? transaction,
             Guid transactionId,
             CancellationToken cancellationToken = default);
     }

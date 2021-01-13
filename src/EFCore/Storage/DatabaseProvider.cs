@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -44,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     for the providers runtime.
         /// </summary>
         public virtual string Name
-            => typeof(TOptionsExtension).Assembly.GetName().Name;
+            => typeof(TOptionsExtension).Assembly.GetName().Name!;
 
         /// <summary>
         ///     Gets a value indicating whether this database provider has been selected for a given context.

@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Check.NotNull(source2, nameof(source2));
 
             return source1 != Source1 || source2 != Source2
-                ? new ExceptExpression(Alias!, source1, source2, IsDistinct)
+                ? new ExceptExpression(Alias, source1, source2, IsDistinct)
                 : this;
         }
 

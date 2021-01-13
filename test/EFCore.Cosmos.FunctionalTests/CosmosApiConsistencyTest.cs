@@ -27,13 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
         public class CosmosApiConsistencyFixture : ApiConsistencyFixtureBase
         {
-            public override bool TryGetProviderOptionsDelegate(out Action<DbContextOptionsBuilder> configureOptions)
-            {
-                configureOptions = b => CosmosTestHelpers.Instance.UseProviderOptions(b);
-
-                return true;
-            }
-
             public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>
             {
                 typeof(CosmosModelBuilderExtensions),

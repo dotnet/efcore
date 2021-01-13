@@ -8,6 +8,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -336,11 +338,11 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IExecutionStrategy strategy,
             [CanBeNull] TState state,
             [NotNull] Func<TState, TResult> operation,
-            [CanBeNull] Func<TState, ExecutionResult<TResult>> verifySucceeded)
+            [CanBeNull] Func<TState, ExecutionResult<TResult>>? verifySucceeded)
             => Check.NotNull(strategy, nameof(strategy)).Execute(
                 state,
                 (c, s) => operation(s),
-                verifySucceeded == null ? (Func<DbContext, TState, ExecutionResult<TResult>>)null : (c, s) => verifySucceeded(s));
+                verifySucceeded == null ? (Func<DbContext, TState, ExecutionResult<TResult>>?)null : (c, s) => verifySucceeded(s));
 
         /// <summary>
         ///     Executes the specified asynchronous operation and returns the result.
@@ -370,13 +372,13 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IExecutionStrategy strategy,
             [CanBeNull] TState state,
             [NotNull] Func<TState, CancellationToken, Task<TResult>> operation,
-            [CanBeNull] Func<TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded,
+            [CanBeNull] Func<TState, CancellationToken, Task<ExecutionResult<TResult>>>? verifySucceeded,
             CancellationToken cancellationToken = default)
             => Check.NotNull(strategy, nameof(strategy)).ExecuteAsync(
                 state,
                 (c, s, ct) => operation(s, ct),
                 verifySucceeded == null
-                    ? (Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>>)null
+                    ? (Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>>?)null
                     : (c, s, ct) => verifySucceeded(s, ct), cancellationToken);
 
         /// <summary>
@@ -398,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IExecutionStrategy strategy,
             [NotNull] Action operation,
             [NotNull] Func<bool> verifySucceeded)
-            => strategy.ExecuteInTransaction<object>(null, s => operation(), s => verifySucceeded());
+            => strategy.ExecuteInTransaction<object?>(null, s => operation(), s => verifySucceeded());
 
         /// <summary>
         ///     Executes the specified asynchronous operation in a transaction. Allows to check whether
@@ -424,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IExecutionStrategy strategy,
             [NotNull] Func<Task> operation,
             [NotNull] Func<Task<bool>> verifySucceeded)
-            => strategy.ExecuteInTransactionAsync<object>(null, (s, ct) => operation(), (s, ct) => verifySucceeded());
+            => strategy.ExecuteInTransactionAsync<object?>(null, (s, ct) => operation(), (s, ct) => verifySucceeded());
 
         /// <summary>
         ///     Executes the specified asynchronous operation in a transaction. Allows to check whether
@@ -456,7 +458,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] Func<CancellationToken, Task> operation,
             [NotNull] Func<CancellationToken, Task<bool>> verifySucceeded,
             CancellationToken cancellationToken = default)
-            => strategy.ExecuteInTransactionAsync<object>(
+            => strategy.ExecuteInTransactionAsync<object?>(
                 null, (s, ct) => operation(ct), (s, ct) => verifySucceeded(ct), cancellationToken);
 
         /// <summary>
@@ -480,7 +482,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IExecutionStrategy strategy,
             [NotNull] Func<TResult> operation,
             [NotNull] Func<bool> verifySucceeded)
-            => strategy.ExecuteInTransaction<object, TResult>(null, s => operation(), s => verifySucceeded());
+            => strategy.ExecuteInTransaction<object?, TResult>(null, s => operation(), s => verifySucceeded());
 
         /// <summary>
         ///     Executes the specified asynchronous operation in a transaction and returns the result. Allows to check whether
@@ -513,7 +515,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] Func<CancellationToken, Task<TResult>> operation,
             [NotNull] Func<CancellationToken, Task<bool>> verifySucceeded,
             CancellationToken cancellationToken = default)
-            => strategy.ExecuteInTransactionAsync<object, TResult>(
+            => strategy.ExecuteInTransactionAsync<object?, TResult>(
                 null, (s, ct) => operation(ct), (s, ct) => verifySucceeded(ct), cancellationToken);
 
         /// <summary>
@@ -762,6 +764,7 @@ namespace Microsoft.EntityFrameworkCore
                 Operation = operation;
                 VerifySucceeded = verifySucceeded;
                 State = state;
+                Result = default!;
             }
 
             public Func<TState, TResult> Operation { get; }
@@ -781,6 +784,7 @@ namespace Microsoft.EntityFrameworkCore
                 Operation = operation;
                 VerifySucceeded = verifySucceeded;
                 State = state;
+                Result = default!;
             }
 
             public Func<TState, CancellationToken, Task<TResult>> Operation { get; }

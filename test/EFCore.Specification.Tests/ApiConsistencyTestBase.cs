@@ -670,7 +670,13 @@ namespace Microsoft.EntityFrameworkCore
                        && !it.Name.EndsWith("Dependencies", StringComparison.Ordinal)
                        && (it.GetConstructors().Length != 1
                            || it.GetConstructors()[0].GetParameters().Length == 0
-                           || it.GetConstructors()[0].GetParameters()[0].Name != "dependencies")
+                           || it.GetConstructors()[0].GetParameters()[0].Name != "dependencies"
+                           // Check that the parameter has a non-public copy constructor, identifying C# 9 records
+                           || !it.GetConstructors()[0].GetParameters()[0].ParameterType
+                               .GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)
+                               .Any(c => c.GetParameters() is var parameters
+                                   && parameters.Length == 1
+                                   && parameters[0].Name == "original"))
                    select it)
                 .ToList();
 
@@ -899,8 +905,6 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Initialize();
             }
-
-            public abstract bool TryGetProviderOptionsDelegate(out Action<DbContextOptionsBuilder> configureOptions);
 
             public virtual HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>();
 

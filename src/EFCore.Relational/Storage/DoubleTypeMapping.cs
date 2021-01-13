@@ -7,6 +7,8 @@ using System.Globalization;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>

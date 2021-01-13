@@ -326,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             int index,
             IPropertyBase property)
 #pragma warning restore IDE0060 // Remove unused parameter
-            => (TValue)valueBuffer[index];
+            => (TValue)valueBuffer[index]!;
 
         /// <summary>
         ///     <para>

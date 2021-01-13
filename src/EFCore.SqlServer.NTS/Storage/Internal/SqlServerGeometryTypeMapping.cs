@@ -18,6 +18,8 @@ using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
     /// <summary>
@@ -30,10 +32,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         where TGeometry : Geometry
     {
         private static readonly MethodInfo _getSqlBytes
-            = typeof(SqlDataReader).GetRuntimeMethod(nameof(SqlDataReader.GetSqlBytes), new[] { typeof(int) });
+            = typeof(SqlDataReader).GetRuntimeMethod(nameof(SqlDataReader.GetSqlBytes), new[] { typeof(int) })!;
 
-        private static Action<DbParameter, SqlDbType> _sqlDbTypeSetter;
-        private static Action<DbParameter, string> _udtTypeNameSetter;
+        private static Action<DbParameter, SqlDbType>? _sqlDbTypeSetter;
+        private static Action<DbParameter, string>? _udtTypeNameSetter;
 
         private readonly bool _isGeography;
 
@@ -60,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         protected SqlServerGeometryTypeMapping(
             RelationalTypeMappingParameters parameters,
-            [CanBeNull] ValueConverter<TGeometry, SqlBytes> converter)
+            [CanBeNull] ValueConverter<TGeometry, SqlBytes>? converter)
             : base(parameters, converter)
         {
             _isGeography = IsGeography(StoreType);
@@ -185,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             return Expression.Lambda<Action<DbParameter, SqlDbType>>(
                 Expression.Call(
                     Expression.Convert(paramParam, paramType),
-                    paramType.GetProperty("SqlDbType").SetMethod,
+                    paramType.GetProperty("SqlDbType")!.SetMethod!,
                     valueParam),
                 paramParam,
                 valueParam).Compile();
@@ -199,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             return Expression.Lambda<Action<DbParameter, string>>(
                 Expression.Call(
                     Expression.Convert(paramParam, paramType),
-                    paramType.GetProperty("UdtTypeName").SetMethod,
+                    paramType.GetProperty("UdtTypeName")!.SetMethod!,
                     valueParam),
                 paramParam,
                 valueParam).Compile();
