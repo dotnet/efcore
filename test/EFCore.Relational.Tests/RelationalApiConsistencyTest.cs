@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore
         public class RelationalApiConsistencyFixture : ApiConsistencyFixtureBase
         {
             private static Dictionary<Type, (Type Mutable, Type Convention, Type ConventionBuilder)> _metadataTypes
-                => new Dictionary<Type, (Type, Type, Type)>
+                => new()
                 {
                     {
                         typeof(IDbFunction),
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore
                     { typeof(ICheckConstraint), (typeof(IMutableCheckConstraint), typeof(IConventionCheckConstraint), null) }
                 };
 
-            public virtual HashSet<Type> RelationalMetadataTypes { get; } = new HashSet<Type>
+            public virtual HashSet<Type> RelationalMetadataTypes { get; } = new()
             {
                 typeof(IRelationalModel),
                 typeof(ITableBase),
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(IUniqueConstraint)
             };
 
-            public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>
+            public override HashSet<Type> FluentApiTypes { get; } = new()
             {
                 typeof(RelationalForeignKeyBuilderExtensions),
                 typeof(RelationalPropertyBuilderExtensions),
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore
             public override
                 List<(Type Type, Type ReadonlyExtensions, Type MutableExtensions, Type ConventionExtensions, Type
                     ConventionBuilderExtensions)> MetadataExtensionTypes { get; }
-                = new List<(Type, Type, Type, Type, Type)>
+                = new()
                 {
                     (typeof(IModel), typeof(RelationalModelExtensions), typeof(RelationalModelExtensions),
                         typeof(RelationalModelExtensions), typeof(RelationalModelBuilderExtensions)),
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore
                 };
 
             public override HashSet<MethodInfo> NonVirtualMethods { get; }
-                = new HashSet<MethodInfo>
+                = new()
                 {
                     typeof(RelationalCompiledQueryCacheKeyGenerator)
                         .GetRuntimeMethods()
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore
                                 && m.DeclaringType == typeof(RelationalCompiledQueryCacheKeyGenerator))
                 };
 
-            public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new HashSet<MethodInfo>
+            public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new()
             {
                 typeof(IDbFunction).GetMethod("get_ReturnEntityType"),
                 typeof(IMutableSequence).GetMethod("set_ClrType"),
@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore
                     nameof(RelationalEntityTypeBuilderExtensions.ExcludeTableFromMigrations))
             };
 
-            public override HashSet<MethodInfo> AsyncMethodExceptions { get; } = new HashSet<MethodInfo>
+            public override HashSet<MethodInfo> AsyncMethodExceptions { get; } = new()
             {
                 typeof(RelationalDatabaseFacadeExtensions).GetMethod(nameof(RelationalDatabaseFacadeExtensions.CloseConnectionAsync)),
                 typeof(IRelationalConnection).GetMethod(nameof(IRelationalConnection.CloseAsync)),
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(RelationalLoggerExtensions).GetMethod(nameof(RelationalLoggerExtensions.ConnectionClosedAsync))
             };
 
-            public List<IReadOnlyList<MethodInfo>> RelationalMetadataMethods { get; } = new List<IReadOnlyList<MethodInfo>>();
+            public List<IReadOnlyList<MethodInfo>> RelationalMetadataMethods { get; } = new();
 
             protected override void Initialize()
             {

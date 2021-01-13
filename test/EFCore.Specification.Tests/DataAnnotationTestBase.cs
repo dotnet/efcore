@@ -2264,7 +2264,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             public Guid Id { get; set; }
             private readonly string _email = string.Empty;
-            private readonly List<Profile13694> _profiles = new List<Profile13694>();
+            private readonly List<Profile13694> _profiles = new();
         }
 
         protected class Profile13694

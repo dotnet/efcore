@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="name"> The name of the base type or <see langword="null" /> to indicate no base type. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual EntityTypeBuilder<TEntity> HasBaseType([CanBeNull] string name)
-            => new EntityTypeBuilder<TEntity>(Builder.HasBaseType(name, ConfigurationSource.Explicit).Metadata);
+            => new(Builder.HasBaseType(name, ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     Sets the base type of this entity type in an inheritance hierarchy.
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="entityType"> The base type or <see langword="null" /> to indicate no base type. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual EntityTypeBuilder<TEntity> HasBaseType([CanBeNull] Type entityType)
-            => new EntityTypeBuilder<TEntity>(Builder.HasBaseType(entityType, ConfigurationSource.Explicit).Metadata);
+            => new(Builder.HasBaseType(entityType, ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     Sets the base type of this entity type in an inheritance hierarchy.
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyNames"> The names of the properties that make up the primary key. </param>
         /// <returns> An object that can be used to configure the primary key. </returns>
         public new virtual KeyBuilder<TEntity> HasKey([NotNull] params string[] propertyNames)
-            => new KeyBuilder<TEntity>(
+            => new(
                 Builder.PrimaryKey(
                     Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit).Metadata);
 
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the key. </returns>
         public virtual KeyBuilder<TEntity> HasAlternateKey([NotNull] Expression<Func<TEntity, object>> keyExpression)
-            => new KeyBuilder<TEntity>(
+            => new(
                 Builder.HasKey(
                     Check.NotNull(keyExpression, nameof(keyExpression)).GetMemberAccessList(),
                     ConfigurationSource.Explicit).Metadata);
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyNames"> The names of the properties that make up the key. </param>
         /// <returns> An object that can be used to configure the key. </returns>
         public new virtual KeyBuilder<TEntity> HasAlternateKey([NotNull] params string[] propertyNames)
-            => new KeyBuilder<TEntity>(
+            => new(
                 Builder.HasKey(
                     Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit).Metadata);
 
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the property. </returns>
         public virtual PropertyBuilder<TProperty> Property<TProperty>([NotNull] Expression<Func<TEntity, TProperty>> propertyExpression)
-            => new PropertyBuilder<TProperty>(
+            => new(
                 Builder.Property(
                         Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(), ConfigurationSource.Explicit)
                     .Metadata);
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual NavigationBuilder<TEntity, TNavigation> Navigation<TNavigation>(
             [NotNull] Expression<Func<TEntity, TNavigation>> navigationExpression)
             where TNavigation : class
-            => new NavigationBuilder<TEntity, TNavigation>(
+            => new(
                 Builder.Navigation(
                     Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
 
@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual NavigationBuilder<TEntity, TNavigation> Navigation<TNavigation>(
             [NotNull] Expression<Func<TEntity, IEnumerable<TNavigation>>> navigationExpression)
             where TNavigation : class
-            => new NavigationBuilder<TEntity, TNavigation>(
+            => new(
                 Builder.Navigation(
                     Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
 
@@ -262,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the index. </returns>
         public virtual IndexBuilder<TEntity> HasIndex([NotNull] Expression<Func<TEntity, object>> indexExpression)
-            => new IndexBuilder<TEntity>(
+            => new(
                 Builder.HasIndex(
                     Check.NotNull(indexExpression, nameof(indexExpression)).GetMemberAccessList(),
                     ConfigurationSource.Explicit).Metadata);
@@ -287,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual IndexBuilder<TEntity> HasIndex(
             [NotNull] Expression<Func<TEntity, object>> indexExpression,
             [NotNull] string name)
-            => new IndexBuilder<TEntity>(
+            => new(
                 Builder.HasIndex(
                     Check.NotNull(indexExpression, nameof(indexExpression)).GetMemberAccessList(),
                     name,
@@ -301,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyNames"> The names of the properties that make up the index. </param>
         /// <returns> An object that can be used to configure the index. </returns>
         public new virtual IndexBuilder<TEntity> HasIndex([NotNull] params string[] propertyNames)
-            => new IndexBuilder<TEntity>(
+            => new(
                 Builder.HasIndex(
                     Check.NotEmpty(propertyNames, nameof(propertyNames)),
                     ConfigurationSource.Explicit).Metadata);
@@ -317,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public new virtual IndexBuilder<TEntity> HasIndex(
             [NotNull] string[] propertyNames,
             [NotNull] string name)
-            => new IndexBuilder<TEntity>(
+            => new(
                 Builder.HasIndex(
                     Check.NotEmpty(propertyNames, nameof(propertyNames)),
                     name,

@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => Context.Dispose();
 
         private TestExecutionStrategy CreateFailOnRetryStrategy()
-            => new TestExecutionStrategy(
+            => new(
                 Context,
                 shouldRetryOn: e =>
                 {

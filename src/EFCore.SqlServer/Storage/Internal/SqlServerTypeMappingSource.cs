@@ -57,64 +57,64 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 storeTypePostfix: StoreTypePostfix.None);
 
         private readonly IntTypeMapping _int
-            = new IntTypeMapping("int", DbType.Int32);
+            = new("int", DbType.Int32);
 
         private readonly BoolTypeMapping _bool
             = new SqlServerBoolTypeMapping("bit");
 
         private readonly SqlServerStringTypeMapping _fixedLengthUnicodeString
-            = new SqlServerStringTypeMapping(unicode: true, fixedLength: true);
+            = new(unicode: true, fixedLength: true);
 
         private readonly SqlServerStringTypeMapping _textUnicodeString
-            = new SqlServerStringTypeMapping("ntext", unicode: true, sqlDbType: SqlDbType.NText, storeTypePostfix: StoreTypePostfix.None);
+            = new("ntext", unicode: true, sqlDbType: SqlDbType.NText, storeTypePostfix: StoreTypePostfix.None);
 
         private readonly SqlServerStringTypeMapping _variableLengthUnicodeString
-            = new SqlServerStringTypeMapping(unicode: true);
+            = new(unicode: true);
 
         private readonly SqlServerStringTypeMapping _variableLengthMaxUnicodeString
-            = new SqlServerStringTypeMapping("nvarchar(max)", unicode: true, storeTypePostfix: StoreTypePostfix.None);
+            = new("nvarchar(max)", unicode: true, storeTypePostfix: StoreTypePostfix.None);
 
         private readonly SqlServerStringTypeMapping _fixedLengthAnsiString
-            = new SqlServerStringTypeMapping(fixedLength: true);
+            = new(fixedLength: true);
 
         private readonly SqlServerStringTypeMapping _textAnsiString
-            = new SqlServerStringTypeMapping("text", sqlDbType: SqlDbType.Text, storeTypePostfix: StoreTypePostfix.None);
+            = new("text", sqlDbType: SqlDbType.Text, storeTypePostfix: StoreTypePostfix.None);
 
         private readonly SqlServerStringTypeMapping _variableLengthAnsiString
-            = new SqlServerStringTypeMapping();
+            = new();
 
         private readonly SqlServerStringTypeMapping _variableLengthMaxAnsiString
-            = new SqlServerStringTypeMapping("varchar(max)", storeTypePostfix: StoreTypePostfix.None);
+            = new("varchar(max)", storeTypePostfix: StoreTypePostfix.None);
 
         private readonly SqlServerByteArrayTypeMapping _variableLengthBinary
-            = new SqlServerByteArrayTypeMapping();
+            = new();
 
         private readonly SqlServerByteArrayTypeMapping _imageBinary
-            = new SqlServerByteArrayTypeMapping("image", sqlDbType: SqlDbType.Image);
+            = new("image", sqlDbType: SqlDbType.Image);
 
         private readonly SqlServerByteArrayTypeMapping _variableLengthMaxBinary
-            = new SqlServerByteArrayTypeMapping("varbinary(max)", storeTypePostfix: StoreTypePostfix.None);
+            = new("varbinary(max)", storeTypePostfix: StoreTypePostfix.None);
 
         private readonly SqlServerByteArrayTypeMapping _fixedLengthBinary
-            = new SqlServerByteArrayTypeMapping(fixedLength: true);
+            = new(fixedLength: true);
 
         private readonly SqlServerDateTimeTypeMapping _date
-            = new SqlServerDateTimeTypeMapping("date", DbType.Date);
+            = new("date", DbType.Date);
 
         private readonly SqlServerDateTimeTypeMapping _datetime
-            = new SqlServerDateTimeTypeMapping("datetime", DbType.DateTime);
+            = new("datetime", DbType.DateTime);
 
         private readonly SqlServerDateTimeTypeMapping _datetime2
-            = new SqlServerDateTimeTypeMapping("datetime2", DbType.DateTime2);
+            = new("datetime2", DbType.DateTime2);
 
         private readonly DoubleTypeMapping _double
             = new SqlServerDoubleTypeMapping("float");
 
         private readonly SqlServerDateTimeOffsetTypeMapping _datetimeoffset
-            = new SqlServerDateTimeOffsetTypeMapping("datetimeoffset");
+            = new("datetimeoffset");
 
         private readonly GuidTypeMapping _uniqueidentifier
-            = new GuidTypeMapping("uniqueidentifier", DbType.Guid);
+            = new("uniqueidentifier", DbType.Guid);
 
         private readonly DecimalTypeMapping _decimal
             = new SqlServerDecimalTypeMapping(
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             = new SqlServerTimeSpanTypeMapping("time");
 
         private readonly SqlServerStringTypeMapping _xml
-            = new SqlServerStringTypeMapping("xml", unicode: true, storeTypePostfix: StoreTypePostfix.None);
+            = new("xml", unicode: true, storeTypePostfix: StoreTypePostfix.None);
 
         private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
 

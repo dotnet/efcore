@@ -17,7 +17,7 @@ namespace Microsoft.Data.Sqlite
     /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
     public class SqliteParameterCollection : DbParameterCollection
     {
-        private readonly List<SqliteParameter> _parameters = new List<SqliteParameter>();
+        private readonly List<SqliteParameter> _parameters = new();
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="SqliteParameterCollection" /> class.

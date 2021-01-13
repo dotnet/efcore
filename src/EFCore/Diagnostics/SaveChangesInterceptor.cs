@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DbContextEventData eventData,
             InterceptionResult<int> result,
             CancellationToken cancellationToken = default)
-            => new ValueTask<InterceptionResult<int>>(result);
+            => new(result);
 
         /// <summary>
         ///     <para>
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             SaveChangesCompletedEventData eventData,
             int result,
             CancellationToken cancellationToken = default)
-            => new ValueTask<int>(result);
+            => new(result);
 
         /// <summary>
         ///     Called when an exception has been thrown in <see cref="M:DbContext.SaveChangesAsync" />.

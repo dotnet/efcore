@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     public class SqlServerDateTimeMemberTranslator : IMemberTranslator
     {
         private static readonly Dictionary<string, string> _datePartMapping
-            = new Dictionary<string, string>
+            = new()
             {
                 { nameof(DateTime.Year), "year" },
                 { nameof(DateTime.Month), "month" },

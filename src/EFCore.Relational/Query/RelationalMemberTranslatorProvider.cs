@@ -30,8 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public class RelationalMemberTranslatorProvider : IMemberTranslatorProvider
     {
-        private readonly List<IMemberTranslator> _plugins = new List<IMemberTranslator>();
-        private readonly List<IMemberTranslator> _translators = new List<IMemberTranslator>();
+        private readonly List<IMemberTranslator> _plugins = new();
+        private readonly List<IMemberTranslator> _translators = new();
 
         /// <summary>
         ///     Creates a new instance of the <see cref="RelationalMemberTranslatorProvider" /> class.

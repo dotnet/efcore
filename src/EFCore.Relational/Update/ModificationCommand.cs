@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         private readonly Func<string> _generateParameterName;
         private readonly bool _sensitiveLoggingEnabled;
         private readonly IComparer<IUpdateEntry> _comparer;
-        private readonly List<IUpdateEntry> _entries = new List<IUpdateEntry>();
+        private readonly List<IUpdateEntry> _entries = new();
         private IReadOnlyList<ColumnModification> _columnModifications;
         private bool _requiresResultPropagation;
         private bool _mainEntryAdded;

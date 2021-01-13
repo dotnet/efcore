@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId ExecutingSqlQuery
-            = new EventId((int)Id.ExecutingSqlQuery, _commandPrefix + Id.ExecutingSqlQuery);
+            = new((int)Id.ExecutingSqlQuery, _commandPrefix + Id.ExecutingSqlQuery);
 
         /// <summary>
         ///     <para>
@@ -54,6 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId ExecutingReadItem
-                = new EventId((int)Id.ExecutingReadItem, _commandPrefix + Id.ExecutingReadItem);
+                = new((int)Id.ExecutingReadItem, _commandPrefix + Id.ExecutingReadItem);
     }
 }

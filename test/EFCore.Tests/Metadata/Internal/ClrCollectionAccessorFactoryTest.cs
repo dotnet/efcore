@@ -645,7 +645,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public static MyPrivateCollection Create()
             {
-                return new MyPrivateCollection();
+                return new();
             }
         }
 

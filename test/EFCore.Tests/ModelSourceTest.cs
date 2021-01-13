@@ -26,11 +26,11 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class ModelSourceTest
     {
-        private readonly IConventionSetBuilder _nullConventionSetBuilder =
-            new NullConventionSetBuilder();
+        private readonly IConventionSetBuilder _nullConventionSetBuilder
+            = new NullConventionSetBuilder();
 
-        private readonly ModelDependencies _testModelDependencies =
-            new ModelDependencies(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>());
+        private readonly ModelDependencies _testModelDependencies
+            = new(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>());
 
         [ConditionalFact]
         public void OnModelCreating_is_only_called_once()
@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore
         private class NullConventionSetBuilder : IConventionSetBuilder
         {
             public ConventionSet CreateConventionSet()
-                => new ConventionSet();
+                => new();
         }
     }
 }

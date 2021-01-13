@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static MappedDataTypes CreateMappedDataTypes(int id)
-            => new MappedDataTypes
+            => new()
             {
                 Id = id,
                 Int = 77,
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static MappedNullableDataTypes CreateMappedNullableDataTypes(int id)
-            => new MappedNullableDataTypes
+            => new()
             {
                 Id = id,
                 Int = 77,
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static MappedSizedDataTypes CreateMappedSizedDataTypes(int id)
-            => new MappedSizedDataTypes
+            => new()
             {
                 Id = id,
                 Nvarchar = "Into",
@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static MappedScaledDataTypes CreateMappedScaledDataTypes(int id)
-            => new MappedScaledDataTypes
+            => new()
             {
                 Id = id,
                 Float = 83.3f,
@@ -290,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static MappedDataTypesWithIdentity CreateMappedDataTypesWithIdentity(int id)
-            => new MappedDataTypesWithIdentity
+            => new()
             {
                 AltId = id,
                 Int = 77,
@@ -329,7 +329,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static MappedNullableDataTypesWithIdentity CreateMappedNullableDataTypesWithIdentity(int id)
-            => new MappedNullableDataTypesWithIdentity
+            => new()
             {
                 AltId = id,
                 Int = 77,
@@ -395,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static MappedSizedDataTypesWithIdentity CreateMappedSizedDataTypesWithIdentity(int id)
-            => new MappedSizedDataTypesWithIdentity
+            => new()
             {
                 AltId = id,
                 Nvarchar = "Into",
@@ -454,7 +454,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static MappedScaledDataTypesWithIdentity CreateMappedScaledDataTypesWithIdentity(int id)
-            => new MappedScaledDataTypesWithIdentity
+            => new()
             {
                 AltId = id,
                 Float = 83.3f,
@@ -1772,7 +1772,7 @@ ORDER BY ""b"".""Id"", ""b0"".""Id""");
                 => true;
 
             public override DateTime DefaultDateTime
-                => new DateTime();
+                => new();
         }
 
         protected class MappedDataTypes

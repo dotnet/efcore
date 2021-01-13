@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual ReferenceReferenceBuilder HasForeignKey(
             [NotNull] string dependentEntityTypeName,
             [NotNull] params string[] foreignKeyPropertyNames)
-            => new ReferenceReferenceBuilder(
+            => new(
                 HasForeignKeyBuilder(
                     ResolveEntityType(Check.NotNull(dependentEntityTypeName, nameof(dependentEntityTypeName))),
                     dependentEntityTypeName,
@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual ReferenceReferenceBuilder HasForeignKey(
             [NotNull] Type dependentEntityType,
             [NotNull] params string[] foreignKeyPropertyNames)
-            => new ReferenceReferenceBuilder(
+            => new(
                 HasForeignKeyBuilder(
                     ResolveEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType))),
                     dependentEntityType.ShortDisplayName(),
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual ReferenceReferenceBuilder HasPrincipalKey(
             [NotNull] string principalEntityTypeName,
             [NotNull] params string[] keyPropertyNames)
-            => new ReferenceReferenceBuilder(
+            => new(
                 HasPrincipalKeyBuilder(
                     ResolveEntityType(Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName))),
                     principalEntityTypeName,
@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual ReferenceReferenceBuilder HasPrincipalKey(
             [NotNull] Type principalEntityType,
             [NotNull] params string[] keyPropertyNames)
-            => new ReferenceReferenceBuilder(
+            => new(
                 HasPrincipalKeyBuilder(
                     ResolveEntityType(Check.NotNull(principalEntityType, nameof(principalEntityType))),
                     principalEntityType.ShortDisplayName(),
@@ -376,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="required"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceReferenceBuilder IsRequired(bool required = true)
-            => new ReferenceReferenceBuilder(Builder.IsRequired(required, ConfigurationSource.Explicit), this, requiredSet: true);
+            => new(Builder.IsRequired(required, ConfigurationSource.Explicit), this, requiredSet: true);
 
         /// <summary>
         ///     Configures the operation applied to dependent entities in the relationship when the
@@ -385,6 +385,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="deleteBehavior"> The action to perform. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceReferenceBuilder OnDelete(DeleteBehavior deleteBehavior)
-            => new ReferenceReferenceBuilder(Builder.OnDelete(deleteBehavior, ConfigurationSource.Explicit), this);
+            => new(Builder.OnDelete(deleteBehavior, ConfigurationSource.Explicit), this);
     }
 }

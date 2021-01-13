@@ -1101,7 +1101,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private sealed class MemberInfoNameComparer : IComparer<MemberInfo>
         {
-            public static readonly MemberInfoNameComparer Instance = new MemberInfoNameComparer();
+            public static readonly MemberInfoNameComparer Instance = new();
 
             private MemberInfoNameComparer()
             {

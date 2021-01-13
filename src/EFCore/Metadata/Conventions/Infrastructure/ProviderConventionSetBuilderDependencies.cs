@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <param name="currentContext"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public ProviderConventionSetBuilderDependencies With([NotNull] ICurrentDbContext currentContext)
-            => new ProviderConventionSetBuilderDependencies(
+            => new(
                 TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier, Logger, ValidationLogger,
                 SetFinder, currentContext, ModelValidator);
     }

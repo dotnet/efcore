@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private static readonly PropertyInfo _queryContextContextPropertyInfo
             = typeof(QueryContext).GetRequiredDeclaredProperty(nameof(QueryContext.Context));
 
-        private static readonly Dictionary<MethodInfo, MethodInfo> _predicateLessMethodInfo = new Dictionary<MethodInfo, MethodInfo>
+        private static readonly Dictionary<MethodInfo, MethodInfo> _predicateLessMethodInfo = new()
         {
             { QueryableMethods.FirstWithPredicate, QueryableMethods.FirstWithoutPredicate },
             { QueryableMethods.FirstOrDefaultWithPredicate, QueryableMethods.FirstOrDefaultWithoutPredicate },
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             { QueryableMethods.LastOrDefaultWithPredicate, QueryableMethods.LastOrDefaultWithoutPredicate }
         };
 
-        private static readonly List<MethodInfo> _supportedFilteredIncludeOperations = new List<MethodInfo>
+        private static readonly List<MethodInfo> _supportedFilteredIncludeOperations = new()
         {
             QueryableMethods.Where,
             QueryableMethods.OrderBy,
@@ -60,14 +60,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly ReducingExpressionVisitor _reducingExpressionVisitor;
         private readonly EntityReferenceOptionalMarkingExpressionVisitor _entityReferenceOptionalMarkingExpressionVisitor;
         private readonly RemoveRedundantNavigationComparisonExpressionVisitor _removeRedundantNavigationComparisonExpressionVisitor;
-        private readonly HashSet<string> _parameterNames = new HashSet<string>();
+        private readonly HashSet<string> _parameterNames = new();
         private readonly ParameterExtractingExpressionVisitor _parameterExtractingExpressionVisitor;
         private readonly HashSet<IEntityType> _nonCyclicAutoIncludeEntityTypes;
 
         private readonly Dictionary<IEntityType, LambdaExpression> _parameterizedQueryFilterPredicateCache
-            = new Dictionary<IEntityType, LambdaExpression>();
+            = new();
 
-        private readonly Parameters _parameters = new Parameters();
+        private readonly Parameters _parameters = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

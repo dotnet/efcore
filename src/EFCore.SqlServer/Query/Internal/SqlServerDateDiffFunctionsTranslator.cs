@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     public class SqlServerDateDiffFunctionsTranslator : IMethodCallTranslator
     {
         private readonly Dictionary<MethodInfo, string> _methodInfoDateDiffMapping
-            = new Dictionary<MethodInfo, string>
+            = new()
             {
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRequiredRuntimeMethod(

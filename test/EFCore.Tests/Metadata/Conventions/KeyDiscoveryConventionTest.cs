@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         public ListLoggerFactory ListLoggerFactory { get; }
-            = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Name);
+            = new(l => l == DbLoggerCategory.Model.Name);
 
         private void RunConvention(InternalEntityTypeBuilder entityTypeBuilder)
         {
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private KeyDiscoveryConvention CreateKeyDiscoveryConvention()
-            => new KeyDiscoveryConvention(CreateDependencies());
+            => new(CreateDependencies());
 
         private ProviderConventionSetBuilderDependencies CreateDependencies()
             => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>()

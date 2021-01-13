@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
             [CanBeNull] string schema = null)
-            => new SequenceBuilder(
+            => new(
                 HasSequence(
                     Check.NotNull(modelBuilder, nameof(modelBuilder)).Model,
                     name,

@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class InMemoryTestStoreFactory : ITestStoreFactory
     {
-        public static InMemoryTestStoreFactory Instance { get; } = new InMemoryTestStoreFactory();
+        public static InMemoryTestStoreFactory Instance { get; } = new();
 
         protected InMemoryTestStoreFactory()
         {
@@ -25,6 +25,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 .AddSingleton<TestStoreIndex>();
 
         public ListLoggerFactory CreateListLoggerFactory(Func<string, bool> shouldLogCategory)
-            => new ListLoggerFactory(shouldLogCategory);
+            => new(shouldLogCategory);
     }
 }

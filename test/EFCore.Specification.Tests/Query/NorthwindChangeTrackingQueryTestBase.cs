@@ -401,7 +401,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             => Fixture.CreateContext();
 
         protected virtual NorthwindContext CreateNoTrackingContext()
-            => new NorthwindContext(
+            => new(
                 new DbContextOptionsBuilder(Fixture.CreateOptions())
                     .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking).Options);
     }

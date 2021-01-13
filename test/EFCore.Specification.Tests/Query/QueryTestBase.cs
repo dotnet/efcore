@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected QueryAsserter QueryAsserter { get; }
 
         protected virtual QueryAsserter CreateQueryAsserter(TFixture fixture)
-            => new QueryAsserter(
+            => new(
                 fixture,
                 RewriteExpectedQueryExpression,
                 RewriteServerQueryExpression,

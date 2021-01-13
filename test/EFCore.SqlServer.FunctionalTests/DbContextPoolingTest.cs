@@ -1147,7 +1147,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private int _stopwatchStarted;
 
-        private readonly Stopwatch _stopwatch = new Stopwatch();
+        private readonly Stopwatch _stopwatch = new();
 
         private long _requests;
 

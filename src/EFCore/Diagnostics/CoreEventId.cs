@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";
 
         private static EventId MakeUpdateId(Id id)
-            => new EventId((int)id, _updatePrefix + id);
+            => new((int)id, _updatePrefix + id);
 
         /// <summary>
         ///     <para>
@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
 
         private static EventId MakeQueryId(Id id)
-            => new EventId((int)id, _queryPrefix + id);
+            => new((int)id, _queryPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static readonly string _infraPrefix = DbLoggerCategory.Infrastructure.Name + ".";
 
         private static EventId MakeInfraId(Id id)
-            => new EventId((int)id, _infraPrefix + id);
+            => new((int)id, _infraPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -410,12 +410,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static readonly string _modelPrefix = DbLoggerCategory.Model.Name + ".";
 
         private static EventId MakeModelId(Id id)
-            => new EventId((int)id, _modelPrefix + id);
+            => new((int)id, _modelPrefix + id);
 
         private static readonly string _modelValidationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
 
         private static EventId MakeModelValidationId(Id id)
-            => new EventId((int)id, _modelValidationPrefix + id);
+            => new((int)id, _modelValidationPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -767,7 +767,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static readonly string _changeTrackingPrefix = DbLoggerCategory.ChangeTracking.Name + ".";
 
         private static EventId MakeChangeTrackingId(Id id)
-            => new EventId((int)id, _changeTrackingPrefix + id);
+            => new((int)id, _changeTrackingPrefix + id);
 
         /// <summary>
         ///     <para>

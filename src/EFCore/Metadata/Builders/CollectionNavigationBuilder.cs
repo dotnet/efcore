@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceCollectionBuilder WithOne([CanBeNull] string navigationName = null)
-            => new ReferenceCollectionBuilder(
+            => new(
                 DeclaringEntityType,
                 RelatedEntityType,
                 WithOneBuilder(

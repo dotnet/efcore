@@ -574,8 +574,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Id = i + 1,
                         Posts = new List<Post5456>
                         {
-                            new Post5456 { Comments = new List<Comment5456> { new Comment5456(), new Comment5456() } },
-                            new Post5456()
+                            new() { Comments = new List<Comment5456> { new(), new() } },
+                            new()
                         },
                         Author = new Author5456()
                     });
@@ -933,7 +933,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private class AppEntity21803
         {
-            private readonly List<OtherEntity21803> _otherEntities = new List<OtherEntity21803>();
+            private readonly List<OtherEntity21803> _otherEntities = new();
 
             public int Id { get; private set; }
 
@@ -1254,13 +1254,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var tmp_a = new A19253[]
             {
-                new A19253 {a = "a0", a1 = "a1", forkey = "a"},
-                new A19253 {a = "a2", a1 = "a1", forkey = "d"},
+                new() {a = "a0", a1 = "a1", forkey = "a"},
+                new() {a = "a2", a1 = "a1", forkey = "d"},
             };
             var tmp_b = new B19253[]
             {
-                new B19253 {b = "b0", b1 = "b1", forkey = "a"},
-                new B19253 {b = "b2", b1 = "b1", forkey = "c"},
+                new() {b = "b0", b1 = "b1", forkey = "a"},
+                new() {b = "b2", b1 = "b1", forkey = "c"},
             };
             context.A.AddRange(tmp_a);
             context.B.AddRange(tmp_b);

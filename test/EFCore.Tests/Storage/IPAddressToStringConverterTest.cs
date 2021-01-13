@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public class IPAddressToStringConverterTest
     {
         private static readonly IPAddressToStringConverter _ipAddressToString
-            = new IPAddressToStringConverter();
+            = new();
 
         [ConditionalTheory]
         [InlineData("255.255.255.255")]

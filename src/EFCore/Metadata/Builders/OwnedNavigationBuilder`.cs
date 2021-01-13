@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the primary key. </returns>
         public virtual KeyBuilder<TDependentEntity> HasKey([NotNull] Expression<Func<TDependentEntity, object>> keyExpression)
-            => new KeyBuilder<TDependentEntity>(
+            => new(
                 DependentEntityType.Builder.PrimaryKey(
                     Check.NotNull(keyExpression, nameof(keyExpression)).GetMemberAccessList(), ConfigurationSource.Explicit).Metadata);
 
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyNames"> The names of the properties that make up the primary key. </param>
         /// <returns> An object that can be used to configure the primary key. </returns>
         public new virtual KeyBuilder<TDependentEntity> HasKey([NotNull] params string[] propertyNames)
-            => new KeyBuilder<TDependentEntity>(
+            => new(
                 DependentEntityType.Builder.PrimaryKey(
                     Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit).Metadata);
 
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual NavigationBuilder<TDependentEntity, TNavigation> Navigation<TNavigation>(
             [NotNull] Expression<Func<TDependentEntity, TNavigation>> navigationExpression)
             where TNavigation : class
-            => new NavigationBuilder<TDependentEntity, TNavigation>(
+            => new(
                 DependentEntityType.Builder.Navigation(
                     Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
 
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual NavigationBuilder<TDependentEntity, TNavigation> Navigation<TNavigation>(
             [NotNull] Expression<Func<TDependentEntity, IEnumerable<TNavigation>>> navigationExpression)
             where TNavigation : class
-            => new NavigationBuilder<TDependentEntity, TNavigation>(
+            => new(
                 DependentEntityType.Builder.Navigation(
                     Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
 
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the index. </returns>
         public virtual IndexBuilder<TEntity> HasIndex([NotNull] Expression<Func<TDependentEntity, object>> indexExpression)
-            => new IndexBuilder<TEntity>(
+            => new(
                 DependentEntityType.Builder.HasIndex(
                         Check.NotNull(indexExpression, nameof(indexExpression)).GetMemberAccessList(), ConfigurationSource.Explicit)
                     .Metadata);
@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyNames"> The names of the properties that make up the index. </param>
         /// <returns> An object that can be used to configure the index. </returns>
         public new virtual IndexBuilder<TEntity> HasIndex([NotNull] params string[] propertyNames)
-            => new IndexBuilder<TEntity>(
+            => new(
                 DependentEntityType.Builder.HasIndex(
                     Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit).Metadata);
 
@@ -241,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual OwnershipBuilder<TEntity, TDependentEntity> WithOwner(
             [CanBeNull] Expression<Func<TDependentEntity, TEntity>> referenceExpression)
-            => new OwnershipBuilder<TEntity, TDependentEntity>(
+            => new(
                 PrincipalEntityType,
                 DependentEntityType,
                 Builder.HasNavigation(

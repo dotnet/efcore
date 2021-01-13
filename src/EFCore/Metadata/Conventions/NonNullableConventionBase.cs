@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             public Type NullableContextAttrType;
             public FieldInfo NullableFlagsFieldInfo;
             public FieldInfo NullableContextFlagFieldInfo;
-            public Dictionary<Type, bool> TypeCache { get; } = new Dictionary<Type, bool>();
+            public Dictionary<Type, bool> TypeCache { get; } = new();
         }
     }
 }

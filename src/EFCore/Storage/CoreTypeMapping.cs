@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// <param name="converter"> The converter. </param>
             /// <returns> The new parameter object. </returns>
             public CoreTypeMappingParameters WithComposedConverter([CanBeNull] ValueConverter? converter)
-                => new CoreTypeMappingParameters(
+                => new(
                     ClrType,
                     converter == null ? Converter : converter.ComposeWith(Converter),
                     Comparer,

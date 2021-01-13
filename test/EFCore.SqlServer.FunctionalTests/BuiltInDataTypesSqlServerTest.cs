@@ -789,7 +789,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedDataTypes CreateMappedDataTypes(int id)
-            => new MappedDataTypes
+            => new()
             {
                 Int = id,
                 LongAsBigInt = 78L,
@@ -963,7 +963,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedSquareDataTypes CreateMappedSquareDataTypes(int id)
-            => new MappedSquareDataTypes
+            => new()
             {
                 Int = id,
                 LongAsBigInt = 78L,
@@ -1141,7 +1141,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedNullableDataTypes CreateMappedNullableDataTypes(int id)
-            => new MappedNullableDataTypes
+            => new()
             {
                 Int = id,
                 LongAsBigint = 78L,
@@ -1392,7 +1392,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedSizedDataTypes CreateMappedSizedDataTypes(int id)
-            => new MappedSizedDataTypes
+            => new()
             {
                 Id = id,
                 StringAsChar3 = "Wor",
@@ -1547,7 +1547,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedSizedSeparatelyDataTypes CreateMappedSizedSeparatelyDataTypes(int id)
-            => new MappedSizedSeparatelyDataTypes
+            => new()
             {
                 Id = id,
                 StringAsChar3 = "Wor",
@@ -1618,7 +1618,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedScaledDataTypes CreateMappedScaledDataTypes(int id)
-            => new MappedScaledDataTypes
+            => new()
             {
                 Id = id,
                 FloatAsFloat3 = 83.3f,
@@ -1679,7 +1679,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedScaledSeparatelyDataTypes CreateMappedScaledSeparatelyDataTypes(int id)
-            => new MappedScaledSeparatelyDataTypes
+            => new()
             {
                 Id = id,
                 FloatAsFloat3 = 83.3f,
@@ -1727,7 +1727,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedPrecisionAndScaledDataTypes CreateMappedPrecisionAndScaledDataTypes(int id)
-            => new MappedPrecisionAndScaledDataTypes
+            => new()
             {
                 Id = id,
                 DecimalAsDecimal52 = 101.1m,
@@ -1770,7 +1770,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedPrecisionAndScaledSeparatelyDataTypes CreateMappedPrecisionAndScaledSeparatelyDataTypes(int id)
-            => new MappedPrecisionAndScaledSeparatelyDataTypes
+            => new()
             {
                 Id = id,
                 DecimalAsDecimal52 = 101.1m,
@@ -1910,7 +1910,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedDataTypesWithIdentity CreateMappedDataTypesWithIdentity(int id)
-            => new MappedDataTypesWithIdentity
+            => new()
             {
                 Int = id,
                 LongAsBigint = 78L,
@@ -2098,7 +2098,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedNullableDataTypesWithIdentity CreateMappedNullableDataTypesWithIdentity(int id)
-            => new MappedNullableDataTypesWithIdentity
+            => new()
             {
                 Int = id,
                 LongAsBigint = 78L,
@@ -2352,7 +2352,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedSizedDataTypesWithIdentity CreateMappedSizedDataTypesWithIdentity(int id)
-            => new MappedSizedDataTypesWithIdentity
+            => new()
             {
                 Int = id,
                 StringAsChar3 = "Wor",
@@ -2488,7 +2488,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedScaledDataTypesWithIdentity CreateMappedScaledDataTypesWithIdentity(int id)
-            => new MappedScaledDataTypesWithIdentity
+            => new()
             {
                 Int = id,
                 FloatAsFloat3 = 83.3f,
@@ -2540,7 +2540,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedPrecisionAndScaledDataTypesWithIdentity CreateMappedPrecisionAndScaledDataTypesWithIdentity(int id)
-            => new MappedPrecisionAndScaledDataTypesWithIdentity
+            => new()
             {
                 Int = id,
                 DecimalAsDecimal52 = 101.1m,
@@ -3623,7 +3623,7 @@ WHERE [b].[Id] = 13");
                 => true;
 
             public override DateTime DefaultDateTime
-                => new DateTime();
+                => new();
         }
 
         [Flags]

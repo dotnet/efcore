@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     /// </summary>
     public class HiLoValueGeneratorState : IDisposable
     {
-        private readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1);
+        private readonly SemaphoreSlim _semaphoreSlim = new(1);
         private HiLoValue _currentValue;
         private readonly int _blockSize;
 
@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             public long High { get; }
 
             public HiLoValue NextValue()
-                => new HiLoValue(Low + 1, High);
+                => new(Low + 1, High);
         }
 
         /// <summary>

@@ -235,14 +235,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public NonGenericStringTestReferenceReferenceBuilder HasForeignKey(
                 string dependentEntityTypeName,
                 params string[] foreignKeyPropertyNames)
-                => new NonGenericStringTestReferenceReferenceBuilder(
+                => new(
                     ReferenceReferenceBuilder.HasForeignKey(dependentEntityTypeName, foreignKeyPropertyNames));
 
             public NonGenericStringTestReferenceReferenceBuilder HasPrincipalKey(
                 string principalEntityTypeName,
                 params string[] keyPropertyNames)
-                => new NonGenericStringTestReferenceReferenceBuilder
-                    (ReferenceReferenceBuilder.HasPrincipalKey(principalEntityTypeName, keyPropertyNames));
+                => new(ReferenceReferenceBuilder.HasPrincipalKey(principalEntityTypeName, keyPropertyNames));
 
             private ReferenceReferenceBuilder ReferenceReferenceBuilder { get; }
 

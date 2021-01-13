@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
             = @"(?:(?:\[(?<part{0}>(?:(?:\]\])|[^\]])+)\])|(?<part{0}>[^\.\[\]]+))";
 
         private static readonly Regex _partExtractor
-            = new Regex(
+            = new(
                 string.Format(
                     CultureInfo.InvariantCulture,
                     @"^{0}(?:\.{1})?$",
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
         // see https://msdn.microsoft.com/en-us/library/ff878091.aspx
         // decimal/numeric are excluded because default value varies based on the precision.
         private static readonly Dictionary<string, long[]> _defaultSequenceMinMax =
-            new Dictionary<string, long[]>(StringComparer.OrdinalIgnoreCase)
+            new(StringComparer.OrdinalIgnoreCase)
             {
                 { "tinyint", new[] { 0L, 255L } },
                 { "smallint", new[] { -32768L, 32767L } },

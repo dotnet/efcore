@@ -337,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected override string StoreName { get; } = "MigrationsTest";
 
         public EmptyMigrationsContext CreateEmptyContext()
-            => new EmptyMigrationsContext(
+            => new(
                 TestStore.AddProviderOptions(
                         new DbContextOptionsBuilder())
                     .UseInternalServiceProvider(

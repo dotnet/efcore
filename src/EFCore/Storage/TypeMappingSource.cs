@@ -32,8 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public abstract class TypeMappingSource : TypeMappingSourceBase
     {
-        private readonly ConcurrentDictionary<(TypeMappingInfo, Type?, ValueConverter?), CoreTypeMapping?> _explicitMappings
-            = new ConcurrentDictionary<(TypeMappingInfo, Type?, ValueConverter?), CoreTypeMapping?>();
+        private readonly ConcurrentDictionary<(TypeMappingInfo, Type?, ValueConverter?), CoreTypeMapping?> _explicitMappings = new();
 
         /// <summary>
         ///     Initializes a new instance of the this class.

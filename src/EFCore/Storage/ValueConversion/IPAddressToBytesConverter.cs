@@ -13,8 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     /// </summary>
     public class IPAddressToBytesConverter : ValueConverter<IPAddress, byte[]>
     {
-        private static readonly ConverterMappingHints _defaultHints
-            = new ConverterMappingHints(size: 16);
+        private static readonly ConverterMappingHints _defaultHints = new(size: 16);
 
         /// <summary>
         ///     Creates a new instance of this converter.

@@ -1142,7 +1142,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     e.HasMany(o => o.Products)
                      .WithMany(p => p.Orders);
                     e.HasData(
-                        new Order { Id = 1, Products = new List<Product> { new Product() } });
+                        new Order { Id = 1, Products = new List<Product> { new() } });
                 });
 
             VerifyError(

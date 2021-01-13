@@ -33,27 +33,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private const string DynamicProxyGenAssemblyName = "DynamicProxyGenAssembly2";
 
         private readonly SortedSet<ForeignKey> _foreignKeys
-            = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance);
+            = new(ForeignKeyComparer.Instance);
 
         private readonly SortedDictionary<string, Navigation> _navigations
-            = new SortedDictionary<string, Navigation>(StringComparer.Ordinal);
+            = new(StringComparer.Ordinal);
 
         private readonly SortedDictionary<string, SkipNavigation> _skipNavigations
-            = new SortedDictionary<string, SkipNavigation>(StringComparer.Ordinal);
+            = new(StringComparer.Ordinal);
 
         private readonly SortedDictionary<IReadOnlyList<IProperty>, Index> _unnamedIndexes
-            = new SortedDictionary<IReadOnlyList<IProperty>, Index>(PropertyListComparer.Instance);
+            = new(PropertyListComparer.Instance);
 
         private readonly SortedDictionary<string, Index> _namedIndexes
-            = new SortedDictionary<string, Index>(StringComparer.Ordinal);
+            = new(StringComparer.Ordinal);
 
         private readonly SortedDictionary<string, Property> _properties;
 
         private readonly SortedDictionary<IReadOnlyList<IProperty>, Key> _keys
-            = new SortedDictionary<IReadOnlyList<IProperty>, Key>(PropertyListComparer.Instance);
+            = new(PropertyListComparer.Instance);
 
         private readonly SortedDictionary<string, ServiceProperty> _serviceProperties
-            = new SortedDictionary<string, ServiceProperty>(StringComparer.Ordinal);
+            = new(StringComparer.Ordinal);
 
         private List<object>? _data;
         private Key? _primaryKey;
@@ -361,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private void UpdateBaseTypeConfigurationSource(ConfigurationSource configurationSource)
             => _baseTypeConfigurationSource = configurationSource.Max(_baseTypeConfigurationSource);
 
-        private readonly SortedSet<EntityType> _directlyDerivedTypes = new SortedSet<EntityType>(EntityTypeFullNameComparer.Instance);
+        private readonly SortedSet<EntityType> _directlyDerivedTypes = new(EntityTypeFullNameComparer.Instance);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4250,7 +4250,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual DebugView DebugView
-            => new DebugView(
+            => new(
                 () => this.ToDebugString(MetadataDebugStringOptions.ShortDefault),
                 () => this.ToDebugString(MetadataDebugStringOptions.LongDefault));
     }

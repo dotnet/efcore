@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     /// </summary>
     public class SqliteCharMethodTranslator : IMethodCallTranslator
     {
-        private static readonly Dictionary<MethodInfo, string> _supportedMethods = new Dictionary<MethodInfo, string>
+        private static readonly Dictionary<MethodInfo, string> _supportedMethods = new()
         {
             { typeof(char).GetRequiredRuntimeMethod(nameof(char.ToLower), new[] { typeof(char) }), "lower" },
             { typeof(char).GetRequiredRuntimeMethod(nameof(char.ToUpper), new[] { typeof(char) }), "upper" }

@@ -77,14 +77,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         protected class ListLogger : ILogger
         {
-            private readonly object _sync = new object();
+            private readonly object _sync = new();
             private CancellationTokenSource _cancellationTokenSource;
             protected bool IsRecordingSuspended { get; private set; }
 
             public ITestOutputHelper TestOutputHelper { get; set; }
 
             public List<(LogLevel, EventId, string, object, Exception)> LoggedEvents { get; }
-                = new List<(LogLevel, EventId, string, object, Exception)>();
+                = new();
 
             public CancellationToken CancelOnNextLogEntry()
             {

@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore
         protected abstract SeedingContext CreateContextWithEmptyDatabase(string testId);
 
         protected virtual KeylessSeedingContext CreateKeylessContextWithEmptyDatabase()
-            => new KeylessSeedingContext(TestStore.AddProviderOptions(new DbContextOptionsBuilder()).Options);
+            => new(TestStore.AddProviderOptions(new DbContextOptionsBuilder()).Options);
 
         protected abstract class SeedingContext : DbContext
         {

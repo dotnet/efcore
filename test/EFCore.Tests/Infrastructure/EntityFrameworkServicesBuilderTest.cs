@@ -363,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         private static DbContext CreateContext(IServiceProvider serviceProvider)
-            => new DbContext(
+            => new(
                 new DbContextOptionsBuilder()
                     .UseInternalServiceProvider(serviceProvider)
                     .UseInMemoryDatabase(Guid.NewGuid().ToString())

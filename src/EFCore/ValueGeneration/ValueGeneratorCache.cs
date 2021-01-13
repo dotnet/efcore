@@ -35,8 +35,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             Check.NotNull(dependencies, nameof(dependencies));
         }
 
-        private readonly ConcurrentDictionary<CacheKey, ValueGenerator> _cache
-            = new ConcurrentDictionary<CacheKey, ValueGenerator>();
+        private readonly ConcurrentDictionary<CacheKey, ValueGenerator> _cache = new();
 
         private readonly struct CacheKey : IEquatable<CacheKey>
         {

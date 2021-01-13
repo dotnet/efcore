@@ -3259,7 +3259,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private InternalModelBuilder CreateModelBuilder()
-            => new InternalModelBuilder(new Model());
+            => new(new Model());
 
         private InternalModelBuilder CreateConventionalModelBuilder()
             => (InternalModelBuilder)InMemoryTestHelpers.Instance.CreateConventionBuilder().GetInfrastructure();

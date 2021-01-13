@@ -38,13 +38,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private readonly IDictionary<ProjectionMember, Expression> _projectionMapping
             = new Dictionary<ProjectionMember, Expression>();
 
-        private readonly Stack<ProjectionMember> _projectionMembers = new Stack<ProjectionMember>();
+        private readonly Stack<ProjectionMember> _projectionMembers = new();
 
         private readonly IDictionary<ParameterExpression, CollectionShaperExpression> _collectionShaperMapping
             = new Dictionary<ParameterExpression, CollectionShaperExpression>();
 
         private readonly Stack<INavigation> _includedNavigations
-            = new Stack<INavigation>();
+            = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

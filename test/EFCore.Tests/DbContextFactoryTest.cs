@@ -555,7 +555,7 @@ namespace Microsoft.EntityFrameworkCore
                 => _options = options;
 
             public WoolacombeContext CreateDbContext()
-                => new WoolacombeContext(_options);
+                => new(_options);
         }
 
         private static string GetStoreName(DbContext context1)

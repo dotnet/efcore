@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
     public class SqliteTypeMappingSource : RelationalTypeMappingSource
     {
         private static readonly HashSet<string> _spatialiteTypes
-            = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            = new(StringComparer.OrdinalIgnoreCase)
             {
                 "GEOMETRY",
                 "GEOMETRYZ",

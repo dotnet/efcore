@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceCollectionBuilder WithMany([CanBeNull] string collection = null)
         {
-            return new ReferenceCollectionBuilder(
+            return new(
                 RelatedEntityType,
                 DeclaringEntityType,
                 WithManyBuilder(Check.NullButNotEmpty(collection, nameof(collection))).Metadata);
@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual ReferenceReferenceBuilder WithOne([CanBeNull] string reference = null)
-            => new ReferenceReferenceBuilder(
+            => new(
                 DeclaringEntityType,
                 RelatedEntityType,
                 WithOneBuilder(Check.NullButNotEmpty(reference, nameof(reference))).Metadata);

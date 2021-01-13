@@ -114,6 +114,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         public virtual GoTContext CreateContext()
-            => new GoTContext(_options);
+            => new(_options);
     }
 }

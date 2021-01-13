@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private static readonly PropertyInfo _valueBufferCountMemberInfo
             = typeof(ValueBuffer).GetRequiredProperty(nameof(ValueBuffer.Count));
 
-        private readonly List<Expression> _valueBufferSlots = new List<Expression>();
+        private readonly List<Expression> _valueBufferSlots = new();
 
         private readonly IDictionary<EntityProjectionExpression, IDictionary<IProperty, int>> _entityProjectionCache
             = new Dictionary<EntityProjectionExpression, IDictionary<IProperty, int>>();

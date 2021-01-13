@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
                     var increment = GetAndRemove<int?>(SqlServerAnnotationNames.IdentityIncrement) ?? 1;
                     return new List<MethodCallCodeFragment>
                     {
-                        new MethodCallCodeFragment(
+                        new(
                             onModel
                                 ? nameof(SqlServerModelBuilderExtensions.UseIdentityColumns)
                                 : nameof(SqlServerPropertyBuilderExtensions.UseIdentityColumn),
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
                     var schema = GetAndRemove<string>(SqlServerAnnotationNames.HiLoSequenceSchema);
                     return new List<MethodCallCodeFragment>
                     {
-                        new MethodCallCodeFragment(
+                        new(
                             nameof(SqlServerModelBuilderExtensions.UseHiLo),
                             (name, schema) switch
                             {
@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
                 case SqlServerValueGenerationStrategy.None:
                     return new List<MethodCallCodeFragment>
                     {
-                        new MethodCallCodeFragment(
+                        new(
                             nameof(ModelBuilder.HasAnnotation),
                             SqlServerAnnotationNames.ValueGenerationStrategy,
                             SqlServerValueGenerationStrategy.None)

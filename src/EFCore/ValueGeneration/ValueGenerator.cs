@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         protected virtual ValueTask<object> NextValueAsync(
             [NotNull] EntityEntry entry,
             CancellationToken cancellationToken = default)
-            => new ValueTask<object>(NextValue(entry));
+            => new(NextValue(entry));
 
         /// <summary>
         ///     <para>

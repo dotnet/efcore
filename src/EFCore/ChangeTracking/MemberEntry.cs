@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <value> An entry for the entity that owns this member. </value>
         public virtual EntityEntry EntityEntry
-            => new EntityEntry(InternalEntry);
+            => new(InternalEntry);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

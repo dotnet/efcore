@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class GlobalDatabaseTest
     {
-        private static readonly InMemoryDatabaseRoot _databaseRoot = new InMemoryDatabaseRoot();
+        private static readonly InMemoryDatabaseRoot _databaseRoot = new();
 
         [ConditionalFact]
         public void Different_stores_are_used_when_options_force_different_internal_service_provider()

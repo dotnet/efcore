@@ -226,9 +226,7 @@ namespace Microsoft.EntityFrameworkCore
             public RawSqlCommand Build(
                 string sql,
                 IEnumerable<object> parameters)
-                => new RawSqlCommand(
-                    new FakeRelationalCommand(this),
-                    new Dictionary<string, object>());
+                => new(new FakeRelationalCommand(this), new Dictionary<string, object>());
 
             private class FakeRelationalCommand : IRelationalCommand
             {

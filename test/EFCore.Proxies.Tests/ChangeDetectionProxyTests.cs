@@ -398,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public class ChangeNonVirtualIndexer
         {
-            private readonly Dictionary<string, object> _keyValuePairs = new Dictionary<string, object>();
+            private readonly Dictionary<string, object> _keyValuePairs = new();
 
             public virtual int Id { get; set; }
 
@@ -411,7 +411,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public class ChangeNonVirtualIndexerNotUsed
         {
-            private readonly Dictionary<string, object> _keyValuePairs = new Dictionary<string, object>();
+            private readonly Dictionary<string, object> _keyValuePairs = new();
 
             public virtual int Id { get; set; }
 

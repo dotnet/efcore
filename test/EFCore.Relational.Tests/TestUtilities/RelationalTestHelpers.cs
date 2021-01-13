@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
         }
 
-        public static RelationalTestHelpers Instance { get; } = new RelationalTestHelpers();
+        public static RelationalTestHelpers Instance { get; } = new();
 
         public override IServiceCollection AddProviderServices(IServiceCollection services)
             => FakeRelationalOptionsExtension.AddEntityFrameworkRelationalDatabase(services);

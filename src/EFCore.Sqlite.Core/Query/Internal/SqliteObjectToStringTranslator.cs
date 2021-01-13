@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     /// </summary>
     public class SqliteObjectToStringTranslator : IMethodCallTranslator
     {
-        private static readonly HashSet<Type> _typeMapping = new HashSet<Type>
-            {
+        private static readonly HashSet<Type> _typeMapping = new()
+        {
                 typeof(bool),
                 typeof(byte),
                 typeof(byte[]),

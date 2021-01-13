@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     internal class AnnotationComparer : IEqualityComparer<IAnnotation>, IComparer<IAnnotation>
     {
-        public static readonly AnnotationComparer Instance = new AnnotationComparer();
+        public static readonly AnnotationComparer Instance = new();
 
         private AnnotationComparer()
         {

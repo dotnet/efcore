@@ -21,21 +21,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     An ordered list of <see cref="AddColumnOperation" /> for adding columns to the table.
         /// </summary>
-        public virtual List<AddColumnOperation> Columns { get; } = new List<AddColumnOperation>();
+        public virtual List<AddColumnOperation> Columns { get; } = new();
 
         /// <summary>
         ///     A list of <see cref="AddForeignKeyOperation" /> for creating foreign key constraints in the table.
         /// </summary>
-        public virtual List<AddForeignKeyOperation> ForeignKeys { get; } = new List<AddForeignKeyOperation>();
+        public virtual List<AddForeignKeyOperation> ForeignKeys { get; } = new();
 
         /// <summary>
         ///     A list of <see cref="AddUniqueConstraintOperation" /> for creating unique constraints in the table.
         /// </summary>
-        public virtual List<AddUniqueConstraintOperation> UniqueConstraints { get; } = new List<AddUniqueConstraintOperation>();
+        public virtual List<AddUniqueConstraintOperation> UniqueConstraints { get; } = new();
 
         /// <summary>
         ///     A list of <see cref="AddCheckConstraintOperation" /> for creating check constraints in the table.
         /// </summary>
-        public virtual List<AddCheckConstraintOperation> CheckConstraints { get; } = new List<AddCheckConstraintOperation>();
+        public virtual List<AddCheckConstraintOperation> CheckConstraints { get; } = new();
     }
 }

@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The singleton instance of <see cref="EntityFrameworkEventSource" />.
         /// </summary>
-        public static readonly EntityFrameworkEventSource Log = new EntityFrameworkEventSource();
+        public static readonly EntityFrameworkEventSource Log = new();
 
         private EntityFrameworkEventSource()
             : base("Microsoft.EntityFrameworkCore")

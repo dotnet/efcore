@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyNames"> The names of the properties that make up the primary key. </param>
         /// <returns> An object that can be used to configure the primary key. </returns>
         public virtual KeyBuilder HasKey([NotNull] params string[] propertyNames)
-            => new KeyBuilder(
+            => new(
                 DependentEntityType.Builder.PrimaryKey(
                     Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit).Metadata);
 
@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyName"> The name of the property to be configured. </param>
         /// <returns> An object that can be used to configure the property. </returns>
         public virtual PropertyBuilder Property([NotNull] Type propertyType, [NotNull] string propertyName)
-            => new PropertyBuilder(
+            => new(
                 DependentEntityType.Builder.Property(
                     Check.NotNull(propertyType, nameof(propertyType)),
                     Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit).Metadata);
@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyName"> The name of the property to be configured. </param>
         /// <returns> An object that can be used to configure the property. </returns>
         public virtual PropertyBuilder<TProperty> IndexerProperty<TProperty>([NotNull] string propertyName)
-            => new PropertyBuilder<TProperty>(
+            => new(
                 DependentEntityType.Builder.IndexerProperty(
                     typeof(TProperty),
                     Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit).Metadata);
@@ -231,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyName"> The name of the property to be configured. </param>
         /// <returns> An object that can be used to configure the property. </returns>
         public virtual PropertyBuilder IndexerProperty([NotNull] Type propertyType, [NotNull] string propertyName)
-            => new PropertyBuilder(
+            => new(
                 DependentEntityType.Builder.IndexerProperty(
                     Check.NotNull(propertyType, nameof(propertyType)),
                     Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit).Metadata);
@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="navigationName"> The name of the navigation property to be configured. </param>
         /// <returns> An object that can be used to configure the navigation property. </returns>
         public virtual NavigationBuilder Navigation([NotNull] string navigationName)
-            => new NavigationBuilder(
+            => new(
                 DependentEntityType.Builder.Navigation(
                     Check.NotEmpty(navigationName, nameof(navigationName))));
 
@@ -271,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyNames"> The names of the properties that make up the index. </param>
         /// <returns> An object that can be used to configure the index. </returns>
         public virtual IndexBuilder HasIndex([NotNull] params string[] propertyNames)
-            => new IndexBuilder(
+            => new(
                 DependentEntityType.Builder.HasIndex(
                     Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit).Metadata);
 

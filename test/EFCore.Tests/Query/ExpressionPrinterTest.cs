@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class ExpressionPrinterTest
     {
-        private readonly ExpressionPrinter _expressionPrinter = new ExpressionPrinter();
+        private readonly ExpressionPrinter _expressionPrinter = new();
 
         [ConditionalFact]
         public void UnaryExpression_printed_correctly()

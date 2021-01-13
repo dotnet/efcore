@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         /// </summary>
         public virtual EntityEntry Entry
-            => new EntityEntry(_entry);
+            => new(_entry);
 
         /// <summary>
         ///     <para>

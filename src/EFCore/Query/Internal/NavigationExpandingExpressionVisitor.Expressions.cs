@@ -211,8 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         private sealed class NavigationExpansionExpression : Expression, IPrintableExpression
         {
-            private readonly List<(MethodInfo OrderingMethod, Expression KeySelector)> _pendingOrderings
-                = new List<(MethodInfo OrderingMethod, Expression KeySelector)>();
+            private readonly List<(MethodInfo OrderingMethod, Expression KeySelector)> _pendingOrderings = new();
 
             private readonly string _parameterName;
 

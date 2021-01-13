@@ -47,6 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual RelationalParameterBasedSqlProcessor Create(bool useRelationalNulls)
-            => new RelationalParameterBasedSqlProcessor(_dependencies, useRelationalNulls);
+            => new(_dependencies, useRelationalNulls);
     }
 }
