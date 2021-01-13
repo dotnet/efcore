@@ -1898,6 +1898,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     principalSourceTable = mainSourceEntityType.GetTableMappings().First().Table;
                 }
 
+                var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23792", out var enabled) && enabled;
                 foreach (var sourceSeed in sourceEntityType.GetSeedData())
                 {
                     var sourceEntry = GetEntry(sourceSeed, sourceEntityType, _sourceUpdateAdapter);
@@ -1985,7 +1986,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             {
                                 if (targetProperty.GetAfterSaveBehavior() != PropertySaveBehavior.Save
                                     && (targetProperty.ValueGenerated & ValueGenerated.OnUpdate) == 0
-                                    && (targetKeyMap.Count == 1 || entry.EntityType.Name == sourceEntityType.Name))
+                                    && (useOldBehavior || targetKeyMap.Count == 1 || entry.EntityType.Name == sourceEntityType.Name))
                                 {
                                     entryMapping.RecreateRow = true;
                                     break;
