@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics.Tracing;
 using System.Runtime.InteropServices;
 using System.Threading;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -155,6 +156,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 };
             }
         }
+
+        [UsedImplicitly]
+        private void ResetCacheInfo()
+            => _compiledQueryCacheInfo = new CacheInfo();
 
         [StructLayout(LayoutKind.Explicit)]
         private struct CacheInfo
