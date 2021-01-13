@@ -83,7 +83,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             if (methodCallExpression.Method.IsGenericMethod
                 && methodCallExpression.Arguments.Count == 1
                 && methodCallExpression.Arguments[0].Type.TryGetSequenceType() != null
-                && string.Equals(methodCallExpression.Method.Name, "AsSplitQuery", StringComparison.Ordinal))
+                && (string.Equals(methodCallExpression.Method.Name, "AsSplitQuery", StringComparison.Ordinal)
+                    || string.Equals(methodCallExpression.Method.Name, "AsSingleQuery", StringComparison.Ordinal)))
             {
                 return Visit(methodCallExpression.Arguments[0]);
             }
