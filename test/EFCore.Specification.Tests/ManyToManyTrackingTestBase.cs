@@ -4293,6 +4293,154 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Can_insert_many_to_many_with_navs_by_join_entity(bool async)
+        {
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
+                {
+                    var leftEntities = new[]
+                    {
+                        context.EntityTwos.CreateInstance(
+                            (e, p) =>
+                            {
+                                e.Id = Fixture.UseGeneratedKeys ? 0 : 7711;
+                                e.Name = "Z7711";
+                            }),
+                        context.EntityTwos.CreateInstance(
+                            (e, p) =>
+                            {
+                                e.Id = Fixture.UseGeneratedKeys ? 0 : 7712;
+                                e.Name = "Z7712";
+                            }),
+                        context.EntityTwos.CreateInstance(
+                            (e, p) =>
+                            {
+                                e.Id = Fixture.UseGeneratedKeys ? 0 : 7713;
+                                e.Name = "Z7713";
+                            })
+                    };
+                    var rightEntities = new[]
+                    {
+                        context.EntityThrees.CreateInstance(
+                            (e, p) =>
+                            {
+                                e.Id = Fixture.UseGeneratedKeys ? 0 : 7721;
+                                e.Name = "Z7721";
+                            }),
+                        context.EntityThrees.CreateInstance(
+                            (e, p) =>
+                            {
+                                e.Id = Fixture.UseGeneratedKeys ? 0 : 7722;
+                                e.Name = "Z7722";
+                            }),
+                        context.EntityThrees.CreateInstance(
+                            (e, p) =>
+                            {
+                                e.Id = Fixture.UseGeneratedKeys ? 0 : 7723;
+                                e.Name = "Z7723";
+                            })
+                    };
+
+                    var joinEntities = new[]
+                    {
+                        context.Set<JoinTwoToThree>().CreateInstance(
+                            (e, p) =>
+                            {
+                                e.Two = leftEntities[0];
+                                e.Three = rightEntities[0];
+                            }),
+                        context.Set<JoinTwoToThree>().CreateInstance(
+                            (e, p) =>
+                            {
+                                e.Two = leftEntities[0];
+                                e.Three = rightEntities[1];
+                            }),
+                        context.Set<JoinTwoToThree>().CreateInstance(
+                            (e, p) =>
+                            {
+                                e.Two = leftEntities[0];
+                                e.Three = rightEntities[2];
+                            }),
+                        context.Set<JoinTwoToThree>().CreateInstance(
+                            (e, p) =>
+                            {
+                                e.Two = leftEntities[1];
+                                e.Three = rightEntities[0];
+                            }),
+                        context.Set<JoinTwoToThree>().CreateInstance(
+                            (e, p) =>
+                            {
+                                e.Two = leftEntities[2];
+                                e.Three = rightEntities[0];
+                            })
+                    };
+
+                    if (async)
+                    {
+                        await context.AddRangeAsync(joinEntities);
+                    }
+                    else
+                    {
+                        context.AddRange(joinEntities);
+                    }
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+
+                    if (async)
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                    }
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+                },
+                async context =>
+                {
+                    var queryable = context.Set<EntityTwo>()
+                        .Where(e => e.Name.StartsWith("Z"))
+                        .OrderBy(e => e.Name)
+                        .Include(e => e.ThreeSkipFull);
+
+                    var results = async ? await queryable.ToListAsync() : queryable.ToList();
+                    Assert.Equal(3, results.Count);
+
+                    var leftEntities = context.ChangeTracker.Entries<EntityTwo>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
+                    var rightEntities = context.ChangeTracker.Entries<EntityThree>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+                });
+
+            static void ValidateFixup(DbContext context, IList<EntityTwo> leftEntities, IList<EntityThree> rightEntities)
+            {
+                Assert.Equal(11, context.ChangeTracker.Entries().Count());
+                Assert.Equal(3, context.ChangeTracker.Entries<EntityTwo>().Count());
+                Assert.Equal(3, context.ChangeTracker.Entries<EntityThree>().Count());
+                Assert.Equal(5, context.ChangeTracker.Entries<JoinTwoToThree>().Count());
+
+                Assert.Equal(3, leftEntities[0].ThreeSkipFull.Count);
+                Assert.Single(leftEntities[1].ThreeSkipFull);
+                Assert.Single(leftEntities[2].ThreeSkipFull);
+
+                Assert.Equal(3, rightEntities[0].TwoSkipFull.Count);
+                Assert.Single(rightEntities[1].TwoSkipFull);
+                Assert.Single(rightEntities[2].TwoSkipFull);
+
+                foreach (var joinEntity in context.ChangeTracker.Entries<JoinTwoToThree>().Select(e => e.Entity).ToList())
+                {
+                    Assert.Equal(joinEntity.Two.Id, joinEntity.TwoId);
+                    Assert.Equal(joinEntity.Three.Id, joinEntity.ThreeId);
+                    Assert.Contains(joinEntity, joinEntity.Two.JoinThreeFull);
+                    Assert.Contains(joinEntity, joinEntity.Three.JoinTwoFull);
+                }
+            }
+        }
+
         private ICollection<TEntity> CreateCollection<TEntity>()
             => RequiresDetectChanges ? (ICollection<TEntity>)new List<TEntity>() : new ObservableCollection<TEntity>();
 

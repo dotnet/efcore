@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,6 +30,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     /// </summary>
     public class NavigationFixer : INavigationFixer
     {
+        private readonly bool _useOldBehaviorFor23659
+            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23659", out var enabled) && enabled;
+
         private readonly IChangeDetector _changeDetector;
         private readonly IEntityGraphAttacher _attacher;
         private bool _inFixup;
@@ -663,19 +667,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
                 }
 
-                foreach (var skipNavigation in foreignKey.GetReferencingSkipNavigations())
-                {
-                    var leftEntry = stateManager.FindPrincipal(entry, foreignKey);
-                    if (leftEntry != null)
-                    {
-                        var rightEntry = stateManager.FindPrincipal(entry, skipNavigation.Inverse.ForeignKey);
-                        if (rightEntry != null)
-                        {
-                            AddToCollection(leftEntry, skipNavigation, rightEntry, fromQuery);
-                            AddToCollection(rightEntry, skipNavigation.Inverse, leftEntry, fromQuery);
-                        }
-                    }
-                }
+                FixupSkipNavigations(entry, foreignKey, fromQuery);
             }
 
             foreach (var foreignKey in entityType.GetReferencingForeignKeys())
@@ -894,6 +886,28 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     else if (referencedEntry.Entity == navigationValue)
                     {
                         FixupToPrincipal(entry, referencedEntry, navigation.ForeignKey, setModified, fromQuery);
+
+                        if (!_useOldBehaviorFor23659)
+                        {
+                            FixupSkipNavigations(entry, navigation.ForeignKey, fromQuery);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void FixupSkipNavigations(InternalEntityEntry entry, IForeignKey foreignKey, bool fromQuery)
+        {
+            foreach (var skipNavigation in foreignKey.GetReferencingSkipNavigations())
+            {
+                var leftEntry = entry.StateManager.FindPrincipal(entry, foreignKey);
+                if (leftEntry != null)
+                {
+                    var rightEntry = entry.StateManager.FindPrincipal(entry, skipNavigation.Inverse.ForeignKey);
+                    if (rightEntry != null)
+                    {
+                        AddToCollection(leftEntry, skipNavigation, rightEntry, fromQuery);
+                        AddToCollection(rightEntry, skipNavigation.Inverse, leftEntry, fromQuery);
                     }
                 }
             }
