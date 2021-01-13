@@ -1379,6 +1379,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     entityType.DisplayName()));
             }
 
+            var quirk = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore23779", out var enabled) && enabled;
             result = Visit(
                 primaryKeyProperties.Select(
                     p =>
@@ -1391,7 +1392,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                         return nodeType == ExpressionType.Equal
                             ? (Expression)comparison
                             : Expression.Not(comparison);
-                    }).Aggregate((l, r) => Expression.AndAlso(l, r)));
+                    }).Aggregate((l, r) => nodeType == ExpressionType.Equal || quirk
+                        ? Expression.AndAlso(l, r)
+                        : Expression.OrElse(l, r)));
 
             return true;
         }
