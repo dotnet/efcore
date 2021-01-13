@@ -660,6 +660,20 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 }
             }
 
+            if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23593", out var enabled)
+                && enabled)
+                && joinCondition is MethodCallExpression methodCallExpression
+                && methodCallExpression.Method.IsStatic
+                && methodCallExpression.Method.DeclaringType == typeof(object)
+                && methodCallExpression.Method.Name == nameof(object.Equals)
+                && methodCallExpression.Arguments.Count == 2)
+            {
+                leftExpressions.Add(methodCallExpression.Arguments[0]);
+                rightExpressions.Add(methodCallExpression.Arguments[1]);
+
+                return true;
+            }
+
             return false;
         }
 
