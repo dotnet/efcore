@@ -1160,6 +1160,98 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #endregion
 
+        #region Issue23593
+
+        [ConditionalFact]
+        public virtual void Join_with_enum_as_key_selector()
+        {
+            using (CreateScratch<MyContext23593>(Seed23593, "23593"))
+            {
+                using var context = new MyContext23593();
+
+                var query = from sm in context.StatusMaps
+                            join sme in context.StatusMapEvents on sm.Id equals sme.Id
+                            select sm;
+
+                var result = Assert.Single(query);
+                Assert.Equal(StatusMapCode23593.Two, result.Id);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Join_with_enum_inside_anonymous_type_as_key_selector()
+        {
+            using (CreateScratch<MyContext23593>(Seed23593, "23593"))
+            {
+                using var context = new MyContext23593();
+
+                var query = from sm in context.StatusMaps
+                            join sme in context.StatusMapEvents on new { sm.Id } equals new { sme.Id }
+                            select sm;
+
+                var result = Assert.Single(query);
+                Assert.Equal(StatusMapCode23593.Two, result.Id);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Join_with_enum_inside_anonymous_type_with_other_property_as_key_selector()
+        {
+            using (CreateScratch<MyContext23593>(Seed23593, "23593"))
+            {
+                using var context = new MyContext23593();
+
+                var query = from sm in context.StatusMaps
+                            join sme in context.StatusMapEvents on new { sm.Id, A = 1 } equals new { sme.Id, A = 1 }
+                            select sm;
+
+                var result = Assert.Single(query);
+                Assert.Equal(StatusMapCode23593.Two, result.Id);
+            }
+        }
+
+        private static void Seed23593(MyContext23593 context)
+        {
+            context.Add(new StatusMap23593 { Id = StatusMapCode23593.One });
+            context.Add(new StatusMap23593 { Id = StatusMapCode23593.Two });
+            context.Add(new StatusMapEvent23593 { Id = StatusMapCode23593.Two });
+
+            context.SaveChanges();
+        }
+
+        private enum StatusMapCode23593
+        {
+            One,
+            Two,
+            Three,
+            Four
+        }
+
+        private class StatusMap23593
+        {
+            public StatusMapCode23593 Id { get; set; }
+        }
+        private class StatusMapEvent23593
+        {
+            public StatusMapCode23593 Id { get; set; }
+        }
+
+
+        private class MyContext23593 : DbContext
+        {
+            public DbSet<StatusMap23593> StatusMaps { get; set; }
+            public DbSet<StatusMapEvent23593> StatusMapEvents { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("23593");
+            }
+        }
+
+        #endregion
+
         #region SharedHelper
 
         private static InMemoryTestStore CreateScratch<TContext>(Action<TContext> seed, string databaseName)
