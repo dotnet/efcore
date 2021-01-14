@@ -65,19 +65,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                 using (stringBuilder.Indent())
                 {
-                    var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23456", out var enabled) && enabled;
-
                     // Temporary patch: specifically exclude some annotations which are known to produce identical Fluent API calls across different
                     // providers, generating them as raw annotations instead.
-                    var ambiguousAnnotations = useOldBehavior
-                        ? Array.Empty<IAnnotation>()
-                        : RemoveAmbiguousFluentApiAnnotations(
-                            annotations,
-                            name => name.EndsWith(":ValueGenerationStrategy", StringComparison.Ordinal)
-                                || name.EndsWith(":IdentityIncrement", StringComparison.Ordinal)
-                                || name.EndsWith(":IdentitySeed", StringComparison.Ordinal)
-                                || name.EndsWith(":HiLoSequenceName", StringComparison.Ordinal)
-                                || name.EndsWith(":HiLoSequenceSchema", StringComparison.Ordinal));
+                    var ambiguousAnnotations = RemoveAmbiguousFluentApiAnnotations(
+                        annotations,
+                        name => name.EndsWith(":ValueGenerationStrategy", StringComparison.Ordinal)
+                            || name.EndsWith(":IdentityIncrement", StringComparison.Ordinal)
+                            || name.EndsWith(":IdentitySeed", StringComparison.Ordinal)
+                            || name.EndsWith(":HiLoSequenceName", StringComparison.Ordinal)
+                            || name.EndsWith(":HiLoSequenceSchema", StringComparison.Ordinal));
 
                     foreach (var methodCallCodeFragment in
                         Dependencies.AnnotationCodeGenerator.GenerateFluentApiCalls(model, annotations))
@@ -589,13 +585,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             GenerateFluentApiForDefaultValue(property, stringBuilder);
             annotations.Remove(RelationalAnnotationNames.DefaultValue);
 
-            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23456", out var enabled) && enabled;
-
             // Temporary patch: specifically exclude some annotations which are known to produce identical Fluent API calls across different
             // providers, generating them as raw annotations instead.
-            var ambiguousAnnotations = useOldBehavior
-                ? Array.Empty<IAnnotation>()
-                : RemoveAmbiguousFluentApiAnnotations(
+            var ambiguousAnnotations = RemoveAmbiguousFluentApiAnnotations(
                 annotations,
                 name => name.EndsWith(":ValueGenerationStrategy", StringComparison.Ordinal)
                     || name.EndsWith(":IdentityIncrement", StringComparison.Ordinal)
@@ -794,13 +786,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .FilterIgnoredAnnotations(index.GetAnnotations())
                 .ToDictionary(a => a.Name, a => a);
 
-            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23456", out var enabled) && enabled;
-
             // Temporary patch: specifically exclude some annotations which are known to produce identical Fluent API calls across different
             // providers, generating them as raw annotations instead.
-            var ambiguousAnnotations = useOldBehavior
-                ? Array.Empty<IAnnotation>()
-                : RemoveAmbiguousFluentApiAnnotations(
+            var ambiguousAnnotations = RemoveAmbiguousFluentApiAnnotations(
                 annotations,
                 name => name.EndsWith(":Include", StringComparison.Ordinal));
 

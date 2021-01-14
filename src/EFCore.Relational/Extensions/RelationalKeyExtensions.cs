@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -104,7 +103,6 @@ namespace Microsoft.EntityFrameworkCore
                     return null;
                 }
 
-                var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23672", out var enabled) && enabled;
                 var rootKey = key;
 
                 // Limit traversal to avoid getting stuck in a cycle (validation will throw for these later)
@@ -117,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore
                         .SelectMany(fk => fk.PrincipalEntityType.GetKeys()))
                     {
                         var otherColumnNames = otherKey.Properties.GetColumnNames(storeObject);
-                        if ((otherColumnNames != null || useOldBehavior)
+                        if ((otherColumnNames != null)
                             && otherColumnNames.SequenceEqual(columnNames))
                         {
                             linkedKey = otherKey;
