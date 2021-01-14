@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         public virtual IReadOnlyList<ColumnModification> ColumnModifications
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _columnModifications, this, command => command.GenerateColumnModifications());
+                ref _columnModifications, this, static command => command.GenerateColumnModifications());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

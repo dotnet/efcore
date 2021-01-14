@@ -294,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             get
                 => NonCapturingLazyInitializer.EnsureInitialized(
                     ref _indexes, this,
-                    property =>
+                    static property =>
                     {
                         var _ = (property.DeclaringType as EntityType)?.Counts;
                     });
@@ -352,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IClrPropertyGetter Getter
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _getter, this, p => new ClrPropertyGetterFactory().Create(p));
+                ref _getter, this, static p => new ClrPropertyGetterFactory().Create(p));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -362,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IClrPropertySetter Setter
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _setter, this, p => new ClrPropertySetterFactory().Create(p));
+                ref _setter, this, static p => new ClrPropertySetterFactory().Create(p));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -372,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IClrPropertySetter MaterializationSetter
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _materializationSetter, this, p => new ClrPropertyMaterializationSetterFactory().Create(p));
+                ref _materializationSetter, this, static p => new ClrPropertyMaterializationSetterFactory().Create(p));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -381,7 +381,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual PropertyAccessors Accessors
-            => NonCapturingLazyInitializer.EnsureInitialized(ref _accessors, this, p => new PropertyAccessorsFactory().Create(p));
+            => NonCapturingLazyInitializer.EnsureInitialized(ref _accessors, this, static p => new PropertyAccessorsFactory().Create(p));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -391,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IComparer<IUpdateEntry> CurrentValueComparer
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _currentValueComparer, this, p => new CurrentValueComparerFactory().Create(p));
+                ref _currentValueComparer, this, static p => new CurrentValueComparerFactory().Create(p));
 
         private static readonly MethodInfo _containsKeyMethod =
             typeof(IDictionary<string, object>).GetRequiredMethod(nameof(IDictionary<string, object>.ContainsKey), new[] { typeof(string) });

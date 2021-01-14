@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 return NonCapturingLazyInitializer.EnsureInitialized(
                     ref _entityQueryable,
                     this,
-                    internalSet => internalSet.CreateEntityQueryable());
+                    static internalSet => internalSet.CreateEntityQueryable());
             }
         }
 

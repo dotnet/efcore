@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     navigation.
         /// </summary>
         /// <returns> The accessor. </returns>
-        IClrCollectionAccessor GetCollectionAccessor();
+        IClrCollectionAccessor? GetCollectionAccessor();
 
         /// <summary>
         ///     <para>
