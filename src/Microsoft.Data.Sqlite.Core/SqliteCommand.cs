@@ -26,7 +26,7 @@ namespace Microsoft.Data.Sqlite
     {
         private SqliteParameterCollection? _parameters;
 
-        private readonly List<sqlite3_stmt> _preparedStatements = new List<sqlite3_stmt>();
+        private readonly List<sqlite3_stmt> _preparedStatements = new();
         private SqliteConnection? _connection;
         private string _commandText = string.Empty;
         private bool _prepared;
@@ -231,7 +231,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <returns>The new parameter.</returns>
         public new virtual SqliteParameter CreateParameter()
-            => new SqliteParameter();
+            => new();
 
         /// <summary>
         ///     Creates a new parameter.

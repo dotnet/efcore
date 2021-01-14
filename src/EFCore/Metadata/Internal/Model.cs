@@ -43,20 +43,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static readonly Type DefaultPropertyBagType = typeof(Dictionary<string, object>);
 
         private readonly SortedDictionary<string, EntityType> _entityTypes
-            = new SortedDictionary<string, EntityType>(StringComparer.Ordinal);
+            = new(StringComparer.Ordinal);
 
         private readonly ConcurrentDictionary<Type, PropertyInfo?> _indexerPropertyInfoMap
-            = new ConcurrentDictionary<Type, PropertyInfo?>();
+            = new();
 
         private readonly ConcurrentDictionary<Type, string> _clrTypeNameMap
-            = new ConcurrentDictionary<Type, string>();
+            = new();
 
         private readonly Dictionary<string, ConfigurationSource> _ignoredTypeNames
-            = new Dictionary<string, ConfigurationSource>(StringComparer.Ordinal);
+            = new(StringComparer.Ordinal);
 
         private readonly Dictionary<Type, (ConfigurationSource ConfigurationSource, SortedSet<EntityType> Types)> _sharedTypes =
-            new Dictionary<Type, (ConfigurationSource, SortedSet<EntityType>)>
-            { { DefaultPropertyBagType, (ConfigurationSource.Convention, new SortedSet<EntityType>(EntityTypeFullNameComparer.Instance)) } };
+            new() { { DefaultPropertyBagType, (ConfigurationSource.Convention, new SortedSet<EntityType>(EntityTypeFullNameComparer.Instance)) } };
 
         private bool? _skipDetectChanges;
         private ChangeTrackingStrategy? _changeTrackingStrategy;
@@ -929,7 +928,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual DebugView DebugView
-            => new DebugView(
+            => new(
                 () => this.ToDebugString(MetadataDebugStringOptions.ShortDefault),
                 () => this.ToDebugString(MetadataDebugStringOptions.LongDefault));
 

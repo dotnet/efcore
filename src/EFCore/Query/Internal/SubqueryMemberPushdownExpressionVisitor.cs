@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
     {
-        private static readonly List<MethodInfo> _supportedMethods = new List<MethodInfo>
+        private static readonly List<MethodInfo> _supportedMethods = new()
         {
             QueryableMethods.FirstWithPredicate,
             QueryableMethods.FirstWithoutPredicate,

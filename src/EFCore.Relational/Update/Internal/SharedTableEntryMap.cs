@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private readonly ITable _table;
         private readonly IUpdateAdapter _updateAdapter;
         private readonly IComparer<IUpdateEntry> _comparer;
-        private readonly Dictionary<IUpdateEntry, TValue> _entryValueMap = new Dictionary<IUpdateEntry, TValue>();
+        private readonly Dictionary<IUpdateEntry, TValue> _entryValueMap = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

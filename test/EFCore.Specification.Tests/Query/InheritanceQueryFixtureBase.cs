@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<InheritanceContext>, IFilteredQueryFixtureBase
     {
-        private readonly Dictionary<bool, ISetSource> _expectedDataCache = new Dictionary<bool, ISetSource>();
+        private readonly Dictionary<bool, ISetSource> _expectedDataCache = new();
 
         protected override string StoreName { get; } = "InheritanceTest";
 

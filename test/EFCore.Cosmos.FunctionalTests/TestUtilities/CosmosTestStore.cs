@@ -27,16 +27,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private static readonly Guid _runId = Guid.NewGuid();
 
         public static CosmosTestStore Create(string name, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
-            => new CosmosTestStore(name, shared: false, extensionConfiguration: extensionConfiguration);
+            => new(name, shared: false, extensionConfiguration: extensionConfiguration);
 
         public static CosmosTestStore CreateInitialized(string name, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
             => (CosmosTestStore)Create(name, extensionConfiguration).Initialize(null, (Func<DbContext>)null);
 
         public static CosmosTestStore GetOrCreate(string name)
-            => new CosmosTestStore(name);
+            => new(name);
 
         public static CosmosTestStore GetOrCreate(string name, string dataFilePath)
-            => new CosmosTestStore(name, dataFilePath: dataFilePath);
+            => new(name, dataFilePath: dataFilePath);
 
         private CosmosTestStore(
             string name,

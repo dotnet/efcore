@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SortedDictionary<string, ForeignKeyConstraint> ForeignKeyConstraints { get; }
-            = new SortedDictionary<string, ForeignKeyConstraint>();
+            = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SortedDictionary<string, UniqueConstraint> UniqueConstraints { get; }
-            = new SortedDictionary<string, UniqueConstraint>();
+            = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SortedDictionary<string, TableIndex> Indexes { get; }
-            = new SortedDictionary<string, TableIndex>();
+            = new();
 
         /// <inheritdoc />
         public virtual bool IsExcludedFromMigrations { get; set; }

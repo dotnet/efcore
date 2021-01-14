@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="name"> The parameter name. </param>
         /// <returns> The builder to use for further parameter configuration. </returns>
         public virtual DbFunctionParameterBuilder HasParameter([NotNull] string name)
-            => new DbFunctionParameterBuilder(Builder.HasParameter(name, ConfigurationSource.Explicit).Metadata);
+            => new(Builder.HasParameter(name, ConfigurationSource.Explicit).Metadata);
 
         #region Hidden System.Object members
 

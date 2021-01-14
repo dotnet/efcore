@@ -521,7 +521,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
 
         protected virtual InternalModelBuilder CreateModelBuilder(Model model = null)
-            => new InternalModelBuilder(model ?? new Model());
+            => new(model ?? new Model());
 
         private class Base
         {

@@ -66,61 +66,61 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
         {
             var result = new List<Level1>
             {
-                new Level1
+                new()
                 {
                     Id = 1,
                     Name = "L1 01",
                     Date = new DateTime(2001, 1, 1)
                 },
-                new Level1
+                new()
                 {
                     Id = 2,
                     Name = "L1 02",
                     Date = new DateTime(2002, 2, 2)
                 },
-                new Level1
+                new()
                 {
                     Id = 3,
                     Name = "L1 03",
                     Date = new DateTime(2003, 3, 3)
                 },
-                new Level1
+                new()
                 {
                     Id = 4,
                     Name = "L1 04",
                     Date = new DateTime(2004, 4, 4)
                 },
-                new Level1
+                new()
                 {
                     Id = 5,
                     Name = "L1 05",
                     Date = new DateTime(2005, 5, 5)
                 },
-                new Level1
+                new()
                 {
                     Id = 6,
                     Name = "L1 06",
                     Date = new DateTime(2006, 6, 6)
                 },
-                new Level1
+                new()
                 {
                     Id = 7,
                     Name = "L1 07",
                     Date = new DateTime(2007, 7, 7)
                 },
-                new Level1
+                new()
                 {
                     Id = 8,
                     Name = "L1 08",
                     Date = new DateTime(2008, 8, 8)
                 },
-                new Level1
+                new()
                 {
                     Id = 9,
                     Name = "L1 09",
                     Date = new DateTime(2009, 9, 9)
                 },
-                new Level1
+                new()
                 {
                     Id = 10,
                     Name = "L1 10",
@@ -133,19 +133,19 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
                 result.AddRange(
                     new List<Level1>
                     {
-                        new Level1
+                        new()
                         {
                             Id = 11,
                             Name = "L1 11",
                             Date = new DateTime(2009, 11, 11)
                         },
-                        new Level1
+                        new()
                         {
                             Id = 12,
                             Name = "L1 12",
                             Date = new DateTime(2008, 12, 12)
                         },
-                        new Level1
+                        new()
                         {
                             Id = 13,
                             Name = "L1 13",
@@ -169,61 +169,61 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
         {
             var result = new List<Level2>
             {
-                new Level2
+                new()
                 {
                     Id = 1,
                     Name = "L2 01",
                     Date = new DateTime(2010, 10, 10)
                 },
-                new Level2
+                new()
                 {
                     Id = 2,
                     Name = "L2 02",
                     Date = new DateTime(2002, 2, 2)
                 },
-                new Level2
+                new()
                 {
                     Id = 3,
                     Name = "L2 03",
                     Date = new DateTime(2008, 8, 8)
                 },
-                new Level2
+                new()
                 {
                     Id = 4,
                     Name = "L2 04",
                     Date = new DateTime(2004, 4, 4)
                 },
-                new Level2
+                new()
                 {
                     Id = 5,
                     Name = "L2 05",
                     Date = new DateTime(2006, 6, 6)
                 },
-                new Level2
+                new()
                 {
                     Id = 6,
                     Name = "L2 06",
                     Date = new DateTime(2005, 5, 5)
                 },
-                new Level2
+                new()
                 {
                     Id = 7,
                     Name = "L2 07",
                     Date = new DateTime(2007, 7, 7)
                 },
-                new Level2
+                new()
                 {
                     Id = 8,
                     Name = "L2 08",
                     Date = new DateTime(2003, 3, 3)
                 },
-                new Level2
+                new()
                 {
                     Id = 9,
                     Name = "L2 09",
                     Date = new DateTime(2009, 9, 9)
                 },
-                new Level2
+                new()
                 {
                     Id = 10,
                     Name = "L2 10",
@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
                 result.AddRange(
                     new List<Level2>
                     {
-                        new Level2
+                        new()
                         {
                             Id = 11,
                             Name = "L2 11",
@@ -260,16 +260,16 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
         {
             var result = new List<Level3>
             {
-                new Level3 { Id = 1, Name = "L3 01" },
-                new Level3 { Id = 2, Name = "L3 02" },
-                new Level3 { Id = 3, Name = "L3 03" },
-                new Level3 { Id = 4, Name = "L3 04" },
-                new Level3 { Id = 5, Name = "L3 05" },
-                new Level3 { Id = 6, Name = "L3 06" },
-                new Level3 { Id = 7, Name = "L3 07" },
-                new Level3 { Id = 8, Name = "L3 08" },
-                new Level3 { Id = 9, Name = "L3 09" },
-                new Level3 { Id = 10, Name = "L3 10" }
+                new() { Id = 1, Name = "L3 01" },
+                new() { Id = 2, Name = "L3 02" },
+                new() { Id = 3, Name = "L3 03" },
+                new() { Id = 4, Name = "L3 04" },
+                new() { Id = 5, Name = "L3 05" },
+                new() { Id = 6, Name = "L3 06" },
+                new() { Id = 7, Name = "L3 07" },
+                new() { Id = 8, Name = "L3 08" },
+                new() { Id = 9, Name = "L3 09" },
+                new() { Id = 10, Name = "L3 10" }
             };
 
             foreach (var l3 in result)
@@ -287,16 +287,16 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
         {
             var result = new List<Level4>
             {
-                new Level4 { Id = 1, Name = "L4 01" },
-                new Level4 { Id = 2, Name = "L4 02" },
-                new Level4 { Id = 3, Name = "L4 03" },
-                new Level4 { Id = 4, Name = "L4 04" },
-                new Level4 { Id = 5, Name = "L4 05" },
-                new Level4 { Id = 6, Name = "L4 06" },
-                new Level4 { Id = 7, Name = "L4 07" },
-                new Level4 { Id = 8, Name = "L4 08" },
-                new Level4 { Id = 9, Name = "L4 09" },
-                new Level4 { Id = 10, Name = "L4 10" }
+                new() { Id = 1, Name = "L4 01" },
+                new() { Id = 2, Name = "L4 02" },
+                new() { Id = 3, Name = "L4 03" },
+                new() { Id = 4, Name = "L4 04" },
+                new() { Id = 5, Name = "L4 05" },
+                new() { Id = 6, Name = "L4 06" },
+                new() { Id = 7, Name = "L4 07" },
+                new() { Id = 8, Name = "L4 08" },
+                new() { Id = 9, Name = "L4 09" },
+                new() { Id = 10, Name = "L4 10" }
             };
 
             foreach (var l4 in result)
@@ -322,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
 
         public static IReadOnlyList<InheritanceBase2> CreateInheritanceBaseTwos()
         {
-            var result = new List<InheritanceBase2> { new InheritanceBase2 { Id = 1, Name = "IB2 01" } };
+            var result = new List<InheritanceBase2> { new() { Id = 1, Name = "IB2 01" } };
 
             return result;
         }
@@ -331,9 +331,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
         {
             var result = new List<InheritanceLeaf1>
             {
-                new InheritanceLeaf1 { Id = 1, Name = "IL1 01" },
-                new InheritanceLeaf1 { Id = 2, Name = "IL1 02" },
-                new InheritanceLeaf1 { Id = 3, Name = "IL1 03" }
+                new() { Id = 1, Name = "IL1 01" },
+                new() { Id = 2, Name = "IL1 02" },
+                new() { Id = 3, Name = "IL1 03" }
             };
 
             return result;
@@ -341,7 +341,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
 
         public static IReadOnlyList<InheritanceLeaf2> CreateInheritanceLeafTwos()
         {
-            var result = new List<InheritanceLeaf2> { new InheritanceLeaf2 { Id = 1, Name = "IL2 01" } };
+            var result = new List<InheritanceLeaf2> { new() { Id = 1, Name = "IL2 01" } };
 
             return result;
         }

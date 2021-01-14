@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         private readonly IInMemoryTableFactory _tableFactory;
         private readonly bool _useNameMatching;
 
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
 
         private Dictionary<object, IInMemoryTable> _tables;
 
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         }
 
         private static Dictionary<object, IInMemoryTable> CreateTables()
-            => new Dictionary<object, IInMemoryTable>();
+            => new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

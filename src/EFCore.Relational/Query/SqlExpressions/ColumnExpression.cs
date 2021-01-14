@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <returns> A new expression which has <see cref="IsNullable" /> property set to true. </returns>
         public ColumnExpression MakeNullable()
-            => new ColumnExpression(Name, Table, Type, TypeMapping!, true);
+            => new(Name, Table, Type, TypeMapping!, true);
 
         /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)

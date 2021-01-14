@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public class ModelSource : IModelSource
     {
-        private readonly object _syncObject = new object();
+        private readonly object _syncObject = new();
 
         /// <summary>
         ///     Creates a new <see cref="ModelSource" /> instance.

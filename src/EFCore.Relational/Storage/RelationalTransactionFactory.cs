@@ -60,7 +60,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Guid transactionId,
             IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger,
             bool transactionOwned)
-            => new RelationalTransaction(
-                connection, transaction, transactionId, logger, transactionOwned, Dependencies.SqlGenerationHelper);
+            => new(connection, transaction, transactionId, logger, transactionOwned, Dependencies.SqlGenerationHelper);
     }
 }

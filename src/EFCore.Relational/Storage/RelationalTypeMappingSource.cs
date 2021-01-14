@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRelationalTypeMappingSource
     {
         private readonly ConcurrentDictionary<(RelationalTypeMappingInfo, Type?, ValueConverter?), RelationalTypeMapping?> _explicitMappings
-            = new ConcurrentDictionary<(RelationalTypeMappingInfo, Type?, ValueConverter?), RelationalTypeMapping?>();
+            = new();
 
         /// <summary>
         ///     Initializes a new instance of the this class.

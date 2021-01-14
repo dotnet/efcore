@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="typeMapping"> A relational type mapping to apply. </param>
         /// <returns> A new expression which has supplied type mapping. </returns>
         public virtual SqlFunctionExpression ApplyTypeMapping([CanBeNull] RelationalTypeMapping? typeMapping)
-            => new SqlFunctionExpression(
+            => new(
                 Instance,
                 Schema,
                 Name,
@@ -426,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             [NotNull] string name,
             [NotNull] Type type,
             [CanBeNull] RelationalTypeMapping typeMapping)
-            => new SqlFunctionExpression(name, nullable: true, type, typeMapping);
+            => new(name, nullable: true, type, typeMapping);
 
         /// <summary>
         ///     Creates a new instance of the <see cref="SqlFunctionExpression" /> class.
@@ -442,7 +442,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             [NotNull] string name,
             [NotNull] Type type,
             [CanBeNull] RelationalTypeMapping typeMapping)
-            => new SqlFunctionExpression(schema, name, nullable: true, type, typeMapping);
+            => new(schema, name, nullable: true, type, typeMapping);
 
         /// <summary>
         ///     Creates a new instance of the <see cref="SqlFunctionExpression" /> class.
@@ -458,7 +458,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             [NotNull] string name,
             [NotNull] Type type,
             [CanBeNull] RelationalTypeMapping typeMapping)
-            => new SqlFunctionExpression(instance, name, nullable: true, instancePropagatesNullability: false, type, typeMapping);
+            => new(instance, name, nullable: true, instancePropagatesNullability: false, type, typeMapping);
 
         /// <summary>
         ///     Creates a new instance of the <see cref="SqlFunctionExpression" /> class.
@@ -476,7 +476,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             [NotNull] IEnumerable<SqlExpression> arguments,
             [NotNull] Type type,
             [CanBeNull] RelationalTypeMapping typeMapping)
-            => new SqlFunctionExpression(
+            => new(
                 instance,
                 name,
                 arguments,
@@ -500,8 +500,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             [NotNull] IEnumerable<SqlExpression> arguments,
             [NotNull] Type type,
             [CanBeNull] RelationalTypeMapping typeMapping)
-            => new SqlFunctionExpression(
-                name, arguments, nullable: true, argumentsPropagateNullability: arguments.Select(a => false), type, typeMapping);
+            => new(name, arguments, nullable: true, argumentsPropagateNullability: arguments.Select(a => false), type, typeMapping);
 
         /// <summary>
         ///     Creates a new instance of the <see cref="SqlFunctionExpression" /> class.
@@ -519,8 +518,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             [NotNull] IEnumerable<SqlExpression> arguments,
             [NotNull] Type type,
             [CanBeNull] RelationalTypeMapping typeMapping)
-            => new SqlFunctionExpression(
-                schema, name, arguments, nullable: true, argumentsPropagateNullability: arguments.Select(a => false), type, typeMapping);
+            => new(schema, name, arguments, nullable: true, argumentsPropagateNullability: arguments.Select(a => false), type, typeMapping);
 
         #endregion
     }

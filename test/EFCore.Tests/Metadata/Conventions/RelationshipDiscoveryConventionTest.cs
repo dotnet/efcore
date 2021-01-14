@@ -1018,7 +1018,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         public ListLoggerFactory ListLoggerFactory { get; }
-            = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Name);
+            = new(l => l == DbLoggerCategory.Model.Name);
 
         private static IMemberClassifier CreateMemberClassifier()
             => new MemberClassifier(
@@ -1162,7 +1162,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private RelationshipDiscoveryConvention CreateRelationshipDiscoveryConvention()
-            => new RelationshipDiscoveryConvention(CreateDependencies());
+            => new(CreateDependencies());
 
         private void Cleanup(InternalModelBuilder modelBuilder)
         {

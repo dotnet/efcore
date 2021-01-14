@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         private EntityQueryable<TEntity> CreateEntityQueryable()
-            => new EntityQueryable<TEntity>(_context.GetDependencies().QueryProvider, EntityType);
+            => new(_context.GetDependencies().QueryProvider, EntityType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -524,7 +524,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         private EntityEntry<TEntity> EntryWithoutDetectChanges(TEntity entity)
-            => new EntityEntry<TEntity>(_context.GetDependencies().StateManager.GetOrCreateEntry(entity, EntityType));
+            => new(_context.GetDependencies().StateManager.GetOrCreateEntry(entity, EntityType));
 
         private void SetEntityStates(IEnumerable<TEntity> entities, EntityState entityState)
         {

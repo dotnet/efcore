@@ -1197,7 +1197,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 public Guid Id { get; set; }
                 private readonly string _email = string.Empty;
-                private readonly List<Profile13300> _profiles = new List<Profile13300>();
+                private readonly List<Profile13300> _profiles = new();
             }
 
             protected class Profile13300

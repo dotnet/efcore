@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DbContext context,
             Exception exception,
             EventDefinition<Type, string, Exception> definition)
-            => new DbContextErrorEventData(definition, SaveChangesFailed, context, exception);
+            => new(definition, SaveChangesFailed, context, exception);
 
         private static string SaveChangesFailed(EventDefinitionBase definition, EventData payload)
         {
@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DbContext context,
             Exception exception,
             EventDefinition<Exception> definition)
-            => new DbContextErrorEventData(
+            => new(
                 definition,
                 OptimisticConcurrencyException,
                 context,
@@ -3164,7 +3164,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         private static DbContextEventData CreateSaveChangesStartingEventData(DbContext context, EventDefinition<string> definition)
-            => new DbContextEventData(
+            => new(
                 definition,
                 SaveChangesStarting,
                 context);
@@ -3255,7 +3255,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DbContext context,
             int entitiesSavedCount,
             EventDefinition<string, int> definition)
-            => new SaveChangesCompletedEventData(
+            => new(
                 definition,
                 SaveChangesCompleted,
                 context,

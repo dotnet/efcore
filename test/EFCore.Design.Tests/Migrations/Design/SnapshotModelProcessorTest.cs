@@ -273,10 +273,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             public ConventionSet CreateConventionSet()
             {
-                return new ConventionSet();
+                return new();
             }
 
-            public static NullConventionSetBuilder Instance { get; } = new NullConventionSetBuilder();
+            public static NullConventionSetBuilder Instance { get; } = new();
         }
 
         private class Blog

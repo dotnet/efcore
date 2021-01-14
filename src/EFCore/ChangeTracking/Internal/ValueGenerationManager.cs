@@ -33,10 +33,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private readonly IKeyPropagator _keyPropagator;
         private readonly IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> _logger;
         private readonly ILoggingOptions _loggingOptions;
-        private readonly Dictionary<IEntityType, List<IProperty>> _entityTypePropagatingPropertiesMap
-            = new Dictionary<IEntityType, List<IProperty>>();
-        private readonly Dictionary<IEntityType, List<IProperty>> _entityTypeGeneratingPropertiesMap
-            = new Dictionary<IEntityType, List<IProperty>>();
+        private readonly Dictionary<IEntityType, List<IProperty>> _entityTypePropagatingPropertiesMap = new();
+        private readonly Dictionary<IEntityType, List<IProperty>> _entityTypeGeneratingPropertiesMap = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

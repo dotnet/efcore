@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         public virtual Dictionary<(Type, string), Func<object, object>> GetShadowPropertyMappings()
-            => new Dictionary<(Type, string), Func<object, object>>
+            => new()
             {
                 {
                     (typeof(Gear), "AssignedCityName"),

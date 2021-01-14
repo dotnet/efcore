@@ -27,8 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private static readonly MethodInfo _genericCreateSet
             = typeof(DbSetSource).GetTypeInfo().GetDeclaredMethod(nameof(CreateSetFactory));
 
-        private readonly ConcurrentDictionary<(Type Type, string Name), Func<DbContext, string, object>> _cache
-            = new ConcurrentDictionary<(Type Type, string Name), Func<DbContext, string, object>>();
+        private readonly ConcurrentDictionary<(Type Type, string Name), Func<DbContext, string, object>> _cache = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

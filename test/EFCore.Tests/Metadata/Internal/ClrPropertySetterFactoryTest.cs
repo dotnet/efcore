@@ -306,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class IndexedClass
         {
-            private readonly Dictionary<string, object> _internalValues = new Dictionary<string, object>
+            private readonly Dictionary<string, object> _internalValues = new()
             {
                 { "PropertyA", "ValueA" }, { "PropertyB", 123 }
             };

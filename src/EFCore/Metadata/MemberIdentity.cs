@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     A <see cref="MemberIdentity" /> instance that does not represent any member.
         /// </summary>
-        public static readonly MemberIdentity None = new MemberIdentity((object?)null);
+        public static readonly MemberIdentity None = new((object?)null);
 
         /// <summary>
         ///     Creates a new <see cref="MemberIdentity" /> from the given member name.

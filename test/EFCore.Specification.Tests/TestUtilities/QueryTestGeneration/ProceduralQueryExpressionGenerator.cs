@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
     public class ProcedurallyGeneratedQueryExecutor
     {
-        private static readonly Dictionary<string, List<string>> _knownFailingTests = new Dictionary<string, List<string>>();
+        private static readonly Dictionary<string, List<string>> _knownFailingTests = new();
 
         static ProcedurallyGeneratedQueryExecutor()
         {

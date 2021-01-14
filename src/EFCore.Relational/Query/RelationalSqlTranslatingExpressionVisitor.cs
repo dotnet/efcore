@@ -638,7 +638,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             }
 
                             selector = _sqlExpressionFactory.Case(
-                                new List<CaseWhenClause> { new CaseWhenClause(groupingElement.Predicate, selector) },
+                                new List<CaseWhenClause> { new(groupingElement.Predicate, selector) },
                                 elseResult: null);
                         }
 

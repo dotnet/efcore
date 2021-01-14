@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     public class SqliteDateTimeMemberTranslator : IMemberTranslator
     {
         private static readonly Dictionary<string, string> _datePartMapping
-            = new Dictionary<string, string>
+            = new()
             {
                 { nameof(DateTime.Year), "%Y" },
                 { nameof(DateTime.Month), "%m" },

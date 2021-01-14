@@ -10125,7 +10125,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public abstract class TenantEntity13300
         {
             public Guid TenantId { get; set; }
-            public ReferencePoint13300 Created { get; set; } = new ReferencePoint13300();
+            public ReferencePoint13300 Created { get; set; } = new();
         }
 
         public class ReferencePoint13300

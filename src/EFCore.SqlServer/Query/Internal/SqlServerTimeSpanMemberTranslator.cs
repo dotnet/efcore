@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     /// </summary>
     public class SqlServerTimeSpanMemberTranslator : IMemberTranslator
     {
-        private static readonly Dictionary<string, string> _datePartMappings = new Dictionary<string, string>
+        private static readonly Dictionary<string, string> _datePartMappings = new()
         {
             { nameof(TimeSpan.Hours), "hour" },
             { nameof(TimeSpan.Minutes), "minute" },

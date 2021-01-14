@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class NullCheckRemovingExpressionVisitor : ExpressionVisitor
     {
         private readonly NullSafeAccessVerifyingExpressionVisitor _nullSafeAccessVerifyingExpressionVisitor
-            = new NullSafeAccessVerifyingExpressionVisitor();
+            = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

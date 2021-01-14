@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ConnectionEventData eventData,
             InterceptionResult result,
             CancellationToken cancellationToken = default)
-            => new ValueTask<InterceptionResult>(result);
+            => new(result);
 
         /// <summary>
         ///     Called just after EF has called <see cref="DbConnection.Open()" />.
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DbConnection connection,
             ConnectionEventData eventData,
             InterceptionResult result)
-            => new ValueTask<InterceptionResult>(result);
+            => new(result);
 
         /// <summary>
         ///     Called just after EF has called <see cref="DbConnection.Close()" /> in an async context.

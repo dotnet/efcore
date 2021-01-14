@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         private readonly bool _nullabilityCheckEnabled;
 
         private readonly ConcurrentDictionary<(IEntityType EntityType, IInMemoryTable BaseTable), Func<IInMemoryTable>> _factories
-            = new ConcurrentDictionary<(IEntityType, IInMemoryTable), Func<IInMemoryTable>>();
+            = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

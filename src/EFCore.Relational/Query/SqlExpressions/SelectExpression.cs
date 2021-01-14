@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     public sealed class SelectExpression : TableExpressionBase
     {
         private static readonly Dictionary<ExpressionType, ExpressionType> _mirroredOperationMap =
-            new Dictionary<ExpressionType, ExpressionType>
+            new()
             {
                 { ExpressionType.Equal, ExpressionType.Equal },
                 { ExpressionType.NotEqual, ExpressionType.NotEqual },
@@ -51,20 +51,20 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private readonly IDictionary<EntityProjectionExpression, IDictionary<IProperty, int>> _entityProjectionCache
             = new Dictionary<EntityProjectionExpression, IDictionary<IProperty, int>>();
 
-        private readonly List<ProjectionExpression> _projection = new List<ProjectionExpression>();
-        private readonly List<TableExpressionBase> _tables = new List<TableExpressionBase>();
-        private readonly List<SqlExpression> _groupBy = new List<SqlExpression>();
-        private readonly List<OrderingExpression> _orderings = new List<OrderingExpression>();
+        private readonly List<ProjectionExpression> _projection = new();
+        private readonly List<TableExpressionBase> _tables = new();
+        private readonly List<SqlExpression> _groupBy = new();
+        private readonly List<OrderingExpression> _orderings = new();
 
         private readonly List<(ColumnExpression Column, ValueComparer Comparer)> _identifier
-            = new List<(ColumnExpression Column, ValueComparer Comparer)>();
+            = new();
 
         private readonly List<(ColumnExpression Column, ValueComparer Comparer)> _childIdentifiers
-            = new List<(ColumnExpression Column, ValueComparer Comparer)>();
+            = new();
 
-        private readonly List<SelectExpression?> _pendingCollections = new List<SelectExpression?>();
+        private readonly List<SelectExpression?> _pendingCollections = new();
 
-        private List<int> _tptLeftJoinTables = new List<int>();
+        private List<int> _tptLeftJoinTables = new();
         private IDictionary<ProjectionMember, Expression> _projectionMapping = new Dictionary<ProjectionMember, Expression>();
 
         /// <summary>
@@ -317,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             ITableBase table,
             TableExpressionBase tableExpression,
             bool nullable)
-            => new ColumnExpression(property, table.FindColumn(property)!, tableExpression, nullable);
+            => new(property, table.FindColumn(property)!, tableExpression, nullable);
 
         /// <summary>
         ///     Checks whether this <see cref="SelectExpression" /> representes a <see cref="FromSqlExpression" /> which is not composed upon.
@@ -723,7 +723,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             var dummySelectExpression = new SelectExpression(
                 alias: "empty",
-                new List<ProjectionExpression> { new ProjectionExpression(nullSqlExpression, "empty") },
+                new List<ProjectionExpression> { new(nullSqlExpression, "empty") },
                 new List<TableExpressionBase>(),
                 new List<SqlExpression>(),
                 new List<OrderingExpression>());
@@ -2113,7 +2113,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             private CollectionShaperExpression Remap(CollectionShaperExpression collectionShaperExpression)
-                => new CollectionShaperExpression(
+                => new(
                     new ProjectionBindingExpression(
                         _queryExpression,
                         ((ProjectionBindingExpression)collectionShaperExpression.Projection).Index!.Value + (int)_pendingCollectionOffset!,

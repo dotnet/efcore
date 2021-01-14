@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class ModelAnnotationChangedConvention : IModelAnnotationChangedConvention
         {
             private readonly bool _terminate;
-            public readonly List<object> Calls = new List<object>();
+            public readonly List<object> Calls = new();
 
             public ModelAnnotationChangedConvention(bool terminate)
             {
@@ -489,7 +489,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class EntityTypeMemberIgnoredConvention : IEntityTypeMemberIgnoredConvention
         {
             private readonly bool _terminate;
-            public readonly List<object> Calls = new List<object>();
+            public readonly List<object> Calls = new();
 
             public EntityTypeMemberIgnoredConvention(bool terminate)
             {
@@ -585,7 +585,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class EntityTypeBaseTypeChangedConvention : IEntityTypeBaseTypeChangedConvention
         {
             private readonly bool _terminate;
-            public readonly List<Type> Calls = new List<Type>();
+            public readonly List<Type> Calls = new();
 
             public EntityTypeBaseTypeChangedConvention(bool terminate)
             {
@@ -690,7 +690,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class EntityTypePrimaryKeyChangedConvention : IEntityTypePrimaryKeyChangedConvention
         {
             private readonly bool _terminate;
-            public readonly List<object> Calls = new List<object>();
+            public readonly List<object> Calls = new();
 
             public EntityTypePrimaryKeyChangedConvention(bool terminate)
             {
@@ -788,7 +788,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class EntityTypeAnnotationChangedConvention : IEntityTypeAnnotationChangedConvention
         {
             private readonly bool _terminate;
-            public readonly List<object> Calls = new List<object>();
+            public readonly List<object> Calls = new();
 
             public EntityTypeAnnotationChangedConvention(bool terminate)
             {
@@ -866,7 +866,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class ForeignKeyAddedConvention : IForeignKeyAddedConvention
         {
             private readonly bool _terminate;
-            public readonly List<object> Calls = new List<object>();
+            public readonly List<object> Calls = new();
 
             public ForeignKeyAddedConvention(bool terminate)
             {
@@ -942,7 +942,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class ForeignKeyRemovedConvention : IForeignKeyRemovedConvention
         {
             private readonly bool _terminate;
-            public readonly List<object> Calls = new List<object>();
+            public readonly List<object> Calls = new();
 
             public ForeignKeyRemovedConvention(bool terminate)
             {
@@ -1070,7 +1070,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class ForeignKeyPrincipalEndChangedConvention : IForeignKeyPrincipalEndChangedConvention
         {
             private readonly bool _terminate;
-            public readonly List<object> Calls = new List<object>();
+            public readonly List<object> Calls = new();
 
             public ForeignKeyPrincipalEndChangedConvention(bool terminate)
             {
@@ -1138,7 +1138,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class ForeignKeyPropertiesChangedConvention : IForeignKeyPropertiesChangedConvention
         {
             private readonly bool _terminate;
-            public readonly List<(string, string)> Calls = new List<(string, string)>();
+            public readonly List<(string, string)> Calls = new();
 
             public ForeignKeyPropertiesChangedConvention(bool terminate)
             {
@@ -1255,7 +1255,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class ForeignKeyUniquenessChangedConvention : IForeignKeyUniquenessChangedConvention
         {
             private readonly bool _terminate;
-            public readonly List<bool> Calls = new List<bool>();
+            public readonly List<bool> Calls = new();
 
             public ForeignKeyUniquenessChangedConvention(bool terminate)
             {
@@ -1356,7 +1356,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class ForeignKeyRequirednessChangedConvention : IForeignKeyRequirednessChangedConvention
         {
             private readonly bool _terminate;
-            public readonly List<bool> Calls = new List<bool>();
+            public readonly List<bool> Calls = new();
 
             public ForeignKeyRequirednessChangedConvention(bool terminate)
             {
@@ -1459,7 +1459,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class ForeignKeyDependentRequirednessChangedConvention : IForeignKeyDependentRequirednessChangedConvention
         {
             private readonly bool _terminate;
-            public readonly List<bool> Calls = new List<bool>();
+            public readonly List<bool> Calls = new();
 
             public ForeignKeyDependentRequirednessChangedConvention(bool terminate)
             {
@@ -1561,7 +1561,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class ForeignKeyOwnershipChangedConvention : IForeignKeyOwnershipChangedConvention
         {
             private readonly bool _terminate;
-            public readonly List<bool> Calls = new List<bool>();
+            public readonly List<bool> Calls = new();
 
             public ForeignKeyOwnershipChangedConvention(bool terminate)
             {
@@ -1661,7 +1661,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class ForeignKeyAnnotationChangedConvention : IForeignKeyAnnotationChangedConvention
         {
             private readonly bool _terminate;
-            public readonly List<object> Calls = new List<object>();
+            public readonly List<object> Calls = new();
 
             public ForeignKeyAnnotationChangedConvention(bool terminate)
             {
@@ -1753,7 +1753,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class NavigationAddedConvention : INavigationAddedConvention
         {
             private readonly bool _terminate;
-            public readonly List<object> Calls = new List<object>();
+            public readonly List<object> Calls = new();
 
             public NavigationAddedConvention(bool terminate)
             {
@@ -1866,7 +1866,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class NavigationAnnotationChangedConvention : INavigationAnnotationChangedConvention
         {
             private readonly bool _terminate;
-            public readonly List<object> Calls = new List<object>();
+            public readonly List<object> Calls = new();
 
             public NavigationAnnotationChangedConvention(bool terminate)
             {
@@ -1961,7 +1961,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class NavigationRemovedConvention : INavigationRemovedConvention
         {
             private readonly bool _terminate;
-            public readonly List<object> Calls = new List<object>();
+            public readonly List<object> Calls = new();
 
             public NavigationRemovedConvention(bool terminate)
             {
@@ -2036,7 +2036,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class SkipNavigationAddedConvention : ISkipNavigationAddedConvention
         {
             private readonly bool _terminate;
-            public readonly List<object> Calls = new List<object>();
+            public readonly List<object> Calls = new();
 
             public SkipNavigationAddedConvention(bool terminate)
             {
@@ -2139,7 +2139,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class SkipNavigationAnnotationChangedConvention : ISkipNavigationAnnotationChangedConvention
         {
             private readonly bool _terminate;
-            public readonly List<object> Calls = new List<object>();
+            public readonly List<object> Calls = new();
 
             public SkipNavigationAnnotationChangedConvention(bool terminate)
             {
@@ -2231,7 +2231,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class SkipNavigationForeignKeyChangedConvention : ISkipNavigationForeignKeyChangedConvention
         {
             private readonly bool _terminate;
-            public readonly List<object> Calls = new List<object>();
+            public readonly List<object> Calls = new();
 
             public SkipNavigationForeignKeyChangedConvention(bool terminate)
             {
@@ -2329,7 +2329,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class SkipNavigationInverseChangedConvention : ISkipNavigationInverseChangedConvention
         {
             private readonly bool _terminate;
-            public readonly List<object> Calls = new List<object>();
+            public readonly List<object> Calls = new();
 
             public SkipNavigationInverseChangedConvention(bool terminate)
             {
@@ -2402,7 +2402,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class SkipNavigationRemovedConvention : ISkipNavigationRemovedConvention
         {
             private readonly bool _terminate;
-            public readonly List<object> Calls = new List<object>();
+            public readonly List<object> Calls = new();
 
             public SkipNavigationRemovedConvention(bool terminate)
             {
@@ -2478,7 +2478,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class KeyAddedConvention : IKeyAddedConvention
         {
             private readonly bool _terminate;
-            public readonly List<object> Calls = new List<object>();
+            public readonly List<object> Calls = new();
 
             public KeyAddedConvention(bool terminate)
             {
@@ -2541,7 +2541,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class KeyRemovedConvention : IKeyRemovedConvention
         {
             private readonly bool _terminate;
-            public readonly List<object> Calls = new List<object>();
+            public readonly List<object> Calls = new();
 
             public KeyRemovedConvention(bool terminate)
             {
@@ -2641,7 +2641,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class KeyAnnotationChangedConvention : IKeyAnnotationChangedConvention
         {
             private readonly bool _terminate;
-            public readonly List<object> Calls = new List<object>();
+            public readonly List<object> Calls = new();
 
             public KeyAnnotationChangedConvention(bool terminate)
             {
@@ -2718,7 +2718,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class IndexAddedConvention : IIndexAddedConvention
         {
             private readonly bool _terminate;
-            public readonly List<object> Calls = new List<object>();
+            public readonly List<object> Calls = new();
 
             public IndexAddedConvention(bool terminate)
             {
@@ -2786,7 +2786,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class IndexRemovedConvention : IIndexRemovedConvention
         {
             private readonly bool _terminate;
-            public readonly List<object> Calls = new List<object>();
+            public readonly List<object> Calls = new();
 
             public IndexRemovedConvention(bool terminate)
             {
@@ -2884,7 +2884,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class IndexUniquenessChangedConvention : IIndexUniquenessChangedConvention
         {
             private readonly bool _terminate;
-            public readonly List<bool> Calls = new List<bool>();
+            public readonly List<bool> Calls = new();
 
             public IndexUniquenessChangedConvention(bool terminate)
             {
@@ -2982,7 +2982,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class IndexAnnotationChangedConvention : IIndexAnnotationChangedConvention
         {
             private readonly bool _terminate;
-            public readonly List<object> Calls = new List<object>();
+            public readonly List<object> Calls = new();
 
             public IndexAnnotationChangedConvention(bool terminate)
             {
@@ -3086,7 +3086,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class PropertyAddedConvention : IPropertyAddedConvention
         {
             private readonly bool _terminate;
-            public readonly List<object> Calls = new List<object>();
+            public readonly List<object> Calls = new();
 
             public PropertyAddedConvention(bool terminate)
             {
@@ -3224,7 +3224,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private class PropertyNullabilityChangedConvention : IPropertyNullabilityChangedConvention
         {
-            public readonly List<bool?> Calls = new List<bool?>();
+            public readonly List<bool?> Calls = new();
             private readonly bool _terminate;
 
             public PropertyNullabilityChangedConvention(bool terminate)
@@ -3323,7 +3323,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class PropertyFieldChangedConvention : IPropertyFieldChangedConvention
         {
             private readonly bool _terminate;
-            public readonly List<object> Calls = new List<object>();
+            public readonly List<object> Calls = new();
 
             public PropertyFieldChangedConvention(bool terminate)
             {
@@ -3423,7 +3423,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class PropertyAnnotationChangedConvention : IPropertyAnnotationChangedConvention
         {
             private readonly bool _terminate;
-            public readonly List<object> Calls = new List<object>();
+            public readonly List<object> Calls = new();
 
             public PropertyAnnotationChangedConvention(bool terminate)
             {
@@ -3496,7 +3496,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class PropertyRemovedConvention : IPropertyRemovedConvention
         {
             private readonly bool _terminate;
-            public readonly List<object> Calls = new List<object>();
+            public readonly List<object> Calls = new();
 
             public PropertyRemovedConvention(bool terminate)
             {

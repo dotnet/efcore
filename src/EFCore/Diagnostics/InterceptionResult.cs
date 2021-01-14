@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     execution should be suppressed.
         /// </summary>
         public static InterceptionResult Suppress()
-            => new InterceptionResult(true);
+            => new(true);
 
         private InterceptionResult(bool suppress)
             => IsSuppressed = suppress;

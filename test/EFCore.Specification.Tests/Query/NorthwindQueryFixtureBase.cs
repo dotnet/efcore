@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public Func<DbContext> GetContextCreator()
             => () => CreateContext();
 
-        private readonly Dictionary<(bool, string, string), ISetSource> _expectedDataCache = new Dictionary<(bool, string, string), ISetSource>();
+        private readonly Dictionary<(bool, string, string), ISetSource> _expectedDataCache = new();
 
         public virtual ISetSource GetExpectedData()
             => new NorthwindData();

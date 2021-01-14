@@ -16,13 +16,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         public static InMemoryTestStore GetOrCreate(string name)
-            => new InMemoryTestStore(name);
+            => new(name);
 
         public static InMemoryTestStore GetOrCreateInitialized(string name)
             => new InMemoryTestStore(name).InitializeInMemory(null, (Func<DbContext>)null, null);
 
         public static InMemoryTestStore Create(string name)
-            => new InMemoryTestStore(name, shared: false);
+            => new(name, shared: false);
 
         public static InMemoryTestStore CreateInitialized(string name)
             => new InMemoryTestStore(name, shared: false).InitializeInMemory(null, (Func<DbContext>)null, null);

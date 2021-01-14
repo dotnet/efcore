@@ -1491,12 +1491,12 @@ namespace Microsoft.EntityFrameworkCore
 
         protected static readonly IReadOnlyList<TransactionCustomer> Customers = new List<TransactionCustomer>
         {
-            new TransactionCustomer { Id = 1, Name = "Bob" }, new TransactionCustomer { Id = 2, Name = "Dave" }
+            new() { Id = 1, Name = "Bob" }, new() { Id = 2, Name = "Dave" }
         };
 
         protected static readonly IReadOnlyList<TransactionOrder> Orders = new List<TransactionOrder>
         {
-            new TransactionOrder { Id = 100, Name = "Order1" }, new TransactionOrder { Id = 200, Name = "Order2" }
+            new() { Id = 100, Name = "Order1" }, new() { Id = 200, Name = "Order2" }
         };
 
         protected abstract class TransactionEntity

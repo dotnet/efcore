@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     /// </summary>
     public class SqliteMathTranslator : IMethodCallTranslator
     {
-        private static readonly Dictionary<MethodInfo, string> _supportedMethods = new Dictionary<MethodInfo, string>
+        private static readonly Dictionary<MethodInfo, string> _supportedMethods = new()
         {
             { typeof(Math).GetRequiredMethod(nameof(Math.Abs), new[] { typeof(double) }), "abs" },
             { typeof(Math).GetRequiredMethod(nameof(Math.Abs), new[] { typeof(float) }), "abs" },

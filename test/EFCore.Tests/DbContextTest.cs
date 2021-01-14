@@ -203,9 +203,9 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var questions = new List<Question>
                 {
-                    new Question
+                    new()
                     {
-                        Author = context.Users.First(), Answers = new List<Answer> { new Answer { Author = context.Users.Last() } }
+                        Author = context.Users.First(), Answers = new List<Answer> { new() { Author = context.Users.Last() } }
                     }
                 };
 
@@ -612,7 +612,7 @@ namespace Microsoft.EntityFrameworkCore
             context.AddRange(
                 new Product { Id = id++, Name = "Little Hedgehogs" });
             context.AddRange(
-                new List<Product> { new Product { Id = id++, Name = "Little Hedgehogs" } });
+                new List<Product> { new() { Id = id++, Name = "Little Hedgehogs" } });
             context.AddRange(
                 new List<object> { new Product { Id = id++, Name = "Little Hedgehogs" } });
             await context.AddAsync(
@@ -624,7 +624,7 @@ namespace Microsoft.EntityFrameworkCore
             await context.AddRangeAsync(
                 new Product { Id = id++, Name = "Little Hedgehogs" });
             await context.AddRangeAsync(
-                new List<Product> { new Product { Id = id++, Name = "Little Hedgehogs" } });
+                new List<Product> { new() { Id = id++, Name = "Little Hedgehogs" } });
             await context.AddRangeAsync(
                 new List<object> { new Product { Id = id++, Name = "Little Hedgehogs" } });
             context.Attach(
@@ -636,7 +636,7 @@ namespace Microsoft.EntityFrameworkCore
             context.AttachRange(
                 new Product { Id = id++, Name = "Little Hedgehogs" });
             context.AttachRange(
-                new List<Product> { new Product { Id = id++, Name = "Little Hedgehogs" } });
+                new List<Product> { new() { Id = id++, Name = "Little Hedgehogs" } });
             context.AttachRange(
                 new List<object> { new Product { Id = id++, Name = "Little Hedgehogs" } });
             context.Update(
@@ -648,7 +648,7 @@ namespace Microsoft.EntityFrameworkCore
             context.UpdateRange(
                 new Product { Id = id++, Name = "Little Hedgehogs" });
             context.UpdateRange(
-                new List<Product> { new Product { Id = id++, Name = "Little Hedgehogs" } });
+                new List<Product> { new() { Id = id++, Name = "Little Hedgehogs" } });
             context.UpdateRange(
                 new List<object> { new Product { Id = id++, Name = "Little Hedgehogs" } });
             context.Remove(
@@ -660,7 +660,7 @@ namespace Microsoft.EntityFrameworkCore
             context.RemoveRange(
                 new Product { Id = id++, Name = "Little Hedgehogs" });
             context.RemoveRange(
-                new List<Product> { new Product { Id = id++, Name = "Little Hedgehogs" } });
+                new List<Product> { new() { Id = id++, Name = "Little Hedgehogs" } });
             context.RemoveRange(
                 new List<object> { new Product { Id = id, Name = "Little Hedgehogs" } });
 
@@ -847,7 +847,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public class FakeServiceScopeFactory : IServiceScopeFactory
             {
-                public static FakeServiceScope Scope { get; } = new FakeServiceScope();
+                public static FakeServiceScope Scope { get; } = new();
 
                 public IServiceScope CreateScope()
                     => Scope;

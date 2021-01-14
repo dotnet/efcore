@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public class RelationalMetadataBuilderExtensionsTest
     {
         private InternalModelBuilder CreateBuilder()
-            => new InternalModelBuilder(new Model());
+            => new(new Model());
 
         [ConditionalFact]
         public void Can_access_model()

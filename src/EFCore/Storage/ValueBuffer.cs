@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     A buffer with no values in it.
         /// </summary>
-        public static readonly ValueBuffer Empty = new ValueBuffer();
+        public static readonly ValueBuffer Empty = new();
 
         private readonly object?[] _values;
 

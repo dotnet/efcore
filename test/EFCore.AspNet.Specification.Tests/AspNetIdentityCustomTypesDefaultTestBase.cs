@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore
         protected override List<EntityTypeMapping> ExpectedMappings
             => new()
             {
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomRoleClaimString",
                     TableName = "MyRoleClaims",
@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: CustomRoleClaimString.Role (CustomRoleString) ToPrincipal CustomRoleString Inverse: RoleClaims PropertyAccessMode.Field",
                     },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomRoleString",
                     TableName = "MyRoles",
@@ -184,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: CustomRoleString.UserRoles (ICollection<CustomUserRoleString>) Collection ToDependent CustomUserRoleString Inverse: Role PropertyAccessMode.Field",
                     },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomUserClaimString",
                     TableName = "MyUserClaims",
@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: CustomUserClaimString.User (CustomUserString) ToPrincipal CustomUserString Inverse: Claims PropertyAccessMode.Field",
                     },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomUserLoginString",
                     TableName = "MyUserLogins",
@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: CustomUserLoginString.User (CustomUserString) ToPrincipal CustomUserString Inverse: Logins PropertyAccessMode.Field",
                     },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomUserRoleString",
                     TableName = "MyUserRoles",
@@ -250,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: CustomUserRoleString.User (CustomUserString) ToPrincipal CustomUserString Inverse: UserRoles PropertyAccessMode.Field",
                     },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomUserString",
                     TableName = "MyUsers",
@@ -286,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: CustomUserString.UserRoles (ICollection<CustomUserRoleString>) Collection ToDependent CustomUserRoleString Inverse: User PropertyAccessMode.Field",
                     },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomUserTokenString",
                     TableName = "MyUserTokens",

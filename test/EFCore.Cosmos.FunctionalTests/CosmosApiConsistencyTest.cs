@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
         public class CosmosApiConsistencyFixture : ApiConsistencyFixtureBase
         {
-            public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>
+            public override HashSet<Type> FluentApiTypes { get; } = new()
             {
                 typeof(CosmosModelBuilderExtensions),
                 typeof(CosmosPropertyBuilderExtensions),
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             public override
                 List<(Type Type, Type ReadonlyExtensions, Type MutableExtensions, Type ConventionExtensions, Type
                     ConventionBuilderExtensions)> MetadataExtensionTypes { get; }
-                = new List<(Type, Type, Type, Type, Type)>
+                = new()
                 {
                     (typeof(IModel), typeof(CosmosModelExtensions), typeof(CosmosModelExtensions), typeof(CosmosModelExtensions),
                         typeof(CosmosModelBuilderExtensions)),

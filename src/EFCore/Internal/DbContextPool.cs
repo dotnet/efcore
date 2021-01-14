@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     {
         private const int DefaultPoolSize = 32;
 
-        private readonly ConcurrentQueue<IDbContextPoolable> _pool = new ConcurrentQueue<IDbContextPoolable>();
+        private readonly ConcurrentQueue<IDbContextPoolable> _pool = new();
 
         private readonly Func<DbContext> _activator;
 

@@ -2023,7 +2023,7 @@ namespace Microsoft.EntityFrameworkCore
         protected struct IntStructKey
         {
             public static ValueConverter<IntStructKey, int> Converter
-                = new ValueConverter<IntStructKey, int>(v => v.Id, v => new IntStructKey { Id = v });
+                = new(v => v.Id, v => new IntStructKey { Id = v });
 
             public int Id { get; set; }
         }
@@ -2031,7 +2031,7 @@ namespace Microsoft.EntityFrameworkCore
         protected struct BytesStructKey
         {
             public static ValueConverter<BytesStructKey, byte[]> Converter
-                = new ValueConverter<BytesStructKey, byte[]>(v => v.Id, v => new BytesStructKey { Id = v });
+                = new(v => v.Id, v => new BytesStructKey { Id = v });
 
             public byte[] Id { get; set; }
 
@@ -2059,7 +2059,7 @@ namespace Microsoft.EntityFrameworkCore
         protected struct ComparableIntStructKey : IComparable
         {
             public static ValueConverter<ComparableIntStructKey, int> Converter
-                = new ValueConverter<ComparableIntStructKey, int>(v => v.Id, v => new ComparableIntStructKey { Id = v });
+                = new(v => v.Id, v => new ComparableIntStructKey { Id = v });
 
             public int Id { get; set; }
 
@@ -2070,7 +2070,7 @@ namespace Microsoft.EntityFrameworkCore
         protected struct ComparableBytesStructKey : IComparable
         {
             public static ValueConverter<ComparableBytesStructKey, byte[]> Converter
-                = new ValueConverter<ComparableBytesStructKey, byte[]>(v => v.Id, v => new ComparableBytesStructKey { Id = v });
+                = new(v => v.Id, v => new ComparableBytesStructKey { Id = v });
 
             public byte[] Id { get; set; }
 
@@ -2107,7 +2107,7 @@ namespace Microsoft.EntityFrameworkCore
         protected struct GenericComparableIntStructKey : IComparable<GenericComparableIntStructKey>
         {
             public static ValueConverter<GenericComparableIntStructKey, int> Converter
-                = new ValueConverter<GenericComparableIntStructKey, int>(v => v.Id, v => new GenericComparableIntStructKey { Id = v });
+                = new(v => v.Id, v => new GenericComparableIntStructKey { Id = v });
 
             public int Id { get; set; }
 
@@ -2118,7 +2118,7 @@ namespace Microsoft.EntityFrameworkCore
         protected struct GenericComparableBytesStructKey : IComparable<GenericComparableBytesStructKey>
         {
             public static ValueConverter<GenericComparableBytesStructKey, byte[]> Converter
-                = new ValueConverter<GenericComparableBytesStructKey, byte[]>(
+                = new(
                     v => v.Id, v => new GenericComparableBytesStructKey { Id = v });
 
             public byte[] Id { get; set; }
@@ -2156,7 +2156,7 @@ namespace Microsoft.EntityFrameworkCore
         protected struct StructuralComparableBytesStructKey : IStructuralComparable
         {
             public static ValueConverter<StructuralComparableBytesStructKey, byte[]> Converter
-                = new ValueConverter<StructuralComparableBytesStructKey, byte[]>(
+                = new(
                     v => v.Id, v => new StructuralComparableBytesStructKey { Id = v });
 
             public byte[] Id { get; set; }
@@ -2201,7 +2201,7 @@ namespace Microsoft.EntityFrameworkCore
         protected class IntClassKey
         {
             public static ValueConverter<IntClassKey, int> Converter
-                = new ValueConverter<IntClassKey, int>(v => v.Id, v => new IntClassKey { Id = v });
+                = new(v => v.Id, v => new IntClassKey { Id = v });
 
             protected bool Equals(IntClassKey other)
                 => other != null && Id == other.Id;
@@ -2220,7 +2220,7 @@ namespace Microsoft.EntityFrameworkCore
         protected class ComparableIntClassKey : IComparable
         {
             public static ValueConverter<ComparableIntClassKey, int> Converter
-                = new ValueConverter<ComparableIntClassKey, int>(v => v.Id, v => new ComparableIntClassKey { Id = v });
+                = new(v => v.Id, v => new ComparableIntClassKey { Id = v });
 
             public int Id { get; set; }
 
@@ -2242,7 +2242,7 @@ namespace Microsoft.EntityFrameworkCore
         protected class GenericComparableIntClassKey : IComparable<GenericComparableIntClassKey>
         {
             public static ValueConverter<GenericComparableIntClassKey, int> Converter
-                = new ValueConverter<GenericComparableIntClassKey, int>(v => v.Id, v => new GenericComparableIntClassKey { Id = v });
+                = new(v => v.Id, v => new GenericComparableIntClassKey { Id = v });
 
             public int Id { get; set; }
 

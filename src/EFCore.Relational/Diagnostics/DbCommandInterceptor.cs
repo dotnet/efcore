@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CommandEventData eventData,
             InterceptionResult<DbDataReader> result,
             CancellationToken cancellationToken = default)
-            => new ValueTask<InterceptionResult<DbDataReader>>(result);
+            => new(result);
 
         /// <summary>
         ///     Called just before EF intends to call <see cref="DbCommand.ExecuteScalarAsync()" />.
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CommandEventData eventData,
             InterceptionResult<object> result,
             CancellationToken cancellationToken = default)
-            => new ValueTask<InterceptionResult<object>>(result);
+            => new(result);
 
         /// <summary>
         ///     Called just before EF intends to call <see cref="DbCommand.ExecuteNonQueryAsync()" />.
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CommandEventData eventData,
             InterceptionResult<int> result,
             CancellationToken cancellationToken = default)
-            => new ValueTask<InterceptionResult<int>>(result);
+            => new(result);
 
         /// <summary>
         ///     <para>
@@ -319,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CommandExecutedEventData eventData,
             DbDataReader result,
             CancellationToken cancellationToken = default)
-            => new ValueTask<DbDataReader>(result);
+            => new(result);
 
         /// <summary>
         ///     <para>
@@ -348,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CommandExecutedEventData eventData,
             object result,
             CancellationToken cancellationToken = default)
-            => new ValueTask<object>(result);
+            => new(result);
 
         /// <summary>
         ///     <para>
@@ -377,7 +377,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CommandExecutedEventData eventData,
             int result,
             CancellationToken cancellationToken = default)
-            => new ValueTask<int>(result);
+            => new(result);
 
         /// <summary>
         ///     Called when execution of a command has failed with an exception.

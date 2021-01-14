@@ -10,8 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class PhysicalAddressToBytesConverterTest
     {
-        private static readonly PhysicalAddressToBytesConverter _physicalAddressToBytes
-            = new PhysicalAddressToBytesConverter();
+        private static readonly PhysicalAddressToBytesConverter _physicalAddressToBytes            = new();
 
         [ConditionalTheory]
         [MemberData(nameof(Data))]

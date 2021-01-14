@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceModel
         public static IReadOnlyList<Country> CreateCountries()
             => new List<Country>
             {
-                new Country { Id = 1, Name = "New Zealand" }, new Country { Id = 2, Name = "USA" },
+                new() { Id = 1, Name = "New Zealand" }, new() { Id = 2, Name = "USA" },
             };
 
         public static IReadOnlyList<Drink> CreateDrinks()

@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// <param name="mappingInfo"> The mapping info containing the facets to use. </param>
             /// <returns> The new parameter object. </returns>
             public RelationalTypeMappingParameters WithTypeMappingInfo(in RelationalTypeMappingInfo mappingInfo)
-                => new RelationalTypeMappingParameters(
+                => new(
                     CoreParameters,
                     mappingInfo.StoreTypeName ?? StoreType,
                     StoreTypePostfix,
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 [NotNull] string storeType,
                 int? size,
                 StoreTypePostfix? storeTypePostfix = null)
-                => new RelationalTypeMappingParameters(
+                => new(
                     CoreParameters,
                     storeType,
                     storeTypePostfix ?? StoreTypePostfix,
@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             public RelationalTypeMappingParameters WithPrecisionAndScale(
                 int? precision,
                 int? scale)
-                => new RelationalTypeMappingParameters(
+                => new(
                     CoreParameters,
                     StoreType,
                     StoreTypePostfix,
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// <param name="precision"> The precision of data the property is configured to store, or null if no size is configured. </param>
             /// <returns> The new parameter object. </returns>
             public RelationalTypeMappingParameters WithPrecision(int? precision)
-                => new RelationalTypeMappingParameters(
+                => new(
                     CoreParameters,
                     StoreType,
                     StoreTypePostfix,
@@ -199,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// <param name="scale"> The scale of data the property is configured to store, or null if no size is configured. </param>
             /// <returns> The new parameter object. </returns>
             public RelationalTypeMappingParameters WithScale(int? scale)
-                => new RelationalTypeMappingParameters(
+                => new(
                     CoreParameters,
                     StoreType,
                     StoreTypePostfix,
@@ -217,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// <param name="converter"> The converter. </param>
             /// <returns> The new parameter object. </returns>
             public RelationalTypeMappingParameters WithComposedConverter([CanBeNull] ValueConverter converter)
-                => new RelationalTypeMappingParameters(
+                => new(
                     CoreParameters.WithComposedConverter(converter),
                     StoreType,
                     StoreTypePostfix,

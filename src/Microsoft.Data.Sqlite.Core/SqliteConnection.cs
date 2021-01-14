@@ -26,7 +26,7 @@ namespace Microsoft.Data.Sqlite
 
         private const string DataDirectoryMacro = "|DataDirectory|";
 
-        private readonly List<WeakReference<SqliteCommand>> _commands = new List<WeakReference<SqliteCommand>>();
+        private readonly List<WeakReference<SqliteCommand>> _commands = new();
 
         private Dictionary<string, (object? state, strdelegate_collation? collation)>? _collations;
 
@@ -406,7 +406,7 @@ namespace Microsoft.Data.Sqlite
         ///     transaction.
         /// </remarks>
         public new virtual SqliteCommand CreateCommand()
-            => new SqliteCommand
+            => new()
             {
                 Connection = this,
                 CommandTimeout = DefaultTimeout,
@@ -936,7 +936,7 @@ namespace Microsoft.Data.Sqlite
 
         private sealed class FunctionsKeyComparer : IEqualityComparer<(string name, int arity)>
         {
-            public static readonly FunctionsKeyComparer Instance = new FunctionsKeyComparer();
+            public static readonly FunctionsKeyComparer Instance = new();
 
             public bool Equals((string name, int arity) x, (string name, int arity) y)
                 => StringComparer.OrdinalIgnoreCase.Equals(x.name, y.name)

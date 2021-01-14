@@ -1529,8 +1529,8 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                         {
                             Posts = new List<Post5456>
                             {
-                                    new Post5456 { Comments = new List<Comment5456> { new Comment5456(), new Comment5456() } },
-                                    new Post5456()
+                                    new() { Comments = new List<Comment5456> { new(), new() } },
+                                    new()
                             },
                             Author = new Author5456()
                         });
@@ -5133,7 +5133,7 @@ WHERE [f].[String] = N'1337'");
                     => bar.Value;
 
                 public Bar6864 Clone()
-                    => new Bar6864(_value);
+                    => new(_value);
             }
         }
 
@@ -7491,7 +7491,7 @@ ORDER BY [e].[Id], [o].[Id]");
 
             public class AppEntity21803
             {
-                private readonly List<OtherEntity21803> _otherEntities = new List<OtherEntity21803>();
+                private readonly List<OtherEntity21803> _otherEntities = new();
 
                 public int Id { get; private set; }
 
@@ -8623,7 +8623,7 @@ WHERE [e].[Id] NOT IN (1, 7)");
 
         protected class MyContext10295 : DbContext
         {
-            private readonly List<int> _ids = new List<int> { 1, 7 };
+            private readonly List<int> _ids = new() { 1, 7 };
 
             public DbSet<MyEntity10295> Entities { get; set; }
 

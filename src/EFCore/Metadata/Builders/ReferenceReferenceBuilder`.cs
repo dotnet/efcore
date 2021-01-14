@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey(
             [NotNull] string dependentEntityTypeName,
             [NotNull] params string[] foreignKeyPropertyNames)
-            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
+            => new(
                 HasForeignKeyBuilder(
                     ResolveEntityType(Check.NotNull(dependentEntityTypeName, nameof(dependentEntityTypeName))),
                     dependentEntityTypeName,
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey(
             [NotNull] Type dependentEntityType,
             [NotNull] params string[] foreignKeyPropertyNames)
-            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
+            => new(
                 HasForeignKeyBuilder(
                     ResolveEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType))),
                     dependentEntityType.ShortDisplayName(),
@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
             [NotNull] Expression<Func<TDependentEntity, object>> foreignKeyExpression)
             where TDependentEntity : class
-            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
+            => new(
                 HasForeignKeyBuilder(
                     ResolveEntityType(typeof(TDependentEntity)),
                     typeof(TDependentEntity).ShortDisplayName(),
@@ -232,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey(
             [NotNull] string principalEntityTypeName,
             [NotNull] params string[] keyPropertyNames)
-            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
+            => new(
                 HasPrincipalKeyBuilder(
                     ResolveEntityType(Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName))),
                     principalEntityTypeName,
@@ -256,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey(
             [NotNull] Type principalEntityType,
             [NotNull] params string[] keyPropertyNames)
-            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
+            => new(
                 HasPrincipalKeyBuilder(
                     ResolveEntityType(Check.NotNull(principalEntityType, nameof(principalEntityType))),
                     principalEntityType.ShortDisplayName(),
@@ -311,7 +311,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(
             [NotNull] Expression<Func<TPrincipalEntity, object>> keyExpression)
             where TPrincipalEntity : class
-            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
+            => new(
                 HasPrincipalKeyBuilder(
                     ResolveEntityType(typeof(TPrincipalEntity)),
                     typeof(TPrincipalEntity).ShortDisplayName(),
@@ -327,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="required"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> IsRequired(bool required = true)
-            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
+            => new(
                 Builder.IsRequired(required, ConfigurationSource.Explicit),
                 this,
                 requiredSet: true);
@@ -339,7 +339,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="deleteBehavior"> The action to perform. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> OnDelete(DeleteBehavior deleteBehavior)
-            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-                Builder.OnDelete(deleteBehavior, ConfigurationSource.Explicit), this);
+            => new(Builder.OnDelete(deleteBehavior, ConfigurationSource.Explicit), this);
     }
 }

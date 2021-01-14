@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         public new virtual ValueTask<TValue> NextAsync(
             [NotNull] EntityEntry entry,
             CancellationToken cancellationToken = default)
-            => new ValueTask<TValue>(Next(entry));
+            => new(Next(entry));
 
         /// <summary>
         ///     Gets a value to be assigned to a property.

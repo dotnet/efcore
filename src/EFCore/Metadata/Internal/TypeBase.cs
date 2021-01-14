@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private ConfigurationSource _configurationSource;
 
         private readonly Dictionary<string, ConfigurationSource> _ignoredMembers
-            = new Dictionary<string, ConfigurationSource>(StringComparer.Ordinal);
+            = new(StringComparer.Ordinal);
 
         private bool _indexerPropertyInitialized;
         private PropertyInfo? _indexerPropertyInfo;

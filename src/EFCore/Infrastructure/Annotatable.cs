@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The newly created annotation. </returns>
         protected virtual Annotation CreateAnnotation([NotNull] string name, [CanBeNull] object? value)
-            => new Annotation(name, value);
+            => new(name, value);
 
         /// <inheritdoc />
         [DebuggerStepThrough]

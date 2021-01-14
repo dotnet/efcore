@@ -74,32 +74,32 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public abstract void UseProviderOptions(DbContextOptionsBuilder optionsBuilder);
 
         public DbContext CreateContext(IServiceProvider serviceProvider, IModel model)
-            => new DbContext(CreateOptions(model, serviceProvider));
+            => new(CreateOptions(model, serviceProvider));
 
         public DbContext CreateContext(IServiceProvider serviceProvider, DbContextOptions options)
-            => new DbContext(new DbContextOptionsBuilder(options).UseInternalServiceProvider(serviceProvider).Options);
+            => new(new DbContextOptionsBuilder(options).UseInternalServiceProvider(serviceProvider).Options);
 
         public DbContext CreateContext(IServiceProvider serviceProvider)
-            => new DbContext(CreateOptions(serviceProvider));
+            => new(CreateOptions(serviceProvider));
 
         public DbContext CreateContext(IModel model)
-            => new DbContext(CreateOptions(model, CreateServiceProvider()));
+            => new(CreateOptions(model, CreateServiceProvider()));
 
         public DbContext CreateContext(DbContextOptions options)
-            => new DbContext(new DbContextOptionsBuilder(options).UseInternalServiceProvider(CreateServiceProvider()).Options);
+            => new(new DbContextOptionsBuilder(options).UseInternalServiceProvider(CreateServiceProvider()).Options);
 
         public DbContext CreateContext()
-            => new DbContext(CreateOptions(CreateServiceProvider()));
+            => new(CreateOptions(CreateServiceProvider()));
 
         public DbContext CreateContext(IServiceCollection customServices, IModel model)
-            => new DbContext(CreateOptions(model, CreateServiceProvider(customServices)));
+            => new(CreateOptions(model, CreateServiceProvider(customServices)));
 
         public DbContext CreateContext(IServiceCollection customServices, DbContextOptions options)
-            => new DbContext(
+            => new(
                 new DbContextOptionsBuilder(options).UseInternalServiceProvider(CreateServiceProvider(customServices)).Options);
 
         public DbContext CreateContext(IServiceCollection customServices)
-            => new DbContext(CreateOptions(CreateServiceProvider(customServices)));
+            => new(CreateOptions(CreateServiceProvider(customServices)));
 
         public IServiceProvider CreateContextServices(IServiceProvider serviceProvider, IModel model)
             => ((IInfrastructure<IServiceProvider>)CreateContext(serviceProvider, model)).Instance;

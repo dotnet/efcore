@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SortedDictionary<string, TableBase> DefaultTables { get; }
-            = new SortedDictionary<string, TableBase>();
+            = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SortedDictionary<(string, string?), Table> Tables { get; }
-            = new SortedDictionary<(string, string?), Table>();
+            = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SortedDictionary<(string, string?), View> Views { get; }
-            = new SortedDictionary<(string, string?), View>();
+            = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SortedDictionary<string, SqlQuery> Queries { get; }
-            = new SortedDictionary<string, SqlQuery>();
+            = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SortedDictionary<(string, string?, IReadOnlyList<string>), StoreFunction> Functions { get; }
-            = new SortedDictionary<(string, string?, IReadOnlyList<string>), StoreFunction>(NamedListComparer.Instance);
+            = new(NamedListComparer.Instance);
 
         /// <inheritdoc />
         public virtual ITable? FindTable(string name, string? schema)
@@ -1139,7 +1139,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual DebugView DebugView
-            => new DebugView(
+            => new(
                 () => this.ToDebugString(MetadataDebugStringOptions.ShortDefault),
                 () => this.ToDebugString(MetadataDebugStringOptions.LongDefault));
 

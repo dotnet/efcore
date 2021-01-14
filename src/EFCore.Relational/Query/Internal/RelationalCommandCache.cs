@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class RelationalCommandCache : IPrintableExpression
     {
         private static readonly ConcurrentDictionary<object, object> _locks
-            = new ConcurrentDictionary<object, object>();
+            = new();
 
         private readonly IMemoryCache _memoryCache;
         private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;

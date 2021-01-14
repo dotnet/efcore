@@ -244,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="converterInfo"> The converter to apply. </param>
         /// <returns> The new mapping info. </returns>
         public RelationalTypeMappingInfo WithConverter(in ValueConverterInfo converterInfo)
-            => new RelationalTypeMappingInfo(this, converterInfo);
+            => new(this, converterInfo);
 
         /// <summary>
         ///     Compares this <see cref="RelationalTypeMappingInfo" /> to another to check if they represent the same mapping.

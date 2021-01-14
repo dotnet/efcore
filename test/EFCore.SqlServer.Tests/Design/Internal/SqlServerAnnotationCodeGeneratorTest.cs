@@ -231,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         private SqlServerAnnotationCodeGenerator CreateGenerator()
-            => new SqlServerAnnotationCodeGenerator(
+            => new(
                 new AnnotationCodeGeneratorDependencies(
                     new SqlServerTypeMappingSource(
                         new TypeMappingSourceDependencies(

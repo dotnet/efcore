@@ -258,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual List<EntityTypeMapping> ExpectedMappings
             => new()
             {
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ApiResource",
                     TableName = "ApiResources",
@@ -286,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: ApiResource.UserClaims (List<ApiResourceClaim>) Collection ToDependent ApiResourceClaim Inverse: ApiResource",
                     },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ApiResourceClaim",
                     TableName = "ApiResourceClaims",
@@ -304,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     Navigations = { "Navigation: ApiResourceClaim.ApiResource (ApiResource) ToPrincipal ApiResource Inverse: UserClaims", },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ApiResourceProperty",
                     TableName = "ApiResourceProperties",
@@ -326,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: ApiResourceProperty.ApiResource (ApiResource) ToPrincipal ApiResource Inverse: Properties",
                     },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ApiResourceScope",
                     TableName = "ApiResourceScopes",
@@ -344,7 +344,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     Navigations = { "Navigation: ApiResourceScope.ApiResource (ApiResource) ToPrincipal ApiResource Inverse: Scopes", },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ApiResourceSecret",
                     TableName = "ApiResourceSecrets",
@@ -366,7 +366,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     Navigations = { "Navigation: ApiResourceSecret.ApiResource (ApiResource) ToPrincipal ApiResource Inverse: Secrets", },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ApiScope",
                     TableName = "ApiScopes",
@@ -389,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: ApiScope.UserClaims (List<ApiScopeClaim>) Collection ToDependent ApiScopeClaim Inverse: Scope",
                     },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ApiScopeClaim",
                     TableName = "ApiScopeClaims",
@@ -407,7 +407,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     Navigations = { "Navigation: ApiScopeClaim.Scope (ApiScope) ToPrincipal ApiScope Inverse: UserClaims", },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ApiScopeProperty",
                     TableName = "ApiScopeProperties",
@@ -426,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     Navigations = { "Navigation: ApiScopeProperty.Scope (ApiScope) ToPrincipal ApiScope Inverse: Properties", },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.Client",
                     TableName = "Clients",
@@ -492,7 +492,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: Client.RedirectUris (List<ClientRedirectUri>) Collection ToDependent ClientRedirectUri Inverse: Client",
                     },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ClientClaim",
                     TableName = "ClientClaims",
@@ -508,7 +508,7 @@ namespace Microsoft.EntityFrameworkCore
                     FKs = { "ForeignKey: ClientClaim {'ClientId'} -> Client {'Id'} ToDependent: Claims ToPrincipal: Client Cascade", },
                     Navigations = { "Navigation: ClientClaim.Client (Client) ToPrincipal Client Inverse: Claims", },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ClientCorsOrigin",
                     TableName = "ClientCorsOrigins",
@@ -526,7 +526,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     Navigations = { "Navigation: ClientCorsOrigin.Client (Client) ToPrincipal Client Inverse: AllowedCorsOrigins", },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ClientGrantType",
                     TableName = "ClientGrantTypes",
@@ -544,7 +544,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     Navigations = { "Navigation: ClientGrantType.Client (Client) ToPrincipal Client Inverse: AllowedGrantTypes", },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ClientIdPRestriction",
                     TableName = "ClientIdPRestrictions",
@@ -565,7 +565,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: ClientIdPRestriction.Client (Client) ToPrincipal Client Inverse: IdentityProviderRestrictions",
                     },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ClientPostLogoutRedirectUri",
                     TableName = "ClientPostLogoutRedirectUris",
@@ -586,7 +586,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: ClientPostLogoutRedirectUri.Client (Client) ToPrincipal Client Inverse: PostLogoutRedirectUris",
                     },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ClientProperty",
                     TableName = "ClientProperties",
@@ -605,7 +605,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     Navigations = { "Navigation: ClientProperty.Client (Client) ToPrincipal Client Inverse: Properties", },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ClientRedirectUri",
                     TableName = "ClientRedirectUris",
@@ -623,7 +623,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     Navigations = { "Navigation: ClientRedirectUri.Client (Client) ToPrincipal Client Inverse: RedirectUris", },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ClientScope",
                     TableName = "ClientScopes",
@@ -641,7 +641,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     Navigations = { "Navigation: ClientScope.Client (Client) ToPrincipal Client Inverse: AllowedScopes", },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ClientSecret",
                     TableName = "ClientSecrets",
@@ -663,7 +663,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     Navigations = { "Navigation: ClientSecret.Client (Client) ToPrincipal Client Inverse: ClientSecrets", },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.IdentityResource",
                     TableName = "IdentityResources",
@@ -689,7 +689,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: IdentityResource.UserClaims (List<IdentityResourceClaim>) Collection ToDependent IdentityResourceClaim Inverse: IdentityResource",
                     },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.IdentityResourceClaim",
                     TableName = "IdentityResourceClaims",
@@ -710,7 +710,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: IdentityResourceClaim.IdentityResource (IdentityResource) ToPrincipal IdentityResource Inverse: UserClaims",
                     },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.IdentityResourceProperty",
                     TableName = "IdentityResourceProperties",

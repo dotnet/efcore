@@ -606,7 +606,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
         private static SqlServerTypeMappingSource CreateTypeMappingSource(
             params IRelationalTypeMappingSourcePlugin[] plugins)
-            => new SqlServerTypeMappingSource(
+            => new(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 new RelationalTypeMappingSourceDependencies(
                     plugins));
@@ -696,7 +696,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public string FactoryArg { get; }
 
         public SimpleTestType Create()
-            => new SimpleTestType();
+            => new();
 
         public object Create(string arg1)
             => new SimpleTestType(arg1);
@@ -705,7 +705,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             => new SimpleTestType(arg1, arg2);
 
         public static SimpleTestType StaticCreate()
-            => new SimpleTestType();
+            => new();
 
         public static object StaticCreate(string arg1)
             => new SimpleTestType(arg1);

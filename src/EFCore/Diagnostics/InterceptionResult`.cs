@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="result"> The result to use. </param>
         public static InterceptionResult<TResult> SuppressWithResult([CanBeNull] TResult result)
-            => new InterceptionResult<TResult>(result);
+            => new(result);
 
         private InterceptionResult(TResult result)
         {

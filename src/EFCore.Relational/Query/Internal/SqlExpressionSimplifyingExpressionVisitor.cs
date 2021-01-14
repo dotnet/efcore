@@ -313,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         private List<object> ConstructCollection(object left, object right)
-            => new List<object> { left, right };
+            => new() { left, right };
 
         private List<object> AddToCollection(IEnumerable collection, object newElement)
         {

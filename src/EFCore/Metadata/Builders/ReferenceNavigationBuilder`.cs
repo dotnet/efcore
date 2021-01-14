@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public new virtual ReferenceCollectionBuilder<TRelatedEntity, TEntity> WithMany(
             [CanBeNull] string navigationName = null)
         {
-            return new ReferenceCollectionBuilder<TRelatedEntity, TEntity>(
+            return new(
                 RelatedEntityType,
                 DeclaringEntityType,
                 WithManyBuilder(
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual ReferenceCollectionBuilder<TRelatedEntity, TEntity> WithMany(
             [CanBeNull] Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> navigationExpression)
         {
-            return new ReferenceCollectionBuilder<TRelatedEntity, TEntity>(
+            return new(
                 RelatedEntityType,
                 DeclaringEntityType,
                 WithManyBuilder(navigationExpression?.GetMemberAccess()).Metadata);
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object to further configure the relationship. </returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(
             [CanBeNull] string navigationName = null)
-            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
+            => new(
                 DeclaringEntityType,
                 RelatedEntityType,
                 WithOneBuilder(
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(
             [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> navigationExpression)
-            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
+            => new(
                 DeclaringEntityType,
                 RelatedEntityType,
                 WithOneBuilder(navigationExpression?.GetMemberAccess()).Metadata);

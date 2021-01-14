@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceCollectionBuilder HasForeignKey([NotNull] params string[] foreignKeyPropertyNames)
-            => new ReferenceCollectionBuilder(
+            => new(
                 HasForeignKeyBuilder(Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
                 foreignKeySet: true);
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="keyPropertyNames"> The name(s) of the referenced key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceCollectionBuilder HasPrincipalKey([NotNull] params string[] keyPropertyNames)
-            => new ReferenceCollectionBuilder(
+            => new(
                 HasPrincipalKeyBuilder(Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames))),
                 this,
                 principalKeySet: true);
@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="required"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceCollectionBuilder IsRequired(bool required = true)
-            => new ReferenceCollectionBuilder(
+            => new(
                 Builder.IsRequired(required, ConfigurationSource.Explicit),
                 this,
                 requiredSet: true);
@@ -173,8 +173,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="deleteBehavior"> The action to perform. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceCollectionBuilder OnDelete(DeleteBehavior deleteBehavior)
-            => new ReferenceCollectionBuilder(
-                Builder.OnDelete(deleteBehavior, ConfigurationSource.Explicit),
-                this);
+            => new(Builder.OnDelete(deleteBehavior, ConfigurationSource.Explicit), this);
     }
 }
