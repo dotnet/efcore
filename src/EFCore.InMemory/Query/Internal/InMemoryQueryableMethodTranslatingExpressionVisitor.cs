@@ -84,7 +84,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             if (methodCallExpression.Method.IsGenericMethod
                 && methodCallExpression.Arguments.Count == 1
                 && methodCallExpression.Arguments[0].Type.TryGetSequenceType() != null
-                && string.Equals(methodCallExpression.Method.Name, "AsSplitQuery", StringComparison.Ordinal))
+                && (string.Equals(methodCallExpression.Method.Name, "AsSplitQuery", StringComparison.Ordinal)
+                    || string.Equals(methodCallExpression.Method.Name, "AsSingleQuery", StringComparison.Ordinal)))
             {
                 return Visit(methodCallExpression.Arguments[0]);
             }
@@ -665,6 +666,20 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     return ProcessJoinCondition(binaryExpression.Left, leftExpressions, rightExpressions)
                         && ProcessJoinCondition(binaryExpression.Right, leftExpressions, rightExpressions);
                 }
+            }
+
+            if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23593", out var enabled)
+                && enabled)
+                && joinCondition is MethodCallExpression methodCallExpression
+                && methodCallExpression.Method.IsStatic
+                && methodCallExpression.Method.DeclaringType == typeof(object)
+                && methodCallExpression.Method.Name == nameof(object.Equals)
+                && methodCallExpression.Arguments.Count == 2)
+            {
+                leftExpressions.Add(methodCallExpression.Arguments[0]);
+                rightExpressions.Add(methodCallExpression.Arguments[1]);
+
+                return true;
             }
 
             return false;
@@ -1490,6 +1505,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             ? foreignKey.PrincipalKey.Properties
                             : foreignKey.Properties,
                         makeNullable);
+
+                    if (foreignKey.Properties.Count > 1
+                        && !(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore23687", out var enabled) && enabled))
+                    {
+                        outerKey = Expression.New(AnonymousObject.AnonymousObjectCtor, outerKey);
+                        innerKey = Expression.New(AnonymousObject.AnonymousObjectCtor, innerKey);
+                    }
 
                     var outerKeySelector = Expression.Lambda(_expressionTranslator.Translate(outerKey)!, _queryExpression.CurrentParameter);
                     var innerKeySelector = Expression.Lambda(

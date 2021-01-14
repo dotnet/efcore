@@ -8,6 +8,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
@@ -113,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities);
                 });
 
-            static void ValidateFixup(DbContext context, IList<EntityCompositeKey> leftEntities, IList<EntityLeaf> rightEntities)
+            void ValidateFixup(DbContext context, IList<EntityCompositeKey> leftEntities, IList<EntityLeaf> rightEntities)
             {
                 Assert.Equal(11, context.ChangeTracker.Entries().Count());
                 Assert.Equal(3, context.ChangeTracker.Entries<EntityCompositeKey>().Count());
@@ -128,7 +130,8 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Single(rightEntities[1].CompositeKeySkipFull);
                 Assert.Single(rightEntities[2].CompositeKeySkipFull);
 
-                foreach (var joinEntity in context.ChangeTracker.Entries<JoinCompositeKeyToLeaf>().Select(e => e.Entity).ToList())
+                var joinEntities = context.ChangeTracker.Entries<JoinCompositeKeyToLeaf>().Select(e => e.Entity).ToList();
+                foreach (var joinEntity in joinEntities)
                 {
                     Assert.Equal(joinEntity.Composite.Key1, joinEntity.CompositeId1);
                     Assert.Equal(joinEntity.Composite.Key2, joinEntity.CompositeId2);
@@ -138,6 +141,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Contains(joinEntity, joinEntity.Composite.JoinLeafFull);
                     Assert.Contains(joinEntity, joinEntity.Leaf.JoinCompositeKeyFull);
                 }
+
+                VerifyRelationshipSnapshots(context, joinEntities);
+                VerifyRelationshipSnapshots(context, leftEntities);
+                VerifyRelationshipSnapshots(context, rightEntities);
             }
         }
 
@@ -242,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities, 24, 8, 39 - 4);
                 });
 
-            static void ValidateFixup(
+            void ValidateFixup(
                 DbContext context,
                 List<EntityCompositeKey> leftEntities,
                 List<EntityLeaf> rightEntities,
@@ -272,7 +279,8 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.DoesNotContain(rightEntities[2].CompositeKeySkipFull, e => e.Key2 == "8_1");
                 Assert.Contains(rightEntities[2].CompositeKeySkipFull, e => e.Key2 == "7714");
 
-                foreach (var joinEntry in context.ChangeTracker.Entries<JoinCompositeKeyToLeaf>().ToList())
+                var joinEntries = context.ChangeTracker.Entries<JoinCompositeKeyToLeaf>().ToList();
+                foreach (var joinEntry in joinEntries)
                 {
                     var joinEntity = joinEntry.Entity;
 
@@ -287,6 +295,10 @@ namespace Microsoft.EntityFrameworkCore
 
                 var allLeft = context.ChangeTracker.Entries<EntityCompositeKey>().Select(e => e.Entity).OrderBy(e => e.Key2).ToList();
                 var allRight = context.ChangeTracker.Entries<EntityLeaf>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
+
+                VerifyRelationshipSnapshots(context, joinEntries.Select(e => e.Entity));
+                VerifyRelationshipSnapshots(context, allLeft);
+                VerifyRelationshipSnapshots(context, allRight);
 
                 var count = 0;
                 foreach (var left in allLeft)
@@ -565,7 +577,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities);
                 });
 
-            static void ValidateFixup(DbContext context, IList<EntityCompositeKey> leftEntities, IList<EntityRoot> rightEntities)
+            void ValidateFixup(DbContext context, IList<EntityCompositeKey> leftEntities, IList<EntityRoot> rightEntities)
             {
                 Assert.Equal(11, context.ChangeTracker.Entries().Count());
                 Assert.Equal(3, context.ChangeTracker.Entries<EntityCompositeKey>().Count());
@@ -579,6 +591,9 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(3, rightEntities[0].CompositeKeySkipShared.Count);
                 Assert.Single(rightEntities[1].CompositeKeySkipShared);
                 Assert.Single(rightEntities[2].CompositeKeySkipShared);
+
+                VerifyRelationshipSnapshots(context, leftEntities);
+                VerifyRelationshipSnapshots(context, rightEntities);
             }
         }
 
@@ -722,6 +737,9 @@ namespace Microsoft.EntityFrameworkCore
 
                 var allLeft = context.ChangeTracker.Entries<EntityCompositeKey>().Select(e => e.Entity).OrderBy(e => e.Key2).ToList();
                 var allRight = context.ChangeTracker.Entries<EntityRoot>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
+
+                VerifyRelationshipSnapshots(context, allLeft);
+                VerifyRelationshipSnapshots(context, allRight);
 
                 var count = 0;
                 foreach (var left in allLeft)
@@ -935,7 +953,7 @@ namespace Microsoft.EntityFrameworkCore
                         context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
                     }
 
-                    ValidateFixup(context, leftEntities, rightEntities);
+                    ValidateFixup(context, leftEntities, rightEntities, postSave: false);
 
                     if (async)
                     {
@@ -946,7 +964,7 @@ namespace Microsoft.EntityFrameworkCore
                         context.SaveChanges();
                     }
 
-                    ValidateFixup(context, leftEntities, rightEntities);
+                    ValidateFixup(context, leftEntities, rightEntities, postSave: true);
 
                     keys = leftEntities.Select(e => e.Key2).ToList();
                 },
@@ -962,10 +980,10 @@ namespace Microsoft.EntityFrameworkCore
                     var rightEntities = context.ChangeTracker.Entries<EntityThree>()
                         .Select(e => e.Entity).OrderBy(e => e.Name).ToList();
 
-                    ValidateFixup(context, leftEntities, rightEntities);
+                    ValidateFixup(context, leftEntities, rightEntities, postSave: true);
                 });
 
-            static void ValidateFixup(DbContext context, IList<EntityCompositeKey> leftEntities, IList<EntityThree> rightEntities)
+            void ValidateFixup(DbContext context, IList<EntityCompositeKey> leftEntities, IList<EntityThree> rightEntities, bool postSave)
             {
                 var entries = context.ChangeTracker.Entries();
                 Assert.Equal(11, entries.Count());
@@ -981,7 +999,8 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Single(rightEntities[1].CompositeKeySkipFull);
                 Assert.Single(rightEntities[2].CompositeKeySkipFull);
 
-                foreach (var joinEntity in context.ChangeTracker.Entries<JoinThreeToCompositeKeyFull>().Select(e => e.Entity).ToList())
+                var joinEntities = context.ChangeTracker.Entries<JoinThreeToCompositeKeyFull>().Select(e => e.Entity).ToList();
+                foreach (var joinEntity in joinEntities)
                 {
                     Assert.Equal(joinEntity.Composite.Key1, joinEntity.CompositeId1);
                     Assert.Equal(joinEntity.Composite.Key2, joinEntity.CompositeId2);
@@ -990,6 +1009,15 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Contains(joinEntity, joinEntity.Composite.JoinThreeFull);
                     Assert.Contains(joinEntity, joinEntity.Three.JoinCompositeKeyFull);
+                }
+
+                VerifyRelationshipSnapshots(context, joinEntities);
+                VerifyRelationshipSnapshots(context, leftEntities);
+                VerifyRelationshipSnapshots(context, rightEntities);
+
+                foreach (var entry in context.ChangeTracker.Entries())
+                {
+                    Assert.Equal(postSave ? EntityState.Unchanged : EntityState.Added, entry.State);
                 }
             }
         }
@@ -1137,7 +1165,8 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.DoesNotContain(rightEntities[2].CompositeKeySkipFull, e => e.Key2 == "6_1");
                 Assert.Contains(rightEntities[2].CompositeKeySkipFull, e => e.Key2 == "Z7714");
 
-                foreach (var joinEntry in context.ChangeTracker.Entries<JoinThreeToCompositeKeyFull>().ToList())
+                var joinEntries = context.ChangeTracker.Entries<JoinThreeToCompositeKeyFull>().ToList();
+                foreach (var joinEntry in joinEntries)
                 {
                     var joinEntity = joinEntry.Entity;
 
@@ -1152,6 +1181,10 @@ namespace Microsoft.EntityFrameworkCore
 
                 var allLeft = context.ChangeTracker.Entries<EntityCompositeKey>().Select(e => e.Entity).OrderBy(e => e.Key2).ToList();
                 var allRight = context.ChangeTracker.Entries<EntityThree>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
+
+                VerifyRelationshipSnapshots(context, joinEntries.Select(e => e.Entity));
+                VerifyRelationshipSnapshots(context, allLeft);
+                VerifyRelationshipSnapshots(context, allRight);
 
                 var count = 0;
                 foreach (var left in allLeft)
@@ -1411,7 +1444,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities);
                 });
 
-            static void ValidateFixup(DbContext context, IList<EntityTwo> leftEntities, IList<EntityTwo> rightEntities)
+            void ValidateFixup(DbContext context, IList<EntityTwo> leftEntities, IList<EntityTwo> rightEntities)
             {
                 Assert.Equal(11, context.ChangeTracker.Entries().Count());
                 Assert.Equal(6, context.ChangeTracker.Entries<EntityTwo>().Count());
@@ -1424,6 +1457,9 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(3, rightEntities[0].SelfSkipSharedRight.Count);
                 Assert.Single(rightEntities[1].SelfSkipSharedRight);
                 Assert.Single(rightEntities[2].SelfSkipSharedRight);
+
+                VerifyRelationshipSnapshots(context, leftEntities);
+                VerifyRelationshipSnapshots(context, rightEntities);
             }
         }
 
@@ -1561,6 +1597,9 @@ namespace Microsoft.EntityFrameworkCore
                 var allLeft = context.ChangeTracker.Entries<EntityTwo>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
                 var allRight = context.ChangeTracker.Entries<EntityTwo>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
 
+                VerifyRelationshipSnapshots(context, allLeft);
+                VerifyRelationshipSnapshots(context, allRight);
+
                 var joins = 0;
                 foreach (var left in allLeft)
                 {
@@ -1658,7 +1697,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities);
                 });
 
-            static void ValidateFixup(DbContext context, IList<EntityTwo> leftEntities, IList<EntityThree> rightEntities)
+            void ValidateFixup(DbContext context, IList<EntityTwo> leftEntities, IList<EntityThree> rightEntities)
             {
                 Assert.Equal(11, context.ChangeTracker.Entries().Count());
                 Assert.Equal(3, context.ChangeTracker.Entries<EntityTwo>().Count());
@@ -1673,13 +1712,19 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Single(rightEntities[1].TwoSkipFull);
                 Assert.Single(rightEntities[2].TwoSkipFull);
 
-                foreach (var joinEntity in context.ChangeTracker.Entries<JoinTwoToThree>().Select(e => e.Entity).ToList())
+                var joinEntities = context.ChangeTracker.Entries<JoinTwoToThree>().Select(e => e.Entity).ToList();
+                foreach (var joinEntity in joinEntities)
                 {
                     Assert.Equal(joinEntity.Two.Id, joinEntity.TwoId);
                     Assert.Equal(joinEntity.Three.Id, joinEntity.ThreeId);
                     Assert.Contains(joinEntity, joinEntity.Two.JoinThreeFull);
                     Assert.Contains(joinEntity, joinEntity.Three.JoinTwoFull);
                 }
+
+                VerifyRelationshipSnapshots(context, joinEntities);
+                VerifyRelationshipSnapshots(context, leftEntities);
+                VerifyRelationshipSnapshots(context, rightEntities);
+
             }
         }
 
@@ -1776,7 +1821,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities, 24, 24, 60 - 4);
                 });
 
-            static void ValidateFixup(
+            void ValidateFixup(
                 DbContext context,
                 List<EntityTwo> leftEntities,
                 List<EntityThree> rightEntities,
@@ -1806,7 +1851,8 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.DoesNotContain(rightEntities[2].TwoSkipFull, e => e.Name == "EntityTwo 3");
                 Assert.Contains(rightEntities[2].TwoSkipFull, e => e.Name == "Z7714");
 
-                foreach (var joinEntry in context.ChangeTracker.Entries<JoinTwoToThree>().ToList())
+                var joinEntries = context.ChangeTracker.Entries<JoinTwoToThree>().ToList();
+                foreach (var joinEntry in joinEntries)
                 {
                     var joinEntity = joinEntry.Entity;
                     Assert.Equal(joinEntity.Two.Id, joinEntity.TwoId);
@@ -1817,6 +1863,10 @@ namespace Microsoft.EntityFrameworkCore
 
                 var allLeft = context.ChangeTracker.Entries<EntityTwo>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
                 var allRight = context.ChangeTracker.Entries<EntityThree>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
+
+                VerifyRelationshipSnapshots(context, joinEntries.Select(e => e.Entity));
+                VerifyRelationshipSnapshots(context, allLeft);
+                VerifyRelationshipSnapshots(context, allRight);
 
                 var count = 0;
                 foreach (var left in allLeft)
@@ -1915,7 +1965,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities);
                 });
 
-            static void ValidateFixup(DbContext context, IList<EntityOne> leftEntities, IList<EntityBranch> rightEntities)
+            void ValidateFixup(DbContext context, IList<EntityOne> leftEntities, IList<EntityBranch> rightEntities)
             {
                 Assert.Equal(11, context.ChangeTracker.Entries().Count());
                 Assert.Equal(3, context.ChangeTracker.Entries<EntityOne>().Count());
@@ -1929,6 +1979,9 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(3, rightEntities[0].OneSkip.Count);
                 Assert.Single(rightEntities[1].OneSkip);
                 Assert.Single(rightEntities[2].OneSkip);
+
+                VerifyRelationshipSnapshots(context, leftEntities);
+                VerifyRelationshipSnapshots(context, rightEntities);
             }
         }
 
@@ -2025,7 +2078,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities, 24, 14, 55 - 4);
                 });
 
-            static void ValidateFixup(
+            void ValidateFixup(
                 DbContext context,
                 List<EntityOne> leftEntities,
                 List<EntityBranch> rightEntities,
@@ -2057,6 +2110,9 @@ namespace Microsoft.EntityFrameworkCore
 
                 var allLeft = context.ChangeTracker.Entries<EntityOne>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
                 var allRight = context.ChangeTracker.Entries<EntityBranch>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
+
+                VerifyRelationshipSnapshots(context, allLeft);
+                VerifyRelationshipSnapshots(context, allRight);
 
                 var count = 0;
                 foreach (var left in allLeft)
@@ -2183,7 +2239,8 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Single(rightEntities[1].SelfSkipPayloadRight);
                 Assert.Single(rightEntities[2].SelfSkipPayloadRight);
 
-                foreach (var joinEntity in context.ChangeTracker.Entries<JoinOneSelfPayload>().Select(e => e.Entity).ToList())
+                var joinEntities = context.ChangeTracker.Entries<JoinOneSelfPayload>().Select(e => e.Entity).ToList();
+                foreach (var joinEntity in joinEntities)
                 {
                     Assert.Equal(joinEntity.Left.Id, joinEntity.LeftId);
                     Assert.Equal(joinEntity.Right.Id, joinEntity.RightId);
@@ -2200,6 +2257,10 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(default, joinEntity.Payload);
                     }
                 }
+
+                VerifyRelationshipSnapshots(context, joinEntities);
+                VerifyRelationshipSnapshots(context, leftEntities);
+                VerifyRelationshipSnapshots(context, rightEntities);
             }
         }
 
@@ -2346,7 +2407,8 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.DoesNotContain(rightEntities[4].SelfSkipPayloadLeft, e => e.Name == "EntityOne 6");
                 Assert.Contains(rightEntities[4].SelfSkipPayloadLeft, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys[7]);
 
-                foreach (var joinEntry in context.ChangeTracker.Entries<JoinOneSelfPayload>().ToList())
+                var joinEntries = context.ChangeTracker.Entries<JoinOneSelfPayload>().ToList();
+                foreach (var joinEntry in joinEntries)
                 {
                     var joinEntity = joinEntry.Entity;
                     Assert.Equal(joinEntity.Left.Id, joinEntity.LeftId);
@@ -2371,6 +2433,10 @@ namespace Microsoft.EntityFrameworkCore
 
                 var allLeft = context.ChangeTracker.Entries<EntityOne>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
                 var allRight = context.ChangeTracker.Entries<EntityOne>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
+
+                VerifyRelationshipSnapshots(context, joinEntries.Select(e => e.Entity));
+                VerifyRelationshipSnapshots(context, allLeft);
+                VerifyRelationshipSnapshots(context, allRight);
 
                 var joins = 0;
                 foreach (var left in allLeft)
@@ -2483,6 +2549,9 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(3, rightEntities[0].OneSkipPayloadFullShared.Count);
                 Assert.Single(rightEntities[1].OneSkipPayloadFullShared);
                 Assert.Single(rightEntities[2].OneSkipPayloadFullShared);
+
+                VerifyRelationshipSnapshots(context, leftEntities);
+                VerifyRelationshipSnapshots(context, rightEntities);
 
                 if (postSave
                     && SupportsDatabaseDefaults)
@@ -2607,7 +2676,7 @@ namespace Microsoft.EntityFrameworkCore
             static int GetEntityThreeId(ManyToManyContext context, string name)
                 => context.Entry(context.EntityThrees.Local.Single(e => e.Name == name)).Property(e => e.Id).CurrentValue;
 
-            static void ValidateFixup(
+            void ValidateFixup(
                 ManyToManyContext context,
                 List<EntityOne> leftEntities,
                 List<EntityThree> rightEntities,
@@ -2643,7 +2712,8 @@ namespace Microsoft.EntityFrameworkCore
                 var oneId2 = GetEntityOneId(context, "EntityOne 20");
                 var threeId2 = GetEntityThreeId(context, "EntityThree 20");
 
-                foreach (var joinEntry in context.ChangeTracker.Entries<Dictionary<string, object>>().ToList())
+                var joinEntries = context.ChangeTracker.Entries<Dictionary<string, object>>().ToList();
+                foreach (var joinEntry in joinEntries)
                 {
                     var joinEntity = joinEntry.Entity;
 
@@ -2664,6 +2734,10 @@ namespace Microsoft.EntityFrameworkCore
 
                 var allLeft = context.ChangeTracker.Entries<EntityOne>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
                 var allRight = context.ChangeTracker.Entries<EntityThree>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
+
+                VerifyRelationshipSnapshots(context, joinEntries.Select(e => e.Entity));
+                VerifyRelationshipSnapshots(context, allLeft);
+                VerifyRelationshipSnapshots(context, allRight);
 
                 var count = 0;
                 foreach (var left in allLeft)
@@ -2762,7 +2836,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities);
                 });
 
-            static void ValidateFixup(DbContext context, IList<EntityOne> leftEntities, IList<EntityTwo> rightEntities)
+            void ValidateFixup(DbContext context, IList<EntityOne> leftEntities, IList<EntityTwo> rightEntities)
             {
                 Assert.Equal(11, context.ChangeTracker.Entries().Count());
                 Assert.Equal(3, context.ChangeTracker.Entries<EntityOne>().Count());
@@ -2776,6 +2850,9 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(3, rightEntities[0].OneSkipShared.Count);
                 Assert.Single(rightEntities[1].OneSkipShared);
                 Assert.Single(rightEntities[2].OneSkipShared);
+
+                VerifyRelationshipSnapshots(context, leftEntities);
+                VerifyRelationshipSnapshots(context, rightEntities);
             }
         }
 
@@ -2880,7 +2957,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities, 24, 24, 49);
                 });
 
-            static void ValidateFixup(
+            void ValidateFixup(
                 DbContext context,
                 List<EntityOne> leftEntities,
                 List<EntityTwo> rightEntities,
@@ -2912,6 +2989,9 @@ namespace Microsoft.EntityFrameworkCore
 
                 var allLeft = context.ChangeTracker.Entries<EntityOne>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
                 var allRight = context.ChangeTracker.Entries<EntityTwo>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
+
+                VerifyRelationshipSnapshots(context, allLeft);
+                VerifyRelationshipSnapshots(context, allRight);
 
                 var count = 0;
                 foreach (var left in allLeft)
@@ -3025,7 +3105,8 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Single(rightEntities[1].OneSkipPayloadFull);
                 Assert.Single(rightEntities[2].OneSkipPayloadFull);
 
-                foreach (var joinEntity in context.ChangeTracker.Entries<JoinOneToThreePayloadFull>().Select(e => e.Entity).ToList())
+                var joinEntities = context.ChangeTracker.Entries<JoinOneToThreePayloadFull>().Select(e => e.Entity).ToList();
+                foreach (var joinEntity in joinEntities)
                 {
                     Assert.Equal(joinEntity.One.Id, joinEntity.OneId);
                     Assert.Equal(joinEntity.Three.Id, joinEntity.ThreeId);
@@ -3037,6 +3118,10 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal("Generated", joinEntity.Payload);
                     }
                 }
+
+                VerifyRelationshipSnapshots(context, joinEntities);
+                VerifyRelationshipSnapshots(context, leftEntities);
+                VerifyRelationshipSnapshots(context, rightEntities);
             }
         }
 
@@ -3154,7 +3239,7 @@ namespace Microsoft.EntityFrameworkCore
             static int GetEntityThreeId(ManyToManyContext context, string name)
                 => context.Entry(context.EntityThrees.Local.Single(e => e.Name == name)).Property(e => e.Id).CurrentValue;
 
-            static void ValidateFixup(
+            void ValidateFixup(
                 ManyToManyContext context,
                 List<EntityOne> leftEntities,
                 List<EntityThree> rightEntities,
@@ -3190,7 +3275,8 @@ namespace Microsoft.EntityFrameworkCore
                 var oneId2 = GetEntityOneId(context, "EntityOne 20");
                 var threeId2 = GetEntityThreeId(context, "EntityThree 20");
 
-                foreach (var joinEntry in context.ChangeTracker.Entries<JoinOneToThreePayloadFull>().ToList())
+                var joinEntries = context.ChangeTracker.Entries<JoinOneToThreePayloadFull>().ToList();
+                foreach (var joinEntry in joinEntries)
                 {
                     var joinEntity = joinEntry.Entity;
                     Assert.Equal(joinEntity.One.Id, joinEntity.OneId);
@@ -3215,6 +3301,10 @@ namespace Microsoft.EntityFrameworkCore
 
                 var allLeft = context.ChangeTracker.Entries<EntityOne>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
                 var allRight = context.ChangeTracker.Entries<EntityThree>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
+
+                VerifyRelationshipSnapshots(context, joinEntries.Select(e => e.Entity));
+                VerifyRelationshipSnapshots(context, allLeft);
+                VerifyRelationshipSnapshots(context, allRight);
 
                 var count = 0;
                 foreach (var left in allLeft)
@@ -3438,7 +3528,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities);
                 });
 
-            static void ValidateFixup(DbContext context, IList<EntityOne> leftEntities, IList<EntityTwo> rightEntities)
+            void ValidateFixup(DbContext context, IList<EntityOne> leftEntities, IList<EntityTwo> rightEntities)
             {
                 Assert.Equal(11, context.ChangeTracker.Entries().Count());
                 Assert.Equal(3, context.ChangeTracker.Entries<EntityOne>().Count());
@@ -3452,6 +3542,9 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(3, rightEntities[0].OneSkip.Count);
                 Assert.Single(rightEntities[1].OneSkip);
                 Assert.Single(rightEntities[2].OneSkip);
+
+                VerifyRelationshipSnapshots(context, leftEntities);
+                VerifyRelationshipSnapshots(context, rightEntities);
             }
         }
 
@@ -3597,6 +3690,9 @@ namespace Microsoft.EntityFrameworkCore
 
                 var allLeft = context.ChangeTracker.Entries<EntityOne>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
                 var allRight = context.ChangeTracker.Entries<EntityTwo>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
+
+                VerifyRelationshipSnapshots(context, allLeft);
+                VerifyRelationshipSnapshots(context, allRight);
 
                 var count = 0;
                 foreach (var left in allLeft)
@@ -3796,7 +3892,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Single(rightEntities[2].As);
                 });
 
-            static void ValidateFixup(DbContext context, IList<ImplicitManyToManyA> leftEntities, IList<ImplicitManyToManyB> rightEntities)
+            void ValidateFixup(DbContext context, IList<ImplicitManyToManyA> leftEntities, IList<ImplicitManyToManyB> rightEntities)
             {
                 Assert.Equal(11, context.ChangeTracker.Entries().Count());
                 Assert.Equal(3, context.ChangeTracker.Entries<ImplicitManyToManyA>().Count());
@@ -3810,6 +3906,9 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(3, rightEntities[0].As.Count);
                 Assert.Single(rightEntities[1].As);
                 Assert.Single(rightEntities[2].As);
+
+                VerifyRelationshipSnapshots(context, leftEntities);
+                VerifyRelationshipSnapshots(context, rightEntities);
             }
         }
 
@@ -3891,7 +3990,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Single(rightEntities[2].Lefts);
                 });
 
-            static void ValidateFixup(DbContext context, IList<GeneratedKeysLeft> leftEntities, IList<GeneratedKeysRight> rightEntities)
+            void ValidateFixup(DbContext context, IList<GeneratedKeysLeft> leftEntities, IList<GeneratedKeysRight> rightEntities)
             {
                 Assert.Equal(11, context.ChangeTracker.Entries().Count());
                 Assert.Equal(3, context.ChangeTracker.Entries<GeneratedKeysLeft>().Count());
@@ -3905,6 +4004,9 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(3, rightEntities[0].Lefts.Count);
                 Assert.Single(rightEntities[1].Lefts);
                 Assert.Single(rightEntities[2].Lefts);
+
+                VerifyRelationshipSnapshots(context, leftEntities);
+                VerifyRelationshipSnapshots(context, rightEntities);
             }
         }
 
@@ -4043,7 +4145,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Single(rightEntities[2].Lefts);
                 });
 
-            static void ValidateFixup(DbContext context, IList<GeneratedKeysLeft> leftEntities, IList<GeneratedKeysRight> rightEntities)
+            void ValidateFixup(DbContext context, IList<GeneratedKeysLeft> leftEntities, IList<GeneratedKeysRight> rightEntities)
             {
                 Assert.Equal(11, context.ChangeTracker.Entries().Count());
                 Assert.Equal(3, context.ChangeTracker.Entries<GeneratedKeysLeft>().Count());
@@ -4057,6 +4159,9 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(3, rightEntities[0].Lefts.Count);
                 Assert.Single(rightEntities[1].Lefts);
                 Assert.Single(rightEntities[2].Lefts);
+
+                VerifyRelationshipSnapshots(context, leftEntities);
+                VerifyRelationshipSnapshots(context, rightEntities);
             }
         }
 
@@ -4125,7 +4230,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities);
                 });
 
-            static void ValidateFixup(DbContext context, IList<ImplicitManyToManyA> leftEntities, IList<ImplicitManyToManyB> rightEntities)
+            void ValidateFixup(DbContext context, IList<ImplicitManyToManyA> leftEntities, IList<ImplicitManyToManyB> rightEntities)
             {
                 Assert.Equal(9, context.ChangeTracker.Entries().Count());
                 Assert.Equal(3, context.ChangeTracker.Entries<ImplicitManyToManyA>().Count());
@@ -4139,6 +4244,9 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Single(rightEntities[0].As);
                 Assert.Single(rightEntities[1].As);
                 Assert.Single(rightEntities[2].As);
+
+                VerifyRelationshipSnapshots(context, leftEntities);
+                VerifyRelationshipSnapshots(context, rightEntities);
             }
         }
 
@@ -4291,6 +4399,222 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.False(context.Set<ProxyableSharedType>("PST").Any(e => (int)e["Id"] == id));
                 });
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Can_insert_many_to_many_with_navs_by_join_entity(bool async)
+        {
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
+                {
+                    var leftEntities = new[]
+                    {
+                        context.EntityTwos.CreateInstance(
+                            (e, p) =>
+                            {
+                                e.Id = Fixture.UseGeneratedKeys ? 0 : 7711;
+                                e.Name = "Z7711";
+                            }),
+                        context.EntityTwos.CreateInstance(
+                            (e, p) =>
+                            {
+                                e.Id = Fixture.UseGeneratedKeys ? 0 : 7712;
+                                e.Name = "Z7712";
+                            }),
+                        context.EntityTwos.CreateInstance(
+                            (e, p) =>
+                            {
+                                e.Id = Fixture.UseGeneratedKeys ? 0 : 7713;
+                                e.Name = "Z7713";
+                            })
+                    };
+                    var rightEntities = new[]
+                    {
+                        context.EntityThrees.CreateInstance(
+                            (e, p) =>
+                            {
+                                e.Id = Fixture.UseGeneratedKeys ? 0 : 7721;
+                                e.Name = "Z7721";
+                            }),
+                        context.EntityThrees.CreateInstance(
+                            (e, p) =>
+                            {
+                                e.Id = Fixture.UseGeneratedKeys ? 0 : 7722;
+                                e.Name = "Z7722";
+                            }),
+                        context.EntityThrees.CreateInstance(
+                            (e, p) =>
+                            {
+                                e.Id = Fixture.UseGeneratedKeys ? 0 : 7723;
+                                e.Name = "Z7723";
+                            })
+                    };
+
+                    var joinEntities = new[]
+                    {
+                        context.Set<JoinTwoToThree>().CreateInstance(
+                            (e, p) =>
+                            {
+                                e.Two = leftEntities[0];
+                                e.Three = rightEntities[0];
+                            }),
+                        context.Set<JoinTwoToThree>().CreateInstance(
+                            (e, p) =>
+                            {
+                                e.Two = leftEntities[0];
+                                e.Three = rightEntities[1];
+                            }),
+                        context.Set<JoinTwoToThree>().CreateInstance(
+                            (e, p) =>
+                            {
+                                e.Two = leftEntities[0];
+                                e.Three = rightEntities[2];
+                            }),
+                        context.Set<JoinTwoToThree>().CreateInstance(
+                            (e, p) =>
+                            {
+                                e.Two = leftEntities[1];
+                                e.Three = rightEntities[0];
+                            }),
+                        context.Set<JoinTwoToThree>().CreateInstance(
+                            (e, p) =>
+                            {
+                                e.Two = leftEntities[2];
+                                e.Three = rightEntities[0];
+                            })
+                    };
+
+                    if (async)
+                    {
+                        await context.AddRangeAsync(joinEntities);
+                    }
+                    else
+                    {
+                        context.AddRange(joinEntities);
+                    }
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+
+                    if (async)
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                    }
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+                },
+                async context =>
+                {
+                    var queryable = context.Set<EntityTwo>()
+                        .Where(e => e.Name.StartsWith("Z"))
+                        .OrderBy(e => e.Name)
+                        .Include(e => e.ThreeSkipFull);
+
+                    var results = async ? await queryable.ToListAsync() : queryable.ToList();
+                    Assert.Equal(3, results.Count);
+
+                    var leftEntities = context.ChangeTracker.Entries<EntityTwo>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
+                    var rightEntities = context.ChangeTracker.Entries<EntityThree>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+                });
+
+            static void ValidateFixup(DbContext context, IList<EntityTwo> leftEntities, IList<EntityThree> rightEntities)
+            {
+                Assert.Equal(11, context.ChangeTracker.Entries().Count());
+                Assert.Equal(3, context.ChangeTracker.Entries<EntityTwo>().Count());
+                Assert.Equal(3, context.ChangeTracker.Entries<EntityThree>().Count());
+                Assert.Equal(5, context.ChangeTracker.Entries<JoinTwoToThree>().Count());
+
+                Assert.Equal(3, leftEntities[0].ThreeSkipFull.Count);
+                Assert.Single(leftEntities[1].ThreeSkipFull);
+                Assert.Single(leftEntities[2].ThreeSkipFull);
+
+                Assert.Equal(3, rightEntities[0].TwoSkipFull.Count);
+                Assert.Single(rightEntities[1].TwoSkipFull);
+                Assert.Single(rightEntities[2].TwoSkipFull);
+
+                foreach (var joinEntity in context.ChangeTracker.Entries<JoinTwoToThree>().Select(e => e.Entity).ToList())
+                {
+                    Assert.Equal(joinEntity.Two.Id, joinEntity.TwoId);
+                    Assert.Equal(joinEntity.Three.Id, joinEntity.ThreeId);
+                    Assert.Contains(joinEntity, joinEntity.Two.JoinThreeFull);
+                    Assert.Contains(joinEntity, joinEntity.Three.JoinTwoFull);
+                }
+            }
+        }
+
+        protected void VerifyRelationshipSnapshots(DbContext context, IEnumerable<object> entities)
+        {
+            var detectChanges = context.ChangeTracker.AutoDetectChangesEnabled;
+            try
+            {
+                context.ChangeTracker.AutoDetectChangesEnabled = false;
+
+                foreach (var entity in entities)
+                {
+                    var entityEntry = context.Entry(entity).GetInfrastructure();
+                    var entityType = entityEntry.EntityType;
+
+                    if (entityEntry.HasRelationshipSnapshot)
+                    {
+                        foreach (var property in entityType.GetForeignKeys().SelectMany(e => e.Properties))
+                        {
+                            if (property.GetRelationshipIndex() >= 0)
+                            {
+                                Assert.Equal(entityEntry.GetRelationshipSnapshotValue(property), entityEntry[property]);
+                            }
+                        }
+
+                        foreach (var navigation in entityType.GetNavigations()
+                            .Concat((IEnumerable<INavigationBase>)entityType.GetSkipNavigations()))
+                        {
+                            if (navigation.GetRelationshipIndex() >= 0)
+                            {
+                                var snapshot = entityEntry.GetRelationshipSnapshotValue(navigation);
+                                var current = entityEntry[navigation];
+
+                                if (navigation.IsCollection)
+                                {
+                                    var currentCollection = ((IEnumerable<object>)current)?.ToList();
+                                    var snapshotCollection = ((IEnumerable<object>)snapshot)?.ToList();
+
+                                    if (snapshot == null)
+                                    {
+                                        Assert.True(current == null || !currentCollection.Any());
+                                    }
+                                    else if (current == null)
+                                    {
+                                        Assert.True(snapshot == null || !snapshotCollection.Any());
+                                    }
+                                    else
+                                    {
+                                        Assert.Equal(snapshotCollection.Count, currentCollection.Count);
+
+                                        foreach (var related in snapshotCollection)
+                                        {
+                                            Assert.Contains(currentCollection, c => ReferenceEquals(c, related));
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Assert.Same(snapshot, current);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                context.ChangeTracker.AutoDetectChangesEnabled = detectChanges;
+            }
         }
 
         private ICollection<TEntity> CreateCollection<TEntity>()

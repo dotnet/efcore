@@ -558,10 +558,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             var subquery = Visit(existsExpression.Subquery);
             nullable = false;
 
+            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore23617", out var enabled) && enabled)
+            {
+                return TryGetBoolConstantValue(subquery.Predicate) == false
+                    ? subquery.Predicate!
+                    : existsExpression.Update(subquery);
+            }
+
             // if subquery has predicate which evaluates to false, we can simply return false
+            // if the exisits is negated we need to return true instead
             return TryGetBoolConstantValue(subquery.Predicate) == false
-                ? subquery.Predicate!
-                : existsExpression.Update(subquery);
+                ? _sqlExpressionFactory.Constant(existsExpression.IsNegated, existsExpression.TypeMapping)
+                : (SqlExpression)existsExpression.Update(subquery);
         }
 
         /// <summary>

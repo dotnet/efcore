@@ -2009,6 +2009,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
+        public virtual Task All_true(bool async)
+        {
+            return AssertAll(
+                async,
+                ss => ss.Set<Customer>(),
+                predicate: x => true);
+        }
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Count_after_client_projection(bool isAsync)
@@ -2022,6 +2030,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Customer = o.Customer is Customer ? new { o.Customer.ContactName } : null
                     })
                     .Take(1));
+        }
+
+        public virtual Task Not_Any_false(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => !c.Orders.Any(o => false)).Select(c => c.CustomerID));
         }
     }
 }

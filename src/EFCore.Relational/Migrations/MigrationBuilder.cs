@@ -1335,11 +1335,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(columns, nameof(columns));
             Check.NotNull(values, nameof(values));
 
+            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23503", out var enabled) && enabled;
             var operation = new InsertDataOperation
             {
                 Table = table,
                 Schema = schema,
                 Columns = columns,
+                ColumnTypes = useOldBehavior ? null : columnTypes,
                 Values = values
             };
             Operations.Add(operation);

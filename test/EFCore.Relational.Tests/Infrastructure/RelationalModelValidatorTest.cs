@@ -1166,6 +1166,46 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Passes_for_indexes_on_related_types_mapped_to_different_tables()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<PropertyBase>();
+            modelBuilder.Entity<Property>();
+
+            Validate(modelBuilder.Model);
+        }
+
+        [Table("Objects")]
+        private abstract class PropertyBase
+        {
+            public int Id { get; set; }
+
+            public Organization Organization { get; set; }
+        }
+
+        private class Organization
+        {
+            public int Id { get; set; }
+        }
+
+        [Table("Properties")]
+        private class Property : PropertyBase
+        {
+            public PropertyDetails Details { get; set; } = null!;
+        }
+
+        [Owned]
+        private class PropertyDetails
+        {
+            public Address Address { get; set; }
+        }
+
+        private class Address
+        {
+            public int Id { get; set; }
+        }
+
+        [ConditionalFact]
         public virtual void Detects_missing_concurrency_token_on_the_base_type_without_convention()
         {
             var modelBuilder = CreateModelBuilderWithoutConvention<TableSharingConcurrencyTokenConvention>();

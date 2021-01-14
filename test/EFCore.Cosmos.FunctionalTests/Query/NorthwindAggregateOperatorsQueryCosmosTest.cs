@@ -1639,6 +1639,18 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             return base.Multiple_collection_navigation_with_FirstOrDefault_chained(async);
         }
 
+        [ConditionalTheory(Skip = "Issue#20441")]
+        public override Task All_true(bool async)
+        {
+            return base.All_true(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue#20441")]
+        public override Task Not_Any_false(bool async)
+        {
+            return base.Not_Any_false(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
