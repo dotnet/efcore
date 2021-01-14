@@ -7,11 +7,12 @@ using System.Linq;
 using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -263,6 +264,16 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Throws<ObjectDisposedException>(() => loggerFactory.CreateLogger("MyLogger"));
             }
+        }
+
+        [ConditionalFact]
+        public void GetService_throws_for_unknown_service_type()
+        {
+            using var context = new EarlyLearningCenter();
+
+            Assert.Equal(
+                CoreStrings.NoProviderConfiguredFailedToResolveService("System.Random"),
+                Assert.Throws<InvalidOperationException>(() => context.GetService<Random>()).Message);
         }
 
         [ConditionalFact]
@@ -2725,8 +2736,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private class CustomInMemoryTableFactory : InMemoryTableFactory
         {
-            public CustomInMemoryTableFactory(ILoggingOptions loggingOptions)
-                : base(loggingOptions)
+            public CustomInMemoryTableFactory(ILoggingOptions loggingOptions, IInMemorySingletonOptions options)
+                : base(loggingOptions, options)
             {
             }
         }

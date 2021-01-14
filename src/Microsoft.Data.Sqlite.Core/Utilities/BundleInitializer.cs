@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Reflection;
 using static SQLitePCL.raw;
 
@@ -13,7 +14,7 @@ namespace Microsoft.Data.Sqlite.Utilities
 
         public static void Initialize()
         {
-            Assembly assembly = null;
+            Assembly? assembly = null;
             try
             {
                 assembly = Assembly.Load(new AssemblyName("SQLitePCLRaw.batteries_v2"));
@@ -24,7 +25,7 @@ namespace Microsoft.Data.Sqlite.Utilities
 
             if (assembly != null)
             {
-                assembly.GetType("SQLitePCL.Batteries_V2").GetTypeInfo().GetDeclaredMethod("Init")
+                assembly.GetType("SQLitePCL.Batteries_V2", throwOnError: true)!.GetMethod("Init", Type.EmptyTypes)!
                     .Invoke(null, null);
             }
 

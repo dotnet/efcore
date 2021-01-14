@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] this DbFunctions _,
             [CanBeNull] string matchExpression,
             [CanBeNull] string pattern)
-            => LikeCore(matchExpression, pattern, escapeCharacter: null);
+            => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Like)));
 
         /// <summary>
         ///     <para>
@@ -61,9 +61,17 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string matchExpression,
             [CanBeNull] string pattern,
             [CanBeNull] string escapeCharacter)
-            => LikeCore(matchExpression, pattern, escapeCharacter);
-
-        private static bool LikeCore(string matchExpression, string pattern, string escapeCharacter)
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Like)));
+
+        /// <summary>
+        ///     <para>
+        ///         A random double number generator which generates a number between 0 and 1, exclusive.
+        ///         This is usually directly translated to server.
+        ///     </para>
+        /// </summary>
+        /// <param name="_"> The DbFunctions instance. </param>
+        /// <returns> A random double number between 0 and 1, exclusive. </returns>
+        public static double Random([CanBeNull] this DbFunctions _)
+            => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Random)));
     }
 }

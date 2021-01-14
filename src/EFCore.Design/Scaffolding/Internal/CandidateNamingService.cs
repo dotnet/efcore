@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private static string GenerateCandidateIdentifier(string originalIdentifier)
         {
-            Check.NotEmpty(originalIdentifier, nameof(originalIdentifier));
+            Check.NotNull(originalIdentifier, nameof(originalIdentifier));
 
             var candidateStringBuilder = new StringBuilder();
             var previousLetterCharInWordIsLowerCase = false;

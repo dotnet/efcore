@@ -68,6 +68,16 @@ FROM root c
 WHERE (c[""Discriminator""] IN (""Eagle"", ""Kiwi"") AND (c[""Discriminator""] = ""Kiwi""))");
         }
 
+        public override async Task Can_use_is_kiwi_with_cast(bool async)
+        {
+            await base.Can_use_is_kiwi_with_cast(async);
+
+            AssertSql(
+                @"SELECT VALUE {""Value"" : ((c[""Discriminator""] = ""Kiwi"") ? c[""FoundOn""] : 0)}
+FROM root c
+WHERE c[""Discriminator""] IN (""Eagle"", ""Kiwi"")");
+        }
+
         public override async Task Can_use_backwards_is_animal(bool async)
         {
             await base.Can_use_backwards_is_animal(async);

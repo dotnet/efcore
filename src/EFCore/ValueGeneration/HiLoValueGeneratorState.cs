@@ -15,9 +15,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     /// <summary>
     ///     The thread safe state used by <see cref="HiLoValueGenerator{TValue}" />.
     /// </summary>
-    public class HiLoValueGeneratorState
+    public class HiLoValueGeneratorState : IDisposable
     {
-        private readonly AsyncLock _asyncLock = new AsyncLock();
+        private readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1);
         private HiLoValue _currentValue;
         private readonly int _blockSize;
 
@@ -58,7 +58,8 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             // gets a chance to use the new value, so use a while here to do it all again.
             while (newValue.Low >= newValue.High)
             {
-                using (_asyncLock.Lock())
+                _semaphoreSlim.Wait();
+                try
                 {
                     // Once inside the lock check to see if another thread already got a new block, in which
                     // case just get a value out of the new block instead of requesting one.
@@ -72,6 +73,10 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
                     {
                         newValue = GetNextValue();
                     }
+                }
+                finally
+                {
+                    _semaphoreSlim.Release();
                 }
             }
 
@@ -87,6 +92,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> The value to be assigned to a property. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async ValueTask<TValue> NextAsync<TValue>(
             [NotNull] Func<CancellationToken, Task<long>> getNewLowValue,
             CancellationToken cancellationToken = default)
@@ -100,7 +106,8 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             // gets a chance to use the new value, so use a while here to do it all again.
             while (newValue.Low >= newValue.High)
             {
-                using (await _asyncLock.LockAsync(cancellationToken).ConfigureAwait(false))
+                await _semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
+                try
                 {
                     // Once inside the lock check to see if another thread already got a new block, in which
                     // case just get a value out of the new block instead of requesting one.
@@ -114,6 +121,10 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
                     {
                         newValue = GetNextValue();
                     }
+                }
+                finally
+                {
+                    _semaphoreSlim.Release();
                 }
             }
 
@@ -152,5 +163,10 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             public HiLoValue NextValue()
                 => new HiLoValue(Low + 1, High);
         }
+
+        /// <summary>
+        ///     Releases the allocated resources for this instance.
+        /// </summary>
+        public virtual void Dispose() => _semaphoreSlim.Dispose();
     }
 }

@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData("namespace", "_namespace")]
         [InlineData("@namespace", "@namespace")]
         [InlineData("8ball", "_8ball")]
+        [InlineData(" ", "_")]
+        [InlineData("", "_")]
         public void Sanitizes_name_with_no_singularize_or_pluralize(string input, string output)
         {
             Assert.Equal(output, new CSharpNamer<string>(s => s, new CSharpUtilities(), null).GetName(input));

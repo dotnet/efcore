@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
     /// <summary>
@@ -47,8 +49,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(
-            SqlExpression instance,
+        public virtual SqlExpression? Translate(
+            SqlExpression? instance,
             MemberInfo member,
             Type returnType,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
@@ -57,10 +59,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             Check.NotNull(returnType, nameof(returnType));
             Check.NotNull(logger, nameof(logger));
 
-            if (member.DeclaringType == typeof(TimeSpan) && _datePartMappings.TryGetValue(member.Name, out string value))
+            if (member.DeclaringType == typeof(TimeSpan) && _datePartMappings.TryGetValue(member.Name, out var value))
             {
                 return _sqlExpressionFactory.Function(
-                    "DATEPART", new[] { _sqlExpressionFactory.Fragment(value), instance },
+                    "DATEPART", new[] { _sqlExpressionFactory.Fragment(value), instance! },
                     nullable: true,
                     argumentsPropagateNullability: new[] { false, true },
                     returnType);

@@ -1343,11 +1343,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var ids = new[] { Tuple.Create(1, 2), Tuple.Create(10248, 11) };
 
-            return AssertTranslationFailed(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<OrderDetail>().Where(o => ids.Contains(new Tuple<int, int>(o.OrderID, o.ProductID))),
-                    entryCount: 1));
+            return AssertQuery(
+                async,
+                ss => ss.Set<OrderDetail>().Where(o => ids.Contains(new Tuple<int, int>(o.OrderID, o.ProductID))),
+                entryCount: 1);
         }
 
         [ConditionalTheory(Skip = "Issue #15937")]
@@ -1989,6 +1988,27 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Average_on_nav_subquery_in_projection(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => new { Ave = (double?)c.Orders.Average(o => o.OrderID) }),
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => new { Ave = c.Orders != null && c.Orders.Count() > 0 ? (double?)c.Orders.Average(o => o.OrderID) : null }),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Ave.HasValue, a.Ave.HasValue);
+                    if (e.Ave.HasValue)
+                    {
+                        Assert.InRange(e.Ave.Value - a.Ave.Value, -0.1D, 0.1D);
+                    }
+                });
+        }
+
         public virtual Task All_true(bool async)
         {
             return AssertAll(
@@ -1999,6 +2019,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Count_after_client_projection(bool isAsync)
+        {
+            return AssertCount(
+                isAsync,
+                ss => ss.Set<Order>()
+                    .Select(o => new
+                    {
+                        o.OrderID,
+                        Customer = o.Customer is Customer ? new { o.Customer.ContactName } : null
+                    })
+                    .Take(1));
+        }
+
         public virtual Task Not_Any_false(bool async)
         {
             return AssertQuery(

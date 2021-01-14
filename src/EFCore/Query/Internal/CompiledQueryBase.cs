@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
@@ -24,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private readonly LambdaExpression _queryExpression;
 
-        private Func<QueryContext, TResult> _executor;
+        private Func<QueryContext, TResult>? _executor;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -45,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected virtual TResult ExecuteCore(
             [NotNull] TContext context,
-            [NotNull] params object[] parameters)
+            [NotNull] params object?[] parameters)
             => ExecuteCore(context, default, parameters);
 
         /// <summary>
@@ -57,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         protected virtual TResult ExecuteCore(
             [NotNull] TContext context,
             CancellationToken cancellationToken,
-            [NotNull] params object[] parameters)
+            [NotNull] params object?[] parameters)
         {
             var executor = EnsureExecutor(context);
             var queryContextFactory = context.GetService<IQueryContextFactory>();

@@ -76,11 +76,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 if (_entityType == null)
                 {
-                    if (_context.Model.HasEntityTypeWithDefiningNavigation(typeof(TEntity)))
-                    {
-                        throw new InvalidOperationException(CoreStrings.InvalidSetTypeWeak(typeof(TEntity).ShortDisplayName()));
-                    }
-
                     if (_context.Model.IsShared(typeof(TEntity)))
                     {
                         throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(typeof(TEntity).ShortDisplayName()));
@@ -91,9 +86,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 if (_entityType.IsOwned())
                 {
+                    var message = CoreStrings.InvalidSetTypeOwned(
+                        _entityType.DisplayName(), _entityType.FindOwnership().PrincipalEntityType.DisplayName());
                     _entityType = null;
 
-                    throw new InvalidOperationException(CoreStrings.InvalidSetTypeOwned(typeof(TEntity).ShortDisplayName()));
+                    throw new InvalidOperationException(message);
                 }
 
                 if (_entityType.ClrType != typeof(TEntity))
@@ -518,6 +515,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
         {
             ((IResettableService)this).ResetState();

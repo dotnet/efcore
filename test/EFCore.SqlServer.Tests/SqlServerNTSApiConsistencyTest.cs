@@ -24,13 +24,6 @@ namespace Microsoft.EntityFrameworkCore
 
         public class SqlServerNTSApiConsistencyFixture : ApiConsistencyFixtureBase
         {
-            public override bool TryGetProviderOptionsDelegate(out Action<DbContextOptionsBuilder> configureOptions)
-            {
-                configureOptions = b => SqlServerTestHelpers.Instance.UseProviderOptions(b);
-
-                return true;
-            }
-
             public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>
             {
                 typeof(SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions),

@@ -136,8 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             foreach (var entityType in entityTypes.Where(
-                e => !e.HasDefiningNavigation()
-                    && e.FindOwnership() == null))
+                e => e.FindOwnership() == null))
             {
                 stringBuilder.AppendLine();
 
@@ -145,8 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
 
             foreach (var entityType in entityTypes.Where(
-                e => !e.HasDefiningNavigation()
-                    && e.FindOwnership() == null
+                e => e.FindOwnership() == null
                     && (e.GetDeclaredForeignKeys().Any()
                         || e.GetDeclaredReferencingForeignKeys().Any(fk => fk.IsOwnership))))
             {
@@ -156,8 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
 
             foreach (var entityType in entityTypes.Where(
-                e => !e.HasDefiningNavigation()
-                    && e.FindOwnership() == null
+                e => e.FindOwnership() == null
                     && e.GetDeclaredNavigations().Any(n => !n.IsOnDependent && !n.ForeignKey.IsOwnership)))
             {
                 stringBuilder.AppendLine();
@@ -184,13 +181,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var ownership = entityType.FindOwnership();
             var ownerNavigation = ownership?.PrincipalToDependent.Name;
 
+            var entityTypeName = entityType.Name;
+            if (ownerNavigation != null
+                && entityType.HasSharedClrType
+                && entityTypeName == ownership.PrincipalEntityType.GetOwnedName(entityType.ClrType.ShortDisplayName(), ownerNavigation))
+            {
+                entityTypeName = entityType.ClrType.DisplayName();
+            }
+
             stringBuilder
                 .Append(builderName)
                 .Append(
                     ownerNavigation != null
                         ? ownership.IsUnique ? ".OwnsOne(" : ".OwnsMany("
                         : ".Entity(")
-                .Append(Code.Literal(entityType.Name));
+                .Append(Code.Literal(entityTypeName));
 
             if (ownerNavigation != null)
             {

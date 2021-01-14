@@ -6,6 +6,8 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -32,13 +34,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the <see cref="PropertyInfo" /> for the underlying CLR property for this property-like object.
         ///     This may be <see langword="null" /> for shadow properties or if mapped directly to a field.
         /// </summary>
-        PropertyInfo PropertyInfo { get; }
+        PropertyInfo? PropertyInfo { get; }
 
         /// <summary>
         ///     Gets the <see cref="FieldInfo" /> for the underlying CLR field for this property-like object.
         ///     This may be <see langword="null" /> for shadow properties or if the backing field is not known.
         /// </summary>
-        FieldInfo FieldInfo { get; }
+        FieldInfo? FieldInfo { get; }
 
         /// <summary>
         ///     <para>

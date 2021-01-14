@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
@@ -186,16 +187,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     });
 
             VerifyError(CoreStrings.BadFilterOwnedType(queryFilter, nameof(ReferencedEntity)), modelBuilder.Model);
-        }
-
-        [ConditionalFact]
-        public virtual void Detects_shadow_entities()
-        {
-            var model = CreateConventionlessModelBuilder().Model;
-            var entityType = model.AddEntityType("BewareTheShadows");
-            SetPrimaryKey(entityType);
-
-            VerifyError(CoreStrings.ShadowEntity("BewareTheShadows"), model);
         }
 
         [ConditionalFact]
@@ -528,7 +519,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var entityF = model.AddEntityType(typeof(F));
             SetBaseType(entityF, entityA);
 
-            VerifyError(CoreStrings.InconsistentInheritance(nameof(F), nameof(D)), model);
+            VerifyError(CoreStrings.InconsistentInheritance(nameof(F), nameof(A), nameof(D)), model);
         }
 
         [ConditionalFact]
@@ -641,6 +632,26 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Detects_nonCollection_skip_navigations()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            var model = modelBuilder.Model;
+            var customerEntity = model.AddEntityType(typeof(Customer));
+            var orderEntity = model.FindEntityType(typeof(Order));
+            var orderDetailsEntity = model.FindEntityType(typeof(OrderDetails));
+            new EntityTypeBuilder<OrderDetails>(orderDetailsEntity).Ignore(e => e.Customer);
+
+            var productsNavigation = orderDetailsEntity.AddSkipNavigation(
+                nameof(OrderDetails.Customer), null, customerEntity, false, false);
+            orderDetailsEntity.RemoveIgnored(nameof(OrderDetails.Customer));
+
+            VerifyError(
+                CoreStrings.SkipNavigationNonCollection(nameof(OrderDetails.Customer), nameof(OrderDetails)),
+                model);
+        }
+
+        [ConditionalFact]
         public virtual void Passes_on_valid_owned_entity_types()
         {
             var modelBuilder = CreateConventionlessInternalModelBuilder();
@@ -659,41 +670,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ownedTypeBuilder.Ignore(nameof(ReferencedEntity.SampleEntityId), ConfigurationSource.Explicit);
 
             Validate(modelBuilder.Metadata);
-        }
-
-        [ConditionalFact]
-        public virtual void Detects_weak_entity_type_without_defining_navigation()
-        {
-            var modelBuilder = CreateConventionlessInternalModelBuilder();
-            var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntityMinimal), ConfigurationSource.Convention);
-            entityTypeBuilder.PrimaryKey(new[] { nameof(SampleEntityMinimal.Id) }, ConfigurationSource.Convention);
-
-            var anotherEntityTypeBuilder = modelBuilder.Entity(typeof(AnotherSampleEntityMinimal), ConfigurationSource.Convention);
-            anotherEntityTypeBuilder.PrimaryKey(new[] { nameof(AnotherSampleEntityMinimal.Id) }, ConfigurationSource.Convention);
-
-            var anotherOwnershipBuilder = anotherEntityTypeBuilder.HasOwnership(
-                typeof(ReferencedEntityMinimal), nameof(AnotherSampleEntityMinimal.ReferencedEntity), ConfigurationSource.Convention);
-            anotherOwnershipBuilder.Metadata.DeclaringEntityType.Builder.PrimaryKey(
-                anotherOwnershipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
-
-            var ownershipBuilder = entityTypeBuilder.HasOwnership(
-                typeof(ReferencedEntityMinimal), nameof(SampleEntityMinimal.ReferencedEntity), ConfigurationSource.Convention);
-            var ownedTypeBuilder = ownershipBuilder.Metadata.DeclaringEntityType.Builder;
-            ownedTypeBuilder.PrimaryKey(ownershipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
-
-            entityTypeBuilder.Metadata.RemoveNavigation(nameof(SampleEntityMinimal.ReferencedEntity));
-            entityTypeBuilder.Ignore(nameof(SampleEntityMinimal.ReferencedEntity), ConfigurationSource.Explicit);
-
-            VerifyError(
-                CoreStrings.NoDefiningNavigation(
-                    nameof(SampleEntityMinimal.ReferencedEntity),
-                    nameof(SampleEntityMinimal)
-                    + "."
-                    + nameof(SampleEntityMinimal.ReferencedEntity)
-                    + "#"
-                    + nameof(ReferencedEntityMinimal),
-                    nameof(SampleEntityMinimal)),
-                modelBuilder.Metadata);
         }
 
         [ConditionalFact]
@@ -721,80 +697,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ownedTypeBuilder.Ignore(nameof(ReferencedEntity.SampleEntityId), ConfigurationSource.Explicit);
 
             VerifyError(
-                CoreStrings.MultipleOwnerships(nameof(ReferencedEntity)),
-                modelBuilder.Metadata);
-        }
-
-        [ConditionalFact]
-        public virtual void Detects_weak_entity_type_with_non_defining_ownership()
-        {
-            var modelBuilder = CreateConventionlessInternalModelBuilder();
-            var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntityMinimal), ConfigurationSource.Convention);
-            entityTypeBuilder.PrimaryKey(new[] { nameof(SampleEntityMinimal.Id) }, ConfigurationSource.Convention);
-
-            var anotherEntityTypeBuilder = modelBuilder.Entity(typeof(AnotherSampleEntityMinimal), ConfigurationSource.Convention);
-            anotherEntityTypeBuilder.PrimaryKey(new[] { nameof(AnotherSampleEntityMinimal.Id) }, ConfigurationSource.Convention);
-
-            var anotherOwnershipBuilder = anotherEntityTypeBuilder.HasOwnership(
-                typeof(ReferencedEntityMinimal), nameof(AnotherSampleEntityMinimal.ReferencedEntity), ConfigurationSource.Convention);
-            anotherOwnershipBuilder.Metadata.DeclaringEntityType.Builder.PrimaryKey(
-                anotherOwnershipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
-
-            var ownershipBuilder = entityTypeBuilder.HasOwnership(
-                typeof(ReferencedEntityMinimal), nameof(SampleEntityMinimal.ReferencedEntity), ConfigurationSource.Convention);
-            var ownedTypeBuilder = ownershipBuilder.Metadata.DeclaringEntityType.Builder;
-            ownedTypeBuilder.PrimaryKey(ownershipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
-
-            ownershipBuilder.Metadata.IsOwnership = false;
-            ownedTypeBuilder.HasRelationship(
-                    entityTypeBuilder.Metadata, (string)null, null, ConfigurationSource.Convention, setTargetAsPrincipal: true)
-                .Metadata.IsOwnership = true;
-
-            VerifyError(
-                CoreStrings.NonDefiningOwnership(
-                    nameof(SampleEntityMinimal),
-                    nameof(SampleEntityMinimal.ReferencedEntity),
-                    nameof(SampleEntityMinimal)
-                    + "."
-                    + nameof(SampleEntityMinimal.ReferencedEntity)
-                    + "#"
-                    + nameof(ReferencedEntityMinimal)),
-                modelBuilder.Metadata);
-        }
-
-        [ConditionalFact]
-        public virtual void Detects_weak_entity_type_without_ownership()
-        {
-            var modelBuilder = CreateConventionlessInternalModelBuilder();
-            var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntityMinimal), ConfigurationSource.Convention);
-            entityTypeBuilder.PrimaryKey(new[] { nameof(SampleEntityMinimal.Id) }, ConfigurationSource.Convention);
-
-            var ownershipBuilder = entityTypeBuilder.HasOwnership(
-                typeof(ReferencedEntityMinimal), nameof(SampleEntityMinimal.ReferencedEntity), ConfigurationSource.Convention);
-            var ownedTypeBuilder = ownershipBuilder.Metadata.DeclaringEntityType.Builder;
-            ownedTypeBuilder.PrimaryKey(ownershipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
-
-            var anotherEntityTypeBuilder = modelBuilder.Entity(typeof(AnotherSampleEntityMinimal), ConfigurationSource.Convention);
-            anotherEntityTypeBuilder.PrimaryKey(new[] { nameof(AnotherSampleEntityMinimal.Id) }, ConfigurationSource.Convention);
-
-            var anotherOwnershipBuilder = anotherEntityTypeBuilder.HasOwnership(
-                typeof(ReferencedEntityMinimal), nameof(AnotherSampleEntityMinimal.ReferencedEntity), ConfigurationSource.Convention);
-            anotherOwnershipBuilder.Metadata.DeclaringEntityType.Builder.PrimaryKey(
-                anotherOwnershipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
-            anotherOwnershipBuilder.Metadata.IsOwnership = false;
-
-            VerifyError(
-                CoreStrings.InconsistentOwnership(
-                    nameof(SampleEntityMinimal)
-                    + "."
-                    + nameof(SampleEntityMinimal.ReferencedEntity)
-                    + "#"
-                    + nameof(ReferencedEntityMinimal),
-                    nameof(AnotherSampleEntityMinimal)
-                    + "."
-                    + nameof(AnotherSampleEntityMinimal.ReferencedEntity)
-                    + "#"
-                    + nameof(ReferencedEntityMinimal)),
+                CoreStrings.MultipleOwnerships(nameof(ReferencedEntity), "'SampleEntity.ReferencedEntity', 'SampleEntity.'"),
                 modelBuilder.Metadata);
         }
 
@@ -1417,6 +1320,24 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.SharedTypeEntity<C>("Shared2").HasBaseType("Shared1");
 
             VerifyError(CoreStrings.SharedTypeDerivedType("Shared2 (C)"), modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Seeding_keyless_entity_throws()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<KeylessSeed>(
+                e =>
+                {
+                    e.HasNoKey();
+                    e.HasData(
+                        new KeylessSeed
+                        {
+                            Species = "Apple"
+                        });
+                });
+
+            VerifyError(CoreStrings.SeedKeylessEntity(nameof(KeylessSeed)), modelBuilder.Model);
         }
 
         // INotify interfaces not really implemented; just marking the classes to test metadata construction

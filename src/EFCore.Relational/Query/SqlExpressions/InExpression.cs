@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     /// <summary>
@@ -34,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             [NotNull] SqlExpression item,
             bool negated,
             [NotNull] SelectExpression subquery,
-            [CanBeNull] RelationalTypeMapping typeMapping)
+            [CanBeNull] RelationalTypeMapping? typeMapping)
             : this(Check.NotNull(item, nameof(item)), null, Check.NotNull(subquery, nameof(subquery)), negated, typeMapping)
         {
         }
@@ -51,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             [NotNull] SqlExpression item,
             bool negated,
             [NotNull] SqlExpression values,
-            [CanBeNull] RelationalTypeMapping typeMapping)
+            [CanBeNull] RelationalTypeMapping? typeMapping)
             : this(Check.NotNull(item, nameof(item)), Check.NotNull(values, nameof(values)), null, negated, typeMapping)
         {
         }
@@ -67,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             [NotNull] SqlExpression item,
             [NotNull] SelectExpression subquery,
             bool negated,
-            [CanBeNull] RelationalTypeMapping typeMapping)
+            [CanBeNull] RelationalTypeMapping? typeMapping)
             : this(Check.NotNull(item, nameof(item)), null, Check.NotNull(subquery, nameof(subquery)), negated, typeMapping)
         {
         }
@@ -83,17 +85,17 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             [NotNull] SqlExpression item,
             [NotNull] SqlExpression values,
             bool negated,
-            [CanBeNull] RelationalTypeMapping typeMapping)
+            [CanBeNull] RelationalTypeMapping? typeMapping)
             : this(Check.NotNull(item, nameof(item)), Check.NotNull(values, nameof(values)), null, negated, typeMapping)
         {
         }
 
         private InExpression(
             SqlExpression item,
-            SqlExpression values,
-            SelectExpression subquery,
+            SqlExpression? values,
+            SelectExpression? subquery,
             bool negated,
-            RelationalTypeMapping typeMapping)
+            RelationalTypeMapping? typeMapping)
             : base(typeof(bool), typeMapping)
         {
             Item = item;
@@ -115,12 +117,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     The list of values to search item in.
         /// </summary>
-        public virtual SqlExpression Values { get; }
+        public virtual SqlExpression? Values { get; }
 
         /// <summary>
         ///     The subquery to search item in.
         /// </summary>
-        public virtual SelectExpression Subquery { get; }
+        public virtual SelectExpression? Subquery { get; }
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -128,8 +130,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Check.NotNull(visitor, nameof(visitor));
 
             var item = (SqlExpression)visitor.Visit(Item);
-            var subquery = (SelectExpression)visitor.Visit(Subquery);
-            var values = (SqlExpression)visitor.Visit(Values);
+            var subquery = (SelectExpression?)visitor.Visit(Subquery);
+            var values = (SqlExpression?)visitor.Visit(Values);
 
             return Update(item, values, subquery);
         }
@@ -151,8 +153,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual InExpression Update(
             [NotNull] SqlExpression item,
-            [CanBeNull] SqlExpression values,
-            [CanBeNull] SelectExpression subquery)
+            [CanBeNull] SqlExpression? values,
+            [CanBeNull] SelectExpression? subquery)
         {
             Check.NotNull(item, nameof(item));
 
@@ -207,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is InExpression inExpression

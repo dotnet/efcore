@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -2047,9 +2046,9 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.IsNotType<Blog>(blog);
             }
 
-            var serialized = JsonConvert.SerializeObject(
+            var serialized = Newtonsoft.Json.JsonConvert.SerializeObject(
                 blogs,
-                new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore, Formatting = Formatting.Indented });
+                new Newtonsoft.Json.JsonSerializerSettings { ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore, Formatting = Newtonsoft.Json.Formatting.Indented });
 
             Assert.Equal(
                 @"[
@@ -2097,7 +2096,7 @@ namespace Microsoft.EntityFrameworkCore
   }
 ]", serialized, ignoreLineEndingDifferences: true);
 
-            var newBlogs = JsonConvert.DeserializeObject<List<Blog>>(serialized);
+            var newBlogs = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Blog>>(serialized);
 
             VerifyBlogs(newBlogs);
             foreach (var blog in newBlogs)
@@ -2105,7 +2104,6 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.IsType<Blog>(blog);
             }
 
-#if NET5_0
             var options = new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve, WriteIndented = true };
 
             serialized = System.Text.Json.JsonSerializer.Serialize(blogs, options);
@@ -2178,7 +2176,6 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.IsType<Blog>(blog);
             }
             VerifyBlogs(newBlogs);
-#endif
         }
 
         [ConditionalFact]
@@ -2317,6 +2314,8 @@ namespace Microsoft.EntityFrameworkCore
             var query = (from p in context.Set<Parent>()
                          orderby p.Id
                          select DtoFactory.CreateDto(p)).FirstOrDefault();
+
+            RecordLog();
 
             Assert.NotNull(((dynamic)query).Single);
         }

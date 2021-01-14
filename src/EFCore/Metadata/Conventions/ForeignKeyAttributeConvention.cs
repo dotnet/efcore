@@ -323,8 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         [ContractAnnotation("navigationName:null => null")]
         private MemberInfo FindForeignKeyAttributeOnProperty(IConventionEntityType entityType, string navigationName)
         {
-            if (string.IsNullOrWhiteSpace(navigationName)
-                || !entityType.HasClrType())
+            if (string.IsNullOrWhiteSpace(navigationName))
             {
                 return null;
             }
@@ -417,7 +416,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     if (attribute?.Name == navigationFkAttribute.Name)
                     {
                         throw new InvalidOperationException(
-                            CoreStrings.MultipleNavigationsSameFk(navigation.DeclaringEntityType.DisplayName(), attribute.Name));
+                            CoreStrings.MultipleNavigationsSameFk(
+                                navigation.DeclaringEntityType.DisplayName(),
+                                attribute.Name,
+                                $"'{navigation.Name}', '{propertyInfo.Name}'"));
                     }
                 }
 

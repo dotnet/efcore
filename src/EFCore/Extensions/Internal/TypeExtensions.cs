@@ -7,6 +7,8 @@ using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -33,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static FieldInfo GetFieldInfo([NotNull] this Type type, [NotNull] string fieldName)
+        public static FieldInfo? GetFieldInfo([NotNull] this Type type, [NotNull] string fieldName)
             => type.GetRuntimeFields().FirstOrDefault(f => f.Name == fieldName && !f.IsStatic);
 
         /// <summary>
@@ -47,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var sb = new StringBuilder();
             var removeLowerCase = sb.Append(type.Name.Where(char.IsUpper).ToArray()).ToString();
 
-            return removeLowerCase.Length > 0 ? removeLowerCase.ToLower() : type.Name.ToLower().Substring(0, 1);
+            return removeLowerCase.Length > 0 ? removeLowerCase.ToLowerInvariant() : type.Name.ToLowerInvariant().Substring(0, 1);
         }
 
         /// <summary>
@@ -56,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static PropertyInfo FindIndexerProperty([NotNull] this Type type)
+        public static PropertyInfo? FindIndexerProperty([NotNull] this Type type)
         {
             var defaultPropertyAttribute = type.GetCustomAttributes<DefaultMemberAttribute>().FirstOrDefault();
 

@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     public partial class InMemoryShapedQueryCompilingExpressionVisitor : ShapedQueryCompilingExpressionVisitor
@@ -95,8 +97,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         }
 
         private static readonly MethodInfo _tableMethodInfo
-            = typeof(InMemoryShapedQueryCompilingExpressionVisitor).GetTypeInfo()
-                .GetDeclaredMethod(nameof(Table));
+            = typeof(InMemoryShapedQueryCompilingExpressionVisitor).GetRequiredDeclaredMethod(nameof(Table));
 
         private static IEnumerable<ValueBuffer> Table(
             QueryContext queryContext,

@@ -184,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private ValueGenerator TryGetValueGenerator(IProperty property)
         {
-            var generationProperty = property.GetGenerationProperty();
+            var generationProperty = property.FindGenerationProperty();
 
             return generationProperty != null
                 ? _valueGeneratorSelector.Select(generationProperty, generationProperty.DeclaringEntityType)

@@ -96,23 +96,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Set_throws_for_weak_types()
-        {
-            var model = new Model();
-            var question = model.AddEntityType(typeof(Question), ConfigurationSource.Explicit);
-            model.AddEntityType(typeof(User), nameof(Question.Author), question, ConfigurationSource.Explicit);
-
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .UseInternalServiceProvider(InMemoryTestHelpers.Instance.CreateServiceProvider())
-                .UseModel(model.FinalizeModel());
-            using var context = new DbContext(optionsBuilder.Options);
-            var ex = Assert.Throws<InvalidOperationException>(() => context.Set<User>().Local);
-            Assert.Equal(CoreStrings.InvalidSetTypeWeak(nameof(User)), ex.Message);
-        }
-
-        [ConditionalFact]
         public void Set_throws_for_shared_types()
         {
             var model = new Model();
@@ -731,15 +714,41 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             // methods (tests all paths)
-            Assert.Throws<ObjectDisposedException>(() => context.Add(new object()));
-            Assert.Throws<ObjectDisposedException>(() => context.Find(typeof(Random), 77));
-            Assert.Throws<ObjectDisposedException>(() => context.Attach(new object()));
-            Assert.Throws<ObjectDisposedException>(() => context.Update(new object()));
-            Assert.Throws<ObjectDisposedException>(() => context.Remove(new object()));
-            Assert.Throws<ObjectDisposedException>(() => context.SaveChanges());
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => context.SaveChangesAsync());
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => context.AddAsync(new object()).AsTask());
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => context.FindAsync(typeof(Random), 77).AsTask());
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => context.Add(new object())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => context.Find(typeof(Random), 77)).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => context.Attach(new object())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => context.Update(new object())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => context.Remove(new object())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => context.SaveChanges()).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                (await Assert.ThrowsAsync<ObjectDisposedException>(() => context.SaveChangesAsync())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                (await Assert.ThrowsAsync<ObjectDisposedException>(() => context.AddAsync(new object()).AsTask())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                (await Assert.ThrowsAsync<ObjectDisposedException>(() => context.FindAsync(typeof(Random), 77).AsTask())).Message);
 
             var methodCount = typeof(DbContext).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Count();
             var expectedMethodCount = 42 + 8;
@@ -749,8 +758,13 @@ namespace Microsoft.EntityFrameworkCore
                 + "Update test to ensure all methods throw ObjectDisposedException after dispose.");
 
             // getters
-            Assert.Throws<ObjectDisposedException>(() => context.ChangeTracker);
-            Assert.Throws<ObjectDisposedException>(() => context.Model);
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+            Assert.Throws<ObjectDisposedException>(() => context.ChangeTracker).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => context.Model).Message);
 
             var expectedProperties = new List<string>
             {
@@ -770,7 +784,9 @@ namespace Microsoft.EntityFrameworkCore
                 userMessage: "Unexpected properties on DbContext. "
                 + "Update test to ensure all getters throw ObjectDisposedException after dispose.");
 
-            Assert.Throws<ObjectDisposedException>(() => ((IInfrastructure<IServiceProvider>)context).Instance);
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => ((IInfrastructure<IServiceProvider>)context).Instance).Message);
         }
 
         [ConditionalFact]

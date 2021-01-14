@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -33,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class TypeMappingSourceDependencies
+    public sealed record TypeMappingSourceDependencies
     {
         /// <summary>
         ///     <para>
@@ -69,27 +71,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The registry of known <see cref="ValueConverter" />s.
         /// </summary>
-        public IValueConverterSelector ValueConverterSelector { get; }
+        public IValueConverterSelector ValueConverterSelector { get; [param: NotNull] init; }
 
         /// <summary>
         ///     Gets the plugins.
         /// </summary>
-        public IEnumerable<ITypeMappingSourcePlugin> Plugins { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="valueConverterSelector"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public TypeMappingSourceDependencies With([NotNull] IValueConverterSelector valueConverterSelector)
-            => new TypeMappingSourceDependencies(valueConverterSelector, Plugins);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="plugins"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public TypeMappingSourceDependencies With([NotNull] IEnumerable<ITypeMappingSourcePlugin> plugins)
-            => new TypeMappingSourceDependencies(ValueConverterSelector, plugins);
+        public IEnumerable<ITypeMappingSourcePlugin> Plugins { get; [param: NotNull] init; }
     }
 }

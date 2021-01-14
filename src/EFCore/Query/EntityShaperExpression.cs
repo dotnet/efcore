@@ -11,9 +11,10 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -29,8 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class EntityShaperExpression : Expression, IPrintableExpression
     {
         private static readonly MethodInfo _createUnableToDiscriminateException
-            = typeof(EntityShaperExpression).GetTypeInfo()
-                .GetDeclaredMethod(nameof(CreateUnableToDiscriminateException));
+            = typeof(EntityShaperExpression).GetRequiredDeclaredMethod(nameof(CreateUnableToDiscriminateException));
 
         [UsedImplicitly]
         private static Exception CreateUnableToDiscriminateException(IEntityType entityType, object discriminator)
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] IEntityType entityType,
             [NotNull] Expression valueBufferExpression,
             bool nullable,
-            [CanBeNull] LambdaExpression materializationCondition)
+            [CanBeNull] LambdaExpression? materializationCondition)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(valueBufferExpression, nameof(valueBufferExpression));
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var exception = CreateUnableToDiscriminateExceptionExpression(entityType, discriminatorValueVariable);
 
-                var discriminatorComparer = discriminatorProperty.GetKeyValueComparer();
+                var discriminatorComparer = discriminatorProperty.GetKeyValueComparer()!;
                 if (discriminatorComparer.IsDefault())
                 {
                     var switchCases = new SwitchCase[concreteEntityTypes.Length];
@@ -228,10 +228,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Marks this shaper as nullable, indicating that it can shape null entity instances.
         /// </summary>
         /// <returns> This expression if nullability not changed, or an expression with updated nullability. </returns>
+        [Obsolete("Use MakeNullable() instead.")]
         public virtual EntityShaperExpression MarkAsNullable()
-            => !IsNullable
+            => MakeNullable();
+
+        /// <summary>
+        ///     Assigns nullability for this shaper, indicating whether it can shape null entity instances or not.
+        /// </summary>
+        /// <param name="nullable"> A value indicating if the shaper is nullable. </param>
+        /// <returns> This expression if nullability not changed, or an expression with updated nullability. </returns>
+        public virtual EntityShaperExpression MakeNullable(bool nullable = true)
+            => IsNullable != nullable
                 // Marking nullable requires recomputation of materialization condition
-                ? new EntityShaperExpression(EntityType, ValueBufferExpression, true)
+                ? new EntityShaperExpression(EntityType, ValueBufferExpression, nullable)
                 : this;
 
         /// <summary>
@@ -251,7 +260,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <inheritdoc />
         public override Type Type
-            => EntityType.ClrType;
+            // No shadow entities at runtime
+            => EntityType.ClrType!;
 
         /// <inheritdoc />
         public sealed override ExpressionType NodeType
@@ -265,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             expressionPrinter.AppendLine(nameof(EntityShaperExpression) + ": ");
             using (expressionPrinter.Indent())
             {
-                expressionPrinter.AppendLine(EntityType.ToString());
+                expressionPrinter.AppendLine(EntityType.Name);
                 expressionPrinter.AppendLine(nameof(ValueBufferExpression) + ": ");
                 using (expressionPrinter.Indent())
                 {

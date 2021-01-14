@@ -29,9 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     /// </summary>
     public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
     {
-        private static readonly bool _useOldBehavior
-            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23386", out var enabled) && enabled;
-
         internal const string NavigationNameUniquifyingPattern = "{0}Navigation";
         internal const string SelfReferencingPrincipalEndNavigationNamePattern = "Inverse{0}";
 
@@ -197,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 modelBuilder.Model.SetDatabaseName(databaseModel.DatabaseName);
             }
 
-            if (!_useOldBehavior && !string.IsNullOrEmpty(databaseModel.Collation))
+            if (!string.IsNullOrEmpty(databaseModel.Collation))
             {
                 modelBuilder.UseCollation(databaseModel.Collation);
             }
@@ -505,14 +502,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (column.Collation != null)
             {
-                if (_useOldBehavior)
-                {
-                    property.HasComment(column.Collation);
-                }
-                else
-                {
-                    property.UseCollation(column.Collation);
-                }
+                property.UseCollation(column.Collation);
             }
 
             if (!(column.Table.PrimaryKey?.Columns.Contains(column) ?? false))
@@ -758,7 +748,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             var dependentEntityType = modelBuilder.Model.FindEntityType(GetEntityTypeName(foreignKey.Table));
-
             if (dependentEntityType == null)
             {
                 return null;
@@ -834,9 +823,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                                 nullablePrincipalProperties.Select(tuple => tuple.column.DisplayName()).ToList()
                                     .Aggregate((a, b) => a + "," + b)));
 
-                        nullablePrincipalProperties
-                            .ToList()
-                            .ForEach(tuple => tuple.property.IsNullable = false);
+                        nullablePrincipalProperties.ForEach(tuple => tuple.property.IsNullable = false);
                     }
 
                     principalKey = principalEntityType.AddKey(principalProperties);
@@ -849,10 +836,19 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         DesignStrings.ForeignKeyScaffoldErrorPrincipalKeyNotFound(
                             foreignKey.DisplayName(),
                             string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, principalColumns),
-                            principalEntityType.DisplayName()));
+                            principalEntityType.Name));
 
                     return null;
                 }
+            }
+
+            var existingForeignKey = dependentEntityType.FindForeignKey(dependentProperties, principalKey, principalEntityType);
+            if (existingForeignKey is not null)
+            {
+                _reporter.WriteWarning(
+                    DesignStrings.ForeignKeyWithSameFacetsExists(foreignKey.DisplayName(), existingForeignKey.GetConstraintName()));
+
+                return null;
             }
 
             var newForeignKey = dependentEntityType.AddForeignKey(

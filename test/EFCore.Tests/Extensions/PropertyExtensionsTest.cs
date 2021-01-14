@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore
             property2.SetValueConverter(new CastingConverter<int?, decimal>());
 
             Assert.Equal(
-                CoreStrings.ConverterPropertyMismatch("long", "Entity", "Property1", "int"),
+                CoreStrings.ConverterPropertyMismatch("long", "Entity (Dictionary<string, object>)", "Property1", "int"),
                 Assert.Throws<InvalidOperationException>(
                     () => property1.SetValueConverter(new CastingConverter<long, decimal>())).Message);
         }
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore
             var entityType = model.AddEntityType("Entity");
             var property = entityType.AddProperty("Property", typeof(int));
 
-            Assert.Null(property.GetGenerationProperty());
+            Assert.Null(property.FindGenerationProperty());
         }
 
         [ConditionalFact]
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore
 
             property.ValueGenerated = ValueGenerated.OnAdd;
 
-            Assert.Equal(property, property.GetGenerationProperty());
+            Assert.Equal(property, property.FindGenerationProperty());
         }
 
         [ConditionalFact]
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore
 
             firstProperty.ValueGenerated = ValueGenerated.OnAdd;
 
-            Assert.Equal(firstProperty, thirdProperty.GetGenerationProperty());
+            Assert.Equal(firstProperty, thirdProperty.FindGenerationProperty());
         }
 
         [ConditionalFact]
@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore
 
             rightId2.ValueGenerated = ValueGenerated.OnAdd;
 
-            Assert.Equal(rightId2, endProperty.GetGenerationProperty());
+            Assert.Equal(rightId2, endProperty.FindGenerationProperty());
         }
 
         [ConditionalFact]
@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore
 
             leafId1.ValueGenerated = ValueGenerated.OnAdd;
 
-            Assert.Equal(leafId1, secondId1.GetGenerationProperty());
+            Assert.Equal(leafId1, secondId1.FindGenerationProperty());
         }
 
         [ConditionalFact]
@@ -199,19 +199,19 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 model.FindEntityType(typeof(Product)).FindProperty("Id"),
-                model.FindEntityType(typeof(ProductDetails)).GetForeignKeys().Single().Properties[0].GetGenerationProperty());
+                model.FindEntityType(typeof(ProductDetails)).GetForeignKeys().Single().Properties[0].FindGenerationProperty());
 
             Assert.Equal(
                 model.FindEntityType(typeof(Product)).FindProperty("Id"),
-                model.FindEntityType(typeof(ProductDetailsTag)).GetForeignKeys().Single().Properties[0].GetGenerationProperty());
+                model.FindEntityType(typeof(ProductDetailsTag)).GetForeignKeys().Single().Properties[0].FindGenerationProperty());
 
             Assert.Equal(
                 model.FindEntityType(typeof(ProductDetails)).FindProperty("Id2"),
-                model.FindEntityType(typeof(ProductDetailsTag)).GetForeignKeys().Single().Properties[1].GetGenerationProperty());
+                model.FindEntityType(typeof(ProductDetailsTag)).GetForeignKeys().Single().Properties[1].FindGenerationProperty());
 
             Assert.Equal(
                 model.FindEntityType(typeof(ProductDetails)).FindProperty("Id2"),
-                model.FindEntityType(typeof(ProductDetailsTagDetails)).GetForeignKeys().Single().Properties[0].GetGenerationProperty());
+                model.FindEntityType(typeof(ProductDetailsTagDetails)).GetForeignKeys().Single().Properties[0].FindGenerationProperty());
         }
 
         [ConditionalFact]
@@ -222,12 +222,12 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(
                 model.FindEntityType(typeof(Order)).FindProperty("Id"),
                 model.FindEntityType(typeof(OrderDetails)).GetForeignKeys().Single(k => k.Properties.First().Name == "OrderId")
-                    .Properties[0].GetGenerationProperty());
+                    .Properties[0].FindGenerationProperty());
 
             Assert.Equal(
                 model.FindEntityType(typeof(Product)).FindProperty("Id"),
                 model.FindEntityType(typeof(OrderDetails)).GetForeignKeys().Single(k => k.Properties.First().Name == "ProductId")
-                    .Properties[0].GetGenerationProperty());
+                    .Properties[0].FindGenerationProperty());
         }
 
         private class Category

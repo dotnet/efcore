@@ -908,6 +908,62 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            public virtual void Throws_on_keyless_type_as_principal()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Ignore<CustomerDetails>();
+
+                Assert.Equal(
+                    CoreStrings.PrincipalKeylessType(
+                            nameof(Customer),
+                            nameof(Customer) + "." + nameof(Customer.Orders),
+                            nameof(Order)),
+                    Assert.Throws<InvalidOperationException>(() =>
+                        modelBuilder.Entity<Customer>().HasNoKey()
+                            .HasMany(c => c.Orders)
+                            .WithOne(o => o.Customer)).Message);
+            }
+
+            [ConditionalFact]
+            public virtual void Keyless_type_with_unmapped_collection_navigations_does_not_throw()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Ignore<CustomerDetails>();
+
+                modelBuilder.Entity<Customer>().HasNoKey();
+
+                var model = modelBuilder.FinalizeModel();
+
+                var customer = model.FindEntityType(typeof(Customer));
+                Assert.Empty(customer.GetNavigations());
+                Assert.Null(customer.FindPrimaryKey());
+                Assert.Null(model.FindEntityType(typeof(Order)));
+            }
+
+            [ConditionalFact]
+            public virtual void Keyless_type_discovered_before_referenced_entity_type_does_not_leave_temp_id()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Ignore<Order>();
+                modelBuilder.Ignore<CustomerDetails>();
+
+                modelBuilder.Entity<KeylessEntity>().HasNoKey();
+                modelBuilder.Entity<Customer>();
+
+                var model = modelBuilder.FinalizeModel();
+
+                var keyless = model.FindEntityType(typeof(KeylessEntity));
+                Assert.Null(model.FindEntityType(typeof(Customer))?.FindProperty("TempId"));
+                Assert.Null(keyless.FindPrimaryKey());
+
+                var customerNavigation = keyless.GetNavigations().Single();
+                Assert.Same(keyless, customerNavigation.ForeignKey.DeclaringEntityType);
+            }
+
+            [ConditionalFact]
             public virtual void Can_have_both_convention_properties_specified()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2592,7 +2648,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Navigation_to_shared_type_is_no_discovered_by_convention()
+            public virtual void Navigation_to_shared_type_is_not_discovered_by_convention()
             {
                 var modelBuilder = CreateModelBuilder();
 

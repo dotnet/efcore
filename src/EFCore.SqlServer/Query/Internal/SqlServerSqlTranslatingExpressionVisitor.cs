@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
     /// <summary>
@@ -18,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     /// </summary>
     public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExpressionVisitor
     {
-        private static readonly HashSet<string> _dateTimeDataTypes
-            = new HashSet<string>
+        private static readonly HashSet<string?> _dateTimeDataTypes
+            = new HashSet<string?>
             {
                 "time",
                 "date",
@@ -62,14 +64,41 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
+            if (binaryExpression.NodeType == ExpressionType.ArrayIndex
+                && binaryExpression.Left.Type == typeof(byte[]))
+            {
+                var left = Visit(binaryExpression.Left);
+                var right = Visit(binaryExpression.Right);
+
+                if (left is SqlExpression leftSql
+                    && right is SqlExpression rightSql)
+                {
+                    return Dependencies.SqlExpressionFactory.Convert(
+                        Dependencies.SqlExpressionFactory.Function(
+                            "SUBSTRING",
+                            new SqlExpression[]
+                            {
+                                leftSql,
+                                Dependencies.SqlExpressionFactory.Add(
+                                    Dependencies.SqlExpressionFactory.ApplyDefaultTypeMapping(rightSql),
+                                    Dependencies.SqlExpressionFactory.Constant(1)),
+                                Dependencies.SqlExpressionFactory.Constant(1)
+                            },
+                            nullable: true,
+                            argumentsPropagateNullability: new[] { true, true, true },
+                            typeof(byte[])),
+                        binaryExpression.Type);
+                }
+            }
+
             return !(base.VisitBinary(binaryExpression) is SqlExpression visitedExpression)
-                ? null
-                : (Expression)(visitedExpression is SqlBinaryExpression sqlBinary
+                ? QueryCompilationContext.NotTranslatedExpression
+                : visitedExpression is SqlBinaryExpression sqlBinary
                     && _arithmeticOperatorTypes.Contains(sqlBinary.OperatorType)
                     && (_dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Left))
                         || _dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Right)))
-                        ? null
-                        : visitedExpression);
+                        ? QueryCompilationContext.NotTranslatedExpression
+                        : visitedExpression;
         }
 
         /// <summary>
@@ -85,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             {
                 if (!(base.Visit(unaryExpression.Operand) is SqlExpression sqlExpression))
                 {
-                    return null;
+                    return QueryCompilationContext.NotTranslatedExpression;
                 }
 
                 var isBinaryMaxDataType = GetProviderType(sqlExpression) == "varbinary(max)" || sqlExpression is SqlParameterExpression;
@@ -110,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override SqlExpression TranslateLongCount(SqlExpression sqlExpression)
+        public override SqlExpression? TranslateLongCount(SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
 
@@ -123,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     typeof(long)));
         }
 
-        private static string GetProviderType(SqlExpression expression)
+        private static string? GetProviderType(SqlExpression expression)
             => expression.TypeMapping?.StoreType;
     }
 }

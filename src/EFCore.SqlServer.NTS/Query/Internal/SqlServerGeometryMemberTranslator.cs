@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using NetTopologySuite.Geometries;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
     /// <summary>
@@ -24,28 +26,28 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     {
         private static readonly IDictionary<MemberInfo, string> _memberToFunctionName = new Dictionary<MemberInfo, string>
         {
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.Area)), "STArea" },
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.Dimension)), "STDimension" },
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.GeometryType)), "STGeometryType" },
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.IsEmpty)), "STIsEmpty" },
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.IsValid)), "STIsValid" },
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.Length)), "STLength" },
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.NumGeometries)), "STNumGeometries" },
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.NumPoints)), "STNumPoints" }
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.Area)), "STArea" },
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.Dimension)), "STDimension" },
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.GeometryType)), "STGeometryType" },
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.IsEmpty)), "STIsEmpty" },
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.IsValid)), "STIsValid" },
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.Length)), "STLength" },
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.NumGeometries)), "STNumGeometries" },
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.NumPoints)), "STNumPoints" }
         };
 
         private static readonly IDictionary<MemberInfo, string> _geometryMemberToFunctionName = new Dictionary<MemberInfo, string>
         {
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.Boundary)), "STBoundary" },
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.Centroid)), "STCentroid" },
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.Envelope)), "STEnvelope" },
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.InteriorPoint)), "STPointOnSurface" },
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.IsSimple)), "STIsSimple" },
-            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.PointOnSurface)), "STPointOnSurface" }
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.Boundary)), "STBoundary" },
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.Centroid)), "STCentroid" },
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.Envelope)), "STEnvelope" },
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.InteriorPoint)), "STPointOnSurface" },
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.IsSimple)), "STIsSimple" },
+            { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.PointOnSurface)), "STPointOnSurface" }
         };
 
-        private static readonly MemberInfo _ogcGeometryType = typeof(Geometry).GetRuntimeProperty(nameof(Geometry.OgcGeometryType));
-        private static readonly MemberInfo _srid = typeof(Geometry).GetRuntimeProperty(nameof(Geometry.SRID));
+        private static readonly MemberInfo _ogcGeometryType = typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.OgcGeometryType));
+        private static readonly MemberInfo _srid = typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.SRID));
 
         private readonly IRelationalTypeMappingSource _typeMappingSource;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -70,8 +72,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(
-            SqlExpression instance,
+        public virtual SqlExpression? Translate(
+            SqlExpression? instance,
             MemberInfo member,
             Type returnType,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
@@ -82,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             if (typeof(Geometry).IsAssignableFrom(member.DeclaringType))
             {
-                Check.DebugAssert(instance.TypeMapping != null, "Instance must have typeMapping assigned.");
+                Check.DebugAssert(instance!.TypeMapping != null, "Instance must have typeMapping assigned.");
                 var storeType = instance.TypeMapping.StoreType;
                 var isGeography = string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);
 

@@ -67,7 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var b = model.AddEntityType(typeof(B).Name);
 
             Assert.Equal(
-                CoreStrings.NonShadowBaseType(typeof(B).Name, typeof(A).Name),
+                CoreStrings.NotAssignableClrBaseType(
+                    typeof(B).Name + " (Dictionary<string, object>)", typeof(A).Name, "Dictionary<string, object>", typeof(A).Name),
                 Assert.Throws<InvalidOperationException>(() => b.BaseType = a).Message);
         }
 
@@ -80,7 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var b = model.AddEntityType(typeof(B));
 
             Assert.Equal(
-                CoreStrings.NonClrBaseType(typeof(B).Name, typeof(A).Name),
+                CoreStrings.NotAssignableClrBaseType(
+                    typeof(B).Name, typeof(A).Name + " (Dictionary<string, object>)", typeof(B).Name, "Dictionary<string, object>"),
                 Assert.Throws<InvalidOperationException>(() => b.BaseType = a).Message);
         }
 

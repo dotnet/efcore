@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
 
                 public void Reset()
-                    => throw new NotImplementedException();
+                    => throw new NotSupportedException(CoreStrings.EnumerableResetNotSupported);
             }
 
             private sealed class AsyncEnumerator : IAsyncEnumerator<T>
@@ -252,9 +252,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                 public ValueTask DisposeAsync()
                 {
-                    _enumerator?.DisposeAsync();
-                    _enumerator = null;
-
+                    var enumerator = _enumerator;
+                    if (enumerator != null)
+                    {
+                        _enumerator = null;
+                        return enumerator.DisposeAsync();
+                    }
                     return default;
                 }
             }

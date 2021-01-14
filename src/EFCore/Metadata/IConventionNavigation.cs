@@ -6,6 +6,8 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -22,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this navigation.
         /// </summary>
-        new IConventionNavigationBuilder Builder { get; }
+        new IConventionNavigationBuilder? Builder { get; }
 
         /// <summary>
         ///     Gets the type that this navigation property belongs to.
@@ -49,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ConfigurationSource IConventionPropertyBase.GetConfigurationSource()
             => (ConfigurationSource)(IsOnDependent
                 ? ForeignKey.GetDependentToPrincipalConfigurationSource()
-                : ForeignKey.GetPrincipalToDependentConfigurationSource());
+                : ForeignKey.GetPrincipalToDependentConfigurationSource())!;
 
         /// <summary>
         ///     Gets the foreign key that defines the relationship this navigation property will navigate.
@@ -63,10 +65,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the inverse navigation.
         /// </summary>
-        new IConventionNavigation Inverse
+        new IConventionNavigation? Inverse
         {
             [DebuggerStepThrough]
-            get => (IConventionNavigation)((INavigation)this).Inverse;
+            get => (IConventionNavigation?)((INavigation)this).Inverse;
         }
 
         /// <summary>
@@ -78,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new inverse navigation. </returns>
-        IConventionNavigation SetInverse([CanBeNull] string inverseName, bool fromDataAnnotation = false);
+        IConventionNavigation? SetInverse([CanBeNull] string? inverseName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the inverse navigation.
@@ -89,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new inverse navigation. </returns>
-        IConventionNavigation SetInverse([CanBeNull] MemberInfo inverse, bool fromDataAnnotation = false);
+        IConventionNavigation? SetInverse([CanBeNull] MemberInfo? inverse, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="Inverse" />.

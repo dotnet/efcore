@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -32,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class RelationalParameterBasedSqlProcessorDependencies
+    public sealed record RelationalParameterBasedSqlProcessorDependencies
     {
         /// <summary>
         ///     <para>
@@ -71,40 +73,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Sql expression factory.
         /// </summary>
-        public ISqlExpressionFactory SqlExpressionFactory { get; }
+        public ISqlExpressionFactory SqlExpressionFactory { get; [param: NotNull] init; }
 
         /// <summary>
         ///     Relational type mapping souce.
         /// </summary>
-        public IRelationalTypeMappingSource TypeMappingSource { get; }
+        public IRelationalTypeMappingSource TypeMappingSource { get; [param: NotNull] init; }
 
         /// <summary>
         ///     Parameter name generator factory.
         /// </summary>
-        public IParameterNameGeneratorFactory ParameterNameGeneratorFactory { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="sqlExpressionFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalParameterBasedSqlProcessorDependencies With([NotNull] ISqlExpressionFactory sqlExpressionFactory)
-            => new RelationalParameterBasedSqlProcessorDependencies(sqlExpressionFactory, TypeMappingSource, ParameterNameGeneratorFactory);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalParameterBasedSqlProcessorDependencies With([NotNull] IRelationalTypeMappingSource typeMappingSource)
-            => new RelationalParameterBasedSqlProcessorDependencies(SqlExpressionFactory, typeMappingSource, ParameterNameGeneratorFactory);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="parameterNameGeneratorFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalParameterBasedSqlProcessorDependencies With([NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory)
-            => new RelationalParameterBasedSqlProcessorDependencies(SqlExpressionFactory, TypeMappingSource, parameterNameGeneratorFactory);
+        public IParameterNameGeneratorFactory ParameterNameGeneratorFactory { get; [param: NotNull] init; }
     }
 }

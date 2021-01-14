@@ -9,6 +9,8 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -78,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///         This method is generally used to get last memberInfo to generate an alias for projection.
         ///     </para>
         /// </summary>
-        public MemberInfo Last
+        public MemberInfo? Last
             => _memberChain.LastOrDefault();
 
         /// <inheritdoc />
@@ -95,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (obj is ProjectionMember projectionMember
                     && Equals(projectionMember));

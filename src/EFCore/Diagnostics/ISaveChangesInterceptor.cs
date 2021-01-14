@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -91,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     interceptor suppressed execution by calling <see cref="InterceptionResult{Int32}.SuppressWithResult" />.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     If <see cref="InterceptionResult{Int32}.HasResult" /> is false, the EF will continue as normal.
         ///     If <see cref="InterceptionResult{Int32}.HasResult" /> is true, then EF will suppress the operation it
@@ -99,6 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         ValueTask<InterceptionResult<int>> SavingChangesAsync(
             [NotNull] DbContextEventData eventData,
             InterceptionResult<int> result,
@@ -118,12 +120,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     The result of the call to <see cref="M:DbContext.SaveChangesAsync" />.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     The result that EF will use.
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         ValueTask<int> SavedChangesAsync(
             [NotNull] SaveChangesCompletedEventData eventData,
             int result,
@@ -133,8 +136,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Called when an exception has been thrown in <see cref="M:DbContext.SaveChangesAsync" />.
         /// </summary>
         /// <param name="eventData"> Contextual information about the failure. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task SaveChangesFailedAsync(
             [NotNull] DbContextErrorEventData eventData,
             CancellationToken cancellationToken = default);

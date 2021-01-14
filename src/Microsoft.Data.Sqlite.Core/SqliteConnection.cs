@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Microsoft.Data.Sqlite.Properties;
 using Microsoft.Data.Sqlite.Utilities;
@@ -27,19 +28,21 @@ namespace Microsoft.Data.Sqlite
 
         private readonly List<WeakReference<SqliteCommand>> _commands = new List<WeakReference<SqliteCommand>>();
 
-        private Dictionary<string, (object state, strdelegate_collation collation)> _collations;
+        private Dictionary<string, (object? state, strdelegate_collation? collation)>? _collations;
 
-        private Dictionary<(string name, int arity), (int flags, object state, delegate_function_scalar func)> _functions;
+        private Dictionary<(string name, int arity), (int flags, object? state, delegate_function_scalar? func)>? _functions;
 
-        private Dictionary<(string name, int arity), (int flags, object state, delegate_function_aggregate_step func_step,
-            delegate_function_aggregate_final func_final)> _aggregates;
+        private Dictionary<(string name, int arity), (int flags, object? state, delegate_function_aggregate_step? func_step,
+            delegate_function_aggregate_final? func_final)>? _aggregates;
 
-        private HashSet<(string file, string proc)> _extensions;
+        private HashSet<(string file, string? proc)>? _extensions;
 
         private string _connectionString = string.Empty;
+        private SqliteConnectionStringBuilder? _connectionOptions;
         private ConnectionState _state;
-        private sqlite3 _db;
+        private sqlite3? _db;
         private bool _extensionsEnabled;
+        private int? _defaultTimeout;
 
         static SqliteConnection()
             => BundleInitializer.Initialize();
@@ -57,7 +60,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="connectionString">The string used to open the connection.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/connection-strings">Connection Strings</seealso>
         /// <seealso cref="SqliteConnectionStringBuilder" />
-        public SqliteConnection(string connectionString)
+        public SqliteConnection(string? connectionString)
             => ConnectionString = connectionString;
 
         /// <summary>
@@ -65,7 +68,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <value>A handle to underlying database connection.</value>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/interop">Interoperability</seealso>
-        public virtual sqlite3 Handle
+        public virtual sqlite3? Handle
             => _db;
 
         /// <summary>
@@ -74,6 +77,7 @@ namespace Microsoft.Data.Sqlite
         /// <value>A string used to open the connection.</value>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/connection-strings">Connection Strings</seealso>
         /// <seealso cref="SqliteConnectionStringBuilder" />
+        [AllowNull]
         public override string ConnectionString
         {
             get => _connectionString;
@@ -85,11 +89,12 @@ namespace Microsoft.Data.Sqlite
                 }
 
                 _connectionString = value ?? string.Empty;
-                ConnectionOptions = new SqliteConnectionStringBuilder(value);
+                _connectionOptions = null;
             }
         }
 
-        internal SqliteConnectionStringBuilder ConnectionOptions { get; set; }
+        internal SqliteConnectionStringBuilder ConnectionOptions
+            => _connectionOptions ??= new SqliteConnectionStringBuilder(ConnectionString);
 
         /// <summary>
         ///     Gets the name of the current database. Always 'main'.
@@ -106,7 +111,7 @@ namespace Microsoft.Data.Sqlite
         {
             get
             {
-                string dataSource = null;
+                string? dataSource = null;
                 if (State == ConnectionState.Open)
                 {
                     dataSource = sqlite3_db_filename(_db, MainDatabaseName).utf8_to_string();
@@ -123,7 +128,11 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <value>The default <see cref="SqliteCommand.CommandTimeout" /> value.</value>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/database-errors">Database Errors</seealso>
-        public virtual int DefaultTimeout { get; set; } = 30;
+        public virtual int DefaultTimeout
+        {
+            get => _defaultTimeout ?? ConnectionOptions.DefaultTimeout;
+            set => _defaultTimeout = value;
+        }
 
         /// <summary>
         ///     Gets the version of SQLite used by the connection.
@@ -150,7 +159,7 @@ namespace Microsoft.Data.Sqlite
         ///     Gets or sets the transaction currently being used by the connection, or null if none.
         /// </summary>
         /// <value>The transaction currently being used by the connection.</value>
-        protected internal virtual SqliteTransaction Transaction { get; set; }
+        protected internal virtual SqliteTransaction? Transaction { get; set; }
 
         /// <summary>
         ///     Opens a connection to the database using the value of <see cref="ConnectionString" />. If
@@ -164,13 +173,13 @@ namespace Microsoft.Data.Sqlite
                 return;
             }
 
-            if (string.IsNullOrEmpty(ConnectionString))
-            {
-                throw new InvalidOperationException(Resources.OpenRequiresSetConnectionString);
-            }
-
             var filename = ConnectionOptions.DataSource;
             var flags = 0;
+            
+            if (sqlite3_threadsafe() != 0)
+            {
+                flags |= SQLITE_OPEN_NOMUTEX;
+            }
 
             if (filename.StartsWith("file:", StringComparison.OrdinalIgnoreCase))
             {
@@ -243,7 +252,7 @@ namespace Microsoft.Data.Sqlite
             _state = ConnectionState.Open;
             try
             {
-                if (!string.IsNullOrEmpty(ConnectionOptions.Password))
+                if (ConnectionOptions.Password.Length != 0)
                 {
                     if (SQLitePCLExtensions.EncryptionSupported(out var libraryName) == false)
                     {
@@ -364,7 +373,7 @@ namespace Microsoft.Data.Sqlite
 
             Debug.Assert(_commands.Count == 0);
 
-            _db.Dispose();
+            _db!.Dispose();
             _db = null;
 
             _state = ConnectionState.Closed;
@@ -432,9 +441,9 @@ namespace Microsoft.Data.Sqlite
         /// <param name="name">Name of the collation.</param>
         /// <param name="comparison">Method that compares two strings.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/collation">Collation</seealso>
-        public virtual void CreateCollation(string name, Comparison<string> comparison)
+        public virtual void CreateCollation(string name, Comparison<string>? comparison)
             => CreateCollation(
-                name, null, comparison != null ? (_, s1, s2) => comparison(s1, s2) : (Func<object, string, string, int>)null);
+                name, null, comparison != null ? (_, s1, s2) => comparison(s1, s2) : (Func<object?, string, string, int>?)null);
 
         /// <summary>
         ///     Create custom collation.
@@ -444,14 +453,14 @@ namespace Microsoft.Data.Sqlite
         /// <param name="state">State object passed to each invocation of the collation.</param>
         /// <param name="comparison">Method that compares two strings, using additional state.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/collation">Collation</seealso>
-        public virtual void CreateCollation<T>(string name, T state, Func<T, string, string, int> comparison)
+        public virtual void CreateCollation<T>(string name, T state, Func<T, string, string, int>? comparison)
         {
             if (string.IsNullOrEmpty(name))
             {
                 throw new ArgumentNullException(nameof(name));
             }
 
-            var collation = comparison != null ? (v, s1, s2) => comparison((T)v, s1, s2) : (strdelegate_collation)null;
+            var collation = comparison != null ? (v, s1, s2) => comparison((T)v, s1, s2) : (strdelegate_collation?)null;
 
             if (State == ConnectionState.Open)
             {
@@ -459,7 +468,7 @@ namespace Microsoft.Data.Sqlite
                 SqliteException.ThrowExceptionForRC(rc, _db);
             }
 
-            _collations ??= new Dictionary<string, (object, strdelegate_collation)>(StringComparer.OrdinalIgnoreCase);
+            _collations ??= new Dictionary<string, (object?, strdelegate_collation?)>(StringComparer.OrdinalIgnoreCase);
             _collations[name] = (state, collation);
         }
 
@@ -575,7 +584,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="file">The shared library containing the extension.</param>
         /// <param name="proc">The entry point. If null, the default entry point is used.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/extensions">Extensions</seealso>
-        public virtual void LoadExtension(string file, string proc = null)
+        public virtual void LoadExtension(string file, string? proc = null)
         {
             if (State == ConnectionState.Open)
             {
@@ -598,11 +607,11 @@ namespace Microsoft.Data.Sqlite
                 }
             }
 
-            _extensions ??= new HashSet<(string, string)>();
+            _extensions ??= new HashSet<(string, string?)>();
             _extensions.Add((file, proc));
         }
 
-        private void LoadExtensionCore(string file, string proc)
+        private void LoadExtensionCore(string file, string? proc)
         {
             if (proc == null)
             {
@@ -676,19 +685,91 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
+        /// <summary>
+        ///     Returns schema information for the data source of this conneciton.
+        /// </summary>
+        /// <returns>Schema information.</returns>
+        public override DataTable GetSchema()
+            => GetSchema(DbMetaDataCollectionNames.MetaDataCollections);
+
+        /// <summary>
+        ///     Returns schema information for the data source of this conneciton.
+        /// </summary>
+        /// <param name="collectionName">The name of the schema.</param>
+        /// <returns>Schema information.</returns>
+        public override DataTable GetSchema(string collectionName)
+            => GetSchema(collectionName, Array.Empty<string>());
+
+        /// <summary>
+        ///     Returns schema information for the data source of this conneciton.
+        /// </summary>
+        /// <param name="collectionName">The name of the schema.</param>
+        /// <param name="restrictionValues">The restrictions.</param>
+        /// <returns>Schema information.</returns>
+        public override DataTable GetSchema(string collectionName, string?[] restrictionValues)
+        {
+            if (restrictionValues is not null && restrictionValues.Length != 0)
+            {
+                throw new ArgumentException(Resources.TooManyRestrictions(collectionName));
+            }
+
+            if (string.Equals(collectionName, DbMetaDataCollectionNames.MetaDataCollections, StringComparison.OrdinalIgnoreCase))
+            {
+                return new DataTable(DbMetaDataCollectionNames.MetaDataCollections)
+                {
+                    Columns =
+                    {
+                        { DbMetaDataColumnNames.CollectionName },
+                        { DbMetaDataColumnNames.NumberOfRestrictions, typeof(int) },
+                        { DbMetaDataColumnNames.NumberOfIdentifierParts, typeof(int) }
+                    },
+                    Rows =
+                    {
+                        new object[] { DbMetaDataCollectionNames.MetaDataCollections, 0, 0 },
+                        new object[] { DbMetaDataCollectionNames.ReservedWords, 0, 0 }
+                    }
+                };
+            }
+            else if (string.Equals(collectionName, DbMetaDataCollectionNames.ReservedWords, StringComparison.OrdinalIgnoreCase))
+            {
+                var dataTable = new DataTable(DbMetaDataCollectionNames.ReservedWords)
+                {
+                    Columns =
+                    {
+                        { DbMetaDataColumnNames.ReservedWord }
+                    }
+                };
+
+                int rc;
+                string keyword;
+                var count = sqlite3_keyword_count();
+                for (var i = 0; i < count; i++)
+                {
+                    rc = sqlite3_keyword_name(i, out keyword);
+                    SqliteException.ThrowExceptionForRC(rc, null);
+
+                    dataTable.Rows.Add(new object[] { keyword });
+                }
+
+                return dataTable;
+            }
+
+            throw new ArgumentException(Resources.UnknownCollection(collectionName));
+        }
+
         private void CreateFunctionCore<TState, TResult>(
             string name,
             int arity,
             TState state,
-            Func<TState, SqliteValueReader, TResult> function,
+            Func<TState, SqliteValueReader, TResult>? function,
             bool isDeterministic)
         {
-            if (string.IsNullOrEmpty(name))
+            if (name == null)
             {
                 throw new ArgumentNullException(nameof(name));
             }
 
-            delegate_function_scalar func = null;
+            delegate_function_scalar? func = null;
             if (function != null)
             {
                 func = (ctx, user_data, args) =>
@@ -730,7 +811,7 @@ namespace Microsoft.Data.Sqlite
                 SqliteException.ThrowExceptionForRC(rc, _db);
             }
 
-            _functions ??= new Dictionary<(string, int), (int, object, delegate_function_scalar)>(FunctionsKeyComparer.Instance);
+            _functions ??= new Dictionary<(string, int), (int, object?, delegate_function_scalar?)>(FunctionsKeyComparer.Instance);
             _functions[(name, arity)] = (flags, state, func);
         }
 
@@ -738,16 +819,16 @@ namespace Microsoft.Data.Sqlite
             string name,
             int arity,
             TAccumulate seed,
-            Func<TAccumulate, SqliteValueReader, TAccumulate> func,
-            Func<TAccumulate, TResult> resultSelector,
+            Func<TAccumulate, SqliteValueReader, TAccumulate>? func,
+            Func<TAccumulate, TResult>? resultSelector,
             bool isDeterministic)
         {
-            if (string.IsNullOrEmpty(name))
+            if (name == null)
             {
                 throw new ArgumentNullException(nameof(name));
             }
 
-            delegate_function_aggregate_step func_step = null;
+            delegate_function_aggregate_step? func_step = null;
             if (func != null)
             {
                 func_step = (ctx, user_data, args) =>
@@ -774,7 +855,7 @@ namespace Microsoft.Data.Sqlite
                 };
             }
 
-            delegate_function_aggregate_final func_final = null;
+            delegate_function_aggregate_final? func_final = null;
             if (resultSelector != null)
             {
                 func_final = (ctx, user_data) =>
@@ -826,19 +907,19 @@ namespace Microsoft.Data.Sqlite
             }
 
             _aggregates ??=
-                new Dictionary<(string, int), (int, object, delegate_function_aggregate_step, delegate_function_aggregate_final)>(
+                new Dictionary<(string, int), (int, object?, delegate_function_aggregate_step?, delegate_function_aggregate_final?)>(
                     FunctionsKeyComparer.Instance);
             _aggregates[(name, arity)] = (flags, state, func_step, func_final);
         }
 
-        private static Func<TState, SqliteValueReader, TResult> IfNotNull<TState, TResult>(
-            object x,
+        private static Func<TState, SqliteValueReader, TResult>? IfNotNull<TState, TResult>(
+            object? x,
             Func<TState, SqliteValueReader, TResult> value)
             => x != null ? value : null;
 
-        private static object[] GetValues(SqliteValueReader reader)
+        private static object?[] GetValues(SqliteValueReader reader)
         {
-            var values = new object[reader.FieldCount];
+            var values = new object?[reader.FieldCount];
             reader.GetValues(values);
 
             return values;
@@ -850,7 +931,7 @@ namespace Microsoft.Data.Sqlite
                 => Accumulate = seed;
 
             public T Accumulate { get; set; }
-            public Exception Exception { get; set; }
+            public Exception? Exception { get; set; }
         }
 
         private sealed class FunctionsKeyComparer : IEqualityComparer<(string name, int arity)>

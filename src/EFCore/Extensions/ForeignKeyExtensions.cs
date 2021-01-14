@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -32,9 +34,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="foreignKey"> The <see cref="IForeignKey" /> for which a factory is needed. </param>
         /// <typeparam name="TKey"> The type of key instanceas. </typeparam>
         /// <returns> A new factory. </returns>
-        public static IDependentKeyValueFactory<TKey> GetDependentKeyValueFactory<TKey>(
+        public static IDependentKeyValueFactory<TKey>? GetDependentKeyValueFactory<TKey>(
             [NotNull] this IForeignKey foreignKey)
-            => (IDependentKeyValueFactory<TKey>)foreignKey.AsForeignKey().DependentKeyValueFactory;
+            => (IDependentKeyValueFactory<TKey>?)foreignKey.AsForeignKey().DependentKeyValueFactory;
 
         /// <summary>
         ///     Gets the entity type related to the given one.
@@ -67,9 +69,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     A value indicating whether the navigation is on the dependent type pointing to the principal type.
         /// </param>
         /// <returns>
-        ///     A navigation associated with this foreign key or null.
+        ///     A navigation associated with this foreign key or <see langword="null" />.
         /// </returns>
-        public static INavigation GetNavigation([NotNull] this IForeignKey foreignKey, bool pointsToPrincipal)
+        public static INavigation? GetNavigation([NotNull] this IForeignKey foreignKey, bool pointsToPrincipal)
             => pointsToPrincipal ? foreignKey.DependentToPrincipal : foreignKey.PrincipalToDependent;
 
         /// <summary>

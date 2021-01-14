@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -39,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The name of the entity to be added. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new entity type. </returns>
-        IConventionEntityType AddEntityType([NotNull] string name, bool fromDataAnnotation = false);
+        IConventionEntityType? AddEntityType([NotNull] string name, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Adds an entity type to the model.
@@ -47,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="type"> The CLR class that is used to represent instances of the entity type. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new entity type. </returns>
-        IConventionEntityType AddEntityType([NotNull] Type type, bool fromDataAnnotation = false);
+        IConventionEntityType? AddEntityType([NotNull] Type type, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     <para>
@@ -62,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="clrType"> The CLR class that is used to represent instances of the entity type. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new entity type. </returns>
-        IConventionEntityType AddEntityType([NotNull] string name, [NotNull] Type clrType, bool fromDataAnnotation = false);
+        IConventionEntityType? AddEntityType([NotNull] string name, [NotNull] Type clrType, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Adds an entity type with a defining navigation to the model.
@@ -72,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="definingEntityType"> The defining entity type. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new entity type. </returns>
-        IConventionEntityType AddEntityType(
+        IConventionEntityType? AddEntityType(
             [NotNull] string name,
             [NotNull] string definingNavigationName,
             [NotNull] IConventionEntityType definingEntityType,
@@ -86,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="definingEntityType"> The defining entity type. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new entity type. </returns>
-        IConventionEntityType AddEntityType(
+        IConventionEntityType? AddEntityType(
             [NotNull] Type type,
             [NotNull] string definingNavigationName,
             [NotNull] IConventionEntityType definingEntityType,
@@ -99,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the entity type to find. </param>
         /// <returns> The entity type, or <see langword="null" /> if none are found. </returns>
-        new IConventionEntityType FindEntityType([NotNull] string name);
+        new IConventionEntityType? FindEntityType([NotNull] string name);
 
         /// <summary>
         ///     Gets the entity type for the given name, defining navigation name
@@ -109,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
         /// <returns> The entity type, or <see langword="null" /> if none are found. </returns>
-        IConventionEntityType FindEntityType(
+        IConventionEntityType? FindEntityType(
             [NotNull] string name,
             [NotNull] string definingNavigationName,
             [NotNull] IConventionEntityType definingEntityType);
@@ -118,8 +120,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Removes an entity type from the model.
         /// </summary>
         /// <param name="entityType"> The entity type to be removed. </param>
-        /// <returns> The removed entity type. </returns>
-        IConventionEntityType RemoveEntityType([NotNull] IConventionEntityType entityType);
+        /// <returns> The removed entity type, or <see langword="null" /> if the entity type was not found. </returns>
+        IConventionEntityType? RemoveEntityType([NotNull] IConventionEntityType entityType);
 
         /// <summary>
         ///     Gets all entity types defined in the model.
@@ -133,14 +135,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="typeName"> The name of the entity type to be ignored. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The name of the ignored entity type. </returns>
-        string AddIgnored([NotNull] string typeName, bool fromDataAnnotation = false);
+        string? AddIgnored([NotNull] string typeName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Removes the ignored entity type name.
         /// </summary>
         /// <param name="typeName"> The name of the ignored entity type to be removed. </param>
         /// <returns> The removed ignored type name. </returns>
-        string RemoveIgnored([NotNull] string typeName);
+        string? RemoveIgnored([NotNull] string typeName);
 
         /// <summary>
         ///     Gets whether the CLR type is used by shared type entities in the model.

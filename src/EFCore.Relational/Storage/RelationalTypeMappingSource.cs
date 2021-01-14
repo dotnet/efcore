@@ -12,6 +12,9 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 #pragma warning disable 1574, CS0419 // Ambiguous reference in cref attribute
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -33,8 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRelationalTypeMappingSource
     {
-        private readonly ConcurrentDictionary<(RelationalTypeMappingInfo, Type, ValueConverter), RelationalTypeMapping> _explicitMappings
-            = new ConcurrentDictionary<(RelationalTypeMappingInfo, Type, ValueConverter), RelationalTypeMapping>();
+        private readonly ConcurrentDictionary<(RelationalTypeMappingInfo, Type?, ValueConverter?), RelationalTypeMapping?> _explicitMappings
+            = new ConcurrentDictionary<(RelationalTypeMappingInfo, Type?, ValueConverter?), RelationalTypeMapping?>();
 
         /// <summary>
         ///     Initializes a new instance of the this class.
@@ -63,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="mappingInfo"> The mapping info to use to create the mapping. </param>
         /// <returns> The type mapping, or <see langword="null" /> if none could be found. </returns>
-        protected virtual RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
+        protected virtual RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)
         {
             foreach (var plugin in RelationalDependencies.Plugins)
             {
@@ -91,12 +94,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => throw new InvalidOperationException(
                 RelationalStrings.NoneRelationalTypeMappingOnARelationalTypeMappingSource);
 
-        private RelationalTypeMapping FindMappingWithConversion(
+        private RelationalTypeMapping? FindMappingWithConversion(
             in RelationalTypeMappingInfo mappingInfo,
-            [CanBeNull] IReadOnlyList<IProperty> principals)
+            [CanBeNull] IReadOnlyList<IProperty>? principals)
         {
-            Type providerClrType = null;
-            ValueConverter customConverter = null;
+            Type? providerClrType = null;
+            ValueConverter? customConverter = null;
             if (principals != null)
             {
                 for (var i = 0; i < principals.Count; i++)
@@ -195,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
-        public override CoreTypeMapping FindMapping(IProperty property)
+        public override CoreTypeMapping? FindMapping(IProperty property)
         {
             var mapping = property.FindRelationalTypeMapping();
             if (mapping != null)
@@ -205,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var principals = property.FindPrincipals();
 
-            string storeTypeName = null;
+            string? storeTypeName = null;
             bool? isFixedLength = null;
             // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < principals.Count; i++)
@@ -213,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 var principal = principals[i];
                 if (storeTypeName == null)
                 {
-                    var columnType = (string)principal[RelationalAnnotationNames.ColumnType];
+                    var columnType = (string?)principal[RelationalAnnotationNames.ColumnType];
                     if (columnType != null)
                     {
                         storeTypeName = columnType;
@@ -248,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="type"> The CLR type. </param>
         /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
-        public override CoreTypeMapping FindMapping(Type type)
+        public override CoreTypeMapping? FindMapping(Type type)
             => FindMappingWithConversion(new RelationalTypeMappingInfo(type), null);
 
         /// <summary>
@@ -266,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="member"> The field or property. </param>
         /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
-        public override CoreTypeMapping FindMapping(MemberInfo member)
+        public override CoreTypeMapping? FindMapping(MemberInfo member)
         {
             if (member.GetCustomAttribute<ColumnAttribute>(true) is ColumnAttribute attribute)
             {
@@ -295,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="storeTypeName"> The database type name. </param>
         /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
-        public virtual RelationalTypeMapping FindMapping(string storeTypeName)
+        public virtual RelationalTypeMapping? FindMapping(string storeTypeName)
         {
             var storeTypeBaseName = ParseStoreTypeName(storeTypeName, out var unicode, out var size, out var precision, out var scale);
 
@@ -325,9 +328,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="precision"> Specifies a precision for the mapping, or <see langword="null" /> for default. </param>
         /// <param name="scale"> Specifies a scale for the mapping, or <see langword="null" /> for default. </param>
         /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
-        public virtual RelationalTypeMapping FindMapping(
+        public virtual RelationalTypeMapping? FindMapping(
             Type type,
-            string storeTypeName,
+            string? storeTypeName,
             bool keyOrIndex = false,
             bool? unicode = null,
             int? size = null,
@@ -336,7 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             int? precision = null,
             int? scale = null)
         {
-            string storeTypeBaseName = null;
+            string? storeTypeBaseName = null;
 
             if (storeTypeName != null)
             {
@@ -369,16 +372,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <inheritdoc />
-        RelationalTypeMapping IRelationalTypeMappingSource.FindMapping(IProperty property)
-            => (RelationalTypeMapping)FindMapping(property);
+        RelationalTypeMapping? IRelationalTypeMappingSource.FindMapping(IProperty property)
+            => (RelationalTypeMapping?)FindMapping(property);
 
         /// <inheritdoc />
-        RelationalTypeMapping IRelationalTypeMappingSource.FindMapping(Type type)
-            => (RelationalTypeMapping)FindMapping(type);
+        RelationalTypeMapping? IRelationalTypeMappingSource.FindMapping(Type type)
+            => (RelationalTypeMapping?)FindMapping(type);
 
         /// <inheritdoc />
-        RelationalTypeMapping IRelationalTypeMappingSource.FindMapping(MemberInfo member)
-            => (RelationalTypeMapping)FindMapping(member);
+        RelationalTypeMapping? IRelationalTypeMappingSource.FindMapping(MemberInfo member)
+            => (RelationalTypeMapping?)FindMapping(member);
 
         /// <summary>
         ///     <para>
@@ -397,8 +400,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="precision"> The precision parsed from the type name, or <see langword="null" /> if none was specified. </param>
         /// <param name="scale"> The scale parsed from the type name, or <see langword="null" /> if none was specified. </param>
         /// <returns> The provider-specific relational type name, with any facets removed. </returns>
-        protected virtual string ParseStoreTypeName(
-            [CanBeNull] string storeTypeName,
+        [return: CA.NotNullIfNotNull("storeTypeName")]
+        protected virtual string? ParseStoreTypeName(
+            [CanBeNull] string? storeTypeName,
             out bool? unicode,
             out int? size,
             out int? precision,

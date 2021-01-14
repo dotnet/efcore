@@ -106,6 +106,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             Check.NotNull(entityType, nameof(entityType));
 
+            GenerateComment(entityType.GetComment());
+
             if (_useDataAnnotations)
             {
                 GenerateEntityTypeDataAnnotations(entityType);
@@ -264,6 +266,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreach (var property in entityType.GetProperties().OrderBy(p => p.GetColumnOrdinal()))
             {
+                GenerateComment(property.GetComment());
+
                 if (_useDataAnnotations)
                 {
                     GeneratePropertyDataAnnotations(property);
@@ -287,6 +291,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             GenerateRequiredAttribute(property);
             GenerateColumnAttribute(property);
             GenerateMaxLengthAttribute(property);
+            GenerateUnicodeAttribute(property);
+            GeneratePrecisionAttribute(property);
 
             var annotations = _annotationCodeGenerator
                 .FilterIgnoredAnnotations(property.GetAnnotations())
@@ -362,6 +368,43 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 lengthAttribute.AddParameter(_code.Literal(maxLength.Value));
 
                 _sb.AppendLine(lengthAttribute.ToString());
+            }
+        }
+
+        private void GenerateUnicodeAttribute(IProperty property)
+        {
+            if (property.ClrType != typeof(string))
+            {
+                return;
+            }
+
+            var unicode = property.IsUnicode();
+            if (unicode.HasValue)
+            {
+                var unicodeAttribute = new AttributeWriter(nameof(UnicodeAttribute));
+                if (!unicode.Value)
+                {
+                    unicodeAttribute.AddParameter(_code.Literal(false));
+                }
+                _sb.AppendLine(unicodeAttribute.ToString());
+            }
+        }
+
+        private void GeneratePrecisionAttribute(IProperty property)
+        {
+            var precision = property.GetPrecision();
+            if (precision.HasValue)
+            {
+                var precisionAttribute = new AttributeWriter(nameof(PrecisionAttribute));
+                precisionAttribute.AddParameter(_code.Literal(precision.Value));
+
+                var scale = property.GetScale();
+                if (scale.HasValue)
+                {
+                    precisionAttribute.AddParameter(_code.Literal(scale.Value));
+                }
+
+                _sb.AppendLine(precisionAttribute.ToString());
             }
         }
 
@@ -446,6 +489,21 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                     _sb.AppendLine(inversePropertyAttribute.ToString());
                 }
+            }
+        }
+
+        private void GenerateComment(string comment)
+        {
+            if (!string.IsNullOrWhiteSpace(comment))
+            {
+                _sb.AppendLine("/// <summary>");
+
+                foreach (var line in comment.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None))
+                {
+                    _sb.AppendLine($"/// {System.Security.SecurityElement.Escape(line)}");
+                }
+
+                _sb.AppendLine("/// </summary>");
             }
         }
 

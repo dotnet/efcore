@@ -37,12 +37,6 @@ namespace Microsoft.EntityFrameworkCore
                 base.Initialize();
             }
 
-            public override bool TryGetProviderOptionsDelegate(out Action<DbContextOptionsBuilder> configureOptions)
-            {
-                configureOptions = null;
-                return false;
-            }
-
             public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>
             {
                 typeof(ModelBuilder),

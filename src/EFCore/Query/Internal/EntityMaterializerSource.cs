@@ -14,7 +14,10 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -33,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class EntityMaterializerSource : IEntityMaterializerSource
     {
-        private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>> _materializers;
+        private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>>? _materializers;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -56,17 +59,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             string entityInstanceName,
             Expression materializationContextExpression)
         {
-            if (!entityType.HasClrType())
-            {
-                throw new InvalidOperationException(CoreStrings.NoClrType(entityType.DisplayName()));
-            }
-
             if (entityType.IsAbstract())
             {
-                throw new InvalidOperationException(CoreStrings.CannotMaterializeAbstractType(entityType));
+                throw new InvalidOperationException(CoreStrings.CannotMaterializeAbstractType(entityType.DisplayName()));
             }
 
-            var constructorBinding = (InstantiationBinding)entityType[CoreAnnotationNames.ConstructorBinding];
+            var constructorBinding = (InstantiationBinding?)entityType[CoreAnnotationNames.ConstructorBinding];
 
             if (constructorBinding == null)
             {
@@ -123,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var readValueExpression
                     = property is IServiceProperty serviceProperty
-                        ? serviceProperty.GetParameterBinding().BindToParameter(bindingInfo)
+                        ? serviceProperty.GetParameterBinding()!.BindToParameter(bindingInfo)
                         : valueBufferExpression.CreateValueBufferReadValueExpression(
                             memberInfo.GetMemberType(),
                             property.GetIndex(),

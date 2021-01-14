@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
@@ -72,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var innerShaper = Visit(collectionShaperExpression.InnerShaper);
 
                 var collectionJoin = selectExpression.ApplyCollectionJoin(
-                    projectionBindingExpression.Index.Value,
+                    projectionBindingExpression.Index!.Value,
                     collectionId,
                     innerShaper,
                     collectionShaperExpression.Navigation,
@@ -89,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             nameof(RelationalQueryableExtensions.AsSingleQuery)));
                 }
 
-                return collectionJoin;
+                return collectionJoin!;
             }
 
             return extensionExpression is ShapedQueryExpression shapedQueryExpression

@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -29,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="type"> The type to find the corresponding entity type for. </param>
         /// <returns> The entity type, or <see langword="null" /> if none if found. </returns>
         [DebuggerStepThrough]
-        public static IEntityType FindEntityType([NotNull] this IModel model, [NotNull] Type type)
+        public static IEntityType? FindEntityType([NotNull] this IModel model, [NotNull] Type type)
             => ((Model)model).FindEntityType(Check.NotNull(type, nameof(type)));
 
         /// <summary>
@@ -41,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to find the entity type in. </param>
         /// <param name="type"> The type to find the corresponding entity type for. </param>
         /// <returns> The entity type, or <see langword="null" /> if none if found. </returns>
-        public static IEntityType FindRuntimeEntityType([NotNull] this IModel model, [NotNull] Type type)
+        public static IEntityType? FindRuntimeEntityType([NotNull] this IModel model, [NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));
             var realModel = (Model)Check.NotNull(model, nameof(model));
@@ -62,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
         /// <returns> The entity type, or <see langword="null" /> if none are found. </returns>
         [DebuggerStepThrough]
-        public static IEntityType FindEntityType(
+        public static IEntityType? FindEntityType(
             [NotNull] this IModel model,
             [NotNull] Type type,
             [NotNull] string definingNavigationName,
@@ -73,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(definingNavigationName, nameof(definingNavigationName));
             Check.NotNull(definingEntityType, nameof(definingEntityType));
 
-            return model.AsModel().FindEntityType(
+            return ((Model)model).FindEntityType(
                 type,
                 definingNavigationName,
                 definingEntityType.AsEntityType());
@@ -86,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="type"> The type of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
         [DebuggerStepThrough]
-        public static IReadOnlyCollection<IEntityType> GetEntityTypes([NotNull] this IModel model, [NotNull] Type type)
+        public static IEnumerable<IEntityType> GetEntityTypes([NotNull] this IModel model, [NotNull] Type type)
             => ((Model)model).GetEntityTypes(type);
 
         /// <summary>
@@ -96,6 +98,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
         [DebuggerStepThrough]
+        [Obsolete("Use GetEntityTypes(Type) or FindEntityType(string)")]
         public static IReadOnlyCollection<IEntityType> GetEntityTypes([NotNull] this IModel model, [NotNull] string name)
             => ((Model)model).GetEntityTypes(name);
 
@@ -106,9 +109,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="type"> The type used to find an entity type a defining navigation. </param>
         /// <returns> <see langword="true" /> if the model contains a corresponding entity type with a defining navigation. </returns>
         [DebuggerStepThrough]
+        [Obsolete("Use IsShared(Type)")]
         public static bool HasEntityTypeWithDefiningNavigation([NotNull] this IModel model, [NotNull] Type type)
-            => Check.NotNull(model, nameof(model)).AsModel()
-                .HasEntityTypeWithDefiningNavigation(Check.NotNull(type, nameof(type)));
+            => model.IsShared(type);
 
         /// <summary>
         ///     Gets a value indicating whether the model contains a corresponding entity type with a defining navigation.
@@ -117,9 +120,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name used to find an entity type with a defining navigation. </param>
         /// <returns> <see langword="true" /> if the model contains a corresponding entity type with a defining navigation. </returns>
         [DebuggerStepThrough]
+        [Obsolete("Use FindEntityType(string)?.HasSharedClrType")]
         public static bool HasEntityTypeWithDefiningNavigation([NotNull] this IModel model, [NotNull] string name)
-            => Check.NotNull(model, nameof(model)).AsModel()
-                .HasEntityTypeWithDefiningNavigation(Check.NotNull(name, nameof(name)));
+            => model.FindEntityType(name)?.HasSharedClrType ?? false;
 
         /// <summary>
         ///     Gets whether the CLR type is used by shared type entities in the model.
@@ -162,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets the EF Core assembly version used to build this model
         /// </summary>
         /// <param name="model"> The model to get the version for. </param>
-        public static string GetProductVersion([NotNull] this IModel model)
+        public static string? GetProductVersion([NotNull] this IModel model)
             => model[CoreAnnotationNames.ProductVersion] as string;
 
         /// <summary>
@@ -173,6 +176,7 @@ namespace Microsoft.EntityFrameworkCore
         public static bool IsIndexerMethod([NotNull] this IModel model, [NotNull] MethodInfo methodInfo)
             => !methodInfo.IsStatic
                 && methodInfo.IsSpecialName
+                && methodInfo.DeclaringType != null
                 && model.AsModel().FindIndexerPropertyInfo(methodInfo.DeclaringType) is PropertyInfo indexerProperty
                 && (methodInfo == indexerProperty.GetMethod || methodInfo == indexerProperty.SetMethod);
 

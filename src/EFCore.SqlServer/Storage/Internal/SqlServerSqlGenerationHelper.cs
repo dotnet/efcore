@@ -4,9 +4,12 @@
 using System;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
@@ -101,5 +104,29 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             EscapeIdentifier(builder, identifier);
             builder.Append(']');
         }
+
+        /// <summary>
+        ///     Generates an SQL statement which creates a savepoint with the given name.
+        /// </summary>
+        /// <param name="name"> The name of the savepoint to be created. </param>
+        /// <returns> An SQL string to create the savepoint. </returns>
+        public override string GenerateCreateSavepointStatement(string name)
+            => "SAVE TRANSACTION " + DelimitIdentifier(name) + StatementTerminator;
+
+        /// <summary>
+        ///     Generates an SQL statement which which rolls back to a savepoint with the given name.
+        /// </summary>
+        /// <param name="name"> The name of the savepoint to be rolled back to. </param>
+        /// <returns> An SQL string to roll back the savepoint. </returns>
+        public override string GenerateRollbackToSavepointStatement(string name)
+            => "ROLLBACK TRANSACTION " + DelimitIdentifier(name) + StatementTerminator;
+
+        /// <summary>
+        ///     Generates an SQL statement which which releases a savepoint with the given name.
+        /// </summary>
+        /// <param name="name"> The name of the savepoint to be released. </param>
+        /// <returns> An SQL string to release the savepoint. </returns>
+        public override string GenerateReleaseSavepointStatement(string name)
+            => throw new NotSupportedException(SqlServerStrings.NoSavepointRelease);
     }
 }

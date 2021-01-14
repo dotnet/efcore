@@ -131,16 +131,15 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
                 if (!string.IsNullOrEmpty(projectAssetsFile))
                 {
-                    using (var reader = JsonDocument.Parse(File.OpenRead(projectAssetsFile)))
-                    {
-                        var projectAssets = reader.RootElement;
-                        var packageFolders = projectAssets.GetProperty("packageFolders").EnumerateObject().Select(p => p.Name);
+                    using var file = File.OpenRead(projectAssetsFile);
+                    using var reader = JsonDocument.Parse(file);
+                    var projectAssets = reader.RootElement;
+                    var packageFolders = projectAssets.GetProperty("packageFolders").EnumerateObject().Select(p => p.Name);
 
-                        foreach (var packageFolder in packageFolders)
-                        {
-                            args.Add("--additionalprobingpath");
-                            args.Add(packageFolder.TrimEnd(Path.DirectorySeparatorChar));
-                        }
+                    foreach (var packageFolder in packageFolders)
+                    {
+                        args.Add("--additionalprobingpath");
+                        args.Add(packageFolder.TrimEnd(Path.DirectorySeparatorChar));
                     }
                 }
 

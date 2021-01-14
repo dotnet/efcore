@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -31,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class RelationalMemberTranslatorProviderDependencies
+    public sealed record RelationalMemberTranslatorProviderDependencies
     {
         /// <summary>
         ///     <para>
@@ -67,27 +69,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The expression factory..
         /// </summary>
-        public ISqlExpressionFactory SqlExpressionFactory { get; }
+        public ISqlExpressionFactory SqlExpressionFactory { get; [param: NotNull] init; }
 
         /// <summary>
         ///     Registered plugins.
         /// </summary>
-        public IEnumerable<IMemberTranslatorPlugin> Plugins { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="sqlExpressionFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalMemberTranslatorProviderDependencies With([NotNull] ISqlExpressionFactory sqlExpressionFactory)
-            => new RelationalMemberTranslatorProviderDependencies(sqlExpressionFactory, Plugins);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="plugins"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalMemberTranslatorProviderDependencies With([NotNull] IEnumerable<IMemberTranslatorPlugin> plugins)
-            => new RelationalMemberTranslatorProviderDependencies(SqlExpressionFactory, plugins);
+        public IEnumerable<IMemberTranslatorPlugin> Plugins { get; [param: NotNull] init; }
     }
 }

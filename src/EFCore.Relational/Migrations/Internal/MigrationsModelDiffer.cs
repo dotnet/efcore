@@ -597,13 +597,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if (source.IsExcludedFromMigrations
                 && target.IsExcludedFromMigrations)
             {
-                var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23639", out var enabled) && enabled;
-                if (!useOldBehavior)
-                {
-                    // Populate column mapping
-                    foreach (var _ in Diff(source.Columns, target.Columns, diffContext))
-                    { }
-                }
+                // Populate column mapping
+                foreach(var _ in Diff(source.Columns, target.Columns, diffContext))
+                { }
                 
                 yield break;
             }
@@ -878,7 +874,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 => x.IsSameAs(y);
 
             public int GetHashCode(PropertyInfo obj)
-                => throw new NotImplementedException();
+                => throw new NotSupportedException();
         }
 
         #endregion
@@ -950,46 +946,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 return true;
             }
 
-            if (!string.Equals(source.Name, target.Name))
+            if (source.Name != target.Name)
             {
                 return false;
             }
 
-            if (!string.Equals(
-                GetDefiningNavigationName(source),
-                GetDefiningNavigationName(target)))
-            {
-                return false;
-            }
-
-            var nextSource = source.DefiningEntityType;
-            var nextTarget = target.DefiningEntityType;
+            var nextSource = GetLinkedPrincipal(source);
+            var nextTarget = GetLinkedPrincipal(target);
             return (nextSource == null && nextTarget == null)
                 || (nextSource != null
                     && nextTarget != null
                     && EntityTypePathEquals(nextSource, nextTarget, diffContext));
         }
 
-        private static string GetDefiningNavigationName(IEntityType entityType)
+        private static IEntityType GetLinkedPrincipal(IEntityType entityType)
         {
-            if (entityType.DefiningNavigationName != null)
+            var table = StoreObjectIdentifier.Create(entityType, StoreObjectType.Table);
+            if (table == null)
             {
-                return entityType.DefiningNavigationName;
+                return null;
             }
 
-            var primaryKey = entityType.BaseType == null ? entityType.FindPrimaryKey() : null;
-            if (primaryKey != null)
-            {
-                var definingForeignKey = entityType
-                    .FindForeignKeys(primaryKey.Properties)
-                    .FirstOrDefault(fk => fk.PrincipalEntityType.GetTableName() == entityType.GetTableName());
-                if (definingForeignKey?.DependentToPrincipal != null)
-                {
-                    return definingForeignKey.DependentToPrincipal.Name;
-                }
-            }
-
-            return entityType.Name;
+            var linkingForeignKey = entityType.FindRowInternalForeignKeys(table.Value).FirstOrDefault();
+            return linkingForeignKey?.PrincipalEntityType;
         }
 
         /// <summary>
@@ -1348,8 +1327,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             var sourceTable = source.Table;
 
-            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23137", out var isEnabled) && isEnabled;
-            if (!useOldBehavior && sourceTable.IsExcludedFromMigrations)
+            if (sourceTable.IsExcludedFromMigrations)
             {
                 yield break;
             }
@@ -1684,9 +1662,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 foreach (var targetSeed in targetEntityType.GetSeedData())
                 {
-                    _targetUpdateAdapter
-                        .CreateEntry(targetSeed, targetEntityType)
-                        .EntityState = EntityState.Added;
+                    var targetEntry = _targetUpdateAdapter.CreateEntry(targetSeed, targetEntityType);
+                    if (targetEntry.ToEntityEntry().Entity is Dictionary<string, object> targetBag)
+                    {
+                        targetBag.Remove((key, _, target) => !target.ContainsKey(key), targetSeed);
+                    }
+
+                    targetEntry.EntityState = EntityState.Added;
                 }
             }
 
@@ -2188,9 +2170,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 foreach (var command in commandBatch.ModificationCommands)
                 {
                     var table = model.FindTable(command.TableName, command.Schema);
-                    var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23137", out var isEnabled) && isEnabled;
                     if (diffContext.FindDrop(table) != null
-                        || (!useOldBehavior && table.IsExcludedFromMigrations))
+                        || table.IsExcludedFromMigrations)
                     {
                         continue;
                     }

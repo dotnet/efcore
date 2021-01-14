@@ -47,12 +47,6 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RelationalApiConsistencyFixture : ApiConsistencyFixtureBase
         {
-            public override bool TryGetProviderOptionsDelegate(out Action<DbContextOptionsBuilder> configureOptions)
-            {
-                configureOptions = null;
-                return false;
-            }
-
             private static Dictionary<Type, (Type Mutable, Type Convention, Type ConventionBuilder)> _metadataTypes
                 => new Dictionary<Type, (Type, Type, Type)>
                 {
@@ -152,6 +146,7 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(RelationalDatabaseFacadeExtensions).GetMethod(nameof(RelationalDatabaseFacadeExtensions.CloseConnectionAsync)),
                 typeof(IRelationalConnection).GetMethod(nameof(IRelationalConnection.CloseAsync)),
                 typeof(RelationalConnection).GetMethod(nameof(RelationalConnection.CloseAsync)),
+                typeof(RelationalConnection).GetMethod("CloseDbConnectionAsync", BindingFlags.NonPublic | BindingFlags.Instance),
                 typeof(DbConnectionInterceptor).GetMethod(nameof(DbConnectionInterceptor.ConnectionClosingAsync)),
                 typeof(DbConnectionInterceptor).GetMethod(nameof(DbConnectionInterceptor.ConnectionClosedAsync)),
                 typeof(IDbConnectionInterceptor).GetMethod(nameof(IDbConnectionInterceptor.ConnectionClosingAsync)),

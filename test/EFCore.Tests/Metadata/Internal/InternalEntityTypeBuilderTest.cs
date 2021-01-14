@@ -485,6 +485,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
+        public void Removing_a_relationship_from_the_wrong_entity_type_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var relationshipBuilder = dependentEntityBuilder.HasRelationship(
+                principalEntityBuilder.Metadata,
+                new[]
+                {
+                    dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata
+                },
+                ConfigurationSource.DataAnnotation);
+            Assert.NotNull(relationshipBuilder);
+
+            Assert.Equal(CoreStrings.ForeignKeyWrongType(
+                "{'" + Order.CustomerIdProperty.Name + "'}", "{'TempId'}", nameof(Customer), nameof(Customer), nameof(Order)),
+                Assert.Throws<InvalidOperationException>(() =>
+                    Assert.Null(principalEntityBuilder.HasNoRelationship(relationshipBuilder.Metadata, ConfigurationSource.DataAnnotation)))
+                .Message);
+        }
+
+        [ConditionalFact]
         public void Removing_relationship_removes_unused_contained_shadow_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1070,16 +1093,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void Key_throws_for_property_names_for_shadow_entity_type_if_they_do_not_exist()
+        public void Key_throws_for_derived_type_before_HasBase()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+            entityBuilder.HasKey(new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, ConfigurationSource.Convention);
+
+            var derivedEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
+            derivedEntityBuilder.HasKey(new[] { nameof(SpecialOrder.Specialty) }, ConfigurationSource.Explicit);
+
+            Assert.Equal(
+                CoreStrings.DerivedEntityCannotHaveKeys(typeof(SpecialOrder).Name),
+                Assert.Throws<InvalidOperationException>(
+                    () => derivedEntityBuilder.HasBaseType(entityBuilder.Metadata, ConfigurationSource.Explicit)).Message);
+        }
+
+        [ConditionalFact]
+        public void Key_throws_for_property_names_for_shared_entity_type_if_they_do_not_exist()
         {
             var modelBuilder = CreateModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(Order).Name, ConfigurationSource.Explicit);
 
             Assert.Equal(
-                CoreStrings.NoPropertyType(Order.IdProperty.Name, nameof(Order)),
+                CoreStrings.NoPropertyType(Order.IdProperty.Name, nameof(Order) + " (Dictionary<string, object>)"),
                 Assert.Throws<InvalidOperationException>(
-                    () =>
-                        entityBuilder.HasKey(new[] { Order.IdProperty.Name }, ConfigurationSource.Convention)).Message);
+                    () => entityBuilder.HasKey(new[] { Order.IdProperty.Name }, ConfigurationSource.Convention)).Message);
         }
 
         [ConditionalFact]
@@ -1225,10 +1263,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotEmpty(entityType.GetKeys());
 
             Assert.Equal(
-                CoreStrings.KeylessTypeExistingKey(nameof(Order)),
+                CoreStrings.KeylessTypeExistingKey(nameof(Order), "{'CustomerId'}"),
                 Assert.Throws<InvalidOperationException>(
-                    () =>
-                        entityBuilder.HasNoKey(ConfigurationSource.Explicit)).Message);
+                    () => entityBuilder.HasNoKey(ConfigurationSource.Explicit)).Message);
             Assert.NotEmpty(entityType.GetKeys());
         }
 
@@ -1315,21 +1352,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(
                 CoreStrings.NoPropertyType(Customer.UniqueProperty.Name, nameof(Order)),
                 Assert.Throws<InvalidOperationException>(
-                    () =>
-                        entityBuilder.PrimaryKey(new[] { Customer.UniqueProperty.Name }, ConfigurationSource.Convention)).Message);
+                    () => entityBuilder.PrimaryKey(new[] { Customer.UniqueProperty.Name }, ConfigurationSource.Convention)).Message);
         }
 
         [ConditionalFact]
-        public void PrimaryKey_throws_for_property_names_for_shadow_entity_type_if_they_do_not_exist()
+        public void PrimaryKey_throws_for_property_names_for_shared_entity_type_if_they_do_not_exist()
         {
             var modelBuilder = CreateModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(Order).Name, ConfigurationSource.Explicit);
 
             Assert.Equal(
-                CoreStrings.NoPropertyType(Order.IdProperty.Name, nameof(Order)),
+                CoreStrings.NoPropertyType(Order.IdProperty.Name, nameof(Order) + " (Dictionary<string, object>)"),
                 Assert.Throws<InvalidOperationException>(
-                    () =>
-                        entityBuilder.PrimaryKey(new[] { Order.IdProperty.Name }, ConfigurationSource.Convention)).Message);
+                    () => entityBuilder.PrimaryKey(new[] { Order.IdProperty.Name }, ConfigurationSource.Convention)).Message);
         }
 
         [ConditionalFact]
@@ -2796,6 +2831,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(derivedEntityBuilder.Metadata.BaseType);
             Assert.Single(derivedEntityBuilder.Metadata.GetDeclaredKeys());
 
+            entityBuilder.HasKey(new[] { Order.IdProperty }, ConfigurationSource.DataAnnotation);
             Assert.Same(
                 derivedEntityBuilder,
                 derivedEntityBuilder.HasBaseType(typeof(Order), ConfigurationSource.Explicit));
@@ -3217,7 +3253,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var discriminatorBuilder = typeBuilder.HasDiscriminator();
             Assert.Equal(
-                CoreStrings.DiscriminatorEntityTypeNotDerived("Splow", "Splot"),
+                CoreStrings.DiscriminatorEntityTypeNotDerived("Splow (Dictionary<string, object>)", "Splot (Dictionary<string, object>)"),
                 Assert.Throws<InvalidOperationException>(
                     () => discriminatorBuilder.HasValue(nonDerivedTypeBuilder.Metadata, "1")).Message);
         }

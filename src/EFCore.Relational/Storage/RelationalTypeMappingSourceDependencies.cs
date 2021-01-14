@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -32,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class RelationalTypeMappingSourceDependencies
+    public sealed record RelationalTypeMappingSourceDependencies
     {
         /// <summary>
         ///     <para>
@@ -65,15 +67,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the plugins.
         /// </summary>
-        public IEnumerable<IRelationalTypeMappingSourcePlugin> Plugins { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="plugins"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalTypeMappingSourceDependencies With(
-            [NotNull] IEnumerable<IRelationalTypeMappingSourcePlugin> plugins)
-            => new RelationalTypeMappingSourceDependencies(plugins);
+        public IEnumerable<IRelationalTypeMappingSourcePlugin> Plugins { get; [param: NotNull] init; }
     }
 }

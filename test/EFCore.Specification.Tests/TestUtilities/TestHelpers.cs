@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -162,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             return new ModelBuilder(
                 contextServices.GetRequiredService<IConventionSetBuilder>().CreateConventionSet(),
-                contextServices.GetRequiredService<ModelDependencies>().With(modelLogger));
+                contextServices.GetRequiredService<ModelDependencies>() with { Logger = modelLogger });
         }
 
         public ConventionSet CreateConventionalConventionSet(

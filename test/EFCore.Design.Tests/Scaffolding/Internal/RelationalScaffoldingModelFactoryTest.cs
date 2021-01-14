@@ -1146,6 +1146,64 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         [ConditionalFact]
+        public void It_logs_warning_for_duplicate_foreign_key()
+        {
+            var parentTable = new DatabaseTable
+            {
+                Database = Database,
+                Name = "Parent",
+                Columns =
+                {
+                    IdColumn
+                },
+                PrimaryKey = IdPrimaryKey
+            };
+            var childrenTable = new DatabaseTable
+            {
+                Database = Database,
+                Name = "Children",
+                Columns =
+                {
+                    IdColumn,
+                    new DatabaseColumn
+                    {
+                        Table = Table,
+                        Name = "ParentId",
+                        StoreType = "int"
+                    }
+                },
+                PrimaryKey = IdPrimaryKey
+            };
+            childrenTable.ForeignKeys.Add(
+                new DatabaseForeignKey
+                {
+                    Table = childrenTable,
+                    Name = "FK_Foo",
+                    Columns = { childrenTable.Columns.ElementAt(1) },
+                    PrincipalTable = parentTable,
+                    PrincipalColumns = { parentTable.Columns.ElementAt(0) }
+                });
+            childrenTable.ForeignKeys.Add(
+                new DatabaseForeignKey
+                {
+                    Table = childrenTable,
+                    Name = "FK_Another_Foo",
+                    Columns = { childrenTable.Columns.ElementAt(1) },
+                    PrincipalTable = parentTable,
+                    PrincipalColumns = { parentTable.Columns.ElementAt(0) }
+                });
+
+            _factory.Create(
+                new DatabaseModel { Tables = { parentTable, childrenTable } },
+                new ModelReverseEngineerOptions());
+
+            Assert.Single(
+                _reporter.Messages, t => t.Contains(
+                    "warn: "
+                    + DesignStrings.ForeignKeyWithSameFacetsExists(childrenTable.ForeignKeys.ElementAt(1).DisplayName(), "FK_Foo")));
+        }
+
+        [ConditionalFact]
         public void Unique_nullable_index_unused_by_foreign_key()
         {
             var table = new DatabaseTable

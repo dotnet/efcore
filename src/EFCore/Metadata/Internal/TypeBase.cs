@@ -10,6 +10,9 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -21,31 +24,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConventionTypeBase
     {
+        private readonly bool _hasSharedClrType;
         private ConfigurationSource _configurationSource;
 
         private readonly Dictionary<string, ConfigurationSource> _ignoredMembers
             = new Dictionary<string, ConfigurationSource>(StringComparer.Ordinal);
 
         private bool _indexerPropertyInitialized;
-        private PropertyInfo _indexerPropertyInfo;
-        private Dictionary<string, PropertyInfo> _runtimeProperties;
-        private Dictionary<string, FieldInfo> _runtimeFields;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected TypeBase([NotNull] string name, [NotNull] Model model, ConfigurationSource configurationSource)
-            : this(model, configurationSource)
-        {
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(model, nameof(model));
-
-            Name = name;
-            HasSharedClrType = false;
-        }
+        private PropertyInfo? _indexerPropertyInfo;
+        private Dictionary<string, PropertyInfo>? _runtimeProperties;
+        private Dictionary<string, FieldInfo>? _runtimeFields;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -54,13 +42,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected TypeBase([NotNull] Type type, [NotNull] Model model, ConfigurationSource configurationSource)
-            : this(model, configurationSource)
         {
             Check.NotNull(model, nameof(model));
 
-            Name = model.GetDisplayName(type);
             ClrType = type;
-            HasSharedClrType = false;
+            Model = model;
+            _configurationSource = configurationSource;
+            Name = model.GetDisplayName(type);
+            _hasSharedClrType = false;
             IsPropertyBag = type.IsPropertyBagType();
         }
 
@@ -71,7 +60,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected TypeBase([NotNull] string name, [NotNull] Type type, [NotNull] Model model, ConfigurationSource configurationSource)
-            : this(model, configurationSource)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(type, nameof(type));
@@ -79,14 +67,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Name = name;
             ClrType = type;
-            HasSharedClrType = true;
-            IsPropertyBag = type.IsPropertyBagType();
-        }
-
-        private TypeBase([NotNull] Model model, ConfigurationSource configurationSource)
-        {
             Model = model;
             _configurationSource = configurationSource;
+            _hasSharedClrType = true;
+            IsPropertyBag = type.IsPropertyBagType();
         }
 
         /// <summary>
@@ -119,7 +103,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool HasSharedClrType { [DebuggerStepThrough] get; }
+        [CA.MemberNotNullWhen(true, nameof(ClrType))]
+        public virtual bool HasSharedClrType
+        {
+            [DebuggerStepThrough] get
+            {
+                if (_hasSharedClrType)
+                {
+                    Check.DebugAssert(ClrType != null, $"{nameof(_hasSharedClrType)} is true but {nameof(ClrType)} is null");
+                    return true;
+                }
+
+                return false;
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -154,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IReadOnlyDictionary<string, PropertyInfo> GetRuntimeProperties()
+        public virtual IReadOnlyDictionary<string, PropertyInfo>? GetRuntimeProperties()
         {
             if (ClrType == null)
             {
@@ -185,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IReadOnlyDictionary<string, FieldInfo> GetRuntimeFields()
+        public virtual IReadOnlyDictionary<string, FieldInfo>? GetRuntimeFields()
         {
             if (ClrType == null)
             {
@@ -216,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual PropertyInfo FindIndexerPropertyInfo()
+        public virtual PropertyInfo? FindIndexerPropertyInfo()
         {
             if (ClrType == null)
             {
@@ -337,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string RemoveIgnored(string name)
+        public virtual string? RemoveIgnored(string name)
         {
             Check.NotNull(name, nameof(name));
             return _ignoredMembers.Remove(name) ? name : null;

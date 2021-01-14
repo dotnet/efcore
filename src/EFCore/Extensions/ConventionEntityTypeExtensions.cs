@@ -14,6 +14,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -93,10 +95,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            while (entityType != null)
+            var tmp = (IConventionEntityType?)entityType;
+            while (tmp != null)
             {
-                yield return entityType;
-                entityType = entityType.BaseType;
+                yield return tmp;
+                tmp = tmp.BaseType;
             }
         }
 
@@ -181,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="name"> The name of the property to remove. </param>
         /// <returns> The property that was removed. </returns>
-        public static IConventionProperty RemoveProperty([NotNull] this IConventionEntityType entityType, [NotNull] string name)
+        public static IConventionProperty? RemoveProperty([NotNull] this IConventionEntityType entityType, [NotNull] string name)
             => ((EntityType)entityType).RemoveProperty(name);
 
         /// <summary>
@@ -191,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="property"> The property that the key is defined on. </param>
         /// <returns> The key, or null if none is defined. </returns>
-        public static IConventionKey FindKey([NotNull] this IConventionEntityType entityType, [NotNull] IProperty property)
+        public static IConventionKey? FindKey([NotNull] this IConventionEntityType entityType, [NotNull] IProperty property)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -205,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to use as an alternate key. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created key. </returns>
-        public static IConventionKey AddKey(
+        public static IConventionKey? AddKey(
             [NotNull] this IConventionEntityType entityType,
             [NotNull] IConventionProperty property,
             bool fromDataAnnotation = false)
@@ -217,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="properties"> The properties that make up the key. </param>
         /// <returns> The key that was removed. </returns>
-        public static IConventionKey RemoveKey(
+        public static IConventionKey? RemoveKey(
             [NotNull] this IConventionEntityType entityType,
             [NotNull] IReadOnlyList<IConventionProperty> properties)
             => ((EntityType)entityType).RemoveKey(properties);
@@ -289,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     base type of the hierarchy).
         /// </param>
         /// <returns> The foreign key, or <see langword="null" /> if none is defined. </returns>
-        public static IConventionForeignKey FindForeignKey(
+        public static IConventionForeignKey? FindForeignKey(
             [NotNull] this IConventionEntityType entityType,
             [NotNull] IProperty property,
             [NotNull] IKey principalKey,
@@ -334,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The relationship to the owner if this is an owned type or <see langword="null" /> otherwise. </returns>
-        public static IConventionForeignKey FindOwnership([NotNull] this IConventionEntityType entityType)
+        public static IConventionForeignKey? FindOwnership([NotNull] this IConventionEntityType entityType)
             => ((EntityType)entityType).FindOwnership();
 
         /// <summary>
@@ -350,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created foreign key. </returns>
-        public static IConventionForeignKey AddForeignKey(
+        public static IConventionForeignKey? AddForeignKey(
             [NotNull] this IConventionEntityType entityType,
             [NotNull] IConventionProperty property,
             [NotNull] IConventionKey principalKey,
@@ -371,7 +374,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     base type of the hierarchy).
         /// </param>
         /// <returns> The foreign key that was removed. </returns>
-        public static IConventionForeignKey RemoveForeignKey(
+        public static IConventionForeignKey? RemoveForeignKey(
             [NotNull] this IConventionEntityType entityType,
             [NotNull] IReadOnlyList<IConventionProperty> properties,
             [NotNull] IConventionKey principalKey,
@@ -384,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="memberInfo"> The navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
-        public static IConventionNavigation FindNavigation(
+        public static IConventionNavigation? FindNavigation(
             [NotNull] this IConventionEntityType entityType,
             [NotNull] MemberInfo memberInfo)
             => Check.NotNull(entityType, nameof(entityType))
@@ -396,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="name"> The name of the navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
-        public static IConventionNavigation FindNavigation([NotNull] this IConventionEntityType entityType, [NotNull] string name)
+        public static IConventionNavigation? FindNavigation([NotNull] this IConventionEntityType entityType, [NotNull] string name)
             => ((EntityType)entityType).FindNavigation(name);
 
         /// <summary>
@@ -406,7 +409,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="name"> The name of the navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
-        public static IConventionNavigation FindDeclaredNavigation([NotNull] this IConventionEntityType entityType, [NotNull] string name)
+        public static IConventionNavigation? FindDeclaredNavigation([NotNull] this IConventionEntityType entityType, [NotNull] string name)
             => ((EntityType)entityType).FindDeclaredNavigation(Check.NotNull(name, nameof(name)));
 
         /// <summary>
@@ -414,8 +417,9 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The defining navigation if one exists or <see langword="null" /> otherwise. </returns>
-        public static IConventionNavigation FindDefiningNavigation([NotNull] this IConventionEntityType entityType)
-            => (IConventionNavigation)((IEntityType)entityType).FindDefiningNavigation();
+        [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
+        public static IConventionNavigation? FindDefiningNavigation([NotNull] this IConventionEntityType entityType)
+            => (IConventionNavigation?)((IEntityType)entityType).FindDefiningNavigation();
 
         /// <summary>
         ///     Gets all navigation properties on the given entity type.
@@ -437,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="memberInfo"> The property on the entity class. </param>
         /// <returns> The property, or <see langword="null" /> if none is found. </returns>
-        public static IConventionProperty FindProperty([NotNull] this IConventionEntityType entityType, [NotNull] MemberInfo memberInfo)
+        public static IConventionProperty? FindProperty([NotNull] this IConventionEntityType entityType, [NotNull] MemberInfo memberInfo)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(memberInfo, nameof(memberInfo));
@@ -458,7 +462,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="propertyNames"> The property names. </param>
         /// <returns> The properties, or <see langword="null" /> if any property is not found. </returns>
-        public static IReadOnlyList<IConventionProperty> FindProperties(
+        public static IReadOnlyList<IConventionProperty>? FindProperties(
             [NotNull] this IConventionEntityType entityType,
             [NotNull] IReadOnlyList<string> propertyNames)
             => ((EntityType)entityType).FindProperties(Check.NotNull(propertyNames, nameof(propertyNames)));
@@ -470,7 +474,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="name"> The property name. </param>
         /// <returns> The property, or <see langword="null" /> if none is found. </returns>
-        public static IConventionProperty FindDeclaredProperty([NotNull] this IConventionEntityType entityType, [NotNull] string name)
+        public static IConventionProperty? FindDeclaredProperty([NotNull] this IConventionEntityType entityType, [NotNull] string name)
             => ((EntityType)entityType).FindDeclaredProperty(name);
 
         /// <summary>
@@ -480,7 +484,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="memberInfo"> The corresponding member on the entity class. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created property. </returns>
-        public static IConventionProperty AddProperty(
+        public static IConventionProperty? AddProperty(
             [NotNull] this IConventionEntityType entityType,
             [NotNull] MemberInfo memberInfo,
             bool fromDataAnnotation = false)
@@ -495,7 +499,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the property to add. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created property. </returns>
-        public static IConventionProperty AddProperty(
+        public static IConventionProperty? AddProperty(
             [NotNull] this IConventionEntityType entityType,
             [NotNull] string name,
             bool fromDataAnnotation = false)
@@ -511,7 +515,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="setTypeConfigurationSource"> Indicates whether the type configuration source should be set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created property. </returns>
-        public static IConventionProperty AddProperty(
+        public static IConventionProperty? AddProperty(
             [NotNull] this IConventionEntityType entityType,
             [NotNull] string name,
             [NotNull] Type propertyType,
@@ -534,7 +538,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="setTypeConfigurationSource"> Indicates whether the type configuration source should be set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created property. </returns>
-        public static IConventionProperty AddIndexerProperty(
+        public static IConventionProperty? AddIndexerProperty(
             [NotNull] this IConventionEntityType entityType,
             [NotNull] string name,
             [NotNull] Type propertyType,
@@ -564,7 +568,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="property"> The property to find the index on. </param>
         /// <returns> The index, or null if none is found. </returns>
-        public static IConventionIndex FindIndex([NotNull] this IConventionEntityType entityType, [NotNull] IProperty property)
+        public static IConventionIndex? FindIndex([NotNull] this IConventionEntityType entityType, [NotNull] IProperty property)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -578,7 +582,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to be indexed. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created index. </returns>
-        public static IConventionIndex AddIndex(
+        public static IConventionIndex? AddIndex(
             [NotNull] this IConventionEntityType entityType,
             [NotNull] IConventionProperty property,
             bool fromDataAnnotation = false)
@@ -590,7 +594,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="properties"> The properties that make up the index. </param>
         /// <returns> The index that was removed. </returns>
-        public static IConventionIndex RemoveIndex(
+        public static IConventionIndex? RemoveIndex(
             [NotNull] this IConventionEntityType entityType,
             [NotNull] IReadOnlyList<IConventionProperty> properties)
             => ((EntityType)entityType).RemoveIndex(properties);
@@ -627,9 +631,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="queryFilter"> The LINQ expression filter. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured filter. </returns>
-        public static LambdaExpression SetQueryFilter(
+        public static LambdaExpression? SetQueryFilter(
             [NotNull] this IConventionEntityType entityType,
-            [CanBeNull] LambdaExpression queryFilter,
+            [CanBeNull] LambdaExpression? queryFilter,
             bool fromDataAnnotation = false)
             => Check.NotNull(entityType, nameof(entityType)).AsEntityType()
                 .SetQueryFilter(
@@ -653,7 +657,7 @@ namespace Microsoft.EntityFrameworkCore
         [Obsolete("Use InMemoryEntityTypeExtensions.SetInMemoryQuery")]
         public static void SetDefiningQuery(
             [NotNull] this IConventionEntityType entityType,
-            [CanBeNull] LambdaExpression definingQuery,
+            [CanBeNull] LambdaExpression? definingQuery,
             bool fromDataAnnotation = false)
             => Check.NotNull(entityType, nameof(entityType)).AsEntityType()
                 .SetDefiningQuery(
@@ -673,8 +677,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns the <see cref="IConventionProperty" /> that will be used for storing a discriminator value.
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
-        public static IConventionProperty GetDiscriminatorProperty([NotNull] this IConventionEntityType entityType)
-            => (IConventionProperty)((IEntityType)entityType).GetDiscriminatorProperty();
+        public static IConventionProperty? GetDiscriminatorProperty([NotNull] this IConventionEntityType entityType)
+            => (IConventionProperty?)((IEntityType)entityType).GetDiscriminatorProperty();
 
         /// <summary>
         ///     Sets the <see cref="IProperty" /> that will be used for storing a discriminator value.
@@ -683,13 +687,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The discriminator property. </returns>
-        public static IConventionProperty SetDiscriminatorProperty(
+        public static IConventionProperty? SetDiscriminatorProperty(
             [NotNull] this IConventionEntityType entityType,
-            [CanBeNull] IProperty property,
+            [CanBeNull] IProperty? property,
             bool fromDataAnnotation = false)
             => Check.NotNull(entityType, nameof(entityType)).AsEntityType()
                 .SetDiscriminatorProperty(
-                    (Property)property,
+                    (Property?)property,
                     fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -739,7 +743,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The configured value. </returns>
         public static object SetDiscriminatorValue(
             [NotNull] this IConventionEntityType entityType,
-            [CanBeNull] object value,
+            [CanBeNull] object? value,
             bool fromDataAnnotation = false)
         {
             entityType.AsEntityType().CheckDiscriminatorValue(entityType, value);
@@ -754,7 +758,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The removed discriminator value. </returns>
-        public static object RemoveDiscriminatorValue([NotNull] this IConventionEntityType entityType)
+        public static object? RemoveDiscriminatorValue([NotNull] this IConventionEntityType entityType)
             => entityType.RemoveAnnotation(CoreAnnotationNames.DiscriminatorValue)?.Value;
 
         /// <summary>

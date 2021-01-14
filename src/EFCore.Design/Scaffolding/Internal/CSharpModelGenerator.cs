@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 generatedCode = CSharpEntityTypeGenerator.WriteCode(entityType, options.ModelNamespace, options.UseDataAnnotations);
 
                 // output EntityType poco .cs file
-                var entityTypeFileName = entityType.DisplayName() + FileExtension;
+                var entityTypeFileName = entityType.Name + FileExtension;
                 resultingFiles.AdditionalFiles.Add(
                     new ScaffoldedFile { Path = entityTypeFileName, Code = generatedCode });
             }

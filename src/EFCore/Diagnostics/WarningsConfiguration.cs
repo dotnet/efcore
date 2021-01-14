@@ -22,9 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// </summary>
     public class WarningsConfiguration
     {
-        private static readonly bool _useOldBehavior
-            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23305", out var enabled) && enabled;
-
         private Dictionary<int, (WarningBehavior? Behavior, LogLevel? Level)> _explicitBehaviors
             = new Dictionary<int, (WarningBehavior? Behavior, LogLevel? Level)>();
 
@@ -178,10 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 {
                     IEnumerable<KeyValuePair<int, (WarningBehavior? Behavior, LogLevel? Level)>> explicitBehaviors = _explicitBehaviors;
 
-                    if (!_useOldBehavior)
-                    {
-                        explicitBehaviors = _explicitBehaviors.OrderBy(b => b.Key);
-                    }
+                    explicitBehaviors = _explicitBehaviors.OrderBy(b => b.Key);
 
                     hashCode = explicitBehaviors.Aggregate(
                         hashCode,

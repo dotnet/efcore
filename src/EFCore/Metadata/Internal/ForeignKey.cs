@@ -12,6 +12,9 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -117,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalForeignKeyBuilder Builder
+        public virtual InternalForeignKeyBuilder? Builder
         {
             get;
 
@@ -131,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SortedSet<SkipNavigation> ReferencingSkipNavigations { get; [param: CanBeNull] set; }
+        public virtual SortedSet<SkipNavigation>? ReferencingSkipNavigations { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -175,9 +178,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <returns> The annotation that was set. </returns>
         protected override IConventionAnnotation OnAnnotationSet(
             string name,
-            IConventionAnnotation annotation,
-            IConventionAnnotation oldAnnotation)
-            => Builder.ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyAnnotationChanged(Builder, name, annotation, oldAnnotation);
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation)
+            => Builder!.ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyAnnotationChanged(Builder, name, annotation, oldAnnotation);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -293,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Navigation DependentToPrincipal { [DebuggerStepThrough] get; private set; }
+        public virtual Navigation? DependentToPrincipal { [DebuggerStepThrough] get; private set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -301,8 +304,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Navigation SetDependentToPrincipal(
-            [CanBeNull] string name,
+        public virtual Navigation? SetDependentToPrincipal(
+            [CanBeNull] string? name,
             ConfigurationSource configurationSource)
             => Navigation(MemberIdentity.Create(name), configurationSource, pointsToPrincipal: true);
 
@@ -312,8 +315,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Navigation SetDependentToPrincipal(
-            [CanBeNull] MemberInfo property,
+        public virtual Navigation? SetDependentToPrincipal(
+            [CanBeNull] MemberInfo? property,
             ConfigurationSource configurationSource)
             => Navigation(MemberIdentity.Create(property), configurationSource, pointsToPrincipal: true);
 
@@ -342,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Navigation PrincipalToDependent { [DebuggerStepThrough] get; private set; }
+        public virtual Navigation? PrincipalToDependent { [DebuggerStepThrough] get; private set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -350,8 +353,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Navigation HasPrincipalToDependent(
-            [CanBeNull] string name,
+        public virtual Navigation? HasPrincipalToDependent(
+            [CanBeNull] string? name,
             ConfigurationSource configurationSource)
             => Navigation(MemberIdentity.Create(name), configurationSource, pointsToPrincipal: false);
 
@@ -361,8 +364,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Navigation HasPrincipalToDependent(
-            [CanBeNull] MemberInfo property,
+        public virtual Navigation? HasPrincipalToDependent(
+            [CanBeNull] MemberInfo? property,
             ConfigurationSource configurationSource)
             => Navigation(MemberIdentity.Create(property), configurationSource, pointsToPrincipal: false);
 
@@ -391,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        private Navigation Navigation(
+        private Navigation? Navigation(
             MemberIdentity? propertyIdentity,
             ConfigurationSource configurationSource,
             bool pointsToPrincipal)
@@ -423,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     UpdatePrincipalToDependentConfigurationSource(configurationSource);
                 }
 
-                return oldNavigation;
+                return oldNavigation!;
             }
 
             if (oldNavigation != null)
@@ -440,7 +443,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            Navigation navigation = null;
+            Navigation? navigation = null;
             var property = propertyIdentity?.MemberInfo;
             if (property != null)
             {
@@ -473,16 +476,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (pointsToPrincipal)
                 {
                     DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
-                        DeclaringEntityType.Builder,
-                        PrincipalEntityType.Builder,
+                        DeclaringEntityType.Builder!,
+                        PrincipalEntityType.Builder!,
                         oldNavigation.Name,
                         oldNavigation.GetIdentifyingMemberInfo());
                 }
                 else
                 {
                     DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
-                        PrincipalEntityType.Builder,
-                        DeclaringEntityType.Builder,
+                        PrincipalEntityType.Builder!,
+                        DeclaringEntityType.Builder!,
                         oldNavigation.Name,
                         oldNavigation.GetIdentifyingMemberInfo());
                 }
@@ -490,7 +493,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (navigation != null)
             {
-                navigation = (Navigation)DeclaringEntityType.Model.ConventionDispatcher.OnNavigationAdded(navigation.Builder)?.Metadata;
+                navigation = (Navigation?)DeclaringEntityType.Model.ConventionDispatcher.OnNavigationAdded(navigation.Builder)?.Metadata;
             }
 
             return navigation ?? oldNavigation;
@@ -527,20 +530,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             if (unique.HasValue
-                && PrincipalEntityType.ClrType != null
+                && PrincipalEntityType.ClrType != Model.DefaultPropertyBagType
+                && DeclaringEntityType.ClrType != Model.DefaultPropertyBagType
                 && PrincipalToDependent != null)
             {
                 if (!Internal.Navigation.IsCompatible(
+                    PrincipalToDependent.Name,
                     PrincipalToDependent.GetIdentifyingMemberInfo(),
-                    PrincipalEntityType.ClrType,
-                    DeclaringEntityType.ClrType,
+                    PrincipalEntityType,
+                    DeclaringEntityType,
                     !unique,
                     shouldThrow: false))
                 {
                     throw new InvalidOperationException(
                         CoreStrings.UnableToSetIsUnique(
                             unique.Value,
-                            PrincipalToDependent.PropertyInfo.Name,
+                            PrincipalToDependent.Name,
                             PrincipalEntityType.DisplayName()));
                 }
             }
@@ -744,6 +749,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [CA.MemberNotNullWhen(true, nameof(PrincipalToDependent))]
         public virtual bool IsOwnership
         {
             get => _isOwnership ?? DefaultIsOwnership;
@@ -831,7 +837,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual object DependentKeyValueFactory { get; [param: NotNull] set; }
+        public virtual object? DependentKeyValueFactory { get; [param: NotNull] set; }
 
         // Note: This is set and used only by IdentityMapFactoryFactory, which ensures thread-safety
         /// <summary>
@@ -840,7 +846,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Func<IDependentsMap> DependentsMapFactory { get; [param: NotNull] set; }
+        public virtual Func<IDependentsMap>? DependentsMapFactory { get; [param: NotNull] set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -892,7 +898,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        INavigation IForeignKey.DependentToPrincipal
+        INavigation? IForeignKey.DependentToPrincipal
         {
             [DebuggerStepThrough] get => DependentToPrincipal;
         }
@@ -903,7 +909,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        INavigation IForeignKey.PrincipalToDependent
+        INavigation? IForeignKey.PrincipalToDependent
         {
             [DebuggerStepThrough] get => PrincipalToDependent;
         }
@@ -958,7 +964,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IMutableNavigation IMutableForeignKey.DependentToPrincipal
+        IMutableNavigation? IMutableForeignKey.DependentToPrincipal
         {
             [DebuggerStepThrough] get => DependentToPrincipal;
         }
@@ -969,7 +975,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IMutableNavigation IMutableForeignKey.PrincipalToDependent
+        IMutableNavigation? IMutableForeignKey.PrincipalToDependent
         {
             [DebuggerStepThrough] get => PrincipalToDependent;
         }
@@ -990,7 +996,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IMutableNavigation IMutableForeignKey.SetDependentToPrincipal(string name)
+        IMutableNavigation? IMutableForeignKey.SetDependentToPrincipal(string name)
             => SetDependentToPrincipal(name, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -1000,7 +1006,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IMutableNavigation IMutableForeignKey.SetDependentToPrincipal(MemberInfo property)
+        IMutableNavigation? IMutableForeignKey.SetDependentToPrincipal(MemberInfo property)
             => SetDependentToPrincipal(property, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -1010,7 +1016,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IMutableNavigation IMutableForeignKey.SetPrincipalToDependent(string name)
+        IMutableNavigation? IMutableForeignKey.SetPrincipalToDependent(string name)
             => HasPrincipalToDependent(name, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -1020,7 +1026,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IMutableNavigation IMutableForeignKey.SetPrincipalToDependent(MemberInfo property)
+        IMutableNavigation? IMutableForeignKey.SetPrincipalToDependent(MemberInfo property)
             => HasPrincipalToDependent(property, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -1073,7 +1079,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionNavigation IConventionForeignKey.DependentToPrincipal
+        IConventionNavigation? IConventionForeignKey.DependentToPrincipal
         {
             [DebuggerStepThrough] get => DependentToPrincipal;
         }
@@ -1084,7 +1090,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionNavigation IConventionForeignKey.PrincipalToDependent
+        IConventionNavigation? IConventionForeignKey.PrincipalToDependent
         {
             [DebuggerStepThrough] get => PrincipalToDependent;
         }
@@ -1095,7 +1101,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionForeignKeyBuilder IConventionForeignKey.Builder
+        IConventionForeignKeyBuilder? IConventionForeignKey.Builder
         {
             [DebuggerStepThrough] get => Builder;
         }
@@ -1106,7 +1112,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionAnnotatableBuilder IConventionAnnotatable.Builder
+        IConventionAnnotatableBuilder? IConventionAnnotatable.Builder
         {
             [DebuggerStepThrough] get => Builder;
         }
@@ -1123,22 +1129,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionNavigation IConventionForeignKey.SetDependentToPrincipal(string name, bool fromDataAnnotation)
+        IConventionNavigation? IConventionForeignKey.SetDependentToPrincipal(string? name, bool fromDataAnnotation)
             => SetDependentToPrincipal(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionNavigation IConventionForeignKey.SetDependentToPrincipal(MemberInfo property, bool fromDataAnnotation)
+        IConventionNavigation? IConventionForeignKey.SetDependentToPrincipal(MemberInfo? property, bool fromDataAnnotation)
             => SetDependentToPrincipal(property, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionNavigation IConventionForeignKey.SetPrincipalToDependent(string name, bool fromDataAnnotation)
+        IConventionNavigation? IConventionForeignKey.SetPrincipalToDependent(string? name, bool fromDataAnnotation)
             => HasPrincipalToDependent(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionNavigation IConventionForeignKey.SetPrincipalToDependent(MemberInfo property, bool fromDataAnnotation)
+        IConventionNavigation? IConventionForeignKey.SetPrincipalToDependent(MemberInfo? property, bool fromDataAnnotation)
             => HasPrincipalToDependent(property, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
@@ -1258,33 +1264,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static bool AreCompatible(
             [NotNull] EntityType principalEntityType,
             [NotNull] EntityType dependentEntityType,
-            [CanBeNull] MemberInfo navigationToPrincipal,
-            [CanBeNull] MemberInfo navigationToDependent,
-            [CanBeNull] IReadOnlyList<Property> dependentProperties,
-            [CanBeNull] IReadOnlyList<Property> principalProperties,
+            [CanBeNull] MemberInfo? navigationToPrincipal,
+            [CanBeNull] MemberInfo? navigationToDependent,
+            [CanBeNull] IReadOnlyList<Property>? dependentProperties,
+            [CanBeNull] IReadOnlyList<Property>? principalProperties,
             bool? unique,
             bool shouldThrow)
         {
             Check.NotNull(principalEntityType, nameof(principalEntityType));
             Check.NotNull(dependentEntityType, nameof(dependentEntityType));
 
-            if (principalEntityType.HasDefiningNavigation()
-                && principalEntityType == dependentEntityType)
-            {
-                if (shouldThrow)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.ForeignKeySelfReferencingDependentEntityType(dependentEntityType.DisplayName()));
-                }
-
-                return false;
-            }
-
             if (navigationToPrincipal != null
                 && !Internal.Navigation.IsCompatible(
+                    navigationToPrincipal.Name,
                     navigationToPrincipal,
-                    dependentEntityType.ClrType,
-                    principalEntityType.ClrType,
+                    dependentEntityType,
+                    principalEntityType,
                     shouldBeCollection: false,
                     shouldThrow: shouldThrow))
             {
@@ -1293,9 +1288,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (navigationToDependent != null
                 && !Internal.Navigation.IsCompatible(
+                    navigationToDependent.Name,
                     navigationToDependent,
-                    principalEntityType.ClrType,
-                    dependentEntityType.ClrType,
+                    principalEntityType,
+                    dependentEntityType,
                     shouldBeCollection: !unique,
                     shouldThrow: shouldThrow))
             {
@@ -1351,9 +1347,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     throw new InvalidOperationException(
                         CoreStrings.ForeignKeyTypeMismatch(
-                            dependentProperties.Format(),
+                            dependentProperties.Format(includeTypes: true),
                             dependentEntityType.DisplayName(),
-                            principalProperties.Format(),
+                            principalProperties.Format(includeTypes: true),
                             principalEntityType.DisplayName()));
                 }
 

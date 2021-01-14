@@ -322,6 +322,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
             => new RelationalQueryAsserter(
-                fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, IgnoreEntryCount, CanExecuteQueryString);
+                fixture,
+                RewriteExpectedQueryExpression,
+                RewriteServerQueryExpression,
+                ignoreEntryCount: IgnoreEntryCount,
+                canExecuteQueryString: CanExecuteQueryString);
     }
 }

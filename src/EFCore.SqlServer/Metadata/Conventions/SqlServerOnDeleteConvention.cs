@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -59,11 +58,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return deleteBehavior;
             }
 
-            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23354", out var enabled) && enabled;
             if (selfReferencingSkipNavigation
                 == selfReferencingSkipNavigation.DeclaringEntityType.GetDeclaredSkipNavigations()
                     .First(s => s == selfReferencingSkipNavigation || s == selfReferencingSkipNavigation.Inverse)
-                && (selfReferencingSkipNavigation != selfReferencingSkipNavigation.Inverse || useOldBehavior))
+                && selfReferencingSkipNavigation != selfReferencingSkipNavigation.Inverse)
             {
                 selfReferencingSkipNavigation.Inverse.ForeignKey?.Builder.OnDelete(
                     GetTargetDeleteBehavior(selfReferencingSkipNavigation.Inverse.ForeignKey));

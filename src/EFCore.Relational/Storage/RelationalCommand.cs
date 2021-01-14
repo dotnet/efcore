@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -155,6 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains the number of rows affected.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async Task<int> ExecuteNonQueryAsync(
             RelationalCommandParameterObject parameterObject,
             CancellationToken cancellationToken = default)
@@ -234,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="parameterObject"> Parameters for this method. </param>
         /// <returns> The result of the command. </returns>
-        public virtual object ExecuteScalar(RelationalCommandParameterObject parameterObject)
+        public virtual object? ExecuteScalar(RelationalCommandParameterObject parameterObject)
         {
             var (connection, context, logger) = (parameterObject.Connection, parameterObject.Context, parameterObject.Logger);
 
@@ -300,7 +303,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains the result of the command.
         /// </returns>
-        public virtual async Task<object> ExecuteScalarAsync(
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        public virtual async Task<object?> ExecuteScalarAsync(
             RelationalCommandParameterObject parameterObject,
             CancellationToken cancellationToken = default)
         {
@@ -478,6 +482,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains the result of the command.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async Task<RelationalDataReader> ExecuteReaderAsync(
             RelationalCommandParameterObject parameterObject,
             CancellationToken cancellationToken = default)
@@ -634,8 +639,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 command.CommandTimeout = (int)connection.CommandTimeout;
             }
 
-            if (Parameters != null
-                && Parameters.Count > 0)
+            if (Parameters.Count > 0)
             {
                 var parameterValues = parameterObject.ParameterValues;
                 if (parameterValues == null)
@@ -677,7 +681,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] DbCommand command,
             [NotNull] DbDataReader reader,
             Guid commandId,
-            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command>? logger)
             => new RelationalDataReader(
                 connection,
                 command,

@@ -5,6 +5,8 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
@@ -17,8 +19,8 @@ namespace Microsoft.EntityFrameworkCore
     public class DbFunctionAttribute : Attribute
 #pragma warning restore CA1813 // Avoid unsealed attributes
     {
-        private string _name;
-        private string _schema;
+        private string? _name;
+        private string? _schema;
         private bool _builtIn;
         private bool? _nullable;
 
@@ -34,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="name">The name of the function in the database.</param>
         /// <param name="schema">The schema of the function in the database.</param>
-        public DbFunctionAttribute([NotNull] string name, [CanBeNull] string schema = null)
+        public DbFunctionAttribute([NotNull] string name, [CanBeNull] string? schema = null)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -45,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     The name of the function in the database.
         /// </summary>
-        public virtual string Name
+        public virtual string? Name
         {
             get => _name;
             [param: NotNull]
@@ -60,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     The schema of the function in the database.
         /// </summary>
-        public virtual string Schema
+        public virtual string? Schema
         {
             get => _schema;
             [param: CanBeNull] set => _schema = value;

@@ -375,6 +375,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 return sharedTableRootProperty.GetValueGenerationStrategy(storeObject)
                     == SqlServerValueGenerationStrategy.IdentityColumn
+                    && !property.GetContainingForeignKeys().Any(fk => !fk.IsBaseLinking())
                         ? SqlServerValueGenerationStrategy.IdentityColumn
                         : SqlServerValueGenerationStrategy.None;
             }

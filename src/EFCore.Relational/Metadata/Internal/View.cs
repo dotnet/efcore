@@ -7,6 +7,8 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -29,12 +31,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <inheritdoc />
-        public virtual string ViewDefinitionSql
-            => (string)EntityTypeMappings.Select(m => m.EntityType[RelationalAnnotationNames.ViewDefinitionSql])
+        public virtual string? ViewDefinitionSql
+            => (string?)EntityTypeMappings.Select(m => m.EntityType[RelationalAnnotationNames.ViewDefinitionSql])
                 .FirstOrDefault(d => d != null);
 
         /// <inheritdoc />
-        public override IColumnBase FindColumn(IProperty property)
+        public override IColumnBase? FindColumn(IProperty property)
             => property.GetViewColumnMappings()
                 .FirstOrDefault(cm => cm.TableMapping.Table == this)
                 ?.Column;
@@ -64,12 +66,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IViewColumn IView.FindColumn(string name)
-            => (IViewColumn)base.FindColumn(name);
+        IViewColumn? IView.FindColumn(string name)
+            => (IViewColumn?)base.FindColumn(name);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IViewColumn IView.FindColumn(IProperty property)
-            => (IViewColumn)FindColumn(property);
+        IViewColumn? IView.FindColumn(IProperty property)
+            => (IViewColumn?)FindColumn(property);
     }
 }

@@ -5,6 +5,8 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -22,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this property.
         /// </summary>
-        new IConventionSkipNavigationBuilder Builder { get; }
+        new IConventionSkipNavigationBuilder? Builder { get; }
 
         /// <summary>
         ///     Gets the type that this navigation property belongs to.
@@ -45,19 +47,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the join type used by the foreign key.
         /// </summary>
-        new IConventionEntityType JoinEntityType
+        new IConventionEntityType? JoinEntityType
         {
             [DebuggerStepThrough]
-            get => (IConventionEntityType)((ISkipNavigation)this).JoinEntityType;
+            get => (IConventionEntityType?)((ISkipNavigation)this).JoinEntityType;
         }
 
         /// <summary>
         ///     Gets the foreign key to the join type.
         /// </summary>
-        new IConventionForeignKey ForeignKey
+        new IConventionForeignKey? ForeignKey
         {
             [DebuggerStepThrough]
-            get => (IConventionForeignKey)((ISkipNavigation)this).ForeignKey;
+            get => (IConventionForeignKey?)((ISkipNavigation)this).ForeignKey;
         }
 
         /// <summary>
@@ -68,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new foreign key. </returns>
-        IConventionForeignKey SetForeignKey([CanBeNull] IConventionForeignKey foreignKey, bool fromDataAnnotation = false);
+        IConventionForeignKey? SetForeignKey([CanBeNull] IConventionForeignKey? foreignKey, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="ForeignKey" />.
@@ -79,10 +81,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the inverse skip navigation.
         /// </summary>
-        new IConventionSkipNavigation Inverse
+        new IConventionSkipNavigation? Inverse
         {
             [DebuggerStepThrough]
-            get => (IConventionSkipNavigation)((ISkipNavigation)this).Inverse;
+            get => (IConventionSkipNavigation?)((ISkipNavigation)this).Inverse;
         }
 
         /// <summary>
@@ -93,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         [DebuggerStepThrough]
-        IConventionSkipNavigation SetInverse([CanBeNull] IConventionSkipNavigation inverse, bool fromDataAnnotation = false);
+        IConventionSkipNavigation? SetInverse([CanBeNull] IConventionSkipNavigation? inverse, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="Inverse" />.

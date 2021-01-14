@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -15,6 +16,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -27,13 +31,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConventionDbFunction
     {
         private readonly List<DbFunctionParameter> _parameters;
-        private string _schema;
-        private string _name;
+        private string? _schema;
+        private string? _name;
         private bool _builtIn;
         private bool _nullable;
-        private string _storeType;
-        private RelationalTypeMapping _typeMapping;
-        private Func<IReadOnlyCollection<SqlExpression>, SqlExpression> _translation;
+        private string? _storeType;
+        private RelationalTypeMapping? _typeMapping;
+        private Func<IReadOnlyList<SqlExpression>, SqlExpression>? _translation;
 
         private ConfigurationSource _configurationSource;
         private ConfigurationSource? _schemaConfigurationSource;
@@ -57,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             : this(
                 methodInfo.Name,
                 methodInfo.ReturnType,
-                methodInfo.GetParameters().Select(pi => (pi.Name, pi.ParameterType)),
+                methodInfo.GetParameters().Select(pi => (pi.Name!, pi.ParameterType)),
                 model,
                 configurationSource)
         {
@@ -89,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public DbFunction(
             [NotNull] string name,
             [NotNull] Type returnType,
-            [CanBeNull] IEnumerable<(string Name, Type Type)> parameters,
+            [CanBeNull] IEnumerable<(string Name, Type Type)>? parameters,
             [NotNull] IMutableModel model,
             ConfigurationSource configurationSource)
         {
@@ -99,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 || returnType == typeof(void))
             {
                 throw new ArgumentException(
-                    RelationalStrings.DbFunctionInvalidReturnType(name, returnType.ShortDisplayName()));
+                    RelationalStrings.DbFunctionInvalidReturnType(name, returnType?.ShortDisplayName()));
             }
 
             IsScalar = !returnType.IsGenericType
@@ -124,12 +128,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private static string GetFunctionName(MethodInfo methodInfo, ParameterInfo[] parameters)
-            => methodInfo.DeclaringType.FullName
-                + "."
-                + methodInfo.Name
-                + "("
-                + string.Join(",", parameters.Select(p => p.ParameterType.FullName))
-                + ")";
+        {
+            var builder = new StringBuilder();
+
+            if (methodInfo.DeclaringType != null)
+            {
+                builder
+                    .Append(methodInfo.DeclaringType.FullName)
+                    .Append(".");
+            }
+
+            builder
+                .Append(methodInfo.Name)
+                .Append('(')
+                .AppendJoin(',', parameters.Select(p => p.ParameterType.FullName))
+                .Append(')');
+
+            return builder.ToString();
+        }
 
         /// <inheritdoc />
         public virtual IMutableModel Model { get; }
@@ -140,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalDbFunctionBuilder Builder { get; private set; }
+        public virtual InternalDbFunctionBuilder? Builder { get; private set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -149,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IEnumerable<DbFunction> GetDbFunctions([NotNull] IModel model)
-            => ((SortedDictionary<string, DbFunction>)model[RelationalAnnotationNames.DbFunctions])
+            => ((SortedDictionary<string, DbFunction>?)model[RelationalAnnotationNames.DbFunctions])
                 ?.Values
                 ?? Enumerable.Empty<DbFunction>();
 
@@ -159,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static DbFunction FindDbFunction([NotNull] IModel model, [NotNull] MethodInfo methodInfo)
+        public static DbFunction? FindDbFunction([NotNull] IModel model, [NotNull] MethodInfo methodInfo)
             => model[RelationalAnnotationNames.DbFunctions] is SortedDictionary<string, DbFunction> functions
                 && functions.TryGetValue(GetFunctionName(methodInfo, methodInfo.GetParameters()), out var dbFunction)
                     ? dbFunction
@@ -171,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static DbFunction FindDbFunction([NotNull] IModel model, [NotNull] string name)
+        public static DbFunction? FindDbFunction([NotNull] IModel model, [NotNull] string name)
             => model[RelationalAnnotationNames.DbFunctions] is SortedDictionary<string, DbFunction> functions
                 && functions.TryGetValue(name, out var dbFunction)
                     ? dbFunction
@@ -183,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static DbFunction AddDbFunction(
+        public static DbFunction? AddDbFunction(
             [NotNull] IMutableModel model,
             [NotNull] MethodInfo methodInfo,
             ConfigurationSource configurationSource)
@@ -200,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static DbFunction AddDbFunction(
+        public static DbFunction? AddDbFunction(
             [NotNull] IMutableModel model,
             [NotNull] string name,
             [NotNull] Type returnType,
@@ -222,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static DbFunction RemoveDbFunction(
+        public static DbFunction? RemoveDbFunction(
             [NotNull] IMutableModel model,
             [NotNull] MethodInfo methodInfo)
         {
@@ -247,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static DbFunction RemoveDbFunction(
+        public static DbFunction? RemoveDbFunction(
             [NotNull] IMutableModel model,
             [NotNull] string name)
         {
@@ -265,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual string ModelName { get; }
 
         /// <inheritdoc />
-        public virtual MethodInfo MethodInfo { get; }
+        public virtual MethodInfo? MethodInfo { get; }
 
         /// <inheritdoc />
         public virtual Type ReturnType { get; }
@@ -297,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Schema
+        public virtual string? Schema
         {
             get => _schema ?? Model.GetDefaultSchema();
             set => SetSchema(value, ConfigurationSource.Explicit);
@@ -309,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string SetSchema([CanBeNull] string schema, ConfigurationSource configurationSource)
+        public virtual string? SetSchema([CanBeNull] string? schema, ConfigurationSource configurationSource)
         {
             _schema = schema;
 
@@ -347,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string SetName([CanBeNull] string name, ConfigurationSource configurationSource)
+        public virtual string? SetName([CanBeNull] string? name, ConfigurationSource configurationSource)
         {
             Check.NullButNotEmpty(name, nameof(name));
 
@@ -426,7 +442,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (!IsScalar)
             {
-                new InvalidOperationException(RelationalStrings.NonScalarFunctionCannotBeNullable(Name));
+                throw new InvalidOperationException(RelationalStrings.NonScalarFunctionCannotBeNullable(Name));
             }
 
             _nullable = nullable;
@@ -450,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string StoreType
+        public virtual string? StoreType
         {
             get => _storeType ?? TypeMapping?.StoreType;
             set => SetStoreType(value, ConfigurationSource.Explicit);
@@ -462,7 +478,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string SetStoreType([CanBeNull] string storeType, ConfigurationSource configurationSource)
+        public virtual string? SetStoreType([CanBeNull] string? storeType, ConfigurationSource configurationSource)
         {
             _storeType = storeType;
 
@@ -488,7 +504,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual RelationalTypeMapping TypeMapping
+        public virtual RelationalTypeMapping? TypeMapping
         {
             get => _typeMapping;
             set => SetTypeMapping(value, ConfigurationSource.Explicit);
@@ -500,8 +516,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual RelationalTypeMapping SetTypeMapping(
-            [CanBeNull] RelationalTypeMapping typeMapping,
+        public virtual RelationalTypeMapping? SetTypeMapping(
+            [CanBeNull] RelationalTypeMapping? typeMapping,
             ConfigurationSource configurationSource)
         {
             _typeMapping = typeMapping;
@@ -528,7 +544,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Func<IReadOnlyCollection<SqlExpression>, SqlExpression> Translation
+        public virtual Func<IReadOnlyList<SqlExpression>, SqlExpression>? Translation
         {
             get => _translation;
             set => SetTranslation(value, ConfigurationSource.Explicit);
@@ -540,14 +556,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Func<IReadOnlyCollection<SqlExpression>, SqlExpression> SetTranslation(
-            [CanBeNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation,
+        public virtual Func<IReadOnlyList<SqlExpression>, SqlExpression>? SetTranslation(
+            [CanBeNull] Func<IReadOnlyList<SqlExpression>, SqlExpression>? translation,
             ConfigurationSource configurationSource)
         {
             if (translation != null
                 && (!IsScalar || IsAggregate))
             {
-                throw new InvalidOperationException(RelationalStrings.DbFunctionNonScalarCustomTranslation(MethodInfo.DisplayName()));
+                throw new InvalidOperationException(RelationalStrings.DbFunctionNonScalarCustomTranslation(MethodInfo?.DisplayName()));
             }
 
             _translation = translation;
@@ -574,7 +590,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IStoreFunction StoreFunction { get; [param: NotNull] set; }
+        public virtual IStoreFunction? StoreFunction { get; [param: NotNull] set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -586,7 +602,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <inheritdoc />
-        IConventionDbFunctionBuilder IConventionDbFunction.Builder
+        IConventionDbFunctionBuilder? IConventionDbFunction.Builder
         {
             [DebuggerStepThrough]
             get => Builder;
@@ -645,17 +661,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual DbFunctionParameter FindParameter([NotNull] string name)
+        public virtual DbFunctionParameter? FindParameter([NotNull] string name)
             => Parameters.SingleOrDefault(p => p.Name == name);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        string IConventionDbFunction.SetName(string name, bool fromDataAnnotation)
+        string? IConventionDbFunction.SetName(string? name, bool fromDataAnnotation)
             => SetName(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        string IConventionDbFunction.SetSchema(string schema, bool fromDataAnnotation)
+        string? IConventionDbFunction.SetSchema(string? schema, bool fromDataAnnotation)
             => SetSchema(schema, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
@@ -670,19 +686,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        string IConventionDbFunction.SetStoreType(string storeType, bool fromDataAnnotation)
+        string? IConventionDbFunction.SetStoreType(string? storeType, bool fromDataAnnotation)
             => SetStoreType(storeType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        RelationalTypeMapping IConventionDbFunction.SetTypeMapping(RelationalTypeMapping returnTypeMapping, bool fromDataAnnotation)
+        RelationalTypeMapping? IConventionDbFunction.SetTypeMapping(RelationalTypeMapping? returnTypeMapping, bool fromDataAnnotation)
             => SetTypeMapping(returnTypeMapping, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        Func<IReadOnlyCollection<SqlExpression>, SqlExpression> IConventionDbFunction.SetTranslation(
-            Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation,
+        Func<IReadOnlyList<SqlExpression>, SqlExpression>? IConventionDbFunction.SetTranslation(
+            Func<IReadOnlyList<SqlExpression>, SqlExpression>? translation,
             bool fromDataAnnotation)
             => SetTranslation(translation, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        IStoreFunction IDbFunction.StoreFunction
+            => StoreFunction!; // Relational model creation ensures StoreFunction is populated
     }
 }

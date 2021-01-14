@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -15,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public class RelationalPropertyOverrides : ConventionAnnotatable
     {
-        private string _columnName;
+        private string? _columnName;
 
         private ConfigurationSource? _columnNameConfigurationSource;
 
@@ -25,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string ColumnName
+        public virtual string? ColumnName
         {
             get => _columnName;
             [param: CanBeNull]
@@ -38,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string SetColumnName([CanBeNull] string columnName, ConfigurationSource configurationSource)
+        public virtual string? SetColumnName([CanBeNull] string? columnName, ConfigurationSource configurationSource)
         {
             _columnName = columnName;
             _columnNameConfigurationSource = configurationSource.Max(_columnNameConfigurationSource);
@@ -61,9 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static RelationalPropertyOverrides Find([NotNull] IProperty property, in StoreObjectIdentifier storeObject)
+        public static RelationalPropertyOverrides? Find([NotNull] IProperty property, in StoreObjectIdentifier storeObject)
         {
-            var tableOverrides = (SortedDictionary<StoreObjectIdentifier, RelationalPropertyOverrides>)
+            var tableOverrides = (SortedDictionary<StoreObjectIdentifier, RelationalPropertyOverrides>?)
                 property[RelationalAnnotationNames.RelationalOverrides];
             return tableOverrides != null
                 && tableOverrides.TryGetValue(storeObject, out var overrides)
@@ -81,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] IMutableProperty property,
             in StoreObjectIdentifier storeObject)
         {
-            var tableOverrides = (SortedDictionary<StoreObjectIdentifier, RelationalPropertyOverrides>)
+            var tableOverrides = (SortedDictionary<StoreObjectIdentifier, RelationalPropertyOverrides>?)
                 property[RelationalAnnotationNames.RelationalOverrides];
             if (tableOverrides == null)
             {

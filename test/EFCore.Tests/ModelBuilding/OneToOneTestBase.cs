@@ -1733,6 +1733,31 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            public virtual void IsRequired_throws_principal_end_is_ambiguous()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Ignore<Customer>();
+                modelBuilder.Ignore<CustomerDetails>();
+                modelBuilder.Entity<Order>().Property<int>("OrderDetailsId");
+
+                Assert.Equal(
+                    CoreStrings.AmbiguousEndRequiredDependentNavigation(
+                        nameof(OrderDetails),
+                        nameof(OrderDetails.Order),
+                        "{'OrderId'}"),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder
+                        .Entity<OrderDetails>().Navigation(e => e.Order).IsRequired()).Message);
+
+                Assert.Equal(
+                    CoreStrings.AmbiguousEndRequiredDependentNavigation(
+                        nameof(Order),
+                        nameof(Order.Details),
+                        "{'OrderId'}"),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder
+                        .Entity<Order>().Navigation(e => e.Details).IsRequired()).Message);
+            }
+
+            [ConditionalFact]
             public virtual void Throws_if_not_principal_or_dependent_specified()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2781,7 +2806,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<Order>();
 
                 Assert.Equal(
-                    CoreStrings.ForeignKeyTypeMismatch("{'GuidProperty'}", nameof(CustomerDetails), "{'Id'}", nameof(Customer)),
+                    CoreStrings.ForeignKeyTypeMismatch("{'GuidProperty' : Guid}", nameof(CustomerDetails), "{'Id' : int}", nameof(Customer)),
                     Assert.Throws<InvalidOperationException>(
                         () => modelBuilder
                             .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
@@ -2821,7 +2846,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<Order>();
 
                 Assert.Equal(
-                    CoreStrings.ForeignKeyTypeMismatch("{'GuidProperty'}", nameof(CustomerDetails), "{'Id'}", nameof(Customer)),
+                    CoreStrings.ForeignKeyTypeMismatch("{'GuidProperty' : Guid}", nameof(CustomerDetails), "{'Id' : int}", nameof(Customer)),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             modelBuilder
@@ -3422,8 +3447,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(
                     CoreStrings.AmbiguousEndRequiredInverted("{'NobId11', 'NobId21'}", typeof(Hob).Name, typeof(Nob).Name),
                     Assert.Throws<InvalidOperationException>(
-                        () =>
-                            foreignKeyBuilder.HasForeignKey<Nob>()).Message);
+                        () => foreignKeyBuilder.HasForeignKey<Nob>()).Message);
             }
 
             [ConditionalFact]
@@ -3603,7 +3627,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
                 Assert.Equal(
-                    CoreStrings.MultipleNavigationsSameFk(typeof(Zeta).Name, "CommonFkProperty"),
+                    CoreStrings.MultipleNavigationsSameFk(typeof(Zeta).Name, "CommonFkProperty", "'AlphaOne', 'AlphaTwo'"),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Zeta>().HasOne<Alpha>().WithOne()).Message);
             }
 
@@ -4066,7 +4090,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Navigation_to_shared_type_is_no_discovered_by_convention()
+            public virtual void Navigation_to_shared_type_is_not_discovered_by_convention()
             {
                 var modelBuilder = CreateModelBuilder();
 

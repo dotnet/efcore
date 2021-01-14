@@ -9,6 +9,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     /// <summary>
@@ -29,9 +31,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="orderings"> A list of ordering expressions to order by. </param>
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
         public RowNumberExpression(
-            [CanBeNull] IReadOnlyList<SqlExpression> partitions,
+            [CanBeNull] IReadOnlyList<SqlExpression>? partitions,
             [NotNull] IReadOnlyList<OrderingExpression> orderings,
-            [CanBeNull] RelationalTypeMapping typeMapping)
+            [CanBeNull] RelationalTypeMapping? typeMapping)
             : base(typeof(long), typeMapping)
         {
             Check.NotEmpty(orderings, nameof(orderings));
@@ -85,12 +87,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="orderings"> The <see cref="Orderings" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual RowNumberExpression Update(
-            [CanBeNull] IReadOnlyList<SqlExpression> partitions,
+            [CanBeNull] IReadOnlyList<SqlExpression>? partitions,
             [NotNull] IReadOnlyList<OrderingExpression> orderings)
         {
             Check.NotNull(orderings, nameof(orderings));
 
-            return (Partitions == null ? partitions == null : Partitions.SequenceEqual(partitions))
+            return ((Partitions == null && partitions == null)
+                    || (Partitions != null && partitions != null && Partitions.SequenceEqual(partitions)))
                 && Orderings.SequenceEqual(orderings)
                     ? this
                     : new RowNumberExpression(partitions, orderings, TypeMapping);
@@ -115,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is RowNumberExpression rowNumberExpression

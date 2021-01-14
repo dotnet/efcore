@@ -46,11 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                     throw new InvalidOperationException(ProxiesStrings.EntityTypeNotFoundShared(type.ShortDisplayName()));
                 }
 
-                if (context.Model.HasEntityTypeWithDefiningNavigation(type))
-                {
-                    throw new InvalidOperationException(ProxiesStrings.EntityTypeNotFoundWeak(type.ShortDisplayName()));
-                }
-
                 throw new InvalidOperationException(CoreStrings.EntityTypeNotFound(type.ShortDisplayName()));
             }
 

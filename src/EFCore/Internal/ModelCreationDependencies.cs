@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class ModelCreationDependencies : IModelCreationDependencies
+    public sealed record ModelCreationDependencies : IModelCreationDependencies
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IModelSource ModelSource { get; }
+        public IModelSource ModelSource { get; [param: NotNull] init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IConventionSetBuilder ConventionSetBuilder { get; }
+        public IConventionSetBuilder ConventionSetBuilder { get; [param: NotNull] init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -67,30 +67,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public ModelDependencies ModelDependencies { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="modelSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModelCreationDependencies With([NotNull] IModelSource modelSource)
-            => new ModelCreationDependencies(modelSource, ConventionSetBuilder, ModelDependencies);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="conventionSetBuilder"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModelCreationDependencies With([NotNull] IConventionSetBuilder conventionSetBuilder)
-            => new ModelCreationDependencies(ModelSource, conventionSetBuilder, ModelDependencies);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="modelDependencies"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModelCreationDependencies With([NotNull] ModelDependencies modelDependencies)
-            => new ModelCreationDependencies(ModelSource, ConventionSetBuilder, modelDependencies);
+        public ModelDependencies ModelDependencies { get; [param: NotNull] init; }
     }
 }

@@ -100,10 +100,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 throw new InvalidOperationException(
                     CoreStrings.SelfReferencingNavigationWithInverseProperty(
-                        navigationMemberInfo.Name,
                         entityType.DisplayName(),
-                        navigationMemberInfo.Name,
-                        entityType.DisplayName()));
+                        navigationMemberInfo.Name));
             }
 
             // Check for InversePropertyAttribute on the inverse navigation to verify that it matches.
@@ -244,21 +242,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return null;
             }
 
-            if (entityType.DefiningEntityType != null
-                && entityType.DefiningEntityType == targetEntityTypeBuilder.Metadata
-                && entityType.DefiningNavigationName != inverseNavigationPropertyInfo.GetSimpleMemberName())
-            {
-                Dependencies.Logger.NonDefiningInverseNavigationWarning(
-                    entityType, navigationMemberInfo,
-                    targetEntityTypeBuilder.Metadata, inverseNavigationPropertyInfo,
-                    entityType.DefiningEntityType.GetRuntimeProperties()[entityType.DefiningNavigationName]);
-
-                return null;
-            }
-
-            if (entityType.Model.FindIsOwnedConfigurationSource(entityType.ClrType) != null
+            if (entityType.Model.IsOwned(entityType.ClrType)
                 && !entityType.IsInOwnershipPath(targetEntityTypeBuilder.Metadata))
             {
+                if (navigationMemberInfo.DeclaringType != entityType.ClrType
+                    && (entityType.Model.GetEntityTypes(navigationMemberInfo.DeclaringType).Any()
+                        || (navigationMemberInfo.DeclaringType != entityType.ClrType.BaseType
+                            && entityType.Model.GetEntityTypes(entityType.ClrType.BaseType).Any())))
+                {
+                    return null;
+                }
+
                 return targetEntityTypeBuilder.HasOwnership(
                     entityTypeBuilder.Metadata.ClrType,
                     inverseNavigationPropertyInfo,
@@ -330,9 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var navigation = navigationBuilder.Metadata;
             var foreignKey = navigation.ForeignKey;
-            if (foreignKey.DeclaringEntityType.HasDefiningNavigation()
-                || foreignKey.DeclaringEntityType.IsOwned()
-                || foreignKey.PrincipalEntityType.HasDefiningNavigation()
+            if (foreignKey.DeclaringEntityType.IsOwned()
                 || foreignKey.PrincipalEntityType.IsOwned())
             {
                 return;

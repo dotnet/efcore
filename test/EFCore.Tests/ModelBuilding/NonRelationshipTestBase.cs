@@ -1692,7 +1692,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.NotNull(shared2.FindProperty("Id"));
 
                 Assert.Equal(
-                    CoreStrings.ClashingSharedType(typeof(Dictionary<string, object>).DisplayName()),
+                    CoreStrings.ClashingSharedType(typeof(Dictionary<string, object>).ShortDisplayName()),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Dictionary<string, object>>()).Message);
             }
 
@@ -1704,7 +1704,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<Customer>();
 
                 Assert.Equal(
-                    CoreStrings.ClashingNonSharedType("Shared1", typeof(Customer).DisplayName()),
+                    CoreStrings.ClashingNonSharedType("Shared1", nameof(Customer)),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.SharedTypeEntity<Customer>("Shared1")).Message);
             }
         }

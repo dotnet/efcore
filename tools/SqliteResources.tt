@@ -17,6 +17,8 @@
 using System.Reflection;
 using System.Resources;
 
+#nullable enable
+
 namespace <#= model.Namespace #>
 {
     internal static class <#= model.Class #>
@@ -60,7 +62,7 @@ namespace <#= model.Namespace #>
 
         private static string GetString(string name, params string[] formatterNames)
         {
-            var value = _resourceManager.GetString(name);
+            var value = _resourceManager.GetString(name)!;
             for (var i = 0; i < formatterNames.Length; i++)
             {
                 value = value.Replace("{" + formatterNames[i] + "}", "{" + i + "}");

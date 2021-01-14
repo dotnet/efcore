@@ -532,7 +532,7 @@ FROM [Employees] AS [e]
 WHERE 0 = 1");
 
             Assert.Contains(
-                "Possible unintended use of method Equals(object) for arguments 'e.EmployeeID' and '@__longPrm_0' of different types in query. This comparison will always return 'false'.",
+                "Possible unintended use of method 'Equals' for arguments 'e.EmployeeID' and '@__longPrm_0' of different types in a query. This comparison will always return false.",
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
@@ -562,10 +562,10 @@ FROM [Employees] AS [e]
 WHERE 0 = 1");
 
             Assert.Contains(
-                "Possible unintended use of method Equals(object) for arguments 'e.ReportsTo' and '@__longPrm_0' of different types in query. This comparison will always return 'false'.",
+                "Possible unintended use of method 'Equals' for arguments 'e.ReportsTo' and '@__longPrm_0' of different types in a query. This comparison will always return false.",
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
             Assert.Contains(
-                "Possible unintended use of method Equals(object) for arguments '@__longPrm_0' and 'e.ReportsTo' of different types in query. This comparison will always return 'false'.",
+                "Possible unintended use of method 'Equals' for arguments '@__longPrm_0' and 'e.ReportsTo' of different types in a query. This comparison will always return false.",
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
@@ -583,10 +583,10 @@ FROM [Employees] AS [e]
 WHERE 0 = 1");
 
             Assert.Contains(
-                "Possible unintended use of method Equals(object) for arguments 'e.ReportsTo' and '@__nullableLongPrm_0' of different types in query. This comparison will always return 'false'.",
+                "Possible unintended use of method 'Equals' for arguments 'e.ReportsTo' and '@__nullableLongPrm_0' of different types in a query. This comparison will always return false.",
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
             Assert.Contains(
-                "Possible unintended use of method Equals(object) for arguments '@__nullableLongPrm_0' and 'e.ReportsTo' of different types in query. This comparison will always return 'false'.",
+                "Possible unintended use of method 'Equals' for arguments '@__nullableLongPrm_0' and 'e.ReportsTo' of different types in a query. This comparison will always return false.",
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
@@ -1038,7 +1038,7 @@ WHERE [p].[Discontinued] = CAST(1 AS bit)");
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE [p].[Discontinued] <> CAST(1 AS bit)");
+WHERE [p].[Discontinued] = CAST(0 AS bit)");
         }
 
         public override async Task Where_bool_member_negated_twice(bool async)
@@ -1068,7 +1068,7 @@ WHERE [p].[Discontinued] = CAST(1 AS bit)");
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE [p].[Discontinued] <> CAST(1 AS bit)");
+WHERE [p].[Discontinued] = CAST(0 AS bit)");
         }
 
         public override async Task Where_bool_member_equals_constant(bool async)
@@ -1194,7 +1194,7 @@ END");
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE ([p].[Discontinued] <> CAST(1 AS bit)) AND ([p].[ProductID] >= 20)");
+WHERE ([p].[Discontinued] = CAST(0 AS bit)) AND ([p].[ProductID] >= 20)");
         }
 
         public override async Task Where_de_morgan_and_optimized(bool async)
@@ -1204,7 +1204,7 @@ WHERE ([p].[Discontinued] <> CAST(1 AS bit)) AND ([p].[ProductID] >= 20)");
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE ([p].[Discontinued] <> CAST(1 AS bit)) OR ([p].[ProductID] >= 20)");
+WHERE ([p].[Discontinued] = CAST(0 AS bit)) OR ([p].[ProductID] >= 20)");
         }
 
         public override async Task Where_complex_negated_expression_optimized(bool async)
@@ -1214,7 +1214,7 @@ WHERE ([p].[Discontinued] <> CAST(1 AS bit)) OR ([p].[ProductID] >= 20)");
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE (([p].[Discontinued] <> CAST(1 AS bit)) AND ([p].[ProductID] < 60)) AND ([p].[ProductID] > 30)");
+WHERE (([p].[Discontinued] = CAST(0 AS bit)) AND ([p].[ProductID] < 60)) AND ([p].[ProductID] > 30)");
         }
 
         public override async Task Where_short_member_comparison(bool async)
@@ -1679,7 +1679,7 @@ WHERE (
             await base.Time_of_day_datetime(async);
 
             AssertSql(
-                @"SELECT CAST([o].[OrderDate] AS time)
+                @"SELECT CONVERT(time, [o].[OrderDate])
 FROM [Orders] AS [o]");
         }
 
@@ -1775,7 +1775,7 @@ WHERE (
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE CONVERT(VARCHAR(11), [o].[OrderID]) LIKE N'%20%'");
+WHERE CONVERT(varchar(11), [o].[OrderID]) LIKE N'%20%'");
         }
 
         public override async Task Like_with_non_string_column_using_double_cast(bool async)

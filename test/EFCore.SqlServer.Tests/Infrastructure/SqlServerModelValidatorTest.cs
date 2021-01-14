@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Dog>(
                 db =>
                 {
-                    db.Property(d => d.Identity).ValueGeneratedNever().HasColumnName(nameof(Dog.Identity));
+                    db.Property(d => d.Identity).UseHiLo().HasColumnName(nameof(Dog.Identity));
                 });
 
             VerifyError(
@@ -262,6 +262,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Detects_duplicate_index_names_within_hierarchy_different_fill_factor()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>().HasIndex(c => c.Name).HasDatabaseName("IX_Animal_Name");
+            modelBuilder.Entity<Dog>().HasIndex(d => d.Name).HasDatabaseName("IX_Animal_Name").HasFillFactor(30);
+
+            VerifyError(
+                SqlServerStrings.DuplicateIndexFillFactorMismatch(
+                    "{'" + nameof(Dog.Name) + "'}", nameof(Dog),
+                    "{'" + nameof(Cat.Name) + "'}", nameof(Cat),
+                    nameof(Animal), "IX_Animal_Name"),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
         public virtual void Detects_duplicate_index_names_within_hierarchy_differently_online()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -301,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Dog>().Property(c => c.Type);
             modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).IncludeProperties(nameof(Dog.Type), "Tag");
 
-            VerifyError(SqlServerStrings.IncludePropertyNotFound(nameof(Dog), "Tag"), modelBuilder.Model);
+            VerifyError(SqlServerStrings.IncludePropertyNotFound("Tag", "{'Name'}", nameof(Dog)), modelBuilder.Model);
         }
 
         [ConditionalFact]
@@ -311,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Dog>().Property(c => c.Type);
             modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).IncludeProperties(nameof(Dog.Type), nameof(Dog.Type));
 
-            VerifyError(SqlServerStrings.IncludePropertyDuplicated(nameof(Dog), nameof(Dog.Type)), modelBuilder.Model);
+            VerifyError(SqlServerStrings.IncludePropertyDuplicated(nameof(Dog), nameof(Dog.Type), "{'Name'}"), modelBuilder.Model);
         }
 
         [ConditionalFact]
@@ -321,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Dog>().Property(c => c.Type);
             modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).IncludeProperties(nameof(Dog.Name));
 
-            VerifyError(SqlServerStrings.IncludePropertyInIndex(nameof(Dog), nameof(Dog.Name)), modelBuilder.Model);
+            VerifyError(SqlServerStrings.IncludePropertyInIndex(nameof(Dog), nameof(Dog.Name), "{'Name'}"), modelBuilder.Model);
         }
 
         [ConditionalFact]

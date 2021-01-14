@@ -1495,12 +1495,102 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(SqliteStrings.OrderByNotSupported("ulong"), ex.Message);
         }
 
+        [ConditionalFact]
+        public virtual void Can_query_using_char_ToLower()
+        {
+            using var context = CreateContext();
+
+            var results = context.Set<ObjectBackedDataTypes>()
+                .Select(e => char.ToLower(e.Character)).ToList();
+
+            AssertSql(
+                @"SELECT lower(""o"".""Character"")
+FROM ""ObjectBackedDataTypes"" AS ""o""");
+
+            var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
+                .Select(e => char.ToLower(e.Character)).ToList();
+
+            Assert.Equal(expectedResults, results);
+        }
+
+        [ConditionalFact]
+        public virtual void Can_query_using_char_ToUpper()
+        {
+            using var context = CreateContext();
+
+            var results = context.Set<ObjectBackedDataTypes>()
+                .Select(e => char.ToUpper(e.Character)).ToList();
+
+            AssertSql(
+                @"SELECT upper(""o"".""Character"")
+FROM ""ObjectBackedDataTypes"" AS ""o""");
+
+            var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
+                .Select(e => char.ToUpper(e.Character)).ToList();
+
+            Assert.Equal(expectedResults, results);
+        }
+
+        [ConditionalFact]
+        public virtual void Can_query_using_hex_function()
+        {
+            using var context = CreateContext();
+
+            var results = context.Set<ObjectBackedDataTypes>()
+                .Select(e => EF.Functions.Hex(e.Bytes)).ToList();
+
+            AssertSql(
+                @"SELECT hex(""o"".""Bytes"")
+FROM ""ObjectBackedDataTypes"" AS ""o""");
+
+            var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
+                .Select(e => string.Concat(e.Bytes.Select(b => b.ToString("X2")))).ToList();
+
+            Assert.Equal(expectedResults, results);
+        }
+
+        [ConditionalFact]
+        public virtual void Can_query_using_substr_function()
+        {
+            using var context = CreateContext();
+
+            var results = context.Set<ObjectBackedDataTypes>()
+                .Select(e => EF.Functions.Substr(e.Bytes, 2)).ToList();
+
+            AssertSql(
+                @"SELECT substr(""o"".""Bytes"", 2)
+FROM ""ObjectBackedDataTypes"" AS ""o""");
+
+            var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
+                .Select(e => e.Bytes.Skip(1).ToArray()).ToList();
+
+            Assert.Equal(expectedResults, results);
+        }
+
+        [ConditionalFact]
+        public virtual void Can_query_using_substr_function_with_length()
+        {
+            using var context = CreateContext();
+
+            var results = context.Set<ObjectBackedDataTypes>()
+                .Select(e => EF.Functions.Substr(e.Bytes, 1, 1)).ToList();
+
+            AssertSql(
+                @"SELECT substr(""o"".""Bytes"", 1, 1)
+FROM ""ObjectBackedDataTypes"" AS ""o""");
+
+            var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
+                .Select(e => e.Bytes.Take(1).ToArray()).ToList();
+
+            Assert.Equal(expectedResults, results);
+        }
+
         public override void Object_to_string_conversion()
         {
             base.Object_to_string_conversion();
 
             AssertSql(
-                @"SELECT ""b"".""TestSignedByte"", ""b"".""TestByte"", ""b"".""TestInt16"", ""b"".""TestUnsignedInt16"", ""b"".""TestInt32"", ""b"".""TestUnsignedInt32"", ""b"".""TestInt64"", ""b"".""TestUnsignedInt64"", ""b"".""TestSingle"", ""b"".""TestDouble"", ""b"".""TestDecimal"", ""b"".""TestCharacter"", ""b"".""TestDateTime"", ""b"".""TestDateTimeOffset"", ""b"".""TestTimeSpan""
+                @"SELECT CAST(""b"".""TestSignedByte"" AS TEXT), CAST(""b"".""TestByte"" AS TEXT), CAST(""b"".""TestInt16"" AS TEXT), CAST(""b"".""TestUnsignedInt16"" AS TEXT), CAST(""b"".""TestInt32"" AS TEXT), CAST(""b"".""TestUnsignedInt32"" AS TEXT), CAST(""b"".""TestInt64"" AS TEXT), ""b"".""TestUnsignedInt64"", CAST(""b"".""TestSingle"" AS TEXT), CAST(""b"".""TestDouble"" AS TEXT), CAST(""b"".""TestDecimal"" AS TEXT), CAST(""b"".""TestCharacter"" AS TEXT), CAST(""b"".""TestDateTime"" AS TEXT), CAST(""b"".""TestDateTimeOffset"" AS TEXT), CAST(""b"".""TestTimeSpan"" AS TEXT)
 FROM ""BuiltInDataTypes"" AS ""b""
 WHERE ""b"".""Id"" = 13");
         }

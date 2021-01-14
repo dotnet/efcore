@@ -1,11 +1,14 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -17,23 +20,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the base type of this entity type. Returns <see langword="null" /> if this is not a derived type in an inheritance hierarchy.
         /// </summary>
-        IEntityType BaseType { get; }
+        IEntityType? BaseType { get; }
 
         /// <summary>
         ///     Gets the name of the defining navigation.
         /// </summary>
-        string DefiningNavigationName { get; }
+        [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
+        string? DefiningNavigationName => null;
 
         /// <summary>
         ///     Gets the defining entity type.
         /// </summary>
-        IEntityType DefiningEntityType { get; }
+        [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
+        IEntityType? DefiningEntityType => null;
+
+        /// <summary>
+        ///     Gets a value indicating whether this entity type has a defining navigation.
+        /// </summary>
+        /// <returns> <see langword="true" /> if this entity type has a defining navigation. </returns>
+        [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
+        public bool HasDefiningNavigation() => HasSharedClrType;
 
         /// <summary>
         ///     Gets primary key for this entity type. Returns <see langword="null" /> if no primary key is defined.
         /// </summary>
         /// <returns> The primary key, or <see langword="null" /> if none is defined. </returns>
-        IKey FindPrimaryKey();
+        IKey? FindPrimaryKey();
 
         /// <summary>
         ///     Gets the primary or alternate key that is defined on the given properties.
@@ -41,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="properties"> The properties that make up the key. </param>
         /// <returns> The key, or <see langword="null" /> if none is defined. </returns>
-        IKey FindKey([NotNull] IReadOnlyList<IProperty> properties);
+        IKey? FindKey([NotNull] IReadOnlyList<IProperty> properties);
 
         /// <summary>
         ///     Gets the primary and alternate keys for this entity type.
@@ -61,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     base type of the hierarchy).
         /// </param>
         /// <returns> The foreign key, or <see langword="null" /> if none is defined. </returns>
-        IForeignKey FindForeignKey(
+        IForeignKey? FindForeignKey(
             [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] IKey principalKey,
             [NotNull] IEntityType principalEntityType);
@@ -77,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="memberInfo"> The navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
-        ISkipNavigation FindSkipNavigation([NotNull] MemberInfo memberInfo)
+        ISkipNavigation? FindSkipNavigation([NotNull] MemberInfo memberInfo)
             => FindSkipNavigation(Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName());
 
         /// <summary>
@@ -85,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
-        ISkipNavigation FindSkipNavigation([NotNull] string name);
+        ISkipNavigation? FindSkipNavigation([NotNull] string name);
 
         /// <summary>
         ///     <para>
@@ -98,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
-        ISkipNavigation FindDeclaredSkipNavigation([NotNull] string name)
+        ISkipNavigation? FindDeclaredSkipNavigation([NotNull] string name)
         {
             var navigation = FindSkipNavigation(name);
             return navigation?.DeclaringEntityType == this ? navigation : null;
@@ -134,14 +146,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="properties"> The properties to find the index on. </param>
         /// <returns> The index, or <see langword="null" /> if none is found. </returns>
-        IIndex FindIndex([NotNull] IReadOnlyList<IProperty> properties);
+        IIndex? FindIndex([NotNull] IReadOnlyList<IProperty> properties);
 
         /// <summary>
         ///     Gets the index with the given name. Returns <see langword="null" /> if no such index exists.
         /// </summary>
         /// <param name="name"> The name of the index to find. </param>
         /// <returns> The index, or <see langword="null" /> if none is found. </returns>
-        IIndex FindIndex([NotNull] string name);
+        IIndex? FindIndex([NotNull] string name);
 
         /// <summary>
         ///     Gets the indexes defined on this entity type.
@@ -160,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the property. </param>
         /// <returns> The property, or <see langword="null" /> if none is found. </returns>
-        IProperty FindProperty([NotNull] string name);
+        IProperty? FindProperty([NotNull] string name);
 
         /// <summary>
         ///     <para>
@@ -185,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the property. </param>
         /// <returns> The service property, or <see langword="null" /> if none is found. </returns>
-        IServiceProperty FindServiceProperty([NotNull] string name);
+        IServiceProperty? FindServiceProperty([NotNull] string name);
 
         /// <summary>
         ///     <para>

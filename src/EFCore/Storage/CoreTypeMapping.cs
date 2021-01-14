@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -41,10 +43,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// <param name="valueGeneratorFactory"> An optional factory for creating a specific <see cref="ValueGenerator" />. </param>
             public CoreTypeMappingParameters(
                 [NotNull] Type clrType,
-                [CanBeNull] ValueConverter converter = null,
-                [CanBeNull] ValueComparer comparer = null,
-                [CanBeNull] ValueComparer keyComparer = null,
-                [CanBeNull] Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory = null)
+                [CanBeNull] ValueConverter? converter = null,
+                [CanBeNull] ValueComparer? comparer = null,
+                [CanBeNull] ValueComparer? keyComparer = null,
+                [CanBeNull] Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory = null)
             {
                 Check.NotNull(clrType, nameof(clrType));
 
@@ -68,11 +70,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 "Use overload without 'structuralComparer'. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
             public CoreTypeMappingParameters(
                 [NotNull] Type clrType,
-                [CanBeNull] ValueConverter converter,
-                [CanBeNull] ValueComparer comparer,
-                [CanBeNull] ValueComparer keyComparer,
-                [CanBeNull] ValueComparer structuralComparer,
-                [CanBeNull] Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory)
+                [CanBeNull] ValueConverter? converter,
+                [CanBeNull] ValueComparer? comparer,
+                [CanBeNull] ValueComparer? keyComparer,
+                [CanBeNull] ValueComparer? structuralComparer,
+                [CanBeNull] Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory)
             {
                 Check.NotNull(clrType, nameof(clrType));
 
@@ -91,30 +93,30 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// <summary>
             ///     The mapping converter.
             /// </summary>
-            public ValueConverter Converter { get; }
+            public ValueConverter? Converter { get; }
 
             /// <summary>
             ///     The mapping comparer.
             /// </summary>
-            public ValueComparer Comparer { get; }
+            public ValueComparer? Comparer { get; }
 
             /// <summary>
             ///     The mapping key comparer.
             /// </summary>
-            public ValueComparer KeyComparer { get; }
+            public ValueComparer? KeyComparer { get; }
 
             /// <summary>
             ///     The mapping structural comparer.
             /// </summary>
             [Obsolete("Use KeyComparer. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
-            public ValueComparer StructuralComparer
+            public ValueComparer? StructuralComparer
                 => KeyComparer;
 
             /// <summary>
             ///     An optional factory for creating a specific <see cref="ValueGenerator" /> to use with
             ///     this mapping.
             /// </summary>
-            public Func<IProperty, IEntityType, ValueGenerator> ValueGeneratorFactory { get; }
+            public Func<IProperty, IEntityType, ValueGenerator>? ValueGeneratorFactory { get; }
 
             /// <summary>
             ///     Creates a new <see cref="CoreTypeMappingParameters" /> parameter object with the given
@@ -122,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// </summary>
             /// <param name="converter"> The converter. </param>
             /// <returns> The new parameter object. </returns>
-            public CoreTypeMappingParameters WithComposedConverter([CanBeNull] ValueConverter converter)
+            public CoreTypeMappingParameters WithComposedConverter([CanBeNull] ValueConverter? converter)
                 => new CoreTypeMappingParameters(
                     ClrType,
                     converter == null ? Converter : converter.ComposeWith(Converter),
@@ -131,8 +133,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     ValueGeneratorFactory);
         }
 
-        private ValueComparer _comparer;
-        private ValueComparer _keyComparer;
+        private ValueComparer? _comparer;
+        private ValueComparer? _keyComparer;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="CoreTypeMapping" /> class.
@@ -175,14 +177,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Converts types to and from the store whenever this mapping is used.
         ///     May be null if no conversion is needed.
         /// </summary>
-        public virtual ValueConverter Converter
+        public virtual ValueConverter? Converter
             => Parameters.Converter;
 
         /// <summary>
         ///     An optional factory for creating a specific <see cref="ValueGenerator" /> to use with
         ///     this mapping.
         /// </summary>
-        public virtual Func<IProperty, IEntityType, ValueGenerator> ValueGeneratorFactory { get; }
+        public virtual Func<IProperty, IEntityType, ValueGenerator>? ValueGeneratorFactory { get; }
 
         /// <summary>
         ///     A <see cref="ValueComparer" /> adds custom value snapshotting and comparison for

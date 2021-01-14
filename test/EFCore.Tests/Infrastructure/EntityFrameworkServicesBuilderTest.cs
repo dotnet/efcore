@@ -18,6 +18,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     public class EntityFrameworkServicesBuilderTest
     {
         [ConditionalFact]
+        public void Throws_when_adding_non_EF_service()
+        {
+            var serviceCollection = new ServiceCollection();
+            var builder = new EntityFrameworkServicesBuilder(serviceCollection);
+
+            Assert.Equal(
+                CoreStrings.NotAnEFService("Random"),
+                Assert.Throws<InvalidOperationException>(() => builder.TryAdd<Random, Random>()).Message);
+        }
+
+        [ConditionalFact]
         public void Can_register_scoped_service_with_concrete_implementation()
         {
             TestScoped(b => b.TryAdd<IConcurrencyDetector, FakeConcurrencyDetector>());

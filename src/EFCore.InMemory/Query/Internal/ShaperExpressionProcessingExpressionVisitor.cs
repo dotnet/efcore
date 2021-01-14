@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     /// <summary>
@@ -17,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
     /// </summary>
     public class ShaperExpressionProcessingExpressionVisitor : ExpressionVisitor
     {
-        private readonly InMemoryQueryExpression _queryExpression;
+        private readonly InMemoryQueryExpression? _queryExpression;
         private readonly ParameterExpression _valueBufferParameter;
 
         private readonly IDictionary<Expression, ParameterExpression> _mapping = new Dictionary<Expression, ParameterExpression>();
@@ -31,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ShaperExpressionProcessingExpressionVisitor(
-            [CanBeNull] InMemoryQueryExpression queryExpression,
+            [CanBeNull] InMemoryQueryExpression? queryExpression,
             [NotNull] ParameterExpression valueBufferParameter)
         {
             _queryExpression = queryExpression;
@@ -76,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     var key = GenerateKey((ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression);
                     if (!_mapping.TryGetValue(key, out var variable))
                     {
-                        variable = Expression.Parameter(entityShaperExpression.EntityType.ClrType);
+                        variable = Expression.Parameter(entityShaperExpression.EntityType.ClrType!);
                         _variables.Add(variable);
                         _expressions.Add(Expression.Assign(variable, entityShaperExpression));
                         _mapping[key] = variable;

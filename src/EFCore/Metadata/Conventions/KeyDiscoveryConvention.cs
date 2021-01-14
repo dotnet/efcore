@@ -70,17 +70,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
 
             List<IConventionProperty> keyProperties = null;
-            var definingFk = entityType.FindDefiningNavigation()?.ForeignKey
-                ?? entityType.FindOwnership();
-            if (definingFk != null
-                && definingFk.DeclaringEntityType != entityType)
+            var ownership = entityType.FindOwnership();
+            if (ownership != null
+                && ownership.DeclaringEntityType != entityType)
             {
-                definingFk = null;
+                ownership = null;
             }
 
-            if (definingFk?.IsUnique == true)
+            if (ownership?.IsUnique == true)
             {
-                keyProperties = definingFk.Properties.ToList();
+                keyProperties = ownership.Properties.ToList();
             }
 
             if (keyProperties == null)
@@ -96,16 +95,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
             }
 
-            if (definingFk?.IsUnique == false)
+            if (ownership?.IsUnique == false)
             {
                 if (keyProperties.Count == 0
-                    || definingFk.Properties.Contains(keyProperties.First()))
+                    || ownership.Properties.Contains(keyProperties.First()))
                 {
                     var primaryKey = entityType.FindPrimaryKey();
                     var shadowProperty = primaryKey?.Properties.Last();
                     if (shadowProperty == null
                         || primaryKey.Properties.Count == 1
-                        || definingFk.Properties.Contains(shadowProperty))
+                        || ownership.Properties.Contains(shadowProperty))
                     {
                         shadowProperty = entityTypeBuilder.CreateUniqueProperty(typeof(int), "Id", required: true).Metadata;
                     }
@@ -116,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                 var extraProperty = keyProperties[0];
                 keyProperties.RemoveAt(0);
-                keyProperties.AddRange(definingFk.Properties);
+                keyProperties.AddRange(ownership.Properties);
                 keyProperties.Add(extraProperty);
             }
 
@@ -125,26 +124,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 var manyToManyForeignKeys = entityType.GetForeignKeys()
                     .Where(fk => fk.GetReferencingSkipNavigations().Any(n => n.IsCollection)).ToList();
                 if (manyToManyForeignKeys.Count == 2
-                    && (!manyToManyForeignKeys.Any(fk => fk.PrincipalEntityType == entityType)
-                        || (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23377", out var enabled) && enabled)))
+                    && !manyToManyForeignKeys.Any(fk => fk.PrincipalEntityType == entityType))
                 {
                     keyProperties.AddRange(manyToManyForeignKeys.SelectMany(fk => fk.Properties));
                 }
             }
 
-            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23476", out var enabledFor23476) && enabledFor23476;
-            if (!useOldBehavior)
+            for (var i = keyProperties.Count - 1; i >= 0; i--)
             {
-                for (var i = keyProperties.Count - 1; i >= 0; i--)
+                var property = keyProperties[i];
+                for (var j = i - 1; j >= 0; j--)
                 {
-                    var property = keyProperties[i];
-                    for (var j = i - 1; j >= 0; j--)
+                    if (property == keyProperties[j])
                     {
-                        if (property == keyProperties[j])
-                        {
-                            keyProperties.RemoveAt(j);
-                            i--;
-                        }
+                        keyProperties.RemoveAt(j);
+                        i--;
                     }
                 }
             }

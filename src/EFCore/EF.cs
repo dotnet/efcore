@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
@@ -17,12 +19,17 @@ namespace Microsoft.EntityFrameworkCore
     public static partial class EF
     {
         internal static readonly MethodInfo PropertyMethod
-            = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(Property));
+            = typeof(EF).GetRequiredDeclaredMethod(nameof(Property));
 
         /// <summary>
-        ///     Addresses a given property on an entity instance. This is useful when you want to reference a shadow state property in a
-        ///     LINQ query. Currently this method can only be used in LINQ queries and can not be used to access the value assigned to a
-        ///     property in other scenarios.
+        ///     <para>
+        ///         References a given property or navigation on an entity instance. This is useful for shadow state properties, for
+        ///         which no CLR property exists. Currently this method can only be used in LINQ queries and can not be used to
+        ///         access the value assigned to a property in other scenarios.
+        ///     </para>
+        ///     <para>
+        ///         Note that this is a static method accessed through the top-level <see cref="EF" /> static type.
+        ///     </para>
         /// </summary>
         /// <example>
         ///     <para>
@@ -43,8 +50,13 @@ namespace Microsoft.EntityFrameworkCore
             => throw new InvalidOperationException(CoreStrings.PropertyMethodInvoked);
 
         /// <summary>
-        ///     Provides CLR methods that get translated to database functions when used in LINQ to Entities queries.
-        ///     Calling these methods in other contexts (e.g. LINQ to Objects) will throw a <see cref="NotSupportedException" />.
+        ///     <para>
+        ///         Provides CLR methods that get translated to database functions when used in LINQ to Entities queries.
+        ///         Calling these methods in other contexts (e.g. LINQ to Objects) will throw a <see cref="NotSupportedException" />.
+        ///     </para>
+        ///     <para>
+        ///         Note that this is a static property accessed through the top-level <see cref="EF" /> static type.
+        ///     </para>
         /// </summary>
         public static DbFunctions Functions
             => DbFunctions.Instance;

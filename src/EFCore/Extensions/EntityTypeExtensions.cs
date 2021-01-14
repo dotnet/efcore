@@ -16,6 +16,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -138,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The closest common parent of <paramref name="entityType1" /> and <paramref name="entityType2" />,
         ///     or null if they have not common parent.
         /// </returns>
-        public static IEntityType GetClosestCommonParent([NotNull] this IEntityType entityType1, [NotNull] IEntityType entityType2)
+        public static IEntityType? GetClosestCommonParent([NotNull] this IEntityType entityType1, [NotNull] IEntityType entityType2)
         {
             Check.NotNull(entityType1, nameof(entityType1));
             Check.NotNull(entityType2, nameof(entityType2));
@@ -174,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The least derived type between the specified two.
         ///     If the given entity types are not related, then <see langword="null" /> is returned.
         /// </returns>
-        public static IEntityType LeastDerivedType([NotNull] this IEntityType entityType, [NotNull] IEntityType otherEntityType)
+        public static IEntityType? LeastDerivedType([NotNull] this IEntityType entityType, [NotNull] IEntityType otherEntityType)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(otherEntityType, nameof(otherEntityType));
@@ -203,10 +205,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            while (entityType != null)
+            var tmp = (IEntityType?)entityType;
+            while (tmp != null)
             {
-                yield return entityType;
-                entityType = entityType.BaseType;
+                yield return tmp;
+                tmp = tmp.BaseType;
             }
         }
 
@@ -319,11 +322,6 @@ namespace Microsoft.EntityFrameworkCore
         public static IEnumerable<IIndex> GetDeclaredIndexes([NotNull] this IEntityType entityType)
             => entityType.AsEntityType().GetDeclaredIndexes();
 
-        private static string DisplayNameDefault(this ITypeBase type)
-            => type.ClrType != null && !type.HasSharedClrType
-                ? type.ClrType.ShortDisplayName()
-                : type.Name;
-
         /// <summary>
         ///     Gets the friendly display name for the given <see cref="ITypeBase" />.
         /// </summary>
@@ -331,50 +329,50 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The display name. </returns>
         [DebuggerStepThrough]
         public static string DisplayName([NotNull] this ITypeBase type)
-            => type.FullName() + (type is IEntityType entityType && entityType.HasSharedClrType
-            ? " (" + entityType.ClrType.ShortDisplayName() + ")"
-            : "");
+        {
+            if (!type.HasSharedClrType)
+            {
+                return type.ClrType.ShortDisplayName();
+            }
+
+            var shortName = type.Name;
+            var hashIndex = shortName.IndexOf("#", StringComparison.Ordinal);
+            if (hashIndex == -1)
+            {
+                return type.Name + " (" + type.ClrType.ShortDisplayName() + ")";
+            }
+
+            var plusIndex = shortName.LastIndexOf("+", StringComparison.Ordinal);
+            if (plusIndex != -1)
+            {
+                shortName = shortName[(plusIndex + 1)..];
+            }
+            else
+            {
+                var length = shortName.Length;
+                var dotIndex = shortName.LastIndexOf(".", hashIndex, hashIndex + 1, StringComparison.Ordinal);
+                if (dotIndex != -1)
+                {
+                    dotIndex = shortName.LastIndexOf(".", dotIndex - 1, dotIndex, StringComparison.Ordinal);
+                    if (dotIndex != -1)
+                    {
+                        shortName = shortName[(dotIndex + 1)..];
+                    }
+                }
+            }
+
+            return shortName == type.Name
+                       ? shortName + " (" + type.ClrType.ShortDisplayName() + ")"
+                       : shortName;
+        }
 
         /// <summary>
         ///     Gets the unique name for the given <see cref="ITypeBase" />.
         /// </summary>
         /// <param name="type"> The entity type. </param>
-        /// <returns> The display name. </returns>
+        /// <returns> The full name. </returns>
         [DebuggerStepThrough]
-        public static string FullName([NotNull] this ITypeBase type)
-        {
-            if (!(type is IEntityType entityType)
-                || !entityType.HasDefiningNavigation())
-            {
-                return type.DisplayNameDefault();
-            }
-
-            var builder = new StringBuilder();
-            var path = new Stack<string>();
-            var root = entityType;
-            while (true)
-            {
-                var definingNavigationName = root.DefiningNavigationName;
-                if (definingNavigationName == null)
-                {
-                    break;
-                }
-
-                root = root.DefiningEntityType;
-                path.Push("#");
-                path.Push(definingNavigationName);
-                path.Push(".");
-                path.Push(root.DisplayNameDefault());
-            }
-
-            if (root != entityType)
-            {
-                builder.AppendJoin(path, "");
-            }
-
-            builder.Append(type.DisplayNameDefault());
-            return builder.ToString();
-        }
+        public static string FullName([NotNull] this ITypeBase type) => type.Name;
 
         /// <summary>
         ///     Gets a short name for the given <see cref="ITypeBase" /> that can be used in other identifiers.
@@ -390,13 +388,22 @@ namespace Microsoft.EntityFrameworkCore
                 return type.ClrType.ShortDisplayName();
             }
 
-            var plusIndex = type.Name.LastIndexOf("+", StringComparison.Ordinal);
-            var dotIndex = type.Name.LastIndexOf(".", StringComparison.Ordinal);
-            return plusIndex == -1
-                ? dotIndex == -1
-                    ? type.Name
-                    : type.Name.Substring(dotIndex + 1, type.Name.Length - dotIndex - 1)
-                : type.Name.Substring(plusIndex + 1, type.Name.Length - plusIndex - 1);
+            var hashIndex = type.Name.LastIndexOf("#", StringComparison.Ordinal);
+            if (hashIndex == -1)
+            {
+                var plusIndex = type.Name.LastIndexOf("+", StringComparison.Ordinal);
+                if (plusIndex == -1)
+                {
+                    var dotIndex = type.Name.LastIndexOf(".", StringComparison.Ordinal);
+                    return dotIndex == -1
+                            ? type.Name
+                            : type.Name[(dotIndex + 1)..];
+                }
+
+                return type.Name[(plusIndex + 1)..];
+            }
+
+            return type.Name[(hashIndex + 1)..];
         }
 
         /// <summary>
@@ -405,8 +412,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <returns> <see langword="true" /> if this entity type has a defining navigation. </returns>
         [DebuggerStepThrough]
+        [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
         public static bool HasDefiningNavigation([NotNull] this IEntityType entityType)
-            => entityType.DefiningEntityType != null;
+            => entityType.HasDefiningNavigation();
 
         /// <summary>
         ///     Gets a value indicating whether this entity type is owned by another entity type.
@@ -452,7 +460,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="property"> The property that the key is defined on. </param>
         /// <returns> The key, or null if none is defined. </returns>
-        public static IKey FindKey([NotNull] this IEntityType entityType, [NotNull] IProperty property)
+        public static IKey? FindKey([NotNull] this IEntityType entityType, [NotNull] IProperty property)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -501,7 +509,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     base type of the hierarchy).
         /// </param>
         /// <returns> The foreign key, or <see langword="null" /> if none is defined. </returns>
-        public static IForeignKey FindForeignKey(
+        public static IForeignKey? FindForeignKey(
             [NotNull] this IEntityType entityType,
             [NotNull] IProperty property,
             [NotNull] IKey principalKey,
@@ -533,7 +541,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The relationship to the owner if this is an owned type or <see langword="null" /> otherwise. </returns>
-        public static IForeignKey FindOwnership([NotNull] this IEntityType entityType)
+        public static IForeignKey? FindOwnership([NotNull] this IEntityType entityType)
             => ((EntityType)entityType).FindOwnership();
 
         /// <summary>
@@ -542,7 +550,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="memberInfo"> The navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
-        public static INavigation FindNavigation([NotNull] this IEntityType entityType, [NotNull] MemberInfo memberInfo)
+        public static INavigation? FindNavigation([NotNull] this IEntityType entityType, [NotNull] MemberInfo memberInfo)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(memberInfo, nameof(memberInfo));
@@ -556,7 +564,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="name"> The name of the navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
-        public static INavigation FindNavigation([NotNull] this IEntityType entityType, [NotNull] string name)
+        public static INavigation? FindNavigation([NotNull] this IEntityType entityType, [NotNull] string name)
             => Check.NotNull(entityType, nameof(entityType)).AsEntityType().FindNavigation(Check.NotNull(name, nameof(name)));
 
         /// <summary>
@@ -566,7 +574,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="name"> The name of the navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
-        public static INavigation FindDeclaredNavigation([NotNull] this IEntityType entityType, [NotNull] string name)
+        public static INavigation? FindDeclaredNavigation([NotNull] this IEntityType entityType, [NotNull] string name)
             => Check.NotNull(entityType, nameof(entityType)).AsEntityType().FindDeclaredNavigation(Check.NotNull(name, nameof(name)));
 
         /// <summary>
@@ -574,14 +582,15 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The defining navigation if one exists or <see langword="null" /> otherwise. </returns>
-        public static INavigation FindDefiningNavigation([NotNull] this IEntityType entityType)
+        [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
+        public static INavigation? FindDefiningNavigation([NotNull] this IEntityType entityType)
         {
             if (!entityType.HasDefiningNavigation())
             {
                 return null;
             }
 
-            var definingNavigation = entityType.DefiningEntityType.FindNavigation(entityType.DefiningNavigationName);
+            var definingNavigation = entityType.DefiningEntityType!.FindNavigation(entityType.DefiningNavigationName!);
             return definingNavigation?.TargetEntityType == entityType ? definingNavigation : null;
         }
 
@@ -605,7 +614,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="memberInfo"> The member on the entity class. </param>
         /// <returns> The property, or <see langword="null" /> if none is found. </returns>
-        public static IProperty FindProperty([NotNull] this IEntityType entityType, [NotNull] MemberInfo memberInfo)
+        public static IProperty? FindProperty([NotNull] this IEntityType entityType, [NotNull] MemberInfo memberInfo)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(memberInfo, nameof(memberInfo));
@@ -660,7 +669,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="propertyNames"> The property names. </param>
         /// <returns> The properties, or <see langword="null" /> if any property is not found. </returns>
-        public static IReadOnlyList<IProperty> FindProperties(
+        public static IReadOnlyList<IProperty>? FindProperties(
             [NotNull] this IEntityType entityType,
             [NotNull] IReadOnlyList<string> propertyNames)
             => entityType.AsEntityType().FindProperties(Check.NotNull(propertyNames, nameof(propertyNames)));
@@ -672,7 +681,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="name"> The property name. </param>
         /// <returns> The property, or <see langword="null" /> if none is found. </returns>
-        public static IProperty FindDeclaredProperty([NotNull] this IEntityType entityType, [NotNull] string name)
+        public static IProperty? FindDeclaredProperty([NotNull] this IEntityType entityType, [NotNull] string name)
             => entityType.AsEntityType().FindDeclaredProperty(name);
 
         /// <summary>
@@ -686,7 +695,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="property"> The property to find the index on. </param>
         /// <returns> The index, or null if none is found. </returns>
-        public static IIndex FindIndex([NotNull] this IEntityType entityType, [NotNull] IProperty property)
+        public static IIndex? FindIndex([NotNull] this IEntityType entityType, [NotNull] IProperty property)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -709,7 +718,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="providerValues"> If true, then provider values are used. </param>
         /// <returns> The data. </returns>
-        public static IEnumerable<IDictionary<string, object>> GetSeedData(
+        public static IEnumerable<IDictionary<string, object?>> GetSeedData(
             [NotNull] this IEntityType entityType,
             bool providerValues = false)
             => entityType.AsEntityType().GetSeedData(providerValues);
@@ -719,11 +728,11 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to get the query filter for. </param>
         /// <returns> The LINQ expression filter. </returns>
-        public static LambdaExpression GetQueryFilter([NotNull] this IEntityType entityType)
+        public static LambdaExpression? GetQueryFilter([NotNull] this IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            return (LambdaExpression)entityType[CoreAnnotationNames.QueryFilter];
+            return (LambdaExpression?)entityType[CoreAnnotationNames.QueryFilter];
         }
 
         /// <summary>
@@ -732,25 +741,25 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to get the defining query for. </param>
         /// <returns> The LINQ query used as the default source. </returns>
         [Obsolete("Use InMemoryEntityTypeExtensions.GetInMemoryQuery")]
-        public static LambdaExpression GetDefiningQuery([NotNull] this IEntityType entityType)
+        public static LambdaExpression? GetDefiningQuery([NotNull] this IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            return (LambdaExpression)entityType[CoreAnnotationNames.DefiningQuery];
+            return (LambdaExpression?)entityType[CoreAnnotationNames.DefiningQuery];
         }
 
         /// <summary>
         ///     Returns the <see cref="IProperty" /> that will be used for storing a discriminator value.
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
-        public static IProperty GetDiscriminatorProperty([NotNull] this IEntityType entityType)
+        public static IProperty? GetDiscriminatorProperty([NotNull] this IEntityType entityType)
         {
             if (entityType.BaseType != null)
             {
                 return entityType.GetRootType().GetDiscriminatorProperty();
             }
 
-            var propertyName = (string)entityType[CoreAnnotationNames.DiscriminatorProperty];
+            var propertyName = (string?)entityType[CoreAnnotationNames.DiscriminatorProperty];
 
             return propertyName == null ? null : entityType.FindProperty(propertyName);
         }
@@ -771,7 +780,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The discriminator value for this entity type. </returns>
-        public static object GetDiscriminatorValue([NotNull] this IEntityType entityType)
+        public static object? GetDiscriminatorValue([NotNull] this IEntityType entityType)
             => entityType[CoreAnnotationNames.DiscriminatorValue];
 
         /// <summary>

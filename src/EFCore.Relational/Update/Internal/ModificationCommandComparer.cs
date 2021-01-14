@@ -47,26 +47,25 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
 
             result = StringComparer.Ordinal.Compare(x.Schema, y.Schema);
-            if (0 != result)
+            if (result != 0)
             {
                 return result;
             }
 
             result = StringComparer.Ordinal.Compare(x.TableName, y.TableName);
-            if (0 != result)
+            if (result != 0)
             {
                 return result;
             }
 
             var xState = x.EntityState;
             result = (int)xState - (int)y.EntityState;
-            if (0 != result)
+            if (result != 0)
             {
                 return result;
             }
 
-            if (xState != EntityState.Added
-                && x.Entries.Count > 0
+            if (x.Entries.Count > 0
                 && y.Entries.Count > 0)
             {
                 var xEntry = x.Entries[0];
@@ -77,27 +76,24 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 if (xEntityType != yEntityType)
                 {
                     result = StringComparer.Ordinal.Compare(xEntityType.Name, yEntityType.Name);
-                    if (0 != result)
-                    {
-                        return result;
-                    }
-
-                    result = StringComparer.Ordinal.Compare(xEntityType.DefiningNavigationName, yEntityType.DefiningNavigationName);
-                    if (0 != result)
+                    if (result != 0)
                     {
                         return result;
                     }
                 }
 
-                var xKey = xEntry.EntityType.FindPrimaryKey();
-                for (var i = 0; i < xKey.Properties.Count; i++)
+                if (xState != EntityState.Added)
                 {
-                    var xKeyProperty = xKey.Properties[i];
-
-                    result = xKeyProperty.GetCurrentValueComparer().Compare(xEntry, yEntry);
-                    if (0 != result)
+                    var xKey = xEntry.EntityType.FindPrimaryKey();
+                    for (var i = 0; i < xKey.Properties.Count; i++)
                     {
-                        return result;
+                        var xKeyProperty = xKey.Properties[i];
+
+                        result = xKeyProperty.GetCurrentValueComparer().Compare(xEntry, yEntry);
+                        if (result != 0)
+                        {
+                            return result;
+                        }
                     }
                 }
             }

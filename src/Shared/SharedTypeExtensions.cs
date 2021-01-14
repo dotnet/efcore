@@ -10,6 +10,8 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using JetBrains.Annotations;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace System
 {
@@ -131,7 +133,7 @@ namespace System
             return false;
         }
 
-        public static PropertyInfo GetAnyProperty(this Type type, string name)
+        public static PropertyInfo? GetAnyProperty(this Type type, string name)
         {
             var props = type.GetRuntimeProperties().Where(p => p.Name == name).ToList();
             if (props.Count > 1)
@@ -140,6 +142,90 @@ namespace System
             }
 
             return props.SingleOrDefault();
+        }
+
+        public static MethodInfo GetRequiredMethod(this Type type, string name, params Type[] parameters)
+        {
+            var method = type.GetTypeInfo().GetMethod(name, parameters);
+
+            if (method == null
+                && parameters.Length == 0)
+            {
+                method = type.GetMethod(name);
+            }
+
+            if (method == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            return method;
+        }
+
+        public static PropertyInfo GetRequiredProperty(this Type type, string name)
+        {
+            var property = type.GetTypeInfo().GetProperty(name);
+            if (property == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            return property;
+        }
+
+        public static FieldInfo GetRequiredDeclaredField(this Type type, string name)
+        {
+            var field = type.GetTypeInfo().GetDeclaredField(name);
+            if (field == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            return field;
+        }
+
+        public static MethodInfo GetRequiredDeclaredMethod(this Type type, string name)
+        {
+            var method = type.GetTypeInfo().GetDeclaredMethod(name);
+            if (method == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            return method;
+        }
+
+        public static PropertyInfo GetRequiredDeclaredProperty(this Type type, string name)
+        {
+            var property = type.GetTypeInfo().GetDeclaredProperty(name);
+            if (property == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            return property;
+        }
+
+        public static MethodInfo GetRequiredRuntimeMethod(this Type type, string name, params Type[] parameters)
+        {
+            var method = type.GetTypeInfo().GetRuntimeMethod(name, parameters);
+            if (method == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            return method;
+        }
+
+        public static PropertyInfo GetRequiredRuntimeProperty(this Type type, string name)
+        {
+            var property = type.GetTypeInfo().GetRuntimeProperty(name);
+            if (property == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            return property;
         }
 
         public static bool IsInstantiable(this Type type)
@@ -172,11 +258,13 @@ namespace System
             return sequenceType;
         }
 
-        public static Type TryGetSequenceType(this Type type)
+#nullable enable
+
+        public static Type? TryGetSequenceType(this Type type)
             => type.TryGetElementType(typeof(IEnumerable<>))
                 ?? type.TryGetElementType(typeof(IAsyncEnumerable<>));
 
-        public static Type TryGetElementType(this Type type, Type interfaceOrBaseType)
+        public static Type? TryGetElementType(this Type type, Type interfaceOrBaseType)
         {
             if (type.IsGenericTypeDefinition)
             {
@@ -185,7 +273,7 @@ namespace System
 
             var types = GetGenericTypeImplementations(type, interfaceOrBaseType);
 
-            Type singleImplementation = null;
+            Type? singleImplementation = null;
             foreach (var implementation in types)
             {
                 if (singleImplementation == null)
@@ -201,6 +289,8 @@ namespace System
 
             return singleImplementation?.GenericTypeArguments.FirstOrDefault();
         }
+
+#nullable disable
 
         public static bool IsCompatibleWith(this Type propertyType, Type fieldType)
         {

@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         of the entity class.
         ///     </para>
         ///     <para>
-        ///         If <see cref="HasPrincipalKey(System.Type,string[])" /> is not specified, then an attempt will be made to
+        ///         If <see cref="HasPrincipalKey(Type,string[])" /> is not specified, then an attempt will be made to
         ///         match the data type and order of foreign key properties against the primary key of the principal
         ///         entity type. If they do not match, new shadow state properties that form a unique index will be
         ///         added to the principal entity type to serve as the reference key.
@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         of the entity class.
         ///     </para>
         ///     <para>
-        ///         If <see cref="HasPrincipalKey(System.Type,string[])" /> is not specified, then an attempt will be made to
+        ///         If <see cref="HasPrincipalKey(Type,string[])" /> is not specified, then an attempt will be made to
         ///         match the data type and order of foreign key properties against the primary key of the principal
         ///         entity type. If they do not match, new shadow state properties that form a unique index will be
         ///         added to the principal entity type to serve as the reference key.
@@ -333,7 +333,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 return (EntityType)DeclaringEntityType;
             }
 
-            return RelatedEntityType.DisplayName() == entityTypeName ? (EntityType)RelatedEntityType : null;
+            if (RelatedEntityType.DisplayName() == entityTypeName)
+            {
+                return (EntityType)RelatedEntityType;
+            }
+
+            if (DeclaringEntityType.HasSharedClrType
+                && DeclaringEntityType.ShortName() == entityTypeName)
+            {
+                return (EntityType)DeclaringEntityType;
+            }
+
+            return RelatedEntityType.HasSharedClrType && RelatedEntityType.ShortName() == entityTypeName
+                ? (EntityType)RelatedEntityType
+                : null;
         }
 
         /// <summary>

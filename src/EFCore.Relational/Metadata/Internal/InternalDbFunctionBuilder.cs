@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
 {
     /// <summary>
@@ -39,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionDbFunctionBuilder HasName([CanBeNull] string name, ConfigurationSource configurationSource)
+        public virtual IConventionDbFunctionBuilder? HasName([CanBeNull] string? name, ConfigurationSource configurationSource)
         {
             if (CanSetName(name, configurationSource))
             {
@@ -56,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanSetName([CanBeNull] string name, ConfigurationSource configurationSource)
+        public virtual bool CanSetName([CanBeNull] string? name, ConfigurationSource configurationSource)
             => (name != "" || configurationSource == ConfigurationSource.Explicit)
                 && (configurationSource.Overrides(Metadata.GetNameConfigurationSource())
                     || Metadata.Name == name);
@@ -67,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionDbFunctionBuilder HasSchema([CanBeNull] string schema, ConfigurationSource configurationSource)
+        public virtual IConventionDbFunctionBuilder? HasSchema([CanBeNull] string? schema, ConfigurationSource configurationSource)
         {
             if (CanSetSchema(schema, configurationSource))
             {
@@ -84,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanSetSchema([CanBeNull] string schema, ConfigurationSource configurationSource)
+        public virtual bool CanSetSchema([CanBeNull] string? schema, ConfigurationSource configurationSource)
             => configurationSource.Overrides(Metadata.GetSchemaConfigurationSource())
                 || Metadata.Schema == schema;
 
@@ -94,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionDbFunctionBuilder IsBuiltIn(bool builtIn, ConfigurationSource configurationSource)
+        public virtual IConventionDbFunctionBuilder? IsBuiltIn(bool builtIn, ConfigurationSource configurationSource)
         {
             if (CanSetIsBuiltIn(builtIn, configurationSource))
             {
@@ -121,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionDbFunctionBuilder IsNullable(bool nullable, ConfigurationSource configurationSource)
+        public virtual IConventionDbFunctionBuilder? IsNullable(bool nullable, ConfigurationSource configurationSource)
         {
             if (CanSetIsNullable(nullable, configurationSource))
             {
@@ -148,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionDbFunctionBuilder HasStoreType([CanBeNull] string storeType, ConfigurationSource configurationSource)
+        public virtual IConventionDbFunctionBuilder? HasStoreType([CanBeNull] string? storeType, ConfigurationSource configurationSource)
         {
             if (CanSetStoreType(storeType, configurationSource))
             {
@@ -165,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanSetStoreType([CanBeNull] string storeType, ConfigurationSource configurationSource)
+        public virtual bool CanSetStoreType([CanBeNull] string? storeType, ConfigurationSource configurationSource)
             => configurationSource.Overrides(Metadata.GetStoreTypeConfigurationSource())
                 || Metadata.StoreType == storeType;
 
@@ -175,8 +177,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionDbFunctionBuilder HasTypeMapping(
-            [CanBeNull] RelationalTypeMapping returnTypeMapping,
+        public virtual IConventionDbFunctionBuilder? HasTypeMapping(
+            [CanBeNull] RelationalTypeMapping? returnTypeMapping,
             ConfigurationSource configurationSource)
         {
             if (CanSetTypeMapping(returnTypeMapping, configurationSource))
@@ -194,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanSetTypeMapping([CanBeNull] RelationalTypeMapping returnTypeMapping, ConfigurationSource configurationSource)
+        public virtual bool CanSetTypeMapping([CanBeNull] RelationalTypeMapping? returnTypeMapping, ConfigurationSource configurationSource)
             => configurationSource.Overrides(Metadata.GetTypeMappingConfigurationSource())
                 || Metadata.TypeMapping == returnTypeMapping;
 
@@ -204,8 +206,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionDbFunctionBuilder HasTranslation(
-            [CanBeNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation,
+        public virtual IConventionDbFunctionBuilder? HasTranslation(
+            [CanBeNull] Func<IReadOnlyList<SqlExpression>, SqlExpression>? translation,
             ConfigurationSource configurationSource)
         {
             if (CanSetTranslation(translation, configurationSource))
@@ -224,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CanSetTranslation(
-            [CanBeNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation,
+            [CanBeNull] Func<IReadOnlyList<SqlExpression>, SqlExpression>? translation,
             ConfigurationSource configurationSource)
             => (Metadata.IsScalar && !Metadata.IsAggregate || configurationSource == ConfigurationSource.Explicit)
                 && (configurationSource.Overrides(Metadata.GetTranslationConfigurationSource())
@@ -242,10 +244,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
             if (parameter == null)
             {
                 throw new ArgumentException(
-                    RelationalStrings.DbFunctionInvalidParameterName(name, Metadata.MethodInfo.DisplayName()));
+                    RelationalStrings.DbFunctionInvalidParameterName(Metadata.MethodInfo?.DisplayName(), name));
             }
 
-            return parameter.Builder;
+            return parameter.Builder!;
         }
 
         IConventionDbFunction IConventionDbFunctionBuilder.Metadata
@@ -256,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionDbFunctionBuilder IConventionDbFunctionBuilder.HasName(string name, bool fromDataAnnotation)
+        IConventionDbFunctionBuilder? IConventionDbFunctionBuilder.HasName(string name, bool fromDataAnnotation)
             => HasName(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
@@ -266,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionDbFunctionBuilder IConventionDbFunctionBuilder.HasSchema(string schema, bool fromDataAnnotation)
+        IConventionDbFunctionBuilder? IConventionDbFunctionBuilder.HasSchema(string schema, bool fromDataAnnotation)
             => HasSchema(schema, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
@@ -276,7 +278,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionDbFunctionBuilder IConventionDbFunctionBuilder.IsBuiltIn(bool builtIn, bool fromDataAnnotation)
+        IConventionDbFunctionBuilder? IConventionDbFunctionBuilder.IsBuiltIn(bool builtIn, bool fromDataAnnotation)
             => IsBuiltIn(builtIn, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
@@ -286,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionDbFunctionBuilder IConventionDbFunctionBuilder.IsNullable(bool nullable, bool fromDataAnnotation)
+        IConventionDbFunctionBuilder? IConventionDbFunctionBuilder.IsNullable(bool nullable, bool fromDataAnnotation)
             => IsNullable(nullable, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
@@ -296,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionDbFunctionBuilder IConventionDbFunctionBuilder.HasStoreType(string storeType, bool fromDataAnnotation)
+        IConventionDbFunctionBuilder? IConventionDbFunctionBuilder.HasStoreType(string storeType, bool fromDataAnnotation)
             => HasStoreType(storeType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
@@ -306,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionDbFunctionBuilder IConventionDbFunctionBuilder.HasTypeMapping(RelationalTypeMapping typeMapping, bool fromDataAnnotation)
+        IConventionDbFunctionBuilder? IConventionDbFunctionBuilder.HasTypeMapping(RelationalTypeMapping typeMapping, bool fromDataAnnotation)
             => HasTypeMapping(typeMapping, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
@@ -316,15 +318,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionDbFunctionBuilder IConventionDbFunctionBuilder.HasTranslation(
-            Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation,
+        IConventionDbFunctionBuilder? IConventionDbFunctionBuilder.HasTranslation(
+            Func<IReadOnlyList<SqlExpression>, SqlExpression> translation,
             bool fromDataAnnotation)
             => HasTranslation(translation, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
         bool IConventionDbFunctionBuilder.CanSetTranslation(
-            Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation,
+            Func<IReadOnlyList<SqlExpression>, SqlExpression> translation,
             bool fromDataAnnotation)
             => CanSetTranslation(translation, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 

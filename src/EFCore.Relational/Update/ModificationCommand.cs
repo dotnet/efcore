@@ -99,9 +99,9 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         /// <summary>
         ///     The <see cref="EntityFrameworkCore.EntityState" /> that indicates whether the row will be
-        ///     inserted (<see cref="EntityFrameworkCore.EntityState.Added" />),
-        ///     updated (<see cref="EntityFrameworkCore.EntityState.Modified" />),
-        ///     or deleted ((<see cref="EntityFrameworkCore.EntityState.Deleted" />).
+        ///     inserted (<see cref="EntityState.Added" />),
+        ///     updated (<see cref="EntityState.Modified" />),
+        ///     or deleted ((<see cref="EntityState.Deleted" />).
         /// </summary>
         public virtual EntityState EntityState
         {
@@ -180,7 +180,19 @@ namespace Microsoft.EntityFrameworkCore.Update
                 case EntityState.Added:
                     break;
                 default:
-                    throw new ArgumentException(RelationalStrings.ModificationCommandInvalidEntityState(entry.EntityState));
+                    if (_sensitiveLoggingEnabled)
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.ModificationCommandInvalidEntityStateSensitive(
+                                entry.EntityType.DisplayName(),
+                                entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties),
+                                entry.EntityState));
+                    }
+
+                    throw new InvalidOperationException(
+                        RelationalStrings.ModificationCommandInvalidEntityState(
+                            entry.EntityType.DisplayName(),
+                            entry.EntityState));
             }
 
             if (mainEntry)

@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -58,6 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Guid transactionId,
             IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger,
             bool transactionOwned)
-            => new RelationalTransaction(connection, transaction, transactionId, logger, transactionOwned);
+            => new RelationalTransaction(
+                connection, transaction, transactionId, logger, transactionOwned, Dependencies.SqlGenerationHelper);
     }
 }

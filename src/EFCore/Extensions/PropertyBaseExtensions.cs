@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -79,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="propertyBase"> The property for which the backing field will be returned. </param>
         /// <returns> The name of the backing field, or <see langword="null" />. </returns>
-        public static string GetFieldName([NotNull] this IPropertyBase propertyBase)
+        public static string? GetFieldName([NotNull] this IPropertyBase propertyBase)
             => propertyBase.FieldInfo?.GetSimpleMemberName();
 
         /// <summary>

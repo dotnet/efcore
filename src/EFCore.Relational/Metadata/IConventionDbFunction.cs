@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -24,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this function.
         /// </summary>
-        new IConventionDbFunctionBuilder Builder { get; }
+        new IConventionDbFunctionBuilder? Builder { get; }
 
         /// <summary>
         ///     Gets the configuration source for this function.
@@ -38,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The name of the function in the database. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        string SetName([CanBeNull] string name, bool fromDataAnnotation = false);
+        string? SetName([CanBeNull] string? name, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Gets the configuration source for <see cref="IDbFunction.Name" />.
@@ -52,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="schema"> The schema of the function in the database. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        string SetSchema([CanBeNull] string schema, bool fromDataAnnotation = false);
+        string? SetSchema([CanBeNull] string? schema, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Gets the configuration source for <see cref="IDbFunction.Schema" />.
@@ -94,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="storeType"> The store type of the function in the database. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        string SetStoreType([CanBeNull] string storeType, bool fromDataAnnotation = false);
+        string? SetStoreType([CanBeNull] string? storeType, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Gets the configuration source for <see cref="IDbFunction.StoreType" />.
@@ -108,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="typeMapping"> The type mapping of the function in the database. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        RelationalTypeMapping SetTypeMapping([CanBeNull] RelationalTypeMapping typeMapping, bool fromDataAnnotation = false);
+        RelationalTypeMapping? SetTypeMapping([CanBeNull] RelationalTypeMapping? typeMapping, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Gets the configuration source for <see cref="IDbFunction.TypeMapping" />.
@@ -124,8 +126,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        Func<IReadOnlyCollection<SqlExpression>, SqlExpression> SetTranslation(
-            [CanBeNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation,
+        Func<IReadOnlyList<SqlExpression>, SqlExpression>? SetTranslation(
+            [CanBeNull] Func<IReadOnlyList<SqlExpression>, SqlExpression>? translation,
             bool fromDataAnnotation = false);
 
         /// <summary>

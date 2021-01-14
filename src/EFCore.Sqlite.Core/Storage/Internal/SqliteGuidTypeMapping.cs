@@ -6,6 +6,8 @@ using System.Data;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
 {
     /// <summary>
@@ -55,6 +57,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override string GenerateNonNullSqlLiteral(object value)
-            => "'" + ((Guid)value).ToString().ToUpper() + "'";
+            => "'" + ((Guid)value).ToString().ToUpperInvariant() + "'";
     }
 }

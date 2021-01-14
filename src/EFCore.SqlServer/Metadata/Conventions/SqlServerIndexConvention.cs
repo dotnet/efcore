@@ -202,14 +202,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return null;
             }
 
-            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23092_2", out var isEnabled) && isEnabled;
             var nullableColumns = new List<string>();
             var table = StoreObjectIdentifier.Table(tableName, index.DeclaringEntityType.GetSchema());
             foreach (var property in index.Properties)
             {
                 var columnName = property.GetColumnName(table);
-                if (columnName == null
-                    && !useOldBehavior)
+                if (columnName == null)
                 {
                     return null;
                 }

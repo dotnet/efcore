@@ -13,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
     {
         protected override int Execute(string[] args)
         {
-            var types = CreateExecutor(args).GetContextTypes().ToList();
+            using var executor = CreateExecutor(args);
+            var types = executor.GetContextTypes().ToList();
 
             if (_json.HasValue())
             {

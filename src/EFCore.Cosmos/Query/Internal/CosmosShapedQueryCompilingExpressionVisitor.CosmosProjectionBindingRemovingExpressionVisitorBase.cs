@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                         break;
                                     default:
                                         throw new InvalidOperationException(
-                                            CoreStrings.QueryFailed(binaryExpression.Print(), GetType().Name));
+                                            CoreStrings.TranslationFailed(binaryExpression.Print()));
                                 }
                             }
 
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
                 if (genericMethod == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod)
                 {
-                    var property = (IProperty)((ConstantExpression)methodCallExpression.Arguments[2]).Value;
+                    var property = methodCallExpression.Arguments[2].GetConstantValue<IProperty>();
                     Expression innerExpression;
                     if (methodCallExpression.Arguments[0] is ProjectionBindingExpression projectionBindingExpression)
                     {
@@ -260,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                 objectArrayProjection = objectArrayProjectionExpression;
                                 break;
                             default:
-                                throw new InvalidOperationException(CoreStrings.QueryFailed(extensionExpression.Print(), GetType().Name));
+                                throw new InvalidOperationException(CoreStrings.TranslationFailed(extensionExpression.Print()));
                         }
 
                         var jArray = _projectionBindings[objectArrayProjection];

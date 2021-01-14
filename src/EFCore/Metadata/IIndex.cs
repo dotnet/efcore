@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -19,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the name of this index.
         /// </summary>
-        string Name { get; }
+        string? Name { get; }
 
         /// <summary>
         ///     Gets a value indicating whether the values assigned to the indexed properties are unique.

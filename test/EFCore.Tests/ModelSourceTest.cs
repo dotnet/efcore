@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -84,8 +85,8 @@ namespace Microsoft.EntityFrameworkCore
                     context,
                     new RuntimeConventionSetBuilder(
                         new ProviderConventionSetBuilder(
-                            serviceProvider.GetRequiredService<ProviderConventionSetBuilderDependencies>()
-                                .With(setFinder)), new List<IConventionSetPlugin>()),
+                            serviceProvider.GetRequiredService<ProviderConventionSetBuilderDependencies>() with { SetFinder = setFinder }),
+                        new List<IConventionSetPlugin>()),
                     serviceProvider.GetRequiredService<ModelDependencies>());
 
             Assert.Equal(

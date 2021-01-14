@@ -17,7 +17,10 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
@@ -34,22 +37,28 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private static readonly MemberInfo _valueBufferIsEmpty = typeof(ValueBuffer).GetMember(nameof(ValueBuffer.IsEmpty))[0];
 
         private static readonly MethodInfo _parameterValueExtractor =
-            typeof(InMemoryExpressionTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterValueExtractor));
+            typeof(InMemoryExpressionTranslatingExpressionVisitor).GetRequiredDeclaredMethod(nameof(ParameterValueExtractor));
 
         private static readonly MethodInfo _parameterListValueExtractor =
-            typeof(InMemoryExpressionTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterListValueExtractor));
+            typeof(InMemoryExpressionTranslatingExpressionVisitor).GetRequiredDeclaredMethod(nameof(ParameterListValueExtractor));
 
         private static readonly MethodInfo _getParameterValueMethodInfo =
-            typeof(InMemoryExpressionTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(GetParameterValue));
+            typeof(InMemoryExpressionTranslatingExpressionVisitor).GetRequiredDeclaredMethod(nameof(GetParameterValue));
 
-        private static readonly MethodInfo _likeMethodInfo = typeof(DbFunctionsExtensions).GetRuntimeMethod(
+        private static readonly MethodInfo _likeMethodInfo = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
             nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string) });
 
-        private static readonly MethodInfo _likeMethodInfoWithEscape = typeof(DbFunctionsExtensions).GetRuntimeMethod(
+        private static readonly MethodInfo _likeMethodInfoWithEscape = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
             nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(string) });
 
+        private static readonly MethodInfo _randomMethodInfo = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
+            nameof(DbFunctionsExtensions.Random), new[] { typeof(DbFunctions) });
+
+        private static readonly MethodInfo _randomNextDoubleMethodInfo = typeof(Random).GetRequiredRuntimeMethod(
+            nameof(Random.NextDouble), Array.Empty<Type>());
+
         private static readonly MethodInfo _inMemoryLikeMethodInfo =
-            typeof(InMemoryExpressionTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(InMemoryLike));
+            typeof(InMemoryExpressionTranslatingExpressionVisitor).GetRequiredDeclaredMethod(nameof(InMemoryLike));
 
         // Regex special chars defined here:
         // https://msdn.microsoft.com/en-us/library/4edbef7e(v=vs.110).aspx
@@ -90,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string TranslationErrorDetails { get; private set; }
+        public virtual string? TranslationErrorDetails { get; private set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -118,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Expression Translate([NotNull] Expression expression)
+        public virtual Expression? Translate([NotNull] Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
 
@@ -127,11 +136,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return TranslateInternal(expression);
         }
 
-        private Expression TranslateInternal(Expression expression)
+        private Expression? TranslateInternal(Expression expression)
         {
             var result = Visit(expression);
 
-            return _entityReferenceFindingExpressionVisitor.Find(result)
+            return result == QueryCompilationContext.NotTranslatedExpression
+                || _entityReferenceFindingExpressionVisitor.Find(result)
                 ? null
                 : result;
         }
@@ -156,19 +166,19 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var newLeft = Visit(binaryExpression.Left);
             var newRight = Visit(binaryExpression.Right);
 
-            if (newLeft == null
-                || newRight == null)
+            if (newLeft == QueryCompilationContext.NotTranslatedExpression
+                || newRight == QueryCompilationContext.NotTranslatedExpression)
             {
-                return null;
+                return QueryCompilationContext.NotTranslatedExpression;
             }
 
             if ((binaryExpression.NodeType == ExpressionType.Equal
-                    || binaryExpression.NodeType == ExpressionType.NotEqual)
+                || binaryExpression.NodeType == ExpressionType.NotEqual)
                 // Visited expression could be null, We need to pass MemberInitExpression
                 && TryRewriteEntityEquality(
                     binaryExpression.NodeType,
-                    newLeft ?? binaryExpression.Left,
-                    newRight ?? binaryExpression.Right,
+                    newLeft,
+                    newRight,
                     equalsMethod: false,
                     out var result))
             {
@@ -230,11 +240,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var ifTrue = Visit(conditionalExpression.IfTrue);
             var ifFalse = Visit(conditionalExpression.IfFalse);
 
-            if (test == null
-                || ifTrue == null
-                || ifFalse == null)
+            if (test == QueryCompilationContext.NotTranslatedExpression
+                || ifTrue == QueryCompilationContext.NotTranslatedExpression
+                || ifFalse == QueryCompilationContext.NotTranslatedExpression)
             {
-                return null;
+                return QueryCompilationContext.NotTranslatedExpression;
             }
 
             if (test.Type == typeof(bool?))
@@ -275,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     return projectionBindingExpression.ProjectionMember != null
                         ? ((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
                         .GetMappedProjection(projectionBindingExpression.ProjectionMember)
-                        : null;
+                        : QueryCompilationContext.NotTranslatedExpression;
 
                 case InMemoryGroupByShaperExpression inMemoryGroupByShaperExpression:
                     return new GroupingElementExpression(
@@ -284,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         inMemoryGroupByShaperExpression.ValueBufferParameter);
 
                 default:
-                    return null;
+                    return QueryCompilationContext.NotTranslatedExpression;
             }
         }
 
@@ -295,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override Expression VisitInvocation(InvocationExpression invocationExpression)
-            => null;
+            => QueryCompilationContext.NotTranslatedExpression;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -304,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
-            => null;
+            => throw new InvalidOperationException(CoreStrings.TranslationFailed(lambdaExpression.Print()));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -313,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override Expression VisitListInit(ListInitExpression listInitExpression)
-            => null;
+            => QueryCompilationContext.NotTranslatedExpression;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -327,9 +337,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             var innerExpression = Visit(memberExpression.Expression);
             if (memberExpression.Expression != null
-                && innerExpression == null)
+                && innerExpression == QueryCompilationContext.NotTranslatedExpression)
             {
-                return null;
+                return QueryCompilationContext.NotTranslatedExpression;
             }
 
             if (TryBindMember(innerExpression, MemberIdentity.Create(memberExpression.Member), memberExpression.Type) is Expression result)
@@ -367,9 +377,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         protected override MemberAssignment VisitMemberAssignment(MemberAssignment memberAssignment)
         {
             var expression = Visit(memberAssignment.Expression);
-            if (expression == null)
+            if (expression == QueryCompilationContext.NotTranslatedExpression)
             {
-                return null;
+                return memberAssignment.Update(Expression.Convert(expression, memberAssignment.Expression.Type));
             }
 
             if (IsConvertedToNullable(expression, memberAssignment.Expression))
@@ -378,6 +388,42 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
 
             return memberAssignment.Update(expression);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
+        {
+            Check.NotNull(memberInitExpression, nameof(memberInitExpression));
+
+            var newExpression = Visit(memberInitExpression.NewExpression);
+            if (newExpression == QueryCompilationContext.NotTranslatedExpression)
+            {
+                return QueryCompilationContext.NotTranslatedExpression;
+            }
+
+            var newBindings = new MemberBinding[memberInitExpression.Bindings.Count];
+            for (var i = 0; i < newBindings.Length; i++)
+            {
+                if (memberInitExpression.Bindings[i].BindingType != MemberBindingType.Assignment)
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                newBindings[i] = VisitMemberBinding(memberInitExpression.Bindings[i]);
+                if (((MemberAssignment)newBindings[i]).Expression is UnaryExpression unaryExpression
+                    && unaryExpression.NodeType == ExpressionType.Convert
+                    && unaryExpression.Operand == QueryCompilationContext.NotTranslatedExpression)
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+            }
+
+            return memberInitExpression.Update((NewExpression)newExpression, newBindings);
         }
 
         /// <summary>
@@ -406,7 +452,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             // EF Indexer property
             if (methodCallExpression.TryGetIndexerArguments(_model, out source, out propertyName))
             {
-                return TryBindMember(Visit(source), MemberIdentity.Create(propertyName), methodCallExpression.Type);
+                return TryBindMember(Visit(source), MemberIdentity.Create(propertyName), methodCallExpression.Type)
+                    ?? QueryCompilationContext.NotTranslatedExpression;
             }
 
             // GroupBy Aggregate case
@@ -417,7 +464,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 if (methodCallExpression.Arguments[0].Type.TryGetElementType(typeof(IQueryable<>)) == null
                     && Visit(methodCallExpression.Arguments[0]) is GroupingElementExpression groupingElementExpression)
                 {
-                    Expression result = null;
+                    Expression? result = null;
                     switch (methodCallExpression.Method.Name)
                     {
                         case nameof(Enumerable.Average):
@@ -433,7 +480,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             result = expression == null
                                 ? null
                                 : Expression.Call(
-                                    EnumerableMethods.GetAverageWithoutSelector(expression.Type.TryGetSequenceType()), expression);
+                                    EnumerableMethods.GetAverageWithoutSelector(expression.Type.GetSequenceType()), expression);
                             break;
                         }
 
@@ -441,14 +488,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         {
                             if (methodCallExpression.Arguments.Count == 2)
                             {
-                                groupingElementExpression = ApplyPredicate(
+                                var temporaryGroupingElementExpression = ApplyPredicate(
                                     groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
 
-                                if (groupingElementExpression == null)
+                                if (temporaryGroupingElementExpression == null)
                                 {
                                     result = null;
                                     break;
                                 }
+
+                                groupingElementExpression = temporaryGroupingElementExpression;
                             }
 
                             var expression = ApplySelect(groupingElementExpression);
@@ -456,7 +505,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             result = expression == null
                                 ? null
                                 : Expression.Call(
-                                    EnumerableMethods.CountWithoutPredicate.MakeGenericMethod(expression.Type.TryGetSequenceType()),
+                                    EnumerableMethods.CountWithoutPredicate.MakeGenericMethod(expression.Type.GetSequenceType()),
                                     expression);
                             break;
                         }
@@ -473,14 +522,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         {
                             if (methodCallExpression.Arguments.Count == 2)
                             {
-                                groupingElementExpression = ApplyPredicate(
+                                var temporaryGroupingElementExpression = ApplyPredicate(
                                     groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
 
-                                if (groupingElementExpression == null)
+                                if (temporaryGroupingElementExpression == null)
                                 {
                                     result = null;
                                     break;
                                 }
+
+                                groupingElementExpression = temporaryGroupingElementExpression;
                             }
 
                             var expression = ApplySelect(groupingElementExpression);
@@ -488,7 +539,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             result = expression == null
                                 ? null
                                 : Expression.Call(
-                                    EnumerableMethods.LongCountWithoutPredicate.MakeGenericMethod(expression.Type.TryGetSequenceType()),
+                                    EnumerableMethods.LongCountWithoutPredicate.MakeGenericMethod(expression.Type.GetSequenceType()),
                                     expression);
                             break;
                         }
@@ -509,7 +560,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             }
                             else
                             {
-                                var type = expression.Type.TryGetSequenceType();
+                                var type = expression.Type.GetSequenceType();
                                 var aggregateMethod = EnumerableMethods.GetMaxWithoutSelector(type);
                                 if (aggregateMethod.IsGenericMethod)
                                 {
@@ -538,7 +589,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             }
                             else
                             {
-                                var type = expression.Type.TryGetSequenceType();
+                                var type = expression.Type.GetSequenceType();
                                 var aggregateMethod = EnumerableMethods.GetMinWithoutSelector(type);
                                 if (aggregateMethod.IsGenericMethod)
                                 {
@@ -568,7 +619,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             result = expression == null
                                 ? null
                                 : Expression.Call(
-                                    EnumerableMethods.GetSumWithoutSelector(expression.Type.TryGetSequenceType()), expression);
+                                    EnumerableMethods.GetSumWithoutSelector(expression.Type.GetSequenceType()), expression);
                             break;
                         }
 
@@ -583,7 +634,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                     return result ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
 
-                    GroupingElementExpression ApplyPredicate(GroupingElementExpression groupingElement, LambdaExpression lambdaExpression)
+                    GroupingElementExpression? ApplyPredicate(GroupingElementExpression groupingElement, LambdaExpression lambdaExpression)
                     {
                         var predicate = TranslateInternal(RemapLambda(groupingElement, lambdaExpression));
 
@@ -596,7 +647,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                     Expression.Lambda(predicate, groupingElement.ValueBufferParameter)));
                     }
 
-                    Expression ApplySelect(GroupingElementExpression groupingElement)
+                    Expression? ApplySelect(GroupingElementExpression groupingElement)
                     {
                         var selector = TranslateInternal(groupingElement.Selector);
 
@@ -644,12 +695,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 var subquery = (InMemoryQueryExpression)subqueryTranslation.QueryExpression;
                 if (subqueryTranslation.ResultCardinality == ResultCardinality.Enumerable)
                 {
-                    return null;
+                    return QueryCompilationContext.NotTranslatedExpression;
                 }
 
                 var shaperExpression = subqueryTranslation.ShaperExpression;
                 var innerExpression = shaperExpression;
-                Type convertedType = null;
+                Type? convertedType = null;
                 if (shaperExpression is UnaryExpression unaryExpression
                     && unaryExpression.NodeType == ExpressionType.Convert)
                 {
@@ -668,7 +719,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     && (convertedType == null
                         || convertedType.MakeNullable() == innerExpression.Type)))
                 {
-                    return null;
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                if (projectionBindingExpression.ProjectionMember == null)
+                {
+                    // We don't lift scalar subquery with client eval
+                    return QueryCompilationContext.NotTranslatedExpression;
                 }
 
                 return ProcessSingleResultScalar(
@@ -690,7 +747,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     var argument = Visit(methodCallExpression.Arguments[i]);
                     if (TranslationFailed(methodCallExpression.Arguments[i], argument))
                     {
-                        return null;
+                        return QueryCompilationContext.NotTranslatedExpression;
                     }
 
                     visitedArguments[i - 1] = argument;
@@ -699,7 +756,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 return Expression.Call(_inMemoryLikeMethodInfo, visitedArguments);
             }
 
-            Expression @object = null;
+            if (methodCallExpression.Method == _randomMethodInfo)
+            {
+                return Expression.Call(Expression.New(typeof(Random)), _randomNextDoubleMethodInfo);
+            }
+
+            Expression? @object = null;
             Expression[] arguments;
             var method = methodCallExpression.Method;
 
@@ -708,22 +770,22 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 && methodCallExpression.Arguments.Count == 1)
             {
                 var left = Visit(methodCallExpression.Object);
-                var right = Visit(methodCallExpression.Arguments[0]);
+                var right = Visit(methodCallExpression.Arguments[0])!;
 
                 if (TryRewriteEntityEquality(
                     ExpressionType.Equal,
-                    left ?? methodCallExpression.Object,
-                    right ?? methodCallExpression.Arguments[0],
+                    left == QueryCompilationContext.NotTranslatedExpression ? methodCallExpression.Object : left,
+                    right == QueryCompilationContext.NotTranslatedExpression ? methodCallExpression.Arguments[0] : right,
                     equalsMethod: true,
                     out var result))
                 {
                     return result;
                 }
 
-                if (TranslationFailed(left)
-                    || TranslationFailed(right))
+                if (TranslationFailed(methodCallExpression.Object, left)
+                    || TranslationFailed(methodCallExpression.Arguments[0], right))
                 {
-                    return null;
+                    return QueryCompilationContext.NotTranslatedExpression;
                 }
 
                 @object = left;
@@ -741,23 +803,23 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             methodCallExpression.Arguments[0], methodCallExpression.Arguments[1]));
                 }
 
-                var left = Visit(methodCallExpression.Arguments[0]);
-                var right = Visit(methodCallExpression.Arguments[1]);
+                var left = Visit(methodCallExpression.Arguments[0])!;
+                var right = Visit(methodCallExpression.Arguments[1])!;
 
                 if (TryRewriteEntityEquality(
                     ExpressionType.Equal,
-                    left ?? methodCallExpression.Arguments[0],
-                    right ?? methodCallExpression.Arguments[1],
+                    left == QueryCompilationContext.NotTranslatedExpression ? methodCallExpression.Arguments[0] : left,
+                    right == QueryCompilationContext.NotTranslatedExpression ? methodCallExpression.Arguments[1] : right,
                     equalsMethod: true,
                     out var result))
                 {
                     return result;
                 }
 
-                if (TranslationFailed(left)
-                    || TranslationFailed(right))
+                if (TranslationFailed(methodCallExpression.Arguments[0], left)
+                    || TranslationFailed(methodCallExpression.Arguments[1], right))
                 {
-                    return null;
+                    return QueryCompilationContext.NotTranslatedExpression;
                 }
 
                 arguments = new Expression[2] { left, right };
@@ -765,18 +827,20 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             else if (method.IsGenericMethod
                 && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains))
             {
-                var enumerable = Visit(methodCallExpression.Arguments[0]);
-                var item = Visit(methodCallExpression.Arguments[1]);
+                var enumerable = Visit(methodCallExpression.Arguments[0])!;
+                var item = Visit(methodCallExpression.Arguments[1])!;
 
-                if (TryRewriteContainsEntity(enumerable, item ?? methodCallExpression.Arguments[1], out var result))
+                if (TryRewriteContainsEntity(enumerable,
+                    item == QueryCompilationContext.NotTranslatedExpression ? methodCallExpression.Arguments[1] : item,
+                    out var result))
                 {
                     return result;
                 }
 
-                if (TranslationFailed(enumerable)
-                    || TranslationFailed(item))
+                if (TranslationFailed(methodCallExpression.Arguments[0], enumerable)
+                    || TranslationFailed(methodCallExpression.Arguments[1], item))
                 {
-                    return null;
+                    return QueryCompilationContext.NotTranslatedExpression;
                 }
 
                 arguments = new Expression[2] { enumerable, item };
@@ -785,17 +849,19 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 && method.IsContainsMethod())
             {
                 var enumerable = Visit(methodCallExpression.Object);
-                var item = Visit(methodCallExpression.Arguments[0]);
+                var item = Visit(methodCallExpression.Arguments[0])!;
 
-                if (TryRewriteContainsEntity(enumerable, item ?? methodCallExpression.Arguments[0], out var result))
+                if (TryRewriteContainsEntity(enumerable,
+                    item == QueryCompilationContext.NotTranslatedExpression ? methodCallExpression.Arguments[0] : item,
+                    out var result))
                 {
                     return result;
                 }
 
-                if (TranslationFailed(enumerable)
-                    || TranslationFailed(item))
+                if (TranslationFailed(methodCallExpression.Object, enumerable)
+                    || TranslationFailed(methodCallExpression.Arguments[0], item))
                 {
-                    return null;
+                    return QueryCompilationContext.NotTranslatedExpression;
                 }
 
                 @object = enumerable;
@@ -806,7 +872,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 @object = Visit(methodCallExpression.Object);
                 if (TranslationFailed(methodCallExpression.Object, @object))
                 {
-                    return null;
+                    return QueryCompilationContext.NotTranslatedExpression;
                 }
 
                 arguments = new Expression[methodCallExpression.Arguments.Count];
@@ -815,7 +881,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     var argument = Visit(methodCallExpression.Arguments[i]);
                     if (TranslationFailed(methodCallExpression.Arguments[i], argument))
                     {
-                        return null;
+                        return QueryCompilationContext.NotTranslatedExpression;
                     }
 
                     arguments[i] = argument;
@@ -840,7 +906,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             // if object is nullable, add null safeguard before calling the function
             // we special-case Nullable<>.GetValueOrDefault, which doesn't need the safeguard
             if (methodCallExpression.Object != null
-                && @object.Type.IsNullableType()
+                && @object!.Type.IsNullableType()
                 && methodCallExpression.Method.Name != nameof(Nullable<int>.GetValueOrDefault))
             {
                 var result = (Expression)methodCallExpression.Update(
@@ -848,15 +914,35 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     arguments);
 
                 result = ConvertToNullable(result);
-                result = Expression.Condition(
-                    Expression.Equal(@object, Expression.Constant(null, @object.Type)),
-                    Expression.Constant(null, result.Type),
-                    result);
+                var objectNullCheck = Expression.Equal(@object, Expression.Constant(null, @object.Type));
+                // instance.Equals(argument) should translate to
+                // instance == null ? argument == null : instance.Equals(argument)
+                if (method.Name == nameof(object.Equals))
+                {
+                    var argument = arguments[0];
+                    if (argument.NodeType == ExpressionType.Convert
+                        && argument is UnaryExpression unaryExpression
+                        && argument.Type == unaryExpression.Operand.Type.UnwrapNullableType())
+                    {
+                        argument = unaryExpression.Operand;
+                    }
 
-                return result;
+                    if (!argument.Type.IsNullableType())
+                    {
+                        argument = Expression.Convert(argument, argument.Type.MakeNullable());
+                    }
+
+                    return Expression.Condition(
+                        objectNullCheck,
+                        ConvertToNullable(Expression.Equal(argument, Expression.Constant(null, argument.Type))),
+                        result);
+                }
+
+                return Expression.Condition(objectNullCheck, Expression.Constant(null, result.Type), result);
             }
 
-            return methodCallExpression.Update(@object, arguments);
+            // TODO-Nullable bug
+            return methodCallExpression.Update(@object!, arguments);
         }
 
         /// <summary>
@@ -873,9 +959,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             foreach (var argument in newExpression.Arguments)
             {
                 var newArgument = Visit(argument);
-                if (newArgument == null)
+                if (newArgument == QueryCompilationContext.NotTranslatedExpression)
                 {
-                    return null;
+                    return QueryCompilationContext.NotTranslatedExpression;
                 }
 
                 if (IsConvertedToNullable(newArgument, argument))
@@ -903,9 +989,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             foreach (var expression in newArrayExpression.Expressions)
             {
                 var newExpression = Visit(expression);
-                if (newExpression == null)
+                if (newExpression == QueryCompilationContext.NotTranslatedExpression)
                 {
-                    return null;
+                    return QueryCompilationContext.NotTranslatedExpression;
                 }
 
                 if (IsConvertedToNullable(newExpression, expression))
@@ -963,9 +1049,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 var derivedType = entityType.GetDerivedTypes().SingleOrDefault(et => et.ClrType == typeBinaryExpression.TypeOperand);
                 if (derivedType != null)
                 {
-                    var discriminatorProperty = entityType.GetDiscriminatorProperty();
+                    // All hierarchies have discriminator property
+                    var discriminatorProperty = entityType.GetDiscriminatorProperty()!;
                     var boundProperty = BindProperty(entityReferenceExpression, discriminatorProperty, discriminatorProperty.ClrType);
-                    var valueComparer = discriminatorProperty.GetKeyValueComparer();
+                    // KeyValueComparer is not null at runtime
+                    var valueComparer = discriminatorProperty.GetKeyValueComparer()!;
 
                     var equals = valueComparer.ExtractEqualsBody(
                         boundProperty,
@@ -984,7 +1072,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 }
             }
 
-            return null;
+            return QueryCompilationContext.NotTranslatedExpression;
         }
 
         /// <summary>
@@ -998,9 +1086,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             Check.NotNull(unaryExpression, nameof(unaryExpression));
 
             var newOperand = Visit(unaryExpression.Operand);
-            if (newOperand == null)
+            if (newOperand == QueryCompilationContext.NotTranslatedExpression)
             {
-                return null;
+                return QueryCompilationContext.NotTranslatedExpression;
             }
 
             if (newOperand is EntityReferenceExpression entityReferenceExpression
@@ -1048,7 +1136,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return result;
         }
 
-        private Expression TryBindMember(Expression source, MemberIdentity member, Type type)
+        private Expression? TryBindMember(Expression? source, MemberIdentity member, Type type)
         {
             if (!(source is EntityReferenceExpression entityReferenceExpression))
             {
@@ -1059,7 +1147,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             var property = member.MemberInfo != null
                 ? entityType.FindProperty(member.MemberInfo)
-                : entityType.FindProperty(member.Name);
+                : entityType.FindProperty(member.Name!);
 
             if (property != null)
             {
@@ -1074,12 +1162,17 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return null;
         }
 
-        private Expression BindProperty(EntityReferenceExpression entityReferenceExpression, IProperty property, Type type)
+        private Expression? BindProperty(EntityReferenceExpression entityReferenceExpression, IProperty property, Type type)
         {
             if (entityReferenceExpression.ParameterEntity != null)
             {
-                var result = ((EntityProjectionExpression)Visit(entityReferenceExpression.ParameterEntity.ValueBufferExpression))
-                    .BindProperty(property);
+                var valueBufferExpression = Visit(entityReferenceExpression.ParameterEntity.ValueBufferExpression);
+                if (valueBufferExpression == QueryCompilationContext.NotTranslatedExpression)
+                {
+                    return null;
+                }
+
+                var result = ((EntityProjectionExpression)valueBufferExpression).BindProperty(property);
 
                 // if the result type change was just nullability change e.g from int to int?
                 // we want to preserve the new type for null propagation
@@ -1110,7 +1203,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 else
                 {
                     // This has to be index map since entities cannot map to just integer index
-                    var index = projectionBindingExpression.IndexMap[property];
+                    var index = projectionBindingExpression.IndexMap![property];
                     readValueExpression = inMemoryQueryExpression.Projection[index];
                 }
 
@@ -1159,7 +1252,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         [UsedImplicitly]
         private static T GetParameterValue<T>(QueryContext queryContext, string parameterName)
-            => (T)queryContext.ParameterValues[parameterName];
+            => (T)queryContext.ParameterValues[parameterName]!;
 
         private static bool IsConvertedToNullable(Expression result, Expression original)
             => result.Type.IsNullableType()
@@ -1176,7 +1269,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 ? Expression.Convert(expression, expression.Type.UnwrapNullableType())
                 : expression;
 
-        private IProperty FindProperty(Expression expression)
+        private IProperty? FindProperty(Expression expression)
         {
             if (expression.NodeType == ExpressionType.Convert
                 && expression.Type.IsNullableType()
@@ -1190,13 +1283,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 && readValueMethodCall.Method.IsGenericMethod
                 && readValueMethodCall.Method.GetGenericMethodDefinition() == ExpressionExtensions.ValueBufferTryReadValueMethod)
             {
-                return (IProperty)((ConstantExpression)readValueMethodCall.Arguments[2]).Value;
+                return readValueMethodCall.Arguments[2].GetConstantValue<IProperty>();
             }
 
             return null;
         }
 
-        private bool TryRewriteContainsEntity(Expression source, Expression item, out Expression result)
+        private bool TryRewriteContainsEntity(Expression? source, Expression item, [CA.NotNullWhen(true)] out Expression? result)
         {
             result = null;
 
@@ -1224,9 +1317,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             switch (source)
             {
                 case ConstantExpression constantExpression:
-                    var values = (IEnumerable)constantExpression.Value;
+                    var values = constantExpression.GetConstantValue<IEnumerable>();
                     var propertyValueList =
-                        (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(property.ClrType.MakeNullable()));
+                        (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(property.ClrType.MakeNullable()))!;
                     var propertyGetter = property.GetGetter();
                     foreach (var value in values)
                     {
@@ -1239,10 +1332,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 case MethodCallExpression methodCallExpression
                     when methodCallExpression.Method.IsGenericMethod
                     && methodCallExpression.Method.GetGenericMethodDefinition() == _getParameterValueMethodInfo:
-                    var parameterName = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
+                    var parameterName = methodCallExpression.Arguments[1].GetConstantValue<string>();
                     var lambda = Expression.Lambda(
                         Expression.Call(
-                            _parameterListValueExtractor.MakeGenericMethod(entityType.ClrType, property.ClrType.MakeNullable()),
+                            _parameterListValueExtractor.MakeGenericMethod(entityType.ClrType!, property.ClrType.MakeNullable()),
                             QueryCompilationContext.QueryContextParameter,
                             Expression.Constant(parameterName, typeof(string)),
                             Expression.Constant(property, typeof(IProperty))),
@@ -1251,7 +1344,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                     var newParameterName =
                         $"{_runtimeParameterPrefix}"
-                        + $"{parameterName.Substring(QueryCompilationContext.QueryParameterPrefix.Length)}_{property.Name}";
+                        + $"{parameterName[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
 
                     rewrittenSource = _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
                     break;
@@ -1269,7 +1362,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return true;
         }
 
-        private bool TryRewriteEntityEquality(ExpressionType nodeType, Expression left, Expression right, bool equalsMethod, out Expression result)
+        private bool TryRewriteEntityEquality(
+            ExpressionType nodeType, Expression left, Expression right, bool equalsMethod, [CA.NotNullWhen(true)] out Expression? result)
         {
             var leftEntityReference = left as EntityReferenceExpression;
             var rightEntityReference = right as EntityReferenceExpression;
@@ -1284,7 +1378,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             if (IsNullConstantExpression(left)
                 || IsNullConstantExpression(right))
             {
-                var nonNullEntityReference = IsNullConstantExpression(left) ? rightEntityReference : leftEntityReference;
+                var nonNullEntityReference = (IsNullConstantExpression(left) ? rightEntityReference : leftEntityReference)!;
                 var entityType1 = nonNullEntityReference.EntityType;
                 var primaryKeyProperties1 = entityType1.FindPrimaryKey()?.Properties;
                 if (primaryKeyProperties1 == null)
@@ -1342,7 +1436,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     entityType.DisplayName()));
             }
 
-            var quirk = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore23779", out var enabled) && enabled;
             result = Visit(
                 primaryKeyProperties.Select(
                         p =>
@@ -1350,9 +1443,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                 nodeType,
                                 CreatePropertyAccessExpression(left, p),
                                 CreatePropertyAccessExpression(right, p)))
-                    .Aggregate((l, r) => nodeType == ExpressionType.Equal || quirk
+                    .Aggregate((l, r) => nodeType == ExpressionType.Equal
                         ? Expression.AndAlso(l, r)
                         : Expression.OrElse(l, r)));
+
             return true;
         }
 
@@ -1362,12 +1456,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             {
                 case ConstantExpression constantExpression:
                     return Expression.Constant(
-                        property.GetGetter().GetClrValue(constantExpression.Value), property.ClrType.MakeNullable());
+                        constantExpression.Value is null
+                            ? null
+                            : property.GetGetter().GetClrValue(constantExpression.Value),
+                        property.ClrType.MakeNullable());
 
                 case MethodCallExpression methodCallExpression
                     when methodCallExpression.Method.IsGenericMethod
                     && methodCallExpression.Method.GetGenericMethodDefinition() == _getParameterValueMethodInfo:
-                    var parameterName = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
+                    var parameterName = methodCallExpression.Arguments[1].GetConstantValue<string>();
                     var lambda = Expression.Lambda(
                         Expression.Call(
                             _parameterValueExtractor.MakeGenericMethod(property.ClrType.MakeNullable()),
@@ -1378,7 +1475,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                     var newParameterName =
                         $"{_runtimeParameterPrefix}"
-                        + $"{parameterName.Substring(QueryCompilationContext.QueryParameterPrefix.Length)}_{property.Name}";
+                        + $"{parameterName[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
 
                     return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
 
@@ -1402,12 +1499,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
         }
 
+#nullable disable
+        // Need unconstrainted nullable T
         private static T ParameterValueExtractor<T>(QueryContext context, string baseParameterName, IProperty property)
         {
             var baseParameter = context.ParameterValues[baseParameterName];
             return baseParameter == null ? (T)(object)null : (T)property.GetGetter().GetClrValue(baseParameter);
         }
 
+        // Need unconstrainted nullable TProperty
         private static List<TProperty> ParameterListValueExtractor<TEntity, TProperty>(
             QueryContext context,
             string baseParameterName,
@@ -1421,6 +1521,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var getter = property.GetGetter();
             return baseListParameter.Select(e => e != null ? (TProperty)getter.GetClrValue(e) : (TProperty)(object)null).ToList();
         }
+#nullable enable
 
         private static ConstantExpression GetValue(Expression expression)
             => Expression.Constant(
@@ -1485,11 +1586,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             => expression is ConstantExpression constantExpression && constantExpression.Value == null;
 
         [DebuggerStepThrough]
-        private static bool TranslationFailed(Expression original, Expression translation)
-            => original != null && (translation == null || translation is EntityReferenceExpression);
-
-        private static bool TranslationFailed(Expression translation)
-            => translation == null || translation is EntityReferenceExpression;
+        private static bool TranslationFailed(Expression? original, Expression? translation)
+            => original != null
+            && (translation == QueryCompilationContext.NotTranslatedExpression || translation is EntityReferenceExpression);
 
         private static bool InMemoryLike(string matchExpression, string pattern, string escapeCharacter)
         {
@@ -1585,7 +1684,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 return _found;
             }
 
-            public override Expression Visit(Expression expression)
+            [return: CA.NotNullIfNotNull("expression")]
+            public override Expression? Visit(Expression? expression)
             {
                 if (_found)
                 {
@@ -1623,12 +1723,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 EntityType = entityType;
             }
 
-            public EntityShaperExpression ParameterEntity { get; }
-            public ShapedQueryExpression SubqueryEntity { get; }
+            public EntityShaperExpression? ParameterEntity { get; }
+            public ShapedQueryExpression? SubqueryEntity { get; }
             public IEntityType EntityType { get; }
 
             public override Type Type
-                => EntityType.ClrType;
+                // No shadow entities at runtime
+                => EntityType.ClrType!;
 
             public override ExpressionType NodeType
                 => ExpressionType.Extension;
@@ -1643,7 +1744,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                 var derivedEntityType = EntityType.GetDerivedTypes().FirstOrDefault(et => et.ClrType == type);
 
-                return derivedEntityType == null ? null : new EntityReferenceExpression(this, derivedEntityType);
+                return derivedEntityType == null
+                    ? QueryCompilationContext.NotTranslatedExpression
+                    : new EntityReferenceExpression(this, derivedEntityType);
             }
         }
 

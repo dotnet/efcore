@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -50,11 +52,11 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="navigation"> The navigation property to find the inverse of. </param>
         /// <returns>
-        ///     The inverse navigation, or null if none is defined.
+        ///     The inverse navigation, or <see langword="null" /> if none is defined.
         /// </returns>
         [DebuggerStepThrough]
         [Obsolete("Use INavigation.Inverse")]
-        public static INavigation FindInverse([NotNull] this INavigation navigation)
+        public static INavigation? FindInverse([NotNull] this INavigation navigation)
             => Check.NotNull(navigation, nameof(navigation)).Inverse;
 
         /// <summary>

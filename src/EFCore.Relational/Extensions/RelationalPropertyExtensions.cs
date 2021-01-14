@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         break;
                     default:
-                        throw new NotImplementedException(storeObject.StoreObjectType.ToString());
+                        throw new NotSupportedException(storeObject.StoreObjectType.ToString());
                 }
 
                 if (entityType == null)
@@ -456,7 +456,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     return null;
                 default:
-                    throw new NotImplementedException(storeObject.StoreObjectType.ToString());
+                    throw new NotSupportedException(storeObject.StoreObjectType.ToString());
             }
         }
 
@@ -996,14 +996,7 @@ namespace Microsoft.EntityFrameworkCore
                         || IsOptionalSharingDependent(linkingForeignKey.PrincipalEntityType, storeObject, recursionDepth));
             }
 
-            if (optional.HasValue)
-            {
-                return optional.Value;
-            }
-
-            return AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23479", out var enabled) && enabled
-                ? false
-                : entityType.BaseType != null && entityType.GetDiscriminatorProperty() != null;
+            return optional ?? (entityType.BaseType != null && entityType.GetDiscriminatorProperty() != null);
         }
 
         /// <summary>
@@ -1240,7 +1233,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 throw new InvalidOperationException(
                     RelationalStrings.PropertyNotMappedToTable(
-                        property.Name, property.DeclaringEntityType, storeObject.DisplayName()));
+                        property.Name, property.DeclaringEntityType.DisplayName(), storeObject.DisplayName()));
             }
 
             var rootProperty = property;

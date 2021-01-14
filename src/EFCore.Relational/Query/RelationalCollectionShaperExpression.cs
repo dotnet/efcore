@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -66,11 +68,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] Expression parentIdentifier,
             [NotNull] Expression outerIdentifier,
             [NotNull] Expression selfIdentifier,
-            [CanBeNull] IReadOnlyList<ValueComparer> parentIdentifierValueComparers,
-            [CanBeNull] IReadOnlyList<ValueComparer> outerIdentifierValueComparers,
-            [CanBeNull] IReadOnlyList<ValueComparer> selfIdentifierValueComparers,
+            [CanBeNull] IReadOnlyList<ValueComparer>? parentIdentifierValueComparers,
+            [CanBeNull] IReadOnlyList<ValueComparer>? outerIdentifierValueComparers,
+            [CanBeNull] IReadOnlyList<ValueComparer>? selfIdentifierValueComparers,
             [NotNull] Expression innerShaper,
-            [CanBeNull] INavigationBase navigation,
+            [CanBeNull] INavigationBase? navigation,
             [NotNull] Type elementType)
         {
             Check.NotNull(parentIdentifier, nameof(parentIdentifier));
@@ -114,17 +116,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The list of value comparers to compare parent identifier.
         /// </summary>
-        public virtual IReadOnlyList<ValueComparer> ParentIdentifierValueComparers { get; }
+        public virtual IReadOnlyList<ValueComparer>? ParentIdentifierValueComparers { get; }
 
         /// <summary>
         ///     The list of value comparers to compare outer identifier.
         /// </summary>
-        public virtual IReadOnlyList<ValueComparer> OuterIdentifierValueComparers { get; }
+        public virtual IReadOnlyList<ValueComparer>? OuterIdentifierValueComparers { get; }
 
         /// <summary>
         ///     The list of value comparers to compare self identifier.
         /// </summary>
-        public virtual IReadOnlyList<ValueComparer> SelfIdentifierValueComparers { get; }
+        public virtual IReadOnlyList<ValueComparer>? SelfIdentifierValueComparers { get; }
 
         /// <summary>
         ///     The expression to create inner elements.
@@ -134,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The navigation if associated with the collection.
         /// </summary>
-        public virtual INavigationBase Navigation { get; }
+        public virtual INavigationBase? Navigation { get; }
 
         /// <summary>
         ///     The clr type of elements of the collection.

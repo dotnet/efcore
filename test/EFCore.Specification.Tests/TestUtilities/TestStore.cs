@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
             else
             {
-                Initialize(createContext, seed, clean);
+                GetTestStoreIndex(serviceProvider).CreateNonShared(GetType().Name + Name, () => Initialize(createContext, seed, clean));
             }
 
             return this;

@@ -8,6 +8,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -29,8 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="arguments"> SQL representations of <see cref="MethodCallExpression.Arguments" />. </param>
         /// <param name="logger"> The query logger to use. </param>
         /// <returns> A SQL translation of the <see cref="MethodCallExpression" />. </returns>
-        SqlExpression Translate(
-            [CanBeNull] SqlExpression instance,
+        SqlExpression? Translate(
+            [CanBeNull] SqlExpression? instance,
             [NotNull] MethodInfo method,
             [NotNull] IReadOnlyList<SqlExpression> arguments,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger);

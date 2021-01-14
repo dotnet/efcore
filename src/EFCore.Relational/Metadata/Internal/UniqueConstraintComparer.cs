@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -33,8 +35,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public int Compare(IUniqueConstraint x, IUniqueConstraint y)
+        public int Compare(IUniqueConstraint? x, IUniqueConstraint? y)
         {
+            if (ReferenceEquals(x, y))
+            {
+                return 0;
+            }
+
+            if (x is null)
+            {
+                return -1;
+            }
+
+            if (y is null)
+            {
+                return 1;
+            }
+
             var result = StringComparer.Ordinal.Compare(x.Name, y.Name);
             if (result != 0)
             {
@@ -52,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public bool Equals(IUniqueConstraint x, IUniqueConstraint y)
+        public bool Equals(IUniqueConstraint? x, IUniqueConstraint? y)
             => Compare(x, y) == 0;
 
         /// <summary>

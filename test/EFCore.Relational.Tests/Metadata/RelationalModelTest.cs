@@ -16,6 +16,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class RelationalModelTest
     {
+        [ConditionalFact]
+        public void GetRelationalModel_throws_if_convention_has_not_run()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            Assert.Equal(
+                RelationalStrings.DatabaseModelMissing,
+                Assert.Throws<InvalidOperationException>(
+                    () => modelBuilder.Model.GetRelationalModel()).Message);
+        }
+
         [ConditionalTheory]
         [InlineData(true, Mapping.TPH)]
         [InlineData(true, Mapping.TPT)]
@@ -147,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(
                 new[]
                 {
-                    nameof(Order), "OrderDetails.BillingAddress#Address", "OrderDetails.ShippingAddress#Address", nameof(OrderDetails)
+                    nameof(Order), nameof(OrderDetails), "OrderDetails.BillingAddress#Address", "OrderDetails.ShippingAddress#Address"
                 },
                 ordersView.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
             Assert.Equal(
@@ -262,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(
                 new[]
                 {
-                    nameof(Order), "OrderDetails.BillingAddress#Address", "OrderDetails.ShippingAddress#Address", nameof(OrderDetails)
+                    nameof(Order), nameof(OrderDetails), "OrderDetails.BillingAddress#Address", "OrderDetails.ShippingAddress#Address"
                 },
                 ordersTable.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
             Assert.Equal(
@@ -453,6 +464,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var addressColumn = specialCustomerTable.Columns.Single(c =>
                     c.Name == nameof(SpecialCustomer.Details) + "_" + nameof(CustomerDetails.Address));
                 Assert.False(addressColumn.IsNullable);
+                var specialityProperty = specialityColumn.PropertyMappings.First().Property;
+
+                Assert.Equal(
+                    RelationalStrings.PropertyNotMappedToTable(
+                        nameof(SpecialCustomer.Speciality), nameof(SpecialCustomer), "Customer"),
+                    Assert.Throws<InvalidOperationException>(() =>
+                    specialityProperty.IsColumnNullable(StoreObjectIdentifier.Table(customerTable.Name, customerTable.Schema))).Message);
 
                 Assert.Equal(3, customerPk.GetMappedConstraints().Count());
                 var specialCustomerPkConstraint = specialCustomerTable.PrimaryKey;

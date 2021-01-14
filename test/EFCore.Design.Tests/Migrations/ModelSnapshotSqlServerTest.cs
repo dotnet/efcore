@@ -1300,18 +1300,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 model =>
                 {
                     var joinEntity = model.FindEntityType("ManyToManyLeftManyToManyRight");
-                    Assert.NotNull(joinEntity);
+                    Assert.Equal(typeof(Dictionary<string, object>), joinEntity.ClrType);
                     Assert.Collection(
                         joinEntity.GetDeclaredProperties(),
                         p =>
                         {
                             Assert.Equal("LeftsId", p.Name);
-                            Assert.True(p.IsShadowProperty());
+                            Assert.False(p.IsShadowProperty());
                         },
                         p =>
                         {
                             Assert.Equal("RightsId", p.Name);
-                            Assert.True(p.IsShadowProperty());
+                            Assert.False(p.IsShadowProperty());
                         });
                     Assert.Collection(
                         joinEntity.FindDeclaredPrimaryKey().Properties,
@@ -1441,19 +1441,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 model =>
                 {
                     var joinEntity = model.FindEntityType("ManyToManyLeftManyToManyRight");
-                    Assert.NotNull(joinEntity);
+                    Assert.Equal(typeof(Dictionary<string, object>), joinEntity.ClrType);
                     Assert.Equal("MyJoinTable", joinEntity.GetTableName());
                     Assert.Collection(
                         joinEntity.GetDeclaredProperties(),
                         p =>
                         {
                             Assert.Equal("LeftsId", p.Name);
-                            Assert.True(p.IsShadowProperty());
+                            Assert.False(p.IsShadowProperty());
                         },
                         p =>
                         {
                             Assert.Equal("RightsId", p.Name);
-                            Assert.True(p.IsShadowProperty());
+                            Assert.False(p.IsShadowProperty());
                         });
                     Assert.Collection(
                         joinEntity.FindDeclaredPrimaryKey().Properties,
@@ -1555,7 +1555,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Entity<EntityWithTwoProperties>(b =>
                     {
                         b.ToTable("EntityWithProperties");
-                        b.Property<int>(e => e.AlternateId).HasColumnName("AlternateId");
+                        b.Property(e => e.AlternateId).HasColumnName("AlternateId");
                         b.HasOne(e => e.EntityWithOneProperty).WithOne(e => e.EntityWithTwoProperties)
                             .HasForeignKey<EntityWithTwoProperties>(e => e.Id);
                     });
@@ -1583,9 +1583,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
                 {
                     b.Property<int>(""Id"")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType(""int"");
 
                     b.Property<int>(""AlternateId"")
                         .ValueGeneratedOnUpdateSometimes()
@@ -1846,9 +1844,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"", b1 =>
                         {
                             b1.Property<int>(""AlternateId"")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType(""int"")
-                                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                                .HasColumnType(""int"");
 
                             b1.Property<string>(""EntityWithStringKeyId"")
                                 .HasColumnType(""nvarchar(450)"");
@@ -2071,9 +2067,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"", b1 =>
                         {
                             b1.Property<int>(""AlternateId"")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType(""int"")
-                                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                                .HasColumnType(""int"");
 
                             b1.Property<string>(""EntityWithStringKeyId"")
                                 .HasColumnType(""nvarchar(450)"");
@@ -2215,7 +2209,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         [ConditionalFact]
-        public virtual void Weak_owned_types_are_stored_in_snapshot()
+        public virtual void Shared_owned_types_are_stored_in_snapshot()
         {
             Test(
                 builder =>
@@ -2244,9 +2238,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"", ""OrderBillingDetails"", b1 =>
                         {
                             b1.Property<int>(""OrderId"")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType(""int"")
-                                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                                .HasColumnType(""int"");
 
                             b1.HasKey(""OrderId"");
 
@@ -2258,9 +2250,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""StreetAddress"", b2 =>
                                 {
                                     b2.Property<int>(""OrderDetailsOrderId"")
-                                        .ValueGeneratedOnAdd()
-                                        .HasColumnType(""int"")
-                                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                                        .HasColumnType(""int"");
 
                                     b2.Property<string>(""City"")
                                         .HasColumnType(""nvarchar(max)"");
@@ -2279,9 +2269,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"", ""OrderShippingDetails"", b1 =>
                         {
                             b1.Property<int>(""OrderId"")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType(""int"")
-                                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                                .HasColumnType(""int"");
 
                             b1.HasKey(""OrderId"");
 
@@ -2293,9 +2281,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""StreetAddress"", b2 =>
                                 {
                                     b2.Property<int>(""OrderDetailsOrderId"")
-                                        .ValueGeneratedOnAdd()
-                                        .HasColumnType(""int"")
-                                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                                        .HasColumnType(""int"");
 
                                     b2.Property<string>(""City"")
                                         .HasColumnType(""nvarchar(max)"");
@@ -2314,9 +2300,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderInfo"", ""OrderInfo"", b1 =>
                         {
                             b1.Property<int>(""OrderId"")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType(""int"")
-                                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                                .HasColumnType(""int"");
 
                             b1.HasKey(""OrderId"");
 
@@ -2328,9 +2312,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""StreetAddress"", b2 =>
                                 {
                                     b2.Property<int>(""OrderInfoOrderId"")
-                                        .ValueGeneratedOnAdd()
-                                        .HasColumnType(""int"")
-                                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                                        .HasColumnType(""int"");
 
                                     b2.Property<string>(""City"")
                                         .HasColumnType(""nvarchar(max)"");
@@ -2457,8 +2439,10 @@ namespace RootNamespace
                 model =>
                 {
                     Assert.Equal(2, model.GetEntityTypes().Count());
+                    var testOwner = model.FindEntityType(
+                        "Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+TestOwner");
                     var testOwnee = model.FindEntityType(
-                        "Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+TestOwnee");
+                        "Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+TestOwnee", "OwnedEntities", testOwner);
                     Assert.NotNull(testOwnee.FindCheckConstraint("CK_TestOwnee_TestEnum_Enum_Constraint"));
                 });
         }
@@ -2715,7 +2699,7 @@ namespace RootNamespace
                     b.Property<string>(""Name"")
                         .HasMaxLength(100)
                         .HasColumnType(""nchar(100)"")
-                        .IsFixedLength(true);
+                        .IsFixedLength();
 
                     b.HasKey(""Id"");
 

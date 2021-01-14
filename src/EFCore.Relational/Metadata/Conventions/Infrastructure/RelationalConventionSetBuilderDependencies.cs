@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class RelationalConventionSetBuilderDependencies
+    public sealed record RelationalConventionSetBuilderDependencies
     {
         /// <summary>
         ///     <para>
@@ -69,14 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <summary>
         ///     The relational annotation provider.
         /// </summary>
-        public IRelationalAnnotationProvider RelationalAnnotationProvider { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="relationalAnnotationProvider"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalConventionSetBuilderDependencies With([NotNull] IRelationalAnnotationProvider relationalAnnotationProvider)
-            => new RelationalConventionSetBuilderDependencies(relationalAnnotationProvider);
+        public IRelationalAnnotationProvider RelationalAnnotationProvider { get; [param: NotNull] init; }
     }
 }

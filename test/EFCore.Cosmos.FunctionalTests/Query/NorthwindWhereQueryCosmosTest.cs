@@ -2141,6 +2141,11 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND c[""OrderID""] IN (10248, 10249))");
         }
 
+        public override Task Where_equals_method_string_with_ignore_case(bool async)
+        {
+            return AssertTranslationFailed(() => base.Where_equals_method_string_with_ignore_case(async));
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

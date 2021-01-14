@@ -22,7 +22,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class EntityMaterializerSourceTest
     {
-        private readonly DbContext _fakeContext = new DbContext(new DbContextOptions<DbContext>());
+        private readonly DbContext _fakeContext = new(new DbContextOptions<DbContext>());
+
+        [ConditionalFact]
+        public void Throws_for_abstract_types()
+        {
+            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(SomeAbstractEntity));
+            var source = new EntityMaterializerSource(new EntityMaterializerSourceDependencies());
+
+            Assert.Equal(
+                CoreStrings.CannotMaterializeAbstractType(nameof(SomeAbstractEntity)),
+                Assert.Throws<InvalidOperationException>(() => source.CreateMaterializeExpression(entityType, "", null!)).Message);
+        }
 
         [ConditionalFact]
         public void Can_create_materializer_for_entity_with_constructor_properties()
@@ -301,6 +312,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     source.CreateMaterializeExpression(entityType, "instance", _contextParameter),
                     _contextParameter)
                 .Compile();
+
+        private abstract class SomeAbstractEntity
+        {
+        }
 
         private class SomeEntity
         {
