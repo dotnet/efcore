@@ -983,6 +983,9 @@
   <data name="ModelNotFinalized" xml:space="preserve">
     <value>The model must be finalized before '{method}' can be used. Ensure that either 'OnModelCreating' has completed or, if using a stand-alone 'ModelBuilder', that 'FinalizeModel' has been called.</value>
   </data>
+  <data name="ModelReadOnly" xml:space="preserve">
+    <value>Metadata changes are not allowed as the model has been marked as read-only.</value>
+  </data>
   <data name="MultipleFilteredIncludesOnSameNavigation" xml:space="preserve">
     <value>The filters '{filter1}' and '{filter2}' have both been configured on the same included navigation. Only one unique filter per navigation is allowed. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.</value>
   </data>

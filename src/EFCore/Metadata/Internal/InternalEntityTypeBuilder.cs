@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return Metadata.SetPrimaryKey(properties, configurationSource).Builder;
                 }
 
-                using (ModelBuilder.Metadata.ConventionDispatcher.DelayConventions())
+                using (ModelBuilder.Metadata.DelayConventions())
                 {
                     keyBuilder = HasKeyInternal(properties, configurationSource);
                     if (keyBuilder == null)
@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return null;
                 }
 
-                using (Metadata.Model.ConventionDispatcher.DelayConventions())
+                using (Metadata.Model.DelayConventions())
                 {
                     foreach (var foreignKey in containingForeignKeys)
                     {
@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            using (Metadata.Model.ConventionDispatcher.DelayConventions())
+            using (Metadata.Model.DelayConventions())
             {
                 var detachedRelationships = key.GetReferencingForeignKeys().ToList().Select(DetachRelationship).ToList();
 
@@ -382,7 +382,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            using (Metadata.Model.ConventionDispatcher.DelayConventions())
+            using (Metadata.Model.DelayConventions())
             {
                 foreach (var foreignKey in Metadata.GetReferencingForeignKeys().ToList())
                 {
@@ -630,7 +630,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             InternalPropertyBuilder builder;
-            using (Metadata.Model.ConventionDispatcher.DelayConventions())
+            using (Metadata.Model.DelayConventions())
             {
                 var detachedProperties = propertiesToDetach == null ? null : DetachProperties(propertiesToDetach);
 
@@ -767,7 +767,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            using (Metadata.Model.ConventionDispatcher.DelayConventions())
+            using (Metadata.Model.DelayConventions())
             {
                 var detachedRelationships = property.GetContainingForeignKeys().ToList()
                     .Select(DetachRelationship).ToList();
@@ -893,7 +893,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            using (ModelBuilder.Metadata.ConventionDispatcher.DelayConventions())
+            using (ModelBuilder.Metadata.DelayConventions())
             {
                 List<InternalServicePropertyBuilder> detachedProperties = null;
                 if (propertiesToDetach != null)
@@ -1085,7 +1085,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            using (Metadata.Model.ConventionDispatcher.DelayConventions())
+            using (Metadata.Model.DelayConventions())
             {
                 Metadata.AddIgnored(name, configurationSource);
 
@@ -1458,7 +1458,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            using (Metadata.Model.ConventionDispatcher.DelayConventions())
+            using (Metadata.Model.DelayConventions())
             {
                 List<RelationshipSnapshot> detachedRelationships = null;
                 List<InternalSkipNavigationBuilder> detachedSkipNavigations = null;
@@ -2902,7 +2902,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             InternalForeignKeyBuilder relationship;
             InternalForeignKeyBuilder newRelationship = null;
-            using (var batcher = Metadata.Model.ConventionDispatcher.DelayConventions())
+            using (var batcher = Metadata.Model.DelayConventions())
             {
                 if (existingRelationship != null)
                 {
@@ -3058,7 +3058,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             InternalForeignKeyBuilder relationship;
             InternalForeignKeyBuilder newRelationship;
-            using (var batch = Metadata.Model.ConventionDispatcher.DelayConventions())
+            using (var batch = Metadata.Model.DelayConventions())
             {
                 relationship = CreateForeignKey(
                     targetEntityType.Builder,
@@ -3200,7 +3200,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             InternalEntityTypeBuilder ownedEntityTypeBuilder;
             InternalForeignKeyBuilder relationship;
-            using (var batch = Metadata.Model.ConventionDispatcher.DelayConventions())
+            using (var batch = Metadata.Model.DelayConventions())
             {
                 var ownership = Metadata.FindOwnership();
                 ownedEntityTypeBuilder = GetTargetEntityTypeBuilder(targetEntityType, navigation, configurationSource, targetShouldBeOwned: true);
@@ -3494,7 +3494,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             bool? required,
             ConfigurationSource configurationSource)
         {
-            using var batch = ModelBuilder.Metadata.ConventionDispatcher.DelayConventions();
+            using var batch = ModelBuilder.Metadata.DelayConventions();
             var foreignKey = SetOrAddForeignKey(
                 foreignKey: null, principalEntityTypeBuilder, dependentProperties, principalKey,
                 propertyBaseName, required, configurationSource);
@@ -3522,7 +3522,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             bool? isRequired,
             ConfigurationSource? configurationSource)
         {
-            using var batch = ModelBuilder.Metadata.ConventionDispatcher.DelayConventions();
+            using var batch = ModelBuilder.Metadata.DelayConventions();
             foreignKey = SetOrAddForeignKey(
                 foreignKey, foreignKey.PrincipalEntityType.Builder, dependentProperties, principalKey,
                 propertyBaseName, isRequired, configurationSource);
@@ -3780,7 +3780,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             InternalSkipNavigationBuilder builder;
-            using (ModelBuilder.Metadata.ConventionDispatcher.DelayConventions())
+            using (ModelBuilder.Metadata.DelayConventions())
             {
                 Metadata.RemoveIgnored(navigationName);
 

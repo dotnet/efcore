@@ -531,7 +531,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var builder = new InternalModelBuilder(new Model(conventions))
                 .Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
 
-            var scope = useScope ? builder.Metadata.Model.ConventionDispatcher.DelayConventions() : null;
+            var scope = useScope ? builder.Metadata.Model.DelayConventions() : null;
 
             if (useBuilder)
             {
@@ -3127,7 +3127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var model = new Model(conventions);
 
-            var scope = useScope ? model.ConventionDispatcher.DelayConventions() : null;
+            var scope = useScope ? model.DelayConventions() : null;
 
             var propertyBuilder = model.Builder.Entity(typeof(Order), ConfigurationSource.Convention)
                 .Property(typeof(string), "Name", ConfigurationSource.Convention);

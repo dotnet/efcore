@@ -302,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     foreignKey, DeclaringEntityType, RelatedEntityType, navigationMember.Name, inverseName);
             }
 
-            using (foreignKey.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions())
+            using (foreignKey.DeclaringEntityType.Model.DelayConventions())
             {
                 foreignKey.DeclaringEntityType.Builder.HasNoRelationship(foreignKey, ConfigurationSource.Explicit);
                 Builder = null;
@@ -348,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     foreignKey, DeclaringEntityType, RelatedEntityType, inverseName, navigationName);
             }
 
-            using (((EntityType)RelatedEntityType).Model.ConventionDispatcher.DelayConventions())
+            using (((EntityType)RelatedEntityType).Model.DelayConventions())
             {
                 if (conflictingNavigation != null)
                 {

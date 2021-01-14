@@ -140,6 +140,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool? SetIsNullable(bool? nullable, ConfigurationSource configurationSource)
         {
+            EnsureReadonly(false);
+
             var isChanging = (nullable ?? DefaultIsNullable) != IsNullable;
             if (nullable == null)
             {
@@ -220,6 +222,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual ValueGenerated? SetValueGenerated(ValueGenerated? valueGenerated, ConfigurationSource configurationSource)
         {
+            EnsureReadonly(false);
+
             _valueGenerated = valueGenerated;
 
             _valueGeneratedConfigurationSource = valueGenerated == null
@@ -261,6 +265,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool? SetIsConcurrencyToken(bool? concurrencyToken, ConfigurationSource configurationSource)
         {
+            EnsureReadonly(false);
+
             if (IsConcurrencyToken != concurrencyToken)
             {
                 _isConcurrencyToken = concurrencyToken;

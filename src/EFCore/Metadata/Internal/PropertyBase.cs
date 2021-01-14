@@ -68,6 +68,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual string Name { [DebuggerStepThrough] get; }
 
         /// <summary>
+        ///     Indicates whether the model is read-only.
+        /// </summary>
+        protected override bool IsReadonly => DeclaringType.Model.ConventionDispatcher == null;
+
+        /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
@@ -178,6 +183,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual FieldInfo? SetFieldInfo([CanBeNull] FieldInfo? fieldInfo, ConfigurationSource configurationSource)
         {
+            EnsureReadonly(false);
+
             if (Equals(FieldInfo, fieldInfo))
             {
                 if (fieldInfo != null)

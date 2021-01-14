@@ -47,6 +47,46 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
+        public void Model_throws_when_readonly()
+        {
+            var model = CreateModel();
+
+            model.FinalizeModel();
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => model.FinalizeModel()).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => model.DelayConventions()).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => model.AddAnnotation("foo", "bar")).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => model.RemoveOwned(typeof(SpecialCustomer))).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => model.AddOwned(typeof(Order))).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => model.AddShared(typeof(Order))).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => model.SetChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => ((Model)model).SkipDetectChanges = false).Message);
+        }
+
+        [ConditionalFact]
         public void Snapshot_change_tracking_is_used_by_default()
         {
             Assert.Equal(ChangeTrackingStrategy.Snapshot, CreateModel().GetChangeTrackingStrategy());
@@ -288,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class Customer
         {
-            public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
+            public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty(nameof(Id));
 
             public int Id { get; set; }
             public string Name { get; set; }

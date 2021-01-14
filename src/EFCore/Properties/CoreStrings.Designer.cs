@@ -1499,6 +1499,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 method);
 
         /// <summary>
+        ///     Metadata changes are not allowed as the model has been marked as read-only.
+        /// </summary>
+        public static string ModelReadOnly
+            => GetString("ModelReadOnly");
+
+        /// <summary>
         ///     The filters '{filter1}' and '{filter2}' have both been configured on the same included navigation. Only one unique filter per navigation is allowed. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.
         /// </summary>
         public static string MultipleFilteredIncludesOnSameNavigation([CanBeNull] object? filter1, [CanBeNull] object? filter2)
@@ -2382,7 +2388,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property);
 
         /// <summary>
-        ///     The seed entity for entity type '{entityType}' cannot be added because keyless entity types are not supported. Consider providing a key to seed data or use this entity for query only.
+        ///     The seed entity for entity type '{entityType}' cannot be added because keyless entity types are not supported. Consider providing a key or removing the seed data.
         /// </summary>
         public static string SeedKeylessEntity([CanBeNull] object? entityType)
             => string.Format(

@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         protected virtual T UpdateBuilder<T>([NotNull] Func<T> configure)
         {
             IConventionForeignKey foreignKey = _builder.Metadata;
-            var result = DependentEntityType.Model.ConventionDispatcher.Run(configure, ref foreignKey);
+            var result = DependentEntityType.Model.Track(configure, ref foreignKey);
             if (foreignKey != null)
             {
                 _builder = ((ForeignKey)foreignKey).Builder;
@@ -429,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
+            using (DependentEntityType.Model.DelayConventions())
             {
                 buildAction(OwnsOneBuilder(new TypeIdentity(ownedTypeName), navigationName));
                 return this;
@@ -472,7 +472,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
+            using (DependentEntityType.Model.DelayConventions())
             {
                 buildAction(OwnsOneBuilder(new TypeIdentity(ownedTypeName, ownedType), navigationName));
                 return this;
@@ -512,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
+            using (DependentEntityType.Model.DelayConventions())
             {
                 buildAction(OwnsOneBuilder(new TypeIdentity(ownedType, (Model)OwnedEntityType.Model), navigationName));
                 return this;
@@ -522,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         private OwnedNavigationBuilder OwnsOneBuilder(in TypeIdentity ownedType, string navigationName)
         {
             IMutableForeignKey foreignKey;
-            using (var batch = DependentEntityType.Model.ConventionDispatcher.DelayConventions())
+            using (var batch = DependentEntityType.Model.DelayConventions())
             {
                 var navigationMember = MemberIdentity.Create(navigationName);
                 var relationship = DependentEntityType.Builder.HasOwnership(ownedType, navigationMember, ConfigurationSource.Explicit);
@@ -654,7 +654,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
+            using (DependentEntityType.Model.DelayConventions())
             {
                 buildAction(OwnsManyBuilder(new TypeIdentity(ownedTypeName), navigationName));
                 return this;
@@ -696,7 +696,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
+            using (DependentEntityType.Model.DelayConventions())
             {
                 buildAction(OwnsManyBuilder(new TypeIdentity(ownedTypeName, ownedType), navigationName));
                 return this;
@@ -735,7 +735,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
+            using (DependentEntityType.Model.DelayConventions())
             {
                 buildAction(OwnsManyBuilder(new TypeIdentity(ownedType, DependentEntityType.Model), navigationName));
                 return this;
@@ -745,7 +745,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         private OwnedNavigationBuilder OwnsManyBuilder(in TypeIdentity ownedType, string navigationName)
         {
             IMutableForeignKey foreignKey;
-            using (var batch = DependentEntityType.Model.ConventionDispatcher.DelayConventions())
+            using (var batch = DependentEntityType.Model.DelayConventions())
             {
                 var navigationMember = MemberIdentity.Create(navigationName);
                 var relationship = DependentEntityType.Builder.HasOwnership(ownedType, navigationMember, ConfigurationSource.Explicit);

@@ -11,6 +11,51 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class SkipNavigationTest
     {
+
+        [ConditionalFact]
+        public void Throws_when_model_is_readonly()
+        {
+            var model = CreateModel();
+            var firstEntity = model.AddEntityType(typeof(Order));
+            var firstIdProperty = firstEntity.AddProperty(Order.IdProperty);
+            var firstKey = firstEntity.AddKey(firstIdProperty);
+            var secondEntity = model.AddEntityType(typeof(Product));
+            var joinEntityBuilder = model.AddEntityType(typeof(OrderProduct));
+            var orderIdProperty = joinEntityBuilder.AddProperty(OrderProduct.OrderIdProperty);
+
+            var navigation = firstEntity.AddSkipNavigation(nameof(Order.Products), null, secondEntity, true, false);
+
+            model.FinalizeModel();
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => firstEntity.AddSkipNavigation(nameof(Order.Products), null, secondEntity, true, false)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => firstEntity.RemoveSkipNavigation(navigation)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => navigation.SetInverse(null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => navigation.SetForeignKey(null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => navigation.SetField(null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => navigation.SetIsEagerLoaded(null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => navigation.SetPropertyAccessMode(null)).Message);
+        }
+
         [ConditionalFact]
         public void Gets_expected_default_values()
         {

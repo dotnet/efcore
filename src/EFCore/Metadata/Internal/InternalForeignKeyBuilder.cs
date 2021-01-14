@@ -388,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                using var batch = Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions();
+                using var batch = Metadata.DeclaringEntityType.Model.DelayConventions();
                 builder = this;
 
                 IsUnique(shouldBeUnique, shouldBeUnique.HasValue ? configurationSource : ConfigurationSource.Convention);
@@ -1085,7 +1085,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     Metadata.SetIsOwnership(ownership: true, configurationSource);
 
-                    using var batch = ModelBuilder.Metadata.ConventionDispatcher.DelayConventions();
+                    using var batch = ModelBuilder.Metadata.DelayConventions();
 
                     newRelationshipBuilder = newRelationshipBuilder.OnDelete(DeleteBehavior.Cascade, ConfigurationSource.Convention);
                     if (newRelationshipBuilder == null)
@@ -1121,7 +1121,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return batch.Run(newRelationshipBuilder);
                 }
 
-                using (var batch = ModelBuilder.Metadata.ConventionDispatcher.DelayConventions())
+                using (var batch = ModelBuilder.Metadata.DelayConventions())
                 {
                     Metadata.SetIsOwnership(ownership: true, configurationSource);
                     newRelationshipBuilder = newRelationshipBuilder.OnDelete(DeleteBehavior.Cascade, ConfigurationSource.Convention)
@@ -1255,7 +1255,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         Metadata.PrincipalEntityType.DisplayName()));
             }
 
-            using var batch = Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions();
+            using var batch = Metadata.DeclaringEntityType.Model.DelayConventions();
             var builder = this;
             if (resetToDependent)
             {
@@ -1624,7 +1624,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var relationshipBuilder = this;
-            using var batch = Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions();
+            using var batch = Metadata.DeclaringEntityType.Model.DelayConventions();
 
             var temporaryProperties = Metadata.Properties.Where(
                 p => (p.IsShadowProperty() || p.DeclaringEntityType.IsPropertyBag && p.IsIndexerProperty())
@@ -1716,7 +1716,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] EntityType dependentEntityType,
             ConfigurationSource configurationSource)
         {
-            using (var batch = Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions())
+            using (var batch = Metadata.DeclaringEntityType.Model.DelayConventions())
             {
                 var relationship = HasForeignKey(
                            dependentEntityType.Builder.GetOrCreateProperties(properties, configurationSource),
@@ -1743,7 +1743,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] EntityType dependentEntityType,
             ConfigurationSource configurationSource)
         {
-            using (var batch = Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions())
+            using (var batch = Metadata.DeclaringEntityType.Model.DelayConventions())
             {
                 var relationship = HasForeignKey(
                            dependentEntityType.Builder.GetOrCreateProperties(
@@ -1964,7 +1964,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] IReadOnlyList<MemberInfo> members,
             ConfigurationSource configurationSource)
         {
-            using (var batch = Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions())
+            using (var batch = Metadata.DeclaringEntityType.Model.DelayConventions())
             {
                 var relationship = HasPrincipalKey(
                            Metadata.PrincipalEntityType.Builder.GetOrCreateProperties(members, configurationSource),
@@ -1989,7 +1989,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource configurationSource)
         {
-            using (var batch = Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions())
+            using (var batch = Metadata.DeclaringEntityType.Model.DelayConventions())
             {
                 var relationship = HasPrincipalKey(
                            Metadata.PrincipalEntityType.Builder.GetOrCreateProperties(propertyNames, configurationSource),
@@ -2338,7 +2338,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 "Entity type check failed");
 
             InternalForeignKeyBuilder newRelationshipBuilder;
-            using (var batch = Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions())
+            using (var batch = Metadata.DeclaringEntityType.Model.DelayConventions())
             {
                 var referencingSkipNavigations = Metadata.ReferencingSkipNavigations
                     ?.Select(n => (Navigation: n, ConfigurationSource: n.GetForeignKeyConfigurationSource().Value)).ToList();
@@ -3615,7 +3615,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     dependentEntityType = model.FindEntityType(Metadata.DeclaringEntityType.Name);
                     if (dependentEntityType == null)
                     {
-                        using (ModelBuilder.Metadata.ConventionDispatcher.DelayConventions())
+                        using (ModelBuilder.Metadata.DelayConventions())
                         {
                             if (Metadata.DeclaringEntityType.HasSharedClrType
                                 || model.IsShared(Metadata.DeclaringEntityType.ClrType))

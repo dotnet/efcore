@@ -27,26 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     public partial class EntityTypeTest
     {
         [ConditionalFact]
-        public void Invalid_filter_expressions_throws()
-        {
-            var model = CreateModel();
-
-            var entityTypeA = model.AddEntityType(typeof(A).Name);
-
-            Expression<Func<B, bool>> badExpression1 = b => false;
-
-            Assert.Equal(
-                CoreStrings.BadFilterExpression(badExpression1, entityTypeA.DisplayName(), entityTypeA.ClrType),
-                Assert.Throws<InvalidOperationException>(() => entityTypeA.SetQueryFilter(badExpression1)).Message);
-
-            Expression<Func<A, string>> badExpression2 = a => "";
-
-            Assert.Equal(
-                CoreStrings.BadFilterExpression(badExpression2, entityTypeA.DisplayName(), entityTypeA.ClrType),
-                Assert.Throws<InvalidOperationException>(() => entityTypeA.SetQueryFilter(badExpression2)).Message);
-        }
-
-        [ConditionalFact]
         public void Use_of_custom_IEntityType_throws()
         {
             var type = new FakeEntityType();
@@ -124,6 +104,72 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
+        public void Throws_when_model_is_readonly()
+        {
+            var model = CreateModel();
+
+            var entityTypeA = model.AddEntityType(typeof(A));
+
+            model.FinalizeModel();
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(B))).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => model.RemoveEntityType(entityTypeA)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.AddAnnotation("foo", "bar")).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.AddServiceProperty(A.GProperty)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.SetDiscriminatorMappingComplete(true)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.SetDiscriminatorProperty(null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.SetDiscriminatorValue(null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.SetInMemoryQuery(null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.SetNavigationAccessMode(PropertyAccessMode.Field)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.SetPropertyAccessMode(PropertyAccessMode.Field)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.AddIgnored("")).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.RemoveIgnored("")).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.AddData(new { })).Message);
+        }
+
+        [ConditionalFact]
         public void Display_name_is_prettified_CLR_name()
         {
             Assert.Equal("EntityTypeTest", CreateModel().AddEntityType(typeof(EntityTypeTest)).DisplayName());
@@ -158,6 +204,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(
                 "System.Collections.Generic.List<Microsoft.EntityFrameworkCore.Metadata.Internal.EntityTypeTest+Customer>",
                 CreateModel().AddEntityType(typeof(List<Customer>)).Name);
+        }
+
+        [ConditionalFact]
+        public void Invalid_filter_expressions_throws()
+        {
+            var model = CreateModel();
+
+            var entityTypeA = model.AddEntityType(typeof(A).Name);
+
+            Expression<Func<B, bool>> badExpression1 = b => false;
+
+            Assert.Equal(
+                CoreStrings.BadFilterExpression(badExpression1, entityTypeA.DisplayName(), entityTypeA.ClrType),
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.SetQueryFilter(badExpression1)).Message);
+
+            Expression<Func<A, string>> badExpression2 = a => "";
+
+            Assert.Equal(
+                CoreStrings.BadFilterExpression(badExpression2, entityTypeA.DisplayName(), entityTypeA.ClrType),
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.SetQueryFilter(badExpression2)).Message);
         }
 
         [ConditionalFact]

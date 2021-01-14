@@ -39,6 +39,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
+        public void Throws_when_model_is_readonly()
+        {
+            var model = CreateModel();
+            var entityType = model.AddEntityType("E");
+            var property = entityType.AddProperty("P", typeof(int));
+            var key = entityType.AddKey(new[] { property });
+
+            model.FinalizeModel();
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityType.AddKey(new[] { property })).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityType.RemoveKey(key)).Message);
+        }
+
+        [ConditionalFact]
         public void Can_create_key_from_properties()
         {
             var entityType = ((IConventionModel)CreateModel()).AddEntityType(typeof(Customer));
