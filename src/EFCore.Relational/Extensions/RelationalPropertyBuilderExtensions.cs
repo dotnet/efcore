@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -24,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder HasColumnName(
             [NotNull] this PropertyBuilder propertyBuilder,
-            [CanBeNull] string name)
+            [CanBeNull] string? name)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(name, nameof(name));
@@ -43,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> HasColumnName<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            [CanBeNull] string name)
+            [CanBeNull] string? name)
             => (PropertyBuilder<TProperty>)HasColumnName((PropertyBuilder)propertyBuilder, name);
 
         /// <summary>
@@ -56,9 +58,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionPropertyBuilder HasColumnName(
+        public static IConventionPropertyBuilder? HasColumnName(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
-            [CanBeNull] string name,
+            [CanBeNull] string? name,
             bool fromDataAnnotation = false)
         {
             if (!propertyBuilder.CanSetColumnName(name, fromDataAnnotation))
@@ -81,9 +83,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionPropertyBuilder HasColumnName(
+        public static IConventionPropertyBuilder? HasColumnName(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
-            [CanBeNull] string name,
+            [CanBeNull] string? name,
             in StoreObjectIdentifier storeObject,
             bool fromDataAnnotation = false)
         {
@@ -105,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the property can be mapped to the given column. </returns>
         public static bool CanSetColumnName(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
-            [CanBeNull] string name,
+            [CanBeNull] string? name,
             bool fromDataAnnotation = false)
             => propertyBuilder.CanSetAnnotation(RelationalAnnotationNames.ColumnName, name, fromDataAnnotation);
 
@@ -119,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the property can be mapped to the given column. </returns>
         public static bool CanSetColumnName(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
-            [CanBeNull] string name,
+            [CanBeNull] string? name,
             in StoreObjectIdentifier storeObject,
             bool fromDataAnnotation = false)
         {
@@ -139,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder HasColumnType(
             [NotNull] this PropertyBuilder propertyBuilder,
-            [CanBeNull] string typeName)
+            [CanBeNull] string? typeName)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(typeName, nameof(typeName));
@@ -159,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> HasColumnType<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            [CanBeNull] string typeName)
+            [CanBeNull] string? typeName)
             => (PropertyBuilder<TProperty>)HasColumnType((PropertyBuilder)propertyBuilder, typeName);
 
         /// <summary>
@@ -173,9 +175,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionPropertyBuilder HasColumnType(
+        public static IConventionPropertyBuilder? HasColumnType(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
-            [CanBeNull] string typeName,
+            [CanBeNull] string? typeName,
             bool fromDataAnnotation = false)
         {
             if (!propertyBuilder.CanSetColumnType(typeName, fromDataAnnotation))
@@ -196,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the given data type can be set for the property. </returns>
         public static bool CanSetColumnType(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
-            [CanBeNull] string typeName,
+            [CanBeNull] string? typeName,
             bool fromDataAnnotation = false)
             => propertyBuilder.CanSetAnnotation(RelationalAnnotationNames.ColumnType, typeName, fromDataAnnotation);
 
@@ -239,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionPropertyBuilder IsFixedLength(
+        public static IConventionPropertyBuilder? IsFixedLength(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
             bool? fixedLength,
             bool fromDataAnnotation = false)
@@ -296,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder HasDefaultValueSql(
             [NotNull] this PropertyBuilder propertyBuilder,
-            [CanBeNull] string sql)
+            [CanBeNull] string? sql)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(sql, nameof(sql));
@@ -333,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> HasDefaultValueSql<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            [CanBeNull] string sql)
+            [CanBeNull] string? sql)
             => (PropertyBuilder<TProperty>)HasDefaultValueSql((PropertyBuilder)propertyBuilder, sql);
 
         /// <summary>
@@ -346,9 +348,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionPropertyBuilder HasDefaultValueSql(
+        public static IConventionPropertyBuilder? HasDefaultValueSql(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
-            [CanBeNull] string sql,
+            [CanBeNull] string? sql,
             bool fromDataAnnotation = false)
         {
             if (!propertyBuilder.CanSetDefaultValueSql(sql, fromDataAnnotation))
@@ -369,7 +371,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the given default value expression can be set for the column. </returns>
         public static bool CanSetDefaultValueSql(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
-            [CanBeNull] string sql,
+            [CanBeNull] string? sql,
             bool fromDataAnnotation = false)
             => propertyBuilder.CanSetAnnotation(
                 RelationalAnnotationNames.DefaultValueSql,
@@ -405,7 +407,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder HasComputedColumnSql(
             [NotNull] this PropertyBuilder propertyBuilder,
-            [CanBeNull] string sql)
+            [CanBeNull] string? sql)
             => HasComputedColumnSql(propertyBuilder, sql, null);
 
         /// <summary>
@@ -421,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder HasComputedColumnSql(
             [NotNull] this PropertyBuilder propertyBuilder,
-            [CanBeNull] string sql,
+            [CanBeNull] string? sql,
             bool? stored)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
@@ -463,7 +465,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> HasComputedColumnSql<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            [CanBeNull] string sql)
+            [CanBeNull] string? sql)
             => HasComputedColumnSql(propertyBuilder, sql, null);
 
         /// <summary>
@@ -480,7 +482,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> HasComputedColumnSql<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            [CanBeNull] string sql,
+            [CanBeNull] string? sql,
             bool? stored)
             => (PropertyBuilder<TProperty>)HasComputedColumnSql((PropertyBuilder)propertyBuilder, sql, stored);
 
@@ -494,9 +496,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionPropertyBuilder HasComputedColumnSql(
+        public static IConventionPropertyBuilder? HasComputedColumnSql(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
-            [CanBeNull] string sql,
+            [CanBeNull] string? sql,
             bool fromDataAnnotation = false)
         {
             if (!propertyBuilder.CanSetComputedColumnSql(sql, fromDataAnnotation))
@@ -521,7 +523,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionPropertyBuilder IsStoredComputedColumn(
+        public static IConventionPropertyBuilder? IsStoredComputedColumn(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
             bool? stored,
             bool fromDataAnnotation = false)
@@ -544,7 +546,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the given computed value SQL expression can be set for the column. </returns>
         public static bool CanSetComputedColumnSql(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
-            [CanBeNull] string sql,
+            [CanBeNull] string? sql,
             bool fromDataAnnotation = false)
             => propertyBuilder.CanSetAnnotation(
                 RelationalAnnotationNames.ComputedColumnSql,
@@ -602,7 +604,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder HasDefaultValue(
             [NotNull] this PropertyBuilder propertyBuilder,
-            [CanBeNull] object value)
+            [CanBeNull] object? value)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
@@ -639,7 +641,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> HasDefaultValue<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            [CanBeNull] object value)
+            [CanBeNull] object? value)
             => (PropertyBuilder<TProperty>)HasDefaultValue((PropertyBuilder)propertyBuilder, value);
 
         /// <summary>
@@ -652,9 +654,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionPropertyBuilder HasDefaultValue(
+        public static IConventionPropertyBuilder? HasDefaultValue(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
-            [CanBeNull] object value,
+            [CanBeNull] object? value,
             bool fromDataAnnotation = false)
         {
             if (!propertyBuilder.CanSetDefaultValue(value, fromDataAnnotation))
@@ -675,7 +677,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the given value can be set as default for the column. </returns>
         public static bool CanSetDefaultValue(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
-            [CanBeNull] object value,
+            [CanBeNull] object? value,
             bool fromDataAnnotation = false)
             => propertyBuilder.CanSetAnnotation(
                 RelationalAnnotationNames.DefaultValue,
@@ -690,7 +692,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder HasComment(
             [NotNull] this PropertyBuilder propertyBuilder,
-            [CanBeNull] string comment)
+            [CanBeNull] string? comment)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
@@ -708,7 +710,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> HasComment<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            [CanBeNull] string comment)
+            [CanBeNull] string? comment)
             => (PropertyBuilder<TProperty>)HasComment((PropertyBuilder)propertyBuilder, comment);
 
         /// <summary>
@@ -721,9 +723,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionPropertyBuilder HasComment(
+        public static IConventionPropertyBuilder? HasComment(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
-            [CanBeNull] string comment,
+            [CanBeNull] string? comment,
             bool fromDataAnnotation = false)
         {
             if (!propertyBuilder.CanSetComment(comment, fromDataAnnotation))
@@ -744,7 +746,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the given value can be set as default for the column. </returns>
         public static bool CanSetComment(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
-            [CanBeNull] string comment,
+            [CanBeNull] string? comment,
             bool fromDataAnnotation = false)
             => propertyBuilder.CanSetAnnotation(
                 RelationalAnnotationNames.Comment,
@@ -758,7 +760,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="collation"> The collation for the column. </param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-        public static PropertyBuilder UseCollation([NotNull] this PropertyBuilder propertyBuilder, [CanBeNull] string collation)
+        public static PropertyBuilder UseCollation([NotNull] this PropertyBuilder propertyBuilder, [CanBeNull] string? collation)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(collation, nameof(collation));
@@ -777,7 +779,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertyBuilder<TProperty> UseCollation<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            [CanBeNull] string collation)
+            [CanBeNull] string? collation)
             => (PropertyBuilder<TProperty>)UseCollation((PropertyBuilder)propertyBuilder, collation);
 
         /// <summary>
@@ -791,9 +793,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionPropertyBuilder UseCollation(
+        public static IConventionPropertyBuilder? UseCollation(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
-            [CanBeNull] string collation,
+            [CanBeNull] string? collation,
             bool fromDataAnnotation = false)
         {
             if (propertyBuilder.CanSetCollation(collation, fromDataAnnotation))
@@ -815,7 +817,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the given value can be set as default for the column. </returns>
         public static bool CanSetCollation(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
-            [CanBeNull] string collation,
+            [CanBeNull] string? collation,
             bool fromDataAnnotation = false)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));

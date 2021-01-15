@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -40,8 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <inheritdoc />
         public virtual void ProcessEntityTypeBaseTypeChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
-            IConventionEntityType newBaseType,
-            IConventionEntityType oldBaseType,
+            IConventionEntityType? newBaseType,
+            IConventionEntityType? oldBaseType,
             IConventionContext<IConventionEntityType> context)
         {
             if (oldBaseType == null)
@@ -75,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             foreach (var indexAttribute in
                 entityType.ClrType.GetCustomAttributes<IndexAttribute>(true))
             {
-                IConventionIndexBuilder indexBuilder;
+                IConventionIndexBuilder? indexBuilder;
                 if (!shouldThrow)
                 {
                     var indexProperties = new List<IConventionProperty>();

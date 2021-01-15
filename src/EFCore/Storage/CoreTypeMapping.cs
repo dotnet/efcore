@@ -221,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="converter"> The converter to use. </param>
         /// <returns> A new type mapping </returns>
-        public abstract CoreTypeMapping Clone([CanBeNull] ValueConverter converter);
+        public abstract CoreTypeMapping Clone([CanBeNull] ValueConverter? converter);
 
         /// <summary>
         ///     Creates a an expression tree that can be used to generate code for the literal value.

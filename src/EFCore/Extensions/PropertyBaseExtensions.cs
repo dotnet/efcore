@@ -32,9 +32,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="propertyBase"> The property. </param>
-        /// <param name="forMaterialization"> If true, then the member to use for query materialization will be returned. </param>
+        /// <param name="forMaterialization">
+        ///     If <see langword="true" />, then the member to use for query materialization will be returned.
+        /// </param>
         /// <param name="forSet">
-        ///     If true, then the member to use for setting the property value will be returned, otherwise
+        ///     If <see langword="true" />, then the member to use for setting the property value will be returned, otherwise
         ///     the member to use for getting the property value will be returned.
         /// </param>
         /// <returns> The <see cref="MemberInfo" /> to use. </returns>
@@ -45,7 +47,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (propertyBase.TryGetMemberInfo(forMaterialization, forSet, out var memberInfo, out var errorMessage))
             {
-                return memberInfo;
+                // TODO-NULLABLE: memberInfo is null when the property is a collection navigation - but all of the callers seem to
+                // assume that it's never null. Should TryGetMemberInfo throw for collection navigations instead of returning null?
+                return memberInfo!;
             }
 
             throw new InvalidOperationException(errorMessage);

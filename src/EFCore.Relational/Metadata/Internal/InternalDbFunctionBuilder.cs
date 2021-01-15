@@ -258,22 +258,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionDbFunctionBuilder? IConventionDbFunctionBuilder.HasName(string name, bool fromDataAnnotation)
+        IConventionDbFunctionBuilder? IConventionDbFunctionBuilder.HasName(string? name, bool fromDataAnnotation)
             => HasName(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        bool IConventionDbFunctionBuilder.CanSetName(string name, bool fromDataAnnotation)
+        bool IConventionDbFunctionBuilder.CanSetName(string? name, bool fromDataAnnotation)
             => CanSetName(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionDbFunctionBuilder? IConventionDbFunctionBuilder.HasSchema(string schema, bool fromDataAnnotation)
+        IConventionDbFunctionBuilder? IConventionDbFunctionBuilder.HasSchema(string? schema, bool fromDataAnnotation)
             => HasSchema(schema, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        bool IConventionDbFunctionBuilder.CanSetSchema(string schema, bool fromDataAnnotation)
+        bool IConventionDbFunctionBuilder.CanSetSchema(string? schema, bool fromDataAnnotation)
             => CanSetSchema(schema, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
@@ -298,35 +298,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionDbFunctionBuilder? IConventionDbFunctionBuilder.HasStoreType(string storeType, bool fromDataAnnotation)
+        IConventionDbFunctionBuilder? IConventionDbFunctionBuilder.HasStoreType(string? storeType, bool fromDataAnnotation)
             => HasStoreType(storeType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        bool IConventionDbFunctionBuilder.CanSetStoreType(string storeType, bool fromDataAnnotation)
+        bool IConventionDbFunctionBuilder.CanSetStoreType(string? storeType, bool fromDataAnnotation)
             => CanSetStoreType(storeType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionDbFunctionBuilder? IConventionDbFunctionBuilder.HasTypeMapping(RelationalTypeMapping typeMapping, bool fromDataAnnotation)
+        IConventionDbFunctionBuilder? IConventionDbFunctionBuilder.HasTypeMapping(RelationalTypeMapping? typeMapping, bool fromDataAnnotation)
             => HasTypeMapping(typeMapping, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        bool IConventionDbFunctionBuilder.CanSetTypeMapping(RelationalTypeMapping typeMapping, bool fromDataAnnotation)
+        bool IConventionDbFunctionBuilder.CanSetTypeMapping(RelationalTypeMapping? typeMapping, bool fromDataAnnotation)
             => CanSetTypeMapping(typeMapping, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
         IConventionDbFunctionBuilder? IConventionDbFunctionBuilder.HasTranslation(
-            Func<IReadOnlyList<SqlExpression>, SqlExpression> translation,
+            Func<IReadOnlyList<SqlExpression>, SqlExpression>? translation,
             bool fromDataAnnotation)
             => HasTranslation(translation, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
         bool IConventionDbFunctionBuilder.CanSetTranslation(
-            Func<IReadOnlyList<SqlExpression>, SqlExpression> translation,
+            Func<IReadOnlyList<SqlExpression>, SqlExpression>? translation,
             bool fromDataAnnotation)
             => CanSetTranslation(translation, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 

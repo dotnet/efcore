@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="propertyAccessExpression"> The expression. </param>
         /// <returns> The <see cref="PropertyInfo" />. </returns>
-        public static PropertyInfo? GetPropertyAccess([NotNull] this LambdaExpression propertyAccessExpression)
+        public static PropertyInfo GetPropertyAccess([NotNull] this LambdaExpression propertyAccessExpression)
             => GetInternalMemberAccess<PropertyInfo>(propertyAccessExpression);
 
         /// <summary>
@@ -165,10 +165,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="memberAccessExpression"> The expression. </param>
         /// <returns> The <see cref="MemberInfo" />. </returns>
-        public static MemberInfo? GetMemberAccess([NotNull] this LambdaExpression memberAccessExpression)
+        public static MemberInfo GetMemberAccess([NotNull] this LambdaExpression memberAccessExpression)
             => GetInternalMemberAccess<MemberInfo>(memberAccessExpression);
 
-        private static TMemberInfo? GetInternalMemberAccess<TMemberInfo>([NotNull] this LambdaExpression memberAccessExpression)
+        private static TMemberInfo GetInternalMemberAccess<TMemberInfo>([NotNull] this LambdaExpression memberAccessExpression)
             where TMemberInfo : MemberInfo
         {
             Check.DebugAssert(
@@ -202,7 +202,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     if (targetMethod.Equals(runtimeProperty.GetMethod))
                     {
-                        return runtimeProperty as TMemberInfo;
+                        // TODO-NULLABLE: this used to return null if the type was wrong, but none of the call sites handled that
+                        return (TMemberInfo)(object)runtimeProperty;
                     }
                 }
             }

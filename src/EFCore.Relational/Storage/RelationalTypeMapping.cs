@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// </summary>
             /// <param name="converter"> The converter. </param>
             /// <returns> The new parameter object. </returns>
-            public RelationalTypeMappingParameters WithComposedConverter([CanBeNull] ValueConverter converter)
+            public RelationalTypeMappingParameters WithComposedConverter([CanBeNull] ValueConverter? converter)
                 => new(
                     CoreParameters.WithComposedConverter(converter),
                     StoreType,
@@ -399,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="converter"> The converter to use. </param>
         /// <returns> A new type mapping </returns>
-        public override CoreTypeMapping Clone(ValueConverter converter)
+        public override CoreTypeMapping Clone(ValueConverter? converter)
             => Clone(Parameters.WithComposedConverter(converter));
 
         /// <summary>

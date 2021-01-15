@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -24,7 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this property.
         /// </summary>
-        new IConventionSkipNavigationBuilder? Builder { get; }
+        /// <exception cref="InvalidOperationException"> If the skip navigation has been removed from the model. </exception>
+        new IConventionSkipNavigationBuilder Builder { get; }
 
         /// <summary>
         ///     Gets the type that this navigation property belongs to.
@@ -38,6 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the entity type that this navigation property will hold an instance(s) of.
         /// </summary>
+        // TODO-NULLABLE: I can see conventions testing this for null, but in SkipNavigation that doesn't seem possible...
         new IConventionEntityType TargetEntityType
         {
             [DebuggerStepThrough]

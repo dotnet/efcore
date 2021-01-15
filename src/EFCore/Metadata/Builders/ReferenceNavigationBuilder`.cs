@@ -9,6 +9,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
@@ -37,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public ReferenceNavigationBuilder(
             [NotNull] IMutableEntityType declaringEntityType,
             [NotNull] IMutableEntityType relatedEntityType,
-            [CanBeNull] string navigationName,
+            [CanBeNull] string? navigationName,
             [NotNull] IMutableForeignKey foreignKey)
             : base(declaringEntityType, relatedEntityType, navigationName, foreignKey)
         {
@@ -53,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public ReferenceNavigationBuilder(
             [NotNull] IMutableEntityType declaringEntityType,
             [NotNull] IMutableEntityType relatedEntityType,
-            [CanBeNull] MemberInfo navigationMemberInfo,
+            [CanBeNull] MemberInfo? navigationMemberInfo,
             [NotNull] IMutableForeignKey foreignKey)
             : base(declaringEntityType, relatedEntityType, navigationMemberInfo, foreignKey)
         {
@@ -75,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public new virtual ReferenceCollectionBuilder<TRelatedEntity, TEntity> WithMany(
-            [CanBeNull] string navigationName = null)
+            [CanBeNull] string? navigationName = null)
         {
             return new(
                 RelatedEntityType,
@@ -101,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceCollectionBuilder<TRelatedEntity, TEntity> WithMany(
-            [CanBeNull] Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> navigationExpression)
+            [CanBeNull] Expression<Func<TRelatedEntity, IEnumerable<TEntity>>>? navigationExpression)
         {
             return new(
                 RelatedEntityType,
@@ -125,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(
-            [CanBeNull] string navigationName = null)
+           [CanBeNull] string? navigationName = null)
             => new(
                 DeclaringEntityType,
                 RelatedEntityType,
@@ -149,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(
-            [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> navigationExpression)
+            [CanBeNull] Expression<Func<TRelatedEntity, TEntity>>? navigationExpression)
             => new(
                 DeclaringEntityType,
                 RelatedEntityType,

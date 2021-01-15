@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override bool IsReadonly => Model.ConventionDispatcher == null;
+        protected override bool IsReadonly => Model.IsModelReadonly;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string AddIgnored([NotNull] string name, ConfigurationSource configurationSource)
+        public virtual string? AddIgnored([NotNull] string name, ConfigurationSource configurationSource)
         {
             Check.NotNull(name, nameof(name));
             EnsureReadonly(false);
@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public abstract string OnTypeMemberIgnored([NotNull] string name);
+        public abstract string? OnTypeMemberIgnored([NotNull] string name);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -401,7 +401,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        string IMutableTypeBase.AddIgnored(string name)
+        string? IMutableTypeBase.AddIgnored(string name)
             => AddIgnored(name, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -410,7 +410,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        string IConventionTypeBase.AddIgnored(string name, bool fromDataAnnotation)
+        string? IConventionTypeBase.AddIgnored(string name, bool fromDataAnnotation)
             => AddIgnored(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

@@ -147,12 +147,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
                     isClustered.Value);
             }
 
-            var includeProperties = modelIndex.GetIncludeProperties();
-            if (includeProperties != null)
+            if (modelIndex.GetIncludeProperties() is IReadOnlyList<string> includeProperties)
             {
-                var includeColumns = (IReadOnlyList<string>)includeProperties
+                var includeColumns = includeProperties
                     .Select(
-                        p => modelIndex.DeclaringEntityType.FindProperty(p)
+                        p => modelIndex.DeclaringEntityType.FindProperty(p)!
                             .GetColumnName(StoreObjectIdentifier.Table(table.Name, table.Schema)))
                     .ToArray();
 

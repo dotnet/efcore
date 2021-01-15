@@ -23,7 +23,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this sequence.
         /// </summary>
-        new IConventionSequenceBuilder? Builder { get; }
+        /// <exception cref="InvalidOperationException"> If the sequence has been removed from the model. </exception>
+        new IConventionSequenceBuilder Builder { get; }
+
+        /// <summary>
+        ///     Indicates whether this sequence is in a model, i.e. hasn't been removed from one.
+        /// </summary>
+        new bool IsInModel { get; }
 
         /// <summary>
         ///     Gets the configuration source for this <see cref="IConventionSequence" />.

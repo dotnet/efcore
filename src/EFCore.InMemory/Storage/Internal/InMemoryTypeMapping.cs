@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 {
     /// <summary>
@@ -25,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         /// </summary>
         public InMemoryTypeMapping(
             [NotNull] Type clrType,
-            [CanBeNull] ValueComparer comparer = null,
-            [CanBeNull] ValueComparer keyComparer = null)
+            [CanBeNull] ValueComparer? comparer = null,
+            [CanBeNull] ValueComparer? keyComparer = null)
             : base(
                 new CoreTypeMappingParameters(
                     clrType,
@@ -47,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override CoreTypeMapping Clone(ValueConverter converter)
+        public override CoreTypeMapping Clone(ValueConverter? converter)
             => new InMemoryTypeMapping(Parameters.WithComposedConverter(converter));
     }
 }

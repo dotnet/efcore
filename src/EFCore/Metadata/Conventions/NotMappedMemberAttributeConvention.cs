@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -44,8 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
             var entityType = entityTypeBuilder.Metadata;
-            var members = entityType.GetRuntimeProperties().Values.Cast<MemberInfo>()
-                .Concat(entityType.GetRuntimeFields().Values);
+            var members = entityType.GetRuntimeProperties()!.Values.Cast<MemberInfo>()
+                .Concat(entityType.GetRuntimeFields()!.Values);
 
             foreach (var member in members)
             {

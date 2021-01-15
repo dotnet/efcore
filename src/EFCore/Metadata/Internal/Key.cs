@@ -8,6 +8,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -25,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public class Key : ConventionAnnotatable, IMutableKey, IConventionKey
     {
+        private InternalKeyBuilder? _builder;
         private ConfigurationSource _configurationSource;
 
         // Warning: Never access these fields directly as access needs to be thread-safe
@@ -46,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Properties = properties;
             _configurationSource = configurationSource;
 
-            Builder = new InternalKeyBuilder(this, DeclaringEntityType.Model.Builder);
+            _builder = new InternalKeyBuilder(this, DeclaringEntityType.Model.Builder);
         }
 
         /// <summary>
@@ -74,12 +76,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalKeyBuilder? Builder
+        public virtual InternalKeyBuilder Builder
         {
-            [DebuggerStepThrough] get;
-            [DebuggerStepThrough]
-            [param: CanBeNull]
-            set;
+            [DebuggerStepThrough] get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
         }
 
         /// <summary>
@@ -88,7 +87,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override bool IsReadonly => DeclaringEntityType.Model.ConventionDispatcher == null;
+        public virtual bool IsInModel
+            => _builder is not null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void SetRemovedFromModel()
+            => _builder = null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override bool IsReadonly => DeclaringEntityType.Model.IsModelReadonly;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -122,11 +139,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <param name="annotation"> The annotation set. </param>
         /// <param name="oldAnnotation"> The old annotation. </param>
         /// <returns> The annotation that was set. </returns>
-        protected override IConventionAnnotation OnAnnotationSet(
+        protected override IConventionAnnotation? OnAnnotationSet(
             string name,
             IConventionAnnotation? annotation,
             IConventionAnnotation? oldAnnotation)
-            => Builder!.ModelBuilder.Metadata.ConventionDispatcher.OnKeyAnnotationChanged(Builder, name, annotation, oldAnnotation);
+            => Builder.ModelBuilder.Metadata.ConventionDispatcher.OnKeyAnnotationChanged(Builder, name, annotation, oldAnnotation);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -235,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionKeyBuilder? IConventionKey.Builder
+        IConventionKeyBuilder IConventionKey.Builder
         {
             [DebuggerStepThrough] get => Builder;
         }
@@ -246,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionAnnotatableBuilder? IConventionAnnotatable.Builder
+        IConventionAnnotatableBuilder IConventionAnnotatable.Builder
         {
             [DebuggerStepThrough]
             get => Builder;

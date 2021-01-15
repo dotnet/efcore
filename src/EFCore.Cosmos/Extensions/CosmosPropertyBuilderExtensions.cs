@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -60,9 +62,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionPropertyBuilder ToJsonProperty(
+        public static IConventionPropertyBuilder? ToJsonProperty(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
-            [CanBeNull] string name,
+            [CanBeNull] string? name,
             bool fromDataAnnotation = false)
         {
             if (!propertyBuilder.CanSetJsonProperty(name, fromDataAnnotation))
@@ -84,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the property name can be set. </returns>
         public static bool CanSetJsonProperty(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
-            [CanBeNull] string name,
+            [CanBeNull] string? name,
             bool fromDataAnnotation = false)
             => propertyBuilder.CanSetAnnotation(CosmosAnnotationNames.PropertyName, name, fromDataAnnotation);
 

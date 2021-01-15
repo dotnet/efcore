@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The number argument '{argumentName}' cannot be negative number.
         /// </summary>
-        public static string ArgumentIsNegativeNumber([CanBeNull] object argumentName)
+        public static string ArgumentIsNegativeNumber([CanBeNull] object? argumentName)
             => string.Format(
                 GetString("ArgumentIsNegativeNumber", nameof(argumentName)),
                 argumentName);

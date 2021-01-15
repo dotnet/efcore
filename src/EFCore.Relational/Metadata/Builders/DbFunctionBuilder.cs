@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
@@ -39,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="schema"> The schema of the function in the database. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual DbFunctionBuilder HasSchema([CanBeNull] string schema)
+        public new virtual DbFunctionBuilder HasSchema([CanBeNull] string? schema)
             => (DbFunctionBuilder)base.HasSchema(schema);
 
         /// <summary>
@@ -67,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="storeType"> The return store type of the function in the database. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual DbFunctionBuilder HasStoreType([CanBeNull] string storeType)
+        public virtual DbFunctionBuilder HasStoreType([CanBeNull] string? storeType)
         {
             Builder.HasStoreType(storeType, ConfigurationSource.Explicit);
 

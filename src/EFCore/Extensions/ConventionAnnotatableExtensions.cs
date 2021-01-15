@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -52,10 +54,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new annotation or <see langword="null" /> if it was removed. </returns>
-        public static IConventionAnnotation SetOrRemoveAnnotation(
+        public static IConventionAnnotation? SetOrRemoveAnnotation(
             [NotNull] this IConventionAnnotatable annotatable,
             [NotNull] string name,
-            [CanBeNull] object value,
+            [CanBeNull] object? value,
             bool fromDataAnnotation = false)
             => ((ConventionAnnotatable)annotatable).SetOrRemoveAnnotation(
                 name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);

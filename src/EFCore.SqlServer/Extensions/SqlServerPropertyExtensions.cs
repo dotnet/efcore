@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -23,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The name to use for the hi-lo sequence. </returns>
-        public static string GetHiLoSequenceName([NotNull] this IProperty property)
-            => (string)property[SqlServerAnnotationNames.HiLoSequenceName];
+        public static string? GetHiLoSequenceName([NotNull] this IProperty property)
+            => (string?)property[SqlServerAnnotationNames.HiLoSequenceName];
 
         /// <summary>
         ///     Returns the name to use for the hi-lo sequence.
@@ -32,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The name to use for the hi-lo sequence. </returns>
-        public static string GetHiLoSequenceName([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
+        public static string? GetHiLoSequenceName([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
         {
             var annotation = property.FindAnnotation(SqlServerAnnotationNames.HiLoSequenceName);
             if (annotation != null)
@@ -51,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="name"> The sequence name to use. </param>
-        public static void SetHiLoSequenceName([NotNull] this IMutableProperty property, [CanBeNull] string name)
+        public static void SetHiLoSequenceName([NotNull] this IMutableProperty property, [CanBeNull] string? name)
             => property.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.HiLoSequenceName,
                 Check.NullButNotEmpty(name, nameof(name)));
@@ -63,9 +65,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The sequence name to use. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        public static string SetHiLoSequenceName(
+        public static string? SetHiLoSequenceName(
             [NotNull] this IConventionProperty property,
-            [CanBeNull] string name,
+            [CanBeNull] string? name,
             bool fromDataAnnotation = false)
         {
             property.SetOrRemoveAnnotation(
@@ -89,8 +91,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The schema to use for the hi-lo sequence. </returns>
-        public static string GetHiLoSequenceSchema([NotNull] this IProperty property)
-            => (string)property[SqlServerAnnotationNames.HiLoSequenceSchema];
+        public static string? GetHiLoSequenceSchema([NotNull] this IProperty property)
+            => (string?)property[SqlServerAnnotationNames.HiLoSequenceSchema];
 
         /// <summary>
         ///     Returns the schema to use for the hi-lo sequence.
@@ -98,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The schema to use for the hi-lo sequence. </returns>
-        public static string GetHiLoSequenceSchema([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
+        public static string? GetHiLoSequenceSchema([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
         {
             var annotation = property.FindAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema);
             if (annotation != null)
@@ -117,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="schema"> The schema to use. </param>
-        public static void SetHiLoSequenceSchema([NotNull] this IMutableProperty property, [CanBeNull] string schema)
+        public static void SetHiLoSequenceSchema([NotNull] this IMutableProperty property, [CanBeNull] string? schema)
             => property.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.HiLoSequenceSchema,
                 Check.NullButNotEmpty(schema, nameof(schema)));
@@ -129,9 +131,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="schema"> The schema to use. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        public static string SetHiLoSequenceSchema(
+        public static string? SetHiLoSequenceSchema(
             [NotNull] this IConventionProperty property,
-            [CanBeNull] string schema,
+            [CanBeNull] string? schema,
             bool fromDataAnnotation = false)
         {
             property.SetOrRemoveAnnotation(
@@ -155,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The sequence to use, or <see langword="null" /> if no sequence exists in the model. </returns>
-        public static ISequence FindHiLoSequence([NotNull] this IProperty property)
+        public static ISequence? FindHiLoSequence([NotNull] this IProperty property)
         {
             var model = property.DeclaringEntityType.Model;
 
@@ -174,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The sequence to use, or <see langword="null" /> if no sequence exists in the model. </returns>
-        public static ISequence FindHiLoSequence([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
+        public static ISequence? FindHiLoSequence([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
         {
             var model = property.DeclaringEntityType.Model;
 

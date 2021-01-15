@@ -206,12 +206,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionSequenceBuilder? IConventionSequenceBuilder.HasType(Type type, bool fromDataAnnotation)
+        IConventionSequenceBuilder? IConventionSequenceBuilder.HasType(Type? type, bool fromDataAnnotation)
             => HasType(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        bool IConventionSequenceBuilder.CanSetType(Type type, bool fromDataAnnotation)
+        bool IConventionSequenceBuilder.CanSetType(Type? type, bool fromDataAnnotation)
             => CanSetType(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />

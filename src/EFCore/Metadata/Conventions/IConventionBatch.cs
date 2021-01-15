@@ -4,6 +4,8 @@
 using System;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -16,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         /// <param name="foreignKey"> The foreign key to track. </param>
         /// <returns> The new foreign key object if the given one was replaced by a convention. </returns>
-        IConventionForeignKey Run([NotNull] IConventionForeignKey foreignKey);
+        IConventionForeignKey? Run([NotNull] IConventionForeignKey foreignKey);
 
         /// <summary>
         ///     Starts tracking changes to the given foreign key.
@@ -26,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     An object that will contain the reference to the new foreign key instance
         ///     if the given one was replaced by a convention.
         /// </returns>
+        // TODO-NULLABLE: does this ever refer null (as is implied by the comment?)
         IMetadataReference<IConventionForeignKey> Track([NotNull] IConventionForeignKey foreignKey);
     }
 }

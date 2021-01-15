@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -41,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var model = modelBuilder.Metadata;
             var modelSequences =
-                (SortedDictionary<(string Name, string Schema), Sequence>)model[RelationalAnnotationNames.Sequences];
+                (SortedDictionary<(string Name, string Schema), Sequence>?)model[RelationalAnnotationNames.Sequences];
 
             if (modelSequences != null)
             {

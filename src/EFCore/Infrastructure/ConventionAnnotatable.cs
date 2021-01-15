@@ -128,6 +128,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => throw new NotSupportedException();
 
         /// <inheritdoc />
+        bool IConventionAnnotatable.IsInModel
+            => throw new NotSupportedException();
+
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IEnumerable<IConventionAnnotation> IConventionAnnotatable.GetAnnotations()
             => GetAnnotations();

@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -37,22 +39,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessEntityTypeBaseTypeChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
-            IConventionEntityType newBaseType,
-            IConventionEntityType oldBaseType,
+            IConventionEntityType? newBaseType,
+            IConventionEntityType? oldBaseType,
             IConventionContext<IConventionEntityType> context)
         {
             if (oldBaseType != null
+                && oldBaseType.IsInModel
                 && oldBaseType.BaseType == null
                 && !oldBaseType.GetDirectlyDerivedTypes().Any())
             {
-                oldBaseType.Builder?.HasNoDiscriminator();
+                oldBaseType.Builder.HasNoDiscriminator();
             }
 
             var conventionEntityTypeBuilder = entityTypeBuilder;
             var entityType = entityTypeBuilder.Metadata;
             var derivedEntityTypes = entityType.GetDerivedTypes().ToList();
 
-            IConventionDiscriminatorBuilder discriminator;
+            IConventionDiscriminatorBuilder? discriminator;
             if (newBaseType == null)
             {
                 if (derivedEntityTypes.Count == 0)
@@ -99,10 +102,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var oldBaseType = entityType.BaseType;
             if (oldBaseType != null
+                && oldBaseType.IsInModel
                 && oldBaseType.BaseType == null
                 && !oldBaseType.GetDirectlyDerivedTypes().Any())
             {
-                oldBaseType.Builder?.HasNoDiscriminator();
+                oldBaseType.Builder.HasNoDiscriminator();
             }
         }
 

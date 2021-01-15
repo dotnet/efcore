@@ -5,6 +5,8 @@ using System.ComponentModel;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
@@ -68,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="fieldName"> The name of the field to use for this navigation property. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual NavigationBuilder<TSource, TTarget> HasField([CanBeNull] string fieldName)
+        public new virtual NavigationBuilder<TSource, TTarget> HasField([CanBeNull] string? fieldName)
             => (NavigationBuilder<TSource, TTarget>)base.HasField(fieldName);
 
         /// <summary>
@@ -94,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -104,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

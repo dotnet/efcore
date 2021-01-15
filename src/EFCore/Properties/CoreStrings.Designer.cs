@@ -1944,6 +1944,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property);
 
         /// <summary>
+        ///     The object has been removed from the model.
+        /// </summary>
+        public static string ObjectRemovedFromModel
+            => GetString("ObjectRemovedFromModel");
+
+        /// <summary>
         ///     Options extension of type '{optionsExtension}' not found.
         /// </summary>
         public static string OptionsExtensionNotFound([CanBeNull] object? optionsExtension)

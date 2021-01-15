@@ -31,6 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private bool _isRequired;
         private bool? _isRequiredDependent;
         private bool? _isOwnership;
+        private InternalForeignKeyBuilder? _builder;
 
         private ConfigurationSource _configurationSource;
         private ConfigurationSource? _propertiesConfigurationSource;
@@ -79,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         principalEntityType.DisplayName()));
             }
 
-            Builder = new InternalForeignKeyBuilder(this, dependentEntityType.Model.Builder);
+            _builder = new InternalForeignKeyBuilder(this, dependentEntityType.Model.Builder);
         }
 
         /// <summary>
@@ -120,12 +121,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalForeignKeyBuilder? Builder
+        public virtual InternalForeignKeyBuilder Builder
         {
-            get;
-
-            [param: CanBeNull]
-            set;
+            [DebuggerStepThrough] get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
         }
 
         /// <summary>
@@ -134,7 +132,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override bool IsReadonly => DeclaringEntityType.Model.ConventionDispatcher == null;
+        public virtual bool IsInModel
+            => _builder is not null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void SetRemovedFromModel()
+            => _builder = null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override bool IsReadonly => DeclaringEntityType.Model.IsModelReadonly;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -184,11 +200,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <param name="annotation"> The annotation set. </param>
         /// <param name="oldAnnotation"> The old annotation. </param>
         /// <returns> The annotation that was set. </returns>
-        protected override IConventionAnnotation OnAnnotationSet(
+        protected override IConventionAnnotation? OnAnnotationSet(
             string name,
             IConventionAnnotation? annotation,
             IConventionAnnotation? oldAnnotation)
-            => Builder!.ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyAnnotationChanged(Builder, name, annotation, oldAnnotation);
+            => Builder.ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyAnnotationChanged(Builder, name, annotation, oldAnnotation);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -222,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return (IReadOnlyList<Property>)DeclaringEntityType.Model.ConventionDispatcher
-                .OnForeignKeyPropertiesChanged(Builder, oldProperties, oldPrincipalKey);
+                .OnForeignKeyPropertiesChanged(Builder, oldProperties, oldPrincipalKey)!;
         }
 
         /// <summary>
@@ -444,7 +460,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (oldNavigation != null)
             {
                 Check.DebugAssert(oldNavigation.Name != null, "oldNavigation.Name is null");
-                oldNavigation.Builder = null;
+                oldNavigation.SetRemovedFromModel();
                 if (pointsToPrincipal)
                 {
                     DeclaringEntityType.RemoveNavigation(oldNavigation.Name);
@@ -488,16 +504,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (pointsToPrincipal)
                 {
                     DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
-                        DeclaringEntityType.Builder!,
-                        PrincipalEntityType.Builder!,
+                        DeclaringEntityType.Builder,
+                        PrincipalEntityType.Builder,
                         oldNavigation.Name,
                         oldNavigation.GetIdentifyingMemberInfo());
                 }
                 else
                 {
                     DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
-                        PrincipalEntityType.Builder!,
-                        DeclaringEntityType.Builder!,
+                        PrincipalEntityType.Builder,
+                        DeclaringEntityType.Builder,
                         oldNavigation.Name,
                         oldNavigation.GetIdentifyingMemberInfo());
                 }
@@ -550,7 +566,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (!Internal.Navigation.IsCompatible(
                     PrincipalToDependent.Name,
-                    PrincipalToDependent.GetIdentifyingMemberInfo(),
+                    PrincipalToDependent.GetIdentifyingMemberInfo()!,
                     PrincipalEntityType,
                     DeclaringEntityType,
                     !unique,
@@ -769,7 +785,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [CA.MemberNotNullWhen(true, nameof(PrincipalToDependent))]
         public virtual bool IsOwnership
         {
             get => _isOwnership ?? DefaultIsOwnership;
@@ -1126,7 +1141,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionForeignKeyBuilder? IConventionForeignKey.Builder
+        IConventionForeignKeyBuilder IConventionForeignKey.Builder
         {
             [DebuggerStepThrough] get => Builder;
         }
@@ -1137,7 +1152,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionAnnotatableBuilder? IConventionAnnotatable.Builder
+        IConventionAnnotatableBuilder IConventionAnnotatable.Builder
         {
             [DebuggerStepThrough] get => Builder;
         }
@@ -1241,7 +1256,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 var actualProperty = declaringEntityType.FindProperty(property.Name);
                 if (actualProperty?.DeclaringEntityType.IsAssignableFrom(property.DeclaringEntityType) != true
-                    || property.Builder == null)
+                    || !property.IsInModel)
                 {
                     throw new InvalidOperationException(
                         CoreStrings.ForeignKeyPropertiesWrongEntity(

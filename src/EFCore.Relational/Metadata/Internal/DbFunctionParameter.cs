@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Name = name;
             Function = function;
             ClrType = clrType;
-            Builder = new InternalDbFunctionParameterBuilder(this, function.Builder!.ModelBuilder);
+            Builder = new InternalDbFunctionParameterBuilder(this, function.Builder.ModelBuilder);
         }
 
         /// <summary>

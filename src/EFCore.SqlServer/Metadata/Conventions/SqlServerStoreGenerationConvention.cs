@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -40,8 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public override void ProcessPropertyAnnotationChanged(
             IConventionPropertyBuilder propertyBuilder,
             string name,
-            IConventionAnnotation annotation,
-            IConventionAnnotation oldAnnotation,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation,
             IConventionContext<IConventionAnnotation> context)
         {
             if (annotation == null

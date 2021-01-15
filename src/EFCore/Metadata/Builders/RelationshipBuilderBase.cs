@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
@@ -15,9 +17,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// </summary>
     public abstract class RelationshipBuilderBase : IInfrastructure<IConventionForeignKeyBuilder>
     {
-        private readonly IReadOnlyList<Property> _foreignKeyProperties;
-        private readonly IReadOnlyList<Property> _principalKeyProperties;
+        private readonly IReadOnlyList<Property>? _foreignKeyProperties;
+        private readonly IReadOnlyList<Property>? _principalKeyProperties;
         private readonly bool? _required;
+
+        // TODO-NULLABLE: Refactored the construction here, please confirm it makes sense
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -30,8 +34,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] IMutableEntityType principalEntityType,
             [NotNull] IMutableEntityType dependentEntityType,
             [NotNull] IMutableForeignKey foreignKey)
-            : this(((ForeignKey)foreignKey).Builder, null)
         {
+            Check.NotNull(principalEntityType, nameof(principalEntityType));
+            Check.NotNull(dependentEntityType, nameof(dependentEntityType));
+
+            Builder = ((ForeignKey)foreignKey).Builder;
+
             PrincipalEntityType = principalEntityType;
             DependentEntityType = dependentEntityType;
         }
@@ -45,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [EntityFrameworkInternal]
         protected RelationshipBuilderBase(
             [NotNull] InternalForeignKeyBuilder builder,
-            [CanBeNull] RelationshipBuilderBase oldBuilder,
+            [NotNull] RelationshipBuilderBase oldBuilder,
             bool foreignKeySet = false,
             bool principalKeySet = false,
             bool requiredSet = false)
@@ -53,31 +61,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(builder, nameof(builder));
 
             Builder = builder;
-            if (oldBuilder != null)
-            {
-                PrincipalEntityType = oldBuilder.PrincipalEntityType;
-                DependentEntityType = oldBuilder.DependentEntityType;
-                _foreignKeyProperties = foreignKeySet
-                    ? builder.Metadata.Properties
-                    : ((EntityType)oldBuilder.DependentEntityType).Builder.GetActualProperties(oldBuilder._foreignKeyProperties, null);
-                _principalKeyProperties = principalKeySet
-                    ? builder.Metadata.PrincipalKey.Properties
-                    : ((EntityType)oldBuilder.PrincipalEntityType).Builder.GetActualProperties(oldBuilder._principalKeyProperties, null);
-                _required = requiredSet
-                    ? builder.Metadata.IsRequired
-                    : oldBuilder._required;
+            PrincipalEntityType = oldBuilder.PrincipalEntityType;
+            DependentEntityType = oldBuilder.DependentEntityType;
+            _foreignKeyProperties = foreignKeySet
+                ? builder.Metadata.Properties
+                : ((EntityType)oldBuilder.DependentEntityType).Builder.GetActualProperties(oldBuilder._foreignKeyProperties, null);
+            _principalKeyProperties = principalKeySet
+                ? builder.Metadata.PrincipalKey.Properties
+                : ((EntityType)oldBuilder.PrincipalEntityType).Builder.GetActualProperties(oldBuilder._principalKeyProperties, null);
+            _required = requiredSet
+                ? builder.Metadata.IsRequired
+                : oldBuilder._required;
 
-                var foreignKey = builder.Metadata;
-                ForeignKey.AreCompatible(
-                    (EntityType)oldBuilder.PrincipalEntityType,
-                    (EntityType)oldBuilder.DependentEntityType,
-                    foreignKey.DependentToPrincipal?.GetIdentifyingMemberInfo(),
-                    foreignKey.PrincipalToDependent?.GetIdentifyingMemberInfo(),
-                    _foreignKeyProperties,
-                    _principalKeyProperties,
-                    foreignKey.IsUnique,
-                    shouldThrow: true);
-            }
+            var foreignKey = builder.Metadata;
+            ForeignKey.AreCompatible(
+                (EntityType)oldBuilder.PrincipalEntityType,
+                (EntityType)oldBuilder.DependentEntityType,
+                foreignKey.DependentToPrincipal?.GetIdentifyingMemberInfo(),
+                foreignKey.PrincipalToDependent?.GetIdentifyingMemberInfo(),
+                _foreignKeyProperties,
+                _principalKeyProperties,
+                foreignKey.IsUnique,
+                shouldThrow: true);
         }
 
         /// <summary>
@@ -126,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -136,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

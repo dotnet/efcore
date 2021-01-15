@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -42,8 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void ProcessPropertyAnnotationChanged(
             IConventionPropertyBuilder propertyBuilder,
             string name,
-            IConventionAnnotation annotation,
-            IConventionAnnotation oldAnnotation,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation,
             IConventionContext<IConventionAnnotation> context)
         {
             if (annotation == null
