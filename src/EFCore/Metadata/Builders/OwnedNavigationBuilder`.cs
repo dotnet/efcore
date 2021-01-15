@@ -636,7 +636,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             where TNewDependentEntity : class
         {
             InternalForeignKeyBuilder relationship;
-            using (var batch = DependentEntityType.Model.ConventionDispatcher.DelayConventions())
+            using (var batch = DependentEntityType.Model.DelayConventions())
             {
                 relationship = DependentEntityType.Builder.HasOwnership(ownedType, navigation, ConfigurationSource.Explicit);
                 relationship.IsUnique(true, ConfigurationSource.Explicit);
@@ -799,7 +799,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
+            using (DependentEntityType.Model.DelayConventions())
             {
                 buildAction(
                     OwnsManyBuilder<TNewDependentEntity>(
@@ -932,7 +932,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
+            using (DependentEntityType.Model.DelayConventions())
             {
                 buildAction(
                     OwnsManyBuilder<TNewDependentEntity>(
@@ -973,7 +973,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(navigationExpression, nameof(navigationExpression));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
+            using (DependentEntityType.Model.DelayConventions())
             {
                 buildAction(
                     OwnsManyBuilder<TNewDependentEntity>(
@@ -1018,7 +1018,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(navigationExpression, nameof(navigationExpression));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
+            using (DependentEntityType.Model.DelayConventions())
             {
                 buildAction(
                     OwnsManyBuilder<TNewDependentEntity>(
@@ -1034,7 +1034,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             where TNewRelatedEntity : class
         {
             InternalForeignKeyBuilder relationship;
-            using (var batch = DependentEntityType.Model.ConventionDispatcher.DelayConventions())
+            using (var batch = DependentEntityType.Model.DelayConventions())
             {
                 relationship = DependentEntityType.Builder.HasOwnership(ownedType, navigation, ConfigurationSource.Explicit);
                 relationship.IsUnique(false, ConfigurationSource.Explicit);

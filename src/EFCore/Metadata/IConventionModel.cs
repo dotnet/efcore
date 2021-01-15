@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 #nullable enable
 
@@ -28,6 +29,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the builder that can be used to configure this model.
         /// </summary>
         new IConventionModelBuilder Builder { get; }
+
+        /// <summary>
+        ///     <para>
+        ///         Prevents conventions from being executed immediately when a metadata aspect is modified. All the delayed conventions
+        ///         will be executed after the returned object is disposed.
+        ///     </para>
+        ///     <para>
+        ///         This is useful when performing multiple operations that depend on each other.
+        ///     </para>
+        /// </summary>
+        /// <returns> An object that should be disposed to execute the delayed conventions. </returns>
+        IConventionBatch DelayConventions();
 
         /// <summary>
         ///     <para>

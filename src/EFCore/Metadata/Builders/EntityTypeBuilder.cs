@@ -486,7 +486,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         private OwnedNavigationBuilder OwnsOneBuilder(in TypeIdentity ownedType, string navigationName)
         {
             IMutableForeignKey foreignKey;
-            using (var batch = Builder.Metadata.Model.ConventionDispatcher.DelayConventions())
+            using (var batch = Builder.Metadata.Model.DelayConventions())
             {
                 var navigationMember = new MemberIdentity(navigationName);
                 var relationship = Builder.HasOwnership(ownedType, navigationMember, ConfigurationSource.Explicit);
@@ -700,7 +700,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         private OwnedNavigationBuilder OwnsManyBuilder(in TypeIdentity ownedType, string navigationName)
         {
             IMutableForeignKey foreignKey;
-            using (var batch = Builder.Metadata.Model.ConventionDispatcher.DelayConventions())
+            using (var batch = Builder.Metadata.Model.DelayConventions())
             {
                 var navigationMember = new MemberIdentity(navigationName);
                 var relationship = Builder.HasOwnership(ownedType, navigationMember, ConfigurationSource.Explicit);

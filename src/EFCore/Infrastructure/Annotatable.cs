@@ -34,6 +34,26 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => _annotations?.Values ?? Enumerable.Empty<Annotation>();
 
         /// <summary>
+        ///     <para>Indicates whether the current object is read-only.</para>
+        ///     <para>
+        ///         Annotations cannot be changed when the object is read-only.
+        ///         Runtime annotations cannot be changed when the object is not read-only.
+        ///     </para>
+        /// </summary>
+        protected virtual bool IsReadonly => false;
+
+        /// <summary>
+        ///     Throws if the model is not read-only.
+        /// </summary>
+        protected virtual void EnsureReadonly(bool shouldBeReadonly = true)
+        {
+            if (!shouldBeReadonly && IsReadonly)
+            {
+                throw new InvalidOperationException(CoreStrings.ModelReadOnly);
+            }
+        }
+
+        /// <summary>
         ///     Adds an annotation to this object. Throws if an annotation with the specified name already exists.
         /// </summary>
         /// <param name="name"> The key of the annotation to be added. </param>
@@ -97,6 +117,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             [NotNull] Annotation annotation,
             [CanBeNull] Annotation? oldAnnotation)
         {
+            EnsureReadonly(false);
+
             if (_annotations == null)
             {
                 _annotations = new SortedDictionary<string, Annotation>();
@@ -146,6 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual Annotation? RemoveAnnotation([NotNull] string name)
         {
             Check.NotNull(name, nameof(name));
+            EnsureReadonly(false);
 
             var annotation = FindAnnotation(name);
             if (annotation == null)

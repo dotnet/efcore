@@ -697,7 +697,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             where TRelatedEntity : class
         {
             InternalForeignKeyBuilder relationship;
-            using (var batch = Builder.Metadata.Model.ConventionDispatcher.DelayConventions())
+            using (var batch = Builder.Metadata.Model.DelayConventions())
             {
                 relationship = Builder.HasOwnership(ownedType, navigation, ConfigurationSource.Explicit);
                 relationship.IsUnique(true, ConfigurationSource.Explicit);
@@ -1081,7 +1081,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             where TRelatedEntity : class
         {
             InternalForeignKeyBuilder relationship;
-            using (var batch = Builder.Metadata.Model.ConventionDispatcher.DelayConventions())
+            using (var batch = Builder.Metadata.Model.DelayConventions())
             {
                 relationship = Builder.HasOwnership(ownedType, navigation, ConfigurationSource.Explicit);
 

@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            using var batch = Metadata.ConventionDispatcher.DelayConventions();
+            using var batch = Metadata.DelayConventions();
             var clrType = type.Type;
             EntityType entityType;
             EntityType.Snapshot entityTypeSnapshot = null;
@@ -320,7 +320,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
                 else if (ownershipCandidates.Count > 1)
                 {
-                    using (var batch = ModelBuilder.Metadata.ConventionDispatcher.DelayConventions())
+                    using (var batch = ModelBuilder.Metadata.DelayConventions())
                     {
                         var ownership = ownershipCandidates[0].Builder.IsOwnership(true, configurationSource);
                         if (ownership == null)
@@ -413,7 +413,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            using (Metadata.ConventionDispatcher.DelayConventions())
+            using (Metadata.DelayConventions())
             {
                 var entityType = Metadata.FindEntityType(name);
                 if (entityType != null)
@@ -499,7 +499,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            using (Metadata.ConventionDispatcher.DelayConventions())
+            using (Metadata.DelayConventions())
             {
                 var entityTypeBuilder = entityType.Builder;
                 foreach (var foreignKey in entityType.GetDeclaredReferencingForeignKeys().ToList())

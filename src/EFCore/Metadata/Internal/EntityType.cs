@@ -183,6 +183,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool? SetIsKeyless(bool? keyless, ConfigurationSource configurationSource)
         {
+            EnsureReadonly(false);
+
             if (_isKeyless == keyless)
             {
                 UpdateIsKeylessConfigurationSource(configurationSource);
@@ -244,6 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual EntityType? SetBaseType([CanBeNull] EntityType? newBaseType, ConfigurationSource configurationSource)
         {
+            EnsureReadonly(false);
             Check.DebugAssert(Builder != null, "Builder is null");
 
             if (_baseType == newBaseType)
@@ -529,6 +532,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] IReadOnlyList<Property>? properties,
             ConfigurationSource configurationSource)
         {
+            EnsureReadonly(false);
             Check.DebugAssert(Builder != null, "Builder is null");
 
             if (_baseType != null)
@@ -690,6 +694,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotEmpty(properties, nameof(properties));
             Check.HasNoNulls(properties, nameof(properties));
+            EnsureReadonly(false);
 
             if (_baseType != null)
             {
@@ -757,8 +762,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Key? FindKey([NotNull] IProperty property)
-            => FindKey(
-                new[] { property });
+            => FindKey(new[] { property });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -828,6 +832,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotNull(key, nameof(key));
             Check.DebugAssert(Builder != null, "Builder is null");
+            EnsureReadonly(false);
 
             if (key.DeclaringEntityType != this)
             {
@@ -921,6 +926,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.HasNoNulls(properties, nameof(properties));
             Check.NotNull(principalKey, nameof(principalKey));
             Check.NotNull(principalEntityType, nameof(principalEntityType));
+            EnsureReadonly(false);
 
             var foreignKey = new ForeignKey(
                 properties, principalKey, this, principalEntityType, configurationSource);
@@ -1274,6 +1280,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
             Check.DebugAssert(Builder != null, "Builder is null");
+            EnsureReadonly(false);
 
             if (foreignKey.DeclaringEntityType != this)
             {
@@ -1409,6 +1416,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private Navigation AddNavigation(MemberIdentity navigationMember, ForeignKey foreignKey, bool pointsToPrincipal)
         {
+            EnsureReadonly(false);
+
             var name = navigationMember.Name!;
             var duplicateNavigation = FindNavigationsInHierarchy(name).FirstOrDefault();
             if (duplicateNavigation != null)
@@ -1560,6 +1569,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Navigation? RemoveNavigation([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
+            EnsureReadonly(false);
 
             var navigation = FindDeclaredNavigation(name);
             if (navigation == null)
@@ -1599,6 +1609,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(targetEntityType, nameof(targetEntityType));
+            EnsureReadonly(false);
 
             var duplicateProperty = FindMembersInHierarchy(name).FirstOrDefault();
             if (duplicateProperty != null)
@@ -1799,6 +1810,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotNull(navigation, nameof(navigation));
             Check.DebugAssert(Builder != null, "Builder is null");
+            EnsureReadonly(false);
 
             if (navigation.DeclaringEntityType != this)
             {
@@ -1906,8 +1918,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] Property property,
             [NotNull] string name,
             ConfigurationSource configurationSource)
-            => AddIndex(
-                new[] { property }, name, configurationSource);
+            => AddIndex(new[] { property }, name, configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1921,6 +1932,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotEmpty(properties, nameof(properties));
             Check.HasNoNulls(properties, nameof(properties));
+            EnsureReadonly(false);
 
             CheckIndexProperties(properties);
 
@@ -1953,6 +1965,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotEmpty(properties, nameof(properties));
             Check.HasNoNulls(properties, nameof(properties));
             Check.NotEmpty(name, nameof(name));
+            EnsureReadonly(false);
 
             CheckIndexProperties(properties);
 
@@ -2179,6 +2192,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotNull(index, nameof(index));
             Check.DebugAssert(Builder != null, "Builder is null");
+            EnsureReadonly(false);
 
             if (index.Name == null)
             {
@@ -2305,6 +2319,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(name, nameof(name));
             Check.NotNull(propertyType, nameof(propertyType));
             Check.DebugAssert(Builder != null, "Builder is null");
+            EnsureReadonly(false);
 
             var conflictingMember = FindMembersInHierarchy(name).FirstOrDefault();
             if (conflictingMember != null)
@@ -2478,6 +2493,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotNull(property, nameof(property));
             Check.DebugAssert(Builder != null, "Builder is null");
+            EnsureReadonly(false);
 
             if (property.DeclaringEntityType != this)
             {
@@ -2654,8 +2670,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource configurationSource)
         {
             Check.NotNull(memberInfo, nameof(memberInfo));
-            var name = memberInfo.GetSimpleMemberName();
+            EnsureReadonly(false);
 
+            var name = memberInfo.GetSimpleMemberName();
             var duplicateMember = FindMembersInHierarchy(name).FirstOrDefault();
             if (duplicateMember != null)
             {
@@ -2785,6 +2802,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotNull(property, nameof(property));
             Check.DebugAssert(Builder != null, "Builder is null");
+            EnsureReadonly(false);
 
             if (property.DeclaringEntityType != this)
             {
@@ -2971,6 +2989,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual void AddData([NotNull] IEnumerable<object> data)
         {
+            EnsureReadonly(false);
+
             _data ??= new List<object>();
 
             foreach (var entity in data)
@@ -3012,6 +3032,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ChangeTrackingStrategy? changeTrackingStrategy,
             ConfigurationSource configurationSource)
         {
+            EnsureReadonly(false);
+
             if (changeTrackingStrategy != null)
             {
                 var requireFullNotifications = (string?)Model[CoreAnnotationNames.FullChangeTrackingNotificationsRequiredAnnotation] == "true";
@@ -3781,7 +3803,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IMutableIndex IMutableEntityType.AddIndex(IReadOnlyList<IMutableProperty> properties)
-            => AddIndex(properties.Cast<Property>().ToList(), ConfigurationSource.Explicit)!;
+            => AddIndex(properties as IReadOnlyList<Property> ?? properties.Cast<Property>().ToList(), ConfigurationSource.Explicit)!;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3791,7 +3813,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IMutableIndex IMutableEntityType.AddIndex(IReadOnlyList<IMutableProperty> properties, string name)
-            => AddIndex(properties.Cast<Property>().ToList(), name, ConfigurationSource.Explicit)!;
+            => AddIndex(properties as IReadOnlyList<Property> ?? properties.Cast<Property>().ToList(), name, ConfigurationSource.Explicit)!;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3802,7 +3824,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [DebuggerStepThrough]
         IConventionIndex? IConventionEntityType.AddIndex(IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => AddIndex(
-                properties.Cast<Property>().ToList(),
+                properties as IReadOnlyList<Property> ?? properties.Cast<Property>().ToList(),
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -3817,7 +3839,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             string name,
             bool fromDataAnnotation)
             => AddIndex(
-                properties.Cast<Property>().ToList(),
+                properties as IReadOnlyList<Property> ?? properties.Cast<Property>().ToList(),
                 name,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 

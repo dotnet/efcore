@@ -134,6 +134,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        protected override bool IsReadonly => DeclaringEntityType.Model.ConventionDispatcher == null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual SortedSet<SkipNavigation>? ReferencingSkipNavigations { get; [param: CanBeNull] set; }
 
         /// <summary>
@@ -193,6 +201,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] Key principalKey,
             ConfigurationSource? configurationSource)
         {
+            EnsureReadonly(false);
+
             Validate(properties, principalKey, DeclaringEntityType, PrincipalEntityType);
 
             var oldProperties = Properties;
@@ -399,6 +409,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource configurationSource,
             bool pointsToPrincipal)
         {
+            EnsureReadonly(false);
+
             var name = propertyIdentity?.Name;
             if (pointsToPrincipal
                 && PrincipalEntityType.IsKeyless)
@@ -519,6 +531,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool? SetIsUnique(bool? unique, ConfigurationSource configurationSource)
         {
+            EnsureReadonly(false);
+
             var oldUnique = IsUnique;
             _isUnique = unique;
 
@@ -592,6 +606,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool? SetIsRequired(bool? required, ConfigurationSource configurationSource)
         {
+            EnsureReadonly(false);
+
             var oldRequired = IsRequired;
             _isRequired = required ?? DefaultIsRequired;
 
@@ -646,6 +662,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool? SetIsRequiredDependent(bool? required, ConfigurationSource configurationSource)
         {
+            EnsureReadonly(false);
+
             if (!IsUnique
                 && required == true)
             {
@@ -707,6 +725,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual DeleteBehavior? SetDeleteBehavior(DeleteBehavior? deleteBehavior, ConfigurationSource configurationSource)
         {
+            EnsureReadonly(false);
+
             _deleteBehavior = deleteBehavior;
 
             if (deleteBehavior == null)
@@ -764,6 +784,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool? SetIsOwnership(bool? ownership, ConfigurationSource configurationSource)
         {
+            EnsureReadonly(false);
+
             var oldIsOwnership = IsOwnership;
             _isOwnership = ownership;
 
@@ -988,7 +1010,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         void IMutableForeignKey.SetProperties(IReadOnlyList<IMutableProperty> properties, IMutableKey principalKey)
-            => SetProperties((IReadOnlyList<Property>)properties, (Key)principalKey, ConfigurationSource.Explicit);
+            => SetProperties(
+                properties as IReadOnlyList<Property> ?? properties.Cast<Property>().ToArray(),
+                (Key)principalKey,
+                ConfigurationSource.Explicit);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

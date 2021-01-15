@@ -164,6 +164,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual ForeignKey? SetForeignKey([CanBeNull] ForeignKey? foreignKey, ConfigurationSource configurationSource)
         {
+            EnsureReadonly(false);
+
             var oldForeignKey = ForeignKey;
             var isChanging = foreignKey != ForeignKey;
 
@@ -239,6 +241,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual SkipNavigation? SetInverse([CanBeNull] SkipNavigation? inverse, ConfigurationSource configurationSource)
         {
+            EnsureReadonly(false);
+
             var oldInverse = Inverse;
             var isChanging = inverse != Inverse;
             if (inverse == null)

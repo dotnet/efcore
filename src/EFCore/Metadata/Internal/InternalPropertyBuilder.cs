@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (required == false)
             {
-                using (Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions())
+                using (Metadata.DeclaringEntityType.Model.DelayConventions())
                 {
                     foreach (var key in Metadata.GetContainingKeys().ToList())
                     {

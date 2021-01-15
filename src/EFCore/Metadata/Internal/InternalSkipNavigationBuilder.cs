@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 inverse.UpdateConfigurationSource(configurationSource);
             }
 
-            using (var batch = Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions())
+            using (var batch = Metadata.DeclaringEntityType.Model.DelayConventions())
             {
                 if (Metadata.Inverse != null
                     && Metadata.Inverse != inverse)

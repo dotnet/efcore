@@ -106,13 +106,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual ModelDependencies? ModelDependencies { get; private set; }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Indicates whether the model is read-only.
         /// </summary>
-        public virtual bool IsReadonly
-            => ConventionDispatcher == null;
+        protected override bool IsReadonly => ConventionDispatcher == null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -199,8 +195,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private EntityType? AddEntityType(EntityType entityType)
         {
-            var entityTypeName = entityType.Name;
+            EnsureReadonly(false);
 
+            var entityTypeName = entityType.Name;
             if (_entityTypes.ContainsKey(entityTypeName))
             {
                 throw new InvalidOperationException(CoreStrings.DuplicateEntityType(entityType.DisplayName()));
@@ -323,6 +320,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
+            EnsureReadonly(false);
             AssertCanRemove(entityType);
 
             if (entityType.ClrType != null
@@ -581,6 +579,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] Type? type,
             ConfigurationSource configurationSource)
         {
+            EnsureReadonly(false);
+
             if (_ignoredTypeNames.TryGetValue(name, out var existingIgnoredConfigurationSource))
             {
                 configurationSource = configurationSource.Max(existingIgnoredConfigurationSource);
@@ -674,6 +674,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual string? RemoveIgnored(string name)
         {
             Check.NotNull(name, nameof(name));
+            EnsureReadonly(false);
 
             return _ignoredTypeNames.Remove(name) ? name : null;
         }
@@ -723,6 +724,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual void AddOwned([NotNull] Type type, ConfigurationSource configurationSource)
         {
+            EnsureReadonly(false);
             var name = GetDisplayName(type);
             if (!(this[CoreAnnotationNames.OwnedTypes] is Dictionary<string, ConfigurationSource> ownedTypes))
             {
@@ -747,6 +749,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual string? RemoveOwned([NotNull] Type type)
         {
+            EnsureReadonly(false);
+
             if (!(this[CoreAnnotationNames.OwnedTypes] is Dictionary<string, ConfigurationSource> ownedTypes))
             {
                 return null;
@@ -764,6 +768,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual void AddShared([NotNull] Type type, ConfigurationSource configurationSource)
         {
+            EnsureReadonly(false);
+
             if (_entityTypes.Any(et => !et.Value.HasSharedClrType && et.Value.ClrType == type))
             {
                 throw new InvalidOperationException(CoreStrings.CannotMarkShared(type.ShortDisplayName()));
@@ -814,6 +820,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ChangeTrackingStrategy? changeTrackingStrategy,
             ConfigurationSource configurationSource)
         {
+            EnsureReadonly(false);
+
             _changeTrackingStrategy = changeTrackingStrategy;
 
             _changeTrackingStrategyConfigurationSource = _changeTrackingStrategy == null
@@ -851,9 +859,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual IConventionBatch DelayConventions()
+        {
+            EnsureReadonly(false);
+            return ConventionDispatcher.DelayConventions();
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual T Track<T>([NotNull] Func<T> func, [CanBeNull] ref IConventionForeignKey foreignKey)
+        {
+            EnsureReadonly(false);
+            return ConventionDispatcher.Track(func, ref foreignKey);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual IModel FinalizeModel()
         {
+            EnsureReadonly(false);
             ConventionDispatcher.AssertNoScope();
+
             IModel? finalizedModel = ConventionDispatcher.OnModelFinalizing(Builder)?.Metadata;
             if (finalizedModel != null)
             {
@@ -907,6 +941,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool? SetSkipDetectChanges(bool? skipDetectChanges)
         {
+            EnsureReadonly(false);
+
             _skipDetectChanges = skipDetectChanges;
 
             return skipDetectChanges;
