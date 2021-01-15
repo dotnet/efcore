@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,12 +29,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     /// </summary>
     public class NavigationFixer : INavigationFixer
     {
-        private readonly bool _useOldBehaviorFor23659
-            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23659", out var enabled) && enabled;
-
-        private readonly bool _useOldBehaviorFor23787
-            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23787", out var enabled) && enabled;
-
         private readonly IChangeDetector _changeDetector;
         private readonly IEntityGraphAttacher _attacher;
         private bool _inFixup;
@@ -834,10 +827,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 AddToCollection(otherEntry, skipNavigation.Inverse, entry, fromQuery);
                             }
 
-                            if (!_useOldBehaviorFor23787)
-                            {
-                                entry.AddToCollectionSnapshot(skipNavigation, otherEntity);
-                            }
+                            entry.AddToCollectionSnapshot(skipNavigation, otherEntity);
                         }
                     }
                 }
@@ -894,10 +884,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         FixupToPrincipal(entry, referencedEntry, navigation.ForeignKey, setModified, fromQuery);
 
-                        if (!_useOldBehaviorFor23659)
-                        {
-                            FixupSkipNavigations(entry, navigation.ForeignKey, fromQuery);
-                        }
+                        FixupSkipNavigations(entry, navigation.ForeignKey, fromQuery);
                     }
                 }
             }

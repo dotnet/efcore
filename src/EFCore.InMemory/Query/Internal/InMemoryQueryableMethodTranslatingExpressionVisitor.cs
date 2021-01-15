@@ -668,9 +668,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 }
             }
 
-            if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23593", out var enabled)
-                && enabled)
-                && joinCondition is MethodCallExpression methodCallExpression
+            if (joinCondition is MethodCallExpression methodCallExpression
                 && methodCallExpression.Method.IsStatic
                 && methodCallExpression.Method.DeclaringType == typeof(object)
                 && methodCallExpression.Method.Name == nameof(object.Equals)
@@ -1506,8 +1504,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             : foreignKey.Properties,
                         makeNullable);
 
-                    if (foreignKey.Properties.Count > 1
-                        && !(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore23687", out var enabled) && enabled))
+                    if (foreignKey.Properties.Count > 1)
                     {
                         outerKey = Expression.New(AnonymousObject.AnonymousObjectCtor, outerKey);
                         innerKey = Expression.New(AnonymousObject.AnonymousObjectCtor, innerKey);
