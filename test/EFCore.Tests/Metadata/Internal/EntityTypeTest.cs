@@ -36,17 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<NotSupportedException>(() => type.AsEntityType()).Message);
         }
 
-        private class FakeEntityType : IEntityType
+        private class FakeEntityType : Annotatable, IEntityType
         {
-            public object this[string name]
-                => throw new NotImplementedException();
-
-            public IAnnotation FindAnnotation(string name)
-                => throw new NotImplementedException();
-
-            public IEnumerable<IAnnotation> GetAnnotations()
-                => throw new NotImplementedException();
-
             public IModel Model { get; }
             public string Name { get; }
             public bool HasSharedClrType { get; }

@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool? SetIsNullable(bool? nullable, ConfigurationSource configurationSource)
         {
-            EnsureReadonly(false);
+            EnsureMutable();
 
             var isChanging = (nullable ?? DefaultIsNullable) != IsNullable;
             if (nullable == null)
@@ -244,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual ValueGenerated? SetValueGenerated(ValueGenerated? valueGenerated, ConfigurationSource configurationSource)
         {
-            EnsureReadonly(false);
+            EnsureMutable();
 
             _valueGenerated = valueGenerated;
 
@@ -287,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool? SetIsConcurrencyToken(bool? concurrencyToken, ConfigurationSource configurationSource)
         {
-            EnsureReadonly(false);
+            EnsureMutable();
 
             if (IsConcurrencyToken != concurrencyToken)
             {
@@ -506,7 +506,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [CA.DisallowNull]
         public virtual CoreTypeMapping? TypeMapping
         {
-            get => _typeMapping;
+            get
+                => _typeMapping == null && IsReadOnly
+                    ? _typeMapping ??= ((IModel)DeclaringEntityType.Model).ModelDependencies?.TypeMappingSource.FindMapping(this)
+                    : _typeMapping;
+
             [param: NotNull]
             set => SetTypeMapping(value, ConfigurationSource.Explicit);
         }

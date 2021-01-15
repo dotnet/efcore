@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -43,6 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static readonly Type DefaultPropertyBagType = typeof(Dictionary<string, object>);
 
+        private SingletonModelDependencies? _modelDependencies;
         private readonly SortedDictionary<string, EntityType> _entityTypes = new(StringComparer.Ordinal);
         private readonly ConcurrentDictionary<Type, PropertyInfo?> _indexerPropertyInfoMap = new();
         private readonly ConcurrentDictionary<Type, string> _clrTypeNameMap = new();
@@ -55,6 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private ChangeTrackingStrategy? _changeTrackingStrategy;
 
         private ConfigurationSource? _changeTrackingStrategyConfigurationSource;
+        private ModelDependencies? _scopedModelDependencies;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -75,7 +78,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public Model([NotNull] ConventionSet conventions, [CanBeNull] ModelDependencies? modelDependencies = null)
         {
-            ModelDependencies = modelDependencies;
+            if (modelDependencies != null)
+            {
+                ScopedModelDependencies = modelDependencies;
+            }
             var dispatcher = new ConventionDispatcher(conventions);
             var builder = new InternalModelBuilder(this);
             _conventionDispatcher = dispatcher;
@@ -91,7 +97,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual ConventionDispatcher ConventionDispatcher
         {
-            [DebuggerStepThrough] get => _conventionDispatcher ?? throw new InvalidOperationException(CoreStrings.ModelReadOnly);
+            [DebuggerStepThrough]
+            get => _conventionDispatcher ?? throw new InvalidOperationException(CoreStrings.ModelReadOnly);
         }
 
         /// <summary>
@@ -100,26 +107,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ModelDependencies? ModelDependencies { get; private set; }
+        [CA.DisallowNull]
+        public virtual ModelDependencies? ScopedModelDependencies
+        {
+            get => _scopedModelDependencies;
+            [param: NotNull]
+            set => _scopedModelDependencies = value;
+        }
 
         /// <summary>
         ///     Indicates whether the model is read-only.
         /// </summary>
-        protected override bool IsReadonly
-            => IsModelReadonly;
+        protected override bool IsReadOnly => IsModelReadOnly;
 
         /// <summary>
         ///     Indicates whether the model is read-only.
         /// </summary>
-        public virtual bool IsModelReadonly => _conventionDispatcher == null;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual bool IsValidated { get; set; }
+        public virtual bool IsModelReadOnly => _conventionDispatcher == null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -198,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private EntityType? AddEntityType(EntityType entityType)
         {
-            EnsureReadonly(false);
+            EnsureMutable();
 
             var entityTypeName = entityType.Name;
             if (_entityTypes.ContainsKey(entityTypeName))
@@ -322,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            EnsureReadonly(false);
+            EnsureMutable();
             AssertCanRemove(entityType);
 
             if (_sharedTypes.TryGetValue(entityType.ClrType, out var existingTypes))
@@ -580,7 +584,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] Type? type,
             ConfigurationSource configurationSource)
         {
-            EnsureReadonly(false);
+            EnsureMutable();
 
             if (_ignoredTypeNames.TryGetValue(name, out var existingIgnoredConfigurationSource))
             {
@@ -675,7 +679,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual string? RemoveIgnored(string name)
         {
             Check.NotNull(name, nameof(name));
-            EnsureReadonly(false);
+            EnsureMutable();
 
             return _ignoredTypeNames.Remove(name) ? name : null;
         }
@@ -725,7 +729,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual void AddOwned([NotNull] Type type, ConfigurationSource configurationSource)
         {
-            EnsureReadonly(false);
+            EnsureMutable();
             var name = GetDisplayName(type);
             if (!(this[CoreAnnotationNames.OwnedTypes] is Dictionary<string, ConfigurationSource> ownedTypes))
             {
@@ -750,7 +754,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual string? RemoveOwned([NotNull] Type type)
         {
-            EnsureReadonly(false);
+            EnsureMutable();
 
             if (!(this[CoreAnnotationNames.OwnedTypes] is Dictionary<string, ConfigurationSource> ownedTypes))
             {
@@ -769,7 +773,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual void AddShared([NotNull] Type type, ConfigurationSource configurationSource)
         {
-            EnsureReadonly(false);
+            EnsureMutable();
 
             if (_entityTypes.Any(et => !et.Value.HasSharedClrType && et.Value.ClrType == type))
             {
@@ -821,7 +825,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ChangeTrackingStrategy? changeTrackingStrategy,
             ConfigurationSource configurationSource)
         {
-            EnsureReadonly(false);
+            EnsureMutable();
 
             _changeTrackingStrategy = changeTrackingStrategy;
 
@@ -862,7 +866,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IConventionBatch DelayConventions()
         {
-            EnsureReadonly(false);
+            EnsureMutable();
             return ConventionDispatcher.DelayConventions();
         }
 
@@ -872,9 +876,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual T Track<T>([NotNull] Func<T> func, [CanBeNull] [CA.DisallowNull] ref IConventionForeignKey? foreignKey)
+        public virtual T Track<T>([NotNull] Func<T> func, [CanBeNull][CA.DisallowNull] ref IConventionForeignKey? foreignKey)
         {
-            EnsureReadonly(false);
+            EnsureMutable();
             return ConventionDispatcher.Track(func, ref foreignKey);
         }
 
@@ -886,7 +890,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IModel FinalizeModel()
         {
-            EnsureReadonly(false);
+            EnsureMutable();
             ConventionDispatcher.AssertNoScope();
 
             IModel? finalizedModel = ConventionDispatcher.OnModelFinalizing(Builder)?.Metadata;
@@ -908,8 +912,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             // ConventionDispatcher should never be accessed once the model is made read-only.
             _conventionDispatcher = null;
-            ModelDependencies = null;
-            IsValidated = true;
+            _scopedModelDependencies = null;
             return this;
         }
 
@@ -942,7 +945,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool? SetSkipDetectChanges(bool? skipDetectChanges)
         {
-            EnsureReadonly(false);
+            EnsureMutable();
 
             _skipDetectChanges = skipDetectChanges;
 
@@ -956,7 +959,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual object? RelationalModel
-            => this["Relational:RelationalModel"];
+            => FindRuntimeAnnotation("Relational:RelationalModel");
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -968,6 +971,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => new(
                 () => this.ToDebugString(MetadataDebugStringOptions.ShortDefault),
                 () => this.ToDebugString(MetadataDebugStringOptions.LongDefault));
+
+        /// <summary>
+        ///     The runtime service dependencies.
+        /// </summary>
+        SingletonModelDependencies? IModel.ModelDependencies
+        {
+            get
+            {
+                if (_modelDependencies == null)
+                {
+                    EnsureReadOnly();
+                }
+
+                return _modelDependencies;
+            }
+        }
+
+        /// <summary>
+        ///     Set the runtime service dependencies.
+        /// </summary>
+        /// <param name="modelDependencies"> The runtime service dependencies. </param>
+        /// <returns><see langword="true"/> if the runtime service dependencies were set; <see langword="false"/> otherwise. </returns>
+        bool IModel.SetModelDependencies(SingletonModelDependencies modelDependencies)
+            => Interlocked.CompareExchange(ref _modelDependencies, modelDependencies, null) == null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

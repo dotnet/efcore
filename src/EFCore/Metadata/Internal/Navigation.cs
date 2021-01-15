@@ -300,7 +300,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ref _collectionAccessor,
                 ref _collectionAccessorInitialized,
                 this,
-                static n => new ClrCollectionAccessorFactory().Create(n));
+                static navigation =>
+                {
+                    navigation.EnsureReadOnly();
+                    return new ClrCollectionAccessorFactory().Create(navigation);
+                });
 
         /// <summary>
         ///     Runs the conventions when an annotation was set or removed.

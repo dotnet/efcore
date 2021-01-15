@@ -33,8 +33,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private readonly IKeyPropagator _keyPropagator;
         private readonly IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> _logger;
         private readonly ILoggingOptions _loggingOptions;
-        private readonly Dictionary<IEntityType, List<IProperty>> _entityTypePropagatingPropertiesMap = new();
-        private readonly Dictionary<IEntityType, List<IProperty>> _entityTypeGeneratingPropertiesMap = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -163,43 +161,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private List<IProperty> FindCandidatePropagatingProperties(InternalEntityEntry entry)
-        {
-            if (!_entityTypePropagatingPropertiesMap.TryGetValue(entry.EntityType, out var candidateProperties))
-            {
-                candidateProperties = new List<IProperty>();
-                foreach (var property in entry.EntityType.GetProperties())
-                {
-                    if (property.IsForeignKey())
-                    {
-                        candidateProperties.Add(property);
-                    }
-                }
+        private IReadOnlyList<IProperty> FindCandidatePropagatingProperties(InternalEntityEntry entry)
+            => entry.EntityType.GetPropagatingProperties();
 
-                _entityTypePropagatingPropertiesMap[entry.EntityType] = candidateProperties;
-            }
-
-            return candidateProperties;
-        }
-
-        private List<IProperty> FindCandidateGeneratingProperties(InternalEntityEntry entry)
-        {
-            if (!_entityTypeGeneratingPropertiesMap.TryGetValue(entry.EntityType, out var candidateProperties))
-            {
-                candidateProperties = new List<IProperty>();
-                foreach (var property in entry.EntityType.GetProperties())
-                {
-                    if (property.RequiresValueGenerator())
-                    {
-                        candidateProperties.Add(property);
-                    }
-                }
-
-                _entityTypeGeneratingPropertiesMap[entry.EntityType] = candidateProperties;
-            }
-
-            return candidateProperties;
-        }
+        private IReadOnlyList<IProperty> FindCandidateGeneratingProperties(InternalEntityEntry entry)
+            => entry.EntityType.GetGeneratingProperties();
 
         private ValueGenerator GetValueGenerator(InternalEntityEntry entry, IProperty property)
             => _valueGeneratorSelector.Select(

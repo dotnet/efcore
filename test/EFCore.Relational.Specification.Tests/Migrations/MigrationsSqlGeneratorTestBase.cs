@@ -7,8 +7,6 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -771,14 +769,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
                 buildAction(modelBuilder);
 
-                model = modelBuilder.Model;
-                var conventionSet = services.GetRequiredService<IConventionSetBuilder>().CreateConventionSet();
-
-                var typeMappingConvention = conventionSet.ModelFinalizingConventions.OfType<TypeMappingConvention>().FirstOrDefault();
-                typeMappingConvention.ProcessModelFinalizing(((IConventionModel)model).Builder, null);
-
-                var relationalModelConvention = conventionSet.ModelFinalizedConventions.OfType<RelationalModelConvention>().First();
-                model = relationalModelConvention.ProcessModelFinalized((IConventionModel)model);
+                model = services.GetService<IModelRuntimeInitializer>().Initialize(modelBuilder.FinalizeModel(), validationLogger: null);
             }
 
             var batch = services.GetRequiredService<IMigrationsSqlGenerator>().Generate(operation, model, options);

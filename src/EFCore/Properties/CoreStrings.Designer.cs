@@ -1491,7 +1491,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 principalEntityType, declaringEntityType);
 
         /// <summary>
-        ///     The model must be finalized before '{method}' can be used. Ensure that either 'OnModelCreating' has completed or, if using a stand-alone 'ModelBuilder', that 'FinalizeModel' has been called.
+        ///     Runtime metadata changes are not allowed when the model hasn't been marked as read-only.
+        /// </summary>
+        public static string ModelMutable
+            => GetString("ModelMutable");
+
+        /// <summary>
+        ///     The model must be finalized and its runtime dependencies must be initialized before '{method}' can be used. Ensure that either 'OnModelCreating' has completed or, if using a stand-alone 'ModelBuilder', that 'IModelRuntimeInitializer.Initialize(model.FinalizeModel())' was called.
         /// </summary>
         public static string ModelNotFinalized([CanBeNull] object? method)
             => string.Format(
@@ -1499,7 +1505,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 method);
 
         /// <summary>
-        ///     Metadata changes are not allowed as the model has been marked as read-only.
+        ///     Metadata changes are not allowed when the model has been marked as read-only.
         /// </summary>
         public static string ModelReadOnly
             => GetString("ModelReadOnly");

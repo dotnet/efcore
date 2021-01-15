@@ -9,7 +9,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -278,9 +277,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
         }
 
-        protected virtual void VerifyError(string expectedMessage, IMutableModel model)
+        protected virtual void VerifyError(string expectedMessage, IMutableModel model, bool sensitiveDataLoggingEnabled = false)
         {
-            var message = Assert.Throws<InvalidOperationException>(() => Validate(model)).Message;
+            var message = Assert.Throws<InvalidOperationException>(() => Validate(model, sensitiveDataLoggingEnabled)).Message;
             Assert.Equal(expectedMessage, message);
         }
 
@@ -293,8 +292,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Empty(logEntries);
         }
 
-        protected virtual IModel Validate(IMutableModel model)
-            => model.FinalizeModel();
+        protected virtual IModel Validate(IMutableModel model, bool sensitiveDataLoggingEnabled = false)
+        {
+            var serviceProvider = CreateServiceProvider(sensitiveDataLoggingEnabled);
+            var modelRuntimeInitializer = serviceProvider.GetRequiredService<IModelRuntimeInitializer>();
+            var validationLogger = CreateValidationLogger(sensitiveDataLoggingEnabled);
+
+            return modelRuntimeInitializer.Initialize(model.FinalizeModel(), validationLogger);
+        }
 
         protected DiagnosticsLogger<DbLoggerCategory.Model.Validation> CreateValidationLogger(bool sensitiveDataLoggingEnabled = false)
         {
@@ -326,15 +331,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         protected virtual ModelBuilder CreateConventionlessModelBuilder(bool sensitiveDataLoggingEnabled = false)
         {
-            var conventionSet = new ConventionSet();
             var serviceProvider = CreateServiceProvider(sensitiveDataLoggingEnabled);
-
-            // Use public API to add conventions, issue #214
-            var dependencies = serviceProvider.GetRequiredService<ProviderConventionSetBuilderDependencies>();
-            conventionSet.ModelFinalizingConventions.Add(new TypeMappingConvention(dependencies));
-            conventionSet.ModelFinalizedConventions.Add(new ValidatingConvention(dependencies));
-
-            return new ModelBuilder(conventionSet, serviceProvider.GetRequiredService<ModelDependencies>());
+            return new ModelBuilder(new ConventionSet(), serviceProvider.GetRequiredService<ModelDependencies>());
         }
 
         protected IServiceProvider CreateServiceProvider(bool sensitiveDataLoggingEnabled = false)

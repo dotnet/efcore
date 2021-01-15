@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -136,18 +135,18 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return builder.Model;
         }
 
-        public ModelBuilder CreateConventionBuilder(bool skipValidation = false)
+        public IModel Finalize(ModelBuilder modelBuilder, bool skipValidation = false)
         {
-            var conventionSet = CreateConventionSetBuilder().CreateConventionSet();
+            var contextServices = CreateContextServices();
 
-            if (skipValidation)
-            {
-                // Use public API to remove convention, issue #214
-                ConventionSet.Remove(conventionSet.ModelFinalizedConventions, typeof(ValidatingConvention));
-            }
-
-            return new ModelBuilder(conventionSet);
+            var modelRuntimeInitializer = contextServices.GetRequiredService<IModelRuntimeInitializer>();
+            return modelRuntimeInitializer.Initialize(modelBuilder.FinalizeModel(), skipValidation
+                ? null
+                : new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>(LoggingDefinitions));
         }
+
+        public ModelBuilder CreateConventionBuilder()
+            => new ModelBuilder(CreateConventionSetBuilder().CreateConventionSet());
 
         public virtual IConventionSetBuilder CreateConventionSetBuilder()
             => CreateContextServices().GetRequiredService<IConventionSetBuilder>();

@@ -307,11 +307,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 => throw new NotImplementedException();
         }
 
-        public class FakeEntityType : IEntityType
+        public class FakeEntityType : Annotatable, IEntityType
         {
-            public object this[string name]
-                => null;
-
             public IEntityType BaseType
                 => throw new NotImplementedException();
 
@@ -336,9 +333,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             public bool IsPropertyBag
                 => throw new NotImplementedException();
 
-            public IAnnotation FindAnnotation(string name)
-                => throw new NotImplementedException();
-
             public IForeignKey FindForeignKey(IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
                 => throw new NotImplementedException();
 
@@ -361,9 +355,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 => throw new NotImplementedException();
 
             public ISkipNavigation FindSkipNavigation(string name)
-                => throw new NotImplementedException();
-
-            public IEnumerable<IAnnotation> GetAnnotations()
                 => throw new NotImplementedException();
 
             public IEnumerable<IForeignKey> GetForeignKeys()

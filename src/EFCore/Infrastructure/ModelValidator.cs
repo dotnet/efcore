@@ -51,8 +51,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <inheritdoc />
         public virtual void Validate(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            ((Model)model).IsValidated = true;
-
 #pragma warning disable CS0618 // Type or member is obsolete
             ValidateNoShadowEntities(model, logger);
 #pragma warning restore CS0618 // Type or member is obsolete

@@ -26,7 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             [NotNull] ProviderConventionSetBuilderDependencies dependencies,
             [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
         {
+            Dependencies = dependencies;
         }
+
+        private ProviderConventionSetBuilderDependencies Dependencies { get; }
 
         /// <summary>
         ///     Called after a model is initialized.
@@ -54,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     if (table != null)
                     {
                         var storeObject = StoreObjectIdentifier.Table(table, entityType.GetSchema());
-                        strategy = property.GetValueGenerationStrategy(storeObject);
+                        strategy = property.GetValueGenerationStrategy(storeObject, Dependencies.TypeMappingSource);
                         if (strategy == SqlServerValueGenerationStrategy.None
                             && !IsStrategyNoneNeeded(property, storeObject))
                         {
@@ -67,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         if (view != null)
                         {
                             var storeObject = StoreObjectIdentifier.View(view, entityType.GetViewSchema());
-                            strategy = property.GetValueGenerationStrategy(storeObject);
+                            strategy = property.GetValueGenerationStrategy(storeObject, Dependencies.TypeMappingSource);
                             if (strategy == SqlServerValueGenerationStrategy.None
                                 && !IsStrategyNoneNeeded(property, storeObject))
                             {
@@ -84,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
             }
 
-            static bool IsStrategyNoneNeeded(IProperty property, StoreObjectIdentifier storeObject)
+            bool IsStrategyNoneNeeded(IProperty property, StoreObjectIdentifier storeObject)
             {
                 if (property.ValueGenerated == ValueGenerated.OnAdd
                     && property.GetDefaultValue(storeObject) == null
@@ -92,7 +95,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     && property.GetComputedColumnSql(storeObject) == null
                     && property.DeclaringEntityType.Model.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn)
                 {
-                    var providerClrType = (property.GetValueConverter() ?? property.FindRelationalTypeMapping(storeObject)?.Converter)
+                    var providerClrType = (property.GetValueConverter()
+                        ?? (property.FindRelationalTypeMapping(storeObject)
+                            ?? Dependencies.TypeMappingSource.FindMapping(property))?.Converter)
                         ?.ProviderClrType.UnwrapNullableType();
 
                     return providerClrType != null

@@ -190,30 +190,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             CreatePropertyMappingValidator()(modelBuilder.Metadata);
         }
 
-        protected override ModelBuilder CreateConventionlessModelBuilder(bool sensitiveDataLoggingEnabled = false)
-        {
-            var conventionSet = new ConventionSet();
-            var serviceProvider = CreateServiceProvider(sensitiveDataLoggingEnabled);
-
-            // Use public API to add conventions, issue #214
-            var dependencies = serviceProvider.GetService<ProviderConventionSetBuilderDependencies>();
-            conventionSet.ModelFinalizingConventions.Add(new TypeMappingConvention(dependencies));
-
-            return new ModelBuilder(conventionSet, serviceProvider.GetService<ModelDependencies>());
-        }
-
-        protected virtual Action<IModel> CreatePropertyMappingValidator()
+        protected virtual Action<Model> CreatePropertyMappingValidator()
         {
             var validator = CreateModelValidator();
             var logger = new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>();
 
             var validatePropertyMappingMethod = typeof(ModelValidator).GetRuntimeMethods().Single(e => e.Name == "ValidatePropertyMapping");
 
+            var modelRuntimeInitializer = TestHelpers.CreateContextServices().GetRequiredService<IModelRuntimeInitializer>();
+
             return m =>
             {
                 try
                 {
-                    ((Model)m).FinalizeModel();
+                    m.FinalizeModel();
+                    modelRuntimeInitializer.Initialize(m, validationLogger: null);
                     validatePropertyMappingMethod.Invoke(
                         validator, new object[] { m, logger });
                 }

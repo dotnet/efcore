@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override bool IsReadonly => Model.IsModelReadonly;
+        protected override bool IsReadOnly => Model.IsModelReadOnly;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -249,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual string? AddIgnored([NotNull] string name, ConfigurationSource configurationSource)
         {
             Check.NotNull(name, nameof(name));
-            EnsureReadonly(false);
+            EnsureMutable();
 
             if (_ignoredMembers.TryGetValue(name, out var existingIgnoredConfigurationSource))
             {
@@ -317,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual string? RemoveIgnored(string name)
         {
             Check.NotNull(name, nameof(name));
-            EnsureReadonly(false);
+            EnsureMutable();
 
             return _ignoredMembers.Remove(name) ? name : null;
         }

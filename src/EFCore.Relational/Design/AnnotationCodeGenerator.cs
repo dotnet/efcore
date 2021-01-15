@@ -29,23 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Design
     {
         private static readonly ISet<string> _ignoredRelationalAnnotations = new HashSet<string>
         {
-            RelationalAnnotationNames.RelationalModel,
             RelationalAnnotationNames.CheckConstraints,
             RelationalAnnotationNames.Sequences,
             RelationalAnnotationNames.DbFunctions,
-            RelationalAnnotationNames.DefaultMappings,
-            RelationalAnnotationNames.DefaultColumnMappings,
-            RelationalAnnotationNames.TableMappings,
-            RelationalAnnotationNames.TableColumnMappings,
-            RelationalAnnotationNames.ViewMappings,
-            RelationalAnnotationNames.ViewColumnMappings,
-            RelationalAnnotationNames.FunctionMappings,
-            RelationalAnnotationNames.FunctionColumnMappings,
-            RelationalAnnotationNames.SqlQueryMappings,
-            RelationalAnnotationNames.SqlQueryColumnMappings,
-            RelationalAnnotationNames.ForeignKeyMappings,
-            RelationalAnnotationNames.TableIndexMappings,
-            RelationalAnnotationNames.UniqueConstraintMappings,
             RelationalAnnotationNames.RelationalOverrides
         };
 

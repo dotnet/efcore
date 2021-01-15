@@ -37,17 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<NotSupportedException>(() => property.AsPropertyBase()).Message);
         }
 
-        private class FakeProperty : IProperty
+        private class FakeProperty : Annotatable, IProperty
         {
-            public object this[string name]
-                => throw new NotImplementedException();
-
-            public IAnnotation FindAnnotation(string name)
-                => throw new NotImplementedException();
-
-            public IEnumerable<IAnnotation> GetAnnotations()
-                => throw new NotImplementedException();
-
             public string Name { get; }
             public ITypeBase DeclaringType { get; }
             public Type ClrType { get; }

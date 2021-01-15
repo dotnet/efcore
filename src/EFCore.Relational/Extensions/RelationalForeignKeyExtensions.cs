@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="foreignKey"> The foreign key. </param>
         /// <returns> The foreign key constraints to which the foreign key is mapped. </returns>
         public static IEnumerable<IForeignKeyConstraint> GetMappedConstraints([NotNull] this IForeignKey foreignKey)
-            => (IEnumerable<IForeignKeyConstraint>?)foreignKey[RelationalAnnotationNames.ForeignKeyMappings]
+            => (IEnumerable<IForeignKeyConstraint>?)foreignKey.FindRuntimeAnnotationValue(RelationalAnnotationNames.ForeignKeyMappings)
                 ?? Enumerable.Empty<IForeignKeyConstraint>();
 
         /// <summary>

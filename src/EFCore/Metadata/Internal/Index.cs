@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override bool IsReadonly => DeclaringEntityType.Model.IsModelReadonly;
+        protected override bool IsReadOnly => DeclaringEntityType.Model.IsModelReadOnly;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool? SetIsUnique(bool? unique, ConfigurationSource configurationSource)
         {
-            EnsureReadonly(false);
+            EnsureMutable();
 
             var oldIsUnique = IsUnique;
             var isChanging = oldIsUnique != unique;
@@ -229,7 +229,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IDependentKeyValueFactory<TKey> GetNullableValueFactory<TKey>()
             => (IDependentKeyValueFactory<TKey>)NonCapturingLazyInitializer.EnsureInitialized(
-                ref _nullableValueFactory, this, static i => new CompositeValueFactory(i.Properties));
+                ref _nullableValueFactory, this, static index =>
+                {
+                    index.EnsureReadOnly();
+                    return new CompositeValueFactory(index.Properties);
+                });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
@@ -13,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -656,6 +658,11 @@ namespace Microsoft.EntityFrameworkCore
                 DbContext context,
                 IConventionSetBuilder conventionSetBuilder,
                 ModelDependencies modelDependencies)
+                => new Model();
+
+            public IModel GetModel(
+                DbContext context,
+                IModelCreationDependencies modelCreationDependencies)
                 => new Model();
         }
 

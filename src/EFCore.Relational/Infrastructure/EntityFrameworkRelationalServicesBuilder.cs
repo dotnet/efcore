@@ -134,6 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IMigrationsIdGenerator, MigrationsIdGenerator>();
             TryAdd<IKeyValueIndexFactorySource, KeyValueIndexFactorySource>();
             TryAdd<IModelCustomizer, RelationalModelCustomizer>();
+            TryAdd<IModelRuntimeInitializer, RelationalModelRuntimeInitializer>();
             TryAdd<IRelationalAnnotationProvider, RelationalAnnotationProvider>();
             TryAdd<IMigrationsAnnotationProvider, MigrationsAnnotationProvider>();
             TryAdd<IModelValidator, RelationalModelValidator>();
@@ -198,6 +199,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<RelationalEvaluatableExpressionFilterDependencies>()
                 .AddDependencySingleton<RelationalQueryTranslationPreprocessorDependencies>()
                 .AddDependencySingleton<RelationalParameterBasedSqlProcessorDependencies>()
+                .AddDependencySingleton<RelationalModelDependencies>()
+                .AddDependencySingleton<RelationalModelRuntimeInitializerDependencies>()
                 .AddDependencyScoped<MigrationsSqlGeneratorDependencies>()
                 .AddDependencyScoped<RelationalConventionSetBuilderDependencies>()
                 .AddDependencyScoped<ModificationCommandBatchFactoryDependencies>()

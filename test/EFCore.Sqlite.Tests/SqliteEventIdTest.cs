@@ -38,11 +38,8 @@ namespace Microsoft.EntityFrameworkCore
                 fakeFactories);
         }
 
-        private class FakeSequence : ISequence
+        private class FakeSequence : Annotatable, ISequence
         {
-            public object this[string name]
-                => throw new NotImplementedException();
-
             public string Name
                 => "SequenceName";
 
@@ -72,16 +69,6 @@ namespace Microsoft.EntityFrameworkCore
 
             public bool IsCyclic
                 => throw new NotImplementedException();
-
-            public IAnnotation FindAnnotation(string name)
-            {
-                throw new NotImplementedException();
-            }
-
-            public IEnumerable<IAnnotation> GetAnnotations()
-            {
-                throw new NotImplementedException();
-            }
         }
     }
 }

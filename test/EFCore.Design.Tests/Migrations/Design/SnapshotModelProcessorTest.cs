@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -54,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter, NullConventionSetBuilder.Instance).Process(model);
+            new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance).Process(model);
 
             AssertAnnotations(model);
             AssertAnnotations(entityType);
@@ -80,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter, NullConventionSetBuilder.Instance).Process(model);
+            new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance).Process(model);
 
             Assert.Equal("warn: " + DesignStrings.MultipleAnnotationConflict("DefaultSchema"), reporter.Messages.Single());
             Assert.Equal(2, model.GetAnnotations().Count());
@@ -101,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter, NullConventionSetBuilder.Instance).Process(model);
+            new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance).Process(model);
 
             Assert.Equal("warn: " + DesignStrings.MultipleAnnotationConflict("DefaultSchema"), reporter.Messages.Single());
             Assert.Equal(2, model.GetAnnotations().Count());
@@ -122,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter, NullConventionSetBuilder.Instance).Process(model);
+            new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance).Process(model);
 
             Assert.Empty(reporter.Messages);
 
@@ -141,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter, NullConventionSetBuilder.Instance).Process(model);
+            new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance).Process(model);
 
             Assert.Empty(reporter.Messages);
 
@@ -167,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
 
             var reporter = new TestOperationReporter();
-            new SnapshotModelProcessor(reporter, NullConventionSetBuilder.Instance).Process(model);
+            new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance).Process(model);
 
             Assert.Empty(reporter.Messages);
             Assert.Equal(
@@ -188,8 +189,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var differ = context.GetService<IMigrationsModelDiffer>();
             var snapshot = (ModelSnapshot)Activator.CreateInstance(snapshotType);
             var reporter = new TestOperationReporter();
-            var setBuilder = SqlServerTestHelpers.Instance.CreateContextServices().GetRequiredService<IConventionSetBuilder>();
-            var processor = new SnapshotModelProcessor(reporter, setBuilder);
+            var modelRuntimeInitializer = SqlServerTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelRuntimeInitializer>();
+            var processor = new SnapshotModelProcessor(reporter, modelRuntimeInitializer);
             var model = processor.Process(snapshot.Model);
 
             var differences = differ.GetDifferences(model.GetRelationalModel(), context.Model.GetRelationalModel());
@@ -207,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var differ = context.GetService<IMigrationsModelDiffer>();
             var snapshot = (ModelSnapshot)Activator.CreateInstance(snapshotType);
             var reporter = new TestOperationReporter();
-            var setBuilder = SqlServerTestHelpers.Instance.CreateContextServices().GetRequiredService<IConventionSetBuilder>();
+            var setBuilder = SqlServerTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelRuntimeInitializer>();
             var processor = new SnapshotModelProcessor(reporter, setBuilder);
             var model = processor.Process(snapshot.Model);
 
@@ -265,18 +266,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .Where(p => p.Name != nameof(RelationalAnnotationNames.Prefix))
                 .Select(p => (string)p.GetValue(null));
 
-        private class NullConventionSetBuilder : IConventionSetBuilder
+        private class DummyModelRuntimeInitializer : IModelRuntimeInitializer
         {
-            private NullConventionSetBuilder()
+            private DummyModelRuntimeInitializer()
             {
             }
 
-            public ConventionSet CreateConventionSet()
-            {
-                return new();
-            }
+            public IModel Initialize(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
+                => model;
 
-            public static NullConventionSetBuilder Instance { get; } = new();
+            public static DummyModelRuntimeInitializer Instance { get; } = new();
         }
 
         private class Blog

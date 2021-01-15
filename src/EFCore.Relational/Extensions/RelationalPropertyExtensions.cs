@@ -362,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The default columns to which the property would be mapped. </returns>
         public static IEnumerable<IColumnMappingBase> GetDefaultColumnMappings([NotNull] this IProperty property)
-            => (IEnumerable<IColumnMappingBase>?)property[RelationalAnnotationNames.DefaultColumnMappings]
+            => (IEnumerable<IColumnMappingBase>?)property.FindRuntimeAnnotationValue(RelationalAnnotationNames.DefaultColumnMappings)
                 ?? Enumerable.Empty<IColumnMappingBase>();
 
         /// <summary>
@@ -371,7 +371,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The table columns to which the property is mapped. </returns>
         public static IEnumerable<IColumnMapping> GetTableColumnMappings([NotNull] this IProperty property)
-            => (IEnumerable<IColumnMapping>?)property[RelationalAnnotationNames.TableColumnMappings]
+            => (IEnumerable<IColumnMapping>?)property.FindRuntimeAnnotationValue(RelationalAnnotationNames.TableColumnMappings)
                 ?? Enumerable.Empty<IColumnMapping>();
 
         /// <summary>
@@ -380,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The view columns to which the property is mapped. </returns>
         public static IEnumerable<IViewColumnMapping> GetViewColumnMappings([NotNull] this IProperty property)
-            => (IEnumerable<IViewColumnMapping>?)property[RelationalAnnotationNames.ViewColumnMappings]
+            => (IEnumerable<IViewColumnMapping>?)property.FindRuntimeAnnotationValue(RelationalAnnotationNames.ViewColumnMappings)
                 ?? Enumerable.Empty<IViewColumnMapping>();
 
         /// <summary>
@@ -389,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The SQL query columns to which the property is mapped. </returns>
         public static IEnumerable<ISqlQueryColumnMapping> GetSqlQueryColumnMappings([NotNull] this IProperty property)
-            => (IEnumerable<ISqlQueryColumnMapping>?)property[RelationalAnnotationNames.SqlQueryColumnMappings]
+            => (IEnumerable<ISqlQueryColumnMapping>?)property.FindRuntimeAnnotationValue(RelationalAnnotationNames.SqlQueryColumnMappings)
                 ?? Enumerable.Empty<ISqlQueryColumnMapping>();
 
         /// <summary>
@@ -398,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The function columns to which the property is mapped. </returns>
         public static IEnumerable<IFunctionColumnMapping> GetFunctionColumnMappings([NotNull] this IProperty property)
-            => (IEnumerable<IFunctionColumnMapping>?)property[RelationalAnnotationNames.FunctionColumnMappings]
+            => (IEnumerable<IFunctionColumnMapping>?)property.FindRuntimeAnnotationValue(RelationalAnnotationNames.FunctionColumnMappings)
                 ?? Enumerable.Empty<IFunctionColumnMapping>();
 
         /// <summary>

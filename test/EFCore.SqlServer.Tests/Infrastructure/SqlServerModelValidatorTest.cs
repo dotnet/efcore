@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -22,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
-            GenerateMapping(modelBuilder.Entity<Animal>().Property(b => b.Id).HasColumnName("Name").Metadata);
-            GenerateMapping(modelBuilder.Entity<Animal>().Property(d => d.Name).IsRequired().HasColumnName("Name").Metadata);
+            modelBuilder.Entity<Animal>().Property(b => b.Id).HasColumnName("Name");
+            modelBuilder.Entity<Animal>().Property(d => d.Name).IsRequired().HasColumnName("Name");
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
@@ -45,6 +43,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
                     nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "someInt", "int"), modelBuilder.Model);
+        }
+
+        public override void Detects_duplicate_columns_in_derived_types_with_different_types()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>();
+
+            modelBuilder.Entity<Cat>().Property(c => c.Type).HasColumnName("Type").IsRequired();
+            modelBuilder.Entity<Dog>().Property(d => d.Type).HasColumnName("Type");
+
+            VerifyError(
+                RelationalStrings.DuplicateColumnNameDataTypeMismatch(
+                    nameof(Cat), nameof(Cat.Type), nameof(Dog), nameof(Dog.Type), nameof(Cat.Type), nameof(Animal), "nvarchar(max)",
+                    "int"), modelBuilder.Model);
         }
 
         [ConditionalFact]
@@ -634,13 +646,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     throw new NotImplementedException();
             }
         }
-
-        private static void GenerateMapping(IMutableProperty property)
-            => property.SetTypeMapping(
-                new SqlServerTypeMappingSource(
-                        TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
-                    .FindMapping(property));
 
         private class Cheese
         {
