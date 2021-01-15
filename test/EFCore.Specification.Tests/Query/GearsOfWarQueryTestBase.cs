@@ -8056,6 +8056,212 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<LocustLeader>().OfType<LocustCommander>().Where(lc => lc.DefeatedBy != null));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_property_converted_to_nullable_with_comparison(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<CogTag>().Select(x => new
+                {
+                    x.Note,
+                    Nullable = x.GearNickName != null ? new { x.Gear.Nickname, x.Gear.SquadId, x.Gear.HasSoulPatch } : null
+                }).Where(x => x.Nullable.SquadId == 1));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_property_converted_to_nullable_with_addition(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<CogTag>().Select(x => new
+                {
+                    x.Note,
+                    Nullable = x.GearNickName != null ? new { x.Gear.Nickname, x.Gear.SquadId, x.Gear.HasSoulPatch } : null
+                }).Where(x => x.Nullable.SquadId + 1 == 2),
+
+                ss => ss.Set<CogTag>().Select(x => new
+                {
+                    x.Note,
+                    Nullable = x.GearNickName != null ? new { x.Gear.Nickname, x.Gear.SquadId, x.Gear.HasSoulPatch } : null
+                }).Where(x => x.Nullable != null && x.Nullable.SquadId + 1 == 2));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_property_converted_to_nullable_with_addition_and_final_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<CogTag>().Select(x => new
+                {
+                    x.Note,
+                    Nullable = x.GearNickName != null ? new { x.Gear.Nickname, x.Gear.SquadId, x.Gear.HasSoulPatch } : null
+                })
+                .Where(x => x.Nullable.Nickname != null)
+                .Select(x => new { x.Note, Value = x.Nullable.SquadId + 1 }));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_property_converted_to_nullable_with_conditional(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<CogTag>().Select(x => new
+                {
+                    x.Note,
+                    Nullable = x.GearNickName != null ? new { x.Gear.Nickname, x.Gear.SquadId, x.Gear.HasSoulPatch } : null
+                }).Select(x => x.Note != "K.I.A." ? x.Nullable.SquadId : -1));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_property_converted_to_nullable_with_function_call(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<CogTag>().Select(x => new
+                {
+                    x.Note,
+                    Nullable = x.GearNickName != null ? new { x.Gear.Nickname, x.Gear.SquadId, x.Gear.HasSoulPatch } : null
+                }).Select(x => x.Nullable.Nickname.Substring(0, 3)),
+                ss => ss.Set<CogTag>().Select(x => x.GearNickName == null ? null : x.GearNickName.Substring(0, 3)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_property_converted_to_nullable_with_function_call2(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<CogTag>().Select(x => new
+                {
+                    x.Note,
+                    Nullable = x.GearNickName != null ? new { x.Gear.Nickname, x.Gear.SquadId, x.Gear.HasSoulPatch } : null
+                })
+                .Where(x => x.Nullable.Nickname != null)
+                .Select(x => new { x.Note, Function = x.Note.Substring(0, x.Nullable.SquadId) }),
+                ss => ss.Set<CogTag>().Select(x => new
+                {
+                    x.Note,
+                    Nullable = x.GearNickName != null ? new { x.Gear.Nickname, x.Gear.SquadId, x.Gear.HasSoulPatch } : null
+                })
+                .Where(x => x.Nullable.Nickname != null)
+                .Select(x => new { x.Note, Function = x.Nullable == null ? null : x.Note.Substring(0, x.Nullable.SquadId) }));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_property_converted_to_nullable_into_element_init(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<CogTag>().Select(x => new
+                {
+                    x.Note,
+                    Nullable = x.GearNickName != null ? new { x.Gear.Nickname, x.Gear.SquadId, x.Gear.HasSoulPatch } : null
+                })
+                .Where(x => x.Nullable.Nickname != null)
+                .OrderBy(x => x.Note)
+                .Select(x => new List<int>
+                    {
+                        x.Nullable.Nickname.Length,
+                        x.Nullable.SquadId,
+                        x.Nullable.SquadId + 1,
+                        42
+                    }),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_property_converted_to_nullable_into_member_assignment(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<CogTag>().Select(x => new
+                {
+                    x.Note,
+                    Nullable = x.GearNickName != null ? new { x.Gear.Nickname, x.Gear.SquadId, x.Gear.HasSoulPatch } : null
+                })
+                .Where(x => x.Nullable.Nickname != null)
+                .OrderBy(x => x.Note)
+                .Select(x => new Squad { Id = x.Nullable.SquadId }),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_property_converted_to_nullable_into_new_array(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<CogTag>().Select(x => new
+                {
+                    x.Note,
+                    Nullable = x.GearNickName != null ? new { x.Gear.Nickname, x.Gear.SquadId, x.Gear.HasSoulPatch } : null
+                })
+                .Where(x => x.Nullable.Nickname != null)
+                .OrderBy(x => x.Note)
+                .Select(x => new int[] { x.Nullable.Nickname.Length, x.Nullable.SquadId, x.Nullable.SquadId + 1, 42 }),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_property_converted_to_nullable_into_unary(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<CogTag>().Select(x => new
+                {
+                    x.Note,
+                    Nullable = x.GearNickName != null ? new { x.Gear.Nickname, x.Gear.SquadId, x.Gear.HasSoulPatch } : null
+                })
+                .Where(x => x.Nullable.Nickname != null)
+                .OrderBy(x => x.Note)
+                .Where(x => !x.Nullable.HasSoulPatch)
+                .Select(x => x.Note),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_property_converted_to_nullable_into_member_access(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>().Select(x => new
+                {
+                    x.Nickname,
+                    x.CityOfBirthName,
+                    Nullable = x.CityOfBirthName != null ? new { x.Tag.IssueDate } : null
+                })
+                .Where(x => x.CityOfBirthName != null)
+                .OrderBy(x => x.Nickname)
+                .Where(x => x.Nullable.IssueDate.Month != 5)
+                .Select(x => x.Nickname),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_property_converted_to_nullable_and_use_it_in_order_by(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<CogTag>().Select(x => new
+                {
+                    x.Note,
+                    Nullable = x.GearNickName != null ? new { x.Gear.Nickname, x.Gear.SquadId, x.Gear.HasSoulPatch } : null
+                })
+                .Where(x => x.Nullable.Nickname != null)
+                .OrderBy(x => x.Nullable.SquadId).ThenBy(x => x.Note),
+                assertOrder: true);
+        }
+
         protected GearsOfWarContext CreateContext()
             => Fixture.CreateContext();
 

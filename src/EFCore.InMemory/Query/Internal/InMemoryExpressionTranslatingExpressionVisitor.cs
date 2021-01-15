@@ -336,6 +336,18 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             Check.NotNull(memberExpression, nameof(memberExpression));
 
             var innerExpression = Visit(memberExpression.Expression);
+
+            // when visiting unary we remove converts from nullable to non-nullable
+            // however if this happens for memberExpression.Expression we are unable to bind
+            if (innerExpression != null
+                && memberExpression.Expression != null
+                && innerExpression.Type != memberExpression.Expression.Type
+                && innerExpression.Type.IsNullableType()
+                && innerExpression.Type.UnwrapNullableType() == memberExpression.Expression.Type)
+            {
+                innerExpression = Expression.Convert(innerExpression, memberExpression.Expression.Type);
+            }
+
             if (memberExpression.Expression != null
                 && innerExpression == QueryCompilationContext.NotTranslatedExpression)
             {

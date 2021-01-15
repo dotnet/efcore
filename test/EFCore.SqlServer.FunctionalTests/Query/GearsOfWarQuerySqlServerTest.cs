@@ -7547,6 +7547,220 @@ FROM [Missions] AS [m]
 WHERE CONTAINS([m].[BriefingDocument], N'bomb', LANGUAGE 1033)");
         }
 
+        public override async Task Projecting_property_converted_to_nullable_with_comparison(bool async)
+        {
+            await base.Projecting_property_converted_to_nullable_with_comparison(async);
+
+            AssertSql(
+                @"SELECT [t].[Note], CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [g].[Nickname], [g].[SquadId], [g].[HasSoulPatch]
+FROM [Tags] AS [t]
+LEFT JOIN [Gears] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])
+WHERE CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [g].[SquadId]
+    ELSE NULL
+END = 1");
+        }
+
+        public override async Task Projecting_property_converted_to_nullable_with_addition(bool async)
+        {
+            await base.Projecting_property_converted_to_nullable_with_addition(async);
+
+            AssertSql(
+                @"SELECT [t].[Note], CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [g].[Nickname], [g].[SquadId], [g].[HasSoulPatch]
+FROM [Tags] AS [t]
+LEFT JOIN [Gears] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])
+WHERE (CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [g].[SquadId]
+    ELSE NULL
+END + 1) = 2");
+        }
+
+        public override async Task Projecting_property_converted_to_nullable_with_addition_and_final_projection(bool async)
+        {
+            await base.Projecting_property_converted_to_nullable_with_addition_and_final_projection(async);
+
+            AssertSql(
+                @"SELECT [t].[Note], CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [g].[SquadId]
+    ELSE NULL
+END + 1 AS [Value]
+FROM [Tags] AS [t]
+LEFT JOIN [Gears] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])
+WHERE CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [g].[Nickname]
+    ELSE NULL
+END IS NOT NULL");
+        }
+
+        public override async Task Projecting_property_converted_to_nullable_with_conditional(bool async)
+        {
+            await base.Projecting_property_converted_to_nullable_with_conditional(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN ([t].[Note] <> N'K.I.A.') OR [t].[Note] IS NULL THEN CASE
+        WHEN [t].[GearNickName] IS NOT NULL THEN [g].[SquadId]
+        ELSE NULL
+    END
+    ELSE -1
+END
+FROM [Tags] AS [t]
+LEFT JOIN [Gears] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])");
+        }
+
+        public override async Task Projecting_property_converted_to_nullable_with_function_call(bool async)
+        {
+            await base.Projecting_property_converted_to_nullable_with_function_call(async);
+
+            AssertSql(
+                @"SELECT SUBSTRING(CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [g].[Nickname]
+    ELSE NULL
+END, 0 + 1, 3)
+FROM [Tags] AS [t]
+LEFT JOIN [Gears] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])");
+        }
+
+        public override async Task Projecting_property_converted_to_nullable_with_function_call2(bool async)
+        {
+            await base.Projecting_property_converted_to_nullable_with_function_call2(async);
+
+            AssertSql(
+                @"SELECT [t].[Note], SUBSTRING([t].[Note], 0 + 1, CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [g].[SquadId]
+    ELSE NULL
+END) AS [Function]
+FROM [Tags] AS [t]
+LEFT JOIN [Gears] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])
+WHERE CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [g].[Nickname]
+    ELSE NULL
+END IS NOT NULL");
+        }
+
+        public override async Task Projecting_property_converted_to_nullable_into_element_init(bool async)
+        {
+            await base.Projecting_property_converted_to_nullable_into_element_init(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN CAST(LEN([g].[Nickname]) AS int)
+    ELSE NULL
+END, CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [g].[SquadId]
+    ELSE NULL
+END, CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [g].[SquadId]
+    ELSE NULL
+END + 1
+FROM [Tags] AS [t]
+LEFT JOIN [Gears] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])
+WHERE CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [g].[Nickname]
+    ELSE NULL
+END IS NOT NULL
+ORDER BY [t].[Note]");
+        }
+
+        public override async Task Projecting_property_converted_to_nullable_into_member_assignment(bool async)
+        {
+            await base.Projecting_property_converted_to_nullable_into_member_assignment(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [g].[SquadId]
+    ELSE NULL
+END AS [Id]
+FROM [Tags] AS [t]
+LEFT JOIN [Gears] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])
+WHERE CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [g].[Nickname]
+    ELSE NULL
+END IS NOT NULL
+ORDER BY [t].[Note]");
+        }
+
+        public override async Task Projecting_property_converted_to_nullable_into_new_array(bool async)
+        {
+            await base.Projecting_property_converted_to_nullable_into_new_array(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN CAST(LEN([g].[Nickname]) AS int)
+    ELSE NULL
+END, CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [g].[SquadId]
+    ELSE NULL
+END, CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [g].[SquadId]
+    ELSE NULL
+END + 1
+FROM [Tags] AS [t]
+LEFT JOIN [Gears] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])
+WHERE CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [g].[Nickname]
+    ELSE NULL
+END IS NOT NULL
+ORDER BY [t].[Note]");
+        }
+
+        public override async Task Projecting_property_converted_to_nullable_into_unary(bool async)
+        {
+            await base.Projecting_property_converted_to_nullable_into_unary(async);
+
+            AssertSql(
+                @"SELECT [t].[Note]
+FROM [Tags] AS [t]
+LEFT JOIN [Gears] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])
+WHERE CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [g].[Nickname]
+    ELSE NULL
+END IS NOT NULL AND (CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [g].[HasSoulPatch]
+    ELSE NULL
+END = CAST(0 AS bit))
+ORDER BY [t].[Note]");
+        }
+
+        public override async Task Projecting_property_converted_to_nullable_into_member_access(bool async)
+        {
+            await base.Projecting_property_converted_to_nullable_into_member_access(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname]
+FROM [Gears] AS [g]
+LEFT JOIN [Tags] AS [t] ON ([g].[Nickname] = [t].[GearNickName]) AND ([g].[SquadId] = [t].[GearSquadId])
+WHERE (DATEPART(month, [t].[IssueDate]) <> 5) OR [t].[IssueDate] IS NULL
+ORDER BY [g].[Nickname]");
+        }
+
+        public override async Task Projecting_property_converted_to_nullable_and_use_it_in_order_by(bool async)
+        {
+            await base.Projecting_property_converted_to_nullable_and_use_it_in_order_by(async);
+
+            AssertSql(
+                @"SELECT [t].[Note], CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [g].[Nickname], [g].[SquadId], [g].[HasSoulPatch]
+FROM [Tags] AS [t]
+LEFT JOIN [Gears] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])
+WHERE CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [g].[Nickname]
+    ELSE NULL
+END IS NOT NULL
+ORDER BY CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [g].[SquadId]
+    ELSE NULL
+END, [t].[Note]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

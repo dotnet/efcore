@@ -8564,6 +8564,336 @@ FROM [Squads] AS [s]
 WHERE CAST(SUBSTRING([s].[Banner5], 2 + 1, 1) AS tinyint) = CAST(6 AS tinyint)");
         }
 
+        public override async Task Project_shadow_properties(bool async)
+        {
+            await base.Project_shadow_properties(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[AssignedCityName]
+FROM [Gears] AS [g]");
+        }
+
+        public override async Task Composite_key_entity_equal(bool async)
+        {
+            await base.Composite_key_entity_equal(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], CASE
+    WHEN [o].[Nickname] IS NOT NULL THEN N'Officer'
+END AS [Discriminator], [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Discriminator]
+FROM [Gears] AS [g]
+LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
+CROSS JOIN (
+    SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank], CASE
+        WHEN [o0].[Nickname] IS NOT NULL THEN N'Officer'
+    END AS [Discriminator]
+    FROM [Gears] AS [g0]
+    LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
+) AS [t]
+WHERE ([g].[Nickname] = [t].[Nickname]) AND ([g].[SquadId] = [t].[SquadId])");
+        }
+
+        public override async Task Composite_key_entity_not_equal(bool async)
+        {
+            await base.Composite_key_entity_not_equal(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], CASE
+    WHEN [o].[Nickname] IS NOT NULL THEN N'Officer'
+END AS [Discriminator], [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Discriminator]
+FROM [Gears] AS [g]
+LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
+CROSS JOIN (
+    SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank], CASE
+        WHEN [o0].[Nickname] IS NOT NULL THEN N'Officer'
+    END AS [Discriminator]
+    FROM [Gears] AS [g0]
+    LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
+) AS [t]
+WHERE ([g].[Nickname] <> [t].[Nickname]) OR ([g].[SquadId] <> [t].[SquadId])");
+        }
+
+        public override async Task Composite_key_entity_equal_null(bool async)
+        {
+            await base.Composite_key_entity_equal_null(async);
+
+            AssertSql(
+                @"SELECT [l].[Name], [l].[LocustHordeId], [l].[ThreatLevel], [l].[ThreatLevelByte], [l].[ThreatLevelNullableByte], [l0].[DefeatedByNickname], [l0].[DefeatedBySquadId], [l0].[HighCommandId], CASE
+    WHEN [l0].[Name] IS NOT NULL THEN N'LocustCommander'
+END AS [Discriminator]
+FROM [LocustLeaders] AS [l]
+LEFT JOIN [LocustCommanders] AS [l0] ON [l].[Name] = [l0].[Name]
+LEFT JOIN (
+    SELECT [g].[Nickname], [g].[SquadId]
+    FROM [Gears] AS [g]
+) AS [t] ON ([l0].[DefeatedByNickname] = [t].[Nickname]) AND ([l0].[DefeatedBySquadId] = [t].[SquadId])
+WHERE [l0].[Name] IS NOT NULL AND ([t].[Nickname] IS NULL OR [t].[SquadId] IS NULL)");
+        }
+
+        public override async Task Composite_key_entity_not_equal_null(bool async)
+        {
+            await base.Composite_key_entity_not_equal_null(async);
+
+            AssertSql(
+                @"SELECT [l].[Name], [l].[LocustHordeId], [l].[ThreatLevel], [l].[ThreatLevelByte], [l].[ThreatLevelNullableByte], [l0].[DefeatedByNickname], [l0].[DefeatedBySquadId], [l0].[HighCommandId], CASE
+    WHEN [l0].[Name] IS NOT NULL THEN N'LocustCommander'
+END AS [Discriminator]
+FROM [LocustLeaders] AS [l]
+LEFT JOIN [LocustCommanders] AS [l0] ON [l].[Name] = [l0].[Name]
+LEFT JOIN (
+    SELECT [g].[Nickname], [g].[SquadId]
+    FROM [Gears] AS [g]
+) AS [t] ON ([l0].[DefeatedByNickname] = [t].[Nickname]) AND ([l0].[DefeatedBySquadId] = [t].[SquadId])
+WHERE [l0].[Name] IS NOT NULL AND ([t].[Nickname] IS NOT NULL AND [t].[SquadId] IS NOT NULL)");
+        }
+
+        public override async Task Projecting_property_converted_to_nullable_with_comparison(bool async)
+        {
+            await base.Projecting_property_converted_to_nullable_with_comparison(async);
+
+            AssertSql(
+                @"SELECT [t].[Note], CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [t0].[Nickname], [t0].[SquadId], [t0].[HasSoulPatch]
+FROM [Tags] AS [t]
+LEFT JOIN (
+    SELECT [g].[Nickname], [g].[SquadId], [g].[HasSoulPatch]
+    FROM [Gears] AS [g]
+) AS [t0] ON ([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])
+WHERE CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [t0].[SquadId]
+    ELSE NULL
+END = 1");
+        }
+
+        public override async Task Projecting_property_converted_to_nullable_with_addition(bool async)
+        {
+            await base.Projecting_property_converted_to_nullable_with_addition(async);
+
+            AssertSql(
+                @"SELECT [t].[Note], CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [t0].[Nickname], [t0].[SquadId], [t0].[HasSoulPatch]
+FROM [Tags] AS [t]
+LEFT JOIN (
+    SELECT [g].[Nickname], [g].[SquadId], [g].[HasSoulPatch]
+    FROM [Gears] AS [g]
+) AS [t0] ON ([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])
+WHERE (CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [t0].[SquadId]
+    ELSE NULL
+END + 1) = 2");
+        }
+
+        public override async Task Projecting_property_converted_to_nullable_with_addition_and_final_projection(bool async)
+        {
+            await base.Projecting_property_converted_to_nullable_with_addition_and_final_projection(async);
+
+            AssertSql(
+                @"SELECT [t].[Note], CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [t0].[SquadId]
+    ELSE NULL
+END + 1 AS [Value]
+FROM [Tags] AS [t]
+LEFT JOIN (
+    SELECT [g].[Nickname], [g].[SquadId]
+    FROM [Gears] AS [g]
+) AS [t0] ON ([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])
+WHERE CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [t0].[Nickname]
+    ELSE NULL
+END IS NOT NULL");
+        }
+
+        public override async Task Projecting_property_converted_to_nullable_with_conditional(bool async)
+        {
+            await base.Projecting_property_converted_to_nullable_with_conditional(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN ([t].[Note] <> N'K.I.A.') OR [t].[Note] IS NULL THEN CASE
+        WHEN [t].[GearNickName] IS NOT NULL THEN [t0].[SquadId]
+        ELSE NULL
+    END
+    ELSE -1
+END
+FROM [Tags] AS [t]
+LEFT JOIN (
+    SELECT [g].[Nickname], [g].[SquadId]
+    FROM [Gears] AS [g]
+) AS [t0] ON ([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])");
+        }
+
+        public override async Task Projecting_property_converted_to_nullable_with_function_call(bool async)
+        {
+            await base.Projecting_property_converted_to_nullable_with_function_call(async);
+
+            AssertSql(
+                @"SELECT SUBSTRING(CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [t0].[Nickname]
+    ELSE NULL
+END, 0 + 1, 3)
+FROM [Tags] AS [t]
+LEFT JOIN (
+    SELECT [g].[Nickname], [g].[SquadId]
+    FROM [Gears] AS [g]
+) AS [t0] ON ([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])");
+        }
+
+        public override async Task Projecting_property_converted_to_nullable_with_function_call2(bool async)
+        {
+            await base.Projecting_property_converted_to_nullable_with_function_call2(async);
+
+            AssertSql(
+                @"SELECT [t].[Note], SUBSTRING([t].[Note], 0 + 1, CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [t0].[SquadId]
+    ELSE NULL
+END) AS [Function]
+FROM [Tags] AS [t]
+LEFT JOIN (
+    SELECT [g].[Nickname], [g].[SquadId]
+    FROM [Gears] AS [g]
+) AS [t0] ON ([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])
+WHERE CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [t0].[Nickname]
+    ELSE NULL
+END IS NOT NULL");
+        }
+
+        public override async Task Projecting_property_converted_to_nullable_into_element_init(bool async)
+        {
+            await base.Projecting_property_converted_to_nullable_into_element_init(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN CAST(LEN([t0].[Nickname]) AS int)
+    ELSE NULL
+END, CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [t0].[SquadId]
+    ELSE NULL
+END, CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [t0].[SquadId]
+    ELSE NULL
+END + 1
+FROM [Tags] AS [t]
+LEFT JOIN (
+    SELECT [g].[Nickname], [g].[SquadId]
+    FROM [Gears] AS [g]
+) AS [t0] ON ([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])
+WHERE CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [t0].[Nickname]
+    ELSE NULL
+END IS NOT NULL
+ORDER BY [t].[Note]");
+        }
+
+        public override async Task Projecting_property_converted_to_nullable_into_member_assignment(bool async)
+        {
+            await base.Projecting_property_converted_to_nullable_into_member_assignment(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [t0].[SquadId]
+    ELSE NULL
+END AS [Id]
+FROM [Tags] AS [t]
+LEFT JOIN (
+    SELECT [g].[Nickname], [g].[SquadId]
+    FROM [Gears] AS [g]
+) AS [t0] ON ([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])
+WHERE CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [t0].[Nickname]
+    ELSE NULL
+END IS NOT NULL
+ORDER BY [t].[Note]");
+        }
+
+        public override async Task Projecting_property_converted_to_nullable_into_new_array(bool async)
+        {
+            await base.Projecting_property_converted_to_nullable_into_new_array(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN CAST(LEN([t0].[Nickname]) AS int)
+    ELSE NULL
+END, CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [t0].[SquadId]
+    ELSE NULL
+END, CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [t0].[SquadId]
+    ELSE NULL
+END + 1
+FROM [Tags] AS [t]
+LEFT JOIN (
+    SELECT [g].[Nickname], [g].[SquadId]
+    FROM [Gears] AS [g]
+) AS [t0] ON ([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])
+WHERE CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [t0].[Nickname]
+    ELSE NULL
+END IS NOT NULL
+ORDER BY [t].[Note]");
+        }
+
+        public override async Task Projecting_property_converted_to_nullable_into_unary(bool async)
+        {
+            await base.Projecting_property_converted_to_nullable_into_unary(async);
+
+            AssertSql(
+                @"SELECT [t].[Note]
+FROM [Tags] AS [t]
+LEFT JOIN (
+    SELECT [g].[Nickname], [g].[SquadId], [g].[HasSoulPatch]
+    FROM [Gears] AS [g]
+) AS [t0] ON ([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])
+WHERE CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [t0].[Nickname]
+    ELSE NULL
+END IS NOT NULL AND (CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [t0].[HasSoulPatch]
+    ELSE NULL
+END = CAST(0 AS bit))
+ORDER BY [t].[Note]");
+        }
+
+        public override async Task Projecting_property_converted_to_nullable_into_member_access(bool async)
+        {
+            await base.Projecting_property_converted_to_nullable_into_member_access(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname]
+FROM [Gears] AS [g]
+LEFT JOIN [Tags] AS [t] ON ([g].[Nickname] = [t].[GearNickName]) AND ([g].[SquadId] = [t].[GearSquadId])
+WHERE (DATEPART(month, [t].[IssueDate]) <> 5) OR [t].[IssueDate] IS NULL
+ORDER BY [g].[Nickname]");
+        }
+
+        public override async Task Projecting_property_converted_to_nullable_and_use_it_in_order_by(bool async)
+        {
+            await base.Projecting_property_converted_to_nullable_and_use_it_in_order_by(async);
+
+            AssertSql(
+                @"SELECT [t].[Note], CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [t0].[Nickname], [t0].[SquadId], [t0].[HasSoulPatch]
+FROM [Tags] AS [t]
+LEFT JOIN (
+    SELECT [g].[Nickname], [g].[SquadId], [g].[HasSoulPatch]
+    FROM [Gears] AS [g]
+) AS [t0] ON ([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])
+WHERE CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [t0].[Nickname]
+    ELSE NULL
+END IS NOT NULL
+ORDER BY CASE
+    WHEN [t].[GearNickName] IS NOT NULL THEN [t0].[SquadId]
+    ELSE NULL
+END, [t].[Note]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
