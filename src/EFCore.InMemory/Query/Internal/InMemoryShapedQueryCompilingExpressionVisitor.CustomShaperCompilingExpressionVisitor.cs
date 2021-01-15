@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             {
                 if (entity is TIncludingEntity includingEntity)
                 {
-                    var collectionAccessor = navigation.GetCollectionAccessor();
+                    var collectionAccessor = navigation.GetCollectionAccessor()!;
                     collectionAccessor.GetOrCreate(includingEntity, forMaterialization: true);
 
                     if (setLoaded)

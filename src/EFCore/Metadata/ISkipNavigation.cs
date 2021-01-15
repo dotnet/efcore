@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     navigation.
         /// </summary>
         /// <returns> The accessor. </returns>
-        IClrCollectionAccessor INavigationBase.GetCollectionAccessor()
+        IClrCollectionAccessor? INavigationBase.GetCollectionAccessor()
             => ((SkipNavigation)this).CollectionAccessor;
     }
 }

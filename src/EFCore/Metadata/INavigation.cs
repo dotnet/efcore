@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> The accessor. </returns>
         [DebuggerStepThrough]
-        new IClrCollectionAccessor GetCollectionAccessor()
+        new IClrCollectionAccessor? GetCollectionAccessor()
             => ((Navigation)this).CollectionAccessor;
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> The accessor. </returns>
         [DebuggerStepThrough]
-        IClrCollectionAccessor INavigationBase.GetCollectionAccessor()
+        IClrCollectionAccessor? INavigationBase.GetCollectionAccessor()
             => GetCollectionAccessor();
     }
 }

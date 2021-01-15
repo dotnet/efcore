@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// </summary>
         public override Func<object?, object?> ConvertToProvider
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _convertToProvider, this, c => SanitizeConverter(c.ConvertToProviderExpression));
+                ref _convertToProvider, this, static c => SanitizeConverter(c.ConvertToProviderExpression));
 
         /// <summary>
         ///     Gets the function to convert objects when reading data from the store,
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// </summary>
         public override Func<object?, object?> ConvertFromProvider
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _convertFromProvider, this, c => SanitizeConverter(c.ConvertFromProviderExpression));
+                ref _convertFromProvider, this, static c => SanitizeConverter(c.ConvertFromProviderExpression));
 
         /// <summary>
         ///     Gets the expression to convert objects when writing data to the store,

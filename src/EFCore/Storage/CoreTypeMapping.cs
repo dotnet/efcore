@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _comparer,
                 this,
-                c => ValueComparer.CreateDefault(c.ClrType, favorStructuralComparisons: false));
+                static c => ValueComparer.CreateDefault(c.ClrType, favorStructuralComparisons: false));
 
         /// <summary>
         ///     A <see cref="ValueComparer" /> adds custom value comparison for use when
@@ -205,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _keyComparer,
                 this,
-                c => ValueComparer.CreateDefault(c.ClrType, favorStructuralComparisons: true));
+                static c => ValueComparer.CreateDefault(c.ClrType, favorStructuralComparisons: true));
 
         /// <summary>
         ///     A <see cref="ValueComparer" /> adds custom value comparison for use when
