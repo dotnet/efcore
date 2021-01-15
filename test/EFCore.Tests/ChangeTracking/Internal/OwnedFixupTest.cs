@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -384,7 +385,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var subDependentEntry = context.Entry(subDependent);
                     Assert.Equal(principal.Id, subDependentEntry.Property("ParentId").CurrentValue);
                     Assert.Equal(useTrackGraph == null ? EntityState.Added : entityState, subDependentEntry.State);
-                    Assert.Equal(nameof(ChildPN.SubChild), subDependentEntry.Metadata.DefiningNavigationName);
+                    Assert.Equal(
+                        typeof(Parent).ShortDisplayName()
+                        + "."
+                        + nameof(Parent.Child1)
+                        + "#"
+                        + nameof(Child)
+                        + "."
+                        + nameof(Child.SubChild)
+                        + "#"
+                        + nameof(Child.SubChild),
+                        subDependentEntry.Metadata.DisplayName());
                 });
         }
 
@@ -2441,7 +2452,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Equal(principal2.Id, dependent2Entry.Property("ParentId").CurrentValue);
                 Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, dependent2Entry.State);
                 Assert.Equal(nameof(Parent.Child1), dependent2Entry.Metadata.DefiningNavigationName);
-
                 Assert.Same(subDependent1, dependent1.SubChild);
                 Assert.Same(dependent1, subDependent1.Parent);
                 var subDependentEntry1 = dependent1Entry.Reference(p => p.SubChild).TargetEntry;
@@ -2845,6 +2855,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             principal2.Child1 = dependent;
             principal1.Child2 = null;
 
+            if (entityState != EntityState.Added)
+            {
+                Assert.Equal(
+                    CoreStrings.KeyReadOnly("ParentId", "Parent.Child2#Child"),
+                    Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
+                return;
+            }
+
             context.ChangeTracker.DetectChanges();
 
             Assert.True(context.ChangeTracker.HasChanges());
@@ -3043,6 +3061,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             principal2.ChildCollection1 = principal1.ChildCollection2;
             principal1.ChildCollection2 = null;
 
+            if (entityState != EntityState.Added)
+            {
+                Assert.Equal(
+                    CoreStrings.KeyReadOnly("ParentId", "Parent.ChildCollection2#Child"),
+                    Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
+                return;
+            }
+
             context.ChangeTracker.DetectChanges();
 
             Assert.True(context.ChangeTracker.HasChanges());
@@ -3211,6 +3237,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             principal2.Child1 = dependent1;
             principal1.Child2 = dependent2;
+
+            if (entityState != EntityState.Added)
+            {
+                Assert.Equal(
+                    CoreStrings.KeyReadOnly("ParentId", "Parent.Child2#Child"),
+                    Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
+                return;
+            }
 
             context.ChangeTracker.DetectChanges();
 
@@ -3499,6 +3533,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var newSubDependentEntry2 = newDependentEntry2.Collection(p => p.SubChildCollection)
                 .FindEntry(subDependent2);
             newSubDependentEntry2.Property<int>("Id").CurrentValue = subDependentEntry2.Property<int>("Id").CurrentValue;
+
+            if (entityState != EntityState.Added)
+            {
+                Assert.Equal(
+                    CoreStrings.KeyReadOnly("ParentId", "Parent.ChildCollection2#Child"),
+                    Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
+                return;
+            }
 
             context.ChangeTracker.DetectChanges();
 
@@ -4209,6 +4251,72 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Equal(1, user.Roles.Count);
                 Assert.Equal("BASIC", user.Roles.Select(e => e.Value).Single());
             }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task SaveChanges_when_owner_has_PK_with_default_values(bool async)
+        {
+            using (var context = new OneRowContext(async))
+            {
+                var blog = new Blog { Type = new OwnedType { Value = "A" } };
+
+                _ = async
+                    ? await context.AddAsync(blog)
+                    : context.Add(blog);
+
+                Assert.Equal(EntityState.Added, context.Entry(blog).State);
+                Assert.Equal(EntityState.Added, context.Entry(blog.Type).State);
+                Assert.Equal(0, blog.Id);
+                Assert.Equal(0, context.Entry(blog.Type).Property<int>("BlogId").CurrentValue);
+
+                _ = async
+                    ? await context.SaveChangesAsync()
+                    : context.SaveChanges();
+
+                Assert.Equal(EntityState.Unchanged, context.Entry(blog).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(blog.Type).State);
+                Assert.Equal(0, blog.Id);
+                Assert.Equal(0, context.Entry(blog.Type).Property<int>("BlogId").CurrentValue);
+            }
+
+            using (var context = new OneRowContext(async))
+            {
+                // Trying to do the same thing again will throw since only one row can have ID zero.
+
+                context.Add(new Blog { Type = new OwnedType { Value = "A" } });
+                Assert.Throws<ArgumentException>(() => context.SaveChanges());
+            }
+        }
+
+        private class OneRowContext : DbContext
+        {
+            private readonly bool _async;
+
+            public OneRowContext(bool async)
+            {
+                _async = async;
+            }
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase(nameof(OneRowContext) + _async);
+
+            public DbSet<Blog> Blogs { get; set; }
+        }
+
+        public class Blog
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id { get; set; }
+
+            public OwnedType Type { get; set; }
+        }
+
+        [Owned]
+        public class OwnedType
+        {
+            public string Value { get; set; }
         }
 
         private class User
