@@ -491,5 +491,49 @@ namespace Microsoft.EntityFrameworkCore
                     ?? property.FindTypeMapping()?.Converter)
                 == null;
         }
+
+        /// <summary>
+        ///     Returns a value indicating whether the property's column is sparse.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> <see langword="true" /> if the property's column is sparse. </returns>
+        public static bool? IsSparse([NotNull] this IProperty property)
+            => (bool?)property[SqlServerAnnotationNames.Sparse];
+
+        /// <summary>
+        ///     Sets a value indicating whether the property's column is sparse.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="sparse"> The value to set. </param>
+        public static void SetIsSparse([NotNull] this IMutableProperty property, bool? sparse)
+            => property.SetOrRemoveAnnotation(SqlServerAnnotationNames.Sparse, sparse);
+
+        /// <summary>
+        ///     Sets a value indicating whether the property's column is sparse.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="sparse"> The value to set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured value. </returns>
+        public static bool? SetIsSparse(
+            [NotNull] this IConventionProperty property,
+            bool? sparse,
+            bool fromDataAnnotation = false)
+        {
+            property.SetOrRemoveAnnotation(
+                SqlServerAnnotationNames.Sparse,
+                sparse,
+                fromDataAnnotation);
+
+            return sparse;
+        }
+
+        /// <summary>
+        ///     Returns the <see cref="ConfigurationSource" /> for whether the property's column is sparse.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for whether the property's column is sparse. </returns>
+        public static ConfigurationSource? GetIsSparseConfigurationSource([NotNull] this IConventionProperty property)
+            => property.FindAnnotation(SqlServerAnnotationNames.Sparse)?.GetConfigurationSource();
     }
 }

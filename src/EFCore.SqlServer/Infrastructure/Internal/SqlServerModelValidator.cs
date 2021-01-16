@@ -363,6 +363,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
                         break;
                 }
             }
+
+            if (property.IsSparse() != duplicateProperty.IsSparse())
+            {
+                throw new InvalidOperationException(
+                    SqlServerStrings.DuplicateColumnSparsenessMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        storeObject.DisplayName()));
+            }
         }
 
         /// <inheritdoc />

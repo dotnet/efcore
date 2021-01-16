@@ -296,5 +296,77 @@ namespace Microsoft.EntityFrameworkCore
                 && propertyBuilder.CanSetAnnotation(
                     SqlServerAnnotationNames.ValueGenerationStrategy, valueGenerationStrategy, fromDataAnnotation);
         }
+
+        /// <summary>
+        ///     Configures whether the property's column is created as sparse when targeting SQL Server.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="sparse"> A value indicating whether the property's column is created as sparse. </param>
+        /// <returns> A builder to further configure the property. </returns>
+        /// <remarks> See https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns. </remarks>
+        public static PropertyBuilder IsSparse([NotNull] this PropertyBuilder propertyBuilder, bool sparse = true)
+        {
+            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
+
+            propertyBuilder.Metadata.SetIsSparse(sparse);
+
+            return propertyBuilder;
+        }
+
+        /// <summary>
+        ///     Configures whether the property's column is created as sparse when targeting SQL Server.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="sparse"> A value indicating whether the property's column is created as sparse. </param>
+        /// <returns> A builder to further configure the property. </returns>
+        /// <remarks> See https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns. </remarks>
+        public static PropertyBuilder<TProperty> IsSparse<TProperty>(
+            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
+            bool sparse = true)
+            => (PropertyBuilder<TProperty>)IsSparse((PropertyBuilder)propertyBuilder, sparse);
+
+        /// <summary>
+        ///     Configures whether the property's column is created as sparse when targeting SQL Server.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="sparse"> A value indicating whether the property's column is created as sparse. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
+        /// <remarks> See https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns. </remarks>
+        public static IConventionPropertyBuilder? IsSparse(
+            [NotNull] this IConventionPropertyBuilder propertyBuilder,
+            bool? sparse,
+            bool fromDataAnnotation = false)
+        {
+            if (propertyBuilder.CanSetIsSparse(sparse, fromDataAnnotation))
+            {
+                propertyBuilder.Metadata.SetIsSparse(sparse, fromDataAnnotation);
+
+                return propertyBuilder;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Returns a value indicating whether the property's column can be configured as sparse when targeting SQL Server.
+        /// </summary>
+        /// <param name="property"> The builder for the property being configured. </param>
+        /// <param name="sparse"> A value indicating whether the property's column is created as sparse. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
+        /// <returns>
+        ///     <see langword="true" /> if the property's column can be configured as sparse when targeting SQL Server.
+        /// </returns>
+        /// <remarks> See https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns. </remarks>
+        public static bool CanSetIsSparse(
+            [NotNull] this IConventionPropertyBuilder property,
+            bool? sparse,
+            bool fromDataAnnotation = false)
+        {
+            Check.NotNull(property, nameof(property));
+
+            return property.CanSetAnnotation(SqlServerAnnotationNames.Sparse, sparse, fromDataAnnotation);
+        }
     }
 }

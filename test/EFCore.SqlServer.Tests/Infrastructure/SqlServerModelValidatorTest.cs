@@ -214,6 +214,30 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_sparseness()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>(
+                cb =>
+                {
+                    cb.ToTable("Animal");
+                    cb.Property(c => c.Breed).HasColumnName(nameof(Cat.Breed)).IsSparse();
+                });
+            modelBuilder.Entity<Dog>(
+                db =>
+                {
+                    db.ToTable("Animal");
+                    db.Property(d => d.Breed).HasColumnName(nameof(Dog.Breed));
+                });
+
+            VerifyError(
+                SqlServerStrings.DuplicateColumnSparsenessMismatch(
+                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal)),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
         public virtual void Passes_for_incompatible_foreignKeys_within_hierarchy_when_one_name_configured_explicitly_for_sqlServer()
         {
             var modelBuilder = CreateConventionalModelBuilder();

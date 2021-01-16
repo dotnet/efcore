@@ -138,6 +138,9 @@
   <data name="DuplicateColumnSequenceMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different hi-lo sequences.</value>
   </data>
+  <data name="DuplicateColumnSparsenessMismatch" xml:space="preserve">
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different sparseness.</value>
+  </data>
   <data name="DuplicateIndexClusteredMismatch" xml:space="preserve">
     <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different clustered configurations.</value>
   </data>
