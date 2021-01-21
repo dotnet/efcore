@@ -102,7 +102,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     dependentEntityTypeName,
                     Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
-                // TODO-NULLABLE: NRE if entity type cannot be resolved?
                 inverted: Builder.Metadata.DeclaringEntityType.Name != ResolveEntityType(dependentEntityTypeName)!.Name,
                 foreignKeySet: foreignKeyPropertyNames.Length > 0);
 
@@ -213,7 +212,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             where TDependentEntity : class
             => new(
                 HasForeignKeyBuilder(
-                    // TODO-NULLABLE: NRE if entity type cannot be resolved?
                     ResolveEntityType(typeof(TDependentEntity))!,
                     typeof(TDependentEntity).ShortDisplayName(),
                     Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetMemberAccessList()),

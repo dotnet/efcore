@@ -23,8 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         private readonly IReadOnlyList<Property>? _principalKeyProperties;
         private readonly bool? _required;
 
-        // TODO-NULLABLE: Refactored the construction here, please confirm it makes sense
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

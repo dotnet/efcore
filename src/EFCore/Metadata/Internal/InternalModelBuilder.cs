@@ -125,16 +125,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                // TODO-NULLABLE: is it actually possible to have an unnamed TypeIdentity here without a CLR type?
-                clrType = type.Type ?? Metadata.FindClrType(type.Name);
-                if (Metadata.IsShared(clrType!))
+                clrType = type.Type!;
+                if (Metadata.IsShared(clrType))
                 {
                     return configurationSource == ConfigurationSource.Explicit
                         ? throw new InvalidOperationException(CoreStrings.ClashingSharedType(clrType.ShortDisplayName()))
                         : (InternalEntityTypeBuilder?)null;
                 }
 
-                entityType = Metadata.FindEntityType(clrType!);
+                entityType = Metadata.FindEntityType(clrType);
             }
 
             if (shouldBeOwned == false

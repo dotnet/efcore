@@ -202,7 +202,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     if (targetMethod.Equals(runtimeProperty.GetMethod))
                     {
-                        // TODO-NULLABLE: this used to return null if the type was wrong, but none of the call sites handled that
                         return (TMemberInfo)(object)runtimeProperty;
                     }
                 }

@@ -517,11 +517,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        // [return: CA.NotNullIfNotNull("typeMapping")]
         public virtual CoreTypeMapping? SetTypeMapping([CanBeNull] CoreTypeMapping? typeMapping, ConfigurationSource configurationSource)
         {
             _typeMapping = typeMapping;
-            _typeMappingConfigurationSource = configurationSource.Max(_typeMappingConfigurationSource);
+            _typeMappingConfigurationSource = typeMapping is null
+                ? null
+                : configurationSource.Max(_typeMappingConfigurationSource);
 
             return typeMapping;
         }
@@ -670,9 +671,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 property =>
                     property.IsShadowProperty()
                     || ((property.PropertyInfo != null
-                                && entityType.GetRuntimeProperties()!.ContainsKey(property.Name))
+                                && entityType.GetRuntimeProperties().ContainsKey(property.Name))
                             || (property.FieldInfo != null
-                                && entityType.GetRuntimeFields()!.ContainsKey(property.Name))));
+                                && entityType.GetRuntimeFields().ContainsKey(property.Name))));
         }
 
         /// <summary>

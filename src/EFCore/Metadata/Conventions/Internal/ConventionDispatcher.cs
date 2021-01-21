@@ -357,8 +357,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual IConventionForeignKey? OnSkipNavigationForeignKeyChanged(
             [NotNull] IConventionSkipNavigationBuilder navigationBuilder,
-            [NotNull] IConventionForeignKey foreignKey,
-            [NotNull] IConventionForeignKey oldForeignKey)
+            [CanBeNull] IConventionForeignKey? foreignKey,
+            [CanBeNull] IConventionForeignKey? oldForeignKey)
             => _scope.OnSkipNavigationForeignKeyChanged(navigationBuilder, foreignKey, oldForeignKey);
 
         /// <summary>

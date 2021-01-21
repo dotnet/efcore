@@ -159,11 +159,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IReadOnlyDictionary<string, PropertyInfo>? GetRuntimeProperties()
+        public virtual IReadOnlyDictionary<string, PropertyInfo> GetRuntimeProperties()
         {
             if (ClrType == null)
             {
-                return null;
+                return null!;
             }
 
             if (_runtimeProperties == null)
@@ -190,11 +190,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IReadOnlyDictionary<string, FieldInfo>? GetRuntimeFields()
+        public virtual IReadOnlyDictionary<string, FieldInfo> GetRuntimeFields()
         {
             if (ClrType == null)
             {
-                return null;
+                return null!;
             }
 
             if (_runtimeFields == null)

@@ -982,7 +982,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
 
             var dictionaryBuilder = ImmutableSortedDictionary.CreateBuilder<PropertyInfo, Type>(MemberInfoNameComparer.Instance);
-            foreach (var propertyInfo in entityType.GetRuntimeProperties()!.Values.OrderBy(p => p.Name))
+            foreach (var propertyInfo in entityType.GetRuntimeProperties().Values.OrderBy(p => p.Name))
             {
                 var targetType = FindCandidateNavigationPropertyType(propertyInfo);
                 if (targetType != null)

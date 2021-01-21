@@ -587,7 +587,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var configurationSource = Metadata.GetConfigurationSource();
             var typeConfigurationSource = Metadata.GetTypeConfigurationSource();
             if (newProperty != null
-                && newProperty.IsInModel
                 && (newProperty.GetConfigurationSource().Overrides(configurationSource)
                     || newProperty.GetTypeConfigurationSource().Overrides(typeConfigurationSource)
                     || (Metadata.ClrType == newProperty.ClrType

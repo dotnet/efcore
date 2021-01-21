@@ -22,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     </para>
         /// </summary>
         /// <param name="result"> The new metadata object or <see langword="null" />. </param>
-        // TODO-NULLABLE: TBC (here and below)
         void StopProcessing([CanBeNull] TMetadata? result);
 
         /// <summary>

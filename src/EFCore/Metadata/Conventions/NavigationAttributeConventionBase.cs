@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private List<(PropertyInfo, Type)>? GetNavigationsWithAttribute(IConventionEntityType entityType)
         {
             var navigations = new List<(PropertyInfo, Type)>();
-            foreach (var navigationPropertyInfo in entityType.GetRuntimeProperties()!.Values)
+            foreach (var navigationPropertyInfo in entityType.GetRuntimeProperties().Values)
             {
                 var targetClrType = FindCandidateNavigationWithAttributePropertyType(navigationPropertyInfo);
                 if (targetClrType == null)

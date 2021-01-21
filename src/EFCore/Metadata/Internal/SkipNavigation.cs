@@ -202,10 +202,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ForeignKey = null;
                 _foreignKeyConfigurationSource = null;
 
-                // TODO-NULLABLE: should OnSkipNavigationForeignKeyChanged be changed to support nullable foreignKey/oldForeignKey?
                 return isChanging
                     ? (ForeignKey?)DeclaringEntityType.Model.ConventionDispatcher
-                        .OnSkipNavigationForeignKeyChanged(Builder, foreignKey!, oldForeignKey!)
+                        .OnSkipNavigationForeignKeyChanged(Builder, foreignKey, oldForeignKey)
                     : foreignKey;
             }
 
@@ -274,7 +273,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Inverse = null;
                 _inverseConfigurationSource = null;
 
-                // TODO-NULLABLE: should OnSkipNavigationInverseChanged be changed to support nullable inverse/oldInverse?
                 return isChanging
                     ? (SkipNavigation?)DeclaringEntityType.Model.ConventionDispatcher
                         .OnSkipNavigationInverseChanged(Builder, inverse!, oldInverse!)

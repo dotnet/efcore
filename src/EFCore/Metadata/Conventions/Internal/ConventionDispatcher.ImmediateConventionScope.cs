@@ -798,8 +798,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public override IConventionForeignKey? OnSkipNavigationForeignKeyChanged(
                 IConventionSkipNavigationBuilder navigationBuilder,
-                IConventionForeignKey foreignKey,
-                IConventionForeignKey oldForeignKey)
+                IConventionForeignKey? foreignKey,
+                IConventionForeignKey? oldForeignKey)
             {
                 if (!navigationBuilder.Metadata.DeclaringEntityType.IsInModel)
                 {

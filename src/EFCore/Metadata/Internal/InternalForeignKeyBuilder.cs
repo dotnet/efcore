@@ -1963,7 +1963,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder? HasPrincipalKey(
-            [NotNull] IReadOnlyList<MemberInfo> members,
+            [CanBeNull] IReadOnlyList<MemberInfo>? members,
             ConfigurationSource configurationSource)
         {
             using (var batch = Metadata.DeclaringEntityType.Model.DelayConventions())

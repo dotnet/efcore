@@ -169,8 +169,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public abstract IConventionForeignKey? OnSkipNavigationForeignKeyChanged(
                 [NotNull] IConventionSkipNavigationBuilder navigationBuilder,
-                [NotNull] IConventionForeignKey foreignKey,
-                [NotNull] IConventionForeignKey oldForeignKey);
+                [CanBeNull] IConventionForeignKey? foreignKey,
+                [CanBeNull] IConventionForeignKey? oldForeignKey);
 
             public abstract IConventionAnnotation? OnSkipNavigationAnnotationChanged(
                 [NotNull] IConventionSkipNavigationBuilder navigationBuilder,
@@ -178,7 +178,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 [CanBeNull] IConventionAnnotation? annotation,
                 [CanBeNull] IConventionAnnotation? oldAnnotation);
 
-            // TODO-NULLABLE: note annotation change here
             public abstract IConventionSkipNavigation? OnSkipNavigationInverseChanged(
                 [NotNull] IConventionSkipNavigationBuilder navigationBuilder,
                 [CanBeNull] IConventionSkipNavigation? inverse,

@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder ToTable(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string? name,
+            [NotNull] string name,
             [NotNull] Action<TableBuilder> buildAction)
             => entityTypeBuilder.ToTable(name, null, buildAction);
 
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder<TEntity> ToTable<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
-            [CanBeNull] string? name,
+            [NotNull] string name,
             [NotNull] Action<TableBuilder> buildAction)
             where TEntity : class
             => entityTypeBuilder.ToTable(name, null, buildAction);
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder<TEntity> ToTable<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
-            [CanBeNull] string? name,
+            [NotNull] string name,
             [NotNull] Action<TableBuilder<TEntity>> buildAction)
             where TEntity : class
             => entityTypeBuilder.ToTable(name, null, buildAction);
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder ToTable(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string? name, // TODO-NULLABLE: Note nullability change (called with null by other overloads)
+            [NotNull] string name,
             [CanBeNull] string? schema,
             [NotNull] Action<TableBuilder> buildAction)
         {
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder<TEntity> ToTable<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
-            [CanBeNull] string? name,
+            [NotNull] string name,
             [CanBeNull] string? schema,
             [NotNull] Action<TableBuilder> buildAction)
             where TEntity : class
@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder<TEntity> ToTable<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
-            [CanBeNull] string? name,
+            [NotNull] string name,
             [CanBeNull] string? schema,
             [NotNull] Action<TableBuilder<TEntity>> buildAction)
             where TEntity : class
@@ -731,7 +731,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
-            CreateFunction(name, entityTypeBuilder.Metadata);
+            SetFunction(name, entityTypeBuilder.Metadata);
 
             return entityTypeBuilder;
         }
@@ -752,7 +752,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NullButNotEmpty(name, nameof(name));
             Check.NotNull(configureFunction, nameof(configureFunction));
 
-            configureFunction(new TableValuedFunctionBuilder(CreateFunction(name, entityTypeBuilder.Metadata)));
+            configureFunction(new TableValuedFunctionBuilder(SetFunction(name, entityTypeBuilder.Metadata)));
 
             return entityTypeBuilder;
         }
@@ -798,7 +798,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(ownedNavigationBuilder, nameof(ownedNavigationBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
-            CreateFunction(name, ownedNavigationBuilder.OwnedEntityType);
+            SetFunction(name, ownedNavigationBuilder.OwnedEntityType);
 
             return ownedNavigationBuilder;
         }
@@ -819,7 +819,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NullButNotEmpty(name, nameof(name));
             Check.NotNull(configureFunction, nameof(configureFunction));
 
-            configureFunction(new TableValuedFunctionBuilder(CreateFunction(name, ownedNavigationBuilder.OwnedEntityType)));
+            configureFunction(new TableValuedFunctionBuilder(SetFunction(name, ownedNavigationBuilder.OwnedEntityType)));
 
             return ownedNavigationBuilder;
         }
@@ -858,7 +858,7 @@ namespace Microsoft.EntityFrameworkCore
                 (OwnedNavigationBuilder)referenceOwnershipBuilder, name, configureFunction);
 
         [return: CA.NotNullIfNotNull("name")]
-        private static IMutableDbFunction? CreateFunction(string? name, IMutableEntityType entityType)
+        private static IMutableDbFunction? SetFunction(string? name, IMutableEntityType entityType)
         {
             entityType.SetFunctionName(name);
 

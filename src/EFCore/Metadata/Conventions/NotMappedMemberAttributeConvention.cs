@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
             var entityType = entityTypeBuilder.Metadata;
-            var members = entityType.GetRuntimeProperties()!.Values.Cast<MemberInfo>()
+            var members = entityType.GetRuntimeProperties().Values.Cast<MemberInfo>()
                 .Concat(entityType.GetRuntimeFields()!.Values);
 
             foreach (var member in members)

@@ -331,7 +331,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             MemberInfo? candidateProperty = null;
 
-            foreach (var memberInfo in entityType.GetRuntimeProperties()!.Values.Cast<MemberInfo>()
+            foreach (var memberInfo in entityType.GetRuntimeProperties().Values.Cast<MemberInfo>()
                 .Concat(entityType.GetRuntimeFields()!.Values))
             {
                 if (entityType.Builder.IsIgnored(memberInfo.GetSimpleMemberName())
@@ -405,9 +405,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
 
                 var navigationPropertyTargetType =
-                    navigation!.DeclaringEntityType.GetRuntimeProperties()![navigation.Name].PropertyType;
+                    navigation!.DeclaringEntityType.GetRuntimeProperties()[navigation.Name].PropertyType;
 
-                var otherNavigations = navigation.DeclaringEntityType.GetRuntimeProperties()!.Values
+                var otherNavigations = navigation.DeclaringEntityType.GetRuntimeProperties().Values
                     .Where(p => p.PropertyType == navigationPropertyTargetType && p.GetSimpleMemberName() != navigation.Name)
                     .OrderBy(p => p.GetSimpleMemberName());
 

@@ -195,11 +195,8 @@ namespace Microsoft.EntityFrameworkCore
             return (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
                 .Overrides(indexBuilder.Metadata.GetIncludePropertiesConfigurationSource())
                 || indexBuilder.Metadata.GetIncludeProperties() is var currentProperties
-                && (propertyNames is null
-                    && currentProperties is null
-                    || propertyNames is not null
-                    && currentProperties is not null
-                    && propertyNames.SequenceEqual(currentProperties));
+                && ((propertyNames is null && currentProperties is null)
+                    || (propertyNames is not null && currentProperties is not null && propertyNames.SequenceEqual(currentProperties)));
         }
 
         /// <summary>

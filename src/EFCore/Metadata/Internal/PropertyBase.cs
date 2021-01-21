@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string propertyName,
             bool shouldThrow)
         {
-            if (!type.GetRuntimeFields()!.TryGetValue(fieldName, out var fieldInfo)
+            if (!type.GetRuntimeFields().TryGetValue(fieldName, out var fieldInfo)
                 && shouldThrow)
             {
                 throw new InvalidOperationException(

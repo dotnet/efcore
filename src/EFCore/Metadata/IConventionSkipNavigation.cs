@@ -40,7 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the entity type that this navigation property will hold an instance(s) of.
         /// </summary>
-        // TODO-NULLABLE: I can see conventions testing this for null, but in SkipNavigation that doesn't seem possible...
         new IConventionEntityType TargetEntityType
         {
             [DebuggerStepThrough]

@@ -47,8 +47,6 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (propertyBase.TryGetMemberInfo(forMaterialization, forSet, out var memberInfo, out var errorMessage))
             {
-                // TODO-NULLABLE: memberInfo is null when the property is a collection navigation - but all of the callers seem to
-                // assume that it's never null. Should TryGetMemberInfo throw for collection navigations instead of returning null?
                 return memberInfo!;
             }
 

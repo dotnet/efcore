@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private void Process(IConventionEntityTypeBuilder entityTypeBuilder)
         {
-            foreach (var propertyInfo in entityTypeBuilder.Metadata.GetRuntimeProperties()!.Values)
+            foreach (var propertyInfo in entityTypeBuilder.Metadata.GetRuntimeProperties().Values)
             {
                 if (IsCandidatePrimitiveProperty(propertyInfo))
                 {

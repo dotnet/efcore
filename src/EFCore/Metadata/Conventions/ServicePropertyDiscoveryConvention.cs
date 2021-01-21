@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private void Process(IConventionEntityTypeBuilder entityTypeBuilder)
         {
             var entityType = entityTypeBuilder.Metadata;
-            var candidates = entityType.GetRuntimeProperties()!.Values;
+            var candidates = entityType.GetRuntimeProperties().Values;
 
             foreach (var propertyInfo in candidates)
             {

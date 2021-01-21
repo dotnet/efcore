@@ -1838,7 +1838,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        // TODO-NULLABLE: Corrected annotation to nullable
         public virtual bool CanSetBaseType([CanBeNull] EntityType? baseEntityType, ConfigurationSource configurationSource)
         {
             if (Metadata.BaseType == baseEntityType
@@ -3350,11 +3349,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (navigation.MemberInfo == null)
             {
-                if (Metadata.GetRuntimeProperties()!.TryGetValue(navigation.Name!, out var propertyInfo))
+                if (Metadata.GetRuntimeProperties().TryGetValue(navigation.Name!, out var propertyInfo))
                 {
                     navigation = new MemberIdentity(propertyInfo);
                 }
-                else if (Metadata.GetRuntimeFields()!.TryGetValue(navigation.Name!, out var fieldInfo))
+                else if (Metadata.GetRuntimeFields().TryGetValue(navigation.Name!, out var fieldInfo))
                 {
                     navigation = new MemberIdentity(fieldInfo);
                 }
@@ -3507,16 +3506,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             using var batch = ModelBuilder.Metadata.DelayConventions();
             var foreignKey = SetOrAddForeignKey(
                 foreignKey: null, principalEntityTypeBuilder, dependentProperties, principalKey,
-                propertyBaseName, required, configurationSource);
+                propertyBaseName, required, configurationSource)!;
 
             if (required.HasValue
-                && foreignKey?.IsRequired == required.Value)
+                && foreignKey.IsRequired == required.Value)
             {
                 foreignKey.SetIsRequired(required.Value, configurationSource);
             }
 
-            // TODO-NULLABLE: can foreignKey be null from SetOrAddForeignKey above?
-            return (InternalForeignKeyBuilder?)batch.Run(foreignKey!)?.Builder;
+            return (InternalForeignKeyBuilder?)batch.Run(foreignKey)?.Builder;
         }
 
         /// <summary>
@@ -3536,10 +3534,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             using var batch = ModelBuilder.Metadata.DelayConventions();
             var updatedForeignKey = SetOrAddForeignKey(
                 foreignKey, foreignKey.PrincipalEntityType.Builder, dependentProperties, principalKey,
-                propertyBaseName, isRequired, configurationSource);
+                propertyBaseName, isRequired, configurationSource)!;
 
-            // TODO-NULLABLE: can updatedForeignKey be null from SetOrAddForeignKey above?
-            return (InternalForeignKeyBuilder?)batch.Run(updatedForeignKey!)?.Builder;
+            return (InternalForeignKeyBuilder?)batch.Run(updatedForeignKey)?.Builder;
         }
 
         private ForeignKey? SetOrAddForeignKey(

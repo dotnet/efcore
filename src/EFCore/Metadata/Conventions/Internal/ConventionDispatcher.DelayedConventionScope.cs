@@ -240,10 +240,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return annotation;
             }
 
-            public override IConventionForeignKey OnSkipNavigationForeignKeyChanged(
+            public override IConventionForeignKey? OnSkipNavigationForeignKeyChanged(
                 IConventionSkipNavigationBuilder navigationBuilder,
-                IConventionForeignKey foreignKey,
-                IConventionForeignKey oldForeignKey)
+                IConventionForeignKey? foreignKey,
+                IConventionForeignKey? oldForeignKey)
             {
                 Add(new OnSkipNavigationForeignKeyChangedNode(navigationBuilder, foreignKey, oldForeignKey));
                 return foreignKey;
@@ -722,8 +722,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             public OnSkipNavigationForeignKeyChangedNode(
                 IConventionSkipNavigationBuilder navigationBuilder,
-                IConventionForeignKey foreignKey,
-                IConventionForeignKey oldForeignKey)
+                IConventionForeignKey? foreignKey,
+                IConventionForeignKey? oldForeignKey)
             {
                 NavigationBuilder = navigationBuilder;
                 ForeignKey = foreignKey;
@@ -731,8 +731,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             public IConventionSkipNavigationBuilder NavigationBuilder { get; }
-            public IConventionForeignKey ForeignKey { get; }
-            public IConventionForeignKey OldForeignKey { get; }
+            public IConventionForeignKey? ForeignKey { get; }
+            public IConventionForeignKey? OldForeignKey { get; }
 
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnSkipNavigationForeignKeyChanged(NavigationBuilder, ForeignKey, OldForeignKey);
