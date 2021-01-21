@@ -443,7 +443,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 transaction = Dependencies.TransactionLogger.TransactionUsed(
                     this,
-                    // ReSharper disable once AssignNullToNotNullAttribute
                     transaction,
                     transactionId,
                     DateTimeOffset.UtcNow);
@@ -485,7 +484,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 transaction = await Dependencies.TransactionLogger.TransactionUsedAsync(
                         this,
-                        // ReSharper disable once AssignNullToNotNullAttribute
                         transaction,
                         transactionId,
                         DateTimeOffset.UtcNow,
@@ -498,7 +496,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return CurrentTransaction;
         }
 
-        private bool ShouldUseTransaction(DbTransaction? transaction)
+        private bool ShouldUseTransaction([CA.NotNullWhen(true)] DbTransaction? transaction)
         {
             if (transaction == null)
             {

@@ -84,22 +84,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public IRelationalConnection Connection { get; }
 
         /// <summary>
-        ///     The SQL parameter values to use, or null if none.
+        ///     The SQL parameter values to use, or <see langword="null"/> if none.
         /// </summary>
         public IReadOnlyDictionary<string, object?>? ParameterValues { get; }
 
         /// <summary>
-        ///     The expected columns if the reader needs to be buffered, or null otherwise.
+        ///     The expected columns if the reader needs to be buffered, or <see langword="null"/> otherwise.
         /// </summary>
         public IReadOnlyList<ReaderColumn>? ReaderColumns { get; }
 
         /// <summary>
-        ///     The current <see cref="DbContext" /> instance, or null if it is not known.
+        ///     The current <see cref="DbContext" /> instance, or <see langword="null"/> if it is not known.
         /// </summary>
         public DbContext? Context { get; }
 
         /// <summary>
-        ///     A logger, or null if no logger is available.
+        ///     A logger, or <see langword="null"/> if no logger is available.
         /// </summary>
         public IDiagnosticsLogger<DbLoggerCategory.Database.Command>? Logger { get; }
 

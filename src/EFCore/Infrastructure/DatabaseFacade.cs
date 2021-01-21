@@ -11,6 +11,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -21,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     public class DatabaseFacade : IInfrastructure<IServiceProvider>, IDatabaseFacadeDependenciesAccessor
     {
         private readonly DbContext _context;
-        private IDatabaseFacadeDependencies _dependencies;
+        private IDatabaseFacadeDependencies? _dependencies;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DatabaseFacade" /> class. Instances of this class are typically
@@ -285,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         on the returned <see cref="IDbContextTransaction" />.
         ///     </para>
         /// </summary>
-        public virtual IDbContextTransaction CurrentTransaction
+        public virtual IDbContextTransaction? CurrentTransaction
             => Dependencies.TransactionManager.CurrentTransaction;
 
         /// <summary>
@@ -341,10 +343,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         provider to use as part of configuring the context.
         ///     </para>
         /// </summary>
-        public virtual string ProviderName
+        public virtual string? ProviderName
             // Needs to be lazy because used from OnModelCreating
             => _context.GetService<IEnumerable<IDatabaseProvider>>()
-                ?.Select(p => p.Name)
+                .Select(p => p.Name)
                 .FirstOrDefault();
 
         /// <summary>
@@ -386,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -395,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

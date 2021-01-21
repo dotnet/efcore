@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore
             var annotation = index.FindAnnotation(RelationalAnnotationNames.Filter);
             if (annotation != null)
             {
-                return (string)annotation.Value;
+                return (string?)annotation.Value;
             }
 
             var sharedTableRootIndex = index.FindSharedObjectRootIndex(storeObject);

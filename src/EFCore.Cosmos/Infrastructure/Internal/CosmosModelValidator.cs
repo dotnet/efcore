@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
 {
     /// <summary>
@@ -98,15 +100,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             var discriminatorValues = new Dictionary<object, IEntityType>();
-            IProperty partitionKey = null;
-            IEntityType firstEntityType = null;
+            IProperty? partitionKey = null;
+            IEntityType? firstEntityType = null;
             foreach (var entityType in mappedTypes)
             {
                 Check.DebugAssert(entityType.IsDocumentRoot(), "Only document roots expected here.");
                 var partitionKeyPropertyName = entityType.GetPartitionKeyPropertyName();
                 if (partitionKeyPropertyName != null)
                 {
-                    var nextPartitionKeyProperty = entityType.FindProperty(partitionKeyPropertyName);
+                    var nextPartitionKeyProperty = entityType.FindProperty(partitionKeyPropertyName)!;
                     if (partitionKey == null)
                     {
                         if (firstEntityType != null)
@@ -120,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                     {
                         throw new InvalidOperationException(
                             CosmosStrings.PartitionKeyStoreNameMismatch(
-                                partitionKey.Name, firstEntityType.DisplayName(), partitionKey.GetJsonPropertyName(),
+                                partitionKey.Name, firstEntityType!.DisplayName(), partitionKey.GetJsonPropertyName(),
                                 nextPartitionKeyProperty.Name, entityType.DisplayName(), nextPartitionKeyProperty.GetJsonPropertyName()));
                     }
                 }
@@ -308,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                         continue;
                     }
 
-                    var jsonName = navigation.TargetEntityType.GetContainingPropertyName();
+                    var jsonName = navigation.TargetEntityType.GetContainingPropertyName()!;
                     if (properties.TryGetValue(jsonName, out var otherProperty))
                     {
                         throw new InvalidOperationException(

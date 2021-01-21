@@ -6,6 +6,8 @@ using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
 {
     /// <summary>
@@ -37,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             [NotNull] DiagnosticSource diagnosticSource,
             [NotNull] LoggingDefinitions loggingDefinitions,
             [NotNull] IDbContextLogger contextLogger,
-            [CanBeNull] IInterceptors interceptors = null)
+            [CanBeNull] IInterceptors? interceptors = null)
         {
             DiagnosticSource = diagnosticSource;
             Definitions = loggingDefinitions;
@@ -69,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IInterceptors Interceptors { get; }
+        public virtual IInterceptors? Interceptors { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -104,10 +106,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         public virtual bool ShouldLogSensitiveData()
         {
             var options = Options;
-            if (options == null)
-            {
-                return false;
-            }
 
             if (options.IsSensitiveDataLoggingEnabled
                 && !options.IsSensitiveDataLoggingWarned)

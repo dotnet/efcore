@@ -10,6 +10,9 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
 {
@@ -30,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
     public class LazyLoader : ILazyLoader
     {
         private bool _disposed;
-        private IDictionary<string, bool> _loadedStates;
+        private IDictionary<string, bool>? _loadedStates;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -111,7 +114,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         public virtual Task LoadAsync(
             object entity,
             CancellationToken cancellationToken = default,
-            // ReSharper disable once AssignNullToNotNullAttribute
             [CallerMemberName] string navigationName = "")
         {
             Check.NotNull(entity, nameof(entity));
@@ -122,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
                 : Task.CompletedTask;
         }
 
-        private bool ShouldLoad(object entity, string navigationName, out NavigationEntry navigationEntry)
+        private bool ShouldLoad(object entity, string navigationName, [CA.NotNullWhen(true)] out NavigationEntry? navigationEntry)
         {
             if (_loadedStates != null
                 && _loadedStates.TryGetValue(navigationName, out var loaded)

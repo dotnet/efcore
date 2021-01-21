@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
 {
     /// <summary>
@@ -42,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// </summary>
         public static ScopedLoggerFactory Create(
             [NotNull] IServiceProvider internalServiceProvider,
-            [CanBeNull] IDbContextOptions contextOptions)
+            [CanBeNull] IDbContextOptions? contextOptions)
         {
             var coreOptions
                 = (contextOptions ?? internalServiceProvider.GetService<IDbContextOptions>())

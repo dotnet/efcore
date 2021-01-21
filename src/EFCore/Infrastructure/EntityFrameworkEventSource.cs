@@ -8,6 +8,8 @@ using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -20,17 +22,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private CacheInfo _compiledQueryCacheInfo;
 
         // ReSharper disable NotAccessedField.Local
-        private PollingCounter _activeDbContextsCounter;
-        private PollingCounter _totalQueriesCounter;
-        private IncrementingPollingCounter _queriesPerSecondCounter;
-        private PollingCounter _totalSaveChangesCounter;
-        private IncrementingPollingCounter _saveChangesPerSecondCounter;
-        private PollingCounter _compiledQueryCacheHitRateCounter;
-        private PollingCounter _totalExecutionStrategyOperationFailuresCounter;
-        private IncrementingPollingCounter _executionStrategyOperationFailuresPerSecondCounter;
-        private PollingCounter _totalOptimisticConcurrencyFailuresCounter;
-
-        private IncrementingPollingCounter _optimisticConcurrencyFailuresPerSecondCounter;
+        private PollingCounter? _activeDbContextsCounter;
+        private PollingCounter? _totalQueriesCounter;
+        private IncrementingPollingCounter? _queriesPerSecondCounter;
+        private PollingCounter? _totalSaveChangesCounter;
+        private IncrementingPollingCounter? _saveChangesPerSecondCounter;
+        private PollingCounter? _compiledQueryCacheHitRateCounter;
+        private PollingCounter? _totalExecutionStrategyOperationFailuresCounter;
+        private IncrementingPollingCounter? _executionStrategyOperationFailuresPerSecondCounter;
+        private PollingCounter? _totalOptimisticConcurrencyFailuresCounter;
+        private IncrementingPollingCounter? _optimisticConcurrencyFailuresPerSecondCounter;
         // ReSharper restore NotAccessedField.Local
 
         /// <summary>

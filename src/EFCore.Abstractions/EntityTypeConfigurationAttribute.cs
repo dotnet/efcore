@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 using System;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -16,6 +17,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityConfigurationType"> The IEntityTypeConfiguration&lt;&gt; type to use. </param>
         public EntityTypeConfigurationAttribute(Type entityConfigurationType)
         {
+            Check.NotNull(entityConfigurationType, nameof(entityConfigurationType));
+
             EntityTypeConfigurationType = entityConfigurationType;
         }
 

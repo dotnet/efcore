@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     public class ObservableCollectionListSource<T> : ObservableCollection<T>, IListSource
         where T : class
     {
-        private IBindingList _bindingList;
+        private IBindingList? _bindingList;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ObservableCollectionListSource{T}" /> class.
@@ -70,6 +70,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     An <see cref="IBindingList" /> in sync with the ObservableCollection.
         /// </returns>
         IList IListSource.GetList()
-            => _bindingList ?? (_bindingList = this.ToBindingList());
+            => _bindingList ??= this.ToBindingList();
     }
 }

@@ -146,11 +146,11 @@
   </data>
   <data name="LogExecutingReadItem" xml:space="preserve">
     <value>Reading resource '{resourceId}' item from container '{containerId}' in partition '{partitionKey}'.</value>
-    <comment>Debug CosmosEventId.ExecutingReadItem string string string</comment>
+    <comment>Debug CosmosEventId.ExecutingReadItem string string string?</comment>
   </data>
   <data name="LogExecutingSqlQuery" xml:space="preserve">
     <value>Executing SQL query for container '{containerId}' in partition '{partitionKey}' [Parameters=[{parameters}]]{newLine}{commandText}</value>
-    <comment>Debug CosmosEventId.ExecutingSqlQuery string string string string string</comment>
+    <comment>Debug CosmosEventId.ExecutingSqlQuery string string? string string string</comment>
   </data>
   <data name="MissingOrderingInSelectExpression" xml:space="preserve">
     <value>'Reverse' could not be translated to the server because there is no ordering on the server side.</value>

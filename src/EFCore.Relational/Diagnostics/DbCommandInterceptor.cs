@@ -6,6 +6,8 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -260,10 +262,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in.
         /// </returns>
-        public virtual object ScalarExecuted(
+        public virtual object? ScalarExecuted(
             DbCommand command,
             CommandExecutedEventData eventData,
-            object result)
+            object? result)
             => result;
 
         /// <summary>
@@ -343,10 +345,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        public virtual ValueTask<object> ScalarExecutedAsync(
+        public virtual ValueTask<object?> ScalarExecutedAsync(
             DbCommand command,
             CommandExecutedEventData eventData,
-            object result,
+            object? result,
             CancellationToken cancellationToken = default)
             => new(result);
 

@@ -14,6 +14,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 {
     /// <summary>
@@ -25,18 +27,18 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
     public class ProxyBindingRewriter : IModelFinalizingConvention
     {
         private static readonly MethodInfo _createLazyLoadingProxyMethod
-            = typeof(IProxyFactory).GetTypeInfo().GetDeclaredMethod(nameof(IProxyFactory.CreateLazyLoadingProxy));
+            = typeof(IProxyFactory).GetTypeInfo().GetDeclaredMethod(nameof(IProxyFactory.CreateLazyLoadingProxy))!;
 
         private static readonly PropertyInfo _lazyLoaderProperty
-            = typeof(IProxyLazyLoader).GetProperty(nameof(IProxyLazyLoader.LazyLoader));
+            = typeof(IProxyLazyLoader).GetProperty(nameof(IProxyLazyLoader.LazyLoader))!;
 
         private static readonly MethodInfo _createProxyMethod
-            = typeof(IProxyFactory).GetTypeInfo().GetDeclaredMethod(nameof(IProxyFactory.CreateProxy));
+            = typeof(IProxyFactory).GetTypeInfo().GetDeclaredMethod(nameof(IProxyFactory.CreateProxy))!;
 
         private readonly ConstructorBindingConvention _directBindingConvention;
         private readonly LazyLoaderParameterBindingFactoryDependencies _lazyLoaderParameterBindingFactoryDependencies;
         private readonly IProxyFactory _proxyFactory;
-        private readonly ProxiesOptionsExtension _options;
+        private readonly ProxiesOptionsExtension? _options;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -46,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         /// </summary>
         public ProxyBindingRewriter(
             [NotNull] IProxyFactory proxyFactory,
-            [CanBeNull] ProxiesOptionsExtension options,
+            [CanBeNull] ProxiesOptionsExtension? options,
             [NotNull] LazyLoaderParameterBindingFactoryDependencies lazyLoaderParameterBindingFactoryDependencies,
             [NotNull] ProviderConventionSetBuilderDependencies conventionSetBuilderDependencies)
         {
@@ -66,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                 foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
                 {
                     var clrType = entityType.ClrType;
-                    if (clrType?.IsAbstract == false)
+                    if (!clrType.IsAbstract)
                     {
                         if (clrType.IsSealed)
                         {
@@ -77,16 +79,16 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 
                         // WARNING: This code is EF internal; it should not be copied. See #10789 #14554
 #pragma warning disable EF1001 // Internal EF Core API usage.
-                        var binding = (InstantiationBinding)entityType[CoreAnnotationNames.ConstructorBinding];
+                        var binding = (InstantiationBinding?)entityType[CoreAnnotationNames.ConstructorBinding];
                         if (binding == null)
                         {
                             _directBindingConvention.ProcessModelFinalizing(modelBuilder, context);
                         }
 
-                        binding = (InstantiationBinding)entityType[CoreAnnotationNames.ConstructorBinding];
+                        binding = (InstantiationBinding)entityType[CoreAnnotationNames.ConstructorBinding]!;
                         UpdateConstructorBindings(CoreAnnotationNames.ConstructorBinding, binding);
 
-                        binding = (InstantiationBinding)entityType[CoreAnnotationNames.ServiceOnlyConstructorBinding];
+                        binding = (InstantiationBinding?)entityType[CoreAnnotationNames.ServiceOnlyConstructorBinding];
                         if (binding != null)
                         {
                             UpdateConstructorBindings(CoreAnnotationNames.ServiceOnlyConstructorBinding, binding);
@@ -135,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                                     {
                                         indexerChecked = true;
 
-                                        if (!property.PropertyInfo.SetMethod.IsReallyVirtual())
+                                        if (!property.PropertyInfo!.SetMethod.IsReallyVirtual())
                                         {
                                             if (clrType.IsGenericType
                                                 && clrType.GetGenericTypeDefinition() == typeof(Dictionary<,>)

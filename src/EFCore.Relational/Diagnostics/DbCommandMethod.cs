@@ -3,6 +3,8 @@
 
 using System.Data.Common;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>

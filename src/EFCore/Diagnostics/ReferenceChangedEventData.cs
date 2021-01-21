@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -30,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] EntityEntry entityEntry,
             [NotNull] INavigation navigation,
-            [CanBeNull] object oldReferencedEntity,
-            [CanBeNull] object newReferencedEntity)
+            [CanBeNull] object? oldReferencedEntity,
+            [CanBeNull] object? newReferencedEntity)
             : base(eventDefinition, messageGenerator, navigation)
         {
             Check.NotNull(entityEntry, nameof(entityEntry));
@@ -54,11 +56,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The old referenced entity.
         /// </summary>
-        public virtual object OldReferencedEntity { get; }
+        public virtual object? OldReferencedEntity { get; }
 
         /// <summary>
         ///     The new referenced entity.
         /// </summary>
-        public virtual object NewReferencedEntity { get; }
+        public virtual object? NewReferencedEntity { get; }
     }
 }

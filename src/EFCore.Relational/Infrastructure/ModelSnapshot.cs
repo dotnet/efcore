@@ -4,6 +4,8 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -11,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public abstract class ModelSnapshot
     {
-        private IModel _model;
+        private IModel? _model;
 
         private IModel CreateModel()
         {

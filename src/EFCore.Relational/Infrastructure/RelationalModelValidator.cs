@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -225,17 +227,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         continue;
                     }
 
-                    var table = StoreObjectIdentifier.Table(
-                        property.DeclaringEntityType.GetTableName(), property.DeclaringEntityType.GetSchema());
-                    if (IsNotNullAndFalse(property.GetDefaultValue(table))
-                        || property.GetDefaultValueSql(table) != null)
+                    if (StoreObjectIdentifier.Create(property.DeclaringEntityType, StoreObjectType.Table) is StoreObjectIdentifier table
+                        && (IsNotNullAndFalse(property.GetDefaultValue(table))
+                            || property.GetDefaultValueSql(table) != null))
                     {
                         logger.BoolWithDefaultWarning(property);
                     }
                 }
             }
 
-            static bool IsNotNullAndFalse(object value)
+            static bool IsNotNullAndFalse(object? value)
                 => value != null
                     && (!(value is bool asBool) || asBool);
         }
@@ -255,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     foreach (var property in key.Properties)
                     {
-                        var defaultValue = (IConventionAnnotation)property.FindAnnotation(RelationalAnnotationNames.DefaultValue);
+                        var defaultValue = (IConventionAnnotation?)property.FindAnnotation(RelationalAnnotationNames.DefaultValue);
                         if (defaultValue?.Value != null
                             && defaultValue.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation))
                         {
@@ -316,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         protected virtual void ValidateSharedTableCompatibility(
             [NotNull] IReadOnlyList<IEntityType> mappedTypes,
             [NotNull] string tableName,
-            [CanBeNull] string schema,
+            [CanBeNull] string? schema,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             if (mappedTypes.Count == 1)
@@ -326,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             var storeObject = StoreObjectIdentifier.Table(tableName, schema);
             var unvalidatedTypes = new HashSet<IEntityType>(mappedTypes);
-            IEntityType root = null;
+            IEntityType? root = null;
             foreach (var mappedType in mappedTypes)
             {
                 if (mappedType.BaseType != null && unvalidatedTypes.Contains(mappedType.BaseType))
@@ -385,7 +386,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     if (key != null)
                     {
-                        var otherKey = nextEntityType.FindPrimaryKey();
+                        var otherKey = nextEntityType.FindPrimaryKey()!;
                         if (key.GetName(storeObject) != otherKey.GetName(storeObject))
                         {
                             throw new InvalidOperationException(
@@ -501,7 +502,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         protected virtual void ValidateSharedViewCompatibility(
             [NotNull] IReadOnlyList<IEntityType> mappedTypes,
             [NotNull] string viewName,
-            [CanBeNull] string schema,
+            [CanBeNull] string? schema,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             if (mappedTypes.Count == 1)
@@ -511,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             var storeObject = StoreObjectIdentifier.View(viewName, schema);
             var unvalidatedTypes = new HashSet<IEntityType>(mappedTypes);
-            IEntityType root = null;
+            IEntityType? root = null;
             foreach (var mappedType in mappedTypes)
             {
                 if (mappedType.BaseType != null && unvalidatedTypes.Contains(mappedType.BaseType))
@@ -520,14 +521,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 }
 
                 if (mappedType.FindPrimaryKey() != null
-                    && mappedType.FindForeignKeys(mappedType.FindPrimaryKey().Properties)
+                    && mappedType.FindForeignKeys(mappedType.FindPrimaryKey()!.Properties)
                         .Any(
                             fk => fk.PrincipalKey.IsPrimaryKey()
                                 && unvalidatedTypes.Contains(fk.PrincipalEntityType)))
                 {
                     if (mappedType.BaseType != null)
                     {
-                        var principalType = mappedType.FindForeignKeys(mappedType.FindPrimaryKey().Properties)
+                        var principalType = mappedType.FindForeignKeys(mappedType.FindPrimaryKey()!.Properties)
                             .First(
                                 fk => fk.PrincipalKey.IsPrimaryKey()
                                     && unvalidatedTypes.Contains(fk.PrincipalEntityType))
@@ -596,7 +597,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         private static bool IsIdentifyingPrincipal(IEntityType dependentEntityType, IEntityType principalEntityType)
-            => dependentEntityType.FindForeignKeys(dependentEntityType.FindPrimaryKey().Properties)
+            => dependentEntityType.FindForeignKeys(dependentEntityType.FindPrimaryKey()!.Properties)
                 .Any(fk => fk.PrincipalKey.IsPrimaryKey()
                         && fk.PrincipalEntityType == principalEntityType);
 
@@ -612,7 +613,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             var concurrencyColumns = TableSharingConcurrencyTokenConvention.GetConcurrencyTokensMap(storeObject, mappedTypes);
-            HashSet<string> missingConcurrencyTokens = null;
+            HashSet<string>? missingConcurrencyTokens = null;
             if (concurrencyColumns != null
                 && storeObject.StoreObjectType == StoreObjectType.Table)
             {
@@ -625,7 +626,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 if (missingConcurrencyTokens != null)
                 {
                     missingConcurrencyTokens.Clear();
-                    foreach (var tokenPair in concurrencyColumns)
+                    foreach (var tokenPair in concurrencyColumns!)
                     {
                         if (TableSharingConcurrencyTokenConvention.IsConcurrencyTokenMissing(tokenPair.Value, entityType, mappedTypes))
                         {
@@ -636,7 +637,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                 foreach (var property in entityType.GetDeclaredProperties())
                 {
-                    var columnName = property.GetColumnName(storeObject);
+                    var columnName = property.GetColumnName(storeObject)!;
                     missingConcurrencyTokens?.Remove(columnName);
                     if (!propertyMappings.TryGetValue(columnName, out var duplicateProperty))
                     {
@@ -910,7 +911,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="property"> The property to get the default value for. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The object that is used as the default value for the column the property is mapped to. </returns>
-        protected virtual object GetDefaultColumnValue(
+        protected virtual object? GetDefaultColumnValue(
             [NotNull] IProperty property,
             in StoreObjectIdentifier storeObject)
         {
@@ -958,7 +959,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         .Where(t => t != null);
                     if (foreignKey.GetConstraintName() != null
                         && derivedTables.All(t => foreignKey.GetConstraintName(
-                            t.Value,
+                            t!.Value,
                             principalTable.Value) == null))
                     {
                         logger.ForeignKeyPropertiesMappedToUnrelatedTables(foreignKey);
@@ -1122,7 +1123,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private void ValidateTPTMapping(IEntityType rootEntityType, bool forTables)
         {
-            var derivedTypes = new Dictionary<(string, string), IEntityType>();
+            var derivedTypes = new Dictionary<(string, string?), IEntityType>();
             foreach (var entityType in rootEntityType.GetDerivedTypesInclusive())
             {
                 var name = forTables ? entityType.GetTableName() : entityType.GetViewName();
@@ -1148,9 +1149,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private void ValidateTPHMapping(IEntityType rootEntityType, bool forTables)
         {
-            string firstName = null;
-            string firstSchema = null;
-            IEntityType firstType = null;
+            string? firstName = null;
+            string? firstSchema = null;
+            IEntityType? firstType = null;
             foreach (var entityType in rootEntityType.GetDerivedTypesInclusive())
             {
                 var name = forTables ? entityType.GetTableName() : entityType.GetViewName();
@@ -1195,7 +1196,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 foreach (var property in entityType.GetDeclaredProperties())
                 {
-                    var tableOverrides = (SortedDictionary<StoreObjectIdentifier, RelationalPropertyOverrides>)
+                    var tableOverrides = (SortedDictionary<StoreObjectIdentifier, RelationalPropertyOverrides>?)
                         property[RelationalAnnotationNames.RelationalOverrides];
                     if (tableOverrides == null)
                     {
@@ -1277,16 +1278,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 foreach (var index in entityType.GetDeclaredIndexes()
                     .Where(i => ConfigurationSource.Convention != ((IConventionIndex)i).GetConfigurationSource()))
                 {
-                    IProperty propertyNotMappedToAnyTable = null;
-                    Tuple<string, List<(string Table, string Schema)>> firstPropertyTables = null;
-                    Tuple<string, List<(string Table, string Schema)>> lastPropertyTables = null;
-                    HashSet<(string Table, string Schema)> overlappingTables = null;
+                    IProperty? propertyNotMappedToAnyTable = null;
+                    Tuple<string, List<(string Table, string? Schema)>>? firstPropertyTables = null;
+                    Tuple<string, List<(string Table, string? Schema)>>? lastPropertyTables = null;
+                    HashSet<(string Table, string? Schema)>? overlappingTables = null;
                     foreach (var property in index.Properties)
                     {
                         var tablesMappedToProperty = property.DeclaringEntityType.GetDerivedTypesInclusive()
                             .Select(t => (t.GetTableName(), t.GetSchema())).Distinct()
-                            .Where(n => n.Item1 != null && property.GetColumnName(StoreObjectIdentifier.Table(n.Item1, n.Item2)) != null)
-                            .ToList<(string Table, string Schema)>();
+                            .Where(n => n.Item1 != null && property.GetColumnName(StoreObjectIdentifier.Table(n.Item1, n.Item2)) != null)!
+                            .ToList<(string Table, string? Schema)>();
                         if (tablesMappedToProperty.Count == 0)
                         {
                             propertyNotMappedToAnyTable = property;
@@ -1304,12 +1305,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         if (firstPropertyTables == null)
                         {
                             firstPropertyTables =
-                                new Tuple<string, List<(string Table, string Schema)>>(property.Name, tablesMappedToProperty);
+                                new Tuple<string, List<(string Table, string? Schema)>>(property.Name, tablesMappedToProperty);
                         }
                         else
                         {
                             lastPropertyTables =
-                                new Tuple<string, List<(string Table, string Schema)>>(property.Name, tablesMappedToProperty);
+                                new Tuple<string, List<(string Table, string? Schema)>>(property.Name, tablesMappedToProperty);
                         }
 
                         if (propertyNotMappedToAnyTable != null)
@@ -1321,7 +1322,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                         if (overlappingTables == null)
                         {
-                            overlappingTables = new HashSet<(string Table, string Schema)>(tablesMappedToProperty);
+                            overlappingTables = new HashSet<(string Table, string? Schema)>(tablesMappedToProperty);
                         }
                         else
                         {
@@ -1346,7 +1347,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             logger.IndexPropertiesBothMappedAndNotMappedToTable(
                                 entityType,
                                 index,
-                                propertyNotMappedToAnyTable.Name);
+                                propertyNotMappedToAnyTable!.Name);
                         }
                     }
                     else if (overlappingTables.Count == 0)

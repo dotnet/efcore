@@ -315,11 +315,10 @@ namespace Microsoft.EntityFrameworkCore
                 && (IsInInternalNamespace(symbol) || HasInternalAttribute(symbol));
 
         private static bool HasInternalAttribute(ISymbol symbol)
-            => symbol != null
-                && symbol.GetAttributes().Any(
-                    a =>
-                        a.AttributeClass.ToDisplayString()
-                        == "Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkInternalAttribute");
+            => symbol.GetAttributes().Any(
+                a =>
+                    a.AttributeClass!.ToDisplayString()
+                    == "Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkInternalAttribute");
 
         private static bool IsInInternalNamespace(ISymbol symbol)
         {

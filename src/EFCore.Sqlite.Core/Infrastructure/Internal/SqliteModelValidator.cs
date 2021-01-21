@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
 {
     /// <summary>
@@ -66,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
         {
             foreach (var entityType in model.GetEntityTypes().Where(e => e.GetSchema() != null))
             {
-                logger.SchemaConfiguredWarning(entityType, entityType.GetSchema());
+                logger.SchemaConfiguredWarning(entityType, entityType.GetSchema()!);
             }
         }
 
