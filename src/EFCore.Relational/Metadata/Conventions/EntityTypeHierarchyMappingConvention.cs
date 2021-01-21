@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         && !entityType.FindDeclaredForeignKeys(pk.Properties)
                             .Any(fk => fk.PrincipalKey.IsPrimaryKey() && fk.PrincipalEntityType.IsAssignableFrom(entityType)))
                     {
-                        entityType.Builder.HasRelationship(entityType.BaseType, pk.Properties, entityType.BaseType.FindPrimaryKey()!)!
+                        entityType.Builder.HasRelationship(entityType.BaseType, pk.Properties, pk)?
                             .IsUnique(true);
                     }
 
