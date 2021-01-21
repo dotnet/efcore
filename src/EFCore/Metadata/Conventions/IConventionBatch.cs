@@ -25,10 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         /// <param name="foreignKey"> The foreign key to track. </param>
         /// <returns>
-        ///     An object that will contain the reference to the new foreign key instance
-        ///     if the given one was replaced by a convention.
+        ///     An object that will contain the reference to the new foreign key instance if the given one was replaced by a convention.
+        ///     Otherwise, returns the original foreign key.
         /// </returns>
-        // TODO-NULLABLE: does this ever refer null (as is implied by the comment?)
         IMetadataReference<IConventionForeignKey> Track([NotNull] IConventionForeignKey foreignKey);
     }
 }

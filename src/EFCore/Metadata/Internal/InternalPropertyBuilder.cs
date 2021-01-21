@@ -580,10 +580,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalPropertyBuilder Attach([NotNull] InternalEntityTypeBuilder entityTypeBuilder)
+        public virtual InternalPropertyBuilder? Attach([NotNull] InternalEntityTypeBuilder entityTypeBuilder)
         {
             var newProperty = entityTypeBuilder.Metadata.FindProperty(Metadata.Name);
-            InternalPropertyBuilder newPropertyBuilder;
+            InternalPropertyBuilder? newPropertyBuilder;
             var configurationSource = Metadata.GetConfigurationSource();
             var typeConfigurationSource = Metadata.GetTypeConfigurationSource();
             if (newProperty != null
@@ -605,10 +605,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 newPropertyBuilder = identifyingMemberInfo == null
                     ? entityTypeBuilder.Property(
-                        Metadata.ClrType, Metadata.Name, Metadata.GetTypeConfigurationSource(), configurationSource)!
+                        Metadata.ClrType, Metadata.Name, Metadata.GetTypeConfigurationSource(), configurationSource)
                     : (identifyingMemberInfo as PropertyInfo)?.IsIndexerProperty() == true
-                        ? entityTypeBuilder.IndexerProperty(Metadata.ClrType, Metadata.Name, configurationSource)!
-                        : entityTypeBuilder.Property(identifyingMemberInfo, configurationSource!)!;
+                        ? entityTypeBuilder.IndexerProperty(Metadata.ClrType, Metadata.Name, configurationSource)
+                        : entityTypeBuilder.Property(identifyingMemberInfo, configurationSource!);
+
+                if (newPropertyBuilder is null)
+                {
+                    return null;
+                }
             }
 
             if (newProperty == Metadata)

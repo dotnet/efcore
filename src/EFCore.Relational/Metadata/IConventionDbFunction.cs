@@ -30,11 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionDbFunctionBuilder Builder { get; }
 
         /// <summary>
-        ///     Indicates whether this function is in a model, i.e. hasn't been removed from one.
-        /// </summary>
-        new bool IsInModel { get; }
-
-        /// <summary>
         ///     Gets the configuration source for this function.
         /// </summary>
         /// <returns> The configuration source for this function. </returns>

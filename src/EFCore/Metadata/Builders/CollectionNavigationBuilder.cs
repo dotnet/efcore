@@ -225,13 +225,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object to further configure the relationship. </returns>
         public virtual CollectionCollectionBuilder WithMany([NotNull] string navigationName)
         {
-            if (Builder != null
-                && Builder.Metadata.PrincipalToDependent == null)
+            if (Builder?.Metadata.PrincipalToDependent == null)
             {
                 throw new InvalidOperationException(
                     CoreStrings.MissingInverseManyToManyNavigation(
-                        Builder.Metadata.PrincipalEntityType.DisplayName(),
-                        Builder.Metadata.DeclaringEntityType.DisplayName()));
+                        Builder?.Metadata.PrincipalEntityType.DisplayName(),
+                        Builder?.Metadata.DeclaringEntityType.DisplayName()));
             }
 
             var leftName = Builder?.Metadata.PrincipalToDependent!.Name;
@@ -322,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual IMutableSkipNavigation WithRightManyNavigation([NotNull] string navigationName, [CanBeNull] string? inverseName)
+        protected virtual IMutableSkipNavigation WithRightManyNavigation([NotNull] string navigationName, [NotNull] string inverseName)
             => WithRightManyNavigation(MemberIdentity.Create(navigationName), inverseName);
 
         /// <summary>

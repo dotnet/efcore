@@ -27,11 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionSequenceBuilder Builder { get; }
 
         /// <summary>
-        ///     Indicates whether this sequence is in a model, i.e. hasn't been removed from one.
-        /// </summary>
-        new bool IsInModel { get; }
-
-        /// <summary>
         ///     Gets the configuration source for this <see cref="IConventionSequence" />.
         /// </summary>
         /// <returns> The configuration source for <see cref="IConventionSequence" />. </returns>
