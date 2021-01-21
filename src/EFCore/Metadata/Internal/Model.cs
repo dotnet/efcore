@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using CA = System.Diagnostics.CodeAnalysis;
 
 #nullable enable
 
@@ -42,21 +43,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static readonly Type DefaultPropertyBagType = typeof(Dictionary<string, object>);
 
-        private readonly SortedDictionary<string, EntityType> _entityTypes
-            = new(StringComparer.Ordinal);
-
-        private readonly ConcurrentDictionary<Type, PropertyInfo?> _indexerPropertyInfoMap
-            = new();
-
-        private readonly ConcurrentDictionary<Type, string> _clrTypeNameMap
-            = new();
-
-        private readonly Dictionary<string, ConfigurationSource> _ignoredTypeNames
-            = new(StringComparer.Ordinal);
-
+        private readonly SortedDictionary<string, EntityType> _entityTypes = new(StringComparer.Ordinal);
+        private readonly ConcurrentDictionary<Type, PropertyInfo?> _indexerPropertyInfoMap = new();
+        private readonly ConcurrentDictionary<Type, string> _clrTypeNameMap = new();
+        private readonly Dictionary<string, ConfigurationSource> _ignoredTypeNames = new(StringComparer.Ordinal);
         private readonly Dictionary<Type, (ConfigurationSource ConfigurationSource, SortedSet<EntityType> Types)> _sharedTypes =
             new() { { DefaultPropertyBagType, (ConfigurationSource.Convention, new SortedSet<EntityType>(EntityTypeFullNameComparer.Instance)) } };
 
+        private ConventionDispatcher? _conventionDispatcher;
         private bool? _skipDetectChanges;
         private ChangeTrackingStrategy? _changeTrackingStrategy;
 
@@ -84,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ModelDependencies = modelDependencies;
             var dispatcher = new ConventionDispatcher(conventions);
             var builder = new InternalModelBuilder(this);
-            ConventionDispatcher = dispatcher;
+            _conventionDispatcher = dispatcher;
             Builder = builder;
             dispatcher.OnModelInitialized(builder);
         }
@@ -95,7 +89,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConventionDispatcher ConventionDispatcher { get; private set; }
+        public virtual ConventionDispatcher ConventionDispatcher
+        {
+            [DebuggerStepThrough] get => _conventionDispatcher ?? throw new InvalidOperationException(CoreStrings.ModelReadOnly);
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -108,7 +105,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <summary>
         ///     Indicates whether the model is read-only.
         /// </summary>
-        protected override bool IsReadonly => ConventionDispatcher == null;
+        protected override bool IsReadonly
+            => IsModelReadonly;
+
+        /// <summary>
+        ///     Indicates whether the model is read-only.
+        /// </summary>
+        public virtual bool IsModelReadonly => _conventionDispatcher == null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -223,8 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     _sharedTypes.Add(entityType.ClrType, (entityType.GetConfigurationSource(), types));
                 }
             }
-            else if (entityType.ClrType != null
-                && _sharedTypes.ContainsKey(entityType.ClrType))
+            else if (_sharedTypes.ContainsKey(entityType.ClrType))
             {
                 throw new InvalidOperationException(CoreStrings.ClashingSharedType(entityType.DisplayName()));
             }
@@ -315,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual EntityType? RemoveEntityType([CanBeNull] EntityType? entityType)
         {
-            if (entityType?.Builder == null)
+            if (entityType is null || !entityType.IsInModel)
             {
                 return null;
             }
@@ -323,8 +325,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             EnsureReadonly(false);
             AssertCanRemove(entityType);
 
-            if (entityType.ClrType != null
-                && _sharedTypes.TryGetValue(entityType.ClrType, out var existingTypes))
+            if (_sharedTypes.TryGetValue(entityType.ClrType, out var existingTypes))
             {
                 existingTypes.Types.Remove(entityType);
             }
@@ -418,7 +419,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual EntityType? FindActualEntityType([NotNull] EntityType entityType)
-            => entityType.Builder != null
+            => entityType.IsInModel
                 ? entityType
                 : FindEntityType(entityType.Name)
                     ?? (entityType.HasSharedClrType
@@ -847,7 +848,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <param name="annotation"> The annotation set. </param>
         /// <param name="oldAnnotation"> The old annotation. </param>
         /// <returns> The annotation that was set. </returns>
-        protected override IConventionAnnotation OnAnnotationSet(
+        protected override IConventionAnnotation? OnAnnotationSet(
             string name,
             IConventionAnnotation? annotation,
             IConventionAnnotation? oldAnnotation)
@@ -871,7 +872,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual T Track<T>([NotNull] Func<T> func, [CanBeNull] ref IConventionForeignKey foreignKey)
+        public virtual T Track<T>([NotNull] Func<T> func, [CanBeNull] [CA.DisallowNull] ref IConventionForeignKey? foreignKey)
         {
             EnsureReadonly(false);
             return ConventionDispatcher.Track(func, ref foreignKey);
@@ -906,7 +907,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private IModel MakeReadonly()
         {
             // ConventionDispatcher should never be accessed once the model is made read-only.
-            ConventionDispatcher = null!;
+            _conventionDispatcher = null;
             ModelDependencies = null;
             IsValidated = true;
             return this;

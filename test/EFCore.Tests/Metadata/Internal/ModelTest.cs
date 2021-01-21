@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(typeof(Customer), entityType.ClrType);
             Assert.NotNull(model.FindEntityType(typeof(Customer)));
             Assert.Same(model, entityType.Model);
-            Assert.NotNull(((EntityType)entityType).Builder);
+            Assert.True(((EntityType)entityType).IsInModel);
 
             Assert.Same(entityType, model.FindEntityType(typeof(Customer)));
 
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Null(model.RemoveEntityType(entityType.ClrType));
             Assert.Null(model.FindEntityType(typeof(Customer)));
-            Assert.Null(((EntityType)entityType).Builder);
+            Assert.False(((EntityType)entityType).IsInModel);
         }
 
         [ConditionalFact]
@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(typeof(Customer).FullName, entityType.Name);
             Assert.NotNull(model.FindEntityType(typeof(Customer).FullName));
             Assert.Same(model, entityType.Model);
-            Assert.NotNull(((EntityType)entityType).Builder);
+            Assert.True(((EntityType)entityType).IsInModel);
 
             Assert.Same(entityType, model.FindEntityType(typeof(Customer).FullName));
 
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Null(model.RemoveEntityType(entityType.Name));
             Assert.Null(model.FindEntityType(typeof(Customer).FullName));
-            Assert.Null(((EntityType)entityType).Builder);
+            Assert.False(((EntityType)entityType).IsInModel);
         }
 
         [ConditionalFact]
@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(entityTypeName, entityType.Name);
             Assert.NotNull(model.FindEntityType(entityTypeName));
             Assert.Same(model, entityType.Model);
-            Assert.NotNull(((EntityType)entityType).Builder);
+            Assert.True(((EntityType)entityType).IsInModel);
 
             Assert.Same(entityType, model.FindEntityType(entityTypeName));
             Assert.Null(model.FindEntityType(typeof(Customer)));
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Null(model.RemoveEntityType(entityType.Name));
             Assert.Null(model.FindEntityType(entityTypeName));
-            Assert.Null(((EntityType)entityType).Builder);
+            Assert.False(((EntityType)entityType).IsInModel);
         }
 
         [ConditionalFact]

@@ -23,6 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public class Navigation : PropertyBase, IMutableNavigation, IConventionNavigation
     {
+        private InternalNavigationBuilder? _builder;
+
         // Warning: Never access these fields directly as access needs to be thread-safe
         private IClrCollectionAccessor? _collectionAccessor;
         private bool _collectionAccessorInitialized;
@@ -44,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             ForeignKey = foreignKey;
 
-            Builder = new InternalNavigationBuilder(this, foreignKey.DeclaringEntityType.Model.Builder);
+            _builder = new InternalNavigationBuilder(this, foreignKey.DeclaringEntityType.Model.Builder);
         }
 
         /// <summary>
@@ -70,7 +72,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalNavigationBuilder? Builder { get; [param: CanBeNull] set; }
+        public virtual InternalNavigationBuilder Builder
+        {
+            [DebuggerStepThrough] get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool IsInModel
+            => _builder is not null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void SetRemovedFromModel()
+            => _builder = null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -286,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <param name="annotation"> The annotation set. </param>
         /// <param name="oldAnnotation"> The old annotation. </param>
         /// <returns> The annotation that was set. </returns>
-        protected override IConventionAnnotation OnAnnotationSet(
+        protected override IConventionAnnotation? OnAnnotationSet(
             string name,
             IConventionAnnotation? annotation,
             IConventionAnnotation? oldAnnotation)
@@ -340,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IConventionNavigation? IConventionNavigation.SetInverse(MemberInfo? inverse, bool fromDataAnnotation)
             => SetInverse(inverse, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        IConventionNavigationBuilder? IConventionNavigation.Builder
+        IConventionNavigationBuilder IConventionNavigation.Builder
         {
             [DebuggerStepThrough] get => Builder;
         }
@@ -351,7 +374,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionAnnotatableBuilder? IConventionAnnotatable.Builder
+        IConventionAnnotatableBuilder IConventionAnnotatable.Builder
         {
             [DebuggerStepThrough] get => Builder;
         }

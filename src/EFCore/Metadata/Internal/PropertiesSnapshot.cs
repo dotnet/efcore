@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -22,10 +24,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public PropertiesSnapshot(
-            [CanBeNull] List<InternalPropertyBuilder> properties,
-            [CanBeNull] List<InternalIndexBuilder> indexes,
-            [CanBeNull] List<(InternalKeyBuilder, ConfigurationSource?)> keys,
-            [CanBeNull] List<RelationshipSnapshot> relationships)
+            [CanBeNull] List<InternalPropertyBuilder>? properties,
+            [CanBeNull] List<InternalIndexBuilder>? indexes,
+            [CanBeNull] List<(InternalKeyBuilder, ConfigurationSource?)>? keys,
+            [CanBeNull] List<RelationshipSnapshot>? relationships)
         {
             Properties = properties;
             Indexes = indexes;
@@ -33,10 +35,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Relationships = relationships;
         }
 
-        private List<InternalPropertyBuilder> Properties { [DebuggerStepThrough] get; }
-        private List<RelationshipSnapshot> Relationships { [DebuggerStepThrough] get; set; }
-        private List<InternalIndexBuilder> Indexes { [DebuggerStepThrough] get; set; }
-        private List<(InternalKeyBuilder, ConfigurationSource?)> Keys { [DebuggerStepThrough] get; set; }
+        private List<InternalPropertyBuilder>? Properties { [DebuggerStepThrough] get; }
+        private List<RelationshipSnapshot>? Relationships { [DebuggerStepThrough] get; set; }
+        private List<InternalIndexBuilder>? Indexes { [DebuggerStepThrough] get; set; }
+        private List<(InternalKeyBuilder, ConfigurationSource?)>? Keys { [DebuggerStepThrough] get; set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

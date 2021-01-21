@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -23,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder HasDefaultContainer(
             [NotNull] this ModelBuilder modelBuilder,
-            [CanBeNull] string name)
+            [CanBeNull] string? name)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NullButNotEmpty(name, nameof(name));
@@ -44,9 +46,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionModelBuilder HasDefaultContainer(
+        public static IConventionModelBuilder? HasDefaultContainer(
             [NotNull] this IConventionModelBuilder modelBuilder,
-            [CanBeNull] string name,
+            [CanBeNull] string? name,
             bool fromDataAnnotation = false)
         {
             if (!modelBuilder.CanSetDefaultContainer(name, fromDataAnnotation))
@@ -68,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the given container name can be set as default. </returns>
         public static bool CanSetDefaultContainer(
             [NotNull] this IConventionModelBuilder modelBuilder,
-            [CanBeNull] string name,
+            [CanBeNull] string? name,
             bool fromDataAnnotation = false)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));

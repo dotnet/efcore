@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using CA = System.Diagnostics.CodeAnalysis;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -153,10 +155,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private sealed class NonNullabilityConventionState
         {
-            public Type NullableAttrType;
-            public Type NullableContextAttrType;
-            public FieldInfo NullableFlagsFieldInfo;
-            public FieldInfo NullableContextFlagFieldInfo;
+            public Type? NullableAttrType;
+            public Type? NullableContextAttrType;
+            public FieldInfo? NullableFlagsFieldInfo;
+            public FieldInfo? NullableContextFlagFieldInfo;
             public Dictionary<Type, bool> TypeCache { get; } = new();
         }
     }

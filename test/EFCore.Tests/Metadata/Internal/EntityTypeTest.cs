@@ -482,8 +482,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var key1 = entityType.SetPrimaryKey(new[] { idProperty, nameProperty });
             var key2 = entityType.AddKey(idProperty);
 
-            Assert.NotNull(((Key)key1).Builder);
-            Assert.NotNull(((Key)key2).Builder);
+            Assert.True(((Key)key1).IsInModel);
+            Assert.True(((Key)key2).IsInModel);
             Assert.Equal(new[] { key2, key1 }, entityType.GetKeys().ToArray());
             Assert.True(idProperty.IsKey());
             Assert.Equal(new[] { key1, key2 }, idProperty.GetContainingKeys().ToArray());
@@ -495,8 +495,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Same(key2, entityType.RemoveKey(new[] { idProperty }));
 
-            Assert.Null(((Key)key1).Builder);
-            Assert.Null(((Key)key2).Builder);
+            Assert.False(((Key)key1).IsInModel);
+            Assert.False(((Key)key2).IsInModel);
             Assert.Empty(entityType.GetKeys());
             Assert.False(idProperty.IsKey());
             Assert.Empty(idProperty.GetContainingKeys());
@@ -912,8 +912,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Same(fk2, orderType.RemoveForeignKey(new[] { customerFk2 }, customerKey, customerType));
 
-            Assert.Null(((ForeignKey)fk1).Builder);
-            Assert.Null(((ForeignKey)fk2).Builder);
+            Assert.False(((ForeignKey)fk1).IsInModel);
+            Assert.False(((ForeignKey)fk2).IsInModel);
             Assert.Empty(orderType.GetForeignKeys());
         }
 
@@ -1608,8 +1608,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Same(index2, entityType.RemoveIndex(new[] { property1, property2 }));
 
-            Assert.Null(((Index)index1).Builder);
-            Assert.Null(((Index)index2).Builder);
+            Assert.False(((Index)index1).IsInModel);
+            Assert.False(((Index)index2).IsInModel);
             Assert.Empty(entityType.GetIndexes());
             Assert.False(property1.IsIndex());
             Assert.Empty(property1.GetContainingIndexes());
@@ -1756,8 +1756,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var property2 = entityType.AddProperty("Name", typeof(string));
 
-            Assert.NotNull(((Property)property1).Builder);
-            Assert.NotNull(((Property)property2).Builder);
+            Assert.True(((Property)property1).IsInModel);
+            Assert.True(((Property)property2).IsInModel);
             Assert.True(new[] { property1, property2 }.SequenceEqual(entityType.GetProperties()));
 
             Assert.Same(property1, entityType.RemoveProperty(property1.Name));
@@ -1767,8 +1767,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Same(property2, entityType.RemoveProperty("Name"));
 
-            Assert.Null(((Property)property1).Builder);
-            Assert.Null(((Property)property2).Builder);
+            Assert.False(((Property)property1).IsInModel);
+            Assert.False(((Property)property2).IsInModel);
             Assert.Empty(entityType.GetProperties());
         }
 

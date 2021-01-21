@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     var key = GenerateKey((ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression);
                     if (!_mapping.TryGetValue(key, out var variable))
                     {
-                        variable = Expression.Parameter(entityShaperExpression.EntityType.ClrType!);
+                        variable = Expression.Parameter(entityShaperExpression.EntityType.ClrType);
                         _variables.Add(variable);
                         _expressions.Add(Expression.Assign(variable, entityShaperExpression));
                         _mapping[key] = variable;

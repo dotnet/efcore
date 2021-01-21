@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
@@ -35,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     A builder instance if the entity types were configured as related,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionForeignKeyBuilder HasEntityTypes(
+        IConventionForeignKeyBuilder? HasEntityTypes(
             [NotNull] IConventionEntityType principalEntityType,
             [NotNull] IConventionEntityType dependentEntityType,
             bool fromDataAnnotation = false);
@@ -66,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the principal and dependent entity types can be switched. </returns>
         bool CanInvert(
-            [CanBeNull] IReadOnlyList<IConventionProperty> newForeignKeyProperties,
+            [CanBeNull] IReadOnlyList<IConventionProperty>? newForeignKeyProperties,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -78,8 +80,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the properties were configured as the foreign key,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionForeignKeyBuilder HasForeignKey(
-            [CanBeNull] IReadOnlyList<string> propertyNames,
+        IConventionForeignKeyBuilder? HasForeignKey(
+            [CanBeNull] IReadOnlyList<string>? propertyNames,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -91,8 +93,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the properties were configured as the foreign key,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionForeignKeyBuilder HasForeignKey(
-            [CanBeNull] IReadOnlyList<IConventionProperty> properties,
+        IConventionForeignKeyBuilder? HasForeignKey(
+            [CanBeNull] IReadOnlyList<IConventionProperty>? properties,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -102,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyNames"> The properties to use as the foreign key for this relationship. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given properties can be set as the foreign key. </returns>
-        bool CanSetForeignKey([CanBeNull] IReadOnlyList<string> propertyNames, bool fromDataAnnotation = false);
+        bool CanSetForeignKey([CanBeNull] IReadOnlyList<string>? propertyNames, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given properties can be set as the foreign key for this relationship
@@ -111,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="properties"> The properties to use as the foreign key for this relationship. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given properties can be set as the foreign key. </returns>
-        bool CanSetForeignKey([CanBeNull] IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation = false);
+        bool CanSetForeignKey([CanBeNull] IReadOnlyList<IConventionProperty>? properties, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Configures the properties that this relationship targets.
@@ -122,8 +124,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the properties were configured as the target for this relationship,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionForeignKeyBuilder HasPrincipalKey(
-            [CanBeNull] IReadOnlyList<string> propertyNames,
+        IConventionForeignKeyBuilder? HasPrincipalKey(
+            [CanBeNull] IReadOnlyList<string>? propertyNames,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -135,8 +137,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the properties were configured as the target for this relationship,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionForeignKeyBuilder HasPrincipalKey(
-            [CanBeNull] IReadOnlyList<IConventionProperty> properties,
+        IConventionForeignKeyBuilder? HasPrincipalKey(
+            [CanBeNull] IReadOnlyList<IConventionProperty>? properties,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -146,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyNames"> The properties for this relationship to target. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given properties can be set as the target. </returns>
-        bool CanSetPrincipalKey([CanBeNull] IReadOnlyList<string> propertyNames, bool fromDataAnnotation = false);
+        bool CanSetPrincipalKey([CanBeNull] IReadOnlyList<string>? propertyNames, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given properties can be set as the target for this relationship
@@ -155,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="properties"> The properties for this relationship to target. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given properties can be set as the target. </returns>
-        bool CanSetPrincipalKey([CanBeNull] IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation = false);
+        bool CanSetPrincipalKey([CanBeNull] IReadOnlyList<IConventionProperty>? properties, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Configures the property with the given name as a navigation property used by this relationship.
@@ -169,8 +171,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the navigation property was configured,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionForeignKeyBuilder HasNavigation(
-            [CanBeNull] string name,
+        IConventionForeignKeyBuilder? HasNavigation(
+            [CanBeNull] string? name,
             bool pointsToPrincipal,
             bool fromDataAnnotation = false);
 
@@ -186,8 +188,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the navigation property was configured,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionForeignKeyBuilder HasNavigation(
-            [CanBeNull] MemberInfo property,
+        IConventionForeignKeyBuilder? HasNavigation(
+            [CanBeNull] MemberInfo? property,
             bool pointsToPrincipal,
             bool fromDataAnnotation = false);
 
@@ -207,9 +209,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the navigation properties were configured,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionForeignKeyBuilder HasNavigations(
-            [CanBeNull] string navigationToPrincipalName,
-            [CanBeNull] string navigationToDependentName,
+        IConventionForeignKeyBuilder? HasNavigations(
+            [CanBeNull] string? navigationToPrincipalName,
+            [CanBeNull] string? navigationToDependentName,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -228,9 +230,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the navigation properties were configured,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionForeignKeyBuilder HasNavigations(
-            [CanBeNull] MemberInfo navigationToPrincipal,
-            [CanBeNull] MemberInfo navigationToDependent,
+        IConventionForeignKeyBuilder? HasNavigations(
+            [CanBeNull] MemberInfo? navigationToPrincipal,
+            [CanBeNull] MemberInfo? navigationToDependent,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -244,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given property can be used as a navigation. </returns>
         bool CanSetNavigation(
-            [CanBeNull] string name,
+            [CanBeNull] string? name,
             bool pointsToPrincipal,
             bool fromDataAnnotation = false);
 
@@ -259,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given property can be used as a navigation. </returns>
         bool CanSetNavigation(
-            [CanBeNull] MemberInfo property,
+            [CanBeNull] MemberInfo? property,
             bool pointsToPrincipal,
             bool fromDataAnnotation = false);
 
@@ -278,8 +280,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given properties can be used as navigations. </returns>
         bool CanSetNavigations(
-            [CanBeNull] string navigationToPrincipalName,
-            [CanBeNull] string navigationToDependentName,
+            [CanBeNull] string? navigationToPrincipalName,
+            [CanBeNull] string? navigationToDependentName,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -297,8 +299,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given properties can be used as navigations. </returns>
         bool CanSetNavigations(
-            [CanBeNull] MemberInfo navigationToPrincipal,
-            [CanBeNull] MemberInfo navigationToDependent,
+            [CanBeNull] MemberInfo? navigationToPrincipal,
+            [CanBeNull] MemberInfo? navigationToDependent,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -314,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the requiredness was configured,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionForeignKeyBuilder IsRequired(bool? required, bool fromDataAnnotation = false);
+        IConventionForeignKeyBuilder? IsRequired(bool? required, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the relationship requiredness can be configured
@@ -341,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the dependent end requiredness was configured,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionForeignKeyBuilder IsRequiredDependent(bool? required, bool fromDataAnnotation = false);
+        IConventionForeignKeyBuilder? IsRequiredDependent(bool? required, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the dependent end requiredness can be configured
@@ -368,7 +370,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the ownership was configured,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionForeignKeyBuilder IsOwnership(bool? ownership, bool fromDataAnnotation = false);
+        IConventionForeignKeyBuilder? IsOwnership(bool? ownership, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether this relationship can be configured as defining an ownership or not
@@ -395,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the uniqueness was configured,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionForeignKeyBuilder IsUnique(bool? unique, bool fromDataAnnotation = false);
+        IConventionForeignKeyBuilder? IsUnique(bool? unique, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether this relationship uniqueness can be configured
@@ -422,7 +424,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the delete operation was configured,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionForeignKeyBuilder OnDelete(DeleteBehavior? deleteBehavior, bool fromDataAnnotation = false);
+        IConventionForeignKeyBuilder? OnDelete(DeleteBehavior? deleteBehavior, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the operation on principal deletion can be configured

@@ -508,7 +508,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                             var entityType = entity.Type;
                             var navigation = includeExpression.Navigation;
-                            var includingEntityType = navigation.DeclaringEntityType.ClrType!;
+                            var includingEntityType = navigation.DeclaringEntityType.ClrType;
                             if (includingEntityType != entityType
                                 && includingEntityType.IsAssignableFrom(entityType))
                             {
@@ -595,7 +595,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                             var entityType = entity.Type;
                             var navigation = includeExpression.Navigation;
-                            var includingEntityType = navigation.DeclaringEntityType.ClrType!;
+                            var includingEntityType = navigation.DeclaringEntityType.ClrType;
                             if (includingEntityType != entityType
                                 && includingEntityType.IsAssignableFrom(entityType))
                             {
@@ -672,9 +672,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                             var navigationExpression = Visit(includeExpression.NavigationExpression);
                             var entityType = entity.Type;
                             var navigation = includeExpression.Navigation;
-                            var includingType = navigation.DeclaringEntityType.ClrType!;
+                            var includingType = navigation.DeclaringEntityType.ClrType;
                             var inverseNavigation = navigation.Inverse;
-                            var relatedEntityType = navigation.TargetEntityType.ClrType!;
+                            var relatedEntityType = navigation.TargetEntityType.ClrType;
                             if (includingType != entityType
                                 && includingType.IsAssignableFrom(entityType))
                             {

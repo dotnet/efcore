@@ -157,9 +157,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 if (extensionExpression is IncludeExpression includeExpression)
                 {
                     var entityClrType = includeExpression.EntityExpression.Type;
-                    var includingClrType = includeExpression.Navigation.DeclaringEntityType.ClrType!;
+                    var includingClrType = includeExpression.Navigation.DeclaringEntityType.ClrType;
                     var inverseNavigation = includeExpression.Navigation.Inverse;
-                    var relatedEntityClrType = includeExpression.Navigation.TargetEntityType.ClrType!;
+                    var relatedEntityClrType = includeExpression.Navigation.TargetEntityType.ClrType;
                     if (includingClrType != entityClrType
                         && includingClrType.IsAssignableFrom(entityClrType))
                     {

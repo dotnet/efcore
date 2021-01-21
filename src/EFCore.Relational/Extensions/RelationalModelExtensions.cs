@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The sequence name. </param>
         /// <param name="schema"> The schema name, or <see langword="null" /> to use the default schema. </param>
         /// <returns> The sequence. </returns>
-        public static IMutableSequence? AddSequence(
+        public static IMutableSequence AddSequence(
             [NotNull] this IMutableModel model,
             [NotNull] string name,
             [CanBeNull] string? schema = null)
@@ -376,9 +376,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to add the function to. </param>
         /// <param name="methodInfo"> The <see cref="MethodInfo" /> for the method that is mapped to the function. </param>
         /// <returns> The new <see cref="IMutableDbFunction" />. </returns>
-        public static IMutableDbFunction? AddDbFunction([NotNull] this IMutableModel model, [NotNull] MethodInfo methodInfo)
+        public static IMutableDbFunction AddDbFunction([NotNull] this IMutableModel model, [NotNull] MethodInfo methodInfo)
             => DbFunction.AddDbFunction(
-                model, Check.NotNull(methodInfo, nameof(methodInfo)), ConfigurationSource.Explicit);
+                model, Check.NotNull(methodInfo, nameof(methodInfo)), ConfigurationSource.Explicit)!;
 
         /// <summary>
         ///     Creates an <see cref="IConventionDbFunction" /> mapped to the given method.
@@ -387,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="methodInfo"> The <see cref="MethodInfo" /> for the method that is mapped to the function. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new <see cref="IConventionDbFunction" />. </returns>
-        public static IConventionDbFunction? AddDbFunction(
+        public static IConventionDbFunction AddDbFunction(
             [NotNull] this IConventionModel model,
             [NotNull] MethodInfo methodInfo,
             bool fromDataAnnotation = false)
@@ -402,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The model name of the function. </param>
         /// <param name="returnType"> The function return type. </param>
         /// <returns> The new <see cref="IMutableDbFunction" />. </returns>
-        public static IMutableDbFunction? AddDbFunction(
+        public static IMutableDbFunction AddDbFunction(
             [NotNull] this IMutableModel model,
             [NotNull] string name,
             [NotNull] Type returnType)
@@ -417,7 +417,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="returnType"> The function return type. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new <see cref="IConventionDbFunction" />. </returns>
-        public static IConventionDbFunction? AddDbFunction(
+        public static IConventionDbFunction AddDbFunction(
             [NotNull] this IConventionModel model,
             [NotNull] string name,
             [NotNull] Type returnType,

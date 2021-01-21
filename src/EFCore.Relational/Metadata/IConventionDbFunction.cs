@@ -26,7 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this function.
         /// </summary>
-        new IConventionDbFunctionBuilder? Builder { get; }
+        /// <exception cref="InvalidOperationException"> If the function has been removed from the model. </exception>
+        new IConventionDbFunctionBuilder Builder { get; }
 
         /// <summary>
         ///     Gets the configuration source for this function.

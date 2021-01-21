@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -24,7 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this property.
         /// </summary>
-        new IConventionSkipNavigationBuilder? Builder { get; }
+        /// <exception cref="InvalidOperationException"> If the skip navigation has been removed from the model. </exception>
+        new IConventionSkipNavigationBuilder Builder { get; }
 
         /// <summary>
         ///     Gets the type that this navigation property belongs to.

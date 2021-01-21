@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         public virtual int AddSubqueryProjection(
             [NotNull] ShapedQueryExpression shapedQueryExpression,
-            [CanBeNull] out Expression innerShaper)
+            [NotNull] out Expression innerShaper)
         {
             var subquery = (InMemoryQueryExpression)shapedQueryExpression.QueryExpression;
             subquery.ApplyProjection();
@@ -698,7 +698,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             [NotNull] InMemoryQueryExpression innerQueryExpression,
             [NotNull] LambdaExpression outerKeySelector,
             [NotNull] LambdaExpression innerKeySelector,
-            [CanBeNull] Type transparentIdentifierType)
+            [NotNull] Type transparentIdentifierType)
         {
             var outerParameter = Parameter(typeof(ValueBuffer), "outer");
             var innerParameter = Parameter(typeof(ValueBuffer), "inner");
@@ -790,7 +790,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             [NotNull] InMemoryQueryExpression innerQueryExpression,
             [NotNull] LambdaExpression outerKeySelector,
             [NotNull] LambdaExpression innerKeySelector,
-            [CanBeNull] Type transparentIdentifierType)
+            [NotNull] Type transparentIdentifierType)
         {
             // GroupJoin phase
             var groupTransparentIdentifierType = TransparentIdentifierFactory.Create(
@@ -938,7 +938,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         public virtual void AddSelectMany(
             [NotNull] InMemoryQueryExpression innerQueryExpression,
-            [CanBeNull] Type transparentIdentifierType,
+            [NotNull] Type transparentIdentifierType,
             bool innerNullable)
         {
             var outerParameter = Parameter(typeof(ValueBuffer), "outer");

@@ -5,6 +5,8 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -21,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         void ProcessPropertyFieldChanged(
             [NotNull] IConventionPropertyBuilder propertyBuilder,
-            [CanBeNull] FieldInfo newFieldInfo,
-            [CanBeNull] FieldInfo oldFieldInfo,
+            [CanBeNull] FieldInfo? newFieldInfo,
+            [CanBeNull] FieldInfo? oldFieldInfo,
             [NotNull] IConventionContext<FieldInfo> context);
     }
 }

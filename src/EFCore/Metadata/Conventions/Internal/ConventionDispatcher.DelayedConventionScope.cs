@@ -5,8 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
@@ -14,9 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     {
         private sealed class DelayedConventionScope : ConventionScope
         {
-            private List<ConventionNode> _children;
+            private List<ConventionNode>? _children;
 
-            public DelayedConventionScope(ConventionScope parent, List<ConventionNode> children = null)
+            public DelayedConventionScope(ConventionScope parent, List<ConventionNode>? children = null)
             {
                 Parent = parent;
                 _children = children;
@@ -24,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public override ConventionScope Parent { [DebuggerStepThrough] get; }
 
-            public override IReadOnlyList<ConventionNode> Children
+            public override IReadOnlyList<ConventionNode>? Children
             {
                 [DebuggerStepThrough]
                 get => _children;
@@ -59,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return entityTypeBuilder;
             }
 
-            public override string OnEntityTypeIgnored(IConventionModelBuilder modelBuilder, string name, Type type)
+            public override string OnEntityTypeIgnored(IConventionModelBuilder modelBuilder, string name, Type? type)
             {
                 Add(new OnEntityTypeIgnoredNode(modelBuilder, name, type));
                 return name;
@@ -79,30 +80,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return name;
             }
 
-            public override IConventionEntityType OnEntityTypeBaseTypeChanged(
-                [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
-                [CanBeNull] IConventionEntityType newBaseType,
-                [CanBeNull] IConventionEntityType previousBaseType)
+            public override IConventionEntityType? OnEntityTypeBaseTypeChanged(
+                IConventionEntityTypeBuilder entityTypeBuilder,
+                IConventionEntityType? newBaseType,
+                IConventionEntityType? previousBaseType)
             {
                 Add(new OnEntityTypeBaseTypeChangedNode(entityTypeBuilder, newBaseType, previousBaseType));
                 return newBaseType;
             }
 
-            public override IConventionAnnotation OnEntityTypeAnnotationChanged(
+            public override IConventionAnnotation? OnEntityTypeAnnotationChanged(
                 IConventionEntityTypeBuilder entityTypeBuilder,
                 string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
+                IConventionAnnotation? annotation,
+                IConventionAnnotation? oldAnnotation)
             {
                 Add(new OnEntityTypeAnnotationChangedNode(entityTypeBuilder, name, annotation, oldAnnotation));
                 return annotation;
             }
 
-            public override IConventionAnnotation OnModelAnnotationChanged(
+            public override IConventionAnnotation? OnModelAnnotationChanged(
                 IConventionModelBuilder modelBuilder,
                 string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
+                IConventionAnnotation? annotation,
+                IConventionAnnotation? oldAnnotation)
             {
                 Add(new OnModelAnnotationChangedNode(modelBuilder, name, annotation, oldAnnotation));
                 return annotation;
@@ -122,11 +123,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return foreignKey;
             }
 
-            public override IConventionAnnotation OnForeignKeyAnnotationChanged(
+            public override IConventionAnnotation? OnForeignKeyAnnotationChanged(
                 IConventionForeignKeyBuilder relationshipBuilder,
                 string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
+                IConventionAnnotation? annotation,
+                IConventionAnnotation? oldAnnotation)
             {
                 Add(new OnForeignKeyAnnotationChangedNode(relationshipBuilder, name, annotation, oldAnnotation));
                 return annotation;
@@ -146,20 +147,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return key;
             }
 
-            public override IConventionAnnotation OnKeyAnnotationChanged(
+            public override IConventionAnnotation? OnKeyAnnotationChanged(
                 IConventionKeyBuilder keyBuilder,
                 string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
+                IConventionAnnotation? annotation,
+                IConventionAnnotation? oldAnnotation)
             {
                 Add(new OnKeyAnnotationChangedNode(keyBuilder, name, annotation, oldAnnotation));
                 return annotation;
             }
 
-            public override IConventionKey OnEntityTypePrimaryKeyChanged(
+            public override IConventionKey? OnEntityTypePrimaryKeyChanged(
                 IConventionEntityTypeBuilder entityTypeBuilder,
-                IConventionKey newPrimaryKey,
-                IConventionKey previousPrimaryKey)
+                IConventionKey? newPrimaryKey,
+                IConventionKey? previousPrimaryKey)
             {
                 Add(new OnEntityTypePrimaryKeyChangedNode(entityTypeBuilder, newPrimaryKey, previousPrimaryKey));
                 return newPrimaryKey;
@@ -185,11 +186,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return indexBuilder.Metadata.IsUnique;
             }
 
-            public override IConventionAnnotation OnIndexAnnotationChanged(
+            public override IConventionAnnotation? OnIndexAnnotationChanged(
                 IConventionIndexBuilder indexBuilder,
                 string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
+                IConventionAnnotation? annotation,
+                IConventionAnnotation? oldAnnotation)
             {
                 Add(new OnIndexAnnotationChangedNode(indexBuilder, name, annotation, oldAnnotation));
                 return annotation;
@@ -201,12 +202,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return navigationBuilder;
             }
 
-            public override IConventionAnnotation OnNavigationAnnotationChanged(
+            public override IConventionAnnotation? OnNavigationAnnotationChanged(
                 IConventionForeignKeyBuilder relationshipBuilder,
                 IConventionNavigation navigation,
                 string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
+                IConventionAnnotation? annotation,
+                IConventionAnnotation? oldAnnotation)
             {
                 Add(new OnNavigationAnnotationChangedNode(relationshipBuilder, navigation, name, annotation, oldAnnotation));
                 return annotation;
@@ -216,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 IConventionEntityTypeBuilder sourceEntityTypeBuilder,
                 IConventionEntityTypeBuilder targetEntityTypeBuilder,
                 string navigationName,
-                MemberInfo memberInfo)
+                MemberInfo? memberInfo)
             {
                 Add(new OnNavigationRemovedNode(sourceEntityTypeBuilder, targetEntityTypeBuilder, navigationName, memberInfo));
                 return navigationName;
@@ -229,29 +230,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return navigationBuilder;
             }
 
-            public override IConventionAnnotation OnSkipNavigationAnnotationChanged(
+            public override IConventionAnnotation? OnSkipNavigationAnnotationChanged(
                 IConventionSkipNavigationBuilder navigationBuilder,
                 string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
+                IConventionAnnotation? annotation,
+                IConventionAnnotation? oldAnnotation)
             {
                 Add(new OnSkipNavigationAnnotationChangedNode(navigationBuilder, name, annotation, oldAnnotation));
                 return annotation;
             }
 
-            public override IConventionForeignKey OnSkipNavigationForeignKeyChanged(
+            public override IConventionForeignKey? OnSkipNavigationForeignKeyChanged(
                 IConventionSkipNavigationBuilder navigationBuilder,
-                IConventionForeignKey foreignKey,
-                IConventionForeignKey oldForeignKey)
+                IConventionForeignKey? foreignKey,
+                IConventionForeignKey? oldForeignKey)
             {
                 Add(new OnSkipNavigationForeignKeyChangedNode(navigationBuilder, foreignKey, oldForeignKey));
                 return foreignKey;
             }
 
-            public override IConventionSkipNavigation OnSkipNavigationInverseChanged(
+            public override IConventionSkipNavigation? OnSkipNavigationInverseChanged(
                 IConventionSkipNavigationBuilder navigationBuilder,
-                IConventionSkipNavigation inverse,
-                IConventionSkipNavigation oldInverse)
+                IConventionSkipNavigation? inverse,
+                IConventionSkipNavigation? oldInverse)
             {
                 Add(new OnSkipNavigationInverseChangedNode(navigationBuilder, inverse, oldInverse));
                 return inverse;
@@ -321,20 +322,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return propertyBuilder.Metadata.IsNullable;
             }
 
-            public override FieldInfo OnPropertyFieldChanged(
+            public override FieldInfo? OnPropertyFieldChanged(
                 IConventionPropertyBuilder propertyBuilder,
-                FieldInfo newFieldInfo,
-                FieldInfo oldFieldInfo)
+                FieldInfo? newFieldInfo,
+                FieldInfo? oldFieldInfo)
             {
                 Add(new OnPropertyFieldChangedNode(propertyBuilder, newFieldInfo, oldFieldInfo));
                 return newFieldInfo;
             }
 
-            public override IConventionAnnotation OnPropertyAnnotationChanged(
+            public override IConventionAnnotation? OnPropertyAnnotationChanged(
                 IConventionPropertyBuilder propertyBuilder,
                 string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
+                IConventionAnnotation? annotation,
+                IConventionAnnotation? oldAnnotation)
             {
                 Add(new OnPropertyAnnotationChangedNode(propertyBuilder, name, annotation, oldAnnotation));
                 return annotation;
@@ -354,8 +355,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public OnModelAnnotationChangedNode(
                 IConventionModelBuilder modelBuilder,
                 string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
+                IConventionAnnotation? annotation,
+                IConventionAnnotation? oldAnnotation)
             {
                 ModelBuilder = modelBuilder;
                 Name = name;
@@ -365,8 +366,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public IConventionModelBuilder ModelBuilder { get; }
             public string Name { get; }
-            public IConventionAnnotation Annotation { get; }
-            public IConventionAnnotation OldAnnotation { get; }
+            public IConventionAnnotation? Annotation { get; }
+            public IConventionAnnotation? OldAnnotation { get; }
 
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnModelAnnotationChanged(
@@ -388,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private sealed class OnEntityTypeIgnoredNode : ConventionNode
         {
-            public OnEntityTypeIgnoredNode(IConventionModelBuilder modelBuilder, string name, Type type)
+            public OnEntityTypeIgnoredNode(IConventionModelBuilder modelBuilder, string name, Type? type)
             {
                 ModelBuilder = modelBuilder;
                 Name = name;
@@ -397,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public IConventionModelBuilder ModelBuilder { get; }
             public string Name { get; }
-            public Type Type { get; }
+            public Type? Type { get; }
 
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnEntityTypeIgnored(ModelBuilder, Name, Type);
@@ -437,8 +438,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             public OnEntityTypeBaseTypeChangedNode(
                 IConventionEntityTypeBuilder entityTypeBuilder,
-                IConventionEntityType newBaseType,
-                IConventionEntityType previousBaseType)
+                IConventionEntityType? newBaseType,
+                IConventionEntityType? previousBaseType)
             {
                 EntityTypeBuilder = entityTypeBuilder;
                 NewBaseType = newBaseType;
@@ -446,8 +447,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             public IConventionEntityTypeBuilder EntityTypeBuilder { get; }
-            public IConventionEntityType NewBaseType { get; }
-            public IConventionEntityType PreviousBaseType { get; }
+            public IConventionEntityType? NewBaseType { get; }
+            public IConventionEntityType? PreviousBaseType { get; }
 
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnEntityTypeBaseTypeChanged(
@@ -459,8 +460,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public OnEntityTypeAnnotationChangedNode(
                 IConventionEntityTypeBuilder entityTypeBuilder,
                 string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
+                IConventionAnnotation? annotation,
+                IConventionAnnotation? oldAnnotation)
             {
                 EntityTypeBuilder = entityTypeBuilder;
                 Name = name;
@@ -470,8 +471,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public IConventionEntityTypeBuilder EntityTypeBuilder { get; }
             public string Name { get; }
-            public IConventionAnnotation Annotation { get; }
-            public IConventionAnnotation OldAnnotation { get; }
+            public IConventionAnnotation? Annotation { get; }
+            public IConventionAnnotation? OldAnnotation { get; }
 
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnEntityTypeAnnotationChanged(
@@ -511,8 +512,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public OnForeignKeyAnnotationChangedNode(
                 IConventionForeignKeyBuilder relationshipBuilder,
                 string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
+                IConventionAnnotation? annotation,
+                IConventionAnnotation? oldAnnotation)
             {
                 RelationshipBuilder = relationshipBuilder;
                 Name = name;
@@ -522,8 +523,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public IConventionForeignKeyBuilder RelationshipBuilder { get; }
             public string Name { get; }
-            public IConventionAnnotation Annotation { get; }
-            public IConventionAnnotation OldAnnotation { get; }
+            public IConventionAnnotation? Annotation { get; }
+            public IConventionAnnotation? OldAnnotation { get; }
 
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnForeignKeyAnnotationChanged(
@@ -635,8 +636,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 IConventionForeignKeyBuilder relationshipBuilder,
                 IConventionNavigation navigation,
                 string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
+                IConventionAnnotation? annotation,
+                IConventionAnnotation? oldAnnotation)
             {
                 RelationshipBuilder = relationshipBuilder;
                 Navigation = navigation;
@@ -648,8 +649,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public IConventionForeignKeyBuilder RelationshipBuilder { get; }
             public IConventionNavigation Navigation { get; }
             public string Name { get; }
-            public IConventionAnnotation Annotation { get; }
-            public IConventionAnnotation OldAnnotation { get; }
+            public IConventionAnnotation? Annotation { get; }
+            public IConventionAnnotation? OldAnnotation { get; }
 
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnNavigationAnnotationChanged(
@@ -662,7 +663,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 IConventionEntityTypeBuilder sourceEntityTypeBuilder,
                 IConventionEntityTypeBuilder targetEntityTypeBuilder,
                 string navigationName,
-                MemberInfo memberInfo)
+                MemberInfo? memberInfo)
             {
                 SourceEntityTypeBuilder = sourceEntityTypeBuilder;
                 TargetEntityTypeBuilder = targetEntityTypeBuilder;
@@ -673,7 +674,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public IConventionEntityTypeBuilder SourceEntityTypeBuilder { get; }
             public IConventionEntityTypeBuilder TargetEntityTypeBuilder { get; }
             public string NavigationName { get; }
-            public MemberInfo MemberInfo { get; }
+            public MemberInfo? MemberInfo { get; }
 
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnNavigationRemoved(
@@ -698,8 +699,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public OnSkipNavigationAnnotationChangedNode(
                 IConventionSkipNavigationBuilder navigationBuilder,
                 string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
+                IConventionAnnotation? annotation,
+                IConventionAnnotation? oldAnnotation)
             {
                 NavigationBuilder = navigationBuilder;
                 Name = name;
@@ -709,8 +710,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public IConventionSkipNavigationBuilder NavigationBuilder { get; }
             public string Name { get; }
-            public IConventionAnnotation Annotation { get; }
-            public IConventionAnnotation OldAnnotation { get; }
+            public IConventionAnnotation? Annotation { get; }
+            public IConventionAnnotation? OldAnnotation { get; }
 
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnSkipNavigationAnnotationChanged(
@@ -721,8 +722,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             public OnSkipNavigationForeignKeyChangedNode(
                 IConventionSkipNavigationBuilder navigationBuilder,
-                IConventionForeignKey foreignKey,
-                IConventionForeignKey oldForeignKey)
+                IConventionForeignKey? foreignKey,
+                IConventionForeignKey? oldForeignKey)
             {
                 NavigationBuilder = navigationBuilder;
                 ForeignKey = foreignKey;
@@ -730,8 +731,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             public IConventionSkipNavigationBuilder NavigationBuilder { get; }
-            public IConventionForeignKey ForeignKey { get; }
-            public IConventionForeignKey OldForeignKey { get; }
+            public IConventionForeignKey? ForeignKey { get; }
+            public IConventionForeignKey? OldForeignKey { get; }
 
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnSkipNavigationForeignKeyChanged(NavigationBuilder, ForeignKey, OldForeignKey);
@@ -741,8 +742,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             public OnSkipNavigationInverseChangedNode(
                 IConventionSkipNavigationBuilder navigationBuilder,
-                IConventionSkipNavigation inverse,
-                IConventionSkipNavigation oldInverse)
+                IConventionSkipNavigation? inverse,
+                IConventionSkipNavigation? oldInverse)
             {
                 NavigationBuilder = navigationBuilder;
                 Inverse = inverse;
@@ -750,8 +751,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             public IConventionSkipNavigationBuilder NavigationBuilder { get; }
-            public IConventionSkipNavigation Inverse { get; }
-            public IConventionSkipNavigation OldInverse { get; }
+            public IConventionSkipNavigation? Inverse { get; }
+            public IConventionSkipNavigation? OldInverse { get; }
 
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnSkipNavigationInverseChanged(NavigationBuilder, Inverse, OldInverse);
@@ -807,8 +808,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public OnKeyAnnotationChangedNode(
                 IConventionKeyBuilder keyBuilder,
                 string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
+                IConventionAnnotation? annotation,
+                IConventionAnnotation? oldAnnotation)
             {
                 KeyBuilder = keyBuilder;
                 Name = name;
@@ -818,8 +819,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public IConventionKeyBuilder KeyBuilder { get; }
             public string Name { get; }
-            public IConventionAnnotation Annotation { get; }
-            public IConventionAnnotation OldAnnotation { get; }
+            public IConventionAnnotation? Annotation { get; }
+            public IConventionAnnotation? OldAnnotation { get; }
 
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnKeyAnnotationChanged(
@@ -830,8 +831,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             public OnEntityTypePrimaryKeyChangedNode(
                 IConventionEntityTypeBuilder entityTypeBuilder,
-                IConventionKey newPrimaryKey,
-                IConventionKey previousPrimaryKey)
+                IConventionKey? newPrimaryKey,
+                IConventionKey? previousPrimaryKey)
             {
                 EntityTypeBuilder = entityTypeBuilder;
                 NewPrimaryKey = newPrimaryKey;
@@ -839,8 +840,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             public IConventionEntityTypeBuilder EntityTypeBuilder { get; }
-            public IConventionKey NewPrimaryKey { get; }
-            public IConventionKey PreviousPrimaryKey { get; }
+            public IConventionKey? NewPrimaryKey { get; }
+            public IConventionKey? PreviousPrimaryKey { get; }
 
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnEntityTypePrimaryKeyChanged(
@@ -893,8 +894,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public OnIndexAnnotationChangedNode(
                 IConventionIndexBuilder indexBuilder,
                 string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
+                IConventionAnnotation? annotation,
+                IConventionAnnotation? oldAnnotation)
             {
                 IndexBuilder = indexBuilder;
                 Name = name;
@@ -904,8 +905,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public IConventionIndexBuilder IndexBuilder { get; }
             public string Name { get; }
-            public IConventionAnnotation Annotation { get; }
-            public IConventionAnnotation OldAnnotation { get; }
+            public IConventionAnnotation? Annotation { get; }
+            public IConventionAnnotation? OldAnnotation { get; }
 
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnIndexAnnotationChanged(
@@ -940,7 +941,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private sealed class OnPropertyFieldChangedNode : ConventionNode
         {
-            public OnPropertyFieldChangedNode(IConventionPropertyBuilder propertyBuilder, FieldInfo newFieldInfo, FieldInfo oldFieldInfo)
+            public OnPropertyFieldChangedNode(IConventionPropertyBuilder propertyBuilder, FieldInfo? newFieldInfo, FieldInfo? oldFieldInfo)
             {
                 PropertyBuilder = propertyBuilder;
                 NewFieldInfo = newFieldInfo;
@@ -948,8 +949,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             public IConventionPropertyBuilder PropertyBuilder { get; }
-            public FieldInfo NewFieldInfo { get; }
-            public FieldInfo OldFieldInfo { get; }
+            public FieldInfo? NewFieldInfo { get; }
+            public FieldInfo? OldFieldInfo { get; }
 
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnPropertyFieldChanged(PropertyBuilder, NewFieldInfo, OldFieldInfo);
@@ -960,8 +961,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public OnPropertyAnnotationChangedNode(
                 IConventionPropertyBuilder propertyBuilder,
                 string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
+                IConventionAnnotation? annotation,
+                IConventionAnnotation? oldAnnotation)
             {
                 PropertyBuilder = propertyBuilder;
                 Name = name;
@@ -971,8 +972,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public IConventionPropertyBuilder PropertyBuilder { get; }
             public string Name { get; }
-            public IConventionAnnotation Annotation { get; }
-            public IConventionAnnotation OldAnnotation { get; }
+            public IConventionAnnotation? Annotation { get; }
+            public IConventionAnnotation? OldAnnotation { get; }
 
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnPropertyAnnotationChanged(

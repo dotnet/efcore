@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
@@ -45,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [EntityFrameworkInternal]
         protected ReferenceReferenceBuilder(
             [NotNull] InternalForeignKeyBuilder builder,
-            [CanBeNull] ReferenceReferenceBuilder oldBuilder,
+            [NotNull] ReferenceReferenceBuilder oldBuilder,
             bool inverted = false,
             bool foreignKeySet = false,
             bool principalKeySet = false,
@@ -102,11 +104,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] params string[] foreignKeyPropertyNames)
             => new(
                 HasForeignKeyBuilder(
-                    ResolveEntityType(Check.NotNull(dependentEntityTypeName, nameof(dependentEntityTypeName))),
+                    ResolveEntityType(Check.NotNull(dependentEntityTypeName, nameof(dependentEntityTypeName)))!,
                     dependentEntityTypeName,
                     Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
-                Builder.Metadata.DeclaringEntityType.Name != ResolveEntityType(dependentEntityTypeName).Name,
+                Builder.Metadata.DeclaringEntityType.Name != ResolveEntityType(dependentEntityTypeName)!.Name,
                 foreignKeySet: foreignKeyPropertyNames.Length > 0);
 
         /// <summary>
@@ -140,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] params string[] foreignKeyPropertyNames)
             => new(
                 HasForeignKeyBuilder(
-                    ResolveEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType))),
+                    ResolveEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType)))!,
                     dependentEntityType.ShortDisplayName(),
                     Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
@@ -155,12 +157,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected virtual InternalForeignKeyBuilder HasForeignKeyBuilder(
-            [CanBeNull] EntityType dependentEntityType,
+            [NotNull] EntityType dependentEntityType,
             [NotNull] string dependentEntityTypeName,
             [NotNull] IReadOnlyList<string> foreignKeyPropertyNames)
             => HasForeignKeyBuilder(
                 dependentEntityType, dependentEntityTypeName,
-                (b, d) => b.HasForeignKey(foreignKeyPropertyNames, d, ConfigurationSource.Explicit));
+                (b, d) => b.HasForeignKey(foreignKeyPropertyNames, d, ConfigurationSource.Explicit)!);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -175,10 +177,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] IReadOnlyList<MemberInfo> foreignKeyMembers)
             => HasForeignKeyBuilder(
                 dependentEntityType, dependentEntityTypeName,
-                (b, d) => b.HasForeignKey(foreignKeyMembers, d, ConfigurationSource.Explicit));
+                (b, d) => b.HasForeignKey(foreignKeyMembers, d, ConfigurationSource.Explicit)!);
 
         private InternalForeignKeyBuilder HasForeignKeyBuilder(
-            EntityType dependentEntityType,
+            EntityType? dependentEntityType,
             string dependentEntityTypeName,
             Func<InternalForeignKeyBuilder, EntityType, InternalForeignKeyBuilder> hasForeignKey)
         {
@@ -193,10 +195,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             using var batch = dependentEntityType.Model.DelayConventions();
             var builder = Builder.HasEntityTypes(
-                GetOtherEntityType(dependentEntityType), dependentEntityType, ConfigurationSource.Explicit);
+                GetOtherEntityType(dependentEntityType), dependentEntityType, ConfigurationSource.Explicit)!;
             builder = hasForeignKey(builder, dependentEntityType);
 
-            return batch.Run(builder);
+            return batch.Run(builder)!;
         }
 
         /// <summary>
@@ -221,11 +223,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] params string[] keyPropertyNames)
             => new(
                 HasPrincipalKeyBuilder(
-                    ResolveEntityType(Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName))),
+                    ResolveEntityType(Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName)))!,
                     principalEntityTypeName,
                     Check.NotNull(keyPropertyNames, nameof(keyPropertyNames))),
                 this,
-                inverted: Builder.Metadata.PrincipalEntityType.Name != ResolveEntityType(principalEntityTypeName).Name,
+                inverted: Builder.Metadata.PrincipalEntityType.Name != ResolveEntityType(principalEntityTypeName)!.Name,
                 principalKeySet: keyPropertyNames.Length > 0);
 
         /// <summary>
@@ -250,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] params string[] keyPropertyNames)
             => new(
                 HasPrincipalKeyBuilder(
-                    ResolveEntityType(Check.NotNull(principalEntityType, nameof(principalEntityType))),
+                    ResolveEntityType(Check.NotNull(principalEntityType, nameof(principalEntityType)))!,
                     principalEntityType.ShortDisplayName(),
                     Check.NotNull(keyPropertyNames, nameof(keyPropertyNames))),
                 this,
@@ -265,12 +267,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected virtual InternalForeignKeyBuilder HasPrincipalKeyBuilder(
-            [CanBeNull] EntityType principalEntityType,
+            [NotNull] EntityType principalEntityType,
             [NotNull] string principalEntityTypeName,
             [NotNull] IReadOnlyList<string> foreignKeyPropertyNames)
             => HasPrincipalKeyBuilder(
                 principalEntityType, principalEntityTypeName,
-                b => b.HasPrincipalKey(foreignKeyPropertyNames, ConfigurationSource.Explicit));
+                b => b.HasPrincipalKey(foreignKeyPropertyNames, ConfigurationSource.Explicit)!);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -285,10 +287,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] IReadOnlyList<MemberInfo> foreignKeyMembers)
             => HasPrincipalKeyBuilder(
                 principalEntityType, principalEntityTypeName,
-                b => b.HasPrincipalKey(foreignKeyMembers, ConfigurationSource.Explicit));
+                b => b.HasPrincipalKey(foreignKeyMembers, ConfigurationSource.Explicit)!);
 
         private InternalForeignKeyBuilder HasPrincipalKeyBuilder(
-            EntityType principalEntityType,
+            EntityType? principalEntityType,
             string principalEntityTypeName,
             Func<InternalForeignKeyBuilder, InternalForeignKeyBuilder> hasPrincipalKey)
         {
@@ -303,10 +305,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             using var batch = principalEntityType.Model.DelayConventions();
             var builder = Builder.HasEntityTypes(
-                principalEntityType, GetOtherEntityType(principalEntityType), ConfigurationSource.Explicit);
+                principalEntityType, GetOtherEntityType(principalEntityType), ConfigurationSource.Explicit)!;
             builder = hasPrincipalKey(builder);
 
-            return batch.Run(builder);
+            return batch.Run(builder)!;
         }
 
         /// <summary>
@@ -316,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual EntityType ResolveEntityType([NotNull] string entityTypeName)
+        protected virtual EntityType? ResolveEntityType([NotNull] string entityTypeName)
         {
             if (DeclaringEntityType.Name == entityTypeName)
             {
@@ -356,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual EntityType ResolveEntityType([NotNull] Type entityType)
+        protected virtual EntityType? ResolveEntityType([NotNull] Type entityType)
         {
             if (DeclaringEntityType.ClrType == entityType)
             {
@@ -376,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="required"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceReferenceBuilder IsRequired(bool required = true)
-            => new(Builder.IsRequired(required, ConfigurationSource.Explicit), this, requiredSet: true);
+            => new(Builder.IsRequired(required, ConfigurationSource.Explicit)!, this, requiredSet: true);
 
         /// <summary>
         ///     Configures the operation applied to dependent entities in the relationship when the
@@ -385,6 +387,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="deleteBehavior"> The action to perform. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceReferenceBuilder OnDelete(DeleteBehavior deleteBehavior)
-            => new(Builder.OnDelete(deleteBehavior, ConfigurationSource.Explicit), this);
+            => new(Builder.OnDelete(deleteBehavior, ConfigurationSource.Explicit)!, this);
     }
 }

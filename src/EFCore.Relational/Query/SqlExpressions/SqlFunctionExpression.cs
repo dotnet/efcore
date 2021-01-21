@@ -425,7 +425,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public static SqlFunctionExpression CreateNiladic(
             [NotNull] string name,
             [NotNull] Type type,
-            [CanBeNull] RelationalTypeMapping typeMapping)
+            [CanBeNull] RelationalTypeMapping? typeMapping)
             => new(name, nullable: true, type, typeMapping);
 
         /// <summary>
@@ -441,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             [NotNull] string schema,
             [NotNull] string name,
             [NotNull] Type type,
-            [CanBeNull] RelationalTypeMapping typeMapping)
+            [CanBeNull] RelationalTypeMapping? typeMapping)
             => new(schema, name, nullable: true, type, typeMapping);
 
         /// <summary>
@@ -457,7 +457,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             [NotNull] SqlExpression instance,
             [NotNull] string name,
             [NotNull] Type type,
-            [CanBeNull] RelationalTypeMapping typeMapping)
+            [CanBeNull] RelationalTypeMapping? typeMapping)
             => new(instance, name, nullable: true, instancePropagatesNullability: false, type, typeMapping);
 
         /// <summary>
@@ -475,7 +475,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             [NotNull] string name,
             [NotNull] IEnumerable<SqlExpression> arguments,
             [NotNull] Type type,
-            [CanBeNull] RelationalTypeMapping typeMapping)
+            [CanBeNull] RelationalTypeMapping? typeMapping)
             => new(
                 instance,
                 name,
@@ -499,7 +499,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             [NotNull] string name,
             [NotNull] IEnumerable<SqlExpression> arguments,
             [NotNull] Type type,
-            [CanBeNull] RelationalTypeMapping typeMapping)
+            [CanBeNull] RelationalTypeMapping? typeMapping)
             => new(name, arguments, nullable: true, argumentsPropagateNullability: arguments.Select(a => false), type, typeMapping);
 
         /// <summary>
@@ -517,7 +517,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             [NotNull] string name,
             [NotNull] IEnumerable<SqlExpression> arguments,
             [NotNull] Type type,
-            [CanBeNull] RelationalTypeMapping typeMapping)
+            [CanBeNull] RelationalTypeMapping? typeMapping)
             => new(schema, name, arguments, nullable: true, argumentsPropagateNullability: arguments.Select(a => false), type, typeMapping);
 
         #endregion

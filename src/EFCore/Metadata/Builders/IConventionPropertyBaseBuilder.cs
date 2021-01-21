@@ -4,6 +4,8 @@
 using System.Reflection;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
@@ -31,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionPropertyBaseBuilder HasField([CanBeNull] string fieldName, bool fromDataAnnotation = false);
+        IConventionPropertyBaseBuilder? HasField([CanBeNull] string? fieldName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the backing field to use for this property-like object.
@@ -42,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionPropertyBaseBuilder HasField([CanBeNull] FieldInfo fieldInfo, bool fromDataAnnotation = false);
+        IConventionPropertyBaseBuilder? HasField([CanBeNull] FieldInfo? fieldInfo, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the backing field can be set for this property-like object
@@ -51,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fieldName"> The field name. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the backing field can be set for this property-like object. </returns>
-        bool CanSetField([CanBeNull] string fieldName, bool fromDataAnnotation = false);
+        bool CanSetField([CanBeNull] string? fieldName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the backing field can be set for this property-like object
@@ -60,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fieldInfo"> The field. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the backing field can be set for this property-like object. </returns>
-        bool CanSetField([CanBeNull] FieldInfo fieldInfo, bool fromDataAnnotation = false);
+        bool CanSetField([CanBeNull] FieldInfo? fieldInfo, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the <see cref="PropertyAccessMode" /> to use for this property-like object.
@@ -71,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionPropertyBaseBuilder UsePropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation = false);
+        IConventionPropertyBaseBuilder? UsePropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the <see cref="PropertyAccessMode" /> can be set for this property-like object

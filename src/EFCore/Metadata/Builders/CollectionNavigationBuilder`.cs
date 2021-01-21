@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
@@ -38,8 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] IMutableEntityType declaringEntityType,
             [NotNull] IMutableEntityType relatedEntityType,
             MemberIdentity navigation,
-            [CanBeNull] IMutableForeignKey foreignKey,
-            [CanBeNull] IMutableSkipNavigation skipNavigation)
+            [CanBeNull] IMutableForeignKey? foreignKey,
+            [CanBeNull] IMutableSkipNavigation? skipNavigation)
             : base(declaringEntityType, relatedEntityType, navigation, foreignKey, skipNavigation)
         {
         }
@@ -53,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public new virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(
-            [CanBeNull] string navigationName = null)
+            [CanBeNull] string? navigationName = null)
         {
             return new(
                 DeclaringEntityType,
@@ -79,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(
-            [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> navigationExpression)
+            [CanBeNull] Expression<Func<TRelatedEntity, TEntity>>? navigationExpression)
             => new(
                 DeclaringEntityType,
                 RelatedEntityType,
@@ -94,13 +96,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object to further configure the relationship. </returns>
         public new virtual CollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany([NotNull] string navigationName)
         {
-            var leftName = Builder?.Metadata.PrincipalToDependent.Name;
+            var leftName = Builder?.Metadata.PrincipalToDependent!.Name;
             var collectionCollectionBuilder =
                 new CollectionCollectionBuilder<TRelatedEntity, TEntity>(
                     RelatedEntityType,
                     DeclaringEntityType,
                     WithLeftManyNavigation(navigationName),
-                    WithRightManyNavigation(navigationName, leftName));
+                    WithRightManyNavigation(navigationName, leftName!));
 
             Configure(collectionCollectionBuilder);
 
@@ -130,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                         Builder.Metadata.DeclaringEntityType.DisplayName()));
             }
 
-            var leftName = Builder?.Metadata.PrincipalToDependent.Name;
+            var leftName = Builder?.Metadata.PrincipalToDependent!.Name;
             var collectionCollectionBuilder =
                 new CollectionCollectionBuilder<TRelatedEntity, TEntity>(
                     RelatedEntityType,

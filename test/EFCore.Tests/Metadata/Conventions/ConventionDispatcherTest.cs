@@ -2047,7 +2047,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 IConventionSkipNavigationBuilder skipNavigationBuilder,
                 IConventionContext<IConventionSkipNavigationBuilder> context)
             {
-                Assert.NotNull(skipNavigationBuilder.Metadata.Builder);
+                Assert.True(skipNavigationBuilder.Metadata.IsInModel);
 
                 Calls.Add(skipNavigationBuilder.Metadata.Name);
 
@@ -2153,7 +2153,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 IConventionAnnotation oldAnnotation,
                 IConventionContext<IConventionAnnotation> context)
             {
-                Assert.NotNull(navigationBuilder.Metadata.Builder);
+                Assert.True(navigationBuilder.Metadata.IsInModel);
 
                 Calls.Add(annotation?.Value);
 
@@ -2244,7 +2244,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 IConventionForeignKey oldForeignKey,
                 IConventionContext<IConventionForeignKey> context)
             {
-                Assert.NotNull(navigationBuilder.Metadata.Builder);
+                Assert.True(navigationBuilder.Metadata.IsInModel);
 
                 Calls.Add(foreignKey);
 
@@ -2342,7 +2342,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 IConventionSkipNavigation oldInverse,
                 IConventionContext<IConventionSkipNavigation> context)
             {
-                Assert.NotNull(skipNavigationBuilder.Metadata.Builder);
+                Assert.True(skipNavigationBuilder.Metadata.IsInModel);
 
                 Calls.Add(inverse.Name);
 
@@ -3097,7 +3097,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 IConventionPropertyBuilder propertyBuilder,
                 IConventionContext<IConventionPropertyBuilder> context)
             {
-                Assert.NotNull(propertyBuilder.Metadata.Builder);
+                Assert.True(propertyBuilder.Metadata.IsInModel);
 
                 Calls.Add(propertyBuilder.Metadata.Name);
 
@@ -3336,7 +3336,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 FieldInfo oldFieldInfo,
                 IConventionContext<FieldInfo> context)
             {
-                Assert.NotNull(propertyBuilder.Metadata.Builder);
+                Assert.True(propertyBuilder.Metadata.IsInModel);
 
                 Calls.Add(oldFieldInfo?.Name);
 
@@ -3437,7 +3437,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 IConventionAnnotation oldAnnotation,
                 IConventionContext<IConventionAnnotation> context)
             {
-                Assert.NotNull(propertyBuilder.Metadata.Builder);
+                Assert.True(propertyBuilder.Metadata.IsInModel);
 
                 Calls.Add(annotation?.Value);
 

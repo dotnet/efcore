@@ -60,6 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private bool? _isKeyless;
         private EntityType? _baseType;
         private ChangeTrackingStrategy? _changeTrackingStrategy;
+        private InternalEntityTypeBuilder? _builder;
 
         private ConfigurationSource? _primaryKeyConfigurationSource;
         private ConfigurationSource? _isKeylessConfigurationSource;
@@ -87,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             : base(name, Model.DefaultPropertyBagType, model, configurationSource)
         {
             _properties = new SortedDictionary<string, Property>(new PropertyNameComparer(this));
-            Builder = new InternalEntityTypeBuilder(this, model.Builder);
+            _builder = new InternalEntityTypeBuilder(this, model.Builder);
         }
 
         /// <summary>
@@ -112,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             _properties = new SortedDictionary<string, Property>(new PropertyNameComparer(this));
-            Builder = new InternalEntityTypeBuilder(this, model.Builder);
+            _builder = new InternalEntityTypeBuilder(this, model.Builder);
         }
 
         /// <summary>
@@ -137,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             _properties = new SortedDictionary<string, Property>(new PropertyNameComparer(this));
-            Builder = new InternalEntityTypeBuilder(this, model.Builder);
+            _builder = new InternalEntityTypeBuilder(this, model.Builder);
         }
 
         /// <summary>
@@ -146,13 +147,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalEntityTypeBuilder? Builder
+        public virtual InternalEntityTypeBuilder Builder
         {
-            get;
-
-            [param: CanBeNull]
-            set;
+            [DebuggerStepThrough] get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool IsInModel
+            => _builder is not null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void SetRemovedFromModel()
+            => _builder = null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -247,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual EntityType? SetBaseType([CanBeNull] EntityType? newBaseType, ConfigurationSource configurationSource)
         {
             EnsureReadonly(false);
-            Check.DebugAssert(Builder != null, "Builder is null");
+            Check.DebugAssert(IsInModel, "The entity type has been removed from the model");
 
             if (_baseType == newBaseType)
             {
@@ -311,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             UpdateBaseTypeConfigurationSource(configurationSource);
             newBaseType?.UpdateConfigurationSource(configurationSource);
 
-            return (EntityType)Model.ConventionDispatcher.OnEntityTypeBaseTypeChanged(Builder, newBaseType, originalBaseType);
+            return (EntityType?)Model.ConventionDispatcher.OnEntityTypeBaseTypeChanged(Builder, newBaseType, originalBaseType);
         }
 
         /// <summary>
@@ -344,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            Builder = null;
+            _builder = null;
             _baseType?._directlyDerivedTypes.Remove(this);
 
             Model.ConventionDispatcher.OnEntityTypeRemoved(Model.Builder, this);
@@ -466,7 +482,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <param name="annotation"> The annotation set. </param>
         /// <param name="oldAnnotation"> The old annotation. </param>
         /// <returns> The annotation that was set. </returns>
-        protected override IConventionAnnotation OnAnnotationSet(
+        protected override IConventionAnnotation? OnAnnotationSet(
             string name,
             IConventionAnnotation? annotation,
             IConventionAnnotation? oldAnnotation)
@@ -533,7 +549,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource configurationSource)
         {
             EnsureReadonly(false);
-            Check.DebugAssert(Builder != null, "Builder is null");
+            Check.DebugAssert(IsInModel, "The entity type has been removed from the model");
 
             if (_baseType != null)
             {
@@ -602,7 +618,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 SetPrimaryKeyConfigurationSource(null);
             }
 
-            return (Key)Model.ConventionDispatcher.OnPrimaryKeyChanged(Builder, newKey, oldPrimaryKey);
+            return (Key?)Model.ConventionDispatcher.OnPrimaryKeyChanged(Builder, newKey, oldPrimaryKey);
         }
 
         /// <summary>
@@ -718,7 +734,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 if (FindProperty(property.Name) != property
-                    || property.Builder == null)
+                    || !property.IsInModel)
                 {
                     throw new InvalidOperationException(CoreStrings.KeyPropertiesWrongEntity(properties.Format(), this.DisplayName()));
                 }
@@ -831,7 +847,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Key? RemoveKey([NotNull] Key key)
         {
             Check.NotNull(key, nameof(key));
-            Check.DebugAssert(Builder != null, "Builder is null");
+            Check.DebugAssert(IsInModel, "The entity type has been removed from the model");
             EnsureReadonly(false);
 
             if (key.DeclaringEntityType != this)
@@ -850,7 +866,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var removed = _keys.Remove(key.Properties);
             Check.DebugAssert(removed, "removed is false");
-            key.Builder = null;
+            key.SetRemovedFromModel();
 
             foreach (var property in key.Properties)
             {
@@ -864,7 +880,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            return (Key)Model.ConventionDispatcher.OnKeyRemoved(Builder, key);
+            return (Key?)Model.ConventionDispatcher.OnKeyRemoved(Builder, key);
         }
 
         private void CheckKeyNotInUse(Key key)
@@ -1279,7 +1295,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual ForeignKey? RemoveForeignKey([NotNull] ForeignKey foreignKey)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
-            Check.DebugAssert(Builder != null, "Builder is null");
+            Check.DebugAssert(IsInModel, "The entity type has been removed from the model");
             EnsureReadonly(false);
 
             if (foreignKey.DeclaringEntityType != this)
@@ -1316,11 +1332,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             OnForeignKeyUpdating(foreignKey);
 
-            foreignKey.Builder = null;
+            foreignKey.SetRemovedFromModel();
 
             if (foreignKey.DependentToPrincipal != null)
             {
-                foreignKey.DependentToPrincipal.Builder = null;
+                foreignKey.DependentToPrincipal.SetRemovedFromModel();
                 Model.ConventionDispatcher.OnNavigationRemoved(
                     Builder,
                     foreignKey.PrincipalEntityType.Builder,
@@ -1330,7 +1346,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (foreignKey.PrincipalToDependent != null)
             {
-                foreignKey.PrincipalToDependent.Builder = null;
+                foreignKey.PrincipalToDependent.SetRemovedFromModel();
                 Model.ConventionDispatcher.OnNavigationRemoved(
                     foreignKey.PrincipalEntityType.Builder,
                     Builder,
@@ -1338,7 +1354,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     foreignKey.PrincipalToDependent.GetIdentifyingMemberInfo());
             }
 
-            return (ForeignKey)Model.ConventionDispatcher.OnForeignKeyRemoved(Builder, foreignKey);
+            return (ForeignKey?)Model.ConventionDispatcher.OnForeignKeyRemoved(Builder, foreignKey);
         }
 
         /// <summary>
@@ -1460,7 +1476,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                memberInfo = ClrType?.GetMembersInHierarchy(name).FirstOrDefault();
+                memberInfo = ClrType.GetMembersInHierarchy(name).FirstOrDefault();
             }
 
             if (memberInfo != null)
@@ -1625,7 +1641,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                memberInfo = ClrType?.GetMembersInHierarchy(name).FirstOrDefault();
+                memberInfo = ClrType.GetMembersInHierarchy(name).FirstOrDefault();
             }
 
             if (memberInfo != null)
@@ -1683,7 +1699,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return memberInfo.GetMemberType();
                 }
 
-                var clashingMemberInfo = ClrType?.GetMembersInHierarchy(name).FirstOrDefault();
+                var clashingMemberInfo = ClrType.GetMembersInHierarchy(name).FirstOrDefault();
                 if (clashingMemberInfo != null)
                 {
                     throw new InvalidOperationException(
@@ -1809,7 +1825,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual SkipNavigation? RemoveSkipNavigation([NotNull] SkipNavigation navigation)
         {
             Check.NotNull(navigation, nameof(navigation));
-            Check.DebugAssert(Builder != null, "Builder is null");
+            Check.DebugAssert(IsInModel, "The entity type has been removed from the model");
             EnsureReadonly(false);
 
             if (navigation.DeclaringEntityType != this)
@@ -1840,7 +1856,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             removed = navigation.TargetEntityType.DeclaredReferencingSkipNavigations!.Remove(navigation);
             Check.DebugAssert(removed, "removed is false");
 
-            navigation.Builder = null;
+            navigation.SetRemovedFromModel();
 
             return (SkipNavigation?)Model.ConventionDispatcher.OnSkipNavigationRemoved(Builder, navigation);
         }
@@ -2002,7 +2018,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 if (FindProperty(property.Name) != property
-                    || property.Builder == null)
+                    || !property.IsInModel)
                 {
                     throw new InvalidOperationException(CoreStrings.IndexPropertiesWrongEntity(properties.Format(), this.DisplayName()));
                 }
@@ -2191,7 +2207,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Index? RemoveIndex([NotNull] Index index)
         {
             Check.NotNull(index, nameof(index));
-            Check.DebugAssert(Builder != null, "Builder is null");
+            Check.DebugAssert(IsInModel, "The entity type has been removed from the model");
             EnsureReadonly(false);
 
             if (index.Name == null)
@@ -2211,7 +2227,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            index.Builder = null;
+            index.SetRemovedFromModel();
 
             foreach (var property in index.Properties)
             {
@@ -2263,7 +2279,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return AddProperty(
                 name,
                 propertyType,
-                ClrType?.GetMembersInHierarchy(name).FirstOrDefault(),
+                ClrType.GetMembersInHierarchy(name).FirstOrDefault(),
                 typeConfigurationSource,
                 configurationSource);
         }
@@ -2294,7 +2310,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string name,
             ConfigurationSource configurationSource)
         {
-            var clrMember = ClrType?.GetMembersInHierarchy(name).FirstOrDefault();
+            var clrMember = ClrType.GetMembersInHierarchy(name).FirstOrDefault();
             if (clrMember == null)
             {
                 throw new InvalidOperationException(CoreStrings.NoPropertyType(name, this.DisplayName()));
@@ -2318,7 +2334,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotNull(name, nameof(name));
             Check.NotNull(propertyType, nameof(propertyType));
-            Check.DebugAssert(Builder != null, "Builder is null");
+            Check.DebugAssert(IsInModel, "The entity type has been removed from the model");
             EnsureReadonly(false);
 
             var conflictingMember = FindMembersInHierarchy(name).FirstOrDefault();
@@ -2348,7 +2364,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             else
             {
                 Check.DebugAssert(
-                    ClrType?.GetMembersInHierarchy(name).FirstOrDefault() == null,
+                    ClrType.GetMembersInHierarchy(name).FirstOrDefault() == null,
                     "MemberInfo not supplied for non-shadow property");
             }
 
@@ -2492,7 +2508,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Property? RemoveProperty([NotNull] Property property)
         {
             Check.NotNull(property, nameof(property));
-            Check.DebugAssert(Builder != null, "Builder is null");
+            Check.DebugAssert(IsInModel, "The entity type has been removed from the model");
             EnsureReadonly(false);
 
             if (property.DeclaringEntityType != this)
@@ -2509,7 +2525,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var removed = _properties.Remove(property.Name);
             Check.DebugAssert(removed, "removed is false");
 
-            property.Builder = null;
+            property.SetRemovedFromModel();
 
             return (Property?)Model.ConventionDispatcher.OnPropertyRemoved(Builder, property);
         }
@@ -2801,7 +2817,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual ServiceProperty RemoveServiceProperty([NotNull] ServiceProperty property)
         {
             Check.NotNull(property, nameof(property));
-            Check.DebugAssert(Builder != null, "Builder is null");
+            Check.DebugAssert(IsInModel, "The entity type has been removed from the model");
             EnsureReadonly(false);
 
             if (property.DeclaringEntityType != this)
@@ -2816,7 +2832,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var removed = _serviceProperties.Remove(property.Name);
             Check.DebugAssert(removed, "removed is false");
 
-            property.Builder = null;
+            property.SetRemovedFromModel();
 
             return property;
         }
@@ -2866,7 +2882,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override string OnTypeMemberIgnored(string name)
+        public override string? OnTypeMemberIgnored(string name)
             => Model.ConventionDispatcher.OnEntityTypeMemberIgnored(Builder, name);
 
         #endregion
@@ -2899,7 +2915,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 data.Add(seed);
                 var type = rawSeed.GetType();
 
-                if (ClrType?.IsAssignableFrom(type) == true)
+                if (ClrType.IsAssignableFrom(type) == true)
                 {
                     // non-anonymous type
                     foreach (var propertyBase in properties.Values)
@@ -2995,8 +3011,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             foreach (var entity in data)
             {
-                if (ClrType != null
-                    && ClrType != entity.GetType()
+                if (ClrType != entity.GetType()
                     && ClrType.IsAssignableFrom(entity.GetType()))
                 {
                     throw new InvalidOperationException(
@@ -3061,32 +3076,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual string? CheckChangeTrackingStrategy(ChangeTrackingStrategy value, bool requireFullNotifications)
         {
-            if (ClrType != null)
+            if (requireFullNotifications)
             {
-                if (requireFullNotifications)
+                if (value != ChangeTrackingStrategy.ChangingAndChangedNotifications
+                    && value != ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
                 {
-                    if (value != ChangeTrackingStrategy.ChangingAndChangedNotifications
-                        && value != ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
-                    {
-                        return CoreStrings.FullChangeTrackingRequired(
-                            this.DisplayName(), value, nameof(ChangeTrackingStrategy.ChangingAndChangedNotifications),
-                            nameof(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues));
-                    }
+                    return CoreStrings.FullChangeTrackingRequired(
+                        this.DisplayName(), value, nameof(ChangeTrackingStrategy.ChangingAndChangedNotifications),
+                        nameof(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues));
                 }
-                else
+            }
+            else
+            {
+                if (value != ChangeTrackingStrategy.Snapshot
+                    && !typeof(INotifyPropertyChanged).IsAssignableFrom(ClrType))
                 {
-                    if (value != ChangeTrackingStrategy.Snapshot
-                        && !typeof(INotifyPropertyChanged).IsAssignableFrom(ClrType))
-                    {
-                        return CoreStrings.ChangeTrackingInterfaceMissing(this.DisplayName(), value, nameof(INotifyPropertyChanged));
-                    }
+                    return CoreStrings.ChangeTrackingInterfaceMissing(this.DisplayName(), value, nameof(INotifyPropertyChanged));
+                }
 
-                    if ((value == ChangeTrackingStrategy.ChangingAndChangedNotifications
-                            || value == ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
-                        && !typeof(INotifyPropertyChanging).IsAssignableFrom(ClrType))
-                    {
-                        return CoreStrings.ChangeTrackingInterfaceMissing(this.DisplayName(), value, nameof(INotifyPropertyChanging));
-                    }
+                if ((value == ChangeTrackingStrategy.ChangingAndChangedNotifications
+                        || value == ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
+                    && !typeof(INotifyPropertyChanging).IsAssignableFrom(ClrType))
+                {
+                    return CoreStrings.ChangeTrackingInterfaceMissing(this.DisplayName(), value, nameof(INotifyPropertyChanging));
                 }
             }
 
@@ -3245,7 +3257,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionEntityTypeBuilder? IConventionEntityType.Builder
+        IConventionEntityTypeBuilder IConventionEntityType.Builder
         {
             [DebuggerStepThrough]
             get => Builder;
@@ -3257,7 +3269,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionAnnotatableBuilder? IConventionAnnotatable.Builder
+        IConventionAnnotatableBuilder IConventionAnnotatable.Builder
         {
             [DebuggerStepThrough]
             get => Builder;
@@ -3353,9 +3365,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionEntityType? IConventionEntityType.SetBaseType(IConventionEntityType entityType, bool fromDataAnnotation)
+        IConventionEntityType? IConventionEntityType.SetBaseType(IConventionEntityType? entityType, bool fromDataAnnotation)
             => SetBaseType(
-                (EntityType)entityType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+                (EntityType?)entityType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3962,7 +3974,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [DebuggerStepThrough]
         IMutableProperty IMutableEntityType.AddProperty(string name, Type propertyType, MemberInfo? memberInfo)
             => AddProperty(
-                name, propertyType, memberInfo ?? ClrType?.GetMembersInHierarchy(name).FirstOrDefault(),
+                name, propertyType, memberInfo ?? ClrType.GetMembersInHierarchy(name).FirstOrDefault(),
                 ConfigurationSource.Explicit, ConfigurationSource.Explicit)!;
 
         /// <summary>
@@ -3981,7 +3993,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => AddProperty(
                 name,
                 propertyType,
-                memberInfo ?? ClrType?.GetMembersInHierarchy(name).FirstOrDefault(),
+                memberInfo ?? ClrType.GetMembersInHierarchy(name).FirstOrDefault(),
                 setTypeConfigurationSource
                     ? fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention
                     : (ConfigurationSource?)null,

@@ -4,6 +4,8 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -20,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         void ProcessEntityTypeBaseTypeChanged(
             [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] IConventionEntityType newBaseType,
-            [CanBeNull] IConventionEntityType oldBaseType,
+            [CanBeNull] IConventionEntityType? newBaseType,
+            [CanBeNull] IConventionEntityType? oldBaseType,
             [NotNull] IConventionContext<IConventionEntityType> context);
     }
 }

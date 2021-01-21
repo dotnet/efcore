@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
@@ -76,10 +78,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(configureRight, nameof(configureRight));
             Check.NotNull(configureLeft, nameof(configureLeft));
 
-            var existingJoinEntityType = (EntityType)
+            var existingJoinEntityType = (EntityType?)
                 (LeftNavigation.ForeignKey?.DeclaringEntityType
                     ?? RightNavigation.ForeignKey?.DeclaringEntityType);
-            EntityType joinEntityType = null;
+            EntityType? joinEntityType = null;
             if (existingJoinEntityType != null)
             {
                 if (existingJoinEntityType.ClrType == typeof(TJoinEntity)
@@ -95,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             if (joinEntityType == null)
             {
-                joinEntityType = ModelBuilder.Entity(typeof(TJoinEntity), ConfigurationSource.Explicit).Metadata;
+                joinEntityType = ModelBuilder.Entity(typeof(TJoinEntity), ConfigurationSource.Explicit)!.Metadata;
             }
 
             var entityTypeBuilder = new EntityTypeBuilder<TJoinEntity>(joinEntityType);
@@ -126,10 +128,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(configureRight, nameof(configureRight));
             Check.NotNull(configureLeft, nameof(configureLeft));
 
-            var existingJoinEntityType = (EntityType)
+            var existingJoinEntityType = (EntityType?)
                 (LeftNavigation.ForeignKey?.DeclaringEntityType
                     ?? RightNavigation.ForeignKey?.DeclaringEntityType);
-            EntityType joinEntityType = null;
+            EntityType? joinEntityType = null;
             if (existingJoinEntityType != null)
             {
                 if (existingJoinEntityType.ClrType == typeof(TJoinEntity)
@@ -157,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                         throw new InvalidOperationException(CoreStrings.TypeNotMarkedAsShared(typeof(TJoinEntity).DisplayName()));
                     }
 
-                    joinEntityType = ModelBuilder.SharedTypeEntity(joinEntityName, typeof(TJoinEntity), ConfigurationSource.Explicit)
+                    joinEntityType = ModelBuilder.SharedTypeEntity(joinEntityName, typeof(TJoinEntity), ConfigurationSource.Explicit)!
                         .Metadata;
                 }
             }

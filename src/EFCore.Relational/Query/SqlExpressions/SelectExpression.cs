@@ -2522,7 +2522,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private void AddJoin(
             JoinType joinType,
             SelectExpression innerSelectExpression,
-            Type transparentIdentifierType,
+            Type? transparentIdentifierType,
             SqlExpression? joinPredicate)
         {
             AddJoin(joinType, ref innerSelectExpression, joinPredicate);
@@ -2570,7 +2570,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public void AddInnerJoin(
             [NotNull] SelectExpression innerSelectExpression,
             [NotNull] SqlExpression joinPredicate,
-            [CanBeNull] Type transparentIdentifierType)
+            [CanBeNull] Type? transparentIdentifierType)
         {
             Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
             Check.NotNull(joinPredicate, nameof(joinPredicate));
@@ -2588,7 +2588,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public void AddLeftJoin(
             [NotNull] SelectExpression innerSelectExpression,
             [NotNull] SqlExpression joinPredicate,
-            [CanBeNull] Type transparentIdentifierType)
+            [CanBeNull] Type? transparentIdentifierType)
         {
             Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
             Check.NotNull(joinPredicate, nameof(joinPredicate));
@@ -2602,7 +2602,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="innerSelectExpression"> A <see cref="SelectExpression" /> to join with. </param>
         /// <param name="transparentIdentifierType"> The type of the result generated after performing the join. </param>
         [Obsolete("Use the other overloads.")]
-        public void AddCrossJoin([NotNull] SelectExpression innerSelectExpression, [CanBeNull] Type transparentIdentifierType)
+        public void AddCrossJoin([NotNull] SelectExpression innerSelectExpression, [CanBeNull] Type? transparentIdentifierType)
         {
             Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
 
@@ -2615,7 +2615,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="innerSelectExpression"> A <see cref="SelectExpression" /> to join with. </param>
         /// <param name="transparentIdentifierType"> The type of the result generated after performing the join. </param>
         [Obsolete("Use the other overloads.")]
-        public void AddCrossApply([NotNull] SelectExpression innerSelectExpression, [CanBeNull] Type transparentIdentifierType)
+        public void AddCrossApply([NotNull] SelectExpression innerSelectExpression, [CanBeNull] Type? transparentIdentifierType)
         {
             Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
 
@@ -2628,7 +2628,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="innerSelectExpression"> A <see cref="SelectExpression" /> to join with. </param>
         /// <param name="transparentIdentifierType"> The type of the result generated after performing the join. </param>
         [Obsolete("Use the other overloads.")]
-        public void AddOuterApply([NotNull] SelectExpression innerSelectExpression, [CanBeNull] Type transparentIdentifierType)
+        public void AddOuterApply([NotNull] SelectExpression innerSelectExpression, [CanBeNull] Type? transparentIdentifierType)
         {
             Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
 
@@ -3107,14 +3107,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public SelectExpression Update(
             [NotNull] IReadOnlyList<ProjectionExpression> projections,
             [NotNull] IReadOnlyList<TableExpressionBase> tables,
-            [CanBeNull] SqlExpression predicate,
+            [CanBeNull] SqlExpression? predicate,
             [NotNull] IReadOnlyList<SqlExpression> groupBy,
-            [CanBeNull] SqlExpression having,
+            [CanBeNull] SqlExpression? having,
             [NotNull] IReadOnlyList<OrderingExpression> orderings,
-            [CanBeNull] SqlExpression limit,
-            [CanBeNull] SqlExpression offset,
+            [CanBeNull] SqlExpression? limit,
+            [CanBeNull] SqlExpression? offset,
             bool distinct,
-            [CanBeNull] string alias)
+            [CanBeNull] string? alias)
         {
             Check.NotNull(projections, nameof(projections));
             Check.NotNull(tables, nameof(tables));

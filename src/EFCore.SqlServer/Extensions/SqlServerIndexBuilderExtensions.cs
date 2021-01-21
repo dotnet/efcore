@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -57,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionIndexBuilder IsClustered(
+        public static IConventionIndexBuilder? IsClustered(
             [NotNull] this IConventionIndexBuilder indexBuilder,
             bool? clustered,
             bool fromDataAnnotation = false)
@@ -161,9 +163,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionIndexBuilder IncludeProperties(
+        public static IConventionIndexBuilder? IncludeProperties(
             [NotNull] this IConventionIndexBuilder indexBuilder,
-            [NotNull] IReadOnlyList<string> propertyNames,
+            [CanBeNull] IReadOnlyList<string>? propertyNames,
             bool fromDataAnnotation = false)
         {
             if (indexBuilder.CanSetIncludeProperties(propertyNames, fromDataAnnotation))
@@ -185,14 +187,16 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the given include properties can be set. </returns>
         public static bool CanSetIncludeProperties(
             [NotNull] this IConventionIndexBuilder indexBuilder,
-            [CanBeNull] IReadOnlyList<string> propertyNames,
+            [CanBeNull] IReadOnlyList<string>? propertyNames,
             bool fromDataAnnotation = false)
         {
             Check.NotNull(indexBuilder, nameof(indexBuilder));
 
             return (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
                 .Overrides(indexBuilder.Metadata.GetIncludePropertiesConfigurationSource())
-                || propertyNames.SequenceEqual(indexBuilder.Metadata.GetIncludeProperties());
+                || indexBuilder.Metadata.GetIncludeProperties() is var currentProperties
+                && ((propertyNames is null && currentProperties is null)
+                    || (propertyNames is not null && currentProperties is not null && propertyNames.SequenceEqual(currentProperties)));
         }
 
         /// <summary>
@@ -231,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionIndexBuilder IsCreatedOnline(
+        public static IConventionIndexBuilder? IsCreatedOnline(
             [NotNull] this IConventionIndexBuilder indexBuilder,
             bool? createdOnline,
             bool fromDataAnnotation = false)
@@ -303,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionIndexBuilder HasFillFactor(
+        public static IConventionIndexBuilder? HasFillFactor(
             [NotNull] this IConventionIndexBuilder indexBuilder,
             int? fillFactor,
             bool fromDataAnnotation = false)

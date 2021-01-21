@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static IModel Add(
             [NotNull] IConventionModel model,
-            [CanBeNull] IRelationalAnnotationProvider relationalAnnotationProvider)
+            [CanBeNull] IRelationalAnnotationProvider? relationalAnnotationProvider)
         {
             if (model.FindAnnotation(RelationalAnnotationNames.RelationalModel) != null)
             {
@@ -254,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var column = (ColumnBase?)defaultTable.FindColumn(columnName);
                 if (column == null)
                 {
-                    column = new ColumnBase(columnName, property.GetColumnType(), defaultTable);
+                    column = new ColumnBase(columnName, property.GetColumnType()!, defaultTable);
                     column.IsNullable = property.IsColumnNullable();
                     defaultTable.Columns.Add(columnName, column);
                 }
@@ -264,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 var columnMapping = new ColumnMappingBase(
-                    property, column, property.FindRelationalTypeMapping(), tableMapping);
+                    property, column, property.FindRelationalTypeMapping()!, tableMapping);
                 tableMapping.ColumnMappings.Add(columnMapping);
                 column.PropertyMappings.Add(columnMapping);
 
@@ -348,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         var column = (Column?)table.FindColumn(columnName);
                         if (column == null)
                         {
-                            column = new Column(columnName, property.GetColumnType(mappedTable), table);
+                            column = new Column(columnName, property.GetColumnType(mappedTable)!, table);
                             column.IsNullable = property.IsColumnNullable(mappedTable);
                             table.Columns.Add(columnName, column);
                         }
@@ -358,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         }
 
                         var columnMapping = new ColumnMapping(
-                            property, column, property.FindRelationalTypeMapping(mappedTable), tableMapping);
+                            property, column, property.FindRelationalTypeMapping(mappedTable)!, tableMapping);
                         tableMapping.ColumnMappings.Add(columnMapping);
                         column.PropertyMappings.Add(columnMapping);
 
@@ -439,7 +439,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     var column = (ViewColumn?)view.FindColumn(columnName);
                     if (column == null)
                     {
-                        column = new ViewColumn(columnName, property.GetColumnType(mappedView), view);
+                        column = new ViewColumn(columnName, property.GetColumnType(mappedView)!, view);
                         column.IsNullable = property.IsColumnNullable(mappedView);
                         view.Columns.Add(columnName, column);
                     }
@@ -449,7 +449,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
 
                     var columnMapping = new ViewColumnMapping(
-                        property, column, property.FindRelationalTypeMapping(mappedView), viewMapping);
+                        property, column, property.FindRelationalTypeMapping(mappedView)!, viewMapping);
                     viewMapping.ColumnMappings.Add(columnMapping);
                     column.PropertyMappings.Add(columnMapping);
 
@@ -545,7 +545,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     var column = (SqlQueryColumn?)sqlQuery.FindColumn(columnName);
                     if (column == null)
                     {
-                        column = new SqlQueryColumn(columnName, property.GetColumnType(mappedQuery), sqlQuery);
+                        column = new SqlQueryColumn(columnName, property.GetColumnType(mappedQuery)!, sqlQuery);
                         column.IsNullable = property.IsColumnNullable(mappedQuery);
                         sqlQuery.Columns.Add(columnName, column);
                     }
@@ -555,7 +555,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
 
                     var columnMapping = new SqlQueryColumnMapping(
-                        property, column, property.FindRelationalTypeMapping(mappedQuery), queryMapping);
+                        property, column, property.FindRelationalTypeMapping(mappedQuery)!, queryMapping);
                     queryMapping.ColumnMappings.Add(columnMapping);
                     column.PropertyMappings.Add(columnMapping);
 
@@ -695,7 +695,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var column = (FunctionColumn?)storeFunction.FindColumn(columnName);
                 if (column == null)
                 {
-                    column = new FunctionColumn(columnName, property.GetColumnType(mappedFunction), storeFunction);
+                    column = new FunctionColumn(columnName, property.GetColumnType(mappedFunction)!, storeFunction);
                     column.IsNullable = property.IsColumnNullable(mappedFunction);
                     storeFunction.Columns.Add(columnName, column);
                 }
@@ -705,7 +705,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 var columnMapping = new FunctionColumnMapping(
-                    property, column, property.FindRelationalTypeMapping(mappedFunction), functionMapping);
+                    property, column, property.FindRelationalTypeMapping(mappedFunction)!, functionMapping);
                 functionMapping.ColumnMappings.Add(columnMapping);
                 column.PropertyMappings.Add(columnMapping);
 

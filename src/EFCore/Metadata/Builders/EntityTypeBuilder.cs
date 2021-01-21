@@ -14,6 +14,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
@@ -75,16 +77,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="name"> The name of the base type or <see langword="null" /> to indicate no base type. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual EntityTypeBuilder HasBaseType([CanBeNull] string name)
-            => new(Builder.HasBaseType(name, ConfigurationSource.Explicit).Metadata);
+        public virtual EntityTypeBuilder HasBaseType([CanBeNull] string? name)
+            => new(Builder.HasBaseType(name, ConfigurationSource.Explicit)!.Metadata);
 
         /// <summary>
         ///     Sets the base type of this entity type in an inheritance hierarchy.
         /// </summary>
         /// <param name="entityType"> The base type or <see langword="null" /> to indicate no base type. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual EntityTypeBuilder HasBaseType([CanBeNull] Type entityType)
-            => new(Builder.HasBaseType(entityType, ConfigurationSource.Explicit).Metadata);
+        public virtual EntityTypeBuilder HasBaseType([CanBeNull] Type? entityType)
+            => new(Builder.HasBaseType(entityType, ConfigurationSource.Explicit)!.Metadata);
 
         /// <summary>
         ///     Sets the properties that make up the primary key for this entity type.
@@ -92,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyNames"> The names of the properties that make up the primary key. </param>
         /// <returns> An object that can be used to configure the primary key. </returns>
         public virtual KeyBuilder HasKey([NotNull] params string[] propertyNames)
-            => new(Builder.PrimaryKey(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit).Metadata);
+            => new(Builder.PrimaryKey(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit)!.Metadata);
 
         /// <summary>
         ///     Creates an alternate key in the model for this entity type if one does not already exist over the specified
@@ -102,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyNames"> The names of the properties that make up the key. </param>
         /// <returns> An object that can be used to configure the key. </returns>
         public virtual KeyBuilder HasAlternateKey([NotNull] params string[] propertyNames)
-            => new(Builder.HasKey(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit).Metadata);
+            => new(Builder.HasKey(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit)!.Metadata);
 
         /// <summary>
         ///     Configures the entity type to have no keys. It will only be usable for queries.
@@ -131,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => new(
                 Builder.Property(
                     Check.NotEmpty(propertyName, nameof(propertyName)),
-                    ConfigurationSource.Explicit).Metadata);
+                    ConfigurationSource.Explicit)!.Metadata);
 
         /// <summary>
         ///     <para>
@@ -153,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => new(
                 Builder.Property(
                     typeof(TProperty),
-                    Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit).Metadata);
+                    Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
 
         /// <summary>
         ///     <para>
@@ -175,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => new(
                 Builder.Property(
                     Check.NotNull(propertyType, nameof(propertyType)),
-                    Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit).Metadata);
+                    Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
 
         /// <summary>
         ///     <para>
@@ -195,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => new(
                 Builder.IndexerProperty(
                     typeof(TProperty),
-                    Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit).Metadata);
+                    Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
 
         /// <summary>
         ///     <para>
@@ -215,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => new(
                 Builder.IndexerProperty(
                     Check.NotNull(propertyType, nameof(propertyType)),
-                    Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit).Metadata);
+                    Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
 
         /// <summary>
         ///     <para>
@@ -248,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="filter"> The LINQ predicate expression. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual EntityTypeBuilder HasQueryFilter([CanBeNull] LambdaExpression filter)
+        public virtual EntityTypeBuilder HasQueryFilter([CanBeNull] LambdaExpression? filter)
         {
             Builder.HasQueryFilter(filter, ConfigurationSource.Explicit);
 
@@ -264,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyNames"> The names of the properties that make up the index. </param>
         /// <returns> An object that can be used to configure the index. </returns>
         public virtual IndexBuilder HasIndex([NotNull] params string[] propertyNames)
-            => new(Builder.HasIndex(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit).Metadata);
+            => new(Builder.HasIndex(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit)!.Metadata);
 
         /// <summary>
         ///     Configures an index on the specified properties and with the given name.
@@ -281,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Builder.HasIndex(
                     Check.NotEmpty(propertyNames, nameof(propertyNames)),
                     Check.NotEmpty(name, nameof(name)),
-                    ConfigurationSource.Explicit).Metadata);
+                    ConfigurationSource.Explicit)!.Metadata);
 
         /// <summary>
         ///     <para>
@@ -489,9 +491,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             using (var batch = Builder.Metadata.Model.DelayConventions())
             {
                 var navigationMember = new MemberIdentity(navigationName);
-                var relationship = Builder.HasOwnership(ownedType, navigationMember, ConfigurationSource.Explicit);
+                var relationship = Builder.HasOwnership(ownedType, navigationMember, ConfigurationSource.Explicit)!;
                 relationship.IsUnique(true, ConfigurationSource.Explicit);
-                foreignKey = (IMutableForeignKey)batch.Run(relationship.Metadata);
+                foreignKey = (IMutableForeignKey)batch.Run(relationship.Metadata)!;
             }
 
             return new OwnedNavigationBuilder(foreignKey);
@@ -703,9 +705,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             using (var batch = Builder.Metadata.Model.DelayConventions())
             {
                 var navigationMember = new MemberIdentity(navigationName);
-                var relationship = Builder.HasOwnership(ownedType, navigationMember, ConfigurationSource.Explicit);
+                var relationship = Builder.HasOwnership(ownedType, navigationMember, ConfigurationSource.Explicit)!;
                 relationship.IsUnique(false, ConfigurationSource.Explicit);
-                foreignKey = (IMutableForeignKey)batch.Run(relationship.Metadata);
+                foreignKey = (IMutableForeignKey)batch.Run(relationship.Metadata)!;
             }
 
             return new OwnedNavigationBuilder(foreignKey);
@@ -738,7 +740,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual ReferenceNavigationBuilder HasOne(
             [NotNull] string relatedTypeName,
-            [CanBeNull] string navigationName)
+            [CanBeNull] string? navigationName)
         {
             Check.NotEmpty(relatedTypeName, nameof(relatedTypeName));
             Check.NullButNotEmpty(navigationName, nameof(navigationName));
@@ -781,7 +783,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual ReferenceNavigationBuilder HasOne(
             [NotNull] Type relatedType,
-            [CanBeNull] string navigationName = null)
+            [CanBeNull] string? navigationName = null)
         {
             Check.NotNull(relatedType, nameof(relatedType));
             Check.NullButNotEmpty(navigationName, nameof(navigationName));
@@ -840,13 +842,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             {
                 foreignKey = Builder.HasRelationship(
                     relatedEntityType, navigationId.MemberInfo, ConfigurationSource.Explicit,
-                    targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null).Metadata;
+                    targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null)!.Metadata;
             }
             else
             {
                 foreignKey = Builder.HasRelationship(
                     relatedEntityType, navigationId.Name, ConfigurationSource.Explicit,
-                    targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null).Metadata;
+                    targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null)!.Metadata;
             }
 
             return foreignKey;
@@ -873,7 +875,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual CollectionNavigationBuilder HasMany(
             [NotNull] string relatedTypeName,
-            [CanBeNull] string navigationName)
+            [CanBeNull] string? navigationName)
         {
             Check.NotEmpty(relatedTypeName, nameof(relatedTypeName));
             Check.NullButNotEmpty(navigationName, nameof(navigationName));
@@ -903,11 +905,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual CollectionNavigationBuilder HasMany([NotNull] string navigationName)
         {
             Check.NotEmpty(navigationName, nameof(navigationName));
-
-            if (Metadata.ClrType == null)
-            {
-                return HasMany(navigationName, (string)null);
-            }
 
             var memberType = Metadata.GetNavigationMemberInfo(navigationName).GetMemberType();
             var elementType = memberType.TryGetElementType(typeof(IEnumerable<>));
@@ -951,7 +948,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual CollectionNavigationBuilder HasMany(
             [NotNull] Type relatedType,
-            [CanBeNull] string navigationName = null)
+            [CanBeNull] string? navigationName = null)
         {
             Check.NotNull(relatedType, nameof(relatedType));
             Check.NullButNotEmpty(navigationName, nameof(navigationName));
@@ -962,7 +959,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         private CollectionNavigationBuilder HasMany(
-            string navigationName,
+            string? navigationName,
             EntityType relatedEntityType)
         {
             // Note: delay setting ConfigurationSource of skip navigation (if it exists).
@@ -971,18 +968,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             // we want to be able to override it later.
             var skipNavigation = navigationName != null ? Builder.Metadata.FindSkipNavigation(navigationName) : null;
 
-            InternalForeignKeyBuilder relationship = null;
+            InternalForeignKeyBuilder? relationship = null;
             if (skipNavigation == null)
             {
                 relationship = Builder
-                    .HasRelationship(relatedEntityType, navigationName, ConfigurationSource.Explicit, targetIsPrincipal: false)
+                    .HasRelationship(relatedEntityType, navigationName, ConfigurationSource.Explicit, targetIsPrincipal: false)!
                     .IsUnique(false, ConfigurationSource.Explicit);
             }
 
             return new CollectionNavigationBuilder(
                 Builder.Metadata,
                 relatedEntityType,
-                new MemberIdentity(navigationName),
+                new MemberIdentity(navigationName!),
                 relationship?.Metadata,
                 skipNavigation);
         }
@@ -994,11 +991,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual EntityType FindRelatedEntityType([NotNull] string relatedTypeName, [CanBeNull] string navigationName)
+        protected virtual EntityType FindRelatedEntityType([NotNull] string relatedTypeName, [CanBeNull] string? navigationName)
             => (navigationName == null
                     ? null
                     : Builder.ModelBuilder.Metadata.FindEntityType(relatedTypeName, navigationName, Builder.Metadata))
-                ?? Builder.ModelBuilder.Entity(relatedTypeName, ConfigurationSource.Explicit).Metadata;
+                ?? Builder.ModelBuilder.Entity(relatedTypeName, ConfigurationSource.Explicit)!.Metadata;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1007,11 +1004,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual EntityType FindRelatedEntityType([NotNull] Type relatedType, [CanBeNull] string navigationName)
+        protected virtual EntityType FindRelatedEntityType([NotNull] Type relatedType, [CanBeNull] string? navigationName)
             => (navigationName == null || !Builder.ModelBuilder.Metadata.IsShared(relatedType)
                     ? null
                     : Builder.ModelBuilder.Metadata.FindEntityType(relatedType, navigationName, Builder.Metadata))
-                ?? Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit).Metadata;
+                ?? Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit)!.Metadata;
 
         /// <summary>
         ///     Configures the <see cref="ChangeTrackingStrategy" /> to be used for this entity type.
@@ -1081,7 +1078,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <returns> A builder that allows the discriminator property to be configured. </returns>
         public virtual DiscriminatorBuilder HasDiscriminator()
-            => Builder.HasDiscriminator(ConfigurationSource.Explicit);
+            => Builder.HasDiscriminator(ConfigurationSource.Explicit)!;
 
         /// <summary>
         ///     Configures the discriminator property used to identify the entity type in the store.
@@ -1096,7 +1093,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(type, nameof(type));
 
-            return Builder.HasDiscriminator(name, type, ConfigurationSource.Explicit);
+            return Builder.HasDiscriminator(name, type, ConfigurationSource.Explicit)!;
         }
 
         /// <summary>
@@ -1110,7 +1107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(name, nameof(name));
 
             return new DiscriminatorBuilder<TDiscriminator>(
-                Builder.HasDiscriminator(name, typeof(TDiscriminator), ConfigurationSource.Explicit));
+                Builder.HasDiscriminator(name, typeof(TDiscriminator), ConfigurationSource.Explicit)!);
         }
 
         /// <summary>
@@ -1130,7 +1127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -1140,7 +1137,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

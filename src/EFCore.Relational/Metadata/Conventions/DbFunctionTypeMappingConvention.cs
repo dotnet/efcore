@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -44,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 // TODO: This check needs to be updated to skip over enumerable parameter of aggregate.
                 foreach (var parameter in dbFunction.Parameters)
                 {
-                    parameter.Builder.HasTypeMapping(
+                    parameter.Builder!.HasTypeMapping(
                         !string.IsNullOrEmpty(parameter.StoreType)
                             ? _relationalTypeMappingSource.FindMapping(parameter.StoreType)
                             : _relationalTypeMappingSource.FindMapping(parameter.ClrType));

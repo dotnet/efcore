@@ -7,6 +7,9 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -51,8 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool TryBindConstructor(
             IMutableEntityType entityType,
             ConstructorInfo constructor,
-            out InstantiationBinding binding,
-            out IEnumerable<ParameterInfo> unboundParameters)
+            [CA.NotNullWhen(true)] out InstantiationBinding? binding,
+            [CA.NotNullWhen(false)] out IEnumerable<ParameterInfo>? unboundParameters)
             => TryBindConstructor(
                 entityType,
                 constructor,
@@ -69,8 +72,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool TryBindConstructor(
             IConventionEntityType entityType,
             ConstructorInfo constructor,
-            out InstantiationBinding binding,
-            out IEnumerable<ParameterInfo> unboundParameters)
+            [CA.NotNullWhen(true)] out InstantiationBinding? binding,
+            [CA.NotNullWhen(false)] out IEnumerable<ParameterInfo>? unboundParameters)
             => TryBindConstructor(
                 entityType,
                 constructor,
@@ -81,11 +84,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private bool TryBindConstructor(
             IEntityType entityType,
             ConstructorInfo constructor,
-            Func<IParameterBindingFactory, IEntityType, Type, string, ParameterBinding> bind,
-            out InstantiationBinding binding,
-            out IEnumerable<ParameterInfo> unboundParameters)
+            Func<IParameterBindingFactory?, IEntityType, Type, string, ParameterBinding?> bind,
+            [CA.NotNullWhen(true)] out InstantiationBinding? binding,
+            [CA.NotNullWhen(false)] out IEnumerable<ParameterInfo>? unboundParameters)
         {
-            IEnumerable<(ParameterInfo Parameter, ParameterBinding Binding)> bindings
+            IEnumerable<(ParameterInfo Parameter, ParameterBinding? Binding)> bindings
                 = constructor.GetParameters().Select(
                         p => (p, string.IsNullOrEmpty(p.Name)
                             ? null
@@ -102,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             unboundParameters = null;
-            binding = new ConstructorBinding(constructor, bindings.Select(b => b.Binding).ToList());
+            binding = new ConstructorBinding(constructor, bindings.Select(b => b.Binding).ToList()!);
 
             return true;
         }
