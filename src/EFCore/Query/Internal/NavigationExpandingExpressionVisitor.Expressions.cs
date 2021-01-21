@@ -36,8 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 => ExpressionType.Extension;
 
             public override Type Type
-                // No shadow entities at runtime
-                => EntityType.ClrType!;
+                => EntityType.ClrType;
 
             protected override Expression VisitChildren(ExpressionVisitor visitor)
             {

@@ -46,8 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
             var type = entityTypeBuilder.Metadata.ClrType;
-            if (type == null
-                || !Attribute.IsDefined(type, typeof(TAttribute), inherit: true))
+            if (!Attribute.IsDefined(type, typeof(TAttribute), inherit: true))
             {
                 return;
             }

@@ -906,11 +906,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             Check.NotEmpty(navigationName, nameof(navigationName));
 
-            if (Metadata.ClrType == null)
-            {
-                return HasMany(navigationName, (string?)null);
-            }
-
             var memberType = Metadata.GetNavigationMemberInfo(navigationName).GetMemberType();
             var elementType = memberType.TryGetElementType(typeof(IEnumerable<>));
 

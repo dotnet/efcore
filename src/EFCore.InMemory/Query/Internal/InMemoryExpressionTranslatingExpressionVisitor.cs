@@ -1335,7 +1335,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     var parameterName = methodCallExpression.Arguments[1].GetConstantValue<string>();
                     var lambda = Expression.Lambda(
                         Expression.Call(
-                            _parameterListValueExtractor.MakeGenericMethod(entityType.ClrType!, property.ClrType.MakeNullable()),
+                            _parameterListValueExtractor.MakeGenericMethod(entityType.ClrType, property.ClrType.MakeNullable()),
                             QueryCompilationContext.QueryContextParameter,
                             Expression.Constant(parameterName, typeof(string)),
                             Expression.Constant(property, typeof(IProperty))),
@@ -1728,8 +1728,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             public IEntityType EntityType { get; }
 
             public override Type Type
-                // No shadow entities at runtime
-                => EntityType.ClrType!;
+                => EntityType.ClrType;
 
             public override ExpressionType NodeType
                 => ExpressionType.Extension;

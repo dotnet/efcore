@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 // The entity type might have been converted to a weak entity type
                 var actualTargetEntityTypeBuilder =
                     ((InternalEntityTypeBuilder)entityTypeBuilder).GetTargetEntityTypeBuilder(
-                        relationshipCandidate.TargetTypeBuilder.Metadata.ClrType!,
+                        relationshipCandidate.TargetTypeBuilder.Metadata.ClrType,
                         relationshipCandidate.NavigationProperties.Single(),
                         ConfigurationSource.Convention);
 
@@ -391,8 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
 
                 var otherEntityType = existingInverse.TargetEntityType;
-                if (!entityType.ClrType!
-                    .IsAssignableFrom(otherEntityType.ClrType))
+                if (!entityType.ClrType.IsAssignableFrom(otherEntityType.ClrType))
                 {
                     return false;
                 }

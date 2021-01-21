@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the type is abstract, <see langword="false" /> otherwise. </returns>
         [DebuggerStepThrough]
         public static bool IsAbstract([NotNull] this ITypeBase type)
-            => type.ClrType?.IsAbstract ?? false;
+            => type.ClrType.IsAbstract;
 
         /// <summary>
         ///     Gets the root base type for a given entity type.
@@ -382,8 +382,7 @@ namespace Microsoft.EntityFrameworkCore
         [DebuggerStepThrough]
         public static string ShortName([NotNull] this ITypeBase type)
         {
-            if (type.ClrType != null
-                && !type.HasSharedClrType)
+            if (!type.HasSharedClrType)
             {
                 return type.ClrType.ShortDisplayName();
             }

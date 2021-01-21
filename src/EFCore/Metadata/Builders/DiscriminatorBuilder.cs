@@ -124,9 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             var baseEntityTypeBuilder = EntityTypeBuilder;
             if (!baseEntityTypeBuilder.Metadata.IsAssignableFrom(entityTypeBuilder.Metadata)
-                && ((baseEntityTypeBuilder.Metadata.ClrType != null
-                        && entityTypeBuilder.Metadata.ClrType != null
-                        && !baseEntityTypeBuilder.Metadata.ClrType.IsAssignableFrom(entityTypeBuilder.Metadata.ClrType))
+                && (!baseEntityTypeBuilder.Metadata.ClrType.IsAssignableFrom(entityTypeBuilder.Metadata.ClrType)
                     || entityTypeBuilder.HasBaseType(baseEntityTypeBuilder.Metadata, configurationSource) == null))
             {
                 throw new InvalidOperationException(

@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
             else
             {
-                fields = entityType.GetRuntimeFields()!;
+                fields = entityType.GetRuntimeFields();
             }
 
             var sortedFields = fields.OrderBy(p => p.Key, StringComparer.Ordinal).ToArray();

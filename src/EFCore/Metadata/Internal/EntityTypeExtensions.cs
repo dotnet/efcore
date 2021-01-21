@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 owner = ownership.PrincipalEntityType;
-                if (owner.ClrType?.IsAssignableFrom(targetType) == true)
+                if (owner.ClrType.IsAssignableFrom(targetType))
                 {
                     return owner;
                 }

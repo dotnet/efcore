@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     return configurationSource == ConfigurationSource.Explicit
                         ? throw new InvalidOperationException(
-                            CoreStrings.ClashingMismatchedSharedType(type.Name, entityType.ClrType?.ShortDisplayName()))
+                            CoreStrings.ClashingMismatchedSharedType(type.Name, entityType.ClrType.ShortDisplayName()))
                         : (InternalEntityTypeBuilder?)null;
                 }
             }

@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private static ForeignKeyAttribute? GetForeignKeyAttribute(IConventionTypeBase entityType, string propertyName)
-            => entityType.GetRuntimeProperties()?.Values
+            => entityType.GetRuntimeProperties().Values
                 .FirstOrDefault(
                     p => string.Equals(p.GetSimpleMemberName(), propertyName, StringComparison.OrdinalIgnoreCase)
                         && Attribute.IsDefined(p, typeof(ForeignKeyAttribute), inherit: true))
@@ -332,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             MemberInfo? candidateProperty = null;
 
             foreach (var memberInfo in entityType.GetRuntimeProperties().Values.Cast<MemberInfo>()
-                .Concat(entityType.GetRuntimeFields()!.Values))
+                .Concat(entityType.GetRuntimeFields().Values))
             {
                 if (entityType.Builder.IsIgnored(memberInfo.GetSimpleMemberName())
                     || !Attribute.IsDefined(memberInfo, typeof(ForeignKeyAttribute), inherit: true))

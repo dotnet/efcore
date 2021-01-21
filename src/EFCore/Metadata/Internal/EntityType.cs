@@ -1476,7 +1476,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                memberInfo = ClrType?.GetMembersInHierarchy(name).FirstOrDefault();
+                memberInfo = ClrType.GetMembersInHierarchy(name).FirstOrDefault();
             }
 
             if (memberInfo != null)
@@ -1641,7 +1641,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                memberInfo = ClrType?.GetMembersInHierarchy(name).FirstOrDefault();
+                memberInfo = ClrType.GetMembersInHierarchy(name).FirstOrDefault();
             }
 
             if (memberInfo != null)
@@ -1699,7 +1699,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return memberInfo.GetMemberType();
                 }
 
-                var clashingMemberInfo = ClrType?.GetMembersInHierarchy(name).FirstOrDefault();
+                var clashingMemberInfo = ClrType.GetMembersInHierarchy(name).FirstOrDefault();
                 if (clashingMemberInfo != null)
                 {
                     throw new InvalidOperationException(
@@ -2279,7 +2279,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return AddProperty(
                 name,
                 propertyType,
-                ClrType?.GetMembersInHierarchy(name).FirstOrDefault(),
+                ClrType.GetMembersInHierarchy(name).FirstOrDefault(),
                 typeConfigurationSource,
                 configurationSource);
         }
@@ -2310,7 +2310,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string name,
             ConfigurationSource configurationSource)
         {
-            var clrMember = ClrType?.GetMembersInHierarchy(name).FirstOrDefault();
+            var clrMember = ClrType.GetMembersInHierarchy(name).FirstOrDefault();
             if (clrMember == null)
             {
                 throw new InvalidOperationException(CoreStrings.NoPropertyType(name, this.DisplayName()));
@@ -2364,7 +2364,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             else
             {
                 Check.DebugAssert(
-                    ClrType?.GetMembersInHierarchy(name).FirstOrDefault() == null,
+                    ClrType.GetMembersInHierarchy(name).FirstOrDefault() == null,
                     "MemberInfo not supplied for non-shadow property");
             }
 
@@ -2915,7 +2915,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 data.Add(seed);
                 var type = rawSeed.GetType();
 
-                if (ClrType?.IsAssignableFrom(type) == true)
+                if (ClrType.IsAssignableFrom(type) == true)
                 {
                     // non-anonymous type
                     foreach (var propertyBase in properties.Values)
@@ -3011,8 +3011,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             foreach (var entity in data)
             {
-                if (ClrType != null
-                    && ClrType != entity.GetType()
+                if (ClrType != entity.GetType()
                     && ClrType.IsAssignableFrom(entity.GetType()))
                 {
                     throw new InvalidOperationException(
@@ -3077,32 +3076,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual string? CheckChangeTrackingStrategy(ChangeTrackingStrategy value, bool requireFullNotifications)
         {
-            if (ClrType != null)
+            if (requireFullNotifications)
             {
-                if (requireFullNotifications)
+                if (value != ChangeTrackingStrategy.ChangingAndChangedNotifications
+                    && value != ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
                 {
-                    if (value != ChangeTrackingStrategy.ChangingAndChangedNotifications
-                        && value != ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
-                    {
-                        return CoreStrings.FullChangeTrackingRequired(
-                            this.DisplayName(), value, nameof(ChangeTrackingStrategy.ChangingAndChangedNotifications),
-                            nameof(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues));
-                    }
+                    return CoreStrings.FullChangeTrackingRequired(
+                        this.DisplayName(), value, nameof(ChangeTrackingStrategy.ChangingAndChangedNotifications),
+                        nameof(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues));
                 }
-                else
+            }
+            else
+            {
+                if (value != ChangeTrackingStrategy.Snapshot
+                    && !typeof(INotifyPropertyChanged).IsAssignableFrom(ClrType))
                 {
-                    if (value != ChangeTrackingStrategy.Snapshot
-                        && !typeof(INotifyPropertyChanged).IsAssignableFrom(ClrType))
-                    {
-                        return CoreStrings.ChangeTrackingInterfaceMissing(this.DisplayName(), value, nameof(INotifyPropertyChanged));
-                    }
+                    return CoreStrings.ChangeTrackingInterfaceMissing(this.DisplayName(), value, nameof(INotifyPropertyChanged));
+                }
 
-                    if ((value == ChangeTrackingStrategy.ChangingAndChangedNotifications
-                            || value == ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
-                        && !typeof(INotifyPropertyChanging).IsAssignableFrom(ClrType))
-                    {
-                        return CoreStrings.ChangeTrackingInterfaceMissing(this.DisplayName(), value, nameof(INotifyPropertyChanging));
-                    }
+                if ((value == ChangeTrackingStrategy.ChangingAndChangedNotifications
+                        || value == ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
+                    && !typeof(INotifyPropertyChanging).IsAssignableFrom(ClrType))
+                {
+                    return CoreStrings.ChangeTrackingInterfaceMissing(this.DisplayName(), value, nameof(INotifyPropertyChanging));
                 }
             }
 
@@ -3978,7 +3974,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [DebuggerStepThrough]
         IMutableProperty IMutableEntityType.AddProperty(string name, Type propertyType, MemberInfo? memberInfo)
             => AddProperty(
-                name, propertyType, memberInfo ?? ClrType?.GetMembersInHierarchy(name).FirstOrDefault(),
+                name, propertyType, memberInfo ?? ClrType.GetMembersInHierarchy(name).FirstOrDefault(),
                 ConfigurationSource.Explicit, ConfigurationSource.Explicit)!;
 
         /// <summary>
@@ -3997,7 +3993,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => AddProperty(
                 name,
                 propertyType,
-                memberInfo ?? ClrType?.GetMembersInHierarchy(name).FirstOrDefault(),
+                memberInfo ?? ClrType.GetMembersInHierarchy(name).FirstOrDefault(),
                 setTypeConfigurationSource
                     ? fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention
                     : (ConfigurationSource?)null,

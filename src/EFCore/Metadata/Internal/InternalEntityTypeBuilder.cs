@@ -598,7 +598,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (memberInfo == null)
                 {
-                    memberInfo = Metadata.ClrType?.GetMembersInHierarchy(propertyName).FirstOrDefault();
+                    memberInfo = Metadata.ClrType.GetMembersInHierarchy(propertyName).FirstOrDefault();
                 }
 
                 if (propertyType == null)
@@ -4005,8 +4005,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         propertyName = keyModifiedBaseName + (++index > 0 ? index.ToString(CultureInfo.InvariantCulture) : "");
                         if (!Metadata.FindPropertiesInHierarchy(propertyName).Any()
-                            && clrProperties?.ContainsKey(propertyName) != true
-                            && clrFields?.ContainsKey(propertyName) != true
+                            && !clrProperties.ContainsKey(propertyName)
+                            && !clrFields.ContainsKey(propertyName)
                             && !IsIgnored(propertyName, ConfigurationSource.Convention))
                         {
                             if (currentProperties == null)
@@ -4447,11 +4447,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && !typeConfigurationSource.Overrides(conflictingProperty.GetTypeConfigurationSource()))
             {
                 return false;
-            }
-
-            if (Metadata.ClrType == null)
-            {
-                return true;
             }
 
             var memberInfo = Metadata.ClrType.GetMembersInHierarchy(name).FirstOrDefault();

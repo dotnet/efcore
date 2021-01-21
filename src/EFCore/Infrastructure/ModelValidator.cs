@@ -390,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotNull(model, nameof(model));
 
-            foreach (IConventionEntityType entityType in model.GetEntityTypes().Where(t => t.ClrType != null))
+            foreach (IConventionEntityType entityType in model.GetEntityTypes())
             {
                 foreach (var key in entityType.GetDeclaredKeys())
                 {
@@ -549,7 +549,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             if (entityType.FindDeclaredOwnership() == null
                 && entityType.BaseType != null)
             {
-                var baseClrType = entityType.ClrType?.BaseType;
+                var baseClrType = entityType.ClrType.BaseType;
                 while (baseClrType != null)
                 {
                     var baseEntityType = model.FindEntityType(baseClrType);
@@ -569,7 +569,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 }
             }
 
-            if (entityType.ClrType?.IsInstantiable() == false
+            if (!entityType.ClrType.IsInstantiable()
                 && !entityType.GetDerivedTypes().Any())
             {
                 throw new InvalidOperationException(
@@ -632,7 +632,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             foreach (var derivedType in derivedTypes)
             {
-                if (derivedType.ClrType?.IsInstantiable() != true)
+                if (!derivedType.ClrType.IsInstantiable())
                 {
                     continue;
                 }
@@ -805,8 +805,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
 
             static bool ContainedInForeignKeyForAllConcreteTypes(IEntityType entityType, IProperty property)
-                => entityType.ClrType?.IsAbstract == true
-                    && entityType.GetDerivedTypes().Where(t => t.ClrType?.IsAbstract != true)
+                => entityType.ClrType.IsAbstract
+                    && entityType.GetDerivedTypes().Where(t => !t.ClrType.IsAbstract)
                         .All(d => d.GetForeignKeys()
                             .Any(fk => fk.Properties.Contains(property)));
         }
@@ -1120,11 +1120,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             foreach (IConventionEntityType entityType in model.GetEntityTypes())
             {
-                if (entityType.ClrType == null)
-                {
-                    continue;
-                }
-
                 foreach (var property in entityType.GetDeclaredProperties())
                 {
                     if (property.IsImplicitlyCreated())

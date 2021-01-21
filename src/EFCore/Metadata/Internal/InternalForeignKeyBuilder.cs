@@ -407,8 +407,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         Metadata.DeclaringEntityType.RemoveIgnored(navigationToPrincipalName);
 
-                        if (Metadata.DeclaringEntityType.ClrType != null
-                            && Metadata.DeclaringEntityType.ClrType != Model.DefaultPropertyBagType
+                        if (Metadata.DeclaringEntityType.ClrType != Model.DefaultPropertyBagType
                             && navigationProperty == null)
                         {
                             throw new InvalidOperationException(
@@ -433,8 +432,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         Metadata.PrincipalEntityType.RemoveIgnored(navigationToDependentName);
 
-                        if (Metadata.PrincipalEntityType.ClrType != null
-                            && Metadata.PrincipalEntityType.ClrType != Model.DefaultPropertyBagType
+                        if (Metadata.PrincipalEntityType.ClrType != Model.DefaultPropertyBagType
                             && navigationProperty == null)
                         {
                             throw new InvalidOperationException(
@@ -744,8 +742,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             if (navigationToPrincipalProperty != null
-                && dependentEntityType.ClrType != null
-                && principalEntityType.ClrType != null
                 && !IsCompatible(
                     navigationToPrincipalProperty,
                     pointsToPrincipal: true,
@@ -763,8 +759,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             if (navigationToDependentProperty != null
-                && dependentEntityType.ClrType != null
-                && principalEntityType.ClrType != null
                 && !IsCompatible(
                     navigationToDependentProperty,
                     pointsToPrincipal: false,
@@ -3649,9 +3643,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             }
                             else
                             {
-                                dependentEntityType = Metadata.DeclaringEntityType.ClrType == null
-                                    ? ModelBuilder.Entity(Metadata.DeclaringEntityType.Name, configurationSource)!.Metadata
-                                    : ModelBuilder.Entity(Metadata.DeclaringEntityType.ClrType, configurationSource)!.Metadata;
+                                dependentEntityType =
+                                    ModelBuilder.Entity(Metadata.DeclaringEntityType.ClrType, configurationSource)!.Metadata;
                             }
                         }
                     }

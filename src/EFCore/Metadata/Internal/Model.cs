@@ -226,8 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     _sharedTypes.Add(entityType.ClrType, (entityType.GetConfigurationSource(), types));
                 }
             }
-            else if (entityType.ClrType != null
-                && _sharedTypes.ContainsKey(entityType.ClrType))
+            else if (_sharedTypes.ContainsKey(entityType.ClrType))
             {
                 throw new InvalidOperationException(CoreStrings.ClashingSharedType(entityType.DisplayName()));
             }
@@ -326,8 +325,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             EnsureReadonly(false);
             AssertCanRemove(entityType);
 
-            if (entityType.ClrType != null
-                && _sharedTypes.TryGetValue(entityType.ClrType, out var existingTypes))
+            if (_sharedTypes.TryGetValue(entityType.ClrType, out var existingTypes))
             {
                 existingTypes.Types.Remove(entityType);
             }

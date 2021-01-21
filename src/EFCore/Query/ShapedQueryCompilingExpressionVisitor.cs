@@ -399,12 +399,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                     "entityType" + _currentEntityIndex);
                 variables.Add(concreteEntityTypeVariable);
 
-                var instanceVariable = Expression.Variable(entityType.ClrType!, "instance" + _currentEntityIndex);
+                var instanceVariable = Expression.Variable(entityType.ClrType, "instance" + _currentEntityIndex);
                 variables.Add(instanceVariable);
                 expressions.Add(
                     Expression.Assign(
                         instanceVariable,
-                        Expression.Constant(null, entityType.ClrType!)));
+                        Expression.Constant(null, entityType.ClrType)));
 
                 if (_queryStateMananger
                     && primaryKey != null)
@@ -446,7 +446,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     Expression.Assign(
                                         instanceVariable, Expression.Convert(
                                             Expression.MakeMemberAccess(entryVariable, _entityMemberInfo),
-                                            entityType.ClrType!))),
+                                            entityType.ClrType))),
                                 MaterializeEntity(
                                     entityShaperExpression, materializationContextVariable, concreteEntityTypeVariable, instanceVariable,
                                     entryVariable))));
@@ -500,8 +500,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         shadowValuesVariable,
                         Expression.Constant(ValueBuffer.Empty)));
 
-                // No shadow entities at runtime
-                var returnType = entityType.ClrType!;
+                var returnType = entityType.ClrType;
                 Expression materializationExpression;
                 var valueBufferExpression = Expression.Call(materializationContextVariable, MaterializationContext.GetValueBufferMethod);
                 var expressionContext = (returnType, materializationContextVariable, concreteEntityTypeVariable, shadowValuesVariable);

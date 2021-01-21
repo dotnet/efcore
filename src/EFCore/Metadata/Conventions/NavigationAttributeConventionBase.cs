@@ -124,10 +124,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionContext<IConventionEntityType> context)
         {
             var type = entityType.ClrType;
-            if (type == null)
-            {
-                return;
-            }
 
             var navigations = GetNavigationsWithAttribute(entityType);
             if (navigations == null)
@@ -268,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             string name,
             IConventionContext<string> context)
         {
-            var navigationPropertyInfo = entityTypeBuilder.Metadata.GetRuntimeProperties()?.Find(name);
+            var navigationPropertyInfo = entityTypeBuilder.Metadata.GetRuntimeProperties().Find(name);
             if (navigationPropertyInfo == null)
             {
                 return;

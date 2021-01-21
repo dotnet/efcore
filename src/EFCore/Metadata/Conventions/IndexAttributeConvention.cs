@@ -69,11 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionEntityType entityType,
             bool shouldThrow)
         {
-            if (entityType.ClrType == null)
-            {
-                return;
-            }
-
             foreach (var indexAttribute in
                 entityType.ClrType.GetCustomAttributes<IndexAttribute>(true))
             {
