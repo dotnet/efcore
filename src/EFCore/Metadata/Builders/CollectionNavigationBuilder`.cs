@@ -96,21 +96,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object to further configure the relationship. </returns>
         public new virtual CollectionCollectionBuilder<TRelatedEntity, TEntity>? WithMany([NotNull] string navigationName)
         {
-            if (Builder?.Metadata.PrincipalToDependent == null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.MissingInverseManyToManyNavigation(
-                        Builder?.Metadata.PrincipalEntityType.DisplayName(),
-                        Builder?.Metadata.DeclaringEntityType.DisplayName()));
-            }
-
-            var leftName = Builder.Metadata.PrincipalToDependent.Name;
+            var leftName = Builder?.Metadata.PrincipalToDependent!.Name;
             var collectionCollectionBuilder =
                 new CollectionCollectionBuilder<TRelatedEntity, TEntity>(
                     RelatedEntityType,
                     DeclaringEntityType,
                     WithLeftManyNavigation(navigationName),
-                    WithRightManyNavigation(navigationName, leftName));
+                    WithRightManyNavigation(navigationName, leftName!));
 
             Configure(collectionCollectionBuilder);
 

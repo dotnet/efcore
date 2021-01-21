@@ -894,7 +894,10 @@ namespace Microsoft.EntityFrameworkCore
             var entityType = entityTypeBuilder.Metadata;
             entityType.SetFunctionName(name, fromDataAnnotation);
 
-            entityType.Model.Builder.HasDbFunction(name, typeof(IQueryable<>).MakeGenericType(entityType.ClrType), fromDataAnnotation);
+            if (name is null)
+            {
+                entityType.Model.Builder.HasDbFunction(name, typeof(IQueryable<>).MakeGenericType(entityType.ClrType), fromDataAnnotation);
+            }
 
             return entityTypeBuilder;
         }

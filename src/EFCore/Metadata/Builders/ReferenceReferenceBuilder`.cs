@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] params string[] foreignKeyPropertyNames)
             => new(
                 HasForeignKeyBuilder(
-                    ResolveEntityType(Check.NotNull(dependentEntityTypeName, nameof(dependentEntityTypeName))),
+                    ResolveEntityType(Check.NotNull(dependentEntityTypeName, nameof(dependentEntityTypeName)))!,
                     dependentEntityTypeName,
                     Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] params string[] foreignKeyPropertyNames)
             => new(
                 HasForeignKeyBuilder(
-                    ResolveEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType))),
+                    ResolveEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType)))!,
                     dependentEntityType.ShortDisplayName(),
                     Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] params string[] keyPropertyNames)
             => new(
                 HasPrincipalKeyBuilder(
-                    ResolveEntityType(Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName))),
+                    ResolveEntityType(Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName)))!,
                     principalEntityTypeName,
                     Check.NotNull(keyPropertyNames, nameof(keyPropertyNames))),
                 this,
@@ -260,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] params string[] keyPropertyNames)
             => new(
                 HasPrincipalKeyBuilder(
-                    ResolveEntityType(Check.NotNull(principalEntityType, nameof(principalEntityType))),
+                    ResolveEntityType(Check.NotNull(principalEntityType, nameof(principalEntityType)))!,
                     principalEntityType.ShortDisplayName(),
                     Check.NotNull(keyPropertyNames, nameof(keyPropertyNames))),
                 this,
