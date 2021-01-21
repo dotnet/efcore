@@ -252,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => Dependencies.TransactionManager.RollbackTransaction();
 
         /// <summary>
-        ///     Applies the outstanding operations in the current transaction to the database.
+        ///     Discards the outstanding operations in the current transaction.
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> A Task representing the asynchronous operation. </returns>
