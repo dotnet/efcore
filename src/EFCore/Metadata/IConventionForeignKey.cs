@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="IForeignKey" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IConventionForeignKey : IForeignKey, IConventionAnnotatable
+    public interface IConventionForeignKey : IReadOnlyForeignKey, IConventionAnnotatable
     {
         /// <summary>
         ///     Gets the builder that can be used to configure this foreign key.
@@ -83,21 +83,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IForeignKey.Properties" />.
+        ///     Returns the configuration source for <see cref="IReadOnlyForeignKey.Properties" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IForeignKey.Properties" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyForeignKey.Properties" />. </returns>
         ConfigurationSource? GetPropertiesConfigurationSource();
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IForeignKey.PrincipalKey" />.
+        ///     Returns the configuration source for <see cref="IReadOnlyForeignKey.PrincipalKey" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IForeignKey.PrincipalKey" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyForeignKey.PrincipalKey" />. </returns>
         ConfigurationSource? GetPrincipalKeyConfigurationSource();
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IForeignKey.PrincipalEntityType" />.
+        ///     Returns the configuration source for <see cref="IReadOnlyForeignKey.PrincipalEntityType" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IForeignKey.PrincipalEntityType" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyForeignKey.PrincipalEntityType" />. </returns>
         ConfigurationSource? GetPrincipalEndConfigurationSource();
 
         /// <summary>
@@ -109,9 +109,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool? SetIsUnique(bool? unique, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IForeignKey.IsUnique" />.
+        ///     Returns the configuration source for <see cref="IReadOnlyForeignKey.IsUnique" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IForeignKey.IsUnique" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyForeignKey.IsUnique" />. </returns>
         ConfigurationSource? GetIsUniqueConfigurationSource();
 
         /// <summary>
@@ -124,9 +124,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool? SetIsRequired(bool? required, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IForeignKey.IsRequired" />.
+        ///     Returns the configuration source for <see cref="IReadOnlyForeignKey.IsRequired" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IForeignKey.IsRequired" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyForeignKey.IsRequired" />. </returns>
         ConfigurationSource? GetIsRequiredConfigurationSource();
 
         /// <summary>
@@ -139,9 +139,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool? SetIsRequiredDependent(bool? required, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IForeignKey.IsRequiredDependent" />.
+        ///     Returns the configuration source for <see cref="IReadOnlyForeignKey.IsRequiredDependent" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IForeignKey.IsRequiredDependent" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyForeignKey.IsRequiredDependent" />. </returns>
         ConfigurationSource? GetIsRequiredDependentConfigurationSource();
 
         /// <summary>
@@ -154,9 +154,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool? SetIsOwnership(bool? ownership, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IForeignKey.IsOwnership" />.
+        ///     Returns the configuration source for <see cref="IReadOnlyForeignKey.IsOwnership" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IForeignKey.IsOwnership" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyForeignKey.IsOwnership" />. </returns>
         ConfigurationSource? GetIsOwnershipConfigurationSource();
 
         /// <summary>
@@ -172,9 +172,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         DeleteBehavior? SetDeleteBehavior(DeleteBehavior? deleteBehavior, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IForeignKey.DeleteBehavior" />.
+        ///     Returns the configuration source for <see cref="IReadOnlyForeignKey.DeleteBehavior" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IForeignKey.DeleteBehavior" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyForeignKey.DeleteBehavior" />. </returns>
         ConfigurationSource? GetDeleteBehaviorConfigurationSource();
 
         /// <summary>
@@ -226,9 +226,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => SetDependentToPrincipal(property, fromDataAnnotation);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IForeignKey.DependentToPrincipal" />.
+        ///     Returns the configuration source for <see cref="IReadOnlyForeignKey.DependentToPrincipal" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IForeignKey.DependentToPrincipal" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyForeignKey.DependentToPrincipal" />. </returns>
         ConfigurationSource? GetDependentToPrincipalConfigurationSource();
 
         /// <summary>
@@ -280,9 +280,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => SetPrincipalToDependent(property, fromDataAnnotation);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IForeignKey.PrincipalToDependent" />.
+        ///     Returns the configuration source for <see cref="IReadOnlyForeignKey.PrincipalToDependent" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IForeignKey.PrincipalToDependent" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyForeignKey.PrincipalToDependent" />. </returns>
         ConfigurationSource? GetPrincipalToDependentConfigurationSource();
 
         /// <summary>
@@ -290,6 +290,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> The skip navigations using this foreign key. </returns>
         new IEnumerable<IConventionSkipNavigation> GetReferencingSkipNavigations()
-            => ((IForeignKey)this).GetReferencingSkipNavigations().Cast<IConventionSkipNavigation>();
+            => ((IReadOnlyForeignKey)this).GetReferencingSkipNavigations().Cast<IConventionSkipNavigation>();
     }
 }

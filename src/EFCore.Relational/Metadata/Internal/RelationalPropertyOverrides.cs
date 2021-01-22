@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static RelationalPropertyOverrides? Find([NotNull] IProperty property, in StoreObjectIdentifier storeObject)
+        public static RelationalPropertyOverrides? Find([NotNull] IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
             var tableOverrides = (SortedDictionary<StoreObjectIdentifier, RelationalPropertyOverrides>?)
                 property[RelationalAnnotationNames.RelationalOverrides];

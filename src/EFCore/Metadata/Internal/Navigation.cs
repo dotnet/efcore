@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class Navigation : PropertyBase, IMutableNavigation, IConventionNavigation
+    public class Navigation : PropertyBase, IMutableNavigation, IConventionNavigation, INavigation
     {
         private InternalNavigationBuilder? _builder;
 
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual EntityType DeclaringEntityType
         {
             [DebuggerStepThrough]
-            get => (EntityType)((INavigation)this).DeclaringEntityType;
+            get => (EntityType)((IReadOnlyNavigation)this).DeclaringEntityType;
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public override TypeBase DeclaringType
         {
             [DebuggerStepThrough]
-            get => (EntityType)((INavigation)this).DeclaringEntityType;
+            get => (EntityType)((IReadOnlyNavigation)this).DeclaringEntityType;
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual EntityType TargetEntityType
         {
             [DebuggerStepThrough]
-            get => (EntityType)((INavigationBase)this).TargetEntityType;
+            get => (EntityType)((IReadOnlyNavigationBase)this).TargetEntityType;
         }
 
         /// <summary>
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Navigation? Inverse
         {
             [DebuggerStepThrough]
-            get => (Navigation?)((INavigationBase)this).Inverse;
+            get => (Navigation?)((IReadOnlyNavigationBase)this).Inverse;
         }
 
         /// <summary>
@@ -346,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IForeignKey INavigation.ForeignKey
+        IReadOnlyForeignKey IReadOnlyNavigation.ForeignKey
         {
             [DebuggerStepThrough] get => ForeignKey;
         }

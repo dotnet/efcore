@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public PropertyEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] IProperty property)
+            [NotNull] IReadOnlyProperty property)
             : base(eventDefinition, messageGenerator)
         {
             Property = property;
@@ -32,6 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The property.
         /// </summary>
-        public virtual IProperty Property { get; }
+        public virtual IReadOnlyProperty Property { get; }
     }
 }

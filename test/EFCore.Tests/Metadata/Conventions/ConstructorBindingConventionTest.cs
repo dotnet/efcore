@@ -392,8 +392,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         new[] { typeof(string), typeof(int) }),
                     new[]
                     {
-                        new PropertyParameterBinding(e.FindProperty(nameof(Blog.Title))),
-                        new PropertyParameterBinding(e.FindProperty(nameof(Blog.Id)))
+                        new PropertyParameterBinding((IProperty)e.FindProperty(nameof(Blog.Title))),
+                        new PropertyParameterBinding((IProperty)e.FindProperty(nameof(Blog.Id)))
                     }));
 
             Assert.NotNull(constructorBinding);

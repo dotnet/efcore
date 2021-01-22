@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 #nullable enable
@@ -10,80 +11,70 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a relationship where a foreign key property(s) in a dependent entity type
-    ///     reference a corresponding primary or alternate key in a principal entity type.
+    ///     Represents a relationship where a foreign key composed of properties on the dependent entity type
+    ///     references a corresponding primary or alternate key on the principal entity type.
     /// </summary>
-    public interface IForeignKey : IAnnotatable
+    public interface IForeignKey : IReadOnlyForeignKey, IAnnotatable
     {
+        /// <summary>
+        ///     Gets the foreign key properties in the dependent entity.
+        /// </summary>
+        new IReadOnlyList<IProperty> Properties { get; }
+
+        /// <summary>
+        ///     Gets the primary or alternate key that the relationship targets.
+        /// </summary>
+        new IKey PrincipalKey { get; }
+
         /// <summary>
         ///     Gets the dependent entity type. This may be different from the type that <see cref="Properties" />
         ///     are defined on when the relationship is defined a derived type in an inheritance hierarchy (since the properties
         ///     may be defined on a base type).
         /// </summary>
-        IEntityType DeclaringEntityType { get; }
-
-        /// <summary>
-        ///     Gets the foreign key properties in the dependent entity.
-        /// </summary>
-        IReadOnlyList<IProperty> Properties { get; }
+        new IEntityType DeclaringEntityType { get; }
 
         /// <summary>
         ///     Gets the principal entity type that this relationship targets. This may be different from the type that
         ///     <see cref="PrincipalKey" /> is defined on when the relationship targets a derived type in an inheritance
         ///     hierarchy (since the key is defined on the base type of the hierarchy).
         /// </summary>
-        IEntityType PrincipalEntityType { get; }
-
-        /// <summary>
-        ///     Gets the primary or alternate key that the relationship targets.
-        /// </summary>
-        IKey PrincipalKey { get; }
+        new IEntityType PrincipalEntityType { get; }
 
         /// <summary>
         ///     Gets the navigation property on the dependent entity type that points to the principal entity.
         /// </summary>
-        INavigation? DependentToPrincipal { get; }
+        new INavigation? DependentToPrincipal { get; }
 
         /// <summary>
         ///     Gets the navigation property on the principal entity type that points to the dependent entity.
         /// </summary>
-        INavigation? PrincipalToDependent { get; }
+        new INavigation? PrincipalToDependent { get; }
 
         /// <summary>
-        ///     Gets a value indicating whether the values assigned to the foreign key properties are unique.
-        /// </summary>
-        bool IsUnique { get; }
-
-        /// <summary>
-        ///     Gets a value indicating whether the principal entity is required.
-        ///     If <see langword="true" />, the dependent entity must always be assigned to a valid principal entity.
-        /// </summary>
-        bool IsRequired { get; }
-
-        /// <summary>
-        ///     Gets a value indicating whether the dependent entity is required.
-        ///     If <see langword="true" />, the principal entity must always have a valid dependent entity assigned.
-        /// </summary>
-        bool IsRequiredDependent { get; }
-
-        /// <summary>
-        ///     Gets or sets a value indicating whether this relationship defines an ownership.
-        ///     If <see langword="true" />, the dependent entity must always be accessed via the navigation from the principal entity.
-        /// </summary>
-        bool IsOwnership { get; }
-
-        /// <summary>
-        ///     Gets a value indicating how a delete operation is applied to dependent entities in the relationship when the
-        ///     principal is deleted or the relationship is severed.
-        /// </summary>
-        DeleteBehavior DeleteBehavior { get; }
-
-        /// <summary>
-        ///     Gets the skip navigations using this foreign key.
+        ///     Gets all skip navigations using this foreign key.
         /// </summary>
         /// <returns> The skip navigations using this foreign key. </returns>
-        IEnumerable<ISkipNavigation> GetReferencingSkipNavigations()
-            => PrincipalEntityType.GetSkipNavigations().Where(n => !n.IsOnDependent && n.ForeignKey == this)
-                .Concat(DeclaringEntityType.GetSkipNavigations().Where(n => n.IsOnDependent && n.ForeignKey == this));
+        new IEnumerable<ISkipNavigation> GetReferencingSkipNavigations()
+            => ((IReadOnlyForeignKey)this).GetReferencingSkipNavigations().Cast<ISkipNavigation>();
+
+        /// <summary>
+        ///     Gets the entity type related to the given one.
+        /// </summary>
+        /// <param name="entityType"> One of the entity types related by the foreign key. </param>
+        /// <returns> The entity type related to the given one. </returns>
+        IEntityType GetRelatedEntityType([NotNull] IEntityType entityType)
+            => (IEntityType)((IReadOnlyForeignKey)this).GetRelatedEntityType(entityType);
+
+        /// <summary>
+        ///     Returns a navigation associated with this foreign key.
+        /// </summary>
+        /// <param name="pointsToPrincipal">
+        ///     A value indicating whether the navigation is on the dependent type pointing to the principal type.
+        /// </param>
+        /// <returns>
+        ///     A navigation associated with this foreign key or <see langword="null" />.
+        /// </returns>
+        INavigation? GetNavigation(bool pointsToPrincipal)
+            => pointsToPrincipal ? DependentToPrincipal : PrincipalToDependent;
     }
 }

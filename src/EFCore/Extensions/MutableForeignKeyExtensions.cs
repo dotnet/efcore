@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
         public static IMutableEntityType GetRelatedEntityType(
             [NotNull] this IMutableForeignKey foreignKey,
             [NotNull] IMutableEntityType entityType)
-            => (IMutableEntityType)((IForeignKey)foreignKey).GetRelatedEntityType(entityType);
+            => (IMutableEntityType)((IReadOnlyForeignKey)foreignKey).GetRelatedEntityType(entityType);
 
         /// <summary>
         ///     Returns a navigation associated with this foreign key.

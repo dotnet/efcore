@@ -15,10 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     </para>
     ///     <para>
     ///         This interface is used during model creation and allows the metadata to be modified.
-    ///         Once the model is built, <see cref="IPropertyBase" /> represents a read-only view of the same metadata.
+    ///         Once the model is built, <see cref="IReadOnlyPropertyBase" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IMutablePropertyBase : IPropertyBase, IMutableAnnotatable
+    public interface IMutablePropertyBase : IReadOnlyPropertyBase, IMutableAnnotatable
     {
         /// <summary>
         ///     Gets the type that this property belongs to.

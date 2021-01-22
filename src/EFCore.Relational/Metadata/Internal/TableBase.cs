@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -47,7 +48,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual RelationalModel Model { get; }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override bool IsReadOnly => Model.IsReadOnly;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual bool IsShared { get; set; }
 
         /// <summary>
@@ -132,15 +146,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         IRelationalModel ITableBase.Model
-            => Model;
+        {
+            [DebuggerStepThrough]
+            get => Model;
+        }
 
         /// <inheritdoc />
         IEnumerable<ITableMappingBase> ITableBase.EntityTypeMappings
-            => EntityTypeMappings;
+        {
+            [DebuggerStepThrough]
+            get => EntityTypeMappings;
+        }
 
         /// <inheritdoc />
         IEnumerable<IColumnBase> ITableBase.Columns
-            => Columns.Values;
+        {
+            [DebuggerStepThrough]
+            get => Columns.Values;
+        }
 
         /// <inheritdoc />
         IEnumerable<IForeignKey> ITableBase.GetRowInternalForeignKeys(IEntityType entityType)

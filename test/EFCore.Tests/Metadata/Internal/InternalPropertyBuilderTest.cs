@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [ConditionalFact]
         public void Can_only_override_existing_CustomValueGenerator_factory_explicitly()
         {
-            ValueGenerator factory(IProperty p, IEntityType e)
+            ValueGenerator factory(IReadOnlyProperty p, IReadOnlyEntityType e)
                 => new CustomValueGenerator1();
 
             var metadata = CreateProperty();
@@ -238,13 +238,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(ValueGenerated.Never, metadata.ValueGenerated);
             Assert.True(metadata.RequiresValueGenerator());
 
-            Assert.Null(builder.HasValueGenerator((Func<IProperty, IEntityType, ValueGenerator>)null, ConfigurationSource.Convention));
+            Assert.Null(builder.HasValueGenerator((Func<IReadOnlyProperty, IReadOnlyEntityType, ValueGenerator>)null, ConfigurationSource.Convention));
 
             Assert.IsType<CustomValueGenerator1>(metadata.GetValueGeneratorFactory()(null, null));
             Assert.Equal(ValueGenerated.Never, metadata.ValueGenerated);
             Assert.True(metadata.RequiresValueGenerator());
 
-            Assert.NotNull(builder.HasValueGenerator((Func<IProperty, IEntityType, ValueGenerator>)null, ConfigurationSource.Explicit));
+            Assert.NotNull(builder.HasValueGenerator((Func<IReadOnlyProperty, IReadOnlyEntityType, ValueGenerator>)null, ConfigurationSource.Explicit));
 
             Assert.Null(metadata.GetValueGeneratorFactory());
             Assert.Equal(ValueGenerated.Never, metadata.ValueGenerated);

@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 { typeof(string), () => "Fake" },
                 { typeof(IEntityType), () => entityType },
-                { typeof(ISequence), () => new FakeSequence() },
+                { typeof(IReadOnlySequence), () => new FakeSequence() },
                 { typeof(Type), () => typeof(object) }
             };
 
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
                 fakeFactories);
         }
 
-        private class FakeSequence : Annotatable, ISequence
+        private class FakeSequence : Annotatable, IReadOnlySequence
         {
             public string Name
                 => "SequenceName";
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore
             public Type Type
                 => throw new NotImplementedException();
 
-            public IModel Model
+            public IReadOnlyModel Model
                 => throw new NotImplementedException();
 
             public bool IsCyclic

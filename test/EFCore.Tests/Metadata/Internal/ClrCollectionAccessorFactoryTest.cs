@@ -44,12 +44,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private class FakeNavigation : Annotatable, INavigation, IClrCollectionAccessor
         {
             public string Name { get; }
-            public ITypeBase DeclaringType { get; }
+            public IReadOnlyTypeBase DeclaringType { get; }
             public Type ClrType { get; }
             public PropertyInfo PropertyInfo { get; set; }
             public FieldInfo FieldInfo { get; }
             public IEntityType DeclaringEntityType { get; }
-            public IForeignKey ForeignKey { get; set; }
+            public IReadOnlyForeignKey ForeignKey { get; set; }
 
             public bool Add(object entity, object value, bool forMaterialization)
                 => throw new NotImplementedException();
@@ -65,6 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public object GetOrCreate(object entity, bool forMaterialization)
                 => throw new NotImplementedException();
+
+            public IClrPropertyGetter GetGetter() => throw new NotImplementedException();
 
             public Type CollectionType { get; }
         }
@@ -268,7 +270,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             RunConvention(navigation);
 
-            var accessor = new ClrCollectionAccessorFactory().Create(navigation);
+            var accessor = new ClrCollectionAccessorFactory().Create((INavigation)navigation);
 
             var entity = new MyEntity(initialize: false);
             var value = new MyEntityWithCustomComparer { Id = 1 };
@@ -409,7 +411,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     () => accessor.Add(new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
         }
 
-        private IMutableNavigation CreateNavigation(string navigationName)
+        private INavigation CreateNavigation(string navigationName)
         {
             IMutableModel model = new Model();
             var entityType = model.AddEntityType(typeof(MyEntity));
@@ -424,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             RunConvention(navigation);
 
-            return navigation;
+            return (INavigation)navigation;
         }
 
         private void RunConvention(IMutableNavigation navigation)

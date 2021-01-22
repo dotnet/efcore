@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="IModel" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IMutableModel : IModel, IMutableAnnotatable
+    public interface IMutableModel : IReadOnlyModel, IMutableAnnotatable
     {
         /// <summary>
         ///     <para>
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     or the entity type has a defining navigation.
         /// </summary>
         /// <param name="name"> The name of the entity type to find. </param>
-        /// <returns> The entity type, or <see langword="null" /> if none are found. </returns>
+        /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
         new IMutableEntityType? FindEntityType([NotNull] string name);
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The name of the entity type to find. </param>
         /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
-        /// <returns> The entity type, or <see langword="null" /> if none are found. </returns>
+        /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
         IMutableEntityType? FindEntityType(
             [NotNull] string name,
             [NotNull] string definingNavigationName,

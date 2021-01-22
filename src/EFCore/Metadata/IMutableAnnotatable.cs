@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public interface IMutableAnnotatable : IAnnotatable
+    public interface IMutableAnnotatable : IReadOnlyAnnotatable
     {
         /// <summary>
         ///     Gets or sets the value of the annotation with the given name.

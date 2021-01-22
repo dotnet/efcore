@@ -304,8 +304,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> <see langword="true" /> if compatible </returns>
         protected virtual bool AreCompatible(
-            [NotNull] IKey key,
-            [NotNull] IKey duplicateKey,
+            [NotNull] IReadOnlyKey key,
+            [NotNull] IReadOnlyKey duplicateKey,
             in StoreObjectIdentifier storeObject)
             => key.AreCompatible(duplicateKey, storeObject, shouldThrow: false);
 
@@ -374,8 +374,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> <see langword="true" /> if compatible </returns>
         protected virtual bool AreCompatible(
-            [NotNull] IIndex index,
-            [NotNull] IIndex duplicateIndex,
+            [NotNull] IReadOnlyIndex index,
+            [NotNull] IReadOnlyIndex duplicateIndex,
             in StoreObjectIdentifier storeObject)
             => index.AreCompatible(duplicateIndex, storeObject, shouldThrow: false);
 
@@ -465,8 +465,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> <see langword="true" /> if compatible </returns>
         protected virtual bool AreCompatible(
-            [NotNull] IForeignKey foreignKey,
-            [NotNull] IForeignKey duplicateForeignKey,
+            [NotNull] IReadOnlyForeignKey foreignKey,
+            [NotNull] IReadOnlyForeignKey duplicateForeignKey,
             in StoreObjectIdentifier storeObject)
             => foreignKey.AreCompatible(duplicateForeignKey, storeObject, shouldThrow: false);
 

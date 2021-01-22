@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static Expression MakeHasDefaultValue(
             [NotNull] this Expression currentValueExpression,
-            [CanBeNull] IPropertyBase? propertyBase)
+            [CanBeNull] IReadOnlyPropertyBase? propertyBase)
         {
             if (!currentValueExpression.Type.IsValueType)
             {
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         currentValueExpression.Type.GetRequiredMethod("get_HasValue")));
             }
 
-            var property = propertyBase as IProperty;
+            var property = propertyBase as IReadOnlyProperty;
             var clrType = propertyBase?.ClrType ?? currentValueExpression.Type;
             var comparer = property?.GetValueComparer()
                 ?? ValueComparer.CreateDefault(clrType, favorStructuralComparisons: false);
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static Expression BuildPredicate(
-            [NotNull] IReadOnlyList<IProperty> keyProperties,
+            [NotNull] IReadOnlyList<IReadOnlyProperty> keyProperties,
             ValueBuffer keyValues,
             [NotNull] ParameterExpression entityParameter)
         {
@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             static Expression GenerateEqualExpression(
                 Expression entityParameterExpression,
                 Expression keyValuesConstantExpression,
-                IProperty property,
+                IReadOnlyProperty property,
                 int i)
                 => property.ClrType.IsValueType
                     && property.ClrType.UnwrapNullableType() is Type nonNullableType

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Extension methods for <see cref="IKey" /> for SQL Server-specific metadata.
+    ///     Key extension methods for SQL Server-specific metadata.
     /// </summary>
     public static class SqlServerKeyExtensions
     {
@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="key"> The key. </param>
         /// <returns> <see langword="true" /> if the key is clustered. </returns>
-        public static bool? IsClustered([NotNull] this IKey key)
+        public static bool? IsClustered([NotNull] this IReadOnlyKey key)
             => (bool?)key[SqlServerAnnotationNames.Clustered];
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="key"> The key. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> <see langword="true" /> if the key is clustered. </returns>
-        public static bool? IsClustered([NotNull] this IKey key, in StoreObjectIdentifier storeObject)
+        public static bool? IsClustered([NotNull] this IReadOnlyKey key, in StoreObjectIdentifier storeObject)
         {
             var annotation = key.FindAnnotation(SqlServerAnnotationNames.Clustered);
             if (annotation != null)
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore
             return GetDefaultIsClustered(key, storeObject);
         }
 
-        private static bool? GetDefaultIsClustered([NotNull] IKey key, in StoreObjectIdentifier storeObject)
+        private static bool? GetDefaultIsClustered([NotNull] IReadOnlyKey key, in StoreObjectIdentifier storeObject)
         {
             var sharedTableRootKey = key.FindSharedObjectRootKey(storeObject);
             return sharedTableRootKey?.IsClustered(storeObject);

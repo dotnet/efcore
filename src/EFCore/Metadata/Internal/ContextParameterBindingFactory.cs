@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual ParameterBinding Bind(IMutableEntityType entityType, Type parameterType, string parameterName)
             => new ContextParameterBinding(
                 parameterType,
-                entityType.GetServiceProperties().FirstOrDefault(p => p.ClrType == parameterType));
+                (IPropertyBase?)entityType.GetServiceProperties().FirstOrDefault(p => p.ClrType == parameterType));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -50,6 +50,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             string parameterName)
             => new ContextParameterBinding(
                 parameterType,
-                entityType.GetServiceProperties().FirstOrDefault(p => p.ClrType == parameterType));
+                (IPropertyBase?)entityType.GetServiceProperties().FirstOrDefault(p => p.ClrType == parameterType));
     }
 }

@@ -81,14 +81,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="property"> The property. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The store value generation strategy to set for the given property. </returns>
-        public static new ValueGenerated? GetValueGenerated([NotNull] IProperty property, in StoreObjectIdentifier storeObject)
+        public static new ValueGenerated? GetValueGenerated([NotNull] IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
             => RelationalValueGenerationConvention.GetValueGenerated(property, storeObject)
                 ?? (property.GetValueGenerationStrategy(storeObject) != SqlServerValueGenerationStrategy.None
                     ? ValueGenerated.OnAdd
                     : (ValueGenerated?)null);
 
         private ValueGenerated? GetValueGenerated(
-            [NotNull] IProperty property,
+            [NotNull] IReadOnlyProperty property,
             in StoreObjectIdentifier storeObject,
             ITypeMappingSource typeMappingSource)
             => RelationalValueGenerationConvention.GetValueGenerated(property, storeObject)

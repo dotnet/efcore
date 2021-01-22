@@ -423,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             Assert.Same(entityBuilder, RunConvention(entityBuilder));
 
-            var model = (IModel)entityBuilder.Metadata.Model;
+            var model = (IReadOnlyModel)entityBuilder.Metadata.Model;
             Assert.Equal(2, model.GetEntityTypes().Count());
             var firstEntityType = model.GetEntityTypes().Single(e => e.ClrType == typeof(MultipleNavigationsFirst));
             var secondEntityType = model.GetEntityTypes().Single(e => e.ClrType == typeof(MultipleNavigationsSecond));
@@ -811,7 +811,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             Assert.Same(entityBuilder, RunConvention(entityBuilder));
 
-            var model = (IModel)entityBuilder.Metadata.Model;
+            var model = (IReadOnlyModel)entityBuilder.Metadata.Model;
             Assert.Equal(2, model.GetEntityTypes().Count());
             var firstEntityType = model.GetEntityTypes().Single(e => e.ClrType == typeof(AmbiguousCardinalityOne));
             var secondEntityType = model.GetEntityTypes().Single(e => e.ClrType == typeof(AmbiguousCardinalityTwo));
@@ -829,7 +829,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             Assert.Same(entityBuilder, RunConvention(entityBuilder));
 
-            var model = (IModel)entityBuilder.Metadata.Model;
+            var model = (IReadOnlyModel)entityBuilder.Metadata.Model;
             Assert.Equal(2, model.GetEntityTypes().Count());
             var firstEntityType = model.GetEntityTypes().Single(e => e.ClrType == typeof(AmbiguousCardinalityOne));
             var secondEntityType = model.GetEntityTypes().Single(e => e.ClrType == typeof(AmbiguousCardinalityTwo));
@@ -979,7 +979,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             Assert.Same(entityBuilder, RunConvention(entityBuilder));
 
-            IModel model = entityBuilder.Metadata.Model;
+            IReadOnlyModel model = entityBuilder.Metadata.Model;
             var entityType = model.GetEntityTypes().Single();
 
             Assert.Equal(2, entityType.GetProperties().Count());
@@ -998,7 +998,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             Assert.Same(entityBuilder, RunConvention(entityBuilder));
 
-            IModel model = entityBuilder.Metadata.Model;
+            IReadOnlyModel model = entityBuilder.Metadata.Model;
             Assert.NotNull(model.FindEntityType(typeof(EntityWithNoValidNavigations)));
             var entityType = entityBuilder.Metadata;
 
@@ -1096,7 +1096,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             bool unique,
             bool singleRelationship = true)
         {
-            IForeignKey fk = navigation.ForeignKey;
+            IReadOnlyForeignKey fk = navigation.ForeignKey;
             Assert.Equal(expectedInverseName, navigation.Inverse?.Name);
             Assert.Equal(unique, fk.IsUnique);
             Assert.NotSame(fk.Properties.Single(), fk.PrincipalKey.Properties.Single());
@@ -1131,7 +1131,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             bool unique,
             bool singleRelationship = true)
         {
-            IForeignKey fk = navigation.ForeignKey;
+            IReadOnlyForeignKey fk = navigation.ForeignKey;
             Assert.Single(fk.DeclaringEntityType.Model.GetEntityTypes());
             Assert.Equal(expectedInverseName, navigation.Inverse?.Name);
             Assert.Equal(unique, fk.IsUnique);

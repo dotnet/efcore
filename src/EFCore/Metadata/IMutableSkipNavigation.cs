@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="ISkipNavigation" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IMutableSkipNavigation : ISkipNavigation, IMutableNavigationBase
+    public interface IMutableSkipNavigation : IReadOnlySkipNavigation, IMutableNavigationBase
     {
         /// <summary>
         ///     Gets the type that this navigation property belongs to.
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IMutableEntityType DeclaringEntityType
         {
             [DebuggerStepThrough]
-            get => (IMutableEntityType)((INavigationBase)this).DeclaringEntityType;
+            get => (IMutableEntityType)((IReadOnlyNavigationBase)this).DeclaringEntityType;
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IMutableEntityType TargetEntityType
         {
             [DebuggerStepThrough]
-            get => (IMutableEntityType)((INavigationBase)this).TargetEntityType;
+            get => (IMutableEntityType)((IReadOnlyNavigationBase)this).TargetEntityType;
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IMutableEntityType? JoinEntityType
         {
             [DebuggerStepThrough]
-            get => (IMutableEntityType?)((ISkipNavigation)this).JoinEntityType;
+            get => (IMutableEntityType?)((IReadOnlySkipNavigation)this).JoinEntityType;
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IMutableForeignKey? ForeignKey
         {
             [DebuggerStepThrough]
-            get => (IMutableForeignKey?)((ISkipNavigation)this).ForeignKey;
+            get => (IMutableForeignKey?)((IReadOnlySkipNavigation)this).ForeignKey;
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IMutableSkipNavigation? Inverse
         {
             [DebuggerStepThrough]
-            get => (IMutableSkipNavigation?)((ISkipNavigation)this).Inverse;
+            get => (IMutableSkipNavigation?)((IReadOnlySkipNavigation)this).Inverse;
         }
 
         /// <summary>

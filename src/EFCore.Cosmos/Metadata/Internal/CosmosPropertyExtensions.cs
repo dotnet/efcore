@@ -23,13 +23,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsOrdinalKeyProperty([NotNull] this IProperty property)
+        public static bool IsOrdinalKeyProperty([NotNull] this IReadOnlyProperty property)
         {
             Check.DebugAssert(
                 property.DeclaringEntityType.IsOwned(), $"Expected {property.DeclaringEntityType.DisplayName()} to be owned.");
             Check.DebugAssert(property.GetJsonPropertyName().Length == 0, $"Expected {property.Name} to be non-persisted.");
 
-            return property.FindContainingPrimaryKey() is IKey key
+            return property.FindContainingPrimaryKey() is IReadOnlyKey key
                 && key.Properties.Count > 1
                 && !property.IsForeignKey()
                 && property.ClrType == typeof(int)

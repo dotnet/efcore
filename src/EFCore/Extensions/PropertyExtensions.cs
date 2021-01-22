@@ -23,7 +23,7 @@ using Microsoft.EntityFrameworkCore.ValueGeneration;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Extension methods for <see cref="IProperty" />.
+    ///     Extension methods for <see cref="IReadOnlyProperty" />.
     /// </summary>
     public static class PropertyExtensions
     {
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The type mapping. </returns>
-        public static CoreTypeMapping GetTypeMapping([NotNull] this IProperty property)
+        public static CoreTypeMapping GetTypeMapping([NotNull] this IReadOnlyProperty property)
         {
             var mapping = ((Property)property).TypeMapping;
             if (mapping == null)
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
-        public static CoreTypeMapping? FindTypeMapping([NotNull] this IProperty property)
+        public static CoreTypeMapping? FindTypeMapping([NotNull] this IReadOnlyProperty property)
             => ((Property)property).TypeMapping;
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The foreign key property. </param>
         /// <returns> The first associated principal property, or <see langword="null" /> if none exists. </returns>
-        public static IProperty? FindFirstPrincipal([NotNull] this IProperty property)
+        public static IReadOnlyProperty? FindFirstPrincipal([NotNull] this IReadOnlyProperty property)
         {
             Check.NotNull(property, nameof(property));
 
@@ -85,14 +85,14 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The foreign key property. </param>
         /// <returns> The list of all associated principal properties including the given property. </returns>
-        public static IReadOnlyList<IProperty> FindPrincipals([NotNull] this IProperty property)
+        public static IReadOnlyList<IReadOnlyProperty> FindPrincipals([NotNull] this IReadOnlyProperty property)
         {
-            var principals = new List<IProperty> { property };
+            var principals = new List<IReadOnlyProperty> { property };
             AddPrincipals(property, principals);
             return principals;
         }
 
-        private static void AddPrincipals(IProperty property, List<IProperty> visited)
+        private static void AddPrincipals(IReadOnlyProperty property, List<IReadOnlyProperty> visited)
         {
             var concreteProperty = property.AsProperty();
 
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to check. </param>
         /// <returns> <see langword="true" /> if the property is used as a foreign key, otherwise <see langword="false" />. </returns>
-        public static bool IsForeignKey([NotNull] this IProperty property)
+        public static bool IsForeignKey([NotNull] this IReadOnlyProperty property)
             => Check.NotNull((Property)property, nameof(property)).ForeignKeys != null;
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to check. </param>
         /// <returns> <see langword="true" /> if the property is used as an index, otherwise <see langword="false" />. </returns>
-        public static bool IsIndex([NotNull] this IProperty property)
+        public static bool IsIndex([NotNull] this IReadOnlyProperty property)
             => Check.NotNull((Property)property, nameof(property)).Indexes != null;
 
         /// <summary>
@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to check. </param>
         /// <returns> <see langword="true" /> if the property is used as an unique index, otherwise <see langword="false" />. </returns>
-        public static bool IsUniqueIndex([NotNull] this IProperty property)
+        public static bool IsUniqueIndex([NotNull] this IReadOnlyProperty property)
             => Check.NotNull(property, nameof(property)).AsProperty().Indexes?.Any(e => e.IsUnique) == true;
 
         /// <summary>
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to check. </param>
         /// <returns> <see langword="true" /> if the property is used as the primary key, otherwise <see langword="false" />. </returns>
-        public static bool IsPrimaryKey([NotNull] this IProperty property)
+        public static bool IsPrimaryKey([NotNull] this IReadOnlyProperty property)
             => FindContainingPrimaryKey(property) != null;
 
         /// <summary>
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to check. </param>
         /// <returns> <see langword="true" /> if the property is used as a key, otherwise <see langword="false" />. </returns>
-        public static bool IsKey([NotNull] this IProperty property)
+        public static bool IsKey([NotNull] this IReadOnlyProperty property)
             => Check.NotNull((Property)property, nameof(property)).Keys != null;
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to get foreign keys for. </param>
         /// <returns> The foreign keys that use this property. </returns>
-        public static IEnumerable<IForeignKey> GetContainingForeignKeys([NotNull] this IProperty property)
+        public static IEnumerable<IReadOnlyForeignKey> GetContainingForeignKeys([NotNull] this IReadOnlyProperty property)
             => Check.NotNull((Property)property, nameof(property)).GetContainingForeignKeys();
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to get indexes for. </param>
         /// <returns> The indexes that use this property. </returns>
-        public static IEnumerable<IIndex> GetContainingIndexes([NotNull] this IProperty property)
+        public static IEnumerable<IReadOnlyIndex> GetContainingIndexes([NotNull] this IReadOnlyProperty property)
             => Check.NotNull((Property)property, nameof(property)).GetContainingIndexes();
 
         /// <summary>
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to get primary key for. </param>
         /// <returns> The primary that use this property, or <see langword="null" /> if it is not part of the primary key. </returns>
-        public static IKey? FindContainingPrimaryKey([NotNull] this IProperty property)
+        public static IReadOnlyKey? FindContainingPrimaryKey([NotNull] this IReadOnlyProperty property)
             => Check.NotNull((Property)property, nameof(property)).PrimaryKey;
 
         /// <summary>
@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to get primary and alternate keys for. </param>
         /// <returns> The primary and alternate keys that use this property. </returns>
-        public static IEnumerable<IKey> GetContainingKeys([NotNull] this IProperty property)
+        public static IEnumerable<IReadOnlyKey> GetContainingKeys([NotNull] this IReadOnlyProperty property)
             => Check.NotNull((Property)property, nameof(property)).GetContainingKeys();
 
         /// <summary>
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to get the maximum length of. </param>
         /// <returns> The maximum length, or <see langword="null" /> if none if defined. </returns>
-        public static int? GetMaxLength([NotNull] this IProperty property)
+        public static int? GetMaxLength([NotNull] this IReadOnlyProperty property)
         {
             Check.NotNull(property, nameof(property));
 
@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to get the precision of. </param>
         /// <returns> The precision, or <see langword="null" /> if none is defined. </returns>
-        public static int? GetPrecision([NotNull] this IProperty property)
+        public static int? GetPrecision([NotNull] this IReadOnlyProperty property)
         {
             Check.NotNull(property, nameof(property));
 
@@ -226,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to get the scale of. </param>
         /// <returns> The scale, or <see langword="null" /> if none is defined. </returns>
-        public static int? GetScale([NotNull] this IProperty property)
+        public static int? GetScale([NotNull] this IReadOnlyProperty property)
         {
             Check.NotNull(property, nameof(property));
 
@@ -238,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to get the Unicode setting for. </param>
         /// <returns> The Unicode setting, or <see langword="null" /> if none is defined. </returns>
-        public static bool? IsUnicode([NotNull] this IProperty property)
+        public static bool? IsUnicode([NotNull] this IReadOnlyProperty property)
         {
             Check.NotNull(property, nameof(property));
 
@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="property"> The property. </param>
-        public static PropertySaveBehavior GetBeforeSaveBehavior([NotNull] this IProperty property)
+        public static PropertySaveBehavior GetBeforeSaveBehavior([NotNull] this IReadOnlyProperty property)
             => (PropertySaveBehavior?)Check.NotNull(property, nameof(property))[CoreAnnotationNames.BeforeSaveBehavior]
                 ?? (property.ValueGenerated == ValueGenerated.OnAddOrUpdate
                     ? PropertySaveBehavior.Ignore
@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="property"> The property. </param>
-        public static PropertySaveBehavior GetAfterSaveBehavior([NotNull] this IProperty property)
+        public static PropertySaveBehavior GetAfterSaveBehavior([NotNull] this IReadOnlyProperty property)
             => (PropertySaveBehavior?)Check.NotNull(property, nameof(property))[CoreAnnotationNames.AfterSaveBehavior]
                 ?? (property.IsKey()
                     ? PropertySaveBehavior.Throw
@@ -295,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to get the value generator factory for. </param>
         /// <returns> The factory, or <see langword="null" /> if no factory has been set. </returns>
-        public static Func<IProperty, IEntityType, ValueGenerator>? GetValueGeneratorFactory([NotNull] this IProperty property)
+        public static Func<IProperty, IEntityType, ValueGenerator>? GetValueGeneratorFactory([NotNull] this IReadOnlyProperty property)
             => (Func<IProperty, IEntityType, ValueGenerator>?)
                 Check.NotNull(property, nameof(property))[CoreAnnotationNames.ValueGeneratorFactory];
 
@@ -304,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The converter, or <see langword="null" /> if none has been set. </returns>
-        public static ValueConverter? GetValueConverter([NotNull] this IProperty property)
+        public static ValueConverter? GetValueConverter([NotNull] this IReadOnlyProperty property)
             => (ValueConverter?)Check.NotNull(property, nameof(property))[CoreAnnotationNames.ValueConverter];
 
         /// <summary>
@@ -312,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The provider type, or <see langword="null" /> if none has been set. </returns>
-        public static Type? GetProviderClrType([NotNull] this IProperty property)
+        public static Type? GetProviderClrType([NotNull] this IReadOnlyProperty property)
             => (Type?)Check.NotNull(property, nameof(property))[CoreAnnotationNames.ProviderClrType];
 
         /// <summary>
@@ -320,7 +320,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The comparer, or <see langword="null" /> if none has been set. </returns>
-        public static ValueComparer? GetValueComparer([NotNull] this IProperty property)
+        public static ValueComparer? GetValueComparer([NotNull] this IReadOnlyProperty property)
         {
             Check.NotNull(property, nameof(property));
 
@@ -333,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The comparer, or <see langword="null" /> if none has been set. </returns>
-        public static ValueComparer? GetKeyValueComparer([NotNull] this IProperty property)
+        public static ValueComparer? GetKeyValueComparer([NotNull] this IReadOnlyProperty property)
         {
             Check.NotNull(property, nameof(property));
 
@@ -347,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The comparer, or <see langword="null" /> if none has been set. </returns>
         [Obsolete("Use GetKeyValueComparer. A separate structural comparer is no longer supported.")]
-        public static ValueComparer? GetStructuralValueComparer([NotNull] this IProperty property)
+        public static ValueComparer? GetStructuralValueComparer([NotNull] this IReadOnlyProperty property)
             => property.GetKeyValueComparer();
 
         /// <summary>
@@ -356,7 +356,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <typeparam name="TProperty"> The property type. </typeparam>
         /// <returns> A new equality comparer. </returns>
-        public static IEqualityComparer<TProperty> CreateKeyEqualityComparer<TProperty>([NotNull] this IProperty property)
+        public static IEqualityComparer<TProperty> CreateKeyEqualityComparer<TProperty>([NotNull] this IReadOnlyProperty property)
         {
             var comparer = property.GetKeyValueComparer()!;
 
@@ -389,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="properties"> The properties to format. </param>
         /// <param name="includeTypes"> If true, then type names are included in the string. The default is <see langword="false" />.</param>
         /// <returns> The string representation. </returns>
-        public static string Format([NotNull] this IEnumerable<IPropertyBase> properties, bool includeTypes = false)
+        public static string Format([NotNull] this IEnumerable<IReadOnlyPropertyBase> properties, bool includeTypes = false)
             => "{"
                 + string.Join(
                     ", ",
@@ -411,7 +411,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="indent"> The number of indent spaces to use before each new line. </param>
         /// <returns> A human-readable representation. </returns>
         public static string ToDebugString(
-            [NotNull] this IProperty property,
+            [NotNull] this IReadOnlyProperty property,
             MetadataDebugStringOptions options,
             int indent = 0)
         {
@@ -511,17 +511,15 @@ namespace Microsoft.EntityFrameworkCore
                 builder.Append(" PropertyAccessMode.").Append(property.GetPropertyAccessMode());
             }
 
-            if ((options & MetadataDebugStringOptions.IncludePropertyIndexes) != 0)
+            if ((options & MetadataDebugStringOptions.IncludePropertyIndexes) != 0
+                && ((Annotatable)property).IsReadOnly)
             {
-                var indexes = property.GetPropertyIndexes();
-                if (indexes != null)
-                {
-                    builder.Append(" ").Append(indexes.Index);
-                    builder.Append(" ").Append(indexes.OriginalValueIndex);
-                    builder.Append(" ").Append(indexes.RelationshipIndex);
-                    builder.Append(" ").Append(indexes.ShadowIndex);
-                    builder.Append(" ").Append(indexes.StoreGenerationIndex);
-                }
+                var indexes = ((IProperty)property).GetPropertyIndexes();
+                builder.Append(" ").Append(indexes.Index);
+                builder.Append(" ").Append(indexes.OriginalValueIndex);
+                builder.Append(" ").Append(indexes.RelationshipIndex);
+                builder.Append(" ").Append(indexes.ShadowIndex);
+                builder.Append(" ").Append(indexes.StoreGenerationIndex);
             }
 
             if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)

@@ -30,11 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
             modelBuilder.Entity("TestEntity").Property<int>("Id").HasAnnotation(ScaffoldingAnnotationNames.ColumnOrdinal, 0);
 
-            var model = (Model)modelBuilder.Model;
-            var finalizedModel = model.ConventionDispatcher.OnModelFinalizing(model.Builder)?.Metadata;
-
             var result = generator.GenerateModel(
-                finalizedModel,
+                modelBuilder.FinalizeModel(),
                 new ModelCodeGenerationOptions
                 {
                     ModelNamespace = "TestNamespace",

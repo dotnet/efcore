@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static Index AsIndex([NotNull] this IIndex index, [NotNull] [CallerMemberName] string methodName = "")
-            => MetadataExtensions.AsConcreteMetadataType<IIndex, Index>(index, methodName);
+        public static Index AsIndex([NotNull] this IReadOnlyIndex index, [NotNull] [CallerMemberName] string methodName = "")
+            => MetadataExtensions.AsConcreteMetadataType<IReadOnlyIndex, Index>(index, methodName);
     }
 }

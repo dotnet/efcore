@@ -25,7 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
             modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
             buildModel(modelBuilder);
-            var _ = modelBuilder.Model.GetEntityTypeErrors();
 
             var model = modelBuilder.FinalizeModel();
 

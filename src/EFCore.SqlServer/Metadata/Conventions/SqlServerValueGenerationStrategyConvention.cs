@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
             }
 
-            bool IsStrategyNoneNeeded(IProperty property, StoreObjectIdentifier storeObject)
+            bool IsStrategyNoneNeeded(IReadOnlyProperty property, StoreObjectIdentifier storeObject)
             {
                 if (property.ValueGenerated == ValueGenerated.OnAdd
                     && property.GetDefaultValue(storeObject) == null
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 {
                     var providerClrType = (property.GetValueConverter()
                         ?? (property.FindRelationalTypeMapping(storeObject)
-                            ?? Dependencies.TypeMappingSource.FindMapping(property))?.Converter)
+                            ?? Dependencies.TypeMappingSource.FindMapping((IProperty)property))?.Converter)
                         ?.ProviderClrType.UnwrapNullableType();
 
                     return providerClrType != null

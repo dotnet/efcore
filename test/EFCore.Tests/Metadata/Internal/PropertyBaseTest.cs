@@ -790,7 +790,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             property.SetPropertyAccessMode(accessMode);
 
-            MemberInfoTestCommon(property, accessMode, forConstruction, forSet, forGet);
+            MemberInfoTestCommon((IPropertyBase)property, accessMode, forConstruction, forSet, forGet);
         }
 
         private void MemberInfoTest(
@@ -802,7 +802,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             navigation.SetPropertyAccessMode(accessMode);
 
-            MemberInfoTestCommon(navigation, accessMode, forConstruction, forSet, forGet);
+            MemberInfoTestCommon((IPropertyBase)navigation, accessMode, forConstruction, forSet, forGet);
         }
 
         private void MemberInfoTestCommon(

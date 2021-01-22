@@ -93,12 +93,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
                     && (ConfigurationSource.Convention.Overrides(property.GetPrecisionConfigurationSource())
                         || ConfigurationSource.Convention.Overrides(property.GetScaleConfigurationSource())))
                 {
-                    logger.DecimalTypeDefaultWarning(property);
+                    logger.DecimalTypeDefaultWarning((IProperty)property);
                 }
 
                 if (property.IsKey())
                 {
-                    logger.DecimalTypeKeyWarning(property);
+                    logger.DecimalTypeKeyWarning((IProperty)property);
                 }
             }
         }

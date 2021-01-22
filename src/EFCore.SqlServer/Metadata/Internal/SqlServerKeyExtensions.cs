@@ -24,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool AreCompatibleForSqlServer(
-            [NotNull] this IKey key,
-            [NotNull] IKey duplicateKey,
+            [NotNull] this IReadOnlyKey key,
+            [NotNull] IReadOnlyKey duplicateKey,
             in StoreObjectIdentifier storeObject,
             bool shouldThrow)
         {

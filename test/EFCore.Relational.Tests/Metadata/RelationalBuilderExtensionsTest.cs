@@ -841,7 +841,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             ValidateNamedSequence(sequence);
         }
 
-        private static void ValidateNamedSequence(ISequence sequence)
+        private static void ValidateNamedSequence(IReadOnlySequence sequence)
         {
             Assert.Equal("Snook", sequence.Name);
             Assert.Null(sequence.Schema);
@@ -864,7 +864,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             ValidateSchemaNamedSequence(sequence);
         }
 
-        private static void ValidateSchemaNamedSequence(ISequence sequence)
+        private static void ValidateSchemaNamedSequence(IReadOnlySequence sequence)
         {
             Assert.Equal("Snook", sequence.Name);
             Assert.Equal("Tasty", sequence.Schema);
@@ -949,7 +949,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             ValidateNamedSpecificSequence(sequence);
         }
 
-        private static void ValidateNamedSpecificSequence(ISequence sequence)
+        private static void ValidateNamedSpecificSequence(IReadOnlySequence sequence)
         {
             Assert.Equal("Snook", sequence.Name);
             Assert.Null(sequence.Schema);
@@ -1224,7 +1224,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         protected virtual ModelBuilder CreateConventionModelBuilder()
             => RelationalTestHelpers.Instance.CreateConventionBuilder();
 
-        private static void ValidateSchemaNamedSpecificSequence(ISequence sequence)
+        private static void ValidateSchemaNamedSpecificSequence(IReadOnlySequence sequence)
         {
             Assert.Equal("Snook", sequence.Name);
             Assert.Equal("Tasty", sequence.Schema);

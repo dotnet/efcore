@@ -982,7 +982,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Test_removing_index_does_not_remove_contained_shadow_properties_if_referenced_elsewhere(
                 (entityBuilder, property) => entityBuilder.Property(
-                    property.ClrType, ((IProperty)property).Name, ConfigurationSource.Explicit));
+                    property.ClrType, ((IReadOnlyProperty)property).Name, ConfigurationSource.Explicit));
         }
 
         private void Test_removing_index_does_not_remove_contained_shadow_properties_if_referenced_elsewhere(
@@ -1048,7 +1048,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotNull(
                 entityBuilder.PrimaryKey(new[] { Order.IdProperty, Order.CustomerUniqueProperty }, ConfigurationSource.DataAnnotation));
 
-            Assert.False(entityBuilder.Metadata.FindProperty(Order.CustomerUniqueProperty).IsNullable);
+            Assert.False(((IReadOnlyEntityType)entityBuilder.Metadata).FindProperty(Order.CustomerUniqueProperty).IsNullable);
 
             Assert.Null(
                 entityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention)
@@ -1057,7 +1057,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 entityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention)
                     .IsRequired(false, ConfigurationSource.DataAnnotation));
 
-            Assert.True(entityBuilder.Metadata.FindProperty(Order.CustomerUniqueProperty).IsNullable);
+            Assert.True(((IReadOnlyEntityType)entityBuilder.Metadata).FindProperty(Order.CustomerUniqueProperty).IsNullable);
             Assert.Null(entityBuilder.Metadata.FindPrimaryKey());
         }
 

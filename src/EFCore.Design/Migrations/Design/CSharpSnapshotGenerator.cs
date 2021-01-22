@@ -232,7 +232,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                     GenerateProperties(builderName, entityType.GetDeclaredProperties(), stringBuilder);
 
-                    GenerateKeys(builderName, entityType.GetDeclaredKeys(), entityType.FindDeclaredPrimaryKey(), stringBuilder);
+                    GenerateKeys(
+                        builderName,
+                        entityType.GetDeclaredKeys(),
+                        entityType.BaseType == null ? entityType.FindPrimaryKey() : null,
+                        stringBuilder);
 
                     GenerateIndexes(builderName, entityType.GetDeclaredIndexes(), stringBuilder);
 

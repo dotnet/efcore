@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         public static IConventionAnnotation GetAnnotation(
             [NotNull] this IConventionAnnotatable annotatable,
             [NotNull] string annotationName)
-            => (IConventionAnnotation)((IAnnotatable)annotatable).GetAnnotation(annotationName);
+            => (IConventionAnnotation)((IReadOnlyAnnotatable)annotatable).GetAnnotation(annotationName);
 
         /// <summary>
         ///     Adds annotations to an object.

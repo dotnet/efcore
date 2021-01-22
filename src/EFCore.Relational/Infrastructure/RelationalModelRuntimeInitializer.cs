@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
             else
             {
-                RelationalModel.Add((IConventionModel)model, RelationalDependencies.RelationalAnnotationProvider);
+                RelationalModel.Add(model, RelationalDependencies.RelationalAnnotationProvider);
             }
         }
     }

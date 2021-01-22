@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
     ///     <para>
-    ///         An arbitrary piece of metadata that can be stored on an object that implements <see cref="IAnnotatable" />.
+    ///         An arbitrary piece of metadata that can be stored on an object that implements <see cref="IReadOnlyAnnotatable" />.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally

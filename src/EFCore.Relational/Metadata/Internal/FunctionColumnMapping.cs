@@ -27,15 +27,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public FunctionColumnMapping(
             [NotNull] IProperty property,
             [NotNull] FunctionColumn column,
-            [NotNull] RelationalTypeMapping typeMapping,
             [NotNull] FunctionMapping viewMapping)
-            : base(property, column, typeMapping, viewMapping)
+            : base(property, column, viewMapping)
         {
         }
 
         /// <inheritdoc />
         public virtual IFunctionMapping FunctionMapping
             => (IFunctionMapping)TableMapping;
+
+        /// <inheritdoc />
+        public override RelationalTypeMapping TypeMapping => Property.FindRelationalTypeMapping(
+            StoreObjectIdentifier.DbFunction(FunctionMapping.DbFunction.Name))!;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

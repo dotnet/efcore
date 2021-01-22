@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="IModel" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IConventionModel : IModel, IConventionAnnotatable
+    public interface IConventionModel : IReadOnlyModel, IConventionAnnotatable
     {
         /// <summary>
         ///     Gets the builder that can be used to configure this model.
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     or the entity type has a defining navigation.
         /// </summary>
         /// <param name="name"> The name of the entity type to find. </param>
-        /// <returns> The entity type, or <see langword="null" /> if none are found. </returns>
+        /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
         new IConventionEntityType? FindEntityType([NotNull] string name);
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The name of the entity type to find. </param>
         /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
-        /// <returns> The entity type, or <see langword="null" /> if none are found. </returns>
+        /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
         IConventionEntityType? FindEntityType(
             [NotNull] string name,
             [NotNull] string definingNavigationName,

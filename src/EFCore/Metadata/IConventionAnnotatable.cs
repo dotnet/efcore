@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public interface IConventionAnnotatable : IAnnotatable
+    public interface IConventionAnnotatable : IReadOnlyAnnotatable
     {
         /// <summary>
         ///     Gets the builder that can be used to configure this object.

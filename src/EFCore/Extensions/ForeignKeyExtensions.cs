@@ -17,7 +17,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Extension methods for <see cref="IForeignKey" />.
+    ///     Extension methods for <see cref="IReadOnlyForeignKey" />.
     /// </summary>
     public static class ForeignKeyExtensions
     {
@@ -31,11 +31,11 @@ namespace Microsoft.EntityFrameworkCore
         ///         not used in application code.
         ///     </para>
         /// </summary>
-        /// <param name="foreignKey"> The <see cref="IForeignKey" /> for which a factory is needed. </param>
+        /// <param name="foreignKey"> The <see cref="IReadOnlyForeignKey" /> for which a factory is needed. </param>
         /// <typeparam name="TKey"> The type of key instanceas. </typeparam>
         /// <returns> A new factory. </returns>
         public static IDependentKeyValueFactory<TKey>? GetDependentKeyValueFactory<TKey>(
-            [NotNull] this IForeignKey foreignKey)
+            [NotNull] this IReadOnlyForeignKey foreignKey)
             => (IDependentKeyValueFactory<TKey>?)foreignKey.AsForeignKey().DependentKeyValueFactory;
 
         /// <summary>
@@ -44,7 +44,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="foreignKey"> The foreign key. </param>
         /// <param name="entityType"> One of the entity types related by the foreign key. </param>
         /// <returns> The entity type related to the given one. </returns>
-        public static IEntityType GetRelatedEntityType([NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
+        public static IReadOnlyEntityType GetRelatedEntityType(
+            [NotNull] this IReadOnlyForeignKey foreignKey, [NotNull] IReadOnlyEntityType entityType)
         {
             if (foreignKey.DeclaringEntityType != entityType
                 && foreignKey.PrincipalEntityType != entityType)
@@ -71,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     A navigation associated with this foreign key or <see langword="null" />.
         /// </returns>
-        public static INavigation? GetNavigation([NotNull] this IForeignKey foreignKey, bool pointsToPrincipal)
+        public static IReadOnlyNavigation? GetNavigation([NotNull] this IReadOnlyForeignKey foreignKey, bool pointsToPrincipal)
             => pointsToPrincipal ? foreignKey.DependentToPrincipal : foreignKey.PrincipalToDependent;
 
         /// <summary>
@@ -79,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="foreignKey"> The foreign key. </param>
         /// <returns> A value indicating whether the foreign key is defined on the primary key and pointing to the same primary key. </returns>
-        public static bool IsBaseLinking([NotNull] this IForeignKey foreignKey)
+        public static bool IsBaseLinking([NotNull] this IReadOnlyForeignKey foreignKey)
         {
             var primaryKey = foreignKey.DeclaringEntityType.FindPrimaryKey();
             return primaryKey == foreignKey.PrincipalKey
@@ -100,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="indent"> The number of indent spaces to use before each new line. </param>
         /// <returns> A human-readable representation. </returns>
         public static string ToDebugString(
-            [NotNull] this IForeignKey foreignKey,
+            [NotNull] this IReadOnlyForeignKey foreignKey,
             MetadataDebugStringOptions options,
             int indent = 0)
         {

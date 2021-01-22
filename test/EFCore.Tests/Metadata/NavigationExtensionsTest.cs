@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             public Category Category { get; set; }
         }
 
-        private static IModel BuildModel(
+        private static IReadOnlyModel BuildModel(
             bool createProducts = true,
             bool createCategory = true,
             bool createFeaturedProductCategory = true,

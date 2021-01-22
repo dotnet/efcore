@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType
+    public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, IEntityType
     {
         private const string DynamicProxyGenAssemblyName = "DynamicProxyGenAssembly2";
 
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly SortedDictionary<string, SkipNavigation> _skipNavigations
             = new(StringComparer.Ordinal);
 
-        private readonly SortedDictionary<IReadOnlyList<IProperty>, Index> _unnamedIndexes
+        private readonly SortedDictionary<IReadOnlyList<IReadOnlyProperty>, Index> _unnamedIndexes
             = new(PropertyListComparer.Instance);
 
         private readonly SortedDictionary<string, Index> _namedIndexes
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private readonly SortedDictionary<string, Property> _properties;
 
-        private readonly SortedDictionary<IReadOnlyList<IProperty>, Key> _keys
+        private readonly SortedDictionary<IReadOnlyList<IReadOnlyProperty>, Key> _keys
             = new(PropertyListComparer.Instance);
 
         private readonly SortedDictionary<string, ServiceProperty> _serviceProperties
@@ -77,8 +77,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private Func<ValueBuffer, ISnapshot>? _shadowValuesFactory;
         private Func<ISnapshot>? _emptyShadowValuesFactory;
         private Func<MaterializationContext, object>? _instanceFactory;
-        private IProperty[]? _propagatingProperties;
-        private IProperty[]? _generatingProperties;
+        private IProperty[]? _foreignKeyProperties;
+        private IProperty[]? _valueGeneratingProperties;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -403,6 +403,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<EntityType> GetDerivedTypes()
         {
+            if (_directlyDerivedTypes.Count == 0)
+            {
+                return Enumerable.Empty<EntityType>();
+            }
+
             var derivedTypes = new List<EntityType>();
             var type = this;
             var currentTypeIndex = 0;
@@ -466,7 +471,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         public virtual EntityType RootType()
-            => (EntityType)((IEntityType)this).GetRootType();
+            => (EntityType)((IReadOnlyEntityType)this).GetRootType();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -779,7 +784,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Key? FindKey([NotNull] IProperty property)
+        public virtual Key? FindKey([NotNull] IReadOnlyProperty property)
             => FindKey(new[] { property });
 
         /// <summary>
@@ -788,7 +793,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Key? FindKey([NotNull] IReadOnlyList<IProperty> properties)
+        public virtual Key? FindKey([NotNull] IReadOnlyList<IReadOnlyProperty> properties)
         {
             Check.HasNoNulls(properties, nameof(properties));
             Check.NotEmpty(properties, nameof(properties));
@@ -811,7 +816,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Key? FindDeclaredKey([NotNull] IReadOnlyList<IProperty> properties)
+        public virtual Key? FindDeclaredKey([NotNull] IReadOnlyList<IReadOnlyProperty> properties)
             => _keys.TryGetValue(Check.NotEmpty(properties, nameof(properties)), out var key)
                 ? key
                 : null;
@@ -822,7 +827,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Key? RemoveKey([NotNull] IReadOnlyList<IProperty> properties)
+        public virtual Key? RemoveKey([NotNull] IReadOnlyList<IReadOnlyProperty> properties)
         {
             Check.NotEmpty(properties, nameof(properties));
 
@@ -1043,7 +1048,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<ForeignKey> FindForeignKeys([NotNull] IProperty property)
+        public virtual IEnumerable<ForeignKey> FindForeignKeys([NotNull] IReadOnlyProperty property)
             => FindForeignKeys(new[] { property });
 
         /// <summary>
@@ -1052,7 +1057,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<ForeignKey> FindForeignKeys([NotNull] IReadOnlyList<IProperty> properties)
+        public virtual IEnumerable<ForeignKey> FindForeignKeys([NotNull] IReadOnlyList<IReadOnlyProperty> properties)
         {
             Check.HasNoNulls(properties, nameof(properties));
             Check.NotEmpty(properties, nameof(properties));
@@ -1071,9 +1076,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ForeignKey? FindForeignKey(
-            [NotNull] IProperty property,
-            [NotNull] IKey principalKey,
-            [NotNull] IEntityType principalEntityType)
+            [NotNull] IReadOnlyProperty property,
+            [NotNull] IReadOnlyKey principalKey,
+            [NotNull] IReadOnlyEntityType principalEntityType)
             => FindForeignKey(
                 new[] { property }, principalKey, principalEntityType);
 
@@ -1084,9 +1089,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ForeignKey? FindForeignKey(
-            [NotNull] IReadOnlyList<IProperty> properties,
-            [NotNull] IKey principalKey,
-            [NotNull] IEntityType principalEntityType)
+            [NotNull] IReadOnlyList<IReadOnlyProperty> properties,
+            [NotNull] IReadOnlyKey principalKey,
+            [NotNull] IReadOnlyEntityType principalEntityType)
         {
             Check.HasNoNulls(properties, nameof(properties));
             Check.NotEmpty(properties, nameof(properties));
@@ -1174,7 +1179,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<ForeignKey> FindDeclaredForeignKeys([NotNull] IReadOnlyList<IProperty> properties)
+        public virtual IEnumerable<ForeignKey> FindDeclaredForeignKeys([NotNull] IReadOnlyList<IReadOnlyProperty> properties)
         {
             Check.NotEmpty(properties, nameof(properties));
 
@@ -1190,9 +1195,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ForeignKey? FindDeclaredForeignKey(
-            [NotNull] IReadOnlyList<IProperty> properties,
-            [NotNull] IKey principalKey,
-            [NotNull] IEntityType principalEntityType)
+            [NotNull] IReadOnlyList<IReadOnlyProperty> properties,
+            [NotNull] IReadOnlyKey principalKey,
+            [NotNull] IReadOnlyEntityType principalEntityType)
         {
             Check.NotEmpty(properties, nameof(properties));
             Check.NotNull(principalKey, nameof(principalKey));
@@ -1222,7 +1227,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<ForeignKey> FindDerivedForeignKeys(
-            [NotNull] IReadOnlyList<IProperty> properties)
+            [NotNull] IReadOnlyList<IReadOnlyProperty> properties)
             => _directlyDerivedTypes.Count == 0
                 ? Enumerable.Empty<ForeignKey>()
                 : GetDerivedTypes().SelectMany(et => et.FindDeclaredForeignKeys(properties));
@@ -1234,9 +1239,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<ForeignKey> FindDerivedForeignKeys(
-            [NotNull] IReadOnlyList<IProperty> properties,
-            [NotNull] IKey principalKey,
-            [NotNull] IEntityType principalEntityType)
+            [NotNull] IReadOnlyList<IReadOnlyProperty> properties,
+            [NotNull] IReadOnlyKey principalKey,
+            [NotNull] IReadOnlyEntityType principalEntityType)
             => _directlyDerivedTypes.Count == 0
                 ? Enumerable.Empty<ForeignKey>()
                 : (IEnumerable<ForeignKey>)GetDerivedTypes().Select(et => et.FindDeclaredForeignKey(properties, principalKey, principalEntityType))
@@ -1249,7 +1254,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<ForeignKey> FindForeignKeysInHierarchy(
-            [NotNull] IReadOnlyList<IProperty> properties)
+            [NotNull] IReadOnlyList<IReadOnlyProperty> properties)
             => _directlyDerivedTypes.Count == 0
                 ? FindForeignKeys(properties)
                 : FindForeignKeys(properties).Concat(FindDerivedForeignKeys(properties));
@@ -1261,9 +1266,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<ForeignKey> FindForeignKeysInHierarchy(
-            [NotNull] IReadOnlyList<IProperty> properties,
-            [NotNull] IKey principalKey,
-            [NotNull] IEntityType principalEntityType)
+            [NotNull] IReadOnlyList<IReadOnlyProperty> properties,
+            [NotNull] IReadOnlyKey principalKey,
+            [NotNull] IReadOnlyEntityType principalEntityType)
             => _directlyDerivedTypes.Count == 0
                 ? ToEnumerable(FindForeignKey(properties, principalKey, principalEntityType))
                 : ToEnumerable(FindForeignKey(properties, principalKey, principalEntityType))
@@ -1276,9 +1281,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ForeignKey? RemoveForeignKey(
-            [NotNull] IReadOnlyList<IProperty> properties,
-            [NotNull] IKey principalKey,
-            [NotNull] IEntityType principalEntityType)
+            [NotNull] IReadOnlyList<IReadOnlyProperty> properties,
+            [NotNull] IReadOnlyKey principalKey,
+            [NotNull] IReadOnlyEntityType principalEntityType)
         {
             Check.NotEmpty(properties, nameof(properties));
 
@@ -1506,11 +1511,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Navigation? FindNavigation([NotNull] string name)
-        {
-            Check.NotEmpty(name, nameof(name));
-
-            return FindDeclaredNavigation(name) ?? _baseType?.FindNavigation(name);
-        }
+            => (Navigation?)((IReadOnlyEntityType)this).FindNavigation(name);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1519,7 +1520,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Navigation? FindNavigation([NotNull] MemberInfo memberInfo)
-            => FindNavigation(Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName());
+            => (Navigation?)((IReadOnlyEntityType)this).FindNavigation(Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2048,7 +2049,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Index? FindIndex([NotNull] IProperty property)
+        public virtual Index? FindIndex([NotNull] IReadOnlyProperty property)
             => FindIndex(new[] { property });
 
         /// <summary>
@@ -2057,7 +2058,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Index? FindIndex([NotNull] IReadOnlyList<IProperty> properties)
+        public virtual Index? FindIndex([NotNull] IReadOnlyList<IReadOnlyProperty> properties)
         {
             Check.HasNoNulls(properties, nameof(properties));
             Check.NotEmpty(properties, nameof(properties));
@@ -2106,7 +2107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Index? FindDeclaredIndex([NotNull] IReadOnlyList<IProperty> properties)
+        public virtual Index? FindDeclaredIndex([NotNull] IReadOnlyList<IReadOnlyProperty> properties)
             => _unnamedIndexes.TryGetValue(Check.NotEmpty(properties, nameof(properties)), out var index)
                 ? index
                 : null;
@@ -2128,7 +2129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<Index> FindDerivedIndexes([NotNull] IReadOnlyList<IProperty> properties)
+        public virtual IEnumerable<Index> FindDerivedIndexes([NotNull] IReadOnlyList<IReadOnlyProperty> properties)
             => _directlyDerivedTypes.Count == 0
                 ? Enumerable.Empty<Index>()
                 : (IEnumerable<Index>)GetDerivedTypes().Select(et => et.FindDeclaredIndex(properties)).Where(i => i != null);
@@ -2152,7 +2153,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<Index> FindIndexesInHierarchy([NotNull] IReadOnlyList<IProperty> properties)
+        public virtual IEnumerable<Index> FindIndexesInHierarchy([NotNull] IReadOnlyList<IReadOnlyProperty> properties)
             => _directlyDerivedTypes.Count == 0
                 ? ToEnumerable(FindIndex(properties))
                 : ToEnumerable(FindIndex(properties)).Concat(FindDerivedIndexes(properties));
@@ -2174,7 +2175,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Index? RemoveIndex([NotNull] IReadOnlyList<IProperty> properties)
+        public virtual Index? RemoveIndex([NotNull] IReadOnlyList<IReadOnlyProperty> properties)
         {
             Check.NotEmpty(properties, nameof(properties));
 
@@ -2470,6 +2471,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IReadOnlyList<Property>? FindProperties([NotNull] IReadOnlyList<string> propertyNames)
         {
+            Check.NotNull(propertyNames, nameof(propertyNames));
+
             var properties = new List<Property>(propertyNames.Count);
             foreach (var propertyName in propertyNames)
             {
@@ -2708,9 +2711,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IReadOnlyList<IProperty> PropagatingProperties
+        public virtual IReadOnlyList<IProperty> ForeignKeyProperties
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _propagatingProperties, this,
+                ref _foreignKeyProperties, this,
                 static entityType =>
                 {
                     entityType.EnsureReadOnly();
@@ -2724,9 +2727,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IReadOnlyList<IProperty> GeneratingProperties
+        public virtual IReadOnlyList<IProperty> ValueGeneratingProperties
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _generatingProperties, this,
+                ref _valueGeneratingProperties, this,
                 static entityType =>
                 {
                     entityType.EnsureReadOnly();
@@ -2970,7 +2973,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var data = new List<Dictionary<string, object?>>();
             var valueConverters = new Dictionary<string, ValueConverter?>(StringComparer.Ordinal);
             var properties = GetProperties()
-                .Concat<IPropertyBase>(GetNavigations())
+                .Concat<IReadOnlyPropertyBase>(GetNavigations())
                 .Concat(GetSkipNavigations())
                 .ToDictionary(p => p.Name);
             foreach (var rawSeed in _data)
@@ -2986,7 +2989,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         ValueConverter? valueConverter = null;
                         if (providerValues
-                            && propertyBase is IProperty property
+                            && propertyBase is IReadOnlyProperty property
                             && !valueConverters.TryGetValue(propertyBase.Name, out valueConverter))
                         {
                             valueConverter = property.GetTypeMapping().Converter;
@@ -3040,7 +3043,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         if (providerValues
                             && !valueConverters.TryGetValue(propertyBase.Name, out valueConverter))
                         {
-                            if (propertyBase is IProperty property)
+                            if (propertyBase is IReadOnlyProperty property)
                             {
                                 valueConverter = property.GetTypeMapping().Converter;
                             }
@@ -3280,7 +3283,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void CheckDiscriminatorValue([NotNull] IEntityType entityType, [CanBeNull] object? value)
+        public virtual void CheckDiscriminatorValue([NotNull] IReadOnlyEntityType entityType, [CanBeNull] object? value)
         {
             if (value is null)
             {
@@ -3345,7 +3348,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IModel ITypeBase.Model
+        IReadOnlyModel IReadOnlyTypeBase.Model
         {
             [DebuggerStepThrough]
             get => Model;
@@ -3393,7 +3396,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IEntityType? IEntityType.BaseType
+        IModel ITypeBase.Model
+        {
+            [DebuggerStepThrough]
+            get => Model;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IReadOnlyEntityType? IReadOnlyEntityType.BaseType
         {
             [DebuggerStepThrough]
             get => _baseType;
@@ -3422,6 +3437,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [DebuggerStepThrough]
             get => BaseType;
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IEntityType? IEntityType.BaseType
+        {
+            [DebuggerStepThrough]
+            get => BaseType;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IEnumerable<IEntityType> IEntityType.GetDirectlyDerivedTypes()
+            => GetDirectlyDerivedTypes();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3472,7 +3509,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IKey? IEntityType.FindPrimaryKey()
+        IReadOnlyKey? IReadOnlyEntityType.FindPrimaryKey()
             => FindPrimaryKey();
 
         /// <summary>
@@ -3493,6 +3530,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IConventionKey? IConventionEntityType.FindPrimaryKey()
+            => FindPrimaryKey();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IKey? IEntityType.FindPrimaryKey()
             => FindPrimaryKey();
 
         /// <summary>
@@ -3524,7 +3571,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IKey? IEntityType.FindKey(IReadOnlyList<IProperty> properties)
+        IReadOnlyKey? IReadOnlyEntityType.FindKey(IReadOnlyList<IReadOnlyProperty> properties)
             => FindKey(properties);
 
         /// <summary>
@@ -3534,7 +3581,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IMutableKey? IMutableEntityType.FindKey(IReadOnlyList<IProperty> properties)
+        IMutableKey? IMutableEntityType.FindKey(IReadOnlyList<IReadOnlyProperty> properties)
             => FindKey(properties);
 
         /// <summary>
@@ -3544,7 +3591,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionKey? IConventionEntityType.FindKey(IReadOnlyList<IProperty> properties)
+        IConventionKey? IConventionEntityType.FindKey(IReadOnlyList<IReadOnlyProperty> properties)
             => FindKey(properties);
 
         /// <summary>
@@ -3554,7 +3601,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IEnumerable<IKey> IEntityType.GetKeys()
+        IKey? IEntityType.FindKey(IReadOnlyList<IReadOnlyProperty> properties)
+            => FindKey(properties);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IEnumerable<IKey> IEntityType.GetDeclaredKeys()
+            => GetDeclaredKeys();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IEnumerable<IReadOnlyKey> IReadOnlyEntityType.GetKeys()
             => GetKeys();
 
         /// <summary>
@@ -3575,6 +3642,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IEnumerable<IConventionKey> IConventionEntityType.GetKeys()
+            => GetKeys();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IEnumerable<IKey> IEntityType.GetKeys()
             => GetKeys();
 
         /// <summary>
@@ -3644,10 +3721,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IForeignKey? IEntityType.FindForeignKey(
-            IReadOnlyList<IProperty> properties,
-            IKey principalKey,
-            IEntityType principalEntityType)
+        IReadOnlyForeignKey? IReadOnlyEntityType.FindForeignKey(
+            IReadOnlyList<IReadOnlyProperty> properties,
+            IReadOnlyKey principalKey,
+            IReadOnlyEntityType principalEntityType)
             => FindForeignKey(properties, principalKey, principalEntityType);
 
         /// <summary>
@@ -3658,9 +3735,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IMutableForeignKey? IMutableEntityType.FindForeignKey(
-            IReadOnlyList<IProperty> properties,
-            IKey principalKey,
-            IEntityType principalEntityType)
+            IReadOnlyList<IReadOnlyProperty> properties,
+            IReadOnlyKey principalKey,
+            IReadOnlyEntityType principalEntityType)
             => FindForeignKey(properties, principalKey, principalEntityType);
 
         /// <summary>
@@ -3671,9 +3748,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IConventionForeignKey? IConventionEntityType.FindForeignKey(
-            IReadOnlyList<IProperty> properties,
-            IKey principalKey,
-            IEntityType principalEntityType)
+            IReadOnlyList<IReadOnlyProperty> properties,
+            IReadOnlyKey principalKey,
+            IReadOnlyEntityType principalEntityType)
             => FindForeignKey(properties, principalKey, principalEntityType);
 
         /// <summary>
@@ -3683,7 +3760,40 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IEnumerable<IForeignKey> IEntityType.GetForeignKeys()
+        IForeignKey? IEntityType.FindForeignKey(
+            IReadOnlyList<IReadOnlyProperty> properties,
+            IReadOnlyKey principalKey,
+            IReadOnlyEntityType principalEntityType)
+            => FindForeignKey(properties, principalKey, principalEntityType);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IEnumerable<IForeignKey> IEntityType.FindForeignKeys(IReadOnlyList<IReadOnlyProperty> properties)
+            => FindForeignKeys(properties);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IEnumerable<IForeignKey> IEntityType.FindDeclaredForeignKeys(IReadOnlyList<IReadOnlyProperty> properties)
+            => FindDeclaredForeignKeys(properties);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IEnumerable<IReadOnlyForeignKey> IReadOnlyEntityType.GetForeignKeys()
             => GetForeignKeys();
 
         /// <summary>
@@ -3713,6 +3823,56 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
+        IEnumerable<IForeignKey> IEntityType.GetForeignKeys()
+            => GetForeignKeys();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IEnumerable<IForeignKey> IEntityType.GetDeclaredForeignKeys()
+            => GetDeclaredForeignKeys();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IEnumerable<IForeignKey> IEntityType.GetDerivedForeignKeys()
+            => GetDerivedForeignKeys();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IEnumerable<IForeignKey> IEntityType.GetDeclaredReferencingForeignKeys()
+            => GetDeclaredReferencingForeignKeys();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IEnumerable<IForeignKey> IEntityType.GetReferencingForeignKeys()
+            => GetReferencingForeignKeys();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
         IMutableForeignKey? IMutableEntityType.RemoveForeignKey(IMutableForeignKey foreignKey)
             => RemoveForeignKey((ForeignKey)foreignKey);
 
@@ -3725,6 +3885,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [DebuggerStepThrough]
         IConventionForeignKey? IConventionEntityType.RemoveForeignKey(IConventionForeignKey foreignKey)
             => RemoveForeignKey((ForeignKey)foreignKey);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IEnumerable<INavigation> IEntityType.GetDeclaredNavigations()
+            => GetDeclaredNavigations();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        INavigation? IEntityType.FindDeclaredNavigation(string name)
+            => FindDeclaredNavigation(name);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3768,7 +3948,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        ISkipNavigation? IEntityType.FindSkipNavigation(MemberInfo memberInfo)
+        IReadOnlySkipNavigation? IReadOnlyEntityType.FindSkipNavigation(MemberInfo memberInfo)
             => FindSkipNavigation(memberInfo);
 
         /// <summary>
@@ -3778,7 +3958,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        ISkipNavigation? IEntityType.FindSkipNavigation(string name)
+        IReadOnlySkipNavigation? IReadOnlyEntityType.FindSkipNavigation(string name)
             => FindSkipNavigation(name);
 
         /// <summary>
@@ -3808,7 +3988,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        ISkipNavigation? IEntityType.FindDeclaredSkipNavigation(string name)
+        ISkipNavigation? IEntityType.FindSkipNavigation(string name)
+            => FindSkipNavigation(name);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IReadOnlySkipNavigation? IReadOnlyEntityType.FindDeclaredSkipNavigation(string name)
             => FindDeclaredSkipNavigation(name);
 
         /// <summary>
@@ -3818,7 +4008,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IEnumerable<ISkipNavigation> IEntityType.GetDeclaredSkipNavigations()
+        IEnumerable<IReadOnlySkipNavigation> IReadOnlyEntityType.GetDeclaredSkipNavigations()
             => GetDeclaredSkipNavigations();
 
         /// <summary>
@@ -3828,7 +4018,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IEnumerable<ISkipNavigation> IEntityType.GetSkipNavigations()
+        IEnumerable<IReadOnlySkipNavigation> IReadOnlyEntityType.GetSkipNavigations()
             => GetSkipNavigations();
 
         /// <summary>
@@ -3849,6 +4039,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IEnumerable<IConventionSkipNavigation> IConventionEntityType.GetSkipNavigations()
+            => GetSkipNavigations();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IEnumerable<ISkipNavigation> IEntityType.GetSkipNavigations()
             => GetSkipNavigations();
 
         /// <summary>
@@ -3926,7 +4126,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IIndex? IEntityType.FindIndex(IReadOnlyList<IProperty> properties)
+        IReadOnlyIndex? IReadOnlyEntityType.FindIndex(IReadOnlyList<IReadOnlyProperty> properties)
             => FindIndex(properties);
 
         /// <summary>
@@ -3936,18 +4136,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IIndex? IEntityType.FindIndex(string name)
+        IMutableIndex? IMutableEntityType.FindIndex(IReadOnlyList<IReadOnlyProperty> properties)
+            => FindIndex(properties);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IConventionIndex? IConventionEntityType.FindIndex(IReadOnlyList<IReadOnlyProperty> properties)
+            => FindIndex(properties);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IIndex? IEntityType.FindIndex(IReadOnlyList<IReadOnlyProperty> properties)
+            => FindIndex(properties);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IReadOnlyIndex? IReadOnlyEntityType.FindIndex(string name)
             => FindIndex(name);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [DebuggerStepThrough]
-        IMutableIndex? IMutableEntityType.FindIndex(IReadOnlyList<IProperty> properties)
-            => FindIndex(properties);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3966,16 +4186,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionIndex? IConventionEntityType.FindIndex(IReadOnlyList<IProperty> properties)
-            => FindIndex(properties);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [DebuggerStepThrough]
         IConventionIndex? IConventionEntityType.FindIndex(string name)
             => FindIndex(name);
 
@@ -3986,7 +4196,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IEnumerable<IIndex> IEntityType.GetIndexes()
+        IIndex? IEntityType.FindIndex(string name)
+            => FindIndex(name);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IEnumerable<IIndex> IEntityType.GetDeclaredIndexes()
+            => GetDeclaredIndexes();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IEnumerable<IIndex> IEntityType.GetDerivedIndexes()
+            => GetDerivedIndexes();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IEnumerable<IReadOnlyIndex> IReadOnlyEntityType.GetIndexes()
             => GetIndexes();
 
         /// <summary>
@@ -4007,6 +4247,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IEnumerable<IConventionIndex> IConventionEntityType.GetIndexes()
+            => GetIndexes();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IEnumerable<IIndex> IEntityType.GetIndexes()
             => GetIndexes();
 
         /// <summary>
@@ -4070,7 +4320,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IProperty? IEntityType.FindProperty(string name)
+        IProperty? IEntityType.FindDeclaredProperty(string name)
+            => FindDeclaredProperty(name);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IReadOnlyProperty? IReadOnlyEntityType.FindProperty(string name)
             => FindProperty(name);
 
         /// <summary>
@@ -4100,7 +4360,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IEnumerable<IProperty> IEntityType.GetProperties()
+        IProperty? IEntityType.FindProperty(string name)
+            => FindProperty(name);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IEnumerable<IProperty> IEntityType.GetDeclaredProperties()
+            => GetDeclaredProperties();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IEnumerable<IReadOnlyProperty> IReadOnlyEntityType.GetProperties()
             => GetProperties();
 
         /// <summary>
@@ -4122,6 +4402,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [DebuggerStepThrough]
         IEnumerable<IConventionProperty> IConventionEntityType.GetProperties()
             => GetProperties();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IEnumerable<IProperty> IEntityType.GetProperties()
+            => GetProperties();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IEnumerable<IProperty> IEntityType.GetForeignKeyProperties()
+            => ForeignKeyProperties;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IEnumerable<IProperty> IEntityType.GetValueGeneratingProperties()
+            => ValueGeneratingProperties;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4170,7 +4480,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IServiceProperty? IEntityType.FindServiceProperty(string name)
+        IReadOnlyServiceProperty? IReadOnlyEntityType.FindServiceProperty(string name)
             => FindServiceProperty(name);
 
         /// <summary>
@@ -4200,7 +4510,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IEnumerable<IServiceProperty> IEntityType.GetServiceProperties()
+        IServiceProperty? IEntityType.FindServiceProperty(string name)
+            => FindServiceProperty(name);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IEnumerable<IServiceProperty> IEntityType.GetDeclaredServiceProperties()
+            => GetDeclaredServiceProperties();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IEnumerable<IReadOnlyServiceProperty> IReadOnlyEntityType.GetServiceProperties()
             => GetServiceProperties();
 
         /// <summary>
@@ -4221,6 +4551,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IEnumerable<IConventionServiceProperty> IConventionEntityType.GetServiceProperties()
+            => GetServiceProperties();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IEnumerable<IServiceProperty> IEntityType.GetServiceProperties()
             => GetServiceProperties();
 
         /// <summary>

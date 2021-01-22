@@ -291,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         private IEnumerable<IProperty> GetAllPropertiesInHierarchy(IEntityType entityType)
             => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
-                .SelectMany(EntityTypeExtensions.GetDeclaredProperties);
+                .SelectMany(t => t.GetDeclaredProperties());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -914,7 +914,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 // Also lift nested entity projections
                 foreach (var navigation in entityProjection.EntityType.GetAllBaseTypes()
                     .Concat(entityProjection.EntityType.GetDerivedTypesInclusive())
-                    .SelectMany(EntityTypeExtensions.GetDeclaredNavigations))
+                    .SelectMany(t => t.GetDeclaredNavigations()))
                 {
                     var boundEntityShaperExpression = entityProjection.BindNavigation(navigation);
                     if (boundEntityShaperExpression != null)
@@ -1165,7 +1165,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 // Also lift nested entity projections
                 foreach (var navigation in entityProjection.EntityType.GetAllBaseTypes()
                     .Concat(entityProjection.EntityType.GetDerivedTypesInclusive())
-                    .SelectMany(EntityTypeExtensions.GetDeclaredNavigations))
+                    .SelectMany(t => t.GetDeclaredNavigations()))
                 {
                     var boundEntityShaperExpression = entityProjection.BindNavigation(navigation);
                     if (boundEntityShaperExpression != null)

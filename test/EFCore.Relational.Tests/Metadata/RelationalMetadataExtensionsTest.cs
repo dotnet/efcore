@@ -359,17 +359,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasIndex(e => e.Id)
                 .Metadata;
 
-#pragma warning disable CS0618 // Type or member is obsolete
-            Assert.Equal("IX_Customer_Id", index.GetName());
+            Assert.Equal("IX_Customer_Id", index.GetDatabaseName());
 
-            index.SetName("MyIndex");
+            index.SetDatabaseName("MyIndex");
 
-            Assert.Equal("MyIndex", index.GetName());
+            Assert.Equal("MyIndex", index.GetDatabaseName());
 
-            index.SetName(null);
+            index.SetDatabaseName(null);
 
-            Assert.Equal("IX_Customer_Id", index.GetName());
-#pragma warning restore CS0618 // Type or member is obsolete
+            Assert.Equal("IX_Customer_Id", index.GetDatabaseName());
         }
 
         [ConditionalFact]

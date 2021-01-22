@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
-            Assert.Equal(10, cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.IncrementBy);
+            Assert.Equal(10, cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.IncrementBy);
         }
 
         [ConditionalFact]
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
-            Assert.Equal(10, cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.IncrementBy);
+            Assert.Equal(10, cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.IncrementBy);
         }
 
         [ConditionalFact]
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
-            Assert.Equal(10, cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.IncrementBy);
+            Assert.Equal(10, cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.IncrementBy);
         }
 
         [ConditionalFact]
@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
-            Assert.Equal(10, cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.IncrementBy);
+            Assert.Equal(10, cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.IncrementBy);
         }
 
         [ConditionalFact]
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
-            Assert.Equal(11, cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.IncrementBy);
+            Assert.Equal(11, cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.IncrementBy);
         }
 
         [ConditionalFact]
@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.StartsWith(
                 CoreStrings.HiLoBadBlockSize,
                 Assert.Throws<ArgumentOutOfRangeException>(
-                    () => cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.IncrementBy).Message);
+                    () => cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.IncrementBy).Message);
         }
 
         [ConditionalFact]
@@ -241,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
-            Assert.Equal(11, cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.IncrementBy);
+            Assert.Equal(11, cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.IncrementBy);
         }
 
         [ConditionalFact]
@@ -259,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
-            Assert.Equal("EntityFrameworkHiLoSequence", cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.Name);
+            Assert.Equal("EntityFrameworkHiLoSequence", cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.Name);
         }
 
         [ConditionalFact]
@@ -277,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
-            Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.Name);
+            Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.Name);
         }
 
         [ConditionalFact]
@@ -295,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
-            Assert.Equal("EntityFrameworkHiLoSequence", cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.Name);
+            Assert.Equal("EntityFrameworkHiLoSequence", cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.Name);
         }
 
         [ConditionalFact]
@@ -313,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
-            Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.Name);
+            Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.Name);
         }
 
         [ConditionalFact]
@@ -332,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
-            Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.Name);
+            Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.Name);
         }
 
         [ConditionalFact]
@@ -351,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
-            Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.Name);
+            Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.Name);
         }
 
         [ConditionalFact]
@@ -369,8 +369,8 @@ namespace Microsoft.EntityFrameworkCore
 
             var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
-            Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.Name);
-            Assert.Equal("R", cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.Schema);
+            Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.Name);
+            Assert.Equal("R", cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.Schema);
         }
 
         [ConditionalFact]
@@ -388,8 +388,8 @@ namespace Microsoft.EntityFrameworkCore
 
             var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
-            Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.Name);
-            Assert.Equal("R", cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.Schema);
+            Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.Name);
+            Assert.Equal("R", cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.Schema);
         }
 
         [ConditionalFact]
@@ -408,8 +408,8 @@ namespace Microsoft.EntityFrameworkCore
 
             var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
-            Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.Name);
-            Assert.Equal("R", cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.Schema);
+            Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.Name);
+            Assert.Equal("R", cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.Schema);
         }
 
         [ConditionalFact]
@@ -428,8 +428,8 @@ namespace Microsoft.EntityFrameworkCore
 
             var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
-            Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.Name);
-            Assert.Equal("R", cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.Schema);
+            Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.Name);
+            Assert.Equal("R", cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.Schema);
         }
 
         protected virtual ModelBuilder CreateConventionModelBuilder()

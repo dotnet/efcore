@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="INavigation" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IMutableNavigation : INavigation, IMutableNavigationBase
+    public interface IMutableNavigation : IReadOnlyNavigation, IMutableNavigationBase
     {
         /// <summary>
         ///     Gets the type that this navigation property belongs to.
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IMutableEntityType DeclaringEntityType
         {
             [DebuggerStepThrough]
-            get => (IMutableEntityType)((INavigationBase)this).DeclaringEntityType;
+            get => (IMutableEntityType)((IReadOnlyNavigationBase)this).DeclaringEntityType;
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IMutableEntityType TargetEntityType
         {
             [DebuggerStepThrough]
-            get => (IMutableEntityType)((INavigationBase)this).TargetEntityType;
+            get => (IMutableEntityType)((IReadOnlyNavigationBase)this).TargetEntityType;
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IMutableForeignKey ForeignKey
         {
             [DebuggerStepThrough]
-            get => (IMutableForeignKey)((INavigation)this).ForeignKey;
+            get => (IMutableForeignKey)((IReadOnlyNavigation)this).ForeignKey;
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IMutableNavigation? Inverse
         {
             [DebuggerStepThrough]
-            get => (IMutableNavigation?)((INavigation)this).Inverse;
+            get => (IMutableNavigation?)((IReadOnlyNavigation)this).Inverse;
         }
 
         /// <summary>

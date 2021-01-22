@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="ISkipNavigation" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IConventionSkipNavigation : ISkipNavigation, IConventionNavigationBase
+    public interface IConventionSkipNavigation : IReadOnlySkipNavigation, IConventionNavigationBase
     {
         /// <summary>
         ///     Gets the builder that can be used to configure this property.
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionEntityType DeclaringEntityType
         {
             [DebuggerStepThrough]
-            get => (IConventionEntityType)((INavigationBase)this).DeclaringEntityType;
+            get => (IConventionEntityType)((IReadOnlyNavigationBase)this).DeclaringEntityType;
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionEntityType TargetEntityType
         {
             [DebuggerStepThrough]
-            get => (IConventionEntityType)((INavigationBase)this).TargetEntityType;
+            get => (IConventionEntityType)((IReadOnlyNavigationBase)this).TargetEntityType;
         }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionEntityType? JoinEntityType
         {
             [DebuggerStepThrough]
-            get => (IConventionEntityType?)((ISkipNavigation)this).JoinEntityType;
+            get => (IConventionEntityType?)((IReadOnlySkipNavigation)this).JoinEntityType;
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionForeignKey? ForeignKey
         {
             [DebuggerStepThrough]
-            get => (IConventionForeignKey?)((ISkipNavigation)this).ForeignKey;
+            get => (IConventionForeignKey?)((IReadOnlySkipNavigation)this).ForeignKey;
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionSkipNavigation? Inverse
         {
             [DebuggerStepThrough]
-            get => (IConventionSkipNavigation?)((ISkipNavigation)this).Inverse;
+            get => (IConventionSkipNavigation?)((IReadOnlySkipNavigation)this).Inverse;
         }
 
         /// <summary>

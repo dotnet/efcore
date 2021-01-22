@@ -22,17 +22,17 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Extension methods for <see cref="IEntityType" />.
+    ///     Entity type extension methods for <see cref="IReadOnlyEntityType" />.
     /// </summary>
     public static class EntityTypeExtensions
     {
         /// <summary>
-        ///     Returns all the derived types of the given <see cref="IEntityType" />, including the type itself,
+        ///     Returns all the derived types of the given <see cref="IReadOnlyEntityType" />, including the type itself,
         ///     which are not <see langword="abstract" />.
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> Non-abstract, derived types. </returns>
-        public static IEnumerable<IEntityType> GetConcreteDerivedTypesInclusive([NotNull] this IEntityType entityType)
+        public static IEnumerable<IReadOnlyEntityType> GetConcreteDerivedTypesInclusive([NotNull] this IReadOnlyEntityType entityType)
             => entityType.GetDerivedTypesInclusive().Where(et => !et.IsAbstract());
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="type"> The entity type. </param>
         /// <returns> <see langword="true" /> if the type is abstract, <see langword="false" /> otherwise. </returns>
         [DebuggerStepThrough]
-        public static bool IsAbstract([NotNull] this ITypeBase type)
+        public static bool IsAbstract([NotNull] this IReadOnlyTypeBase type)
             => type.ClrType.IsAbstract;
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
         /// </returns>
-        public static IEntityType GetRootType([NotNull] this IEntityType entityType)
+        public static IReadOnlyEntityType GetRootType([NotNull] this IReadOnlyEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The base types.
         /// </returns>
-        public static IEnumerable<IEntityType> GetAllBaseTypes([NotNull] this IEntityType entityType)
+        public static IEnumerable<IReadOnlyEntityType> GetAllBaseTypes([NotNull] this IReadOnlyEntityType entityType)
             => entityType.GetAllBaseTypesAscending().Reverse();
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The base types.
         /// </returns>
-        public static IEnumerable<IEntityType> GetAllBaseTypesAscending([NotNull] this IEntityType entityType)
+        public static IEnumerable<IReadOnlyEntityType> GetAllBaseTypesAscending([NotNull] this IReadOnlyEntityType entityType)
             => entityType.GetAllBaseTypesInclusiveAscending().Skip(1);
 
         /// <summary>
@@ -83,15 +83,15 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The derived types. </returns>
-        public static IEnumerable<IEntityType> GetDerivedTypes([NotNull] this IEntityType entityType)
+        public static IEnumerable<IReadOnlyEntityType> GetDerivedTypes([NotNull] this IReadOnlyEntityType entityType)
             => Check.NotNull(entityType, nameof(entityType)).AsEntityType().GetDerivedTypes();
 
         /// <summary>
-        ///     Returns all derived types of the given <see cref="IEntityType" />, including the type itself.
+        ///     Returns all derived types of the given <see cref="IReadOnlyEntityType" />, including the type itself.
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> Derived types. </returns>
-        public static IEnumerable<IEntityType> GetDerivedTypesInclusive([NotNull] this IEntityType entityType)
+        public static IEnumerable<IReadOnlyEntityType> GetDerivedTypesInclusive([NotNull] this IReadOnlyEntityType entityType)
             => new[] { entityType }.Concat(entityType.GetDerivedTypes());
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The derived types. </returns>
-        public static IEnumerable<IEntityType> GetDirectlyDerivedTypes([NotNull] this IEntityType entityType)
+        public static IEnumerable<IReadOnlyEntityType> GetDirectlyDerivedTypes([NotNull] this IReadOnlyEntityType entityType)
             => ((EntityType)entityType).GetDirectlyDerivedTypes();
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see langword="true" /> if <paramref name="derivedType" /> derives from (or is the same as) <paramref name="entityType" />,
         ///     otherwise <see langword="false" />.
         /// </returns>
-        public static bool IsAssignableFrom([NotNull] this IEntityType entityType, [NotNull] IEntityType derivedType)
+        public static bool IsAssignableFrom([NotNull] this IReadOnlyEntityType entityType, [NotNull] IReadOnlyEntityType derivedType)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(derivedType, nameof(derivedType));
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The closest common parent of <paramref name="entityType1" /> and <paramref name="entityType2" />,
         ///     or null if they have not common parent.
         /// </returns>
-        public static IEntityType? GetClosestCommonParent([NotNull] this IEntityType entityType1, [NotNull] IEntityType entityType2)
+        public static IReadOnlyEntityType? GetClosestCommonParent([NotNull] this IReadOnlyEntityType entityType1, [NotNull] IReadOnlyEntityType entityType2)
         {
             Check.NotNull(entityType1, nameof(entityType1));
             Check.NotNull(entityType2, nameof(entityType2));
@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see langword="true" /> if <paramref name="entityType" /> derives from (but is not the same as) <paramref name="baseType" />,
         ///     otherwise <see langword="false" />.
         /// </returns>
-        public static bool IsStrictlyDerivedFrom([NotNull] this IEntityType entityType, [NotNull] IEntityType baseType)
+        public static bool IsStrictlyDerivedFrom([NotNull] this IReadOnlyEntityType entityType, [NotNull] IReadOnlyEntityType baseType)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(baseType, nameof(baseType));
@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The least derived type between the specified two.
         ///     If the given entity types are not related, then <see langword="null" /> is returned.
         /// </returns>
-        public static IEntityType? LeastDerivedType([NotNull] this IEntityType entityType, [NotNull] IEntityType otherEntityType)
+        public static IReadOnlyEntityType? LeastDerivedType([NotNull] this IReadOnlyEntityType entityType, [NotNull] IReadOnlyEntityType otherEntityType)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(otherEntityType, nameof(otherEntityType));
@@ -189,23 +189,23 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Returns all base types of the given <see cref="IEntityType" />, including the type itself, top to bottom.
+        ///     Returns all base types of the given <see cref="IReadOnlyEntityType" />, including the type itself, top to bottom.
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> Base types. </returns>
-        public static IEnumerable<IEntityType> GetAllBaseTypesInclusive([NotNull] this IEntityType entityType)
+        public static IEnumerable<IReadOnlyEntityType> GetAllBaseTypesInclusive([NotNull] this IReadOnlyEntityType entityType)
             => GetAllBaseTypesInclusiveAscending(entityType).Reverse();
 
         /// <summary>
-        ///     Returns all base types of the given <see cref="IEntityType" />, including the type itself, bottom to top.
+        ///     Returns all base types of the given <see cref="IReadOnlyEntityType" />, including the type itself, bottom to top.
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> Base types. </returns>
-        public static IEnumerable<IEntityType> GetAllBaseTypesInclusiveAscending([NotNull] this IEntityType entityType)
+        public static IEnumerable<IReadOnlyEntityType> GetAllBaseTypesInclusiveAscending([NotNull] this IReadOnlyEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            var tmp = (IEntityType?)entityType;
+            var tmp = (IReadOnlyEntityType?)entityType;
             while (tmp != null)
             {
                 yield return tmp;
@@ -215,52 +215,52 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Gets all keys declared on the given <see cref="IEntityType" />.
+        ///         Gets all keys declared on the given <see cref="IReadOnlyEntityType" />.
         ///     </para>
         ///     <para>
         ///         This method does not return keys declared on base types.
         ///         It is useful when iterating over all entity types to avoid processing the same key more than once.
-        ///         Use <see cref="IEntityType.GetKeys" /> to also return keys declared on base types.
+        ///         Use <see cref="IReadOnlyEntityType.GetKeys" /> to also return keys declared on base types.
         ///     </para>
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> Declared keys. </returns>
-        public static IEnumerable<IKey> GetDeclaredKeys([NotNull] this IEntityType entityType)
+        public static IEnumerable<IReadOnlyKey> GetDeclaredKeys([NotNull] this IReadOnlyEntityType entityType)
             => entityType.AsEntityType().GetDeclaredKeys();
 
         /// <summary>
         ///     <para>
-        ///         Gets all foreign keys declared on the given <see cref="IEntityType" />.
+        ///         Gets all foreign keys declared on the given <see cref="IReadOnlyEntityType" />.
         ///     </para>
         ///     <para>
         ///         This method does not return foreign keys declared on base types.
         ///         It is useful when iterating over all entity types to avoid processing the same foreign key more than once.
-        ///         Use <see cref="IEntityType.GetForeignKeys" /> to also return foreign keys declared on base types.
+        ///         Use <see cref="IReadOnlyEntityType.GetForeignKeys" /> to also return foreign keys declared on base types.
         ///     </para>
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> Declared foreign keys. </returns>
-        public static IEnumerable<IForeignKey> GetDeclaredForeignKeys([NotNull] this IEntityType entityType)
+        public static IEnumerable<IReadOnlyForeignKey> GetDeclaredForeignKeys([NotNull] this IReadOnlyEntityType entityType)
             => entityType.AsEntityType().GetDeclaredForeignKeys();
 
         /// <summary>
         ///     <para>
-        ///         Gets all foreign keys declared on the types derived from the given <see cref="IEntityType" />.
+        ///         Gets all foreign keys declared on the types derived from the given <see cref="IReadOnlyEntityType" />.
         ///     </para>
         ///     <para>
         ///         This method does not return foreign keys declared on the given entity type itself.
-        ///         Use <see cref="IEntityType.GetForeignKeys" /> to return foreign keys declared on this
+        ///         Use <see cref="IReadOnlyEntityType.GetForeignKeys" /> to return foreign keys declared on this
         ///         and base entity typed types.
         ///     </para>
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> Derived foreign keys. </returns>
-        public static IEnumerable<IForeignKey> GetDerivedForeignKeys([NotNull] this IEntityType entityType)
+        public static IEnumerable<IReadOnlyForeignKey> GetDerivedForeignKeys([NotNull] this IReadOnlyEntityType entityType)
             => entityType.AsEntityType().GetDerivedForeignKeys();
 
         /// <summary>
         ///     <para>
-        ///         Gets all navigation properties declared on the given <see cref="IEntityType" />.
+        ///         Gets all navigation properties declared on the given <see cref="IReadOnlyEntityType" />.
         ///     </para>
         ///     <para>
         ///         This method does not return navigation properties declared on base types.
@@ -270,65 +270,85 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> Declared navigation properties. </returns>
-        public static IEnumerable<INavigation> GetDeclaredNavigations([NotNull] this IEntityType entityType)
-            => entityType.GetDeclaredForeignKeys()
-                .Concat(entityType.GetDeclaredReferencingForeignKeys())
-                .SelectMany(foreignKey => foreignKey.FindNavigationsFrom(entityType))
-                .Distinct()
-                .OrderBy(m => m.Name);
+        public static IEnumerable<IReadOnlyNavigation> GetDeclaredNavigations([NotNull] this IReadOnlyEntityType entityType)
+            => ((EntityType)entityType).GetDeclaredNavigations();
 
         /// <summary>
         ///     <para>
-        ///         Gets all non-navigation properties declared on the given <see cref="IEntityType" />.
+        ///         Gets all non-navigation properties declared on the given <see cref="IReadOnlyEntityType" />.
         ///     </para>
         ///     <para>
         ///         This method does not return properties declared on base types.
         ///         It is useful when iterating over all entity types to avoid processing the same property more than once.
-        ///         Use <see cref="IEntityType.GetProperties" /> to also return properties declared on base types.
+        ///         Use <see cref="IReadOnlyEntityType.GetProperties" /> to also return properties declared on base types.
         ///     </para>
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> Declared non-navigation properties. </returns>
-        public static IEnumerable<IProperty> GetDeclaredProperties([NotNull] this IEntityType entityType)
+        public static IEnumerable<IReadOnlyProperty> GetDeclaredProperties([NotNull] this IReadOnlyEntityType entityType)
             => entityType.AsEntityType().GetDeclaredProperties();
 
         /// <summary>
         ///     <para>
-        ///         Gets all service properties declared on the given <see cref="IEntityType" />.
+        ///         Gets all service properties declared on the given <see cref="IReadOnlyEntityType" />.
         ///     </para>
         ///     <para>
         ///         This method does not return properties declared on base types.
         ///         It is useful when iterating over all entity types to avoid processing the same property more than once.
-        ///         Use <see cref="IEntityType.GetServiceProperties" /> to also return properties declared on base types.
+        ///         Use <see cref="IReadOnlyEntityType.GetServiceProperties" /> to also return properties declared on base types.
         ///     </para>
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> Declared service properties. </returns>
-        public static IEnumerable<IServiceProperty> GetDeclaredServiceProperties([NotNull] this IEntityType entityType)
+        public static IEnumerable<IReadOnlyServiceProperty> GetDeclaredServiceProperties([NotNull] this IReadOnlyEntityType entityType)
             => entityType.AsEntityType().GetDeclaredServiceProperties();
 
         /// <summary>
         ///     <para>
-        ///         Gets all indexes declared on the given <see cref="IEntityType" />.
+        ///         Gets all indexes declared on the given <see cref="IReadOnlyEntityType" />.
         ///     </para>
         ///     <para>
         ///         This method does not return indexes declared on base types.
         ///         It is useful when iterating over all entity types to avoid processing the same index more than once.
-        ///         Use <see cref="IEntityType.GetForeignKeys" /> to also return indexes declared on base types.
+        ///         Use <see cref="IReadOnlyEntityType.GetForeignKeys" /> to also return indexes declared on base types.
         ///     </para>
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> Declared indexes. </returns>
-        public static IEnumerable<IIndex> GetDeclaredIndexes([NotNull] this IEntityType entityType)
-            => entityType.AsEntityType().GetDeclaredIndexes();
+        public static IEnumerable<IReadOnlyIndex> GetDeclaredIndexes([NotNull] this IReadOnlyEntityType entityType)
+            => ((EntityType)entityType).GetDeclaredIndexes();
 
         /// <summary>
-        ///     Gets the friendly display name for the given <see cref="ITypeBase" />.
+        ///     <para>
+        ///         Gets all indexes declared on the types derived from the given <see cref="IReadOnlyEntityType" />.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Derived indexes. </returns>
+        public static IEnumerable<IReadOnlyIndex> GetDerivedIndexes([NotNull] this IReadOnlyEntityType entityType)
+            => ((EntityType)entityType).GetDerivedIndexes();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets the unnamed index defined on the given property. Returns <see langword="null" /> if no such index is defined.
+        ///     </para>
+        ///     <para>
+        ///         Named indexes will not be returned even if the list of properties matches.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="property"> The property to find the index on. </param>
+        /// <returns> The index, or null if none is found. </returns>
+        public static IReadOnlyIndex? FindIndex([NotNull] this IReadOnlyEntityType entityType, [NotNull] IReadOnlyProperty property)
+            => entityType.FindIndex(new[] { property });
+
+        /// <summary>
+        ///     Gets the friendly display name for the given <see cref="IReadOnlyTypeBase" />.
         /// </summary>
         /// <param name="type"> The entity type. </param>
         /// <returns> The display name. </returns>
         [DebuggerStepThrough]
-        public static string DisplayName([NotNull] this ITypeBase type)
+        public static string DisplayName([NotNull] this IReadOnlyTypeBase type)
         {
             if (!type.HasSharedClrType)
             {
@@ -367,20 +387,20 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Gets the unique name for the given <see cref="ITypeBase" />.
+        ///     Gets the unique name for the given <see cref="IReadOnlyTypeBase" />.
         /// </summary>
         /// <param name="type"> The entity type. </param>
         /// <returns> The full name. </returns>
         [DebuggerStepThrough]
-        public static string FullName([NotNull] this ITypeBase type) => type.Name;
+        public static string FullName([NotNull] this IReadOnlyTypeBase type) => type.Name;
 
         /// <summary>
-        ///     Gets a short name for the given <see cref="ITypeBase" /> that can be used in other identifiers.
+        ///     Gets a short name for the given <see cref="IReadOnlyTypeBase" /> that can be used in other identifiers.
         /// </summary>
         /// <param name="type"> The entity type. </param>
         /// <returns> The short name. </returns>
         [DebuggerStepThrough]
-        public static string ShortName([NotNull] this ITypeBase type)
+        public static string ShortName([NotNull] this IReadOnlyTypeBase type)
         {
             if (!type.HasSharedClrType)
             {
@@ -412,7 +432,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if this entity type has a defining navigation. </returns>
         [DebuggerStepThrough]
         [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
-        public static bool HasDefiningNavigation([NotNull] this IEntityType entityType)
+        public static bool HasDefiningNavigation([NotNull] this IReadOnlyEntityType entityType)
             => entityType.HasDefiningNavigation();
 
         /// <summary>
@@ -421,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <returns> <see langword="true" /> if this entity type is owned by another entity type. </returns>
         [DebuggerStepThrough]
-        public static bool IsOwned([NotNull] this IEntityType entityType)
+        public static bool IsOwned([NotNull] this IReadOnlyEntityType entityType)
             => entityType.GetForeignKeys().Any(fk => fk.IsOwnership);
 
         /// <summary>
@@ -433,7 +453,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see langword="true" /> if <paramref name="targetType" /> is in ownership path of <paramref name="entityType" />,
         ///     otherwise <see langword="false" />.
         /// </returns>
-        public static bool IsInOwnershipPath([NotNull] this IEntityType entityType, [NotNull] IEntityType targetType)
+        public static bool IsInOwnershipPath([NotNull] this IReadOnlyEntityType entityType, [NotNull] IReadOnlyEntityType targetType)
         {
             var owner = entityType;
             while (true)
@@ -459,12 +479,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="property"> The property that the key is defined on. </param>
         /// <returns> The key, or null if none is defined. </returns>
-        public static IKey? FindKey([NotNull] this IEntityType entityType, [NotNull] IProperty property)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            return entityType.FindKey(new[] { property });
-        }
+        public static IReadOnlyKey? FindKey([NotNull] this IReadOnlyEntityType entityType, [NotNull] IReadOnlyProperty property)
+            => entityType.FindKey(new[] { property });
 
         /// <summary>
         ///     Gets the foreign keys defined on the given property. Only foreign keys that are defined on exactly the specified
@@ -473,8 +489,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="property"> The property to find the foreign keys on. </param>
         /// <returns> The foreign keys. </returns>
-        public static IEnumerable<IForeignKey> FindForeignKeys([NotNull] this IEntityType entityType, [NotNull] IProperty property)
-            => property.GetContainingForeignKeys();
+        public static IEnumerable<IReadOnlyForeignKey> FindForeignKeys([NotNull] this IReadOnlyEntityType entityType, [NotNull] IReadOnlyProperty property)
+            => entityType.FindForeignKeys(new[] { property });
 
         /// <summary>
         ///     Gets the foreign keys defined on the given properties. Only foreign keys that are defined on exactly the specified
@@ -483,17 +499,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="properties"> The properties to find the foreign keys on. </param>
         /// <returns> The foreign keys. </returns>
-        public static IEnumerable<IForeignKey> FindForeignKeys(
-            [NotNull] this IEntityType entityType,
-            [NotNull] IReadOnlyList<IProperty> properties)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotEmpty(properties, nameof(properties));
-            Check.HasNoNulls(properties, nameof(properties));
-
-            return entityType.GetForeignKeys()
-                .Where(foreignKey => PropertyListComparer.Instance.Equals(foreignKey.Properties, properties));
-        }
+        public static IEnumerable<IReadOnlyForeignKey> FindForeignKeys(
+            [NotNull] this IReadOnlyEntityType entityType,
+            [NotNull] IReadOnlyList<IReadOnlyProperty> properties)
+            => ((EntityType)entityType).FindForeignKeys(properties);
 
         /// <summary>
         ///     Gets the foreign key for the given properties that points to a given primary or alternate key. Returns <see langword="null" />
@@ -508,11 +517,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     base type of the hierarchy).
         /// </param>
         /// <returns> The foreign key, or <see langword="null" /> if none is defined. </returns>
-        public static IForeignKey? FindForeignKey(
-            [NotNull] this IEntityType entityType,
-            [NotNull] IProperty property,
-            [NotNull] IKey principalKey,
-            [NotNull] IEntityType principalEntityType)
+        public static IReadOnlyForeignKey? FindForeignKey(
+            [NotNull] this IReadOnlyEntityType entityType,
+            [NotNull] IReadOnlyProperty property,
+            [NotNull] IReadOnlyKey principalKey,
+            [NotNull] IReadOnlyEntityType principalEntityType)
             => Check.NotNull(entityType, nameof(entityType))
                 .FindForeignKey(
                     new[] { property }, principalKey, principalEntityType);
@@ -523,7 +532,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The foreign keys that reference the given entity type. </returns>
-        public static IEnumerable<IForeignKey> GetReferencingForeignKeys([NotNull] this IEntityType entityType)
+        public static IEnumerable<IReadOnlyForeignKey> GetReferencingForeignKeys([NotNull] this IReadOnlyEntityType entityType)
             => Check.NotNull(entityType, nameof(entityType)).AsEntityType().GetReferencingForeignKeys();
 
         /// <summary>
@@ -532,7 +541,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The foreign keys that reference the given entity type. </returns>
-        public static IEnumerable<IForeignKey> GetDeclaredReferencingForeignKeys([NotNull] this IEntityType entityType)
+        public static IEnumerable<IReadOnlyForeignKey> GetDeclaredReferencingForeignKeys([NotNull] this IReadOnlyEntityType entityType)
             => Check.NotNull(entityType, nameof(entityType)).AsEntityType().GetDeclaredReferencingForeignKeys();
 
         /// <summary>
@@ -540,8 +549,18 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The relationship to the owner if this is an owned type or <see langword="null" /> otherwise. </returns>
-        public static IForeignKey? FindOwnership([NotNull] this IEntityType entityType)
-            => ((EntityType)entityType).FindOwnership();
+        public static IReadOnlyForeignKey? FindOwnership([NotNull] this IReadOnlyEntityType entityType)
+        {
+            foreach (var foreignKey in entityType.GetForeignKeys())
+            {
+                if (foreignKey.IsOwnership)
+                {
+                    return foreignKey;
+                }
+            }
+
+            return null;
+        }
 
         /// <summary>
         ///     Gets a navigation property on the given entity type. Returns <see langword="null" /> if no navigation property is found.
@@ -549,13 +568,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="memberInfo"> The navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
-        public static INavigation? FindNavigation([NotNull] this IEntityType entityType, [NotNull] MemberInfo memberInfo)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(memberInfo, nameof(memberInfo));
-
-            return entityType.FindNavigation(memberInfo.GetSimpleMemberName());
-        }
+        public static IReadOnlyNavigation? FindNavigation([NotNull] this IReadOnlyEntityType entityType, [NotNull] MemberInfo memberInfo)
+            => entityType.FindNavigation(Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName());
 
         /// <summary>
         ///     Gets a navigation property on the given entity type. Returns <see langword="null" /> if no navigation property is found.
@@ -563,8 +577,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="name"> The name of the navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
-        public static INavigation? FindNavigation([NotNull] this IEntityType entityType, [NotNull] string name)
-            => Check.NotNull(entityType, nameof(entityType)).AsEntityType().FindNavigation(Check.NotNull(name, nameof(name)));
+        public static IReadOnlyNavigation? FindNavigation([NotNull] this IReadOnlyEntityType entityType, [NotNull] string name)
+            => entityType.FindDeclaredNavigation(Check.NotEmpty(name, nameof(name))) ?? entityType.BaseType?.FindNavigation(name);
 
         /// <summary>
         ///     Gets a navigation property on the given entity type. Does not return navigation properties defined on a base type.
@@ -573,8 +587,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="name"> The name of the navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
-        public static INavigation? FindDeclaredNavigation([NotNull] this IEntityType entityType, [NotNull] string name)
-            => Check.NotNull(entityType, nameof(entityType)).AsEntityType().FindDeclaredNavigation(Check.NotNull(name, nameof(name)));
+        public static IReadOnlyNavigation? FindDeclaredNavigation([NotNull] this IReadOnlyEntityType entityType, [NotNull] string name)
+            => ((EntityType)entityType).FindDeclaredNavigation(Check.NotNull(name, nameof(name)));
 
         /// <summary>
         ///     Returns the defining navigation if one exists or <see langword="null" /> otherwise.
@@ -582,7 +596,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The defining navigation if one exists or <see langword="null" /> otherwise. </returns>
         [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
-        public static INavigation? FindDefiningNavigation([NotNull] this IEntityType entityType)
+        public static IReadOnlyNavigation? FindDefiningNavigation([NotNull] this IReadOnlyEntityType entityType)
         {
             if (!entityType.HasDefiningNavigation())
             {
@@ -598,7 +612,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> All navigation properties on the given entity type. </returns>
-        public static IEnumerable<INavigation> GetNavigations([NotNull] this IEntityType entityType)
+        public static IEnumerable<IReadOnlyNavigation> GetNavigations([NotNull] this IReadOnlyEntityType entityType)
             => Check.NotNull(entityType, nameof(entityType)).AsEntityType().GetNavigations();
 
         /// <summary>
@@ -607,21 +621,16 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         This API only finds scalar properties and does not find navigation properties. Use
-        ///         <see cref="FindNavigation(IEntityType, MemberInfo)" /> to find a navigation property.
+        ///         <see cref="FindNavigation(IReadOnlyEntityType, MemberInfo)" /> to find a navigation property.
         ///     </para>
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="memberInfo"> The member on the entity class. </param>
         /// <returns> The property, or <see langword="null" /> if none is found. </returns>
-        public static IProperty? FindProperty([NotNull] this IEntityType entityType, [NotNull] MemberInfo memberInfo)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(memberInfo, nameof(memberInfo));
-
-            return (memberInfo as PropertyInfo)?.IsIndexerProperty() == true
+        public static IReadOnlyProperty? FindProperty([NotNull] this IReadOnlyEntityType entityType, [NotNull] MemberInfo memberInfo)
+            => (Check.NotNull(memberInfo, nameof(memberInfo)) as PropertyInfo)?.IsIndexerProperty() == true
                 ? null
                 : entityType.FindProperty(memberInfo.GetSimpleMemberName());
-        }
 
         /// <summary>
         ///     <para>
@@ -629,13 +638,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         This API only finds scalar properties and does not find navigation properties. Use
-        ///         <see cref="FindNavigation(IEntityType, string)" /> to find a navigation property.
+        ///         <see cref="FindNavigation(IReadOnlyEntityType, string)" /> to find a navigation property.
         ///     </para>
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="name"> The property name. </param>
         /// <returns> The property, or <see langword="null" /> if none is found. </returns>
-        public static IProperty GetProperty([NotNull] this IEntityType entityType, [NotNull] string name)
+        public static IReadOnlyProperty GetProperty([NotNull] this IReadOnlyEntityType entityType, [NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -668,10 +677,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="propertyNames"> The property names. </param>
         /// <returns> The properties, or <see langword="null" /> if any property is not found. </returns>
-        public static IReadOnlyList<IProperty>? FindProperties(
-            [NotNull] this IEntityType entityType,
+        public static IReadOnlyList<IReadOnlyProperty>? FindProperties(
+            [NotNull] this IReadOnlyEntityType entityType,
             [NotNull] IReadOnlyList<string> propertyNames)
-            => entityType.AsEntityType().FindProperties(Check.NotNull(propertyNames, nameof(propertyNames)));
+            => ((EntityType)entityType).FindProperties(propertyNames);
 
         /// <summary>
         ///     Finds a property declared on the type with the given name.
@@ -680,26 +689,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="name"> The property name. </param>
         /// <returns> The property, or <see langword="null" /> if none is found. </returns>
-        public static IProperty? FindDeclaredProperty([NotNull] this IEntityType entityType, [NotNull] string name)
+        public static IReadOnlyProperty? FindDeclaredProperty([NotNull] this IReadOnlyEntityType entityType, [NotNull] string name)
             => entityType.AsEntityType().FindDeclaredProperty(name);
-
-        /// <summary>
-        ///     <para>
-        ///         Gets the unnamed index defined on the given property. Returns <see langword="null" /> if no such index is defined.
-        ///     </para>
-        ///     <para>
-        ///         Named indexes will not be returned even if the list of properties matches.
-        ///     </para>
-        /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="property"> The property to find the index on. </param>
-        /// <returns> The index, or null if none is found. </returns>
-        public static IIndex? FindIndex([NotNull] this IEntityType entityType, [NotNull] IProperty property)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            return entityType.FindIndex(new[] { property });
-        }
 
         /// <summary>
         ///     Gets the change tracking strategy being used for this entity type. This strategy indicates how the
@@ -708,7 +699,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The change tracking strategy. </returns>
         [DebuggerStepThrough]
-        public static ChangeTrackingStrategy GetChangeTrackingStrategy([NotNull] this IEntityType entityType)
+        public static ChangeTrackingStrategy GetChangeTrackingStrategy([NotNull] this IReadOnlyEntityType entityType)
             => ((EntityType)entityType).GetChangeTrackingStrategy();
 
         /// <summary>
@@ -718,7 +709,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="providerValues"> If true, then provider values are used. </param>
         /// <returns> The data. </returns>
         public static IEnumerable<IDictionary<string, object?>> GetSeedData(
-            [NotNull] this IEntityType entityType,
+            [NotNull] this IReadOnlyEntityType entityType,
             bool providerValues = false)
             => entityType.AsEntityType().GetSeedData(providerValues);
 
@@ -727,7 +718,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to get the query filter for. </param>
         /// <returns> The LINQ expression filter. </returns>
-        public static LambdaExpression? GetQueryFilter([NotNull] this IEntityType entityType)
+        public static LambdaExpression? GetQueryFilter([NotNull] this IReadOnlyEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -740,7 +731,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to get the defining query for. </param>
         /// <returns> The LINQ query used as the default source. </returns>
         [Obsolete("Use InMemoryEntityTypeExtensions.GetInMemoryQuery")]
-        public static LambdaExpression? GetDefiningQuery([NotNull] this IEntityType entityType)
+        public static LambdaExpression? GetDefiningQuery([NotNull] this IReadOnlyEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -748,10 +739,10 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Returns the <see cref="IProperty" /> that will be used for storing a discriminator value.
+        ///     Returns the <see cref="IReadOnlyProperty" /> that will be used for storing a discriminator value.
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
-        public static IProperty? GetDiscriminatorProperty([NotNull] this IEntityType entityType)
+        public static IReadOnlyProperty? GetDiscriminatorProperty([NotNull] this IReadOnlyEntityType entityType)
         {
             if (entityType.BaseType != null)
             {
@@ -767,11 +758,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns the value indicating whether the discriminator mapping is complete for this entity type.
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
-        public static bool GetIsDiscriminatorMappingComplete([NotNull] this IEntityType entityType)
+        public static bool GetIsDiscriminatorMappingComplete([NotNull] this IReadOnlyEntityType entityType)
             => (bool?)entityType[CoreAnnotationNames.DiscriminatorMappingComplete]
                 ?? GetDefaultIsDiscriminatorMappingComplete(entityType);
 
-        private static bool GetDefaultIsDiscriminatorMappingComplete(IEntityType entityType)
+        private static bool GetDefaultIsDiscriminatorMappingComplete(IReadOnlyEntityType entityType)
             => true;
 
         /// <summary>
@@ -779,7 +770,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The discriminator value for this entity type. </returns>
-        public static object? GetDiscriminatorValue([NotNull] this IEntityType entityType)
+        public static object? GetDiscriminatorValue([NotNull] this IReadOnlyEntityType entityType)
             => entityType[CoreAnnotationNames.DiscriminatorValue];
 
         /// <summary>
@@ -796,7 +787,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="indent"> The number of indent spaces to use before each new line. </param>
         /// <returns> A human-readable representation. </returns>
         public static string ToDebugString(
-            [NotNull] this IEntityType entityType,
+            [NotNull] this IReadOnlyEntityType entityType,
             MetadataDebugStringOptions options,
             int indent = 0)
         {

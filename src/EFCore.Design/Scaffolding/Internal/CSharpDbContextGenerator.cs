@@ -183,12 +183,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateEntityTypeErrors(IModel model)
         {
-            foreach (var entityTypeError in model.GetEntityTypeErrors())
+            var errors = model.GetEntityTypeErrors();
+            foreach (var entityTypeError in errors)
             {
                 _sb.AppendLine($"// {entityTypeError.Value} Please see the warning messages.");
             }
 
-            if (model.GetEntityTypeErrors().Count > 0)
+            if (errors.Count > 0)
             {
                 _sb.AppendLine();
             }
@@ -454,11 +455,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (key.Properties.Count == 1
                 && annotations.Count == 0)
             {
-                if (key is Key concreteKey
-                    && key.Properties.SequenceEqual(
+                if (key is IConventionKey conventionKey
+                    && conventionKey.Properties.SequenceEqual(
                         KeyDiscoveryConvention.DiscoverKeyProperties(
-                            concreteKey.DeclaringEntityType,
-                            concreteKey.DeclaringEntityType.GetProperties())))
+                            conventionKey.DeclaringEntityType,
+                            conventionKey.DeclaringEntityType.GetProperties())))
                 {
                     return;
                 }

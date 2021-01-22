@@ -249,13 +249,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             [NotNull] IModel model,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            foreach (var entityType in ((IConventionModel)model).GetEntityTypes())
+            foreach (var entityType in model.GetEntityTypes())
             {
                 foreach (var key in entityType.GetDeclaredKeys())
                 {
                     foreach (var property in key.Properties)
                     {
-                        var defaultValue = property.FindAnnotation(RelationalAnnotationNames.DefaultValue);
+                        var defaultValue = (IConventionAnnotation)property.FindAnnotation(RelationalAnnotationNames.DefaultValue);
                         if (defaultValue?.Value != null
                             && defaultValue.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation))
                         {

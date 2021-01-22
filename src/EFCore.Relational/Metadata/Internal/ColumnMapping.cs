@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -27,15 +28,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public ColumnMapping(
             [NotNull] IProperty property,
             [NotNull] Column column,
-            [NotNull] RelationalTypeMapping typeMapping,
             [NotNull] TableMapping tableMapping)
-            : base(property, column, typeMapping, tableMapping)
+            : base(property, column, tableMapping)
         {
         }
 
         /// <inheritdoc />
         public new virtual ITableMapping TableMapping
             => (ITableMapping)base.TableMapping;
+
+        /// <inheritdoc />
+        public override RelationalTypeMapping TypeMapping => Property.FindRelationalTypeMapping(
+            StoreObjectIdentifier.Table(TableMapping.Table.Name, TableMapping.Table.Schema))!;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

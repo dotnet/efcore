@@ -872,7 +872,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         /// <param name="foreignKey"> The foreign key. </param>
         /// <returns> The string that should be used as part of the shadow properties created for the given foreign key. </returns>
-        public static string GetPropertyBaseName([NotNull] IForeignKey foreignKey)
+        public static string GetPropertyBaseName([NotNull] IReadOnlyForeignKey foreignKey)
             => foreignKey.DependentToPrincipal?.Name
                 ?? foreignKey.GetReferencingSkipNavigations().FirstOrDefault()?.Inverse?.Name
                 ?? foreignKey.PrincipalEntityType.ShortName();

@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual InternalEntityEntry Propagate(InternalEntityEntry entry)
         {
             InternalEntityEntry chosenPrincipal = null;
-            foreach (var property in FindCandidatePropagatingProperties(entry))
+            foreach (var property in entry.EntityType.GetForeignKeyProperties())
             {
                 if (!entry.HasDefaultValue(property))
                 {
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var entityEntry = new EntityEntry(entry);
 
-            foreach (var property in FindCandidateGeneratingProperties(entry))
+            foreach (var property in entry.EntityType.GetValueGeneratingProperties())
             {
                 if (!entry.HasDefaultValue(property)
                     || (!includePrimaryKey
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var entityEntry = new EntityEntry(entry);
 
-            foreach (var property in FindCandidateGeneratingProperties(entry))
+            foreach (var property in entry.EntityType.GetValueGeneratingProperties())
             {
                 if (!entry.HasDefaultValue(property)
                     || (!includePrimaryKey
@@ -160,12 +160,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     temporary);
             }
         }
-
-        private IReadOnlyList<IProperty> FindCandidatePropagatingProperties(InternalEntityEntry entry)
-            => entry.EntityType.GetPropagatingProperties();
-
-        private IReadOnlyList<IProperty> FindCandidateGeneratingProperties(InternalEntityEntry entry)
-            => entry.EntityType.GetGeneratingProperties();
 
         private ValueGenerator GetValueGenerator(InternalEntityEntry entry, IProperty property)
             => _valueGeneratorSelector.Select(

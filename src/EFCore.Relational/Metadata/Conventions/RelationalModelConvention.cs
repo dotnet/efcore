@@ -35,8 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         /// <inheritdoc />
         public virtual IModel ProcessModelFinalized(IModel model)
-            => model is IConventionModel conventionModel
-                ? RelationalModel.Add(conventionModel, RelationalDependencies.RelationalAnnotationProvider)
-                : model;
+            => RelationalModel.Add(model, RelationalDependencies.RelationalAnnotationProvider);
     }
 }

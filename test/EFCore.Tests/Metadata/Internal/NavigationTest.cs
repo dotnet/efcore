@@ -18,19 +18,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var navigation = new FakeNavigation();
 
             Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_INavigation_throws), nameof(INavigation), nameof(FakeNavigation)),
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_INavigation_throws), nameof(IReadOnlyNavigation), nameof(FakeNavigation)),
                 Assert.Throws<NotSupportedException>(() => navigation.AsNavigation()).Message);
         }
 
-        private class FakeNavigation : Annotatable, INavigation
+        private class FakeNavigation : Annotatable, IReadOnlyNavigation
         {
             public string Name { get; }
-            public ITypeBase DeclaringType { get; }
+            public IReadOnlyTypeBase DeclaringType { get; }
             public Type ClrType { get; }
             public PropertyInfo PropertyInfo { get; }
             public FieldInfo FieldInfo { get; }
-            public IEntityType DeclaringEntityType { get; }
-            public IForeignKey ForeignKey { get; }
+            public IReadOnlyEntityType DeclaringEntityType { get; }
+            public IReadOnlyForeignKey ForeignKey { get; }
             public bool IsEagerLoaded { get; }
         }
 

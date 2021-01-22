@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="annotationName"> The key of the annotation to find. </param>
         /// <returns> The annotation with the specified name. </returns>
         public static IAnnotation GetAnnotation([NotNull] this IMutableAnnotatable annotatable, [NotNull] string annotationName)
-            => ((IAnnotatable)annotatable).GetAnnotation(annotationName);
+            => ((IReadOnlyAnnotatable)annotatable).GetAnnotation(annotationName);
 
         /// <summary>
         ///     Adds annotations to an object.

@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents a <see cref="IConventionDbFunction" /> parameter.
     /// </summary>
-    public interface IConventionDbFunctionParameter : IConventionAnnotatable, IDbFunctionParameter
+    public interface IConventionDbFunctionParameter : IConventionAnnotatable, IReadOnlyDbFunctionParameter
     {
         /// <summary>
         ///     The <see cref="IConventionDbFunction" /> to which this parameter belongs.
@@ -38,9 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         string? SetStoreType([CanBeNull] string? storeType, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IDbFunctionParameter.StoreType" />.
+        ///     Returns the configuration source for <see cref="IReadOnlyDbFunctionParameter.StoreType" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IDbFunctionParameter.StoreType" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyDbFunctionParameter.StoreType" />. </returns>
         ConfigurationSource? GetStoreTypeConfigurationSource();
 
         /// <summary>
@@ -51,9 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         RelationalTypeMapping? SetTypeMapping([CanBeNull] RelationalTypeMapping? typeMapping, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IDbFunctionParameter.TypeMapping" />.
+        ///     Returns the configuration source for <see cref="IReadOnlyDbFunctionParameter.TypeMapping" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IDbFunctionParameter.TypeMapping" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyDbFunctionParameter.TypeMapping" />. </returns>
         ConfigurationSource? GetTypeMappingConfigurationSource();
     }
 }

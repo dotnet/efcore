@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// </summary>
         public static void SequenceConfiguredWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
-            [NotNull] ISequence sequence)
+            [NotNull] IReadOnlySequence sequence)
         {
             var definition = SqliteResources.LogSequenceConfigured(diagnostics);
 

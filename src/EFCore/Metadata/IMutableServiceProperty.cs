@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
     ///     <para>
-    ///         A <see cref="IPropertyBase" /> in the Entity Framework model that represents an
+    ///         A <see cref="IReadOnlyPropertyBase" /> in the Entity Framework model that represents an
     ///         injected service from the <see cref="DbContext" />.
     ///     </para>
     ///     <para>
@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="IServiceProperty" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IMutableServiceProperty : IServiceProperty, IMutablePropertyBase
+    public interface IMutableServiceProperty : IReadOnlyServiceProperty, IMutablePropertyBase
     {
         /// <summary>
         ///     Gets the type that this property belongs to.

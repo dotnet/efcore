@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         // Note: only use this to find the property/field that defines the property in the model. Use
         // GetMemberInfo to get the property/field to use, which may be different.
         public static MemberInfo? GetIdentifyingMemberInfo(
-            [NotNull] this IPropertyBase propertyBase)
+            [NotNull] this IReadOnlyPropertyBase propertyBase)
             => propertyBase.PropertyInfo ?? (MemberInfo?)propertyBase.FieldInfo;
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var setterProperty = propertyInfo?.FindSetterProperty();
             var getterProperty = propertyInfo?.FindGetterProperty();
 
-            var isCollectionNav = (propertyBase as INavigation)?.IsCollection == true;
+            var isCollectionNav = (propertyBase as IReadOnlyNavigation)?.IsCollection == true;
             var hasField = fieldInfo != null;
             var hasSetter = setterProperty != null;
             var hasGetter = getterProperty != null;
@@ -359,8 +359,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static PropertyBase AsPropertyBase(
-            [NotNull] this IPropertyBase propertyBase,
+            [NotNull] this IReadOnlyPropertyBase propertyBase,
             [NotNull] [CallerMemberName] string methodName = "")
-            => MetadataExtensions.AsConcreteMetadataType<IPropertyBase, PropertyBase>(propertyBase, methodName);
+            => MetadataExtensions.AsConcreteMetadataType<IReadOnlyPropertyBase, PropertyBase>(propertyBase, methodName);
     }
 }

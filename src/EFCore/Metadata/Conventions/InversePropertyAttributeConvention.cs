@@ -309,11 +309,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return;
             }
 
-            var leastDerivedEntityTypes = modelBuilder.Metadata.FindLeastDerivedEntityTypes(
-                declaringType,
-                t => !t.Builder.IsIgnored(navigationMemberInfo.GetSimpleMemberName(), fromDataAnnotation: true));
+            var leastDerivedEntityTypes = modelBuilder.Metadata.FindLeastDerivedEntityTypes(declaringType);
             foreach (var leastDerivedEntityType in leastDerivedEntityTypes)
             {
+                if (leastDerivedEntityType.Builder.IsIgnored(navigationMemberInfo.GetSimpleMemberName(), fromDataAnnotation: true))
+                {
+                    continue;
+                }
+
                 Process(leastDerivedEntityType.Builder, navigationMemberInfo, targetClrType, attribute);
             }
         }

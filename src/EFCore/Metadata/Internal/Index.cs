@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex
+    public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex, IIndex
     {
         private bool? _isUnique;
         private InternalIndexBuilder? _builder;
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override bool IsReadOnly => DeclaringEntityType.Model.IsModelReadOnly;
+        public override bool IsReadOnly => DeclaringEntityType.Model.IsReadOnly;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IReadOnlyList<IProperty> IIndex.Properties
+        IReadOnlyList<IReadOnlyProperty> IReadOnlyIndex.Properties
         {
             [DebuggerStepThrough] get => Properties;
         }
@@ -272,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IEntityType IIndex.DeclaringEntityType
+        IReadOnlyEntityType IReadOnlyIndex.DeclaringEntityType
         {
             [DebuggerStepThrough] get => DeclaringEntityType;
         }
@@ -338,9 +338,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        IReadOnlyList<IProperty> IIndex.Properties
+        {
+            [DebuggerStepThrough]
+            get => Properties;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         IConventionEntityType IConventionIndex.DeclaringEntityType
         {
             [DebuggerStepThrough] get => DeclaringEntityType;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IEntityType IIndex.DeclaringEntityType
+        {
+            [DebuggerStepThrough]
+            get => DeclaringEntityType;
         }
 
         /// <summary>

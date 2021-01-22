@@ -10,10 +10,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a database sequence in the <see cref="IConventionModel" /> in a form that
+    ///     Represents a database sequence in the model in a form that
     ///     can be mutated while building the model.
     /// </summary>
-    public interface IConventionSequence : ISequence, IConventionAnnotatable
+    public interface IConventionSequence : IReadOnlySequence, IConventionAnnotatable
     {
         /// <summary>
         ///     Gets the <see cref="IConventionModel" /> in which this sequence is defined.
@@ -41,9 +41,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         long? SetStartValue(long? startValue, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="ISequence.StartValue" />.
+        ///     Returns the configuration source for <see cref="IReadOnlySequence.StartValue" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="ISequence.StartValue" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlySequence.StartValue" />. </returns>
         ConfigurationSource? GetStartValueConfigurationSource();
 
         /// <summary>
@@ -55,9 +55,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         int? SetIncrementBy(int? incrementBy, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Gets the configuration source for <see cref="ISequence.IncrementBy" />.
+        ///     Gets the configuration source for <see cref="IReadOnlySequence.IncrementBy" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="ISequence.IncrementBy" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlySequence.IncrementBy" />. </returns>
         ConfigurationSource? GetIncrementByConfigurationSource();
 
         /// <summary>
@@ -69,9 +69,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         long? SetMinValue(long? minValue, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="ISequence.MinValue" />.
+        ///     Returns the configuration source for <see cref="IReadOnlySequence.MinValue" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="ISequence.MinValue" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlySequence.MinValue" />. </returns>
         ConfigurationSource? GetMinValueConfigurationSource();
 
         /// <summary>
@@ -83,9 +83,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         long? SetMaxValue(long? maxValue, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Gets the configuration source for <see cref="ISequence.MaxValue" />.
+        ///     Gets the configuration source for <see cref="IReadOnlySequence.MaxValue" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="ISequence.MaxValue" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlySequence.MaxValue" />. </returns>
         ConfigurationSource? GetMaxValueConfigurationSource();
 
         /// <summary>
@@ -97,9 +97,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         Type? SetType([CanBeNull] Type? type, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Gets the configuration source for <see cref="ISequence.ClrType" />.
+        ///     Gets the configuration source for <see cref="IReadOnlySequence.ClrType" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="ISequence.ClrType" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlySequence.ClrType" />. </returns>
         ConfigurationSource? GetTypeConfigurationSource();
 
         /// <summary>
@@ -112,9 +112,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         Type? SetClrType([CanBeNull] Type? type, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Gets the configuration source for <see cref="ISequence.ClrType" />.
+        ///     Gets the configuration source for <see cref="IReadOnlySequence.ClrType" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="ISequence.ClrType" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlySequence.ClrType" />. </returns>
         [Obsolete("Use GetTypeConfigurationSource")]
         ConfigurationSource? GetClrTypeConfigurationSource();
 
@@ -130,9 +130,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool? SetIsCyclic(bool? cyclic, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Gets the configuration source for <see cref="ISequence.IsCyclic" />.
+        ///     Gets the configuration source for <see cref="IReadOnlySequence.IsCyclic" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="ISequence.IsCyclic" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlySequence.IsCyclic" />. </returns>
         ConfigurationSource? GetIsCyclicConfigurationSource();
     }
 }

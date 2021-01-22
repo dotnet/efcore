@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="IKey" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IConventionKey : IConventionAnnotatable, IKey
+    public interface IConventionKey : IReadOnlyKey, IConventionAnnotatable
     {
         /// <summary>
         ///     Gets the builder that can be used to configure this key.

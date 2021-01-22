@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="property"> The property. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The new store value generation strategy to set for the given property. </returns>
-        public static ValueGenerated? GetValueGenerated([NotNull] IProperty property, in StoreObjectIdentifier storeObject)
+        public static ValueGenerated? GetValueGenerated([NotNull] IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
             var valueGenerated = GetValueGenerated(property);
             return valueGenerated

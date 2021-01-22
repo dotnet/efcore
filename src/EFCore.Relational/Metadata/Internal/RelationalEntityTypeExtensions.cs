@@ -32,7 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IEnumerable<ITableMappingBase> GetViewOrTableMappings([NotNull] this IEntityType entityType)
-            => (IEnumerable<ITableMappingBase>?)(entityType.FindRuntimeAnnotationValue(RelationalAnnotationNames.ViewMappings)
+            => (IEnumerable<ITableMappingBase>?)(entityType.FindRuntimeAnnotationValue(
+                RelationalAnnotationNames.ViewMappings)
                     ?? entityType.FindRuntimeAnnotationValue(RelationalAnnotationNames.TableMappings))
                 ?? Enumerable.Empty<ITableMappingBase>();
 
@@ -42,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IReadOnlyList<string> GetTptDiscriminatorValues([NotNull] this IEntityType entityType)
+        public static IReadOnlyList<string> GetTptDiscriminatorValues([NotNull] this IReadOnlyEntityType entityType)
             => entityType.GetConcreteDerivedTypesInclusive().Select(et => et.ShortName()).ToList();
     }
 }

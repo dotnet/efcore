@@ -9,10 +9,9 @@ using JetBrains.Annotations;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a database sequence in the <see cref="IMutableModel" /> in a form that
-    ///     can be mutated while building the model.
+    ///     Represents a database sequence in the model.
     /// </summary>
-    public interface IMutableSequence : ISequence, IMutableAnnotatable
+    public interface IMutableSequence : IReadOnlySequence, IMutableAnnotatable
     {
         /// <summary>
         ///     Gets the <see cref="IMutableModel" /> in which this sequence is defined.

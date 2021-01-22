@@ -1122,7 +1122,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     if (property.IsImplicitlyCreated())
                     {
-                        logger.ShadowPropertyCreated(property);
+                        logger.ShadowPropertyCreated((IProperty)property);
                     }
                 }
             }

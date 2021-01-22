@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                             throw new InvalidOperationException(ProxiesStrings.ItsASeal(entityType.DisplayName()));
                         }
 
-                        var proxyType = _proxyFactory.CreateProxyType(_options, entityType);
+                        var proxyType = _proxyFactory.CreateProxyType(_options, (IEntityType)entityType);
 
                         // WARNING: This code is EF internal; it should not be copied. See #10789 #14554
 #pragma warning disable EF1001 // Internal EF Core API usage.
@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                                             new ContextParameterBinding(typeof(DbContext)),
                                             new EntityTypeParameterBinding(),
                                             new DependencyInjectionParameterBinding(
-                                                typeof(ILazyLoader), typeof(ILazyLoader), serviceProperty),
+                                                typeof(ILazyLoader), typeof(ILazyLoader), (IPropertyBase)serviceProperty),
                                             new ObjectArrayParameterBinding(binding.ParameterBindings)
                                         },
                                         proxyType));

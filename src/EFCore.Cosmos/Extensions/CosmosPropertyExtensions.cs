@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Extension methods for <see cref="IProperty" /> for Cosmos metadata.
+    ///     Property extension methods for Cosmos metadata.
     /// </summary>
     public static class CosmosPropertyExtensions
     {
@@ -21,11 +21,11 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> Returns the property name that the property is mapped to when targeting Cosmos. </returns>
-        public static string GetJsonPropertyName([NotNull] this IProperty property)
+        public static string GetJsonPropertyName([NotNull] this IReadOnlyProperty property)
             => (string?)property[CosmosAnnotationNames.PropertyName]
                 ?? GetDefaultJsonPropertyName(property);
 
-        private static string GetDefaultJsonPropertyName(IProperty property)
+        private static string GetDefaultJsonPropertyName(IReadOnlyProperty property)
         {
             var entityType = property.DeclaringEntityType;
             var ownership = entityType.FindOwnership();

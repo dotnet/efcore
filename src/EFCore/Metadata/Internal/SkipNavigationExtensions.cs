@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static MemberIdentity CreateMemberIdentity([CanBeNull] this ISkipNavigation? navigation)
+        public static MemberIdentity CreateMemberIdentity([CanBeNull] this IReadOnlySkipNavigation? navigation)
             => navigation?.GetIdentifyingMemberInfo() == null
                 ? MemberIdentity.Create(navigation?.Name)
                 : MemberIdentity.Create(navigation.GetIdentifyingMemberInfo());

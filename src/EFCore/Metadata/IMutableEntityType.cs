@@ -13,14 +13,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
     ///     <para>
-    ///         Represents an entity in an <see cref="IMutableModel" />.
+    ///         Represents an entity type in an <see cref="IMutableModel" />.
     ///     </para>
     ///     <para>
     ///         This interface is used during model creation and allows the metadata to be modified.
     ///         Once the model is built, <see cref="IEntityType" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IMutableEntityType : IEntityType, IMutableTypeBase
+    public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     {
         /// <summary>
         ///     Gets the model this entity belongs to.
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="properties"> The properties that make up the key. </param>
         /// <returns> The key, or <see langword="null" /> if none is defined. </returns>
-        new IMutableKey? FindKey([NotNull] IReadOnlyList<IProperty> properties);
+        new IMutableKey? FindKey([NotNull] IReadOnlyList<IReadOnlyProperty> properties);
 
         /// <summary>
         ///     Gets the primary and alternate keys for this entity type.
@@ -123,9 +123,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <returns> The foreign key, or <see langword="null" /> if none is defined. </returns>
         new IMutableForeignKey? FindForeignKey(
-            [NotNull] IReadOnlyList<IProperty> properties,
-            [NotNull] IKey principalKey,
-            [NotNull] IEntityType principalEntityType);
+            [NotNull] IReadOnlyList<IReadOnlyProperty> properties,
+            [NotNull] IReadOnlyKey principalKey,
+            [NotNull] IReadOnlyEntityType principalEntityType);
 
         /// <summary>
         ///     Gets the foreign keys defined on this entity type.
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="memberInfo"> The navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
         new IMutableSkipNavigation? FindSkipNavigation([NotNull] MemberInfo memberInfo)
-            => (IMutableSkipNavigation?)((IEntityType)this).FindSkipNavigation(memberInfo);
+            => (IMutableSkipNavigation?)((IReadOnlyEntityType)this).FindSkipNavigation(memberInfo);
 
         /// <summary>
         ///     Gets a skip navigation property on this entity type. Returns <see langword="null" /> if no skip navigation property is found.
@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The name of the navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
         new IMutableSkipNavigation? FindDeclaredSkipNavigation([NotNull] string name)
-            => (IMutableSkipNavigation?)((IEntityType)this).FindDeclaredSkipNavigation(name);
+            => (IMutableSkipNavigation?)((IReadOnlyEntityType)this).FindDeclaredSkipNavigation(name);
 
         /// <summary>
         ///     <para>
@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> Declared foreign keys. </returns>
         new IEnumerable<IMutableSkipNavigation> GetDeclaredSkipNavigations()
-            => ((IEntityType)this).GetDeclaredSkipNavigations().Cast<IMutableSkipNavigation>();
+            => ((IReadOnlyEntityType)this).GetDeclaredSkipNavigations().Cast<IMutableSkipNavigation>();
 
         /// <summary>
         ///     Gets the skip navigation properties on this entity type.
@@ -243,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="properties"> The properties to find the index on. </param>
         /// <returns> The index, or <see langword="null" /> if none is found. </returns>
-        new IMutableIndex? FindIndex([NotNull] IReadOnlyList<IProperty> properties);
+        new IMutableIndex? FindIndex([NotNull] IReadOnlyList<IReadOnlyProperty> properties);
 
         /// <summary>
         ///     Gets the index with the given name. Returns <see langword="null" /> if no such index exists.

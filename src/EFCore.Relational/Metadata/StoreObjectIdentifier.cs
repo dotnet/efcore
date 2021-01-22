@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="entityType"> The entity type. </param>
         /// <param name="type"> The store object type. </param>
         /// <returns> The store object id. </returns>
-        public static StoreObjectIdentifier? Create([NotNull] IEntityType entityType, StoreObjectType type)
+        public static StoreObjectIdentifier? Create([NotNull] IReadOnlyEntityType entityType, StoreObjectType type)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The SQL query id. </returns>
-        public static StoreObjectIdentifier SqlQuery([NotNull] IEntityType entityType)
+        public static StoreObjectIdentifier SqlQuery([NotNull] IReadOnlyEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 

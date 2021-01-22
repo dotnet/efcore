@@ -35,62 +35,62 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             protected void AssertEqual(
-                IEnumerable<IProperty> expectedProperties,
-                IEnumerable<IProperty> actualProperties,
+                IEnumerable<IReadOnlyProperty> expectedProperties,
+                IEnumerable<IReadOnlyProperty> actualProperties,
                 PropertyComparer propertyComparer = null)
             {
                 propertyComparer ??= new PropertyComparer(compareAnnotations: false);
                 Assert.Equal(
-                    new SortedSet<IProperty>(expectedProperties, propertyComparer),
-                    new SortedSet<IProperty>(actualProperties, propertyComparer),
+                    new SortedSet<IReadOnlyProperty>(expectedProperties, propertyComparer),
+                    new SortedSet<IReadOnlyProperty>(actualProperties, propertyComparer),
                     propertyComparer);
             }
 
             protected void AssertEqual(
-                IEnumerable<INavigation> expectedNavigations,
-                IEnumerable<INavigation> actualNavigations,
+                IEnumerable<IReadOnlyNavigation> expectedNavigations,
+                IEnumerable<IReadOnlyNavigation> actualNavigations,
                 NavigationComparer navigationComparer = null)
             {
                 navigationComparer ??= new NavigationComparer(compareAnnotations: false);
                 Assert.Equal(
-                    new SortedSet<INavigation>(expectedNavigations, navigationComparer),
-                    new SortedSet<INavigation>(actualNavigations, navigationComparer),
+                    new SortedSet<IReadOnlyNavigation>(expectedNavigations, navigationComparer),
+                    new SortedSet<IReadOnlyNavigation>(actualNavigations, navigationComparer),
                     navigationComparer);
             }
 
             protected void AssertEqual(
-                IEnumerable<IKey> expectedKeys,
-                IEnumerable<IKey> actualKeys,
+                IEnumerable<IReadOnlyKey> expectedKeys,
+                IEnumerable<IReadOnlyKey> actualKeys,
                 TestKeyComparer testKeyComparer = null)
             {
                 testKeyComparer ??= new TestKeyComparer(compareAnnotations: false);
                 Assert.Equal(
-                    new SortedSet<IKey>(expectedKeys, testKeyComparer),
-                    new SortedSet<IKey>(actualKeys, testKeyComparer),
+                    new SortedSet<IReadOnlyKey>(expectedKeys, testKeyComparer),
+                    new SortedSet<IReadOnlyKey>(actualKeys, testKeyComparer),
                     testKeyComparer);
             }
 
             protected void AssertEqual(
-                IEnumerable<IForeignKey> expectedForeignKeys,
-                IEnumerable<IForeignKey> actualForeignKeys,
+                IEnumerable<IReadOnlyForeignKey> expectedForeignKeys,
+                IEnumerable<IReadOnlyForeignKey> actualForeignKeys,
                 ForeignKeyStrictComparer foreignKeyComparer = null)
             {
                 foreignKeyComparer ??= new ForeignKeyStrictComparer(compareAnnotations: false);
                 Assert.Equal(
-                    new SortedSet<IForeignKey>(expectedForeignKeys, foreignKeyComparer),
-                    new SortedSet<IForeignKey>(actualForeignKeys, foreignKeyComparer),
+                    new SortedSet<IReadOnlyForeignKey>(expectedForeignKeys, foreignKeyComparer),
+                    new SortedSet<IReadOnlyForeignKey>(actualForeignKeys, foreignKeyComparer),
                     foreignKeyComparer);
             }
 
             protected void AssertEqual(
-                IEnumerable<IIndex> expectedIndexes,
-                IEnumerable<IIndex> actualIndexes,
+                IEnumerable<IReadOnlyIndex> expectedIndexes,
+                IEnumerable<IReadOnlyIndex> actualIndexes,
                 TestIndexComparer testIndexComparer = null)
             {
                 testIndexComparer ??= new TestIndexComparer(compareAnnotations: false);
                 Assert.Equal(
-                    new SortedSet<IIndex>(expectedIndexes, testIndexComparer),
-                    new SortedSet<IIndex>(actualIndexes, testIndexComparer),
+                    new SortedSet<IReadOnlyIndex>(expectedIndexes, testIndexComparer),
+                    new SortedSet<IReadOnlyIndex>(actualIndexes, testIndexComparer),
                     testIndexComparer);
             }
 
@@ -395,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 where TGenerator : ValueGenerator;
 
             public abstract TestPropertyBuilder<TProperty> HasValueGenerator(Type valueGeneratorType);
-            public abstract TestPropertyBuilder<TProperty> HasValueGenerator(Func<IProperty, IEntityType, ValueGenerator> factory);
+            public abstract TestPropertyBuilder<TProperty> HasValueGenerator(Func<IReadOnlyProperty, IReadOnlyEntityType, ValueGenerator> factory);
 
             public abstract TestPropertyBuilder<TProperty> HasField(string fieldName);
             public abstract TestPropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);

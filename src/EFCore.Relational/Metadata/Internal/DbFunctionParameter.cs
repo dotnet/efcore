@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Builders.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
 
 #nullable enable
 
@@ -22,7 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class DbFunctionParameter : ConventionAnnotatable, IMutableDbFunctionParameter, IConventionDbFunctionParameter
+    public class DbFunctionParameter :
+        ConventionAnnotatable,
+        IMutableDbFunctionParameter,
+        IConventionDbFunctionParameter,
+        IDbFunctionParameter
     {
         private string? _storeType;
         private RelationalTypeMapping? _typeMapping;
@@ -81,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <inheritdoc />
-        IDbFunction IDbFunctionParameter.Function
+        IReadOnlyDbFunction IReadOnlyDbFunctionParameter.Function
         {
             [DebuggerStepThrough]
             get => Function;
@@ -241,12 +244,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <inheritdoc />
+        string IDbFunctionParameter.StoreType
+        {
+            [DebuggerStepThrough]
+            get => StoreType!; // Model validation ensures all parameters have a type mapping
+        }
+
+        /// <inheritdoc />
+        IDbFunction IDbFunctionParameter.Function
+        {
+            [DebuggerStepThrough]
+            get => Function;
+        }
+
+        /// <inheritdoc />
         [DebuggerStepThrough]
         RelationalTypeMapping? IConventionDbFunctionParameter.SetTypeMapping(RelationalTypeMapping? typeMapping, bool fromDataAnnotation)
             => SetTypeMapping(typeMapping, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-        /// <inheritdoc />
-        string IDbFunctionParameter.StoreType
-            => StoreType!; // Model validation ensures all parameters have a type mapping
     }
 }

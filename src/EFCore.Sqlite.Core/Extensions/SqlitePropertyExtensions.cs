@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The SRID to use when creating a column for this property. </returns>
-        public static int? GetSrid([NotNull] this IProperty property)
+        public static int? GetSrid([NotNull] this IReadOnlyProperty property)
             => (int?)property[SqliteAnnotationNames.Srid];
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The SRID to use when creating a column for this property. </returns>
         public static int? GetSrid(
-            [NotNull] this IProperty property,
+            [NotNull] this IReadOnlyProperty property,
             in StoreObjectIdentifier storeObject)
         {
             var annotation = property.FindAnnotation(SqliteAnnotationNames.Srid);

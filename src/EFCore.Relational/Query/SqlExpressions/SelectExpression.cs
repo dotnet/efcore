@@ -388,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         private static IEnumerable<IProperty> GetAllPropertiesInHierarchy(IEntityType entityType)
             => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
-                .SelectMany(EntityTypeExtensions.GetDeclaredProperties);
+                .SelectMany(t => t.GetDeclaredProperties());
 
         /// <summary>
         ///     Replaces current projection mapping with a new one to change what is being projected out from this <see cref="SelectExpression" />.
@@ -1210,7 +1210,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 // Also lift nested entity projections
                 foreach (var navigation in entityProjection.EntityType
                     .GetAllBaseTypes().Concat(entityProjection.EntityType.GetDerivedTypesInclusive())
-                    .SelectMany(EntityTypeExtensions.GetDeclaredNavigations))
+                    .SelectMany(t => t.GetDeclaredNavigations()))
                 {
                     var boundEntityShaperExpression = entityProjection.BindNavigation(navigation);
                     if (boundEntityShaperExpression != null)

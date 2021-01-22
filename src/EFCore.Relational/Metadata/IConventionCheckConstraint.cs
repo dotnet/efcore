@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents a check constraint in the <see cref="IConventionEntityType" />.
     /// </summary>
-    public interface IConventionCheckConstraint : ICheckConstraint, IConventionAnnotatable
+    public interface IConventionCheckConstraint : IReadOnlyCheckConstraint, IConventionAnnotatable
     {
         /// <summary>
         ///     Gets the <see cref="IConventionEntityType" /> in which this check constraint is defined.

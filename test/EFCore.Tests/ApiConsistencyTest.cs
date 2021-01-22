@@ -78,26 +78,85 @@ namespace Microsoft.EntityFrameworkCore
             };
 
             public override
-                List<(Type Type, Type ReadonlyExtensions, Type MutableExtensions, Type ConventionExtensions, Type
-                    ConventionBuilderExtensions)> MetadataExtensionTypes { get; }
-                = new()
+                List<(Type Type,
+                    Type ReadonlyExtensions,
+                    Type MutableExtensions,
+                    Type ConventionExtensions,
+                    Type ConventionBuilderExtensions,
+                    Type RuntimeExtensions)> MetadataExtensionTypes { get; } = new()
                 {
-                    (typeof(IModel), typeof(ModelExtensions), typeof(MutableModelExtensions), typeof(ConventionModelExtensions), null),
-                    (typeof(IAnnotatable), typeof(AnnotatableExtensions), typeof(MutableAnnotatableExtensions),
-                        typeof(ConventionAnnotatableExtensions), null),
-                    (typeof(IEntityType), typeof(EntityTypeExtensions), typeof(MutableEntityTypeExtensions),
-                        typeof(ConventionEntityTypeExtensions), null),
-                    (typeof(ITypeBase), typeof(TypeBaseExtensions), typeof(MutableTypeBaseExtensions),
-                        typeof(ConventionTypeBaseExtensions), null),
-                    (typeof(IKey), typeof(KeyExtensions), typeof(MutableKeyExtensions), typeof(ConventionKeyExtensions), null),
-                    (typeof(IForeignKey), typeof(ForeignKeyExtensions), typeof(MutableForeignKeyExtensions),
-                        typeof(ConventionForeignKeyExtensions), null),
-                    (typeof(IProperty), typeof(PropertyExtensions), typeof(MutablePropertyExtensions),
-                        typeof(ConventionPropertyExtensions), null),
-                    (typeof(INavigation), typeof(NavigationExtensions), typeof(MutableNavigationExtensions),
-                        typeof(ConventionNavigationExtensions), null),
-                    (typeof(IPropertyBase), typeof(PropertyBaseExtensions), typeof(MutablePropertyBaseExtensions),
-                        typeof(ConventionPropertyBaseExtensions), null)
+                    (
+                        typeof(IReadOnlyModel),
+                        typeof(ModelExtensions),
+                        typeof(MutableModelExtensions),
+                        typeof(ConventionModelExtensions),
+                        null,
+                        null
+                    ),
+                    (
+                        typeof(IReadOnlyAnnotatable),
+                        typeof(AnnotatableExtensions),
+                        typeof(MutableAnnotatableExtensions),
+                        typeof(ConventionAnnotatableExtensions),
+                        null,
+                        null
+                    ),
+                    (
+                        typeof(IReadOnlyEntityType),
+                        typeof(EntityTypeExtensions),
+                        typeof(MutableEntityTypeExtensions),
+                        typeof(ConventionEntityTypeExtensions),
+                        null,
+                        null
+                    ),
+                    (
+                        typeof(IReadOnlyTypeBase),
+                        typeof(TypeBaseExtensions),
+                        typeof(MutableTypeBaseExtensions),
+                        typeof(ConventionTypeBaseExtensions),
+                        null,
+                        null
+                    ),
+                    (
+                        typeof(IReadOnlyKey),
+                        typeof(KeyExtensions),
+                        typeof(MutableKeyExtensions),
+                        typeof(ConventionKeyExtensions),
+                        null,
+                        null
+                    ),
+                    (
+                        typeof(IReadOnlyForeignKey),
+                        typeof(ForeignKeyExtensions),
+                        typeof(MutableForeignKeyExtensions),
+                        typeof(ConventionForeignKeyExtensions),
+                        null,
+                        null
+                    ),
+                    (
+                        typeof(IReadOnlyProperty),
+                        typeof(PropertyExtensions),
+                        typeof(MutablePropertyExtensions),
+                        typeof(ConventionPropertyExtensions),
+                        null,
+                        null
+                    ),
+                    (
+                        typeof(IReadOnlyNavigation),
+                        typeof(NavigationExtensions),
+                        typeof(MutableNavigationExtensions),
+                        typeof(ConventionNavigationExtensions),
+                        null,
+                        null
+                    ),
+                    (
+                        typeof(IReadOnlyPropertyBase),
+                        typeof(PropertyBaseExtensions),
+                        typeof(MutablePropertyBaseExtensions),
+                        typeof(ConventionPropertyBaseExtensions),
+                        null,
+                        null
+                    )
                 };
 
             public override HashSet<MethodInfo> NonVirtualMethods { get; } = new()
@@ -130,17 +189,12 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(OwnedNavigationBuilder<,>).GetMethod(
                     nameof(OwnedNavigationBuilder.OwnsMany), 0, new[] { typeof(Type), typeof(string) }),
                 typeof(IConventionPropertyBase).GetMethod(nameof(IConventionPropertyBase.SetField), new[] { typeof(string), typeof(bool) }),
-                typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.FindAnnotation)),
-                typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.GetAnnotations)),
-                typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.FindRuntimeAnnotation)),
-                typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.GetRuntimeAnnotations)),
-                typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.AddRuntimeAnnotation)),
-                typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.SetRuntimeAnnotation)),
-                typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.RemoveRuntimeAnnotation)),
+                typeof(IReadOnlyAnnotatable).GetMethod(nameof(IReadOnlyAnnotatable.FindAnnotation)),
+                typeof(IReadOnlyAnnotatable).GetMethod(nameof(IReadOnlyAnnotatable.GetAnnotations)),
+                typeof(AnnotatableExtensions).GetMethod(nameof(AnnotatableExtensions.GetAnnotation)),
                 typeof(IMutableAnnotatable).GetMethod("set_Item"),
                 typeof(IConventionAnnotatable).GetMethod(nameof(IConventionAnnotatable.SetAnnotation)),
                 typeof(ConventionAnnotatableExtensions).GetMethod(nameof(ConventionAnnotatableExtensions.SetOrRemoveAnnotation)),
-                typeof(ModelExtensions).GetMethod(nameof(ModelExtensions.FindRuntimeEntityType)),
                 typeof(EntityTypeExtensions).GetMethod(nameof(EntityTypeExtensions.GetAllBaseTypesInclusive)),
                 typeof(EntityTypeExtensions).GetMethod(nameof(EntityTypeExtensions.GetAllBaseTypesInclusiveAscending)),
                 typeof(EntityTypeExtensions).GetMethod(nameof(EntityTypeExtensions.GetConcreteDerivedTypesInclusive)),
@@ -148,9 +202,9 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(EntityTypeExtensions).GetMethod(nameof(EntityTypeExtensions.GetProperty)),
                 typeof(EntityTypeExtensions).GetMethod(nameof(EntityTypeExtensions.LeastDerivedType)),
                 typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.HasNoEntityType)),
-                typeof(INavigationBase).GetMethod("get_DeclaringEntityType"),
-                typeof(INavigationBase).GetMethod("get_TargetEntityType"),
-                typeof(INavigationBase).GetMethod("get_Inverse"),
+                typeof(IReadOnlyNavigationBase).GetMethod("get_DeclaringEntityType"),
+                typeof(IReadOnlyNavigationBase).GetMethod("get_TargetEntityType"),
+                typeof(IReadOnlyNavigationBase).GetMethod("get_Inverse"),
                 typeof(IConventionAnnotatableBuilder).GetMethod(nameof(IConventionAnnotatableBuilder.HasNonNullAnnotation)),
                 typeof(IConventionEntityTypeBuilder).GetMethod(nameof(IConventionEntityTypeBuilder.RemoveUnusedImplicitProperties)),
                 typeof(IConventionEntityTypeBuilder).GetMethod(nameof(IConventionEntityTypeBuilder.Ignore)),
