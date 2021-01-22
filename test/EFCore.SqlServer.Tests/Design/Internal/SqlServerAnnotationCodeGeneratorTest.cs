@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -228,6 +230,36 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 result.Arguments,
                 name => Assert.Equal("HiLoIndexName", name),
                 schema => Assert.Equal("HiLoIndexSchema", schema));
+        }
+
+        [ConditionalFact]
+        public void GenerateFluentApi_IProperty_works_with_IsSparse()
+        {
+            var generator = CreateGenerator();
+            var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
+            modelBuilder.Entity("SomeEntity", x =>
+            {
+                x.Property<string>("Default");
+                x.Property<string>("Sparse").IsSparse();
+                x.Property<string>("NonSparse").IsSparse(false);
+            });
+
+            Assert.Null(GenerateFluentApiCall("SomeEntity", "Default"));
+
+            var sparseCall = GenerateFluentApiCall("SomeEntity", "Sparse");
+            Assert.Equal("IsSparse", sparseCall.Method);
+            Assert.Empty(sparseCall.Arguments);
+
+            var nonSparseCall = GenerateFluentApiCall("SomeEntity", "NonSparse");
+            Assert.Equal("IsSparse", nonSparseCall.Method);
+            Assert.Collection(nonSparseCall.Arguments, o => Assert.False((bool)o));
+
+            MethodCallCodeFragment GenerateFluentApiCall(string entityTypeName, string propertyName)
+            {
+                var property = modelBuilder.Model.FindEntityType(entityTypeName).FindProperty(propertyName);
+                var annotations = property.GetAnnotations().ToDictionary(a => a.Name, a => a);
+                return generator.GenerateFluentApiCalls(property, annotations).SingleOrDefault();
+            }
         }
 
         private SqlServerAnnotationCodeGenerator CreateGenerator()

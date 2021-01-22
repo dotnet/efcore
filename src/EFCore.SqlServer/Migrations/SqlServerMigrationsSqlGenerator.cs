@@ -1463,13 +1463,34 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            base.ColumnDefinition(
-                schema,
-                table,
-                name,
-                operation,
-                model,
-                builder);
+            if (operation.ComputedColumnSql != null)
+            {
+                ComputedColumnDefinition(schema, table, name, operation, model, builder);
+
+                return;
+            }
+
+            var columnType = operation.ColumnType ?? GetColumnType(schema, table, name, operation, model);
+            builder
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name))
+                .Append(" ")
+                .Append(columnType);
+
+            if (operation.Collation != null)
+            {
+                builder
+                    .Append(" COLLATE ")
+                    .Append(operation.Collation);
+            }
+
+            if (operation[SqlServerAnnotationNames.Sparse] is bool isSparse && isSparse)
+            {
+                builder.Append(" SPARSE");
+            }
+
+            builder.Append(operation.IsNullable ? " NULL" : " NOT NULL");
+
+            DefaultValue(operation.DefaultValue, operation.DefaultValueSql, columnType, builder);
 
             var identity = operation[SqlServerAnnotationNames.Identity] as string;
             if (identity != null
