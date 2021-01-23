@@ -326,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore
         /// Get list of DbSets with name and types
         /// </summary>
         /// <returns>key value of dbsets the keys are name of table property and value is type of properties</returns>
-        public virtual IEnumerable<KeyValuePair<string, Type>> GetDbSets()
+        public virtual List<KeyValuePair<string, Type>> GetDbSets()
         {
             CheckDisposed();
             //list of base types
@@ -340,6 +340,8 @@ namespace Microsoft.EntityFrameworkCore
                 parent = parent.BaseType;
             }
 
+            //list of entity names and types
+            List<KeyValuePair<string, Type>> result = new List<KeyValuePair<string, Type>>();
             foreach (var item in baseTypes)
             {
                 //get every properties that has type of DbSet<T>
@@ -351,9 +353,10 @@ namespace Microsoft.EntityFrameworkCore
                     //get first argument of dbContext
                     var entityType = dbSetProperty.PropertyType.GetGenericArguments()[0];
                     //return name of property of dbSet and entity type as key value
-                    yield return new KeyValuePair<string, Type>(dbSetProperty.Name, entityType);
+                    result.Add(new KeyValuePair<string, Type>(dbSetProperty.Name, entityType));
                 }
             }
+            return result;
         }
 
         private IServiceProvider InternalServiceProvider
