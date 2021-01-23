@@ -1295,7 +1295,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Cannot create a DbSet for '{typeName}' because this type is not included in the model for the context.
         ///     Your types : '[typeNames]'
         /// </summary>
-        public static string InvalidSetType([CanBeNull] object? typeName, string[] yourTypes)
+        public static string InvalidSetType([CanBeNull] object? typeName, [CanBeNull] string[] yourTypes)
             => string.Format(
                 GetString("InvalidSetType", nameof(typeName), nameof(yourTypes)),
                 typeName, string.Join(string.Concat(',', Environment.NewLine), yourTypes));
