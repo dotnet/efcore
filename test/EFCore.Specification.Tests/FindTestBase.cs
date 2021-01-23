@@ -3,6 +3,7 @@
 
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -301,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using var context = CreateContext();
             Assert.Equal(
-                CoreStrings.InvalidSetType(nameof(Random)),
+                CoreStrings.InvalidSetType(nameof(Random), context.GetDbSets().Select(dbSetType => dbSetType.Value.FullName).ToArray()),
                 Assert.Throws<InvalidOperationException>(() => Find<Random>(context, 77)).Message);
         }
 
@@ -576,7 +577,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using var context = CreateContext();
             Assert.Equal(
-                CoreStrings.InvalidSetType(nameof(Random)),
+                CoreStrings.InvalidSetType(nameof(Random), context.GetDbSets().Select(dbSetType => dbSetType.Value.FullName).ToArray()),
                 (await Assert.ThrowsAsync<InvalidOperationException>(() => FindAsync<Random>(context, 77).AsTask())).Message);
         }
 

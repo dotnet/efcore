@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using var context = new IgnoredCntext();
             Assert.Equal(
-                CoreStrings.InvalidSetType(nameof(IgnoredEntity)),
+                CoreStrings.InvalidSetType(nameof(IgnoredEntity), context.GetDbSets().Select(dbSetType => dbSetType.Value.FullName).ToArray()),
                 Assert.Throws<InvalidOperationException>(() => context.Ignored.ToList()).Message);
         }
 
