@@ -1293,11 +1293,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     Cannot create a DbSet for '{typeName}' because this type is not included in the model for the context.
+        ///     Your types : '[typeNames]'
         /// </summary>
-        public static string InvalidSetType([CanBeNull] object? typeName)
+        public static string InvalidSetType([CanBeNull] object? typeName, string[] yourTypes)
             => string.Format(
-                GetString("InvalidSetType", nameof(typeName)),
-                typeName);
+                GetString("InvalidSetType", nameof(typeName), nameof(yourTypes)),
+                typeName, string.Join(string.Concat(',', Environment.NewLine), yourTypes));
 
         /// <summary>
         ///     Cannot create a DbSet for '{typeName}' because it is configured as an owned entity type and must be accessed through its owning entity type '{ownerType}'.
