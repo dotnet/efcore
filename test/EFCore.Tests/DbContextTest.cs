@@ -750,8 +750,12 @@ namespace Microsoft.EntityFrameworkCore
                 CoreStrings.ContextDisposed,
                 (await Assert.ThrowsAsync<ObjectDisposedException>(() => context.FindAsync(typeof(Random), 77).AsTask())).Message);
 
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => context.GetDbSets()).Message);
+
             var methodCount = typeof(DbContext).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Count();
-            var expectedMethodCount = 42 + 8;
+            var expectedMethodCount = 43 + 8;
             Assert.True(
                 methodCount == expectedMethodCount,
                 userMessage: $"Expected {expectedMethodCount} methods on DbContext but found {methodCount}. "
