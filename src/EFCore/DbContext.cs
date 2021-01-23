@@ -322,6 +322,39 @@ namespace Microsoft.EntityFrameworkCore
             return DbContextDependencies.EntityFinderFactory.Create(entityType);
         }
 
+        /// <summary>
+        /// Get list of DbSets with name and types
+        /// </summary>
+        /// <returns>key value of dbsets the keys are name of table property and value is type of properties</returns>
+        public IEnumerable<KeyValuePair<string, Type>> GetDbSets()
+        {
+            //list of base types
+            List<Type> baseTypes = new List<Type>();
+            //type of this context
+            Type parent = GetType();
+            //do and get list of base types of context for inheritance support and add to baseTypes
+            while (parent != null)
+            {
+                baseTypes.Add(parent);
+                parent = parent.BaseType;
+            }
+
+            foreach (var item in baseTypes)
+            {
+                //get every properties that has type of DbSet<T>
+                var dbSets = item.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly)
+                    .Where(x => x.PropertyType.GetGenericArguments().Length > 0 && x.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>)).ToList();
+                //find type T of DbSet<T>
+                foreach (var dbSetProperty in dbSets)
+                {
+                    //get first argument of dbContext
+                    var entityType = dbSetProperty.PropertyType.GetGenericArguments()[0];
+                    //return name of property of dbSet and entity type as key value
+                    yield return new KeyValuePair<string, Type>(dbSetProperty.Name, entityType);
+                }
+            }
+        }
+
         private IServiceProvider InternalServiceProvider
         {
             get
