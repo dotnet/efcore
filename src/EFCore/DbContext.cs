@@ -326,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore
         /// Get list of DbSets with name and types
         /// </summary>
         /// <returns>key value of dbsets the keys are name of table property and value is type of properties</returns>
-        public IEnumerable<KeyValuePair<string, Type>> GetDbSets()
+        public virtual IEnumerable<KeyValuePair<string, Type>> GetDbSets()
         {
             //list of base types
             List<Type> baseTypes = new List<Type>();
