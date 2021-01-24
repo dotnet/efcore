@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using var context = new DbContext(optionsBuilder.Options);
             var ex = Assert.Throws<InvalidOperationException>(() => context.Set<Category>().Local);
-            Assert.Equal(CoreStrings.InvalidSetType(typeof(Category).FullName, context.GetDbSets().Select(dbSetType => dbSetType.Value.FullName).ToArray()), ex.Message);
+            Assert.Equal(CoreStrings.InvalidSetType(typeof(Category).FullName, context.GetDbSets().Select(dbSetType => dbSetType.EntityType.FullName).ToArray()), ex.Message);
         }
 
         [ConditionalFact]

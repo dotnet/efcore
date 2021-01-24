@@ -302,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using var context = CreateContext();
             Assert.Equal(
-                CoreStrings.InvalidSetType(typeof(Random).FullName, context.GetDbSets().Select(dbSetType => dbSetType.Value.FullName).ToArray()),
+                CoreStrings.InvalidSetType(typeof(Random).FullName, context.GetDbSets().Select(dbSetType => dbSetType.EntityType.FullName).ToArray()),
                 Assert.Throws<InvalidOperationException>(() => Find<Random>(context, 77)).Message);
         }
 
@@ -577,7 +577,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using var context = CreateContext();
             Assert.Equal(
-                CoreStrings.InvalidSetType(typeof(Random).FullName, context.GetDbSets().Select(dbSetType => dbSetType.Value.FullName).ToArray()),
+                CoreStrings.InvalidSetType(typeof(Random).FullName, context.GetDbSets().Select(dbSetType => dbSetType.EntityType.FullName).ToArray()),
                 (await Assert.ThrowsAsync<InvalidOperationException>(() => FindAsync<Random>(context, 77).AsTask())).Message);
         }
 

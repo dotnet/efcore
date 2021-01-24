@@ -311,7 +311,7 @@ namespace Microsoft.EntityFrameworkCore
                     throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(type.ShortDisplayName()));
                 }
 
-                throw new InvalidOperationException(CoreStrings.InvalidSetType(type.FullName, GetDbSets().Select(dbSetType => dbSetType.Value.FullName).ToArray()));
+                throw new InvalidOperationException(CoreStrings.InvalidSetType(type.FullName, GetDbSets().Select(dbSetType => dbSetType.EntityType.FullName).ToArray()));
             }
 
             if (entityType.FindPrimaryKey() == null)
@@ -325,8 +325,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         /// Get list of DbSets with name and types
         /// </summary>
-        /// <returns>key value of dbsets the keys are name of table property and value is type of properties</returns>
-        public virtual List<KeyValuePair<string, Type>> GetDbSets()
+        /// <returns>PropertyName is name of property in dbsets, the TableName is name of table in DbSet and EntityType is type of DbSet</returns>
+        public virtual List<(string PropertyName, string TableName, Type EntityType)> GetDbSets()
         {
             CheckDisposed();
             //list of base types
@@ -341,7 +341,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             //list of entity names and types
-            List<KeyValuePair<string, Type>> result = new List<KeyValuePair<string, Type>>();
+            List<(string PropertyName, string TableName, Type EntityType)> dbSetsResult = new List<(string PropertyName, string TableName, Type EntityType)>();
             foreach (var item in baseTypes)
             {
                 //get every properties that has type of DbSet<T>
@@ -351,12 +351,26 @@ namespace Microsoft.EntityFrameworkCore
                 foreach (var dbSetProperty in dbSets)
                 {
                     //get first argument of dbContext
-                    var entityType = dbSetProperty.PropertyType.GetGenericArguments()[0];
+                    var dbSetArgumentType = dbSetProperty.PropertyType.GetGenericArguments()[0];
+                    //find entity type
+                    var entityType = Model.FindEntityType(dbSetArgumentType);
+                    //find relational table attribute name
+                    var tableNameAnnotation = entityType.GetAnnotation("Relational:TableName");
+                    string tableName = null;
+                    //get table name in none relational
+                    if (tableNameAnnotation == null)
+                        tableName = dbSetProperty.Name;
+                    //get table name in relational
+                    else
+                        tableName = tableNameAnnotation.Value.ToString();
+                    //skip to add duplicate items to add in result
+                    if (dbSetsResult.Any(x => x.TableName == tableName && x.EntityType == dbSetArgumentType))
+                        continue;
                     //return name of property of dbSet and entity type as key value
-                    result.Add(new KeyValuePair<string, Type>(dbSetProperty.Name, entityType));
+                    dbSetsResult.Add((dbSetProperty.Name, tableName, dbSetArgumentType));
                 }
             }
-            return result;
+            return dbSetsResult;
         }
 
         private IServiceProvider InternalServiceProvider
