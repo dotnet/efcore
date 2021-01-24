@@ -355,15 +355,19 @@ namespace Microsoft.EntityFrameworkCore
                     var dbSetArgumentType = dbSetProperty.PropertyType.GetGenericArguments()[0];
                     //find entity type
                     var entityType = Model.FindEntityType(dbSetArgumentType);
-                    //find relational table attribute name
-                    var tableNameAnnotation = entityType.GetAnnotation("Relational:TableName");
                     //get table name in none relational
                     string tableName = dbSetProperty.Name;
+
+                    //find relational table attribute name
+                    var tableNameAnnotation = entityType?.GetAnnotation("Relational:TableName");
                     //get table name in relational
-                    tableName = tableNameAnnotation.Value.ToString();
+                    if (tableNameAnnotation != null)
+                        tableName = tableNameAnnotation.Value.ToString();
+
                     //skip to add duplicate items to add in result
                     if (dbSetsResult.Any(x => x.TableName == tableName && x.EntityType == dbSetArgumentType))
                         continue;
+
                     //return name of property of dbSet and entity type as key value
                     dbSetsResult.Add((dbSetProperty.Name, tableName, dbSetArgumentType));
                 }
