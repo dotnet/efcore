@@ -138,7 +138,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         public virtual IModel Model
         {
-            [DebuggerStepThrough] get => DbContextDependencies.Model;
+            [DebuggerStepThrough]
+            get => DbContextDependencies.Model;
         }
 
         /// <summary>
@@ -356,13 +357,10 @@ namespace Microsoft.EntityFrameworkCore
                     var entityType = Model.FindEntityType(dbSetArgumentType);
                     //find relational table attribute name
                     var tableNameAnnotation = entityType.GetAnnotation("Relational:TableName");
-                    string tableName = null;
                     //get table name in none relational
-                    if (tableNameAnnotation == null)
-                        tableName = dbSetProperty.Name;
+                    string tableName = dbSetProperty.Name;
                     //get table name in relational
-                    else
-                        tableName = tableNameAnnotation.Value.ToString();
+                    tableName = tableNameAnnotation.Value.ToString();
                     //skip to add duplicate items to add in result
                     if (dbSetsResult.Any(x => x.TableName == tableName && x.EntityType == dbSetArgumentType))
                         continue;
