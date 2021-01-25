@@ -312,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore
                     throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(type.ShortDisplayName()));
                 }
 
-                throw new InvalidOperationException(CoreStrings.InvalidSetType(type.FullName, GetDbSets().Select(dbSetType => dbSetType.EntityType.FullName).ToArray()));
+                throw new InvalidOperationException(CoreStrings.InvalidSetType(type.FullName, Model.GetEntityTypes().Select(dbSetType => dbSetType.ClrType.FullName).ToArray()));
             }
 
             if (entityType.FindPrimaryKey() == null)
@@ -321,58 +321,6 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             return DbContextDependencies.EntityFinderFactory.Create(entityType);
-        }
-
-        /// <summary>
-        /// Get list of DbSets with name and types
-        /// </summary>
-        /// <returns>PropertyName is name of property in dbsets, the TableName is name of table in DbSet and EntityType is type of DbSet</returns>
-        public virtual List<(string PropertyName, string TableName, Type EntityType)> GetDbSets()
-        {
-            CheckDisposed();
-            //list of base types
-            List<Type> baseTypes = new List<Type>();
-            //type of this context
-            Type parent = GetType();
-            //do and get list of base types of context for inheritance support and add to baseTypes
-            while (parent != null)
-            {
-                baseTypes.Add(parent);
-                parent = parent.BaseType;
-            }
-
-            //list of entity names and types
-            List<(string PropertyName, string TableName, Type EntityType)> dbSetsResult = new List<(string PropertyName, string TableName, Type EntityType)>();
-            foreach (var item in baseTypes)
-            {
-                //get every properties that has type of DbSet<T>
-                var dbSets = item.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly)
-                    .Where(x => x.PropertyType.GetGenericArguments().Length > 0 && x.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>)).ToList();
-                //find type T of DbSet<T>
-                foreach (var dbSetProperty in dbSets)
-                {
-                    //get first argument of dbContext
-                    var dbSetArgumentType = dbSetProperty.PropertyType.GetGenericArguments()[0];
-                    //find entity type
-                    var entityType = Model.FindEntityType(dbSetArgumentType);
-                    //get table name in none relational
-                    string tableName = dbSetProperty.Name;
-
-                    //find relational table attribute name
-                    var tableNameAnnotation = entityType?.GetAnnotation("Relational:TableName");
-                    //get table name in relational
-                    if (tableNameAnnotation != null)
-                        tableName = tableNameAnnotation.Value.ToString();
-
-                    //skip to add duplicate items to add in result
-                    if (dbSetsResult.Any(x => x.TableName == tableName && x.EntityType == dbSetArgumentType))
-                        continue;
-
-                    //return name of property of dbSet and entity type as key value
-                    dbSetsResult.Add((dbSetProperty.Name, tableName, dbSetArgumentType));
-                }
-            }
-            return dbSetsResult;
         }
 
         private IServiceProvider InternalServiceProvider

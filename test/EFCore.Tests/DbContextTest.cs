@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using var context = new DbContext(optionsBuilder.Options);
             var ex = Assert.Throws<InvalidOperationException>(() => context.Set<Category>().Local);
-            Assert.Equal(CoreStrings.InvalidSetType(typeof(Category).FullName, context.GetDbSets().Select(dbSetType => dbSetType.EntityType.FullName).ToArray()), ex.Message);
+            Assert.Equal(CoreStrings.InvalidSetType(typeof(Category).FullName, context.Model.GetEntityTypes().Select(dbSetType => dbSetType.ClrType.FullName).ToArray()), ex.Message);
         }
 
         [ConditionalFact]
@@ -750,12 +750,8 @@ namespace Microsoft.EntityFrameworkCore
                 CoreStrings.ContextDisposed,
                 (await Assert.ThrowsAsync<ObjectDisposedException>(() => context.FindAsync(typeof(Random), 77).AsTask())).Message);
 
-            Assert.StartsWith(
-                CoreStrings.ContextDisposed,
-                Assert.Throws<ObjectDisposedException>(() => context.GetDbSets()).Message);
-
             var methodCount = typeof(DbContext).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Count();
-            var expectedMethodCount = 43 + 8;
+            var expectedMethodCount = 42 + 8;
             Assert.True(
                 methodCount == expectedMethodCount,
                 userMessage: $"Expected {expectedMethodCount} methods on DbContext but found {methodCount}. "
