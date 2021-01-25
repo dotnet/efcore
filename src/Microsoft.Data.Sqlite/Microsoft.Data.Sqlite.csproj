@@ -24,7 +24,7 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.0.5-pre20201231105030" PrivateAssets="None" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.0.5-pre20210119130047" PrivateAssets="None" />
   </ItemGroup>
 
   <ItemGroup>
