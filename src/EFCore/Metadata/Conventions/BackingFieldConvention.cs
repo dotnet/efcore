@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -111,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        private FieldInfo GetFieldToSet(IConventionPropertyBase propertyBase)
+        private FieldInfo? GetFieldToSet(IConventionPropertyBase? propertyBase)
         {
             if (propertyBase == null
                 || !ConfigurationSource.Convention.Overrides(propertyBase.GetFieldInfoConfigurationSource())
@@ -140,9 +142,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return null;
         }
 
-        private static FieldInfo TryMatchFieldName(
+        private static FieldInfo? TryMatchFieldName(
             IConventionPropertyBase propertyBase,
-            IConventionEntityType entityType,
+            IConventionEntityType? entityType,
             Type entityClrType)
         {
             var propertyName = propertyBase.Name;
@@ -187,13 +189,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return match;
         }
 
-        private static FieldInfo TryMatch(
+        private static FieldInfo? TryMatch(
             KeyValuePair<string, FieldInfo>[] array,
             string prefix,
             string middle,
             string suffix,
-            IConventionPropertyBase propertyBase,
-            FieldInfo existingMatch,
+            IConventionPropertyBase? propertyBase,
+            FieldInfo? existingMatch,
             Type entityClrType,
             string propertyName)
         {
@@ -223,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         if (existingMatch != null
                             && newMatch != existingMatch)
                         {
-                            propertyBase.SetOrRemoveAnnotation(
+                            propertyBase!.SetOrRemoveAnnotation(
                                 CoreAnnotationNames.AmbiguousField,
                                 CoreStrings.ConflictingBackingFields(
                                     propertyName, entityClrType.ShortDisplayName(), existingMatch.Name, newMatch.Name));

@@ -9,8 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class StringToTimeSpanConverterTest
     {
-        private static readonly StringToTimeSpanConverter _stringToTimeSpan
-            = new StringToTimeSpanConverter();
+        private static readonly StringToTimeSpanConverter _stringToTimeSpan = new();
 
         [ConditionalFact]
         public void Can_convert_string_to_TimeSpan()

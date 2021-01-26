@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private class TestLoggerFactory : ILoggerFactory
         {
-            public readonly TestLogger Logger = new TestLogger();
+            public readonly TestLogger Logger = new();
 
             public void AddProvider(ILoggerProvider provider)
             {
@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 private class NullScope : IDisposable
                 {
-                    public static readonly NullScope Instance = new NullScope();
+                    public static readonly NullScope Instance = new();
 
                     public void Dispose()
                     {

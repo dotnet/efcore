@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
@@ -85,8 +84,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var historyRepository = new MockHistoryRepository();
 
             var services = RelationalTestHelpers.Instance.CreateContextServices();
-            var model = new Model();
-            model[RelationalAnnotationNames.RelationalModel] = new RelationalModel(model);
+            var model = new Model().FinalizeModel();
+            model.AddRuntimeAnnotation(RelationalAnnotationNames.RelationalModel, new RelationalModel(model));
 
             return new MigrationsScaffolder(
                 new MigrationsScaffolderDependencies(
@@ -122,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     historyRepository,
                     reporter,
                     new MockProvider(),
-                    new SnapshotModelProcessor(reporter, services.GetRequiredService<IConventionSetBuilder>()),
+                    new SnapshotModelProcessor(reporter, services.GetRequiredService<IModelRuntimeInitializer>()),
                     new Migrator(
                         migrationAssembly,
                         historyRepository,
@@ -133,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         services.GetRequiredService<IRelationalConnection>(),
                         services.GetRequiredService<ISqlGenerationHelper>(),
                         services.GetRequiredService<ICurrentDbContext>(),
-                        services.GetRequiredService<IConventionSetBuilder>(),
+                        services.GetRequiredService<IModelRuntimeInitializer>(),
                         services.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Migrations>>(),
                         services.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>(),
                         services.GetRequiredService<IDatabaseProvider>())));

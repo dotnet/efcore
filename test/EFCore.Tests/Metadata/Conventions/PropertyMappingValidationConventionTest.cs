@@ -6,13 +6,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -187,30 +190,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             CreatePropertyMappingValidator()(modelBuilder.Metadata);
         }
 
-        protected override ModelBuilder CreateConventionlessModelBuilder(bool sensitiveDataLoggingEnabled = false)
-        {
-            var conventionSet = new ConventionSet();
-            var serviceProvider = CreateServiceProvider(sensitiveDataLoggingEnabled);
-
-            // Use public API to add conventions, issue #214
-            var dependencies = serviceProvider.GetService<ProviderConventionSetBuilderDependencies>();
-            conventionSet.ModelFinalizingConventions.Add(new TypeMappingConvention(dependencies));
-
-            return new ModelBuilder(conventionSet, serviceProvider.GetService<ModelDependencies>());
-        }
-
-        protected virtual Action<IModel> CreatePropertyMappingValidator()
+        protected virtual Action<Model> CreatePropertyMappingValidator()
         {
             var validator = CreateModelValidator();
             var logger = new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>();
 
             var validatePropertyMappingMethod = typeof(ModelValidator).GetRuntimeMethods().Single(e => e.Name == "ValidatePropertyMapping");
 
+            var modelRuntimeInitializer = TestHelpers.CreateContextServices().GetRequiredService<IModelRuntimeInitializer>();
+
             return m =>
             {
                 try
                 {
-                    ((Model)m).FinalizeModel();
+                    m.FinalizeModel();
+                    modelRuntimeInitializer.Initialize(m, validationLogger: null);
                     validatePropertyMappingMethod.Invoke(
                         validator, new object[] { m, logger });
                 }

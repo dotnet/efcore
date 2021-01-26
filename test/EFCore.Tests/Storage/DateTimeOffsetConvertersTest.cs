@@ -9,8 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class DateTimeOffsetConvertersTest
     {
-        private static readonly DateTimeOffsetToStringConverter _dateTimeOffsetToString
-            = new DateTimeOffsetToStringConverter();
+        private static readonly DateTimeOffsetToStringConverter _dateTimeOffsetToString = new();
 
         [ConditionalFact]
         public void Can_convert_DateTimeOffset_to_string()
@@ -39,8 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 new DateTimeOffset(), converter("0001-01-01 00:00:00+00:00"));
         }
 
-        private static readonly DateTimeOffsetToBytesConverter _dateTimeOffsetToBytes
-            = new DateTimeOffsetToBytesConverter();
+        private static readonly DateTimeOffsetToBytesConverter _dateTimeOffsetToBytes = new();
 
         [ConditionalFact]
         public void Can_convert_DateTimeOffset_to_bytes()
@@ -70,8 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 converter(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }));
         }
 
-        private static readonly DateTimeOffsetToBinaryConverter _dateTimeOffsetToBinary
-            = new DateTimeOffsetToBinaryConverter();
+        private static readonly DateTimeOffsetToBinaryConverter _dateTimeOffsetToBinary = new();
 
         [ConditionalFact]
         public void Can_convert_DateTimeOffset_to_binary()

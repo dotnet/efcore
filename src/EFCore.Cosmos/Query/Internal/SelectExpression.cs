@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private const string RootAlias = "c";
 
         private IDictionary<ProjectionMember, Expression> _projectionMapping = new Dictionary<ProjectionMember, Expression>();
-        private readonly List<ProjectionExpression> _projection = new List<ProjectionExpression>();
-        private readonly List<OrderingExpression> _orderings = new List<OrderingExpression>();
+        private readonly List<ProjectionExpression> _projection = new();
+        private readonly List<OrderingExpression> _orderings = new();
 
         private ValueConverter _partitionKeyValueConverter;
         private Expression _partitionKeyValue;

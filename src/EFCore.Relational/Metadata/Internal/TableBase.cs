@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SortedSet<ITableMappingBase> EntityTypeMappings { get; }
-            = new SortedSet<ITableMappingBase>(TableMappingBaseComparer.Instance);
+            = new(TableMappingBaseComparer.Instance);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SortedDictionary<string, IColumnBase> Columns { get; [param: NotNull] protected set; }
-            = new SortedDictionary<string, IColumnBase>(StringComparer.Ordinal);
+            = new(StringComparer.Ordinal);
 
         /// <inheritdoc />
         public virtual IColumnBase? FindColumn(string name)

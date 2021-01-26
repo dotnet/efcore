@@ -425,7 +425,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             .Append(selectBuilder)
                             .AppendLine()
                             .Append("FROM ")
-                            .Append(table.Name)
+                            .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(table.Name))
                             .Append(Dependencies.SqlGenerationHelper.StatementTerminator)
                             .ToString()
                     });

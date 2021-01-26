@@ -282,20 +282,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 builder
                     .AppendLine(",")
                     .Append("principalTable: ")
-                    .Append(Code.Literal(operation.PrincipalTable))
-                    .AppendLine(",");
+                    .Append(Code.Literal(operation.PrincipalTable));
 
-                if (operation.PrincipalColumns.Length == 1)
+                if (operation.PrincipalColumns != null)
                 {
-                    builder
-                        .Append("principalColumn: ")
-                        .Append(Code.Literal(operation.PrincipalColumns[0]));
-                }
-                else
-                {
-                    builder
-                        .Append("principalColumns: ")
-                        .Append(Code.Literal(operation.PrincipalColumns));
+                    if (operation.PrincipalColumns.Length == 1)
+                    {
+                        builder
+                            .AppendLine(",")
+                            .Append("principalColumn: ")
+                            .Append(Code.Literal(operation.PrincipalColumns[0]));
+                    }
+                    else
+                    {
+                        builder
+                            .AppendLine(",")
+                            .Append("principalColumns: ")
+                            .Append(Code.Literal(operation.PrincipalColumns));
+                    }
                 }
 
                 if (operation.OnUpdate != ReferentialAction.NoAction)
@@ -724,20 +728,31 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             using (builder.Indent())
             {
+                var needComma = false;
+
                 if (operation.Collation != null)
                 {
                     builder
                         .AppendLine()
                         .Append("collation: ")
                         .Append(Code.Literal(operation.Collation));
+
+                    needComma = true;
                 }
 
                 if (operation.OldDatabase.Collation != null)
                 {
+                    if (needComma)
+                    {
+                        builder.Append(",");
+                    }
+
                     builder
-                        .AppendLine(",")
+                        .AppendLine()
                         .Append("oldCollation: ")
                         .Append(Code.Literal(operation.OldDatabase.Collation));
+
+                    needComma = true;
                 }
 
                 builder.Append(")");

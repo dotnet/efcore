@@ -11,6 +11,8 @@ using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
     /// <summary>
@@ -60,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         public static string FormatParameter(
             [NotNull] string name,
-            [CanBeNull] object value,
+            [CanBeNull] object? value,
             bool hasValue,
             ParameterDirection direction,
             DbType dbType,
@@ -81,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
             if (nullable
                 && value != null
-                && !clrType.IsNullableType())
+                && !clrType!.IsNullableType())
             {
                 builder.Append(" (Nullable = true)");
             }
@@ -90,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 if (!nullable
                     && hasValue
                     && (value == null
-                        || clrType.IsNullableType()))
+                        || clrType!.IsNullableType()))
                 {
                     builder.Append(" (Nullable = false)");
                 }
@@ -139,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             return builder.ToString();
         }
 
-        private static void FormatParameterValue(StringBuilder builder, object parameterValue)
+        private static void FormatParameterValue(StringBuilder builder, object? parameterValue)
         {
             if (parameterValue == null
                 || parameterValue == DBNull.Value)
@@ -172,7 +174,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 {
                     var isNullProperty = parameterValue.GetType().GetRuntimeProperty("IsNull");
                     if (isNullProperty != null
-                        && (bool)isNullProperty.GetValue(parameterValue))
+                        && isNullProperty.GetValue(parameterValue) is bool isNull
+                        && isNull)
                     {
                         builder.Append("''");
                     }
@@ -191,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
         }
 
-        private static bool ShouldShowDbType(bool hasValue, DbType dbType, Type type)
+        private static bool ShouldShowDbType(bool hasValue, DbType dbType, Type? type)
         {
             if (!hasValue
                 || type == null

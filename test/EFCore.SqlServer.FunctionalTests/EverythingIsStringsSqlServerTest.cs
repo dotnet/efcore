@@ -155,6 +155,8 @@ MaxLengthDataTypes.ByteArray9000 ---> [nullable nvarchar] [MaxLength = -1]
 MaxLengthDataTypes.Id ---> [nvarchar] [MaxLength = 64]
 MaxLengthDataTypes.String3 ---> [nullable nvarchar] [MaxLength = 3]
 MaxLengthDataTypes.String9000 ---> [nullable nvarchar] [MaxLength = -1]
+StringEnclosure.Id ---> [nvarchar] [MaxLength = 64]
+StringEnclosure.Value ---> [nullable nvarchar] [MaxLength = -1]
 StringForeignKeyDataType.Id ---> [nvarchar] [MaxLength = 64]
 StringForeignKeyDataType.StringKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 450]
 StringKeyDataType.Id ---> [nvarchar] [MaxLength = 450]
@@ -215,7 +217,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                 => true;
 
             public override DateTime DefaultDateTime
-                => new DateTime();
+                => new();
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base
@@ -237,7 +239,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 
         public class SqlServerStringsTestStoreFactory : SqlServerTestStoreFactory
         {
-            public static new SqlServerStringsTestStoreFactory Instance { get; } = new SqlServerStringsTestStoreFactory();
+            public static new SqlServerStringsTestStoreFactory Instance { get; } = new();
 
             public override IServiceCollection AddProviderServices(IServiceCollection serviceCollection)
                 => base.AddProviderServices(
@@ -246,18 +248,10 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 
         public class SqlServerStringsTypeMappingSource : RelationalTypeMappingSource
         {
-            private readonly SqlServerStringTypeMapping _fixedLengthUnicodeString
-                = new SqlServerStringTypeMapping(unicode: true, fixedLength: true);
-
-            private readonly SqlServerStringTypeMapping _variableLengthUnicodeString
-                = new SqlServerStringTypeMapping(unicode: true);
-
-            private readonly SqlServerStringTypeMapping _fixedLengthAnsiString
-                = new SqlServerStringTypeMapping(fixedLength: true);
-
-            private readonly SqlServerStringTypeMapping _variableLengthAnsiString
-                = new SqlServerStringTypeMapping();
-
+            private readonly SqlServerStringTypeMapping _fixedLengthUnicodeString = new(unicode: true, fixedLength: true);
+            private readonly SqlServerStringTypeMapping _variableLengthUnicodeString = new(unicode: true);
+            private readonly SqlServerStringTypeMapping _fixedLengthAnsiString = new(fixedLength: true);
+            private readonly SqlServerStringTypeMapping _variableLengthAnsiString = new();
             private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
 
             public SqlServerStringsTypeMappingSource(

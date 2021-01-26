@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -56,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [EntityFrameworkInternal]
         public ExecutionStrategyDependencies(
             [NotNull] ICurrentDbContext currentContext,
-            [CanBeNull] IDbContextOptions options,
-            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
+            [NotNull] IDbContextOptions options,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
         {
             Check.NotNull(currentContext, nameof(currentContext));
 
@@ -69,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The options for the current <see cref="DbContext" /> instance.
         /// </summary>
-        public IDbContextOptions Options { get; [param: CanBeNull] init; }
+        public IDbContextOptions Options { get; [param: NotNull] init; }
 
         /// <summary>
         ///     Indirection to the current <see cref="DbContext" /> instance.
@@ -79,6 +81,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Infrastructure> Logger { get; [param: CanBeNull] init; }
+        public IDiagnosticsLogger<DbLoggerCategory.Infrastructure> Logger { get; [param: NotNull] init; }
     }
 }

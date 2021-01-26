@@ -322,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
         ///     </para>
         ///     <para>
-        ///         Note that the default implementation of this method throws <see cref="NotImplementedException" />. Providers
+        ///         Note that the default implementation of this method throws <see cref="NotSupportedException" />. Providers
         ///         must override if they are to support this kind of operation.
         ///     </para>
         /// </summary>
@@ -333,9 +333,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] AlterColumnOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotSupportedException(RelationalStrings.MigrationSqlGenerationMissing(nameof(AlterColumnOperation)));
 
         /// <summary>
         ///     <para>
@@ -363,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
         ///     </para>
         ///     <para>
-        ///         Note that the default implementation of this method throws <see cref="NotImplementedException" />. Providers
+        ///         Note that the default implementation of this method throws <see cref="NotSupportedException" />. Providers
         ///         must override if they are to support this kind of operation.
         ///     </para>
         /// </summary>
@@ -374,9 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] RenameIndexOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotSupportedException(RelationalStrings.MigrationSqlGenerationMissing(nameof(RenameIndexOperation)));
 
         /// <summary>
         ///     Builds commands for the given <see cref="AlterSequenceOperation" /> by making calls on the given
@@ -431,7 +427,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
         ///     </para>
         ///     <para>
-        ///         Note that the default implementation of this method throws <see cref="NotImplementedException" />. Providers
+        ///         Note that the default implementation of this method throws <see cref="NotSupportedException" />. Providers
         ///         must override if they are to support this kind of operation.
         ///     </para>
         /// </summary>
@@ -442,9 +438,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] RenameTableOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotSupportedException(RelationalStrings.MigrationSqlGenerationMissing(nameof(RenameTableOperation)));
 
         /// <summary>
         ///     Builds commands for the given <see cref="CreateIndexOperation" /> by making calls on the given
@@ -496,7 +490,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
         ///     </para>
         ///     <para>
-        ///         Note that the default implementation of this method throws <see cref="NotImplementedException" />. Providers
+        ///         Note that the default implementation of this method throws <see cref="NotSupportedException" />. Providers
         ///         must override if they are to support this kind of operation.
         ///     </para>
         /// </summary>
@@ -507,9 +501,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] EnsureSchemaOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotSupportedException(RelationalStrings.MigrationSqlGenerationMissing(nameof(EnsureSchemaOperation)));
 
         /// <summary>
         ///     Builds commands for the given <see cref="CreateSequenceOperation" /> by making calls on the given
@@ -657,7 +649,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
         ///     </para>
         ///     <para>
-        ///         Note that the default implementation of this method throws <see cref="NotImplementedException" />. Providers
+        ///         Note that the default implementation of this method throws <see cref="NotSupportedException" />. Providers
         ///         must override if they are to support this kind of operation.
         ///     </para>
         /// </summary>
@@ -670,9 +662,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder,
             bool terminate = true)
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotSupportedException(RelationalStrings.MigrationSqlGenerationMissing(nameof(DropIndexOperation)));
 
         /// <summary>
         ///     Builds commands for the given <see cref="DropPrimaryKeyOperation" /> by making calls on the given
@@ -834,7 +824,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
         ///     </para>
         ///     <para>
-        ///         Note that the default implementation of this method throws <see cref="NotImplementedException" />. Providers
+        ///         Note that the default implementation of this method throws <see cref="NotSupportedException" />. Providers
         ///         must override if they are to support this kind of operation.
         ///     </para>
         /// </summary>
@@ -845,9 +835,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] RenameColumnOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotSupportedException(RelationalStrings.MigrationSqlGenerationMissing(nameof(RenameColumnOperation)));
 
         /// <summary>
         ///     <para>
@@ -855,7 +843,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
         ///     </para>
         ///     <para>
-        ///         Note that the default implementation of this method throws <see cref="NotImplementedException" />. Providers
+        ///         Note that the default implementation of this method throws <see cref="NotSupportedException" />. Providers
         ///         must override if they are to support this kind of operation.
         ///     </para>
         /// </summary>
@@ -866,9 +854,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] RenameSequenceOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotSupportedException(RelationalStrings.MigrationSqlGenerationMissing(nameof(RenameSequenceOperation)));
 
         /// <summary>
         ///     Builds commands for the given <see cref="RestartSequenceOperation" /> by making calls on the given
@@ -1469,9 +1455,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] ColumnOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotSupportedException(RelationalStrings.MigrationSqlGenerationMissing(nameof(ColumnOperation)));
 
         /// <summary>
         ///     Gets the store/database type of a column given the provided metadata.

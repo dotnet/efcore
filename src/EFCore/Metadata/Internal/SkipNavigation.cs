@@ -26,9 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     {
         private ConfigurationSource? _foreignKeyConfigurationSource;
         private ConfigurationSource? _inverseConfigurationSource;
+        private InternalSkipNavigationBuilder? _builder;
 
         // Warning: Never access these fields directly as access needs to be thread-safe
         private IClrCollectionAccessor? _collectionAccessor;
+        private bool _collectionAccessorInitialized;
         private ICollectionLoader? _manyToManyLoader;
 
         /// <summary>
@@ -55,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             TargetEntityType = targetEntityType;
             IsCollection = collection;
             IsOnDependent = onDependent;
-            Builder = new InternalSkipNavigationBuilder(this, targetEntityType.Model.Builder);
+            _builder = new InternalSkipNavigationBuilder(this, targetEntityType.Model.Builder);
         }
 
         private void ProcessForeignKey(ForeignKey foreignKey)
@@ -87,7 +89,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalSkipNavigationBuilder? Builder { get; [param: CanBeNull] set; }
+        public virtual InternalSkipNavigationBuilder Builder
+        {
+            [DebuggerStepThrough]
+            get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool IsInModel
+            => _builder is not null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void SetRemovedFromModel()
+            => _builder = null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -163,6 +187,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual ForeignKey? SetForeignKey([CanBeNull] ForeignKey? foreignKey, ConfigurationSource configurationSource)
         {
+            EnsureMutable();
+
             var oldForeignKey = ForeignKey;
             var isChanging = foreignKey != ForeignKey;
 
@@ -207,8 +233,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return isChanging
-                ? (ForeignKey)DeclaringEntityType.Model.ConventionDispatcher
-                    .OnSkipNavigationForeignKeyChanged(Builder, foreignKey, oldForeignKey)
+                ? (ForeignKey?)DeclaringEntityType.Model.ConventionDispatcher
+                    .OnSkipNavigationForeignKeyChanged(Builder, foreignKey, oldForeignKey!)
                 : foreignKey;
         }
 
@@ -238,6 +264,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual SkipNavigation? SetInverse([CanBeNull] SkipNavigation? inverse, ConfigurationSource configurationSource)
         {
+            EnsureMutable();
+
             var oldInverse = Inverse;
             var isChanging = inverse != Inverse;
             if (inverse == null)
@@ -246,8 +274,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 _inverseConfigurationSource = null;
 
                 return isChanging
-                    ? (SkipNavigation)DeclaringEntityType.Model.ConventionDispatcher
-                        .OnSkipNavigationInverseChanged(Builder, inverse, oldInverse)
+                    ? (SkipNavigation?)DeclaringEntityType.Model.ConventionDispatcher
+                        .OnSkipNavigationInverseChanged(Builder, inverse!, oldInverse!)
                     : inverse;
             }
 
@@ -271,8 +299,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             UpdateInverseConfigurationSource(configurationSource);
 
             return isChanging
-                ? (SkipNavigation)DeclaringEntityType.Model.ConventionDispatcher
-                    .OnSkipNavigationInverseChanged(Builder, inverse, oldInverse)
+                ? (SkipNavigation?)DeclaringEntityType.Model.ConventionDispatcher
+                    .OnSkipNavigationInverseChanged(Builder, inverse, oldInverse!)
                 : inverse;
         }
 
@@ -310,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <param name="annotation"> The annotation set. </param>
         /// <param name="oldAnnotation"> The old annotation. </param>
         /// <returns> The annotation that was set. </returns>
-        protected override IConventionAnnotation OnAnnotationSet(
+        protected override IConventionAnnotation? OnAnnotationSet(
             string name,
             IConventionAnnotation? annotation,
             IConventionAnnotation? oldAnnotation)
@@ -323,9 +351,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IClrCollectionAccessor CollectionAccessor
+        public virtual IClrCollectionAccessor? CollectionAccessor
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _collectionAccessor, this, n => new ClrCollectionAccessorFactory().Create(n));
+                ref _collectionAccessor,
+                ref _collectionAccessorInitialized,
+                this,
+                static navigation =>
+                {
+                    navigation.EnsureReadOnly();
+                    return new ClrCollectionAccessorFactory().Create(navigation);
+                });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -335,7 +370,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual ICollectionLoader ManyToManyLoader
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _manyToManyLoader, this, n => new ManyToManyLoaderFactory().Create(this));
+                ref _manyToManyLoader, this, static navigation =>
+                {
+                    navigation.EnsureReadOnly();
+                    return new ManyToManyLoaderFactory().Create(navigation);
+                });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -344,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual DebugView DebugView
-            => new DebugView(
+            => new(
                 () => this.ToDebugString(MetadataDebugStringOptions.ShortDefault),
                 () => this.ToDebugString(MetadataDebugStringOptions.LongDefault));
 
@@ -359,14 +398,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <inheritdoc />
-        IConventionSkipNavigationBuilder? IConventionSkipNavigation.Builder
+        IConventionSkipNavigationBuilder IConventionSkipNavigation.Builder
         {
             [DebuggerStepThrough]
             get => Builder;
         }
 
         /// <inheritdoc />
-        IConventionAnnotatableBuilder? IConventionAnnotatable.Builder
+        IConventionAnnotatableBuilder IConventionAnnotatable.Builder
         {
             [DebuggerStepThrough]
             get => Builder;

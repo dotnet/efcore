@@ -6,9 +6,13 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -23,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The name to use for the hi-lo sequence. </returns>
-        public static string GetHiLoSequenceName([NotNull] this IProperty property)
-            => (string)property[SqlServerAnnotationNames.HiLoSequenceName];
+        public static string? GetHiLoSequenceName([NotNull] this IProperty property)
+            => (string?)property[SqlServerAnnotationNames.HiLoSequenceName];
 
         /// <summary>
         ///     Returns the name to use for the hi-lo sequence.
@@ -32,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The name to use for the hi-lo sequence. </returns>
-        public static string GetHiLoSequenceName([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
+        public static string? GetHiLoSequenceName([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
         {
             var annotation = property.FindAnnotation(SqlServerAnnotationNames.HiLoSequenceName);
             if (annotation != null)
@@ -51,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="name"> The sequence name to use. </param>
-        public static void SetHiLoSequenceName([NotNull] this IMutableProperty property, [CanBeNull] string name)
+        public static void SetHiLoSequenceName([NotNull] this IMutableProperty property, [CanBeNull] string? name)
             => property.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.HiLoSequenceName,
                 Check.NullButNotEmpty(name, nameof(name)));
@@ -63,9 +67,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The sequence name to use. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        public static string SetHiLoSequenceName(
+        public static string? SetHiLoSequenceName(
             [NotNull] this IConventionProperty property,
-            [CanBeNull] string name,
+            [CanBeNull] string? name,
             bool fromDataAnnotation = false)
         {
             property.SetOrRemoveAnnotation(
@@ -89,8 +93,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The schema to use for the hi-lo sequence. </returns>
-        public static string GetHiLoSequenceSchema([NotNull] this IProperty property)
-            => (string)property[SqlServerAnnotationNames.HiLoSequenceSchema];
+        public static string? GetHiLoSequenceSchema([NotNull] this IProperty property)
+            => (string?)property[SqlServerAnnotationNames.HiLoSequenceSchema];
 
         /// <summary>
         ///     Returns the schema to use for the hi-lo sequence.
@@ -98,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The schema to use for the hi-lo sequence. </returns>
-        public static string GetHiLoSequenceSchema([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
+        public static string? GetHiLoSequenceSchema([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
         {
             var annotation = property.FindAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema);
             if (annotation != null)
@@ -117,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="schema"> The schema to use. </param>
-        public static void SetHiLoSequenceSchema([NotNull] this IMutableProperty property, [CanBeNull] string schema)
+        public static void SetHiLoSequenceSchema([NotNull] this IMutableProperty property, [CanBeNull] string? schema)
             => property.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.HiLoSequenceSchema,
                 Check.NullButNotEmpty(schema, nameof(schema)));
@@ -129,9 +133,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="schema"> The schema to use. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        public static string SetHiLoSequenceSchema(
+        public static string? SetHiLoSequenceSchema(
             [NotNull] this IConventionProperty property,
-            [CanBeNull] string schema,
+            [CanBeNull] string? schema,
             bool fromDataAnnotation = false)
         {
             property.SetOrRemoveAnnotation(
@@ -155,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The sequence to use, or <see langword="null" /> if no sequence exists in the model. </returns>
-        public static ISequence FindHiLoSequence([NotNull] this IProperty property)
+        public static ISequence? FindHiLoSequence([NotNull] this IProperty property)
         {
             var model = property.DeclaringEntityType.Model;
 
@@ -174,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The sequence to use, or <see langword="null" /> if no sequence exists in the model. </returns>
-        public static ISequence FindHiLoSequence([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
+        public static ISequence? FindHiLoSequence([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
         {
             var model = property.DeclaringEntityType.Model;
 
@@ -363,6 +367,12 @@ namespace Microsoft.EntityFrameworkCore
         public static SqlServerValueGenerationStrategy GetValueGenerationStrategy(
             [NotNull] this IProperty property,
             in StoreObjectIdentifier storeObject)
+            => GetValueGenerationStrategy(property, storeObject, null);
+
+        internal static SqlServerValueGenerationStrategy GetValueGenerationStrategy(
+            [NotNull] this IProperty property,
+            in StoreObjectIdentifier storeObject,
+            ITypeMappingSource? typeMappingSource)
         {
             var annotation = property.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy);
             if (annotation != null)
@@ -375,6 +385,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 return sharedTableRootProperty.GetValueGenerationStrategy(storeObject)
                     == SqlServerValueGenerationStrategy.IdentityColumn
+                    && !property.GetContainingForeignKeys().Any(fk => !fk.IsBaseLinking())
                         ? SqlServerValueGenerationStrategy.IdentityColumn
                         : SqlServerValueGenerationStrategy.None;
             }
@@ -388,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore
                 return SqlServerValueGenerationStrategy.None;
             }
 
-            return GetDefaultValueGenerationStrategy(property);
+            return GetDefaultValueGenerationStrategy(property, storeObject, typeMappingSource);
         }
 
         private static SqlServerValueGenerationStrategy GetDefaultValueGenerationStrategy(IProperty property)
@@ -403,6 +414,25 @@ namespace Microsoft.EntityFrameworkCore
 
             return modelStrategy == SqlServerValueGenerationStrategy.IdentityColumn
                 && IsCompatibleWithValueGeneration(property)
+                    ? SqlServerValueGenerationStrategy.IdentityColumn
+                    : SqlServerValueGenerationStrategy.None;
+        }
+
+        private static SqlServerValueGenerationStrategy GetDefaultValueGenerationStrategy(
+            IProperty property,
+            in StoreObjectIdentifier storeObject,
+            ITypeMappingSource? typeMappingSource)
+        {
+            var modelStrategy = property.DeclaringEntityType.Model.GetValueGenerationStrategy();
+
+            if (modelStrategy == SqlServerValueGenerationStrategy.SequenceHiLo
+                && IsCompatibleWithValueGeneration(property, storeObject, typeMappingSource))
+            {
+                return SqlServerValueGenerationStrategy.SequenceHiLo;
+            }
+
+            return modelStrategy == SqlServerValueGenerationStrategy.IdentityColumn
+                && IsCompatibleWithValueGeneration(property, storeObject, typeMappingSource)
                     ? SqlServerValueGenerationStrategy.IdentityColumn
                     : SqlServerValueGenerationStrategy.None;
         }
@@ -488,5 +518,64 @@ namespace Microsoft.EntityFrameworkCore
                     ?? property.FindTypeMapping()?.Converter)
                 == null;
         }
+
+        private static bool IsCompatibleWithValueGeneration(
+            [NotNull] IProperty property,
+            in StoreObjectIdentifier storeObject,
+            ITypeMappingSource? typeMappingSource)
+        {
+            var type = property.ClrType;
+
+            return (type.IsInteger()
+                    || type == typeof(decimal))
+                && (property.GetValueConverter()
+                    ?? (property.FindRelationalTypeMapping(storeObject)
+                        ?? typeMappingSource?.FindMapping(property))?.Converter)
+                == null;
+        }
+
+        /// <summary>
+        ///     Returns a value indicating whether the property's column is sparse.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> <see langword="true" /> if the property's column is sparse. </returns>
+        public static bool? IsSparse([NotNull] this IProperty property)
+            => (bool?)property[SqlServerAnnotationNames.Sparse];
+
+        /// <summary>
+        ///     Sets a value indicating whether the property's column is sparse.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="sparse"> The value to set. </param>
+        public static void SetIsSparse([NotNull] this IMutableProperty property, bool? sparse)
+            => property.SetOrRemoveAnnotation(SqlServerAnnotationNames.Sparse, sparse);
+
+        /// <summary>
+        ///     Sets a value indicating whether the property's column is sparse.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="sparse"> The value to set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured value. </returns>
+        public static bool? SetIsSparse(
+            [NotNull] this IConventionProperty property,
+            bool? sparse,
+            bool fromDataAnnotation = false)
+        {
+            property.SetOrRemoveAnnotation(
+                SqlServerAnnotationNames.Sparse,
+                sparse,
+                fromDataAnnotation);
+
+            return sparse;
+        }
+
+        /// <summary>
+        ///     Returns the <see cref="ConfigurationSource" /> for whether the property's column is sparse.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for whether the property's column is sparse. </returns>
+        public static ConfigurationSource? GetIsSparseConfigurationSource([NotNull] this IConventionProperty property)
+            => property.FindAnnotation(SqlServerAnnotationNames.Sparse)?.GetConfigurationSource();
     }
 }

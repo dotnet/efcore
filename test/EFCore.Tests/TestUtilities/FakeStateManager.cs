@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return 1;
         }
 
-        public Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new CancellationToken())
+        public Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new())
         {
             SaveChangesAsyncCalled = true;
             return Task.FromResult(1);
@@ -177,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             => throw new NotImplementedException();
 
         public DbContext Context
-            => new DbContext(
+            => new(
                 new DbContextOptionsBuilder()
                     .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
                     .UseInMemoryDatabase("D")

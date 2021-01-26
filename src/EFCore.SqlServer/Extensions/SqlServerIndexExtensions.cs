@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -89,8 +91,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> The included property names, or <see langword="null" /> if they have not been specified. </returns>
-        public static IReadOnlyList<string> GetIncludeProperties([NotNull] this IIndex index)
-            => (string[])index[SqlServerAnnotationNames.Include];
+        public static IReadOnlyList<string>? GetIncludeProperties([NotNull] this IIndex index)
+            => (string[]?)index[SqlServerAnnotationNames.Include];
 
         /// <summary>
         ///     Sets included property names.
@@ -109,9 +111,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <param name="properties"> The value to set. </param>
         /// <returns> The configured property names. </returns>
-        public static IReadOnlyList<string> SetIncludeProperties(
+        public static IReadOnlyList<string>? SetIncludeProperties(
             [NotNull] this IConventionIndex index,
-            [NotNull] IReadOnlyList<string> properties,
+            [CanBeNull] IReadOnlyList<string>? properties,
             bool fromDataAnnotation = false)
         {
             index.SetOrRemoveAnnotation(

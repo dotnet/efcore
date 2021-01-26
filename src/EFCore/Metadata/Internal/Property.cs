@@ -33,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private bool? _isNullable;
         private ValueGenerated? _valueGenerated;
         private CoreTypeMapping? _typeMapping;
+        private InternalPropertyBuilder? _builder;
 
         private ConfigurationSource? _typeConfigurationSource;
         private ConfigurationSource? _isNullableConfigurationSource;
@@ -63,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ClrType = clrType;
             _typeConfigurationSource = typeConfigurationSource;
 
-            Builder = new InternalPropertyBuilder(this, declaringEntityType.Model.Builder);
+            _builder = new InternalPropertyBuilder(this, declaringEntityType.Model.Builder);
         }
 
         /// <summary>
@@ -100,7 +101,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalPropertyBuilder? Builder { get; [param: CanBeNull] set; }
+        public virtual InternalPropertyBuilder Builder
+        {
+            [DebuggerStepThrough] get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool IsInModel
+            => _builder is not null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void SetRemovedFromModel()
+            => _builder = null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -140,6 +162,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool? SetIsNullable(bool? nullable, ConfigurationSource configurationSource)
         {
+            EnsureMutable();
+
             var isChanging = (nullable ?? DefaultIsNullable) != IsNullable;
             if (nullable == null)
             {
@@ -220,6 +244,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual ValueGenerated? SetValueGenerated(ValueGenerated? valueGenerated, ConfigurationSource configurationSource)
         {
+            EnsureMutable();
+
             _valueGenerated = valueGenerated;
 
             _valueGeneratedConfigurationSource = valueGenerated == null
@@ -261,6 +287,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool? SetIsConcurrencyToken(bool? concurrencyToken, ConfigurationSource configurationSource)
         {
+            EnsureMutable();
+
             if (IsConcurrencyToken != concurrencyToken)
             {
                 _isConcurrencyToken = concurrencyToken;
@@ -478,7 +506,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [CA.DisallowNull]
         public virtual CoreTypeMapping? TypeMapping
         {
-            get => _typeMapping;
+            get
+                => _typeMapping == null && IsReadOnly
+                    ? _typeMapping ??= ((IModel)DeclaringEntityType.Model).ModelDependencies?.TypeMappingSource.FindMapping(this)
+                    : _typeMapping;
+
             [param: NotNull]
             set => SetTypeMapping(value, ConfigurationSource.Explicit);
         }
@@ -489,10 +521,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CoreTypeMapping SetTypeMapping([NotNull] CoreTypeMapping typeMapping, ConfigurationSource configurationSource)
+        public virtual CoreTypeMapping? SetTypeMapping([CanBeNull] CoreTypeMapping? typeMapping, ConfigurationSource configurationSource)
         {
             _typeMapping = typeMapping;
-            _typeMappingConfigurationSource = configurationSource.Max(_typeMappingConfigurationSource);
+            _typeMappingConfigurationSource = typeMapping is null
+                ? null
+                : configurationSource.Max(_typeMappingConfigurationSource);
 
             return typeMapping;
         }
@@ -640,11 +674,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return properties.All(
                 property =>
                     property.IsShadowProperty()
-                    || (entityType.HasClrType
-                        && ((property.PropertyInfo != null
-                                && entityType.GetRuntimeProperties()!.ContainsKey(property.Name))
+                    || ((property.PropertyInfo != null
+                                && entityType.GetRuntimeProperties().ContainsKey(property.Name))
                             || (property.FieldInfo != null
-                                && entityType.GetRuntimeFields()!.ContainsKey(property.Name)))));
+                                && entityType.GetRuntimeFields().ContainsKey(property.Name))));
         }
 
         /// <summary>
@@ -663,7 +696,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual DebugView DebugView
-            => new DebugView(
+            => new(
                 () => this.ToDebugString(MetadataDebugStringOptions.ShortDefault),
                 () => this.ToDebugString(MetadataDebugStringOptions.LongDefault));
 
@@ -673,7 +706,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionPropertyBuilder? IConventionProperty.Builder
+        IConventionPropertyBuilder IConventionProperty.Builder
         {
             [DebuggerStepThrough] get => Builder;
         }
@@ -684,7 +717,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionAnnotatableBuilder? IConventionAnnotatable.Builder
+        IConventionAnnotatableBuilder IConventionAnnotatable.Builder
         {
             [DebuggerStepThrough]
             get => Builder;

@@ -6,6 +6,8 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -23,10 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The <see cref="MethodInfo" /> for the <see cref="ValueBuffer" /> get method.
         /// </summary>
         public static readonly MethodInfo GetValueBufferMethod
-            = typeof(MaterializationContext).GetProperty(nameof(ValueBuffer)).GetMethod;
+            = typeof(MaterializationContext).GetProperty(nameof(ValueBuffer))!.GetMethod!;
 
         internal static readonly PropertyInfo ContextProperty
-            = typeof(MaterializationContext).GetProperty(nameof(Context));
+            = typeof(MaterializationContext).GetProperty(nameof(Context))!;
 
         /// <summary>
         ///     Creates a new <see cref="MaterializationContext" /> instance.

@@ -4,6 +4,8 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -22,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         void ProcessForeignKeyAnnotationChanged(
             [NotNull] IConventionForeignKeyBuilder relationshipBuilder,
             [NotNull] string name,
-            [CanBeNull] IConventionAnnotation annotation,
-            [CanBeNull] IConventionAnnotation oldAnnotation,
+            [CanBeNull] IConventionAnnotation? annotation,
+            [CanBeNull] IConventionAnnotation? oldAnnotation,
             [NotNull] IConventionContext<IConventionAnnotation> context);
     }
 }

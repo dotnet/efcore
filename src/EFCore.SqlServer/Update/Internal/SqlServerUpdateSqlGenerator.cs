@@ -52,12 +52,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             IReadOnlyList<ModificationCommand> modificationCommands,
             int commandPosition)
         {
+            var table = StoreObjectIdentifier.Table(modificationCommands[0].TableName, modificationCommands[0].Schema);
             if (modificationCommands.Count == 1
                 && modificationCommands[0].ColumnModifications.All(
                     o =>
                         !o.IsKey
                         || !o.IsRead
-                        || o.Property?.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn))
+                        || o.Property?.GetValueGenerationStrategy(table) == SqlServerValueGenerationStrategy.IdentityColumn))
             {
                 return AppendInsertOperation(commandStringBuilder, modificationCommands[0], commandPosition);
             }
@@ -68,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 
             var defaultValuesOnly = writeOperations.Count == 0;
             var nonIdentityOperations = modificationCommands[0].ColumnModifications
-                .Where(o => o.Property?.GetValueGenerationStrategy() != SqlServerValueGenerationStrategy.IdentityColumn)
+                .Where(o => o.Property?.GetValueGenerationStrategy(table) != SqlServerValueGenerationStrategy.IdentityColumn)
                 .ToList();
 
             if (defaultValuesOnly)

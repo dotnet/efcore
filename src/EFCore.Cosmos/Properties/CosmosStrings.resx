@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="CanConnectNotSupported" xml:space="preserve">
+    <value>The Cosmos database does not support 'CanConnect' or 'CanConnectAsync'.</value>
+  </data>
   <data name="ConnectionStringConflictingConfiguration" xml:space="preserve">
     <value>Both the connection string and account key or account endpoint were specified. Specify only one set of connection details.</value>
   </data>
@@ -140,6 +143,14 @@
   </data>
   <data name="JsonPropertyCollision" xml:space="preserve">
     <value>Both properties '{property1}' and '{property2}' on entity type '{entityType}' are mapped to '{storeName}'. Map one of the properties to a different JSON property.</value>
+  </data>
+  <data name="LogExecutingReadItem" xml:space="preserve">
+    <value>Reading resource '{resourceId}' item from container '{containerId}' in partition '{partitionKey}'.</value>
+    <comment>Debug CosmosEventId.ExecutingReadItem string string string</comment>
+  </data>
+  <data name="LogExecutingSqlQuery" xml:space="preserve">
+    <value>Executing SQL query for container '{containerId}' in partition '{partitionKey}' [Parameters=[{parameters}]]{newLine}{commandText}</value>
+    <comment>Debug CosmosEventId.ExecutingSqlQuery string string string string string</comment>
   </data>
   <data name="MissingOrderingInSelectExpression" xml:space="preserve">
     <value>'Reverse' could not be translated to the server because there is no ordering on the server side.</value>
@@ -206,6 +217,9 @@
   </data>
   <data name="ReverseAfterSkipTakeNotSupported" xml:space="preserve">
     <value>Reversing the ordering is not supported when limit or offset are already applied.</value>
+  </data>
+  <data name="TransactionsNotSupported" xml:space="preserve">
+    <value>The Cosmos database provider does not support transactions.</value>
   </data>
   <data name="UnableToBindMemberToEntityProjection" xml:space="preserve">
     <value>Unable to bind '{memberType}' '{member}' to an entity projection of '{entityType}'.</value>

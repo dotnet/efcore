@@ -276,6 +276,18 @@ WHERE ""s"".""Banner5"" = @__byteArrayParam_0");
         public override Task Where_TimeSpan_Milliseconds(bool async)
             => base.Where_TimeSpan_Milliseconds(async);
 
+        [ConditionalTheory(Skip = "Issue#16428")]
+        public override Task First_on_byte_array(bool async)
+        {
+            return base.First_on_byte_array(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16428")]
+        public override Task Array_access_on_byte_array(bool async)
+        {
+            return base.Array_access_on_byte_array(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

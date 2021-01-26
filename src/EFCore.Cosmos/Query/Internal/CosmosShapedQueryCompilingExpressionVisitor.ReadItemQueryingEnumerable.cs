@@ -290,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
 
                 public void Reset()
-                    => throw new NotImplementedException();
+                    => throw new NotSupportedException(CoreStrings.EnumerableResetNotSupported);
 
                 private bool ShapeResult()
                 {

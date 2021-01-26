@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     /// </summary>
     public class CosmosMethodCallTranslatorProvider : IMethodCallTranslatorProvider
     {
-        private readonly List<IMethodCallTranslator> _plugins = new List<IMethodCallTranslator>();
-        private readonly List<IMethodCallTranslator> _translators = new List<IMethodCallTranslator>();
+        private readonly List<IMethodCallTranslator> _plugins = new();
+        private readonly List<IMethodCallTranslator> _translators = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -41,7 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
                     new EqualsTranslator(sqlExpressionFactory),
                     new StringMethodTranslator(sqlExpressionFactory),
-                    new ContainsTranslator(sqlExpressionFactory)
+                    new ContainsTranslator(sqlExpressionFactory),
+                    new RandomTranslator(sqlExpressionFactory)
                     //new LikeTranslator(sqlExpressionFactory),
                     //new EnumHasFlagTranslator(sqlExpressionFactory),
                     //new GetValueOrDefaultTranslator(sqlExpressionFactory),

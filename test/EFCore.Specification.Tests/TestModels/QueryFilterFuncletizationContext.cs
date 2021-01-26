@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             => 2;
 
         public Indirection GetFlag()
-            => new Indirection();
+            => new();
 
         public List<int> TenantIds { get; set; }
         public Indirection IndirectionFlag { get; set; }
@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExtensionContextFilter { IsEnabled = false },
                 new ParameterFilter { Tenant = 1 },
                 new ParameterFilter { Tenant = 2 },
-                new PrincipalSetFilter { Dependents = new List<DependentSetFilter> { new DependentSetFilter(), new DependentSetFilter() } },
+                new PrincipalSetFilter { Dependents = new List<DependentSetFilter> { new(), new() } },
                 new PrincipalSetFilter(),
                 new MultiContextFilter { BossId = 1, IsEnabled = true },
                 new MultiContextFilter { BossId = 1, IsEnabled = false },

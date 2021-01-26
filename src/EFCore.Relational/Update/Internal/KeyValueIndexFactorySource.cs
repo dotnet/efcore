@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
     public class KeyValueIndexFactorySource : IKeyValueIndexFactorySource
     {
         private readonly ConcurrentDictionary<IKey, IKeyValueIndexFactory> _factories
-            = new ConcurrentDictionary<IKey, IKeyValueIndexFactory>();
+            = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

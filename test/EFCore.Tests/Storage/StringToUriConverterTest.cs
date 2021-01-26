@@ -9,8 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class StringToUriConverterTest
     {
-        private static readonly StringToUriConverter _stringToUri
-            = new StringToUriConverter();
+        private static readonly StringToUriConverter _stringToUri = new();
 
         [ConditionalFact]
         public void Can_convert_strings_to_uris()

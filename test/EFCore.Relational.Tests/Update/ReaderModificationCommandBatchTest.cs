@@ -351,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     columnModificationFactory,
                     new List<ColumnModification>
                     {
-                        new ColumnModification(
+                        new(
                             entry,
                             property,
                             property.GetTableColumnMappings().Single().Column,
@@ -369,7 +369,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     columnModificationFactory,
                     new List<ColumnModification>
                     {
-                        new ColumnModification(
+                        new(
                             entry,
                             property,
                             property.GetTableColumnMappings().Single().Column,
@@ -408,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     columnModificationFactory,
                     new List<ColumnModification>
                     {
-                        new ColumnModification(
+                        new(
                             entry,
                             property,
                             property.GetTableColumnMappings().Single().Column,
@@ -446,7 +446,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     columnModificationFactory,
                     new List<ColumnModification>
                     {
-                        new ColumnModification(
+                        new(
                             entry,
                             property,
                             property.GetTableColumnMappings().Single().Column,
@@ -484,7 +484,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     columnModificationFactory,
                     new List<ColumnModification>
                     {
-                        new ColumnModification(
+                        new(
                             entry,
                             property,
                             property.GetTableColumnMappings().Single().Column,
@@ -524,7 +524,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     columnModificationFactory,
                     new List<ColumnModification>
                     {
-                        new ColumnModification(
+                        new(
                             entry,
                             property,
                             property.GetTableColumnMappings().Single().Column,
@@ -669,7 +669,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         }
 
         private static FakeRelationalConnection CreateConnection(IDbContextOptions options = null)
-            => new FakeRelationalConnection(options ?? CreateOptions());
+            => new(options ?? CreateOptions());
 
         public static IDbContextOptions CreateOptions(RelationalOptionsExtension optionsExtension = null)
         {

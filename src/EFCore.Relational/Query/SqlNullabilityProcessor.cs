@@ -559,9 +559,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             nullable = false;
 
             // if subquery has predicate which evaluates to false, we can simply return false
+            // if the exisits is negated we need to return true instead
             return TryGetBoolConstantValue(subquery.Predicate) == false
-                ? subquery.Predicate!
-                : existsExpression.Update(subquery);
+                ? _sqlExpressionFactory.Constant(existsExpression.IsNegated, existsExpression.TypeMapping)
+                : (SqlExpression)existsExpression.Update(subquery);
         }
 
         /// <summary>
@@ -1488,6 +1489,34 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 left,
                                 right,
                                 sqlBinaryOperand.TypeMapping)!);
+                    }
+
+                    // use equality where possible
+                    // !(a == true) -> a == false
+                    // !(a == false) -> a == true
+                    // !(true == a) -> false == a
+                    // !(false == a) -> true == a
+                    if (sqlBinaryOperand.OperatorType == ExpressionType.Equal)
+                    {
+                        if (sqlBinaryOperand.Left is SqlConstantExpression leftConstant
+                            && leftConstant.Type == typeof(bool))
+                        {
+                            return _sqlExpressionFactory.MakeBinary(
+                                ExpressionType.Equal,
+                                _sqlExpressionFactory.Constant(!(bool)leftConstant.Value!, leftConstant.TypeMapping),
+                                sqlBinaryOperand.Right,
+                                sqlBinaryOperand.TypeMapping)!;
+                        }
+
+                        if (sqlBinaryOperand.Right is SqlConstantExpression rightConstant
+                            && rightConstant.Type == typeof(bool))
+                        {
+                            return _sqlExpressionFactory.MakeBinary(
+                                ExpressionType.Equal,
+                                sqlBinaryOperand.Left,
+                                _sqlExpressionFactory.Constant(!(bool)rightConstant.Value!, rightConstant.TypeMapping),
+                                sqlBinaryOperand.TypeMapping)!;
+                        }
                     }
 
                     // !(a == b) -> a != b

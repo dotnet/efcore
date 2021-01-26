@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         private static readonly Type _notifyPropertyChangedInterface = typeof(INotifyPropertyChanged);
         private static readonly Type _notifyPropertyChangingInterface = typeof(INotifyPropertyChanging);
 
-        private readonly ProxyGenerator _generator = new ProxyGenerator();
+        private readonly ProxyGenerator _generator = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -44,11 +44,6 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                 if (context.Model.IsShared(type))
                 {
                     throw new InvalidOperationException(ProxiesStrings.EntityTypeNotFoundShared(type.ShortDisplayName()));
-                }
-
-                if (context.Model.HasEntityTypeWithDefiningNavigation(type))
-                {
-                    throw new InvalidOperationException(ProxiesStrings.EntityTypeNotFoundWeak(type.ShortDisplayName()));
                 }
 
                 throw new InvalidOperationException(CoreStrings.EntityTypeNotFound(type.ShortDisplayName()));

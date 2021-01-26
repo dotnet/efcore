@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly bool _detailedErrorsEnabled;
 
         private DbDataReader? _underlyingReader;
-        private List<BufferedDataRecord> _bufferedDataRecords = new List<BufferedDataRecord>();
+        private List<BufferedDataRecord> _bufferedDataRecords = new();
         private BufferedDataRecord _currentResultSet;
         private int _currentResultSetNumber;
         private int _recordsAffected;
@@ -1270,7 +1270,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     for (var i = 0; i < _columns.Count; i++)
                     {
                         var column = _columns[i];
-                        if (!readerColumns.TryGetValue(column.Name, out var ordinal))
+                        if (!readerColumns.TryGetValue(column.Name!, out var ordinal))
                         {
                             throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(column.Name));
                         }

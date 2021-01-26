@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private sealed class EntityEntryComparer : IComparer<InternalEntityEntry>
         {
-            public static readonly EntityEntryComparer Instance = new EntityEntryComparer();
+            public static readonly EntityEntryComparer Instance = new();
 
             public int Compare(InternalEntityEntry x, InternalEntityEntry y)
             {

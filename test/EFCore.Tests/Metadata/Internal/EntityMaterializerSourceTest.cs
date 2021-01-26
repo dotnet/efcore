@@ -22,7 +22,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class EntityMaterializerSourceTest
     {
-        private readonly DbContext _fakeContext = new DbContext(new DbContextOptions<DbContext>());
+        private readonly DbContext _fakeContext = new(new DbContextOptions<DbContext>());
+
+        [ConditionalFact]
+        public void Throws_for_abstract_types()
+        {
+            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(SomeAbstractEntity));
+            var source = new EntityMaterializerSource(new EntityMaterializerSourceDependencies());
+
+            Assert.Equal(
+                CoreStrings.CannotMaterializeAbstractType(nameof(SomeAbstractEntity)),
+                Assert.Throws<InvalidOperationException>(() => source.CreateMaterializeExpression(entityType, "", null!)).Message);
+        }
 
         [ConditionalFact]
         public void Can_create_materializer_for_entity_with_constructor_properties()
@@ -171,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class TestProxyFactory
         {
-            public static readonly TestProxyFactory Instance = new TestProxyFactory();
+            public static readonly TestProxyFactory Instance = new();
 
             public object Create(IEntityType entityType)
                 => Activator.CreateInstance(entityType.ClrType);
@@ -302,6 +313,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     _contextParameter)
                 .Compile();
 
+        private abstract class SomeAbstractEntity
+        {
+        }
+
         private class SomeEntity
         {
             private int _hiddenId;
@@ -321,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             public static SomeEntity Factory(int id, Guid? goo)
-                => new SomeEntity(id, goo) { FactoryUsed = true };
+                => new(id, goo) { FactoryUsed = true };
 
             public static SomeEntity GeneralFactory(object[] constructorArguments)
             {

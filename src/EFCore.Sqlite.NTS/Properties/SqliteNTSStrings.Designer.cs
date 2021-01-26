@@ -5,6 +5,8 @@ using System.Reflection;
 using System.Resources;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
 {
     /// <summary>
@@ -21,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// <summary>
         ///     Invalid geometry type: {storeType}.
         /// </summary>
-        public static string InvalidGeometryType([CanBeNull] object storeType)
+        public static string InvalidGeometryType([CanBeNull] object? storeType)
             => string.Format(
                 GetString("InvalidGeometryType", nameof(storeType)),
                 storeType);
@@ -34,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
 
         private static string GetString(string name, params string[] formatterNames)
         {
-            var value = _resourceManager.GetString(name);
+            var value = _resourceManager.GetString(name)!;
             for (var i = 0; i < formatterNames.Length; i++)
             {
                 value = value.Replace("{" + formatterNames[i] + "}", "{" + i + "}");

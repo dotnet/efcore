@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] Expression<Func<TInner, TKey>> innerKeySelector,
             [NotNull] Expression<Func<TOuter, TInner, TResult>> resultSelector)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
     }
 }

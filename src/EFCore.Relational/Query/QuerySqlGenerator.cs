@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
         private IRelationalCommandBuilder _relationalCommandBuilder;
 
-        private static readonly Dictionary<ExpressionType, string> _operatorMap = new Dictionary<ExpressionType, string>
+        private static readonly Dictionary<ExpressionType, string> _operatorMap = new()
         {
             { ExpressionType.Equal, " = " },
             { ExpressionType.NotEqual, " <> " },
@@ -331,7 +331,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(columnExpression, nameof(columnExpression));
 
             _relationalCommandBuilder
-                .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.Table.Alias))
+                .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.Table.Alias!))
                 .Append(".")
                 .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.Name));
 
@@ -572,7 +572,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _relationalCommandBuilder.AddParameter(
                     sqlParameterExpression.Name,
                     parameterNameInCommand,
-                    sqlParameterExpression.TypeMapping,
+                    sqlParameterExpression.TypeMapping!,
                     sqlParameterExpression.IsNullable);
             }
 

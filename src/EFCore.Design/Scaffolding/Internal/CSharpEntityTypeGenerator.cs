@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
@@ -293,6 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             GenerateColumnAttribute(property);
             GenerateMaxLengthAttribute(property);
             GenerateUnicodeAttribute(property);
+            GeneratePrecisionAttribute(property);
 
             var annotations = _annotationCodeGenerator
                 .FilterIgnoredAnnotations(property.GetAnnotations())
@@ -387,6 +387,24 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     unicodeAttribute.AddParameter(_code.Literal(false));
                 }
                 _sb.AppendLine(unicodeAttribute.ToString());
+            }
+        }
+
+        private void GeneratePrecisionAttribute(IProperty property)
+        {
+            var precision = property.GetPrecision();
+            if (precision.HasValue)
+            {
+                var precisionAttribute = new AttributeWriter(nameof(PrecisionAttribute));
+                precisionAttribute.AddParameter(_code.Literal(precision.Value));
+
+                var scale = property.GetScale();
+                if (scale.HasValue)
+                {
+                    precisionAttribute.AddParameter(_code.Literal(scale.Value));
+                }
+
+                _sb.AppendLine(precisionAttribute.ToString());
             }
         }
 
@@ -492,7 +510,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private sealed class AttributeWriter
         {
             private readonly string _attributeName;
-            private readonly List<string> _parameters = new List<string>();
+            private readonly List<string> _parameters = new();
 
             public AttributeWriter([NotNull] string attributeName)
             {

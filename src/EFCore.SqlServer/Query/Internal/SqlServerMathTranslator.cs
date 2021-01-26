@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     /// </summary>
     public class SqlServerMathTranslator : IMethodCallTranslator
     {
-        private static readonly Dictionary<MethodInfo, string> _supportedMethodTranslations = new Dictionary<MethodInfo, string>
+        private static readonly Dictionary<MethodInfo, string> _supportedMethodTranslations = new()
         {
             { typeof(Math).GetRequiredRuntimeMethod(nameof(Math.Abs), new[] { typeof(decimal) }), "ABS" },
             { typeof(Math).GetRequiredRuntimeMethod(nameof(Math.Abs), new[] { typeof(double) }), "ABS" },

@@ -1011,7 +1011,7 @@ namespace Microsoft.EntityFrameworkCore
             var property = ((IMutableModel)new Model()).AddEntityType("Entity1")
                 .AddProperty("Strange", typeof(object));
             var ex = Assert.Throws<InvalidOperationException>(() => CreateTypeMapper().GetMapping(property));
-            Assert.Equal(RelationalStrings.UnsupportedPropertyType("Entity1", "Strange", "object"), ex.Message);
+            Assert.Equal(RelationalStrings.UnsupportedPropertyType("Entity1 (Dictionary<string, object>)", "Strange", "object"), ex.Message);
 
             Assert.Equal(RelationalStrings.UnsupportedType("object"),
                 Assert.Throws<InvalidOperationException>(() => CreateTypeMapper().GetMapping(typeof(object))).Message);

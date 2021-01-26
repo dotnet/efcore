@@ -20,54 +20,54 @@ namespace Microsoft.EntityFrameworkCore
     {
         [NonAction]
         public new TestNotFoundResult NotFound()
-            => new TestNotFoundResult(base.NotFound());
+            => new(base.NotFound());
 
         [NonAction]
         public new TestNotFoundObjectResult NotFound(object value)
-            => new TestNotFoundObjectResult(base.NotFound(value));
+            => new(base.NotFound(value));
 
         [NonAction]
         public new TestBadRequestResult BadRequest()
-            => new TestBadRequestResult(base.BadRequest());
+            => new(base.BadRequest());
 
         [NonAction]
         public new TestBadRequestObjectResult BadRequest(ModelStateDictionary modelState)
-            => new TestBadRequestObjectResult(base.BadRequest(modelState));
+            => new(base.BadRequest(modelState));
 
         [NonAction]
         public TestBadRequestObjectResult BadRequest(string message)
-            => new TestBadRequestObjectResult(base.BadRequest(message));
+            => new(base.BadRequest(message));
 
         public new TestBadRequestObjectResult BadRequest(object obj)
-            => new TestBadRequestObjectResult(base.BadRequest(obj));
+            => new(base.BadRequest(obj));
 
         [NonAction]
         public new TestOkResult Ok()
-            => new TestOkResult(base.Ok());
+            => new(base.Ok());
 
         [NonAction]
         public new TestOkObjectResult Ok(object value)
-            => new TestOkObjectResult(value);
+            => new(value);
 
         [NonAction]
         public TestStatusCodeResult StatusCode(HttpStatusCode statusCode)
-            => new TestStatusCodeResult(base.StatusCode((int)statusCode));
+            => new(base.StatusCode((int)statusCode));
 
         [NonAction]
         public TestStatusCodeObjectResult StatusCode(HttpStatusCode statusCode, object value)
-            => new TestStatusCodeObjectResult(base.StatusCode((int)statusCode, value));
+            => new(base.StatusCode((int)statusCode, value));
 
         [NonAction]
         public new TestCreatedODataResult<T> Created<T>(T entity)
-            => new TestCreatedODataResult<T>(entity);
+            => new(entity);
 
         [NonAction]
         public new TestCreatedResult Created(string uri, object entity)
-            => new TestCreatedResult(base.Created(uri, entity));
+            => new(base.Created(uri, entity));
 
         [NonAction]
         public new TestUpdatedODataResult<T> Updated<T>(T entity)
-            => new TestUpdatedODataResult<T>(entity);
+            => new(entity);
 
         protected string GetServiceRootUri()
         {

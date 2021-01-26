@@ -135,10 +135,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="standAlone"> Whether a stand-alone <see cref="IStateManager" /> should be created to perform identity resolution. </param>
         public virtual void InitializeStateManager(bool standAlone = false)
         {
-            if (_stateManager != null)
-            {
-                throw new InvalidOperationException(CoreStrings.QueryContextAlreadyInitializedStateManager);
-            }
+            Check.DebugAssert(
+                _stateManager == null, 
+                "The 'InitializeStateManager' method has been called multiple times on the current query context. This method is intended to be called only once before query enumeration starts.");
 
             _stateManager = standAlone
                 ? new StateManager(Dependencies.StateManager.Dependencies)

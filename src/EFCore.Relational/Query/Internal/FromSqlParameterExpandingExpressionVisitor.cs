@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             }
 
                             updatedFromSql = fromSql.Update(
-                                Expression.Constant(new CompositeRelationalParameter(parameterExpression.Name, subParameters)));
+                                Expression.Constant(new CompositeRelationalParameter(parameterExpression.Name!, subParameters)));
 
                             _visitedFromSqlExpressions[fromSql] = updatedFromSql;
                             break;

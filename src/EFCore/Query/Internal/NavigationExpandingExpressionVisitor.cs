@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private static readonly PropertyInfo _queryContextContextPropertyInfo
             = typeof(QueryContext).GetRequiredDeclaredProperty(nameof(QueryContext.Context));
 
-        private static readonly Dictionary<MethodInfo, MethodInfo> _predicateLessMethodInfo = new Dictionary<MethodInfo, MethodInfo>
+        private static readonly Dictionary<MethodInfo, MethodInfo> _predicateLessMethodInfo = new()
         {
             { QueryableMethods.FirstWithPredicate, QueryableMethods.FirstWithoutPredicate },
             { QueryableMethods.FirstOrDefaultWithPredicate, QueryableMethods.FirstOrDefaultWithoutPredicate },
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             { QueryableMethods.LastOrDefaultWithPredicate, QueryableMethods.LastOrDefaultWithoutPredicate }
         };
 
-        private static readonly List<MethodInfo> _supportedFilteredIncludeOperations = new List<MethodInfo>
+        private static readonly List<MethodInfo> _supportedFilteredIncludeOperations = new()
         {
             QueryableMethods.Where,
             QueryableMethods.OrderBy,
@@ -60,14 +60,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly ReducingExpressionVisitor _reducingExpressionVisitor;
         private readonly EntityReferenceOptionalMarkingExpressionVisitor _entityReferenceOptionalMarkingExpressionVisitor;
         private readonly RemoveRedundantNavigationComparisonExpressionVisitor _removeRedundantNavigationComparisonExpressionVisitor;
-        private readonly HashSet<string> _parameterNames = new HashSet<string>();
+        private readonly HashSet<string> _parameterNames = new();
         private readonly ParameterExtractingExpressionVisitor _parameterExtractingExpressionVisitor;
         private readonly HashSet<IEntityType> _nonCyclicAutoIncludeEntityTypes;
 
         private readonly Dictionary<IEntityType, LambdaExpression> _parameterizedQueryFilterPredicateCache
-            = new Dictionary<IEntityType, LambdaExpression>();
+            = new();
 
-        private readonly Parameters _parameters = new Parameters();
+        private readonly Parameters _parameters = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -458,11 +458,25 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 methodCallExpression.Type.GetSequenceType());
 
                         case nameof(EntityFrameworkQueryableExtensions.Include):
+                            return ProcessInclude(
+                                source,
+                                methodCallExpression.Arguments[1],
+                                thenInclude: false,
+                                setLoaded: true);
+
                         case nameof(EntityFrameworkQueryableExtensions.ThenInclude):
                             return ProcessInclude(
                                 source,
                                 methodCallExpression.Arguments[1],
-                                method.Name == nameof(EntityFrameworkQueryableExtensions.ThenInclude));
+                                thenInclude: true,
+                                setLoaded: true);
+
+                        case nameof(EntityFrameworkQueryableExtensions.NotQuiteInclude):
+                            return ProcessInclude(
+                                source,
+                                methodCallExpression.Arguments[1],
+                                thenInclude: false,
+                                setLoaded: false);
 
                         case nameof(Queryable.GroupBy)
                             when genericMethod == QueryableMethods.GroupByWithKeySelector:
@@ -827,7 +841,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return new NavigationExpansionExpression(result, navigationTree, navigationTree, parameterName);
         }
 
-        private NavigationExpansionExpression ProcessInclude(NavigationExpansionExpression source, Expression expression, bool thenInclude)
+        private NavigationExpansionExpression ProcessInclude(
+            NavigationExpansionExpression source, Expression expression, bool thenInclude, bool setLoaded)
         {
             if (source.PendingSelector is NavigationTreeExpression navigationTree
                 && navigationTree.Value is EntityReference entityReference)
@@ -856,7 +871,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             var currentNode = includeTreeNodes.Dequeue();
                             foreach (var navigation in FindNavigations(currentNode.EntityType, navigationName))
                             {
-                                var addedNode = currentNode.AddNavigation(navigation);
+                                var addedNode = currentNode.AddNavigation(navigation, setLoaded);
 
                                 // This is to add eager Loaded navigations when owner type is included.
                                 PopulateEagerLoadedNavigations(addedNode);
@@ -879,7 +894,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var includeLambda = expression.UnwrapLambdaFromQuote();
 
                     var (result, filterExpression) = ExtractIncludeFilter(includeLambda.Body, includeLambda.Body);
-                    var lastIncludeTree = PopulateIncludeTree(currentIncludeTreeNode, result);
+                    var lastIncludeTree = PopulateIncludeTree(currentIncludeTreeNode, result, setLoaded);
                     if (filterExpression != null)
                     {
                         if (lastIncludeTree.FilterExpression != null
@@ -1412,7 +1427,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         // We need to do entity equality, but that requires a full method call on a query root to properly flow the
                         // entity information through. Construct a MethodCall wrapper for the predicate with the proper query root.
                         var filterWrapper = Expression.Call(
-                            QueryableMethods.Where.MakeGenericMethod(rootEntityType.ClrType!),
+                            QueryableMethods.Where.MakeGenericMethod(rootEntityType.ClrType),
                             new QueryRootExpression(rootEntityType),
                             filterPredicate);
                         filterPredicate = filterWrapper.Arguments[1].UnwrapLambdaFromQuote();
@@ -1739,7 +1754,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             foreach (var navigation in outboundNavigations)
             {
-                includeTreeNode.AddNavigation(navigation);
+                includeTreeNode.AddNavigation(navigation, includeTreeNode.SetLoaded);
             }
         }
 
@@ -1786,7 +1801,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .Concat(entityType.GetDerivedSkipNavigations())
                 .Where(n => n.IsEagerLoaded);
 
-        private IncludeTreeNode PopulateIncludeTree(IncludeTreeNode includeTreeNode, Expression expression)
+        private IncludeTreeNode PopulateIncludeTree(IncludeTreeNode includeTreeNode, Expression expression, bool setLoaded)
         {
             switch (expression)
             {
@@ -1796,7 +1811,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 case MemberExpression memberExpression
                 when memberExpression.Expression != null:
                     var innerExpression = memberExpression.Expression.UnwrapTypeConversion(out var convertedType);
-                    var innerIncludeTreeNode = PopulateIncludeTree(includeTreeNode, innerExpression);
+                    var innerIncludeTreeNode = PopulateIncludeTree(includeTreeNode, innerExpression, setLoaded);
                     var entityType = innerIncludeTreeNode.EntityType;
                     if (convertedType != null)
                     {
@@ -1812,7 +1827,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var navigation = entityType.FindNavigation(memberExpression.Member);
                     if (navigation != null)
                     {
-                        var addedNode = innerIncludeTreeNode.AddNavigation(navigation);
+                        var addedNode = innerIncludeTreeNode.AddNavigation(navigation, setLoaded);
 
                         // This is to add eager Loaded navigations when owner type is included.
                         PopulateEagerLoadedNavigations(addedNode);
@@ -1823,7 +1838,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var skipNavigation = entityType.FindSkipNavigation(memberExpression.Member);
                     if (skipNavigation != null)
                     {
-                        var addedNode = innerIncludeTreeNode.AddNavigation(skipNavigation);
+                        var addedNode = innerIncludeTreeNode.AddNavigation(skipNavigation, setLoaded);
 
                         // This is to add eager Loaded navigations when owner type is included.
                         PopulateEagerLoadedNavigations(addedNode);

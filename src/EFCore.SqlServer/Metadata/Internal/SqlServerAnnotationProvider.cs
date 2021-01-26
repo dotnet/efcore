@@ -83,9 +83,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
 
             if (model.Tables.Any(t => !t.IsExcludedFromMigrations && (t[SqlServerAnnotationNames.MemoryOptimized] as bool? == true)))
             {
-                yield return new Annotation(
-                    SqlServerAnnotationNames.MemoryOptimized,
-                    true);
+                yield return new Annotation(SqlServerAnnotationNames.MemoryOptimized, true);
             }
         }
 
@@ -100,9 +98,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
             // Model validation ensures that these facets are the same on all mapped entity types
             if (table.EntityTypeMappings.First().EntityType.IsMemoryOptimized())
             {
-                yield return new Annotation(
-                    SqlServerAnnotationNames.MemoryOptimized,
-                    true);
+                yield return new Annotation(SqlServerAnnotationNames.MemoryOptimized, true);
             }
         }
 
@@ -118,12 +114,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
             var key = constraint.MappedKeys.First();
 
             var table = constraint.Table;
-            var isClustered = key.IsClustered(StoreObjectIdentifier.Table(table.Name, table.Schema));
-            if (isClustered.HasValue)
+
+            if (key.IsClustered(StoreObjectIdentifier.Table(table.Name, table.Schema)) is bool isClustered)
             {
-                yield return new Annotation(
-                    SqlServerAnnotationNames.Clustered,
-                    isClustered.Value);
+                yield return new Annotation(SqlServerAnnotationNames.Clustered, isClustered);
             }
         }
 
@@ -139,20 +133,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
             var modelIndex = index.MappedIndexes.First();
 
             var table = index.Table;
-            var isClustered = modelIndex.IsClustered(StoreObjectIdentifier.Table(table.Name, table.Schema));
-            if (isClustered.HasValue)
+
+            if (modelIndex.IsClustered(StoreObjectIdentifier.Table(table.Name, table.Schema)) is bool isClustered)
             {
-                yield return new Annotation(
-                    SqlServerAnnotationNames.Clustered,
-                    isClustered.Value);
+                yield return new Annotation(SqlServerAnnotationNames.Clustered, isClustered);
             }
 
-            var includeProperties = modelIndex.GetIncludeProperties();
-            if (includeProperties != null)
+            if (modelIndex.GetIncludeProperties() is IReadOnlyList<string> includeProperties)
             {
-                var includeColumns = (IReadOnlyList<string>)includeProperties
+                var includeColumns = includeProperties
                     .Select(
-                        p => modelIndex.DeclaringEntityType.FindProperty(p)
+                        p => modelIndex.DeclaringEntityType.FindProperty(p)!
                             .GetColumnName(StoreObjectIdentifier.Table(table.Name, table.Schema)))
                     .ToArray();
 
@@ -161,20 +152,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
                     includeColumns);
             }
 
-            var isOnline = modelIndex.IsCreatedOnline();
-            if (isOnline.HasValue)
+            if (modelIndex.IsCreatedOnline() is bool isOnline)
             {
-                yield return new Annotation(
-                    SqlServerAnnotationNames.CreatedOnline,
-                    isOnline.Value);
+                yield return new Annotation(SqlServerAnnotationNames.CreatedOnline, isOnline);
             }
 
-            var fillFactor = modelIndex.GetFillFactor();
-            if (fillFactor.HasValue)
+            if (modelIndex.GetFillFactor() is int fillFactor)
             {
-                yield return new Annotation(
-                    SqlServerAnnotationNames.FillFactor,
-                    fillFactor.Value);
+                yield return new Annotation(SqlServerAnnotationNames.FillFactor, fillFactor);
             }
         }
 
@@ -187,21 +172,28 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
         public override IEnumerable<IAnnotation> For(IColumn column)
         {
             var table = StoreObjectIdentifier.Table(column.Table.Name, column.Table.Schema);
-            var property = column.PropertyMappings.Where(
+            var identityProperty = column.PropertyMappings.Where(
                     m =>
                         m.TableMapping.IsSharedTablePrincipal && m.TableMapping.EntityType == m.Property.DeclaringEntityType)
                 .Select(m => m.Property)
                 .FirstOrDefault(
                     p => p.GetValueGenerationStrategy(table)
                         == SqlServerValueGenerationStrategy.IdentityColumn);
-            if (property != null)
+            if (identityProperty != null)
             {
-                var seed = property.GetIdentitySeed(table);
-                var increment = property.GetIdentityIncrement(table);
+                var seed = identityProperty.GetIdentitySeed(table);
+                var increment = identityProperty.GetIdentityIncrement(table);
 
                 yield return new Annotation(
                     SqlServerAnnotationNames.Identity,
                     string.Format(CultureInfo.InvariantCulture, "{0}, {1}", seed ?? 1, increment ?? 1));
+            }
+
+            // Model validation ensures that these facets are the same on all mapped properties
+            var property = column.PropertyMappings.First().Property;
+            if (property.IsSparse() is bool isSparse)
+            {
+                yield return new Annotation(SqlServerAnnotationNames.Sparse, isSparse);
             }
         }
     }

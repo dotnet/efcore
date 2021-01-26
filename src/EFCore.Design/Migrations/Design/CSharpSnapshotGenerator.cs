@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
@@ -64,6 +65,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                 using (stringBuilder.Indent())
                 {
+                    // Temporary patch: specifically exclude some annotations which are known to produce identical Fluent API calls across different
+                    // providers, generating them as raw annotations instead.
+                    var ambiguousAnnotations = RemoveAmbiguousFluentApiAnnotations(
+                        annotations,
+                        name => name.EndsWith(":ValueGenerationStrategy", StringComparison.Ordinal)
+                            || name.EndsWith(":IdentityIncrement", StringComparison.Ordinal)
+                            || name.EndsWith(":IdentitySeed", StringComparison.Ordinal)
+                            || name.EndsWith(":HiLoSequenceName", StringComparison.Ordinal)
+                            || name.EndsWith(":HiLoSequenceSchema", StringComparison.Ordinal));
+
                     foreach (var methodCallCodeFragment in
                         Dependencies.AnnotationCodeGenerator.GenerateFluentApiCalls(model, annotations))
                     {
@@ -79,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             new Annotation(CoreAnnotationNames.ProductVersion, productVersion));
                     }
 
-                    GenerateAnnotations(remainingAnnotations, stringBuilder);
+                    GenerateAnnotations(remainingAnnotations.Concat(ambiguousAnnotations), stringBuilder);
                 }
 
                 stringBuilder.AppendLine(";");
@@ -121,8 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             foreach (var entityType in entityTypes.Where(
-                e => !e.HasDefiningNavigation()
-                    && e.FindOwnership() == null))
+                e => e.FindOwnership() == null))
             {
                 stringBuilder.AppendLine();
 
@@ -130,8 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
 
             foreach (var entityType in entityTypes.Where(
-                e => !e.HasDefiningNavigation()
-                    && e.FindOwnership() == null
+                e => e.FindOwnership() == null
                     && (e.GetDeclaredForeignKeys().Any()
                         || e.GetDeclaredReferencingForeignKeys().Any(fk => fk.IsOwnership))))
             {
@@ -141,8 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
 
             foreach (var entityType in entityTypes.Where(
-                e => !e.HasDefiningNavigation()
-                    && e.FindOwnership() == null
+                e => e.FindOwnership() == null
                     && e.GetDeclaredNavigations().Any(n => !n.IsOnDependent && !n.ForeignKey.IsOwnership)))
             {
                 stringBuilder.AppendLine();
@@ -169,13 +177,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var ownership = entityType.FindOwnership();
             var ownerNavigation = ownership?.PrincipalToDependent.Name;
 
+            var entityTypeName = entityType.Name;
+            if (ownerNavigation != null
+                && entityType.HasSharedClrType
+                && entityTypeName == ownership.PrincipalEntityType.GetOwnedName(entityType.ClrType.ShortDisplayName(), ownerNavigation))
+            {
+                entityTypeName = entityType.ClrType.DisplayName();
+            }
+
             stringBuilder
                 .Append(builderName)
                 .Append(
                     ownerNavigation != null
                         ? ownership.IsUnique ? ".OwnsOne(" : ".OwnsMany("
                         : ".Entity(")
-                .Append(Code.Literal(entityType.Name));
+                .Append(Code.Literal(entityTypeName));
 
             if (ownerNavigation != null)
             {
@@ -569,6 +585,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             GenerateFluentApiForDefaultValue(property, stringBuilder);
             annotations.Remove(RelationalAnnotationNames.DefaultValue);
 
+            // Temporary patch: specifically exclude some annotations which are known to produce identical Fluent API calls across different
+            // providers, generating them as raw annotations instead.
+            var ambiguousAnnotations = RemoveAmbiguousFluentApiAnnotations(
+                annotations,
+                name => name.EndsWith(":ValueGenerationStrategy", StringComparison.Ordinal)
+                    || name.EndsWith(":IdentityIncrement", StringComparison.Ordinal)
+                    || name.EndsWith(":IdentitySeed", StringComparison.Ordinal)
+                    || name.EndsWith(":HiLoSequenceName", StringComparison.Ordinal)
+                    || name.EndsWith(":HiLoSequenceSchema", StringComparison.Ordinal));
+
             foreach (var methodCallCodeFragment in
                 Dependencies.AnnotationCodeGenerator.GenerateFluentApiCalls(property, annotations))
             {
@@ -577,7 +603,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .Append(Code.Fragment(methodCallCodeFragment));
             }
 
-            GenerateAnnotations(annotations.Values, stringBuilder);
+            GenerateAnnotations(annotations.Values.Concat(ambiguousAnnotations), stringBuilder);
         }
 
         private ValueConverter FindValueConverter(IProperty property)
@@ -760,6 +786,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .FilterIgnoredAnnotations(index.GetAnnotations())
                 .ToDictionary(a => a.Name, a => a);
 
+            // Temporary patch: specifically exclude some annotations which are known to produce identical Fluent API calls across different
+            // providers, generating them as raw annotations instead.
+            var ambiguousAnnotations = RemoveAmbiguousFluentApiAnnotations(
+                annotations,
+                name => name.EndsWith(":Include", StringComparison.Ordinal));
+
             foreach (var methodCallCodeFragment in
                 Dependencies.AnnotationCodeGenerator.GenerateFluentApiCalls(index, annotations))
             {
@@ -768,7 +800,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .Append(Code.Fragment(methodCallCodeFragment));
             }
 
-            GenerateAnnotations(annotations.Values, stringBuilder);
+            GenerateAnnotations(annotations.Values.Concat(ambiguousAnnotations), stringBuilder);
         }
 
         /// <summary>
@@ -1559,6 +1591,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             stringBuilder
                 .Append(")");
+        }
+
+        private static IReadOnlyList<IAnnotation> RemoveAmbiguousFluentApiAnnotations(
+            Dictionary<string, IAnnotation> annotations,
+            Func<string, bool> annotationNameMatcher)
+        {
+            List<IAnnotation> ambiguousAnnotations = null;
+
+            foreach (var (name, annotation) in annotations)
+            {
+                if (annotationNameMatcher(name))
+                {
+                    annotations.Remove(name);
+                    ambiguousAnnotations ??= new List<IAnnotation>();
+                    ambiguousAnnotations.Add(annotation);
+                }
+            }
+
+            return (IReadOnlyList<IAnnotation>)ambiguousAnnotations ?? ImmutableList<IAnnotation>.Empty;
         }
     }
 }

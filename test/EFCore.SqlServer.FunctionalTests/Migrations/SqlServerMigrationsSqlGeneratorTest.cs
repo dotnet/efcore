@@ -1069,9 +1069,8 @@ SELECT @@ROWCOUNT');
                     .InsertData(
                         table: "Table1",
                         column: "Id",
-                        value: 1)
-                    .GetInfrastructure()
-                    .ColumnTypes = new[] { "int" },
+                        columnType: "int",
+                        value: 1),
                 MigrationsSqlGenerationOptions.Idempotent);
 
             AssertSql(
@@ -1094,14 +1093,12 @@ IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id') AND [o
                     var operation = migrationBuilder
                         .UpdateData(
                             table: "Table1",
-                            keyColumn: "Id",
-                            keyValue: 1,
-                            column: "Column1",
-                            value: 2)
-                        .GetInfrastructure();
-
-                    operation.KeyColumnTypes = new[] { "int" };
-                    operation.ColumnTypes = new[] { "int" };
+                            keyColumnTypes: new[] { "int" },
+                            keyColumns: new[] { "Id" },
+                            keyValues: new object[] { 1 },
+                            columns: new[] { "Column1" },
+                            columnTypes: new[] { "int" },
+                            values: new object[] { 2 });
                 },
                 MigrationsSqlGenerationOptions.Idempotent);
 

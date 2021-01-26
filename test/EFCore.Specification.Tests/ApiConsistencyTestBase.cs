@@ -670,7 +670,13 @@ namespace Microsoft.EntityFrameworkCore
                        && !it.Name.EndsWith("Dependencies", StringComparison.Ordinal)
                        && (it.GetConstructors().Length != 1
                            || it.GetConstructors()[0].GetParameters().Length == 0
-                           || it.GetConstructors()[0].GetParameters()[0].Name != "dependencies")
+                           || it.GetConstructors()[0].GetParameters()[0].Name != "dependencies"
+                           // Check that the parameter has a non-public copy constructor, identifying C# 9 records
+                           || !it.GetConstructors()[0].GetParameters()[0].ParameterType
+                               .GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)
+                               .Any(c => c.GetParameters() is var parameters
+                                   && parameters.Length == 1
+                                   && parameters[0].Name == "original"))
                    select it)
                 .ToList();
 
@@ -797,7 +803,7 @@ namespace Microsoft.EntityFrameworkCore
                     parametersWithRedundantAttribute.Select(t => $"{t.Type.FullName}.{t.Method.Name}[{t.Parameter.Name}]")));
         }
 
-        private static readonly HashSet<MethodInfo> _nonCancellableAsyncMethods = new HashSet<MethodInfo>();
+        private static readonly HashSet<MethodInfo> _nonCancellableAsyncMethods = new();
 
         protected virtual HashSet<MethodInfo> NonCancellableAsyncMethods
             => _nonCancellableAsyncMethods;
@@ -900,11 +906,9 @@ namespace Microsoft.EntityFrameworkCore
                 Initialize();
             }
 
-            public abstract bool TryGetProviderOptionsDelegate(out Action<DbContextOptionsBuilder> configureOptions);
+            public virtual HashSet<Type> FluentApiTypes { get; } = new();
 
-            public virtual HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>();
-
-            public virtual Dictionary<Type, Type> GenericFluentApiTypes { get; } = new Dictionary<Type, Type>
+            public virtual Dictionary<Type, Type> GenericFluentApiTypes { get; } = new()
             {
                 { typeof(CollectionCollectionBuilder), typeof(CollectionCollectionBuilder<,>) },
                 { typeof(CollectionNavigationBuilder), typeof(CollectionNavigationBuilder<,>) },
@@ -924,14 +928,14 @@ namespace Microsoft.EntityFrameworkCore
                 { typeof(DbContextOptionsBuilder), typeof(DbContextOptionsBuilder<>) }
             };
 
-            public virtual HashSet<MethodInfo> NonVirtualMethods { get; } = new HashSet<MethodInfo>();
-            public virtual HashSet<MethodInfo> NotAnnotatedMethods { get; } = new HashSet<MethodInfo>();
-            public virtual HashSet<MethodInfo> AsyncMethodExceptions { get; } = new HashSet<MethodInfo>();
-            public virtual HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new HashSet<MethodInfo>();
-            public virtual HashSet<MethodInfo> MetadataMethodExceptions { get; } = new HashSet<MethodInfo>();
+            public virtual HashSet<MethodInfo> NonVirtualMethods { get; } = new();
+            public virtual HashSet<MethodInfo> NotAnnotatedMethods { get; } = new();
+            public virtual HashSet<MethodInfo> AsyncMethodExceptions { get; } = new();
+            public virtual HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new();
+            public virtual HashSet<MethodInfo> MetadataMethodExceptions { get; } = new();
 
             public virtual HashSet<PropertyInfo> ComputedDependencyProperties { get; }
-                = new HashSet<PropertyInfo>
+                = new()
                 {
                     typeof(ProviderConventionSetBuilderDependencies).GetProperty(
                         nameof(ProviderConventionSetBuilderDependencies.ContextType)),
@@ -945,7 +949,7 @@ namespace Microsoft.EntityFrameworkCore
                 };
 
             public Dictionary<Type, (Type Mutable, Type Convention, Type ConventionBuilder)> MetadataTypes { get; }
-                = new Dictionary<Type, (Type, Type, Type)>
+                = new()
                 {
                     { typeof(IModel), (typeof(IMutableModel), typeof(IConventionModel), typeof(IConventionModelBuilder)) },
                     {
@@ -981,18 +985,18 @@ namespace Microsoft.EntityFrameworkCore
                     { typeof(IPropertyBase), (typeof(IMutablePropertyBase), typeof(IConventionPropertyBase), null) }
                 };
 
-            public Dictionary<Type, Type> MutableMetadataTypes { get; } = new Dictionary<Type, Type>();
-            public Dictionary<Type, Type> ConventionMetadataTypes { get; } = new Dictionary<Type, Type>();
+            public Dictionary<Type, Type> MutableMetadataTypes { get; } = new();
+            public Dictionary<Type, Type> ConventionMetadataTypes { get; } = new();
 
             public virtual
                 List<(Type Type, Type ReadonlyExtensions, Type MutableExtensions, Type ConventionExtensions, Type
                     ConventionBuilderExtensions)> MetadataExtensionTypes { get; }
-                = new List<(Type, Type, Type, Type, Type)>();
+                = new();
 
             public List<(IReadOnlyList<MethodInfo> ReadOnly, IReadOnlyList<MethodInfo> Mutable, IReadOnlyList<MethodInfo> Convention,
                     IReadOnlyList<MethodInfo> ConventionBuilder)>
                 MetadataMethods { get; }
-                = new List<(IReadOnlyList<MethodInfo>, IReadOnlyList<MethodInfo>, IReadOnlyList<MethodInfo>, IReadOnlyList<MethodInfo>)>();
+                = new();
 
             protected virtual void Initialize()
             {

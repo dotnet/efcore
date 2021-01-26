@@ -75,8 +75,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="context"> The context in use. </param>
         /// <param name="exception"> The exception that caused this event. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> for the async result. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task SaveChangesFailedAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             [NotNull] DbContext context,
@@ -114,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DbContext context,
             Exception exception,
             EventDefinition<Type, string, Exception> definition)
-            => new DbContextErrorEventData(definition, SaveChangesFailed, context, exception);
+            => new(definition, SaveChangesFailed, context, exception);
 
         private static string SaveChangesFailed(EventDefinitionBase definition, EventData payload)
         {
@@ -159,8 +160,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="context"> The context in use. </param>
         /// <param name="exception"> The exception that caused this event. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> for the async result. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task OptimisticConcurrencyExceptionAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             [NotNull] DbContext context,
@@ -195,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DbContext context,
             Exception exception,
             EventDefinition<Exception> definition)
-            => new DbContextErrorEventData(
+            => new(
                 definition,
                 OptimisticConcurrencyException,
                 context,
@@ -1756,6 +1758,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="targetType"> The target type. </param>
         /// <param name="inverseNavigation"> The inverse navigation property. </param>
         /// <param name="definingNavigation"> The defining navigation property. </param>
+        [Obsolete]
         public static void NonDefiningInverseNavigationWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             [NotNull] IEntityType declaringType,
@@ -3128,8 +3131,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="context"> The context being used. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The, possibly intercepted, result. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<InterceptionResult<int>> SaveChangesStartingAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             [NotNull] DbContext context,
@@ -3160,7 +3164,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         private static DbContextEventData CreateSaveChangesStartingEventData(DbContext context, EventDefinition<string> definition)
-            => new DbContextEventData(
+            => new(
                 definition,
                 SaveChangesStarting,
                 context);
@@ -3214,8 +3218,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="context"> The context being used. </param>
         /// <param name="entitiesSavedCount"> The number of entities saved. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The, possibly intercepted, result. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<int> SaveChangesCompletedAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             [NotNull] DbContext context,
@@ -3250,7 +3255,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DbContext context,
             int entitiesSavedCount,
             EventDefinition<string, int> definition)
-            => new SaveChangesCompletedEventData(
+            => new(
                 definition,
                 SaveChangesCompleted,
                 context,

@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 }
 
                 public void Reset()
-                    => throw new NotImplementedException();
+                    => throw new NotSupportedException(CoreStrings.EnumerableResetNotSupported);
             }
         }
     }

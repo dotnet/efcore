@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
@@ -75,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected static List<(LogLevel Level, EventId Id, string Message)> Log { get; } = new List<(LogLevel, EventId, string)>();
+        protected static List<(LogLevel Level, EventId Id, string Message)> Log { get; } = new();
 
         private class InfoLogContext : DbContext
         {
@@ -265,6 +266,16 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Throws<ObjectDisposedException>(() => loggerFactory.CreateLogger("MyLogger"));
             }
+        }
+
+        [ConditionalFact]
+        public void GetService_throws_for_unknown_service_type()
+        {
+            using var context = new EarlyLearningCenter();
+
+            Assert.Equal(
+                CoreStrings.NoProviderConfiguredFailedToResolveService("System.Random"),
+                Assert.Throws<InvalidOperationException>(() => context.GetService<Random>()).Message);
         }
 
         [ConditionalFact]
@@ -647,6 +658,11 @@ namespace Microsoft.EntityFrameworkCore
                 DbContext context,
                 IConventionSetBuilder conventionSetBuilder,
                 ModelDependencies modelDependencies)
+                => new Model();
+
+            public IModel GetModel(
+                DbContext context,
+                IModelCreationDependencies modelCreationDependencies)
                 => new Model();
         }
 

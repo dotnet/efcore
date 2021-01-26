@@ -2,12 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Storage;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
@@ -33,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerStringTypeMapping(
-            [CanBeNull] string storeType = null,
+            [CanBeNull] string? storeType = null,
             bool unicode = false,
             int? size = null,
             bool fixedLength = false,
@@ -169,8 +172,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             var start = 0;
             int i;
             int length;
-            var concatenated = false;
             var openApostrophe = false;
+            var lastConcatStartPoint = 0;
+            var concatCount = 1;
+            var concatStartList = new List<int>();
             for (i = 0; i < stringValue.Length; i++)
             {
                 var lineFeed = stringValue[i] == '\n';
@@ -183,11 +188,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     {
                         if (!openApostrophe)
                         {
-                            if (builder.Length != 0)
-                            {
-                                builder.Append(", ");
-                                concatenated = true;
-                            }
+                            AddConcatOperatorIfNeeded();
 
                             if (IsUnicode)
                             {
@@ -209,11 +210,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                             openApostrophe = false;
                         }
 
-                        if (builder.Length != 0)
-                        {
-                            builder.Append(", ");
-                            concatenated = true;
-                        }
+                        AddConcatOperatorIfNeeded();
 
                         if (IsUnicode)
                         {
@@ -229,11 +226,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     {
                         if (!openApostrophe)
                         {
-                            if (builder.Length != 0)
-                            {
-                                builder.Append(", ");
-                                concatenated = true;
-                            }
+                            AddConcatOperatorIfNeeded();
 
                             if (IsUnicode)
                             {
@@ -253,11 +246,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             {
                 if (!openApostrophe)
                 {
-                    if (builder.Length != 0)
-                    {
-                        builder.Append(", ");
-                        concatenated = true;
-                    }
+                    AddConcatOperatorIfNeeded();
 
                     if (IsUnicode)
                     {
@@ -276,10 +265,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 builder.Append('\'');
             }
 
-            if (concatenated)
+            for (var j = concatStartList.Count - 1; j >= 0; j--)
             {
-                builder
-                    .Insert(0, "CONCAT(")
+                builder.Insert(concatStartList[j], "CONCAT(")
                     .Append(')');
             }
 
@@ -294,6 +282,26 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             }
 
             return builder.ToString();
+
+            void AddConcatOperatorIfNeeded()
+            {
+                if (builder.Length != 0)
+                {
+                    builder.Append(", ");
+                    concatCount++;
+
+                    if (concatCount == 2)
+                    {
+                        concatStartList.Add(lastConcatStartPoint);
+                    }
+
+                    if (concatCount == 254)
+                    {
+                        lastConcatStartPoint = builder.Length;
+                        concatCount = 1;
+                    }
+                }
+            }
         }
     }
 }

@@ -8,8 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class CharToStringConverterTest
     {
-        private static readonly CharToStringConverter _charToString
-            = new CharToStringConverter();
+        private static readonly CharToStringConverter _charToString = new();
 
         [ConditionalFact]
         public void Can_convert_chars_to_strings()

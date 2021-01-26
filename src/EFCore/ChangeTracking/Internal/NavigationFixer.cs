@@ -158,8 +158,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         // Clear the inverse reference, unless it has already been changed
                         if (inverse != null
                             && ReferenceEquals(oldTargetEntry[inverse], entry.Entity)
-                            && (!oldTargetEntry.EntityType.HasDefiningNavigation()
-                                || entry.EntityType.GetNavigations().All(
+                            && (entry.EntityType.GetNavigations().All(
                                     n => n == navigation
                                         || !ReferenceEquals(oldTargetEntry.Entity, entry[n]))))
                         {
@@ -663,19 +662,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
                 }
 
-                foreach (var skipNavigation in foreignKey.GetReferencingSkipNavigations())
-                {
-                    var leftEntry = stateManager.FindPrincipal(entry, foreignKey);
-                    if (leftEntry != null)
-                    {
-                        var rightEntry = stateManager.FindPrincipal(entry, skipNavigation.Inverse.ForeignKey);
-                        if (rightEntry != null)
-                        {
-                            AddToCollection(leftEntry, skipNavigation, rightEntry, fromQuery);
-                            AddToCollection(rightEntry, skipNavigation.Inverse, leftEntry, fromQuery);
-                        }
-                    }
-                }
+                FixupSkipNavigations(entry, foreignKey, fromQuery);
             }
 
             foreach (var foreignKey in entityType.GetReferencingForeignKeys())
@@ -839,6 +826,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                                 AddToCollection(otherEntry, skipNavigation.Inverse, entry, fromQuery);
                             }
+
+                            entry.AddToCollectionSnapshot(skipNavigation, otherEntity);
                         }
                     }
                 }
@@ -894,6 +883,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     else if (referencedEntry.Entity == navigationValue)
                     {
                         FixupToPrincipal(entry, referencedEntry, navigation.ForeignKey, setModified, fromQuery);
+
+                        FixupSkipNavigations(entry, navigation.ForeignKey, fromQuery);
+                    }
+                }
+            }
+        }
+
+        private void FixupSkipNavigations(InternalEntityEntry entry, IForeignKey foreignKey, bool fromQuery)
+        {
+            foreach (var skipNavigation in foreignKey.GetReferencingSkipNavigations())
+            {
+                var leftEntry = entry.StateManager.FindPrincipal(entry, foreignKey);
+                if (leftEntry != null)
+                {
+                    var rightEntry = entry.StateManager.FindPrincipal(entry, skipNavigation.Inverse.ForeignKey);
+                    if (rightEntry != null)
+                    {
+                        AddToCollection(leftEntry, skipNavigation, rightEntry, fromQuery);
+                        AddToCollection(rightEntry, skipNavigation.Inverse, leftEntry, fromQuery);
                     }
                 }
             }

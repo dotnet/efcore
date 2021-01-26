@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 #nullable enable
 
@@ -23,6 +24,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     public interface IMutableModel : IModel, IMutableAnnotatable
     {
+        /// <summary>
+        ///     <para>
+        ///         Prevents conventions from being executed immediately when a metadata aspect is modified. All the delayed conventions
+        ///         will be executed after the returned object is disposed.
+        ///     </para>
+        ///     <para>
+        ///         This is useful when performing multiple operations that depend on each other.
+        ///     </para>
+        /// </summary>
+        /// <returns> An object that should be disposed to execute the delayed conventions. </returns>
+        IConventionBatch DelayConventions();
+
         /// <summary>
         ///     <para>
         ///         Adds a shadow state entity type to the model.

@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
 
 #nullable enable
 
@@ -45,6 +46,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <summary>
+        ///     The alias assigned to this table source.
+        /// </summary>
+        [CA.NotNull]
+        public override string? Alias
+        {
+            get => base.Alias!;
+            internal set => base.Alias = value;
+        }
+
+        /// <summary>
         ///     The store function.
         /// </summary>
         public virtual IStoreFunction StoreFunction { get; }
@@ -68,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             return changed
-                ? new TableValuedFunctionExpression(Alias!, StoreFunction, arguments)
+                ? new TableValuedFunctionExpression(Alias, StoreFunction, arguments)
                 : this;
         }
 
@@ -83,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Check.NotNull(arguments, nameof(arguments));
 
             return !arguments.SequenceEqual(Arguments)
-                ? new TableValuedFunctionExpression(Alias!, StoreFunction, arguments)
+                ? new TableValuedFunctionExpression(Alias, StoreFunction, arguments)
                 : this;
         }
 
@@ -99,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             expressionPrinter.Append("(");
             expressionPrinter.VisitCollection(Arguments);
             expressionPrinter.Append(") AS ");
-            expressionPrinter.Append(Alias!);
+            expressionPrinter.Append(Alias);
         }
 
         /// <inheritdoc />

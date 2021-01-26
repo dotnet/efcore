@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
@@ -28,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the uniqueness was configured,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionIndexBuilder IsUnique(bool? unique, bool fromDataAnnotation = false);
+        IConventionIndexBuilder? IsUnique(bool? unique, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether this index uniqueness can be configured

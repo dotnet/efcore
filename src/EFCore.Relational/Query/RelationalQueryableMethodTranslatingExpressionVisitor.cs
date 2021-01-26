@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private static ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType, SelectExpression selectExpression)
-            => new ShapedQueryExpression(
+            => new(
                 selectExpression,
                 new RelationalEntityShaperExpression(
                     entityType,
@@ -1349,8 +1349,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var targetEntityType = navigation.TargetEntityType;
                 if (targetEntityType == null
-                    || (!targetEntityType.HasDefiningNavigation()
-                        && !targetEntityType.IsOwned()))
+                    || !targetEntityType.IsOwned())
                 {
                     return null;
                 }

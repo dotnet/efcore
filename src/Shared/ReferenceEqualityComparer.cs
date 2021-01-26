@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
         }
 
-        public static LegacyReferenceEqualityComparer Instance { get; } = new LegacyReferenceEqualityComparer();
+        public static LegacyReferenceEqualityComparer Instance { get; } = new();
 
         public new bool Equals([CanBeNull] object x, [CanBeNull] object y)
             => ReferenceEquals(x, y);

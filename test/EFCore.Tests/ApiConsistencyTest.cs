@@ -37,13 +37,7 @@ namespace Microsoft.EntityFrameworkCore
                 base.Initialize();
             }
 
-            public override bool TryGetProviderOptionsDelegate(out Action<DbContextOptionsBuilder> configureOptions)
-            {
-                configureOptions = null;
-                return false;
-            }
-
-            public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>
+            public override HashSet<Type> FluentApiTypes { get; } = new()
             {
                 typeof(ModelBuilder),
                 typeof(CollectionCollectionBuilder),
@@ -86,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore
             public override
                 List<(Type Type, Type ReadonlyExtensions, Type MutableExtensions, Type ConventionExtensions, Type
                     ConventionBuilderExtensions)> MetadataExtensionTypes { get; }
-                = new List<(Type, Type, Type, Type, Type)>
+                = new()
                 {
                     (typeof(IModel), typeof(ModelExtensions), typeof(MutableModelExtensions), typeof(ConventionModelExtensions), null),
                     (typeof(IAnnotatable), typeof(AnnotatableExtensions), typeof(MutableAnnotatableExtensions),
@@ -106,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore
                         typeof(ConventionPropertyBaseExtensions), null)
                 };
 
-            public override HashSet<MethodInfo> NonVirtualMethods { get; } = new HashSet<MethodInfo>
+            public override HashSet<MethodInfo> NonVirtualMethods { get; } = new()
             {
                 typeof(CompiledQueryCacheKeyGenerator).GetMethod("GenerateCacheKeyCore", AnyInstance),
                 typeof(InternalEntityEntry).GetMethod("get_Item"),
@@ -114,14 +108,14 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(InternalEntityEntry).GetMethod(nameof(InternalEntityEntry.HasDefaultValue))
             };
 
-            public override HashSet<MethodInfo> NotAnnotatedMethods { get; } = new HashSet<MethodInfo>
+            public override HashSet<MethodInfo> NotAnnotatedMethods { get; } = new()
             {
                 typeof(DbContext).GetMethod(nameof(DbContext.OnConfiguring), AnyInstance),
                 typeof(DbContext).GetMethod(nameof(DbContext.OnModelCreating), AnyInstance),
                 typeof(IEntityTypeConfiguration<>).GetMethod(nameof(IEntityTypeConfiguration<Type>.Configure))
             };
 
-            public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new HashSet<MethodInfo>
+            public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new()
             {
                 typeof(OwnedNavigationBuilder<,>).GetMethod(
                     nameof(OwnedNavigationBuilder.OwnsOne), 0, new[] { typeof(string), typeof(string) }),
@@ -138,6 +132,11 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(IConventionPropertyBase).GetMethod(nameof(IConventionPropertyBase.SetField), new[] { typeof(string), typeof(bool) }),
                 typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.FindAnnotation)),
                 typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.GetAnnotations)),
+                typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.FindRuntimeAnnotation)),
+                typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.GetRuntimeAnnotations)),
+                typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.AddRuntimeAnnotation)),
+                typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.SetRuntimeAnnotation)),
+                typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.RemoveRuntimeAnnotation)),
                 typeof(IMutableAnnotatable).GetMethod("set_Item"),
                 typeof(IConventionAnnotatable).GetMethod(nameof(IConventionAnnotatable.SetAnnotation)),
                 typeof(ConventionAnnotatableExtensions).GetMethod(nameof(ConventionAnnotatableExtensions.SetOrRemoveAnnotation)),
@@ -183,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore
                     nameof(IConventionSkipNavigationBuilder.UsePropertyAccessMode), new[] { typeof(PropertyAccessMode), typeof(bool) }),
             };
 
-            public override HashSet<MethodInfo> MetadataMethodExceptions { get; } = new HashSet<MethodInfo>
+            public override HashSet<MethodInfo> MetadataMethodExceptions { get; } = new()
             {
                 typeof(IConventionAnnotatable).GetMethod(nameof(IConventionAnnotatable.SetAnnotation)),
                 typeof(ConventionAnnotatableExtensions).GetMethod(nameof(ConventionAnnotatableExtensions.SetOrRemoveAnnotation)),

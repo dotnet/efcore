@@ -51,6 +51,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private static readonly MethodInfo _likeMethodInfoWithEscape = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
             nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(string) });
 
+        private static readonly MethodInfo _randomMethodInfo = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
+            nameof(DbFunctionsExtensions.Random), new[] { typeof(DbFunctions) });
+
+        private static readonly MethodInfo _randomNextDoubleMethodInfo = typeof(Random).GetRequiredRuntimeMethod(
+            nameof(Random.NextDouble), Array.Empty<Type>());
+
         private static readonly MethodInfo _inMemoryLikeMethodInfo =
             typeof(InMemoryExpressionTranslatingExpressionVisitor).GetRequiredDeclaredMethod(nameof(InMemoryLike));
 
@@ -308,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
-            => QueryCompilationContext.NotTranslatedExpression;
+            => throw new InvalidOperationException(CoreStrings.TranslationFailed(lambdaExpression.Print()));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -748,6 +754,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 }
 
                 return Expression.Call(_inMemoryLikeMethodInfo, visitedArguments);
+            }
+
+            if (methodCallExpression.Method == _randomMethodInfo)
+            {
+                return Expression.Call(Expression.New(typeof(Random)), _randomNextDoubleMethodInfo);
             }
 
             Expression? @object = null;
@@ -1324,7 +1335,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     var parameterName = methodCallExpression.Arguments[1].GetConstantValue<string>();
                     var lambda = Expression.Lambda(
                         Expression.Call(
-                            _parameterListValueExtractor.MakeGenericMethod(entityType.ClrType!, property.ClrType.MakeNullable()),
+                            _parameterListValueExtractor.MakeGenericMethod(entityType.ClrType, property.ClrType.MakeNullable()),
                             QueryCompilationContext.QueryContextParameter,
                             Expression.Constant(parameterName, typeof(string)),
                             Expression.Constant(property, typeof(IProperty))),
@@ -1432,7 +1443,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                 nodeType,
                                 CreatePropertyAccessExpression(left, p),
                                 CreatePropertyAccessExpression(right, p)))
-                    .Aggregate((l, r) => Expression.AndAlso(l, r)));
+                    .Aggregate((l, r) => nodeType == ExpressionType.Equal
+                        ? Expression.AndAlso(l, r)
+                        : Expression.OrElse(l, r)));
 
             return true;
         }
@@ -1715,8 +1728,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             public IEntityType EntityType { get; }
 
             public override Type Type
-                // No shadow entities at runtime
-                => EntityType.ClrType!;
+                => EntityType.ClrType;
 
             public override ExpressionType NodeType
                 => ExpressionType.Extension;

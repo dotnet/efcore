@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -39,21 +41,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <inheritdoc />
         public override void ProcessForeignKeyPrincipalEndChanged(
             IConventionForeignKeyBuilder relationshipBuilder,
-            IEnumerable<RequiredAttribute> dependentToPrincipalAttributes,
-            IEnumerable<RequiredAttribute> principalToDependentAttributes,
+            IEnumerable<RequiredAttribute>? dependentToPrincipalAttributes,
+            IEnumerable<RequiredAttribute>? principalToDependentAttributes,
             IConventionContext<IConventionForeignKeyBuilder> context)
         {
             var fk = relationshipBuilder.Metadata;
             if (dependentToPrincipalAttributes != null
                 && dependentToPrincipalAttributes.Any())
             {
-                ProcessNavigation(fk.DependentToPrincipal.Builder);
+                ProcessNavigation(fk.DependentToPrincipal!.Builder);
             }
 
             if (principalToDependentAttributes != null
                 && principalToDependentAttributes.Any())
             {
-                ProcessNavigation(fk.PrincipalToDependent.Builder);
+                ProcessNavigation(fk.PrincipalToDependent!.Builder);
             }
 
             context.StopProcessingIfChanged(relationshipBuilder.Metadata.Builder);

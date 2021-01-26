@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -20,10 +22,10 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to get the in-memory query for. </param>
         /// <returns> The LINQ query used as the default source. </returns>
-        public static LambdaExpression GetInMemoryQuery([NotNull] this IEntityType entityType)
+        public static LambdaExpression? GetInMemoryQuery([NotNull] this IEntityType entityType)
 #pragma warning disable EF1001 // Internal EF Core API usage.
 #pragma warning disable CS0612 // Type or member is obsolete
-            => (LambdaExpression)Check.NotNull(entityType, nameof(entityType))[CoreAnnotationNames.DefiningQuery];
+            => (LambdaExpression?)Check.NotNull(entityType, nameof(entityType))[CoreAnnotationNames.DefiningQuery];
 #pragma warning restore CS0612 // Type or member is obsolete
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
@@ -34,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="inMemoryQuery"> The LINQ query used as the default source. </param>
         public static void SetInMemoryQuery(
             [NotNull] this IMutableEntityType entityType,
-            [CanBeNull] LambdaExpression inMemoryQuery)
+            [CanBeNull] LambdaExpression? inMemoryQuery)
             => Check.NotNull(entityType, nameof(entityType))
 #pragma warning disable EF1001 // Internal EF Core API usage.
 #pragma warning disable CS0612 // Type or member is obsolete
@@ -49,11 +51,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="inMemoryQuery"> The LINQ query used as the default source. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured entity type. </returns>
-        public static LambdaExpression SetInMemoryQuery(
+        public static LambdaExpression? SetInMemoryQuery(
             [NotNull] this IConventionEntityType entityType,
-            [CanBeNull] LambdaExpression inMemoryQuery,
+            [CanBeNull] LambdaExpression? inMemoryQuery,
             bool fromDataAnnotation = false)
-            => (LambdaExpression)Check.NotNull(entityType, nameof(entityType))
+            => (LambdaExpression?)Check.NotNull(entityType, nameof(entityType))
 #pragma warning disable EF1001 // Internal EF Core API usage.
 #pragma warning disable CS0612 // Type or member is obsolete
                 .SetOrRemoveAnnotation(CoreAnnotationNames.DefiningQuery, inMemoryQuery, fromDataAnnotation)

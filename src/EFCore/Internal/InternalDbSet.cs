@@ -76,11 +76,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 if (_entityType == null)
                 {
-                    if (_context.Model.HasEntityTypeWithDefiningNavigation(typeof(TEntity)))
-                    {
-                        throw new InvalidOperationException(CoreStrings.InvalidSetTypeWeak(typeof(TEntity).ShortDisplayName()));
-                    }
-
                     if (_context.Model.IsShared(typeof(TEntity)))
                     {
                         throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(typeof(TEntity).ShortDisplayName()));
@@ -134,12 +129,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 return NonCapturingLazyInitializer.EnsureInitialized(
                     ref _entityQueryable,
                     this,
-                    internalSet => internalSet.CreateEntityQueryable());
+                    static internalSet => internalSet.CreateEntityQueryable());
             }
         }
 
         private EntityQueryable<TEntity> CreateEntityQueryable()
-            => new EntityQueryable<TEntity>(_context.GetDependencies().QueryProvider, EntityType);
+            => new(_context.GetDependencies().QueryProvider, EntityType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -520,6 +515,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
         {
             ((IResettableService)this).ResetState();
@@ -528,7 +524,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         private EntityEntry<TEntity> EntryWithoutDetectChanges(TEntity entity)
-            => new EntityEntry<TEntity>(_context.GetDependencies().StateManager.GetOrCreateEntry(entity, EntityType));
+            => new(_context.GetDependencies().StateManager.GetOrCreateEntry(entity, EntityType));
 
         private void SetEntityStates(IEnumerable<TEntity> entities, EntityState entityState)
         {

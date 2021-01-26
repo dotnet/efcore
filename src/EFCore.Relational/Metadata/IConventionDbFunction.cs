@@ -26,7 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this function.
         /// </summary>
-        new IConventionDbFunctionBuilder? Builder { get; }
+        /// <exception cref="InvalidOperationException"> If the function has been removed from the model. </exception>
+        new IConventionDbFunctionBuilder Builder { get; }
 
         /// <summary>
         ///     Gets the configuration source for this function.
@@ -126,8 +127,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        Func<IReadOnlyCollection<SqlExpression>, SqlExpression>? SetTranslation(
-            [CanBeNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression>? translation,
+        Func<IReadOnlyList<SqlExpression>, SqlExpression>? SetTranslation(
+            [CanBeNull] Func<IReadOnlyList<SqlExpression>, SqlExpression>? translation,
             bool fromDataAnnotation = false);
 
         /// <summary>

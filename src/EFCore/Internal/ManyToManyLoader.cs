@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             //        .AsTracking()
             //        .Where(e => e.Id == left.Id)
             //        .SelectMany(e => e.TwoSkip)
-            //        .Include(e => e.OneSkip.Where(e => e.Id == left.Id));
+            //        .NotQuiteInclude(e => e.OneSkip.Where(e => e.Id == left.Id));
 
             var queryRoot = _skipNavigation.DeclaringEntityType.HasSharedClrType
                 ? context.Set<TSourceEntity>(_skipNavigation.DeclaringEntityType.Name)
@@ -157,8 +157,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 .AsTracking()
                 .Where(BuildWhereLambda(loadProperties, new ValueBuffer(keyValues)))
                 .SelectMany(BuildSelectManyLambda(_skipNavigation))
-                .Include(BuildIncludeLambda(_skipNavigation.Inverse, loadProperties, new ValueBuffer(keyValues)))
-                .AsQueryable();
+                    .NotQuiteInclude(BuildIncludeLambda(_skipNavigation.Inverse, loadProperties, new ValueBuffer(keyValues)))
+                    .AsQueryable();
         }
 
         private static Expression<Func<TEntity, IEnumerable<TSourceEntity>>> BuildIncludeLambda(

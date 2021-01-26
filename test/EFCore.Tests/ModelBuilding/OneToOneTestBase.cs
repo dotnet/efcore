@@ -2778,16 +2778,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     {
                         eb.Ignore(e => e.Nobs);
 
-                        var r = eb.HasOne(c => c.Nob)
+                        eb.HasOne(c => c.Nob)
                             .WithOne()
                             .HasForeignKey<Hob>("NobId");
 
-                        var req = r.Metadata.IsRequired;
-                        var t = r.Metadata.Properties.Single().ClrType;
-
                         eb.HasKey("NobId");
-
-                        req = r.Metadata.IsRequired;
 
                         eb.HasOne(c => c.Nob)
                             .WithOne()
@@ -4095,7 +4090,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Navigation_to_shared_type_is_no_discovered_by_convention()
+            public virtual void Navigation_to_shared_type_is_not_discovered_by_convention()
             {
                 var modelBuilder = CreateModelBuilder();
 

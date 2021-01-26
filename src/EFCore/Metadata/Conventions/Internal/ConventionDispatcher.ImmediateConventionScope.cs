@@ -5,9 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
@@ -24,7 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             private readonly ConventionContext<IConventionSkipNavigationBuilder> _skipNavigationBuilderConventionContext;
             private readonly ConventionContext<IConventionSkipNavigation> _skipNavigationConventionContext;
             private readonly ConventionContext<IConventionNavigationBuilder> _navigationConventionBuilderContext;
-            private readonly ConventionContext<IConventionNavigation> _navigationConventionContext;
             private readonly ConventionContext<IConventionIndexBuilder> _indexBuilderConventionContext;
             private readonly ConventionContext<IConventionIndex> _indexConventionContext;
             private readonly ConventionContext<IConventionKeyBuilder> _keyBuilderConventionContext;
@@ -49,7 +49,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 _skipNavigationBuilderConventionContext = new ConventionContext<IConventionSkipNavigationBuilder>(dispatcher);
                 _skipNavigationConventionContext = new ConventionContext<IConventionSkipNavigation>(dispatcher);
                 _navigationConventionBuilderContext = new ConventionContext<IConventionNavigationBuilder>(dispatcher);
-                _navigationConventionContext = new ConventionContext<IConventionNavigation>(dispatcher);
                 _indexBuilderConventionContext = new ConventionContext<IConventionIndexBuilder>(dispatcher);
                 _indexConventionContext = new ConventionContext<IConventionIndex>(dispatcher);
                 _keyBuilderConventionContext = new ConventionContext<IConventionKeyBuilder>(dispatcher);
@@ -67,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public override void Run(ConventionDispatcher dispatcher)
                 => Check.DebugAssert(false, "Immediate convention scope cannot be run again.");
 
-            public IConventionModelBuilder OnModelFinalizing([NotNull] IConventionModelBuilder modelBuilder)
+            public IConventionModelBuilder? OnModelFinalizing([NotNull] IConventionModelBuilder modelBuilder)
             {
                 _modelBuilderConventionContext.ResetState(modelBuilder);
                 foreach (var modelConvention in _conventionSet.ModelFinalizingConventions)
@@ -86,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return modelBuilder;
             }
 
-            public IModel OnModelFinalized([NotNull] IModel model)
+            public IModel? OnModelFinalized([NotNull] IModel model)
             {
                 foreach (var modelConvention in _conventionSet.ModelFinalizedConventions)
                 {
@@ -96,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return model;
             }
 
-            public IConventionModelBuilder OnModelInitialized([NotNull] IConventionModelBuilder modelBuilder)
+            public IConventionModelBuilder? OnModelInitialized([NotNull] IConventionModelBuilder modelBuilder)
             {
                 using (_dispatcher.DelayConventions())
                 {
@@ -114,11 +113,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return modelBuilder;
             }
 
-            public override IConventionAnnotation OnModelAnnotationChanged(
+            public override IConventionAnnotation? OnModelAnnotationChanged(
                 IConventionModelBuilder modelBuilder,
                 string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
+                IConventionAnnotation? annotation,
+                IConventionAnnotation? oldAnnotation)
             {
                 using (_dispatcher.DelayConventions())
                 {
@@ -138,14 +137,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return annotation;
             }
 
-            public override IConventionEntityTypeBuilder OnEntityTypeAdded(IConventionEntityTypeBuilder entityTypeBuilder)
+            public override IConventionEntityTypeBuilder? OnEntityTypeAdded(IConventionEntityTypeBuilder entityTypeBuilder)
             {
                 using (_dispatcher.DelayConventions())
                 {
                     _entityTypeBuilderConventionContext.ResetState(entityTypeBuilder);
                     foreach (var entityTypeConvention in _conventionSet.EntityTypeAddedConventions)
                     {
-                        if (entityTypeBuilder.Metadata.Builder == null)
+                        if (!entityTypeBuilder.Metadata.IsInModel)
                         {
                             return null;
                         }
@@ -158,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                if (entityTypeBuilder.Metadata.Builder == null)
+                if (!entityTypeBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -166,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return entityTypeBuilder;
             }
 
-            public override string OnEntityTypeIgnored(IConventionModelBuilder modelBuilder, string name, Type type)
+            public override string? OnEntityTypeIgnored(IConventionModelBuilder modelBuilder, string name, Type? type)
             {
                 using (_dispatcher.DelayConventions())
                 {
@@ -194,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return name;
             }
 
-            public override IConventionEntityType OnEntityTypeRemoved(
+            public override IConventionEntityType? OnEntityTypeRemoved(
                 IConventionModelBuilder modelBuilder,
                 IConventionEntityType entityType)
             {
@@ -214,9 +213,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return entityType;
             }
 
-            public override string OnEntityTypeMemberIgnored(IConventionEntityTypeBuilder entityTypeBuilder, string name)
+            public override string? OnEntityTypeMemberIgnored(IConventionEntityTypeBuilder entityTypeBuilder, string name)
             {
-                if (entityTypeBuilder.Metadata.Builder == null)
+                if (!entityTypeBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -251,17 +250,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return name;
             }
 
-            public override IConventionEntityType OnEntityTypeBaseTypeChanged(
+            public override IConventionEntityType? OnEntityTypeBaseTypeChanged(
                 IConventionEntityTypeBuilder entityTypeBuilder,
-                IConventionEntityType newBaseType,
-                IConventionEntityType previousBaseType)
+                IConventionEntityType? newBaseType,
+                IConventionEntityType? previousBaseType)
             {
                 using (_dispatcher.DelayConventions())
                 {
                     _entityTypeConventionContext.ResetState(newBaseType);
                     foreach (var entityTypeConvention in _conventionSet.EntityTypeBaseTypeChangedConventions)
                     {
-                        if (entityTypeBuilder.Metadata.Builder == null)
+                        if (!entityTypeBuilder.Metadata.IsInModel)
                         {
                             return null;
                         }
@@ -275,7 +274,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                if (entityTypeBuilder.Metadata.Builder == null)
+                if (!entityTypeBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -283,12 +282,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return newBaseType;
             }
 
-            public override IConventionKey OnEntityTypePrimaryKeyChanged(
+            public override IConventionKey? OnEntityTypePrimaryKeyChanged(
                 IConventionEntityTypeBuilder entityTypeBuilder,
-                IConventionKey newPrimaryKey,
-                IConventionKey previousPrimaryKey)
+                IConventionKey? newPrimaryKey,
+                IConventionKey? previousPrimaryKey)
             {
-                if (entityTypeBuilder.Metadata.Builder == null)
+                if (!entityTypeBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -314,8 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                if (newPrimaryKey != null
-                    && newPrimaryKey.Builder == null)
+                if (newPrimaryKey != null && !newPrimaryKey.IsInModel)
                 {
                     return null;
                 }
@@ -323,18 +321,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return newPrimaryKey;
             }
 
-            public override IConventionAnnotation OnEntityTypeAnnotationChanged(
+            public override IConventionAnnotation? OnEntityTypeAnnotationChanged(
                 IConventionEntityTypeBuilder entityTypeBuilder,
                 string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
+                IConventionAnnotation? annotation,
+                IConventionAnnotation? oldAnnotation)
             {
                 using (_dispatcher.DelayConventions())
                 {
                     _annotationConventionContext.ResetState(annotation);
                     foreach (var entityTypeConvention in _conventionSet.EntityTypeAnnotationChangedConventions)
                     {
-                        if (entityTypeBuilder.Metadata.Builder == null)
+                        if (!entityTypeBuilder.Metadata.IsInModel)
                         {
                             return null;
                         }
@@ -348,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                if (entityTypeBuilder.Metadata.Builder == null)
+                if (!entityTypeBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -356,10 +354,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return annotation;
             }
 
-            public override IConventionForeignKeyBuilder OnForeignKeyAdded(IConventionForeignKeyBuilder relationshipBuilder)
+            public override IConventionForeignKeyBuilder? OnForeignKeyAdded(IConventionForeignKeyBuilder relationshipBuilder)
             {
-                if (relationshipBuilder.Metadata.DeclaringEntityType.Builder == null
-                    || relationshipBuilder.Metadata.PrincipalEntityType.Builder == null)
+                if (!relationshipBuilder.Metadata.DeclaringEntityType.IsInModel
+                    || !relationshipBuilder.Metadata.PrincipalEntityType.IsInModel)
                 {
                     return null;
                 }
@@ -369,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     _relationshipBuilderConventionContext.ResetState(relationshipBuilder);
                     foreach (var foreignKeyConvention in _conventionSet.ForeignKeyAddedConventions)
                     {
-                        if (relationshipBuilder.Metadata.Builder == null)
+                        if (!relationshipBuilder.Metadata.IsInModel)
                         {
                             return null;
                         }
@@ -382,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                if (relationshipBuilder.Metadata.Builder == null)
+                if (!relationshipBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -390,11 +388,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return relationshipBuilder;
             }
 
-            public override IConventionForeignKey OnForeignKeyRemoved(
+            public override IConventionForeignKey? OnForeignKeyRemoved(
                 IConventionEntityTypeBuilder entityTypeBuilder,
                 IConventionForeignKey foreignKey)
             {
-                if (entityTypeBuilder.Metadata.Builder == null)
+                if (!entityTypeBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -415,7 +413,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return foreignKey;
             }
 
-            public override IReadOnlyList<IConventionProperty> OnForeignKeyPropertiesChanged(
+            public override IReadOnlyList<IConventionProperty>? OnForeignKeyPropertiesChanged(
                 IConventionForeignKeyBuilder relationshipBuilder,
                 IReadOnlyList<IConventionProperty> oldDependentProperties,
                 IConventionKey oldPrincipalKey)
@@ -448,7 +446,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                if (relationshipBuilder.Metadata.Builder == null)
+                if (!relationshipBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -463,7 +461,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     _boolConventionContext.ResetState(relationshipBuilder.Metadata.IsUnique);
                     foreach (var foreignKeyConvention in _conventionSet.ForeignKeyUniquenessChangedConventions)
                     {
-                        if (relationshipBuilder.Metadata.Builder == null)
+                        if (!relationshipBuilder.Metadata.IsInModel)
                         {
                             return null;
                         }
@@ -477,7 +475,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                if (relationshipBuilder.Metadata.Builder == null)
+                if (!relationshipBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -493,7 +491,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     _boolConventionContext.ResetState(relationshipBuilder.Metadata.IsRequired);
                     foreach (var foreignKeyConvention in _conventionSet.ForeignKeyRequirednessChangedConventions)
                     {
-                        if (relationshipBuilder.Metadata.Builder == null)
+                        if (!relationshipBuilder.Metadata.IsInModel)
                         {
                             return null;
                         }
@@ -507,7 +505,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                if (relationshipBuilder.Metadata.Builder == null)
+                if (!relationshipBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -516,14 +514,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             public override bool? OnForeignKeyDependentRequirednessChanged(
-                [NotNull] IConventionForeignKeyBuilder relationshipBuilder)
+                IConventionForeignKeyBuilder relationshipBuilder)
             {
                 using (_dispatcher.DelayConventions())
                 {
                     _boolConventionContext.ResetState(relationshipBuilder.Metadata.IsRequiredDependent);
                     foreach (var foreignKeyConvention in _conventionSet.ForeignKeyDependentRequirednessChangedConventions)
                     {
-                        if (relationshipBuilder.Metadata.Builder == null)
+                        if (!relationshipBuilder.Metadata.IsInModel)
                         {
                             return null;
                         }
@@ -537,7 +535,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                if (relationshipBuilder.Metadata.Builder == null)
+                if (!relationshipBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -553,7 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     _boolConventionContext.ResetState(relationshipBuilder.Metadata.IsOwnership);
                     foreach (var foreignKeyConvention in _conventionSet.ForeignKeyOwnershipChangedConventions)
                     {
-                        if (relationshipBuilder.Metadata.Builder == null)
+                        if (!relationshipBuilder.Metadata.IsInModel)
                         {
                             return null;
                         }
@@ -566,7 +564,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                if (relationshipBuilder.Metadata.Builder == null)
+                if (!relationshipBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -574,7 +572,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return _boolConventionContext.Result;
             }
 
-            public override IConventionForeignKeyBuilder OnForeignKeyPrincipalEndChanged(
+            public override IConventionForeignKeyBuilder? OnForeignKeyPrincipalEndChanged(
                 IConventionForeignKeyBuilder relationshipBuilder)
             {
                 using (_dispatcher.DelayConventions())
@@ -582,7 +580,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     _relationshipBuilderConventionContext.ResetState(relationshipBuilder);
                     foreach (var foreignKeyConvention in _conventionSet.ForeignKeyPrincipalEndChangedConventions)
                     {
-                        if (relationshipBuilder.Metadata.Builder == null)
+                        if (!relationshipBuilder.Metadata.IsInModel)
                         {
                             return null;
                         }
@@ -596,7 +594,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                if (relationshipBuilder.Metadata.Builder == null)
+                if (!relationshipBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -604,13 +602,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return relationshipBuilder;
             }
 
-            public override IConventionAnnotation OnForeignKeyAnnotationChanged(
+            public override IConventionAnnotation? OnForeignKeyAnnotationChanged(
                 IConventionForeignKeyBuilder relationshipBuilder,
                 string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
+                IConventionAnnotation? annotation,
+                IConventionAnnotation? oldAnnotation)
             {
-                if (relationshipBuilder.Metadata.Builder == null)
+                if (!relationshipBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -632,9 +630,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return annotation;
             }
 
-            public override IConventionNavigationBuilder OnNavigationAdded(IConventionNavigationBuilder navigationBuilder)
+            public override IConventionNavigationBuilder? OnNavigationAdded(IConventionNavigationBuilder navigationBuilder)
             {
-                if (navigationBuilder.Metadata.Builder == null)
+                if (!navigationBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -652,7 +650,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                if (navigationBuilder.Metadata.Builder == null)
+                if (!navigationBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -660,14 +658,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return navigationBuilder;
             }
 
-            public override IConventionAnnotation OnNavigationAnnotationChanged(
+            public override IConventionAnnotation? OnNavigationAnnotationChanged(
                 IConventionForeignKeyBuilder relationshipBuilder,
                 IConventionNavigation navigation,
                 string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
+                IConventionAnnotation? annotation,
+                IConventionAnnotation? oldAnnotation)
             {
-                if (relationshipBuilder.Metadata.Builder == null
+                if (!relationshipBuilder.Metadata.IsInModel
                     || relationshipBuilder.Metadata.GetNavigation(navigation.IsOnDependent) != navigation)
                 {
                     return null;
@@ -690,13 +688,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return annotation;
             }
 
-            public override string OnNavigationRemoved(
+            public override string? OnNavigationRemoved(
                 IConventionEntityTypeBuilder sourceEntityTypeBuilder,
                 IConventionEntityTypeBuilder targetEntityTypeBuilder,
                 string navigationName,
-                MemberInfo memberInfo)
+                MemberInfo? memberInfo)
             {
-                if (sourceEntityTypeBuilder.Metadata.Builder == null)
+                if (!sourceEntityTypeBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -729,10 +727,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return navigationName;
             }
 
-            public override IConventionSkipNavigationBuilder OnSkipNavigationAdded(
+            public override IConventionSkipNavigationBuilder? OnSkipNavigationAdded(
                 IConventionSkipNavigationBuilder navigationBuilder)
             {
-                if (navigationBuilder.Metadata.DeclaringEntityType.Builder == null)
+                if (!navigationBuilder.Metadata.DeclaringEntityType.IsInModel)
                 {
                     return null;
                 }
@@ -742,7 +740,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     _skipNavigationBuilderConventionContext.ResetState(navigationBuilder);
                     foreach (var skipNavigationConvention in _conventionSet.SkipNavigationAddedConventions)
                     {
-                        if (navigationBuilder.Metadata.Builder == null)
+                        if (!navigationBuilder.Metadata.IsInModel)
                         {
                             return null;
                         }
@@ -755,7 +753,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                if (navigationBuilder.Metadata.Builder == null)
+                if (!navigationBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -763,13 +761,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return navigationBuilder;
             }
 
-            public override IConventionAnnotation OnSkipNavigationAnnotationChanged(
+            public override IConventionAnnotation? OnSkipNavigationAnnotationChanged(
                 IConventionSkipNavigationBuilder navigationBuilder,
                 string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
+                IConventionAnnotation? annotation,
+                IConventionAnnotation? oldAnnotation)
             {
-                if (navigationBuilder.Metadata.Builder == null)
+                if (!navigationBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -779,7 +777,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     _annotationConventionContext.ResetState(annotation);
                     foreach (var skipNavigationConvention in _conventionSet.SkipNavigationAnnotationChangedConventions)
                     {
-                        if (navigationBuilder.Metadata.Builder != null
+                        if (navigationBuilder.Metadata.IsInModel
                             && navigationBuilder.Metadata.FindAnnotation(name) != annotation)
                         {
                             Check.DebugAssert(false, "annotation removed");
@@ -798,12 +796,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return annotation;
             }
 
-            public override IConventionForeignKey OnSkipNavigationForeignKeyChanged(
+            public override IConventionForeignKey? OnSkipNavigationForeignKeyChanged(
                 IConventionSkipNavigationBuilder navigationBuilder,
-                IConventionForeignKey foreignKey,
-                IConventionForeignKey oldForeignKey)
+                IConventionForeignKey? foreignKey,
+                IConventionForeignKey? oldForeignKey)
             {
-                if (navigationBuilder.Metadata.DeclaringEntityType.Builder == null)
+                if (!navigationBuilder.Metadata.DeclaringEntityType.IsInModel)
                 {
                     return null;
                 }
@@ -828,7 +826,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                if (navigationBuilder.Metadata.Builder == null)
+                if (!navigationBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -836,12 +834,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return foreignKey;
             }
 
-            public override IConventionSkipNavigation OnSkipNavigationInverseChanged(
+            public override IConventionSkipNavigation? OnSkipNavigationInverseChanged(
                 IConventionSkipNavigationBuilder navigationBuilder,
-                IConventionSkipNavigation inverse,
-                IConventionSkipNavigation oldInverse)
+                IConventionSkipNavigation? inverse,
+                IConventionSkipNavigation? oldInverse)
             {
-                if (navigationBuilder.Metadata.DeclaringEntityType.Builder == null)
+                if (!navigationBuilder.Metadata.DeclaringEntityType.IsInModel)
                 {
                     return null;
                 }
@@ -860,7 +858,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                if (navigationBuilder.Metadata.Builder == null)
+                if (!navigationBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -868,11 +866,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return inverse;
             }
 
-            public override IConventionSkipNavigation OnSkipNavigationRemoved(
+            public override IConventionSkipNavigation? OnSkipNavigationRemoved(
                 IConventionEntityTypeBuilder entityTypeBuilder,
                 IConventionSkipNavigation navigation)
             {
-                if (entityTypeBuilder.Metadata.Builder == null)
+                if (!entityTypeBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -894,9 +892,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return navigation;
             }
 
-            public override IConventionKeyBuilder OnKeyAdded(IConventionKeyBuilder keyBuilder)
+            public override IConventionKeyBuilder? OnKeyAdded(IConventionKeyBuilder keyBuilder)
             {
-                if (keyBuilder.Metadata.DeclaringEntityType.Builder == null)
+                if (!keyBuilder.Metadata.DeclaringEntityType.IsInModel)
                 {
                     return null;
                 }
@@ -906,7 +904,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     _keyBuilderConventionContext.ResetState(keyBuilder);
                     foreach (var keyConvention in _conventionSet.KeyAddedConventions)
                     {
-                        if (keyBuilder.Metadata.Builder == null)
+                        if (!keyBuilder.Metadata.IsInModel)
                         {
                             return null;
                         }
@@ -919,7 +917,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                if (keyBuilder.Metadata.Builder == null)
+                if (!keyBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -927,9 +925,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return keyBuilder;
             }
 
-            public override IConventionKey OnKeyRemoved(IConventionEntityTypeBuilder entityTypeBuilder, IConventionKey key)
+            public override IConventionKey? OnKeyRemoved(IConventionEntityTypeBuilder entityTypeBuilder, IConventionKey key)
             {
-                if (entityTypeBuilder.Metadata.Builder == null)
+                if (!entityTypeBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -950,13 +948,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return key;
             }
 
-            public override IConventionAnnotation OnKeyAnnotationChanged(
+            public override IConventionAnnotation? OnKeyAnnotationChanged(
                 IConventionKeyBuilder keyBuilder,
                 string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
+                IConventionAnnotation? annotation,
+                IConventionAnnotation? oldAnnotation)
             {
-                if (keyBuilder.Metadata.Builder == null)
+                if (!keyBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -978,9 +976,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return annotation;
             }
 
-            public override IConventionIndexBuilder OnIndexAdded(IConventionIndexBuilder indexBuilder)
+            public override IConventionIndexBuilder? OnIndexAdded(IConventionIndexBuilder indexBuilder)
             {
-                if (indexBuilder.Metadata.DeclaringEntityType.Builder == null)
+                if (!indexBuilder.Metadata.DeclaringEntityType.IsInModel)
                 {
                     return null;
                 }
@@ -990,7 +988,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     _indexBuilderConventionContext.ResetState(indexBuilder);
                     foreach (var indexConvention in _conventionSet.IndexAddedConventions)
                     {
-                        if (indexBuilder.Metadata.Builder == null)
+                        if (!indexBuilder.Metadata.IsInModel)
                         {
                             return null;
                         }
@@ -1003,7 +1001,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                if (indexBuilder.Metadata.Builder == null)
+                if (!indexBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -1011,9 +1009,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return indexBuilder;
             }
 
-            public override IConventionIndex OnIndexRemoved(IConventionEntityTypeBuilder entityTypeBuilder, IConventionIndex index)
+            public override IConventionIndex? OnIndexRemoved(IConventionEntityTypeBuilder entityTypeBuilder, IConventionIndex index)
             {
-                if (entityTypeBuilder.Metadata.Builder == null)
+                if (!entityTypeBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -1041,7 +1039,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     _boolConventionContext.ResetState(indexBuilder.Metadata.IsUnique);
                     foreach (var indexConvention in _conventionSet.IndexUniquenessChangedConventions)
                     {
-                        if (indexBuilder.Metadata.Builder == null)
+                        if (!indexBuilder.Metadata.IsInModel)
                         {
                             return null;
                         }
@@ -1054,7 +1052,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                if (indexBuilder.Metadata.Builder == null)
+                if (!indexBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -1062,13 +1060,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return _boolConventionContext.Result;
             }
 
-            public override IConventionAnnotation OnIndexAnnotationChanged(
+            public override IConventionAnnotation? OnIndexAnnotationChanged(
                 IConventionIndexBuilder indexBuilder,
                 string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
+                IConventionAnnotation? annotation,
+                IConventionAnnotation? oldAnnotation)
             {
-                if (indexBuilder.Metadata.Builder == null)
+                if (!indexBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -1090,9 +1088,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return annotation;
             }
 
-            public override IConventionPropertyBuilder OnPropertyAdded(IConventionPropertyBuilder propertyBuilder)
+            public override IConventionPropertyBuilder? OnPropertyAdded(IConventionPropertyBuilder propertyBuilder)
             {
-                if (propertyBuilder.Metadata.DeclaringEntityType.Builder == null)
+                if (!propertyBuilder.Metadata.DeclaringEntityType.IsInModel)
                 {
                     return null;
                 }
@@ -1102,7 +1100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     _propertyBuilderConventionContext.ResetState(propertyBuilder);
                     foreach (var propertyConvention in _conventionSet.PropertyAddedConventions)
                     {
-                        if (propertyBuilder.Metadata.Builder == null)
+                        if (!propertyBuilder.Metadata.IsInModel)
                         {
                             return null;
                         }
@@ -1115,7 +1113,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                if (propertyBuilder.Metadata.Builder == null)
+                if (!propertyBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -1125,7 +1123,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public override bool? OnPropertyNullabilityChanged(IConventionPropertyBuilder propertyBuilder)
             {
-                if (propertyBuilder.Metadata.DeclaringEntityType.Builder == null)
+                if (!propertyBuilder.Metadata.DeclaringEntityType.IsInModel)
                 {
                     return null;
                 }
@@ -1135,7 +1133,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     _boolConventionContext.ResetState(propertyBuilder.Metadata.IsNullable);
                     foreach (var propertyConvention in _conventionSet.PropertyNullabilityChangedConventions)
                     {
-                        if (propertyBuilder.Metadata.Builder == null)
+                        if (!propertyBuilder.Metadata.IsInModel)
                         {
                             return null;
                         }
@@ -1148,7 +1146,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                if (propertyBuilder.Metadata.Builder == null)
+                if (!propertyBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }
@@ -1156,13 +1154,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return _boolConventionContext.Result;
             }
 
-            public override FieldInfo OnPropertyFieldChanged(
+            public override FieldInfo? OnPropertyFieldChanged(
                 IConventionPropertyBuilder propertyBuilder,
-                FieldInfo newFieldInfo,
-                FieldInfo oldFieldInfo)
+                FieldInfo? newFieldInfo,
+                FieldInfo? oldFieldInfo)
             {
-                if (propertyBuilder.Metadata.Builder == null
-                    || propertyBuilder.Metadata.DeclaringEntityType.Builder == null)
+                if (!propertyBuilder.Metadata.IsInModel
+                    || !propertyBuilder.Metadata.DeclaringEntityType.IsInModel)
                 {
                     return null;
                 }
@@ -1181,14 +1179,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return _fieldInfoConventionContext.Result;
             }
 
-            public override IConventionAnnotation OnPropertyAnnotationChanged(
+            public override IConventionAnnotation? OnPropertyAnnotationChanged(
                 IConventionPropertyBuilder propertyBuilder,
                 string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
+                IConventionAnnotation? annotation,
+                IConventionAnnotation? oldAnnotation)
             {
-                if (propertyBuilder.Metadata.Builder == null
-                    || propertyBuilder.Metadata.DeclaringEntityType.Builder == null)
+                if (!propertyBuilder.Metadata.IsInModel
+                    || !propertyBuilder.Metadata.DeclaringEntityType.IsInModel)
                 {
                     return null;
                 }
@@ -1211,11 +1209,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return annotation;
             }
 
-            public override IConventionProperty OnPropertyRemoved(
+            public override IConventionProperty? OnPropertyRemoved(
                 IConventionEntityTypeBuilder entityTypeBuilder,
                 IConventionProperty property)
             {
-                if (entityTypeBuilder.Metadata.Builder == null)
+                if (!entityTypeBuilder.Metadata.IsInModel)
                 {
                     return null;
                 }

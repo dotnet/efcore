@@ -121,11 +121,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             string name,
             object? value,
             ConfigurationSource configurationSource)
-            => new ConventionAnnotation(name, value, configurationSource);
+            => new(name, value, configurationSource);
 
         /// <inheritdoc />
         IConventionAnnotatableBuilder IConventionAnnotatable.Builder
-            => throw new NotImplementedException();
+            => throw new NotSupportedException();
+
+        /// <inheritdoc />
+        bool IConventionAnnotatable.IsInModel
+            => throw new NotSupportedException();
 
         /// <inheritdoc />
         [DebuggerStepThrough]

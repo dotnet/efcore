@@ -4,6 +4,7 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
 
 #nullable enable
 
@@ -40,6 +41,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             IsDistinct = distinct;
             Source1 = source1;
             Source2 = source2;
+        }
+
+        /// <summary>
+        ///     The alias assigned to this table source.
+        /// </summary>
+        [CA.NotNull]
+        public override string? Alias
+        {
+            get => base.Alias!;
+            internal set => base.Alias = value;
         }
 
         /// <summary>

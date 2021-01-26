@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore
             public void Migrate(string targetMigration = null)
                 => throw new NotImplementedException();
 
-            public Task MigrateAsync(string targetMigration = null, CancellationToken cancellationToken = new CancellationToken())
+            public Task MigrateAsync(string targetMigration = null, CancellationToken cancellationToken = new())
                 => throw new NotImplementedException();
 
             public string GenerateScript(
@@ -172,11 +172,9 @@ namespace Microsoft.EntityFrameworkCore
 
         private class FakeRelationalConnection : IRelationalConnection
         {
-            public string ConnectionString
-                => throw new NotImplementedException();
+            public string ConnectionString { get; set; }
 
-            public DbConnection DbConnection
-                => new FakeDbConnection();
+            public DbConnection DbConnection { get; set; } = new FakeDbConnection();
 
             public DbContext Context
                 => null;

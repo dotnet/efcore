@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             => CreateDummyQuerySqlGenerator().CheckComposableSql(sql);
 
         private DummyQuerySqlGenerator CreateDummyQuerySqlGenerator()
-            => new DummyQuerySqlGenerator(
+            => new(
                 new QuerySqlGeneratorDependencies(
                     new RelationalCommandBuilderFactory(
                         new RelationalCommandBuilderDependencies(

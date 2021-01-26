@@ -17,11 +17,10 @@ namespace Microsoft.EntityFrameworkCore.Utilities
     internal static class Check
     {
         [ContractAnnotation("value:null => halt")]
+        [return: CA.NotNull]
         public static T NotNull<T>([NoEnumeration, CA.AllowNull, CA.NotNull] T value, [InvokerParameterName] [NotNull] string parameterName)
         {
-#pragma warning disable IDE0041 // Use 'is null' check
-            if (ReferenceEquals(value, null))
-#pragma warning restore IDE0041 // Use 'is null' check
+            if (value is null)
             {
                 NotEmpty(parameterName, nameof(parameterName));
 
@@ -67,8 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
         public static string? NullButNotEmpty(string? value, [InvokerParameterName] [NotNull] string parameterName)
         {
-            if (!(value is null)
-                && value.Length == 0)
+            if (value is not null && value.Length == 0)
             {
                 NotEmpty(parameterName, nameof(parameterName));
 

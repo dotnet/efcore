@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static readonly string _transactionPrefix = DbLoggerCategory.Database.Transaction.Name + ".";
 
         private static EventId MakeTransactionId(Id id)
-            => new EventId((int)id, _transactionPrefix + id);
+            => new((int)id, _transactionPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";
 
         private static EventId MakeUpdateId(Id id)
-            => new EventId((int)id, _updatePrefix + id);
+            => new((int)id, _updatePrefix + id);
 
         /// <summary>
         ///     <para>

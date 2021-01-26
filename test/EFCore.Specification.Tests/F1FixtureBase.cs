@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class F1FixtureBase : SharedStoreFixtureBase<F1Context>
+    public abstract class F1FixtureBase<TRowVersion> : SharedStoreFixtureBase<F1Context>
     {
         protected override string StoreName { get; } = "F1Test";
 
@@ -47,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<Engine>(
                 b =>
                 {
+                    b.Property(e => e.Id).ValueGeneratedNever();
                     b.Property(e => e.EngineSupplierId).IsConcurrencyToken();
                     b.Property(e => e.Name).IsConcurrencyToken();
                     b.OwnsOne(
@@ -57,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore
                         });
                 });
 
-            modelBuilder.Entity<EngineSupplier>();
+            modelBuilder.Entity<EngineSupplier>(b => b.HasKey(e => e.Name));
 
             modelBuilder.Entity<Gearbox>();
 
@@ -75,7 +76,10 @@ namespace Microsoft.EntityFrameworkCore
                     b.HasOne(e => e.Chassis).WithOne(e => e.Team).HasForeignKey<Chassis>(e => e.TeamId);
                 });
 
+            modelBuilder.Entity<Driver>(b => b.Property(e => e.Id).ValueGeneratedNever());
             modelBuilder.Entity<TestDriver>();
+
+            modelBuilder.Entity<Sponsor>(b => b.Property(e => e.Id).ValueGeneratedNever());
             modelBuilder.Entity<TitleSponsor>()
                 .OwnsOne(s => s.Details);
 
@@ -90,6 +94,43 @@ namespace Microsoft.EntityFrameworkCore
                         .HasOne(t => t.Team)
                         .WithMany())
                 .HasKey(ts => new { ts.SponsorId, ts.TeamId });
+
+            modelBuilder.Entity<Chassis>().Property<TRowVersion>("Version").IsRowVersion();
+            modelBuilder.Entity<Driver>().Property<TRowVersion>("Version").IsRowVersion();
+
+            modelBuilder.Entity<Team>().Property<TRowVersion>("Version")
+                .ValueGeneratedOnAddOrUpdate()
+                .IsConcurrencyToken();
+
+            modelBuilder.Entity<Sponsor>(
+                eb =>
+                {
+                    eb.Property<TRowVersion>("Version").IsRowVersion();
+                    eb.Property<int?>(Sponsor.ClientTokenPropertyName);
+                });
+
+            modelBuilder.Entity<TitleSponsor>()
+                .OwnsOne(
+                    s => s.Details, eb =>
+                    {
+                        eb.Property(d => d.Space);
+                        eb.Property<TRowVersion>("Version").IsRowVersion();
+                        eb.Property<int?>(Sponsor.ClientTokenPropertyName).IsConcurrencyToken();
+                    });
+
+            if (typeof(TRowVersion) != typeof(byte[]))
+            {
+                modelBuilder.Entity<Chassis>().Property<TRowVersion>("Version").HasConversion<byte[]>();
+                modelBuilder.Entity<Driver>().Property<TRowVersion>("Version").HasConversion<byte[]>();
+                modelBuilder.Entity<Team>().Property<TRowVersion>("Version").HasConversion<byte[]>();
+                modelBuilder.Entity<Sponsor>().Property<TRowVersion>("Version").HasConversion<byte[]>();
+                modelBuilder.Entity<TitleSponsor>()
+                    .OwnsOne(
+                        s => s.Details, eb =>
+                        {
+                            eb.Property<TRowVersion>("Version").IsRowVersion().HasConversion<byte[]>();
+                        });
+            }
         }
 
         protected override void Seed(F1Context context)

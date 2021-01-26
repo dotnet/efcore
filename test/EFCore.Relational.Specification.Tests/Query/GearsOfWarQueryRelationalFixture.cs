@@ -1,12 +1,85 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class GearsOfWarQueryRelationalFixture : GearsOfWarQueryFixtureBase
     {
+        public override Dictionary<(Type, string), Func<object, object>> GetShadowPropertyMappings()
+        {
+            var discriminatorMapping = new Dictionary<(Type, string), Func<object, object>>
+            {
+                {
+                    (typeof(Gear), "Discriminator"),
+                    e =>
+                    {
+                        switch (((Gear)e)?.Nickname)
+                        {
+                            case "Baird":
+                            case "Marcus":
+                                return "Officer";
+
+                            case "Cole Train":
+                            case "Dom":
+                            case "Paduk":
+                                return "Gear";
+
+                            default:
+                                return null;
+                        }
+                    }
+                },
+                {
+                    (typeof(Faction), "Discriminator"),
+                    e =>
+                    {
+                        switch (((Faction)e)?.Id)
+                        {
+                            case 1:
+                            case 2:
+                                return "LocustHorde";
+
+                            default:
+                                return null;
+                        }
+                    }
+                },
+                {
+                    (typeof(LocustLeader), "Discriminator"),
+                    e =>
+                    {
+                        switch (((LocustLeader)e)?.Name)
+                        {
+                            case "General Karn":
+                            case "General RAAM":
+                            case "High Priest Skorge":
+                            case "The Speaker":
+                                return "LocustLeader";
+
+                            case "Queen Myrrah":
+                            case "Unknown":
+                                return "LocustCommander";
+
+                            default:
+                                return null;
+                        }
+                    }
+                },
+            };
+
+            foreach (var shadowPropertyMappingElement in base.GetShadowPropertyMappings())
+            {
+                discriminatorMapping.Add(shadowPropertyMappingElement.Key, shadowPropertyMappingElement.Value);
+            }
+
+            return discriminatorMapping;
+        }
+
         public new RelationalTestStore TestStore
             => (RelationalTestStore)base.TestStore;
 

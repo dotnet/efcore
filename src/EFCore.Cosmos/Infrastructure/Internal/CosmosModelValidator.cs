@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                     firstEntityType = entityType;
                 }
 
-                if (entityType.ClrType?.IsInstantiable() == true
+                if (entityType.ClrType.IsInstantiable()
                     && entityType.GetContainingPropertyName() == null)
                 {
                     if (entityType.GetDiscriminatorProperty() == null)

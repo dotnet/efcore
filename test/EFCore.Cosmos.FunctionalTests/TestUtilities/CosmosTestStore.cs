@@ -27,16 +27,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private static readonly Guid _runId = Guid.NewGuid();
 
         public static CosmosTestStore Create(string name, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
-            => new CosmosTestStore(name, shared: false, extensionConfiguration: extensionConfiguration);
+            => new(name, shared: false, extensionConfiguration: extensionConfiguration);
 
         public static CosmosTestStore CreateInitialized(string name, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
             => (CosmosTestStore)Create(name, extensionConfiguration).Initialize(null, (Func<DbContext>)null);
 
         public static CosmosTestStore GetOrCreate(string name)
-            => new CosmosTestStore(name);
+            => new(name);
 
         public static CosmosTestStore GetOrCreate(string name, string dataFilePath)
-            => new CosmosTestStore(name, dataFilePath: dataFilePath);
+            => new(name, dataFilePath: dataFilePath);
 
         private CosmosTestStore(
             string name,
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             if (await context.Database.EnsureCreatedAsync())
             {
-                var cosmosClient = context.GetService<CosmosClientWrapper>();
+                var cosmosClient = context.GetService<ICosmosClientWrapper>();
                 var serializer = CosmosClientWrapper.Serializer;
                 using var fs = new FileStream(_dataFilePath, FileMode.Open, FileAccess.Read);
                 using var sr = new StreamReader(fs);
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public override async Task CleanAsync(DbContext context)
         {
-            var cosmosClientWrapper = context.GetService<CosmosClientWrapper>();
+            var cosmosClientWrapper = context.GetService<ICosmosClientWrapper>();
             var created = await cosmosClientWrapper.CreateDatabaseIfNotExistsAsync();
             try
             {
@@ -307,11 +307,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 => throw new NotImplementedException();
         }
 
-        public class FakeEntityType : IEntityType
+        public class FakeEntityType : Annotatable, IEntityType
         {
-            public object this[string name]
-                => null;
-
             public IEntityType BaseType
                 => throw new NotImplementedException();
 
@@ -336,9 +333,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             public bool IsPropertyBag
                 => throw new NotImplementedException();
 
-            public IAnnotation FindAnnotation(string name)
-                => throw new NotImplementedException();
-
             public IForeignKey FindForeignKey(IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
                 => throw new NotImplementedException();
 
@@ -361,9 +355,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 => throw new NotImplementedException();
 
             public ISkipNavigation FindSkipNavigation(string name)
-                => throw new NotImplementedException();
-
-            public IEnumerable<IAnnotation> GetAnnotations()
                 => throw new NotImplementedException();
 
             public IEnumerable<IForeignKey> GetForeignKeys()

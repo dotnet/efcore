@@ -96,33 +96,16 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Set_throws_for_weak_types()
-        {
-            var model = new Model();
-            var question = model.AddEntityType(typeof(Question), ConfigurationSource.Explicit);
-            model.AddEntityType(typeof(User), nameof(Question.Author), question, ConfigurationSource.Explicit);
-
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .UseInternalServiceProvider(InMemoryTestHelpers.Instance.CreateServiceProvider())
-                .UseModel(model.FinalizeModel());
-            using var context = new DbContext(optionsBuilder.Options);
-            var ex = Assert.Throws<InvalidOperationException>(() => context.Set<User>().Local);
-            Assert.Equal(CoreStrings.InvalidSetTypeWeak(nameof(User)), ex.Message);
-        }
-
-        [ConditionalFact]
         public void Set_throws_for_shared_types()
         {
-            var model = new Model();
-            var question = model.AddEntityType("SharedQuestion", typeof(Question), ConfigurationSource.Explicit);
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            modelBuilder.Model.AddEntityType("SharedQuestion", typeof(Question));
 
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .UseInternalServiceProvider(InMemoryTestHelpers.Instance.CreateServiceProvider())
-                .UseModel(model.FinalizeModel());
+                .UseModel(modelBuilder.FinalizeModel());
             using var context = new DbContext(optionsBuilder.Options);
             var ex = Assert.Throws<InvalidOperationException>(() => context.Set<Question>().Local);
             Assert.Equal(CoreStrings.InvalidSetSharedType(typeof(Question).ShortDisplayName()), ex.Message);
@@ -135,14 +118,16 @@ namespace Microsoft.EntityFrameworkCore
                 .AddScoped<IStateManager, FakeStateManager>()
                 .AddScoped<IChangeDetector, FakeChangeDetector>();
 
-            var model = new ModelBuilder().Entity<User>().Metadata.Model;
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            modelBuilder.Entity<User>();
+
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider(services);
 
             using var context = new DbContext(
                 new DbContextOptionsBuilder()
                     .UseInternalServiceProvider(serviceProvider)
                     .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                    .UseModel(model.FinalizeModel())
+                    .UseModel(modelBuilder.FinalizeModel())
                     .Options);
             var changeDetector = (FakeChangeDetector)context.GetService<IChangeDetector>();
 
@@ -220,9 +205,9 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var questions = new List<Question>
                 {
-                    new Question
+                    new()
                     {
-                        Author = context.Users.First(), Answers = new List<Answer> { new Answer { Author = context.Users.Last() } }
+                        Author = context.Users.First(), Answers = new List<Answer> { new() { Author = context.Users.Last() } }
                     }
                 };
 
@@ -315,12 +300,12 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Context_will_use_explicit_model_if_set_in_config()
         {
-            IMutableModel model = new Model();
-            model.AddEntityType(typeof(TheGu));
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            modelBuilder.Entity<TheGu>();
 
             using var context = new EarlyLearningCenter(
                 InMemoryTestHelpers.Instance.CreateServiceProvider(),
-                new DbContextOptionsBuilder().UseModel(model.FinalizeModel()).Options);
+                new DbContextOptionsBuilder().UseModel(modelBuilder.FinalizeModel()).Options);
             Assert.Equal(
                 new[] { typeof(TheGu).FullName },
                 context.Model.GetEntityTypes().Select(e => e.Name).ToArray());
@@ -629,7 +614,7 @@ namespace Microsoft.EntityFrameworkCore
             context.AddRange(
                 new Product { Id = id++, Name = "Little Hedgehogs" });
             context.AddRange(
-                new List<Product> { new Product { Id = id++, Name = "Little Hedgehogs" } });
+                new List<Product> { new() { Id = id++, Name = "Little Hedgehogs" } });
             context.AddRange(
                 new List<object> { new Product { Id = id++, Name = "Little Hedgehogs" } });
             await context.AddAsync(
@@ -641,7 +626,7 @@ namespace Microsoft.EntityFrameworkCore
             await context.AddRangeAsync(
                 new Product { Id = id++, Name = "Little Hedgehogs" });
             await context.AddRangeAsync(
-                new List<Product> { new Product { Id = id++, Name = "Little Hedgehogs" } });
+                new List<Product> { new() { Id = id++, Name = "Little Hedgehogs" } });
             await context.AddRangeAsync(
                 new List<object> { new Product { Id = id++, Name = "Little Hedgehogs" } });
             context.Attach(
@@ -653,7 +638,7 @@ namespace Microsoft.EntityFrameworkCore
             context.AttachRange(
                 new Product { Id = id++, Name = "Little Hedgehogs" });
             context.AttachRange(
-                new List<Product> { new Product { Id = id++, Name = "Little Hedgehogs" } });
+                new List<Product> { new() { Id = id++, Name = "Little Hedgehogs" } });
             context.AttachRange(
                 new List<object> { new Product { Id = id++, Name = "Little Hedgehogs" } });
             context.Update(
@@ -665,7 +650,7 @@ namespace Microsoft.EntityFrameworkCore
             context.UpdateRange(
                 new Product { Id = id++, Name = "Little Hedgehogs" });
             context.UpdateRange(
-                new List<Product> { new Product { Id = id++, Name = "Little Hedgehogs" } });
+                new List<Product> { new() { Id = id++, Name = "Little Hedgehogs" } });
             context.UpdateRange(
                 new List<object> { new Product { Id = id++, Name = "Little Hedgehogs" } });
             context.Remove(
@@ -677,7 +662,7 @@ namespace Microsoft.EntityFrameworkCore
             context.RemoveRange(
                 new Product { Id = id++, Name = "Little Hedgehogs" });
             context.RemoveRange(
-                new List<Product> { new Product { Id = id++, Name = "Little Hedgehogs" } });
+                new List<Product> { new() { Id = id++, Name = "Little Hedgehogs" } });
             context.RemoveRange(
                 new List<object> { new Product { Id = id, Name = "Little Hedgehogs" } });
 
@@ -731,15 +716,41 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             // methods (tests all paths)
-            Assert.Throws<ObjectDisposedException>(() => context.Add(new object()));
-            Assert.Throws<ObjectDisposedException>(() => context.Find(typeof(Random), 77));
-            Assert.Throws<ObjectDisposedException>(() => context.Attach(new object()));
-            Assert.Throws<ObjectDisposedException>(() => context.Update(new object()));
-            Assert.Throws<ObjectDisposedException>(() => context.Remove(new object()));
-            Assert.Throws<ObjectDisposedException>(() => context.SaveChanges());
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => context.SaveChangesAsync());
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => context.AddAsync(new object()).AsTask());
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => context.FindAsync(typeof(Random), 77).AsTask());
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => context.Add(new object())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => context.Find(typeof(Random), 77)).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => context.Attach(new object())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => context.Update(new object())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => context.Remove(new object())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => context.SaveChanges()).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                (await Assert.ThrowsAsync<ObjectDisposedException>(() => context.SaveChangesAsync())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                (await Assert.ThrowsAsync<ObjectDisposedException>(() => context.AddAsync(new object()).AsTask())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                (await Assert.ThrowsAsync<ObjectDisposedException>(() => context.FindAsync(typeof(Random), 77).AsTask())).Message);
 
             var methodCount = typeof(DbContext).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Count();
             var expectedMethodCount = 42 + 8;
@@ -749,8 +760,13 @@ namespace Microsoft.EntityFrameworkCore
                 + "Update test to ensure all methods throw ObjectDisposedException after dispose.");
 
             // getters
-            Assert.Throws<ObjectDisposedException>(() => context.ChangeTracker);
-            Assert.Throws<ObjectDisposedException>(() => context.Model);
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+            Assert.Throws<ObjectDisposedException>(() => context.ChangeTracker).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => context.Model).Message);
 
             var expectedProperties = new List<string>
             {
@@ -770,7 +786,9 @@ namespace Microsoft.EntityFrameworkCore
                 userMessage: "Unexpected properties on DbContext. "
                 + "Update test to ensure all getters throw ObjectDisposedException after dispose.");
 
-            Assert.Throws<ObjectDisposedException>(() => ((IInfrastructure<IServiceProvider>)context).Instance);
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => ((IInfrastructure<IServiceProvider>)context).Instance).Message);
         }
 
         [ConditionalFact]
@@ -831,7 +849,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public class FakeServiceScopeFactory : IServiceScopeFactory
             {
-                public static FakeServiceScope Scope { get; } = new FakeServiceScope();
+                public static FakeServiceScope Scope { get; } = new();
 
                 public IServiceScope CreateScope()
                     => Scope;

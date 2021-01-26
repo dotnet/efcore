@@ -459,12 +459,16 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<Led>(
                 b =>
                 {
+                    b.Property<int>("Id");
                     b.Property(e => e.Zeppelin).UseHiLo("Heaven");
+                    b.HasAlternateKey(e => e.Zeppelin);
                     b.Property(e => e.Stairway).UseHiLo("Heaven");
+                    b.HasAlternateKey(e => e.Stairway);
                     b.Property(e => e.WholeLotta).UseHiLo("Rosie");
+                    b.HasAlternateKey(e => e.WholeLotta);
                 });
 
-            return modelBuilder.Model;
+            return modelBuilder.Model.FinalizeModel();
         }
 
         private class Led

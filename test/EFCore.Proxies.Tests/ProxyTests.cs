@@ -109,24 +109,6 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(typeof(IsOwnedButNotWeak), context.CreateProxy(typeof(IsOwnedButNotWeak)).GetType().BaseType);
         }
 
-        [ConditionalFact] // Issue #22407
-        public void CreateProxy_throws_for_weak_entity_types()
-        {
-            using var context = new NeweyContext();
-
-            Assert.Equal(
-                ProxiesStrings.EntityTypeNotFoundWeak(nameof(IsWeak)),
-                Assert.Throws<InvalidOperationException>(() => context.CreateProxy<IsWeak>()).Message);
-
-            Assert.Equal(
-                ProxiesStrings.EntityTypeNotFoundWeak(nameof(IsWeak)),
-                Assert.Throws<InvalidOperationException>(() => context.CreateProxy<IsWeak>(_ => { })).Message);
-
-            Assert.Equal(
-                ProxiesStrings.EntityTypeNotFoundWeak(nameof(IsWeak)),
-                Assert.Throws<InvalidOperationException>(() => context.CreateProxy(typeof(IsWeak))).Message);
-        }
-
         [ConditionalFact]
         public void CreateProxy_uses_parameterless_constructor()
         {
@@ -366,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore
         private class NeweyContext : DbContext
         {
             private readonly IServiceProvider _internalServiceProvider;
-            private static readonly InMemoryDatabaseRoot _dbRoot = new InMemoryDatabaseRoot();
+            private static readonly InMemoryDatabaseRoot _dbRoot = new();
             private readonly bool _useLazyLoadingProxies;
             private readonly bool _useChangeDetectionProxies;
             private readonly string _dbName;

@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected virtual TResult ExecuteCore(
             [NotNull] TContext context,
-            [NotNull] params object[] parameters)
+            [NotNull] params object?[] parameters)
             => ExecuteCore(context, default, parameters);
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         protected virtual TResult ExecuteCore(
             [NotNull] TContext context,
             CancellationToken cancellationToken,
-            [NotNull] params object[] parameters)
+            [NotNull] params object?[] parameters)
         {
             var executor = EnsureExecutor(context);
             var queryContextFactory = context.GetService<IQueryContextFactory>();
@@ -90,14 +90,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private Func<QueryContext, TResult> EnsureExecutor(TContext context)
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _executor,
+                this,
                 context,
                 _queryExpression,
-                (c, q) =>
+                static (t, c, q) =>
                 {
-                    var queryCompiler = context.GetService<IQueryCompiler>();
+                    var queryCompiler = c.GetService<IQueryCompiler>();
                     var expression = new QueryExpressionRewriter(c, q.Parameters).Visit(q.Body);
 
-                    return CreateCompiledQuery(queryCompiler, expression);
+                    return t.CreateCompiledQuery(queryCompiler, expression);
                 });
 
         private sealed class QueryExpressionRewriter : ExpressionVisitor

@@ -1493,6 +1493,23 @@ FROM (
 ) AS [t]");
         }
 
+        public override async Task All_true(bool async)
+        {
+            await base.All_true(async);
+
+            AssertSql(
+                @"SELECT CAST(1 AS bit)");
+        }
+
+        public override async Task Not_Any_false(bool async)
+        {
+            await base.Not_Any_false(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

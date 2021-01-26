@@ -3612,7 +3612,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Order>().Where(o => o.OrderID > new Random().Next()));
+                ss => ss.Set<Order>().Where(o => o.OrderID < (new Random().Next() - 2147483647)));
         }
 
         [ConditionalTheory]

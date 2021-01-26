@@ -369,7 +369,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     OrderDate = new DateTime(2000, 1, 20),
                     Items = new List<LineItem>
                     {
-                        new LineItem { Quantity = 5, Product = product1 }, new LineItem { Quantity = 15, Product = product3 }
+                        new() { Quantity = 5, Product = product1 }, new() { Quantity = 15, Product = product3 }
                     }
                 };
 
@@ -379,9 +379,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     OrderDate = new DateTime(2000, 2, 21),
                     Items = new List<LineItem>
                     {
-                        new LineItem { Quantity = 1, Product = product1 },
-                        new LineItem { Quantity = 6, Product = product2 },
-                        new LineItem { Quantity = 200, Product = product3 }
+                        new() { Quantity = 1, Product = product1 },
+                        new() { Quantity = 6, Product = product2 },
+                        new() { Quantity = 200, Product = product3 }
                     }
                 };
 
@@ -389,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     Name = "Order13",
                     OrderDate = new DateTime(2001, 3, 20),
-                    Items = new List<LineItem> { new LineItem { Quantity = 50, Product = product4 }, }
+                    Items = new List<LineItem> { new() { Quantity = 50, Product = product4 }, }
                 };
 
                 var order21 = new Order
@@ -398,9 +398,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     OrderDate = new DateTime(2000, 4, 21),
                     Items = new List<LineItem>
                     {
-                        new LineItem { Quantity = 1, Product = product1 },
-                        new LineItem { Quantity = 34, Product = product4 },
-                        new LineItem { Quantity = 100, Product = product5 }
+                        new() { Quantity = 1, Product = product1 },
+                        new() { Quantity = 34, Product = product4 },
+                        new() { Quantity = 100, Product = product5 }
                     }
                 };
 
@@ -410,7 +410,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     OrderDate = new DateTime(2000, 5, 20),
                     Items = new List<LineItem>
                     {
-                        new LineItem { Quantity = 34, Product = product3 }, new LineItem { Quantity = 100, Product = product4 }
+                        new() { Quantity = 34, Product = product3 }, new() { Quantity = 100, Product = product4 }
                     }
                 };
 
@@ -418,7 +418,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     Name = "Order31",
                     OrderDate = new DateTime(2001, 6, 21),
-                    Items = new List<LineItem> { new LineItem { Quantity = 5, Product = product5 } }
+                    Items = new List<LineItem> { new() { Quantity = 5, Product = product5 } }
                 };
 
                 var address11 = new Address

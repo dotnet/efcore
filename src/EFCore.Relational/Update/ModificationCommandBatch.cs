@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,8 +46,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     Sends insert/update/delete commands to the database.
         /// </summary>
         /// <param name="connection"> The database connection to use. </param>
-        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous save operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public abstract Task ExecuteAsync(
             [NotNull] IRelationalConnection connection,
             CancellationToken cancellationToken = default);

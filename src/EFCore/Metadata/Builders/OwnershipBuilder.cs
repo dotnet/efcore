@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
@@ -40,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [EntityFrameworkInternal]
         protected OwnershipBuilder(
             [NotNull] InternalForeignKeyBuilder builder,
-            [CanBeNull] OwnershipBuilder oldBuilder,
+            [NotNull] OwnershipBuilder oldBuilder,
             bool foreignKeySet = false,
             bool principalKeySet = false,
             bool requiredSet = false)
@@ -93,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Builder = Builder.HasForeignKey(
                 Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames)),
                 (EntityType)DependentEntityType,
-                ConfigurationSource.Explicit);
+                ConfigurationSource.Explicit)!;
             return new OwnershipBuilder(
                 Builder,
                 this,
@@ -113,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             Builder = Builder.HasPrincipalKey(
                 Check.NotNull(keyPropertyNames, nameof(keyPropertyNames)),
-                ConfigurationSource.Explicit);
+                ConfigurationSource.Explicit)!;
             return new OwnershipBuilder(
                 Builder,
                 this,

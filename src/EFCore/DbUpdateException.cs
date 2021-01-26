@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
@@ -19,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
     public class DbUpdateException : Exception
     {
         [NonSerialized]
-        private IReadOnlyList<EntityEntry> _entries;
+        private IReadOnlyList<EntityEntry>? _entries;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DbUpdateException" /> class.
@@ -42,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="message"> The error message that explains the reason for the exception. </param>
         /// <param name="innerException"> The exception that is the cause of the current exception. </param>
-        public DbUpdateException([NotNull] string message, [CanBeNull] Exception innerException)
+        public DbUpdateException([NotNull] string message, [CanBeNull] Exception? innerException)
             : base(message, innerException)
         {
         }
@@ -67,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entries"> The entries that were involved in the error. </param>
         public DbUpdateException(
             [NotNull] string message,
-            [CanBeNull] Exception innerException,
+            [CanBeNull] Exception? innerException,
             [NotNull] IReadOnlyList<IUpdateEntry> entries)
             : base(message, innerException)
         {

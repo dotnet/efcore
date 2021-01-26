@@ -154,6 +154,8 @@ MaxLengthDataTypes.ByteArray9000 ---> [nullable varbinary] [MaxLength = -1]
 MaxLengthDataTypes.Id ---> [varbinary] [MaxLength = 4]
 MaxLengthDataTypes.String3 ---> [nullable varbinary] [MaxLength = 3]
 MaxLengthDataTypes.String9000 ---> [nullable varbinary] [MaxLength = -1]
+StringEnclosure.Id ---> [varbinary] [MaxLength = 4]
+StringEnclosure.Value ---> [nullable varbinary] [MaxLength = -1]
 StringForeignKeyDataType.Id ---> [varbinary] [MaxLength = 4]
 StringForeignKeyDataType.StringKeyDataTypeId ---> [nullable varbinary] [MaxLength = 900]
 StringKeyDataType.Id ---> [varbinary] [MaxLength = 900]
@@ -219,7 +221,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
                 => true;
 
             public override DateTime DefaultDateTime
-                => new DateTime();
+                => new();
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base
@@ -239,7 +241,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
 
         public class SqlServerBytesTestStoreFactory : SqlServerTestStoreFactory
         {
-            public static new SqlServerBytesTestStoreFactory Instance { get; } = new SqlServerBytesTestStoreFactory();
+            public static new SqlServerBytesTestStoreFactory Instance { get; } = new();
 
             public override IServiceCollection AddProviderServices(IServiceCollection serviceCollection)
                 => base.AddProviderServices(
@@ -248,15 +250,9 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
 
         public class SqlServerBytesTypeMappingSource : RelationalTypeMappingSource
         {
-            private readonly SqlServerByteArrayTypeMapping _rowversion
-                = new SqlServerByteArrayTypeMapping("rowversion", size: 8);
-
-            private readonly SqlServerByteArrayTypeMapping _variableLengthBinary
-                = new SqlServerByteArrayTypeMapping();
-
-            private readonly SqlServerByteArrayTypeMapping _fixedLengthBinary
-                = new SqlServerByteArrayTypeMapping(fixedLength: true);
-
+            private readonly SqlServerByteArrayTypeMapping _rowversion = new("rowversion", size: 8);
+            private readonly SqlServerByteArrayTypeMapping _variableLengthBinary = new();
+            private readonly SqlServerByteArrayTypeMapping _fixedLengthBinary = new(fixedLength: true);
             private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
 
             public SqlServerBytesTypeMappingSource(

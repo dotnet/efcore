@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         doing so can result in application failures when updating to a new Entity Framework Core release.
         ///     </para>
         /// </summary>
-#pragma warning disable CS0612 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         [EntityFrameworkInternal]
         public HistoryRepositoryDependencies(
             [NotNull] IRelationalDatabaseCreator databaseCreator,
@@ -84,6 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] ModelDependencies modelDependencies,
             [NotNull] IRelationalTypeMappingSource typeMappingSource,
             [NotNull] ICurrentDbContext currentContext,
+            [NotNull] IModelRuntimeInitializer modelRuntimeInitializer,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> modelLogger,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
         {
@@ -98,6 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(modelDependencies, nameof(modelDependencies));
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(currentContext, nameof(currentContext));
+            Check.NotNull(modelRuntimeInitializer, nameof(modelRuntimeInitializer));
             Check.NotNull(modelLogger, nameof(modelLogger));
             Check.NotNull(commandLogger, nameof(commandLogger));
 
@@ -112,10 +114,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             ModelDependencies = modelDependencies;
             TypeMappingSource = typeMappingSource;
             CurrentContext = currentContext;
+            ModelRuntimeInitializer = modelRuntimeInitializer;
             ModelLogger = modelDependencies.Logger;
             CommandLogger = commandLogger;
         }
-#pragma warning restore CS0612 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
 
         /// <summary>
         ///     The database creator.
@@ -173,9 +176,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public ICurrentDbContext CurrentContext { get; [param: NotNull] init; }
 
         /// <summary>
+        ///     The model runtime initializer
+        /// </summary>
+        public IModelRuntimeInitializer ModelRuntimeInitializer { get; [param: NotNull] init; }
+
+        /// <summary>
         ///     The model logger
         /// </summary>
-        [Obsolete]
+        [Obsolete("This is contained in ModelDependencies now.")]
         public IDiagnosticsLogger<DbLoggerCategory.Model> ModelLogger { get; [param: NotNull] init; }
 
         /// <summary>

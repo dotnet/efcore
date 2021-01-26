@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Caching.Memory;
@@ -46,6 +47,22 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Same(model, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().Model);
             Assert.True(optionsBuilder.Options.FindExtension<CoreOptionsExtension>().IsSensitiveDataLoggingEnabled);
+        }
+
+        [ConditionalFact]
+        public void Can_find_extension_with_GetExtension()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder();
+
+            Assert.Equal(
+                CoreStrings.OptionsExtensionNotFound(nameof(FakeDbContextOptionsExtension1)),
+                Assert.Throws<InvalidOperationException>(
+                    () => optionsBuilder.Options.GetExtension<FakeDbContextOptionsExtension1>()).Message);
+
+            var extension = new FakeDbContextOptionsExtension1();
+            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
+
+            Assert.Same(extension, optionsBuilder.Options.GetExtension<FakeDbContextOptionsExtension1>());
         }
 
         [ConditionalFact]

@@ -252,6 +252,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 var comparer = property.GetKeyValueComparer();
                 var originalValue = entry.GetOriginalValue(property);
 
+                var converter = property.GetValueConverter()
+                    ?? property.FindTypeMapping()?.Converter;
+
+                if (converter != null)
+                {
+                    rowValue = converter.ConvertFromProvider(rowValue);
+                }
+
                 if ((comparer != null && !comparer.Equals(rowValue, originalValue))
                     || (comparer == null && !StructuralComparisons.StructuralEqualityComparer.Equals(rowValue, originalValue)))
                 {

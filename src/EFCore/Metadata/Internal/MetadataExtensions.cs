@@ -6,6 +6,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -24,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static TConcrete AsConcreteMetadataType<TInterface, TConcrete>([NotNull] TInterface @interface, [NotNull] string methodName)
             where TConcrete : class
+            where TInterface : notnull
         {
             if (!(@interface is TConcrete concrete))
             {

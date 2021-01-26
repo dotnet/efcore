@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     /// </summary>
     public class SqlServerConvertTranslator : IMethodCallTranslator
     {
-        private static readonly Dictionary<string, string> _typeMapping = new Dictionary<string, string>
+        private static readonly Dictionary<string, string> _typeMapping = new()
         {
             [nameof(Convert.ToBoolean)] = "bit",
             [nameof(Convert.ToByte)] = "tinyint",
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             [nameof(Convert.ToString)] = "nvarchar(max)"
         };
 
-        private static readonly List<Type> _supportedTypes = new List<Type>
+        private static readonly List<Type> _supportedTypes = new()
         {
             typeof(bool),
             typeof(byte),

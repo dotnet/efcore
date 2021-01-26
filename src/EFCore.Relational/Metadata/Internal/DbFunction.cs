@@ -37,7 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private bool _nullable;
         private string? _storeType;
         private RelationalTypeMapping? _typeMapping;
-        private Func<IReadOnlyCollection<SqlExpression>, SqlExpression>? _translation;
+        private Func<IReadOnlyList<SqlExpression>, SqlExpression>? _translation;
+        private InternalDbFunctionBuilder? _builder;
 
         private ConfigurationSource _configurationSource;
         private ConfigurationSource? _schemaConfigurationSource;
@@ -114,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ReturnType = returnType;
             Model = model;
             _configurationSource = configurationSource;
-            Builder = new InternalDbFunctionBuilder(this, ((IConventionModel)model).Builder);
+            _builder = new InternalDbFunctionBuilder(this, ((IConventionModel)model).Builder);
             _parameters = parameters == null
                 ? new List<DbFunctionParameter>()
                 : parameters
@@ -156,7 +157,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalDbFunctionBuilder? Builder { get; private set; }
+        public virtual InternalDbFunctionBuilder Builder
+        {
+            [DebuggerStepThrough] get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool IsInModel
+            => _builder is not null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void SetRemovedFromModel()
+            => _builder = null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -199,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static DbFunction? AddDbFunction(
+        public static DbFunction AddDbFunction(
             [NotNull] IMutableModel model,
             [NotNull] MethodInfo methodInfo,
             ConfigurationSource configurationSource)
@@ -216,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static DbFunction? AddDbFunction(
+        public static DbFunction AddDbFunction(
             [NotNull] IMutableModel model,
             [NotNull] string name,
             [NotNull] Type returnType,
@@ -248,7 +270,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (functions.TryGetValue(name, out var function))
                 {
                     functions.Remove(name);
-                    function.Builder = null;
+                    function.SetRemovedFromModel();
 
                     return function;
                 }
@@ -271,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && functions.TryGetValue(name, out var function))
             {
                 functions.Remove(name);
-                function.Builder = null;
+                function.SetRemovedFromModel();
             }
 
             return null;
@@ -544,7 +566,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Func<IReadOnlyCollection<SqlExpression>, SqlExpression>? Translation
+        public virtual Func<IReadOnlyList<SqlExpression>, SqlExpression>? Translation
         {
             get => _translation;
             set => SetTranslation(value, ConfigurationSource.Explicit);
@@ -556,8 +578,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Func<IReadOnlyCollection<SqlExpression>, SqlExpression>? SetTranslation(
-            [CanBeNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression>? translation,
+        public virtual Func<IReadOnlyList<SqlExpression>, SqlExpression>? SetTranslation(
+            [CanBeNull] Func<IReadOnlyList<SqlExpression>, SqlExpression>? translation,
             ConfigurationSource configurationSource)
         {
             if (translation != null
@@ -602,7 +624,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <inheritdoc />
-        IConventionDbFunctionBuilder? IConventionDbFunction.Builder
+        IConventionDbFunctionBuilder IConventionDbFunction.Builder
         {
             [DebuggerStepThrough]
             get => Builder;
@@ -696,8 +718,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        Func<IReadOnlyCollection<SqlExpression>, SqlExpression>? IConventionDbFunction.SetTranslation(
-            Func<IReadOnlyCollection<SqlExpression>, SqlExpression>? translation,
+        Func<IReadOnlyList<SqlExpression>, SqlExpression>? IConventionDbFunction.SetTranslation(
+            Func<IReadOnlyList<SqlExpression>, SqlExpression>? translation,
             bool fromDataAnnotation)
             => SetTranslation(translation, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 

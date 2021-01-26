@@ -1009,7 +1009,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private InternalModelBuilder CreateInternalModelBuilder()
-            => new InternalModelBuilder(new Model());
+            => new(new Model());
 
         private class Order
         {

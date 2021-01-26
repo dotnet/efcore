@@ -6,6 +6,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -41,8 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void ProcessPropertyAnnotationChanged(
             IConventionPropertyBuilder propertyBuilder,
             string name,
-            IConventionAnnotation annotation,
-            IConventionAnnotation oldAnnotation,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation,
             IConventionContext<IConventionAnnotation> context)
         {
             var property = propertyBuilder.Metadata;
@@ -67,8 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void ProcessEntityTypeAnnotationChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
             string name,
-            IConventionAnnotation annotation,
-            IConventionAnnotation oldAnnotation,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation,
             IConventionContext<IConventionAnnotation> context)
         {
             if (name == RelationalAnnotationNames.TableName)
@@ -76,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 var schema = entityTypeBuilder.Metadata.GetSchema();
                 ProcessTableChanged(
                     entityTypeBuilder,
-                    (string)oldAnnotation?.Value ?? entityTypeBuilder.Metadata.GetDefaultTableName(),
+                    (string?)oldAnnotation?.Value ?? entityTypeBuilder.Metadata.GetDefaultTableName(),
                     schema,
                     entityTypeBuilder.Metadata.GetTableName(),
                     schema);
@@ -87,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 ProcessTableChanged(
                     entityTypeBuilder,
                     tableName,
-                    (string)oldAnnotation?.Value ?? entityTypeBuilder.Metadata.GetDefaultSchema(),
+                    (string?)oldAnnotation?.Value ?? entityTypeBuilder.Metadata.GetDefaultSchema(),
                     tableName,
                     entityTypeBuilder.Metadata.GetSchema());
             }
@@ -95,10 +97,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private void ProcessTableChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
-            string oldTable,
-            string oldSchema,
-            string newTable,
-            string newSchema)
+            string? oldTable,
+            string? oldSchema,
+            string? newTable,
+            string? newSchema)
         {
             var primaryKey = entityTypeBuilder.Metadata.FindPrimaryKey();
             if (primaryKey == null)
@@ -122,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             foreach (var property in primaryKey.Properties)
             {
-                property.Builder.ValueGenerated(GetValueGenerated(property, StoreObjectIdentifier.Table(newTable, newSchema)));
+                property.Builder.ValueGenerated(GetValueGenerated(property, StoreObjectIdentifier.Table(newTable!, newSchema)));
             }
         }
 

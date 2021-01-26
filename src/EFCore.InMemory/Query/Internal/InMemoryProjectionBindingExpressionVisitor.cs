@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private readonly IDictionary<ProjectionMember, Expression> _projectionMapping
             = new Dictionary<ProjectionMember, Expression>();
 
-        private readonly Stack<ProjectionMember> _projectionMembers = new Stack<ProjectionMember>();
+        private readonly Stack<ProjectionMember> _projectionMembers = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -502,7 +502,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             ShapedQueryExpression subquery,
             INavigationBase? navigation,
             Type elementType)
-            => new CollectionShaperExpression(
+            => new(
                 new ProjectionBindingExpression(
                     _queryExpression,
                     _queryExpression.AddSubqueryProjection(

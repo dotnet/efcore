@@ -4,9 +4,12 @@
 using System;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
@@ -124,6 +127,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// <param name="name"> The name of the savepoint to be released. </param>
         /// <returns> An SQL string to release the savepoint. </returns>
         public override string GenerateReleaseSavepointStatement(string name)
-            => throw new NotSupportedException("SQL Server does not support releasing a savepoint");
+            => throw new NotSupportedException(SqlServerStrings.NoSavepointRelease);
     }
 }

@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -39,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             if (clrType == null
                 || entityType.HasSharedClrType
                 || entityType.HasDefiningNavigation()
-                || entityType.Model.FindIsOwnedConfigurationSource(clrType) != null
+                || entityType.Model.IsOwned(clrType)
                 || entityType.FindOwnership() != null)
             {
                 return;
@@ -49,10 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             foreach (var directlyDerivedType in model.GetEntityTypes())
             {
                 if (directlyDerivedType != entityType
-                        && directlyDerivedType.HasClrType
                         && !directlyDerivedType.HasSharedClrType
                         && !directlyDerivedType.HasDefiningNavigation()
-                        && model.FindIsOwnedConfigurationSource(directlyDerivedType.ClrType) == null
+                        && !model.IsOwned(directlyDerivedType.ClrType)
                         && directlyDerivedType.FindDeclaredOwnership() == null
                         && ((directlyDerivedType.BaseType == null && clrType.IsAssignableFrom(directlyDerivedType.ClrType))
                             || (directlyDerivedType.BaseType == entityType.BaseType && FindClosestBaseType(directlyDerivedType) == entityType)))

@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(dependencies, nameof(dependencies));
 
             _typeMappingSource = dependencies.TypeMappingSource;
-            _boolTypeMapping = _typeMappingSource.FindMapping(typeof(bool));
+            _boolTypeMapping = _typeMappingSource.FindMapping(typeof(bool))!;
         }
 
         /// <inheritdoc />
@@ -636,7 +636,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <inheritdoc />
         public virtual SqlFunctionExpression Function(
-            string schema,
+            string? schema,
             string name,
             IEnumerable<SqlExpression> arguments,
             bool nullable,
@@ -644,7 +644,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Type returnType,
             RelationalTypeMapping? typeMapping = null)
         {
-            Check.NotNull(schema, nameof(schema));
+            Check.NullButNotEmpty(schema, nameof(schema));
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(arguments, nameof(arguments));
             Check.NotNull(argumentsPropagateNullability, nameof(argumentsPropagateNullability));
@@ -788,11 +788,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <inheritdoc />
         public virtual SqlConstantExpression Constant(object? value, RelationalTypeMapping? typeMapping = null)
-            => new SqlConstantExpression(Expression.Constant(value), typeMapping);
+            => new(Expression.Constant(value), typeMapping);
 
         /// <inheritdoc />
         public virtual SelectExpression Select(SqlExpression? projection)
-            => new SelectExpression(projection);
+            => new(projection);
 
         /// <inheritdoc />
         public virtual SelectExpression Select(IEntityType entityType)
@@ -1017,7 +1017,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <inheritdoc />
         [Obsolete("Use IRelationalTypeMappingSource directly.")]
-        public virtual RelationalTypeMapping FindMapping(Type type)
+        public virtual RelationalTypeMapping? FindMapping(Type type)
             => _typeMappingSource.FindMapping(Check.NotNull(type, nameof(type)));
     }
 }

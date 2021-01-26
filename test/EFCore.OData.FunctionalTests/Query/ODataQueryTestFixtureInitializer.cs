@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -26,7 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         public static (string BaseAddress, IHttpClientFactory ClientFactory, IHost SelfHostServer) Initialize<TContext>(
             string storeName,
-            IEdmModel edmModel)
+            IEdmModel edmModel,
+            List<IODataRoutingConvention> customRoutingConventions = null)
             where TContext : DbContext
         {
             var selfHostServer = Host.CreateDefaultBuilder()
@@ -47,11 +49,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                         app.UseRouting();
                         app.UseEndpoints(endpoints =>
                         {
+                            var conventions = ODataRoutingConventions.CreateDefault();
+                            if (customRoutingConventions != null)
+                            {
+                                foreach (var customRoutingConvention in customRoutingConventions)
+                                {
+                                    conventions.Insert(0, customRoutingConvention);
+                                }
+                            }
+
                             endpoints.MaxTop(2).Expand().Select().OrderBy().Filter();
                             endpoints.MapODataRoute("odata", "odata",
                                 edmModel,
                                 new DefaultODataPathHandler(),
-                                ODataRoutingConventions.CreateDefault(),
+                                conventions,
                                 new DefaultODataBatchHandler());
                         });
                     })

@@ -49,15 +49,41 @@ namespace Microsoft.EntityFrameworkCore
                 set = context.Categories;
             }
 
-            Assert.Throws<ObjectDisposedException>(() => set.Add(new Category()));
-            Assert.Throws<ObjectDisposedException>(() => set.Find(77));
-            Assert.Throws<ObjectDisposedException>(() => set.Attach(new Category()));
-            Assert.Throws<ObjectDisposedException>(() => set.Update(new Category()));
-            Assert.Throws<ObjectDisposedException>(() => set.Remove(new Category()));
-            Assert.Throws<ObjectDisposedException>(() => set.ToList());
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => set.AddAsync(new Category()).AsTask());
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => set.FindAsync(77).AsTask());
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => set.ToListAsync());
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => set.Add(new Category())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => set.Find(77)).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => set.Attach(new Category())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => set.Update(new Category())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => set.Remove(new Category())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => set.ToList()).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                (await Assert.ThrowsAsync<ObjectDisposedException>(() => set.AddAsync(new Category()).AsTask())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                (await Assert.ThrowsAsync<ObjectDisposedException>(() => set.FindAsync(77).AsTask())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                (await Assert.ThrowsAsync<ObjectDisposedException>(() => set.ToListAsync())).Message);
         }
 
         [ConditionalFact]
@@ -68,15 +94,41 @@ namespace Microsoft.EntityFrameworkCore
 
             var set = context.Categories;
 
-            Assert.Throws<ObjectDisposedException>(() => set.Add(new Category()));
-            Assert.Throws<ObjectDisposedException>(() => set.Find(77));
-            Assert.Throws<ObjectDisposedException>(() => set.Attach(new Category()));
-            Assert.Throws<ObjectDisposedException>(() => set.Update(new Category()));
-            Assert.Throws<ObjectDisposedException>(() => set.Remove(new Category()));
-            Assert.Throws<ObjectDisposedException>(() => set.ToList());
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => set.AddAsync(new Category()).AsTask());
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => set.FindAsync(77).AsTask());
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => set.ToListAsync());
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => set.Add(new Category())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => set.Find(77)).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => set.Attach(new Category())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => set.Update(new Category())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => set.Remove(new Category())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => set.ToList()).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                (await Assert.ThrowsAsync<ObjectDisposedException>(() => set.AddAsync(new Category()).AsTask())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                (await Assert.ThrowsAsync<ObjectDisposedException>(() => set.FindAsync(77).AsTask())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                (await Assert.ThrowsAsync<ObjectDisposedException>(() => set.ToListAsync())).Message);
         }
 
         [ConditionalFact]
@@ -85,7 +137,9 @@ namespace Microsoft.EntityFrameworkCore
             var context = new EarlyLearningCenter();
             context.Dispose();
 
-            Assert.Throws<ObjectDisposedException>(() => context.Set<Category>());
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => context.Set<Category>()).Message);
         }
 
         [Fact]
@@ -94,7 +148,9 @@ namespace Microsoft.EntityFrameworkCore
             var context = new EarlyLearningCenter();
             context.Dispose();
 
-            Assert.Throws<ObjectDisposedException>(() => context.Set<Dictionary<string, object>>("SharedTypeEntityTypeName"));
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => context.Set<Dictionary<string, object>>("SharedTypeEntityTypeName")).Message);
         }
 
         [ConditionalFact]
@@ -127,12 +183,29 @@ namespace Microsoft.EntityFrameworkCore
                 view = context.Categories.Local;
             }
 
-            Assert.Throws<ObjectDisposedException>(() => view.Add(new Category()));
-            Assert.Throws<ObjectDisposedException>(() => view.Remove(new Category()));
-            Assert.Throws<ObjectDisposedException>(() => view.Contains(new Category()));
-            Assert.Throws<ObjectDisposedException>(() => view.CopyTo(Array.Empty<Category>(), 0));
-            Assert.Throws<ObjectDisposedException>(() => view.Clear());
-            Assert.Throws<ObjectDisposedException>(() => view.GetEnumerator());
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => view.Add(new Category())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => view.Remove(new Category())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => view.Contains(new Category())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => view.CopyTo(Array.Empty<Category>(), 0)).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => view.Clear()).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => view.GetEnumerator()).Message);
         }
 
         [ConditionalFact]

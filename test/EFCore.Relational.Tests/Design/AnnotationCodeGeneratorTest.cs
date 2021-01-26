@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             => RelationalTestHelpers.Instance.CreateConventionBuilder();
 
         private AnnotationCodeGenerator CreateGenerator()
-            => new AnnotationCodeGenerator(
+            => new(
                 new AnnotationCodeGeneratorDependencies(
                     new TestRelationalTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),

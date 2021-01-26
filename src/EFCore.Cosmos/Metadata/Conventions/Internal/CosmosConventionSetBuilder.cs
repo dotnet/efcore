@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
 {
     /// <summary>
@@ -100,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
         public static ModelBuilder CreateModelBuilder()
         {
             using var serviceScope = CreateServiceScope();
-            using var context = serviceScope.ServiceProvider.GetService<DbContext>();
+            using var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
             return new ModelBuilder(ConventionSet.CreateConventionSet(context), context.GetService<ModelDependencies>());
         }
 

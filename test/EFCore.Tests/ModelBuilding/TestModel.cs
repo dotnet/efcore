@@ -317,9 +317,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class SelfRefManyToOne
         {
             public int Id { get; set; }
+            public int SelfRefId { get; set; }
             public SelfRefManyToOne SelfRef1 { get; set; }
             public ICollection<SelfRefManyToOne> SelfRef2 { get; set; }
-            public int SelfRefId { get; set; }
+
+            [NotMapped]
+            public ManyToManyRelated Related { get; set; }
+
+            [NotMapped]
+            public ICollection<ManyToManyRelated> Relateds { get; set; }
+        }
+
+        protected class ManyToManyRelated
+        {
+            public int Id { get; set; }
+            public ICollection<SelfRefManyToOne> DirectlyRelatedSelfRefs { get; set; }
+            public ICollection<SelfRefManyToOne> RelatedSelfRefs { get; set; }
         }
 
         protected class User
@@ -863,7 +876,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         protected class IndexedClassByDictionary
         {
-            private readonly Dictionary<string, object> _indexerData = new Dictionary<string, object>();
+            private readonly Dictionary<string, object> _indexerData = new();
 
             public int Id { get; set; }
 
@@ -874,7 +887,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
         }
 
-        private class OneToManyNavPrincipal
+        protected class OneToManyNavPrincipal
         {
             public int Id { get; set; }
             public string Name { get; set; }
@@ -882,7 +895,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public List<NavDependent> Dependents { get; set; }
         }
 
-        private class OneToOneNavPrincipal
+        protected class OneToOneNavPrincipal
         {
             public int Id { get; set; }
             public string Name { get; set; }
@@ -890,7 +903,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public NavDependent Dependent { get; set; }
         }
 
-        private class ManyToManyNavPrincipal
+        protected class ManyToManyNavPrincipal
         {
             private readonly List<NavDependent> _randomField;
 
@@ -906,7 +919,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public List<NavDependent> Dependents { get; set; }
         }
 
-        private class NavDependent
+        protected class NavDependent
         {
             public int Id { get; set; }
             public string Name { get; set; }
@@ -916,7 +929,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public List<ManyToManyNavPrincipal> ManyToManyPrincipals { get; set; }
         }
 
-        private class OneToManyNavPrincipalOwner
+        protected class OneToManyNavPrincipalOwner
         {
             public int Id { get; set; }
             public string Description { get; set; }
@@ -924,7 +937,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public List<OwnedOneToManyNavDependent> OwnedDependents { get; set; }
         }
 
-        private class OneToOneNavPrincipalOwner
+        protected class OneToOneNavPrincipalOwner
         {
             public int Id { get; set; }
             public string Description { get; set; }
@@ -932,7 +945,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public OwnedNavDependent OwnedDependent { get; set; }
         }
 
-        private class OwnedNavDependent
+        protected class OwnedNavDependent
         {
             public string FirstName { get; set; }
             public string LastName { get; set; }
@@ -940,7 +953,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public OneToOneNavPrincipalOwner OneToOneOwner { get; set; }
         }
 
-        private class OwnedOneToManyNavDependent
+        protected class OwnedOneToManyNavDependent
         {
             public string FirstName { get; set; }
             public string LastName { get; set; }
@@ -1084,15 +1097,15 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class AmbiguousManyToManyImplicitLeft
         {
             public int Id { get; set; }
-            public List<AmbiguousManyToManyImplicitRight> Navigation1 { get; } = new List<AmbiguousManyToManyImplicitRight>();
-            public List<AmbiguousManyToManyImplicitRight> Navigation2 { get; } = new List<AmbiguousManyToManyImplicitRight>();
+            public List<AmbiguousManyToManyImplicitRight> Navigation1 { get; } = new();
+            public List<AmbiguousManyToManyImplicitRight> Navigation2 { get; } = new();
         }
 
         protected class AmbiguousManyToManyImplicitRight
         {
             public int Id { get; set; }
-            public List<AmbiguousManyToManyImplicitLeft> Navigation1 { get; } = new List<AmbiguousManyToManyImplicitLeft>();
-            public List<AmbiguousManyToManyImplicitLeft> Navigation2 { get; } = new List<AmbiguousManyToManyImplicitLeft>();
+            public List<AmbiguousManyToManyImplicitLeft> Navigation1 { get; } = new();
+            public List<AmbiguousManyToManyImplicitLeft> Navigation2 { get; } = new();
         }
 
         protected class AmbiguousInversePropertyLeft

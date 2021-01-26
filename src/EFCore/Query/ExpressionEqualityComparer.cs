@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Gets an instance of <see cref="ExpressionEqualityComparer" />.
         /// </summary>
-        public static ExpressionEqualityComparer Instance { get; } = new ExpressionEqualityComparer();
+        public static ExpressionEqualityComparer Instance { get; } = new();
 
         /// <summary>
         ///     Returns the hash code for given expression.
@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             break;
                         }
 
-                        throw new NotImplementedException(CoreStrings.UnhandledExpressionNode(obj.NodeType));
+                        throw new NotSupportedException(CoreStrings.UnhandledExpressionNode(obj.NodeType));
                 }
 
                 return hash.ToHashCode();

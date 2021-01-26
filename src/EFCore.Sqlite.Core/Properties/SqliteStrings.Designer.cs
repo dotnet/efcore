@@ -8,6 +8,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
 {
     /// <summary>
@@ -24,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// <summary>
         ///     SQLite cannot apply aggregate operator '{aggregateOperator}' on expressions of type '{type}'. Convert the values to a supported type, or use LINQ to Objects to aggregate the results on the client side.
         /// </summary>
-        public static string AggregateOperationNotSupported([CanBeNull] object aggregateOperator, [CanBeNull] object type)
+        public static string AggregateOperationNotSupported([CanBeNull] object? aggregateOperator, [CanBeNull] object? type)
             => string.Format(
                 GetString("AggregateOperationNotSupported", nameof(aggregateOperator), nameof(type)),
                 aggregateOperator, type);
@@ -38,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// <summary>
         ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different SRIDs.
         /// </summary>
-        public static string DuplicateColumnNameSridMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table)
+        public static string DuplicateColumnNameSridMismatch([CanBeNull] object? entityType1, [CanBeNull] object? property1, [CanBeNull] object? entityType2, [CanBeNull] object? property2, [CanBeNull] object? columnName, [CanBeNull] object? table)
             => string.Format(
                 GetString("DuplicateColumnNameSridMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
                 entityType1, property1, entityType2, property2, columnName, table);
@@ -46,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// <summary>
         ///     SQLite does not support this migration operation ('{operation}'). For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.
         /// </summary>
-        public static string InvalidMigrationOperation([CanBeNull] object operation)
+        public static string InvalidMigrationOperation([CanBeNull] object? operation)
             => string.Format(
                 GetString("InvalidMigrationOperation", nameof(operation)),
                 operation);
@@ -60,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// <summary>
         ///     SQLite does not support expressions of type '{type}' in ORDER BY clauses. Convert the values to a supported type, or use LINQ to Objects to order the results on the client side.
         /// </summary>
-        public static string OrderByNotSupported([CanBeNull] object type)
+        public static string OrderByNotSupported([CanBeNull] object? type)
             => string.Format(
                 GetString("OrderByNotSupported", nameof(type)),
                 type);
@@ -73,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
 
         private static string GetString(string name, params string[] formatterNames)
         {
-            var value = _resourceManager.GetString(name);
+            var value = _resourceManager.GetString(name)!;
             for (var i = 0; i < formatterNames.Length; i++)
             {
                 value = value.Replace("{" + formatterNames[i] + "}", "{" + i + "}");
@@ -115,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                         level => LoggerMessage.Define<string, string, string>(
                             level,
                             SqliteEventId.ForeignKeyReferencesMissingTableWarning,
-                            _resourceManager.GetString("LogForeignKeyScaffoldErrorPrincipalTableNotFound"))));
+                            _resourceManager.GetString("LogForeignKeyScaffoldErrorPrincipalTableNotFound")!)));
             }
 
             return (EventDefinition<string, string, string>)definition;
@@ -139,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                         level => LoggerMessage.Define<string, string, string, bool, string>(
                             level,
                             SqliteEventId.ColumnFound,
-                            _resourceManager.GetString("LogFoundColumn"))));
+                            _resourceManager.GetString("LogFoundColumn")!)));
             }
 
             return (EventDefinition<string, string, string, bool, string>)definition;
@@ -163,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                         level => LoggerMessage.Define<string, long, string, string>(
                             level,
                             SqliteEventId.ForeignKeyFound,
-                            _resourceManager.GetString("LogFoundForeignKey"))));
+                            _resourceManager.GetString("LogFoundForeignKey")!)));
             }
 
             return (EventDefinition<string, long, string, string>)definition;
@@ -187,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                         level => LoggerMessage.Define<string, string, bool?>(
                             level,
                             SqliteEventId.IndexFound,
-                            _resourceManager.GetString("LogFoundIndex"))));
+                            _resourceManager.GetString("LogFoundIndex")!)));
             }
 
             return (EventDefinition<string, string, bool?>)definition;
@@ -211,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                         level => LoggerMessage.Define<string, string>(
                             level,
                             SqliteEventId.PrimaryKeyFound,
-                            _resourceManager.GetString("LogFoundPrimaryKey"))));
+                            _resourceManager.GetString("LogFoundPrimaryKey")!)));
             }
 
             return (EventDefinition<string, string>)definition;
@@ -235,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                         level => LoggerMessage.Define<string>(
                             level,
                             SqliteEventId.TableFound,
-                            _resourceManager.GetString("LogFoundTable"))));
+                            _resourceManager.GetString("LogFoundTable")!)));
             }
 
             return (EventDefinition<string>)definition;
@@ -259,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                         level => LoggerMessage.Define<string, string>(
                             level,
                             SqliteEventId.UniqueConstraintFound,
-                            _resourceManager.GetString("LogFoundUniqueConstraint"))));
+                            _resourceManager.GetString("LogFoundUniqueConstraint")!)));
             }
 
             return (EventDefinition<string, string>)definition;
@@ -283,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                         level => LoggerMessage.Define<string>(
                             level,
                             SqliteEventId.MissingTableWarning,
-                            _resourceManager.GetString("LogMissingTable"))));
+                            _resourceManager.GetString("LogMissingTable")!)));
             }
 
             return (EventDefinition<string>)definition;
@@ -307,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                         level => LoggerMessage.Define<string, string, string, string>(
                             level,
                             SqliteEventId.ForeignKeyPrincipalColumnMissingWarning,
-                            _resourceManager.GetString("LogPrincipalColumnNotFound"))));
+                            _resourceManager.GetString("LogPrincipalColumnNotFound")!)));
             }
 
             return (EventDefinition<string, string, string, string>)definition;
@@ -331,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                         level => LoggerMessage.Define<string, string>(
                             level,
                             SqliteEventId.SchemaConfiguredWarning,
-                            _resourceManager.GetString("LogSchemaConfigured"))));
+                            _resourceManager.GetString("LogSchemaConfigured")!)));
             }
 
             return (EventDefinition<string, string>)definition;
@@ -355,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                         level => LoggerMessage.Define<string>(
                             level,
                             SqliteEventId.SequenceConfiguredWarning,
-                            _resourceManager.GetString("LogSequenceConfigured"))));
+                            _resourceManager.GetString("LogSequenceConfigured")!)));
             }
 
             return (EventDefinition<string>)definition;
@@ -379,7 +381,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                         level => LoggerMessage.Define<string, string>(
                             level,
                             SqliteEventId.TableRebuildPendingWarning,
-                            _resourceManager.GetString("LogTableRebuildPendingWarning"))));
+                            _resourceManager.GetString("LogTableRebuildPendingWarning")!)));
             }
 
             return (EventDefinition<string, string>)definition;
@@ -403,7 +405,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                         level => LoggerMessage.Define<string>(
                             level,
                             SqliteEventId.UnexpectedConnectionTypeWarning,
-                            _resourceManager.GetString("LogUnexpectedConnectionType"))));
+                            _resourceManager.GetString("LogUnexpectedConnectionType")!)));
             }
 
             return (EventDefinition<string>)definition;
@@ -427,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                         level => LoggerMessage.Define(
                             level,
                             SqliteEventId.SchemasNotSupportedWarning,
-                            _resourceManager.GetString("LogUsingSchemaSelectionsWarning"))));
+                            _resourceManager.GetString("LogUsingSchemaSelectionsWarning")!)));
             }
 
             return (EventDefinition)definition;

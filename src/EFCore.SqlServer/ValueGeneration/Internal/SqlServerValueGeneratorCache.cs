@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
     public class SqlServerValueGeneratorCache : ValueGeneratorCache, ISqlServerValueGeneratorCache
     {
         private readonly ConcurrentDictionary<string, SqlServerSequenceValueGeneratorState> _sequenceGeneratorCache
-            = new ConcurrentDictionary<string, SqlServerSequenceValueGeneratorState>();
+            = new();
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValueGeneratorCache" /> class.

@@ -432,7 +432,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <inheritdoc />
         protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
-            => QueryCompilationContext.NotTranslatedExpression;
+            => throw new InvalidOperationException(CoreStrings.TranslationFailed(lambdaExpression.Print()));
 
         /// <inheritdoc />
         protected override Expression VisitListInit(ListInitExpression listInitExpression)
@@ -638,7 +638,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             }
 
                             selector = _sqlExpressionFactory.Case(
-                                new List<CaseWhenClause> { new CaseWhenClause(groupingElement.Predicate, selector) },
+                                new List<CaseWhenClause> { new(groupingElement.Predicate, selector) },
                                 elseResult: null);
                         }
 
@@ -1237,7 +1237,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     when sqlParameterExpression.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal):
                     var lambda = Expression.Lambda(
                         Expression.Call(
-                            _parameterListValueExtractor.MakeGenericMethod(entityType.ClrType!, property.ClrType.MakeNullable()),
+                            _parameterListValueExtractor.MakeGenericMethod(entityType.ClrType, property.ClrType.MakeNullable()),
                             QueryCompilationContext.QueryContextParameter,
                             Expression.Constant(sqlParameterExpression.Name, typeof(string)),
                             Expression.Constant(property, typeof(IProperty))),
@@ -1406,7 +1406,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                         return nodeType == ExpressionType.Equal
                             ? (Expression)comparison
                             : Expression.Not(comparison);
-                    }).Aggregate((l, r) => Expression.AndAlso(l, r)));
+                    }).Aggregate((l, r) => nodeType == ExpressionType.Equal
+                        ? Expression.AndAlso(l, r)
+                        : Expression.OrElse(l, r)));
 
             return true;
         }
@@ -1535,7 +1537,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public IEntityType EntityType { get; }
 
             public override Type Type
-                => EntityType.ClrType!;
+                => EntityType.ClrType;
 
             public override ExpressionType NodeType
                 => ExpressionType.Extension;

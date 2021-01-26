@@ -151,6 +151,40 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
+            // See issue#16428
+            //if (binaryExpression.NodeType == ExpressionType.ArrayIndex
+            //    && binaryExpression.Left.Type == typeof(byte[]))
+            //{
+            //    var left = Visit(binaryExpression.Left);
+            //    var right = Visit(binaryExpression.Right);
+
+            //    if (left is SqlExpression leftSql
+            //        && right is SqlExpression rightSql)
+            //    {
+            //        return Dependencies.SqlExpressionFactory.Function(
+            //            "unicode",
+            //            new SqlExpression[]
+            //            {
+            //                Dependencies.SqlExpressionFactory.Function(
+            //                    "substr",
+            //                    new SqlExpression[]
+            //                    {
+            //                        leftSql,
+            //                        Dependencies.SqlExpressionFactory.Add(
+            //                            Dependencies.SqlExpressionFactory.ApplyDefaultTypeMapping(rightSql),
+            //                            Dependencies.SqlExpressionFactory.Constant(1)),
+            //                        Dependencies.SqlExpressionFactory.Constant(1)
+            //                    },
+            //                    nullable: true,
+            //                    argumentsPropagateNullability: new[] { true, true, true },
+            //                    typeof(byte[]))
+            //            },
+            //            nullable: true,
+            //            argumentsPropagateNullability: new[] { true },
+            //            binaryExpression.Type);
+            //    }
+            //}
+
             if (!(base.VisitBinary(binaryExpression) is SqlExpression visitedExpression))
             {
                 return QueryCompilationContext.NotTranslatedExpression;

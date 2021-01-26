@@ -320,7 +320,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private IndexAttributeConvention CreateIndexAttributeConvention()
-            => new IndexAttributeConvention(CreateDependencies());
+            => new(CreateDependencies());
 
         private ProviderConventionSetBuilderDependencies CreateDependencies()
             => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
