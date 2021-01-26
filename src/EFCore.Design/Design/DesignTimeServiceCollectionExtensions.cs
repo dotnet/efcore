@@ -109,6 +109,6 @@ namespace Microsoft.EntityFrameworkCore.Design
                 .AddTransient(_ => context.GetService<IMigrator>())
                 .AddTransient(_ => context.GetService<IRelationalTypeMappingSource>())
                 .AddTransient(_ => context.GetService<IModel>())
-                .AddTransient(_ => context.GetService<IConventionSetBuilder>());
+                .AddTransient(_ => context.GetService<IModelRuntimeInitializer>());
     }
 }
