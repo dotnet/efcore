@@ -1622,6 +1622,31 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_string_concat_method_comparison_2(bool async)
+        {
+            var i = "A";
+            var j = "B";
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => string.Concat(i, j, c.CustomerID) == c.CompanyName).Select(c => c.CustomerID));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_string_concat_method_comparison_3(bool async)
+        {
+            var i = "A";
+            var j = "B";
+            var k = "C";
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => string.Concat(i, j, k, c.CustomerID) == c.CompanyName).Select(c => c.CustomerID));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_ternary_boolean_condition_true(bool async)
         {
             var flag = true;
