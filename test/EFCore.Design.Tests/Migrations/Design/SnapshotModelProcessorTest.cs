@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -67,6 +69,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             AssertAnnotations(index);
 
             Assert.Empty(reporter.Messages);
+        }
+
+        [ConditionalFact]
+        public void Can_resolve_ISnapshotModelProcessor_from_DI()
+        {
+            var assembly = typeof(SnapshotModelProcessorTest).Assembly;
+            var snapshotModelProcessor = new DesignTimeServicesBuilder(assembly, assembly, new TestOperationReporter(), new string[0])
+                .Build(SqlServerTestHelpers.Instance.CreateContext())
+                .GetRequiredService<ISnapshotModelProcessor>();
+
+            Assert.NotNull(snapshotModelProcessor);
         }
 
         [ConditionalFact]
