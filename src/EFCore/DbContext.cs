@@ -617,7 +617,7 @@ namespace Microsoft.EntityFrameworkCore
             SavingChanges?.Invoke(this, new SavingChangesEventArgs(acceptAllChangesOnSuccess));
 
             var interceptionResult = await DbContextDependencies.UpdateLogger
-                .SaveChangesStartingAsync(this, cancellationToken).ConfigureAwait(false);
+                .SaveChangesStartingAsync(this, cancellationToken).ConfigureAwait(acceptAllChangesOnSuccess);
 
             TryDetectChanges();
 
