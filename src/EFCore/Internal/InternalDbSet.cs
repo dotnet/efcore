@@ -81,7 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(typeof(TEntity).ShortDisplayName()));
                     }
 
-                    throw new InvalidOperationException(CoreStrings.InvalidSetType(typeof(TEntity).FullName, _context.Model.GetEntityTypes().Select(x => x.ClrType.FullName).ToArray()));
+                    throw new InvalidOperationException(CoreStrings.InvalidSetType(typeof(TEntity).DisplayName(), _context.Model.GetEntityTypes().GroupBy(dbSetType => dbSetType.ShortName())
+                    .Select(dbSetType => dbSetType.First().ClrType.DisplayName()).ToArray()));
                 }
 
                 if (_entityType.IsOwned())

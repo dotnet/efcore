@@ -312,7 +312,8 @@ namespace Microsoft.EntityFrameworkCore
                     throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(type.ShortDisplayName()));
                 }
 
-                throw new InvalidOperationException(CoreStrings.InvalidSetType(type.FullName, Model.GetEntityTypes().Select(dbSetType => dbSetType.ClrType.FullName).ToArray()));
+                throw new InvalidOperationException(CoreStrings.InvalidSetType(type.DisplayName(), Model.GetEntityTypes().GroupBy(dbSetType => dbSetType.ShortName())
+                    .Select(dbSetType => dbSetType.First().ClrType.DisplayName()).ToArray()));
             }
 
             if (entityType.FindPrimaryKey() == null)

@@ -301,8 +301,10 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Throws_for_bad_entity_type()
         {
             using var context = CreateContext();
+            
             Assert.Equal(
-                CoreStrings.InvalidSetType(typeof(Random).FullName, context.Model.GetEntityTypes().Select(dbSetType => dbSetType.ClrType.FullName).ToArray()),
+                CoreStrings.InvalidSetType(typeof(Random).DisplayName(), context.Model.GetEntityTypes().GroupBy(dbSetType => dbSetType.ShortName())
+                    .Select(dbSetType => dbSetType.First().ClrType.DisplayName()).ToArray()),
                 Assert.Throws<InvalidOperationException>(() => Find<Random>(context, 77)).Message);
         }
 
@@ -577,7 +579,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using var context = CreateContext();
             Assert.Equal(
-                CoreStrings.InvalidSetType(typeof(Random).FullName, context.Model.GetEntityTypes().Select(dbSetType => dbSetType.ClrType.FullName).ToArray()),
+                CoreStrings.InvalidSetType(typeof(Random).DisplayName(), context.Model.GetEntityTypes().GroupBy(dbSetType => dbSetType.ShortName())
+                    .Select(dbSetType => dbSetType.First().ClrType.DisplayName()).ToArray()),
                 (await Assert.ThrowsAsync<InvalidOperationException>(() => FindAsync<Random>(context, 77).AsTask())).Message);
         }
 
