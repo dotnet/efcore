@@ -23,17 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<NotSupportedException>(() => foreignKey.AsForeignKey()).Message);
         }
 
-        public class FakeForeignKey : IForeignKey
+        public class FakeForeignKey : Annotatable, IForeignKey
         {
-            public object this[string name]
-                => throw new NotImplementedException();
-
-            public IAnnotation FindAnnotation(string name)
-                => throw new NotImplementedException();
-
-            public IEnumerable<IAnnotation> GetAnnotations()
-                => throw new NotImplementedException();
-
             public IEntityType DeclaringEntityType { get; }
             public IReadOnlyList<IProperty> Properties { get; }
             public IEntityType PrincipalEntityType { get; }

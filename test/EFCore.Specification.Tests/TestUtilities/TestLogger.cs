@@ -4,17 +4,30 @@
 using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
-    public class TestLogger<TDefinitions> : TestLoggerBase, IDiagnosticsLogger, ILogger
-        where TDefinitions : LoggingDefinitions, new()
+    public class TestLogger : TestLoggerBase, IDiagnosticsLogger, ILogger
     {
+        public TestLogger(LoggingDefinitions definitions)
+        {
+            Definitions = definitions;
+        }
+
         public ILoggingOptions Options
             => new LoggingOptions();
+
+        public bool ShouldLogSensitiveData()
+            => false;
+
+        public ILogger Logger
+            => this;
+
+        public virtual LoggingDefinitions Definitions { get; }
+
+        public IInterceptors Interceptors { get; }
 
         public bool IsEnabled(LogLevel logLevel)
             => EnabledFor == logLevel;
@@ -34,15 +47,5 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Assert.Equal(LoggedEvent, eventId);
             Message = formatter(state, exception);
         }
-
-        public bool ShouldLogSensitiveData()
-            => false;
-
-        public ILogger Logger
-            => this;
-
-        public virtual LoggingDefinitions Definitions { get; } = new TDefinitions();
-
-        public IInterceptors Interceptors { get; }
     }
 }

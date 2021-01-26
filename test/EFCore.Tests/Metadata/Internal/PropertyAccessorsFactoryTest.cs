@@ -17,18 +17,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [ConditionalFact]
         public void Can_use_PropertyAccessorsFactory_on_indexed_property()
         {
-            IMutableModel model = new Model();
-            var entityType = model.AddEntityType(typeof(IndexedClass));
-            var id = entityType.AddProperty("Id", typeof(int));
-            var propertyA = entityType.AddIndexerProperty("PropertyA", typeof(string));
-            model.FinalizeModel();
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var entityTypeBuilder = modelBuilder.Entity<IndexedClass>();
+            entityTypeBuilder.Property<int>("Id");
+            var propertyA = entityTypeBuilder.IndexerProperty<string>("PropertyA").Metadata;
+
+            var model = modelBuilder.FinalizeModel();
 
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<IStateManager>();
             var factory = contextServices.GetRequiredService<IInternalEntityEntryFactory>();
 
             var entity = new IndexedClass();
-            var entry = factory.Create(stateManager, entityType, entity);
+            var entry = factory.Create(stateManager, entityTypeBuilder.Metadata, entity);
 
             var propertyAccessors = new PropertyAccessorsFactory().Create(propertyA);
             Assert.Equal("ValueA", ((Func<InternalEntityEntry, string>)propertyAccessors.CurrentValueGetter)(entry));
@@ -43,18 +44,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [ConditionalFact]
         public void Can_use_PropertyAccessorsFactory_on_non_indexed_property()
         {
-            IMutableModel model = new Model();
-            var entityType = model.AddEntityType(typeof(NonIndexedClass));
-            entityType.AddProperty("Id", typeof(int));
-            var propA = entityType.AddProperty("PropA", typeof(string));
-            model.FinalizeModel();
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var entityTypeBuilder = modelBuilder.Entity<NonIndexedClass>();
+            entityTypeBuilder.Property<int>("Id");
+            var propA = entityTypeBuilder.Property<string>("PropA").Metadata;
+
+            var model = modelBuilder.FinalizeModel();
 
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<IStateManager>();
             var factory = contextServices.GetRequiredService<IInternalEntityEntryFactory>();
 
             var entity = new NonIndexedClass();
-            var entry = factory.Create(stateManager, entityType, entity);
+            var entry = factory.Create(stateManager, entityTypeBuilder.Metadata, entity);
 
             var propertyAccessors = new PropertyAccessorsFactory().Create(propA);
             Assert.Equal("ValueA", ((Func<InternalEntityEntry, string>)propertyAccessors.CurrentValueGetter)(entry));

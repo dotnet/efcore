@@ -11,9 +11,9 @@ using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -467,8 +467,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
-            GenerateMapping(modelBuilder.Entity<Animal>().Property(b => b.Id).HasColumnName("Name").Metadata);
-            GenerateMapping(modelBuilder.Entity<Animal>().Property(d => d.Name).HasColumnName("Name").IsRequired().Metadata);
+            modelBuilder.Entity<Animal>().Property(b => b.Id).HasColumnName("Name");
+            modelBuilder.Entity<Animal>().Property(d => d.Name).HasColumnName("Name").IsRequired();
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
@@ -483,8 +483,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
 
-            GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Type).HasColumnName("Type").IsRequired().Metadata);
-            GenerateMapping(modelBuilder.Entity<Dog>().Property(d => d.Type).HasColumnName("Type").Metadata);
+            modelBuilder.Entity<Cat>().Property(c => c.Type).HasColumnName("Type").IsRequired();
+            modelBuilder.Entity<Dog>().Property(d => d.Type).HasColumnName("Type");
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
@@ -498,8 +498,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
 
-            GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").HasMaxLength(30).Metadata);
-            GenerateMapping(modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("Breed").HasMaxLength(15).Metadata);
+            modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").HasMaxLength(30);
+            modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("Breed").HasMaxLength(15);
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameMaxLengthMismatch(
@@ -513,8 +513,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
 
-            GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").IsUnicode().Metadata);
-            GenerateMapping(modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("Breed").Metadata);
+            modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").IsUnicode();
+            modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("Breed");
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameUnicodenessMismatch(
@@ -527,8 +527,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
 
-            GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").IsFixedLength().Metadata);
-            GenerateMapping(modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("Breed").Metadata);
+            modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").IsFixedLength();
+            modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("Breed");
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameFixedLengthMismatch(
@@ -541,8 +541,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
 
-            GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").IsConcurrencyToken().Metadata);
-            GenerateMapping(modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("Breed").Metadata);
+            modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").IsConcurrencyToken();
+            modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("Breed");
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameConcurrencyTokenMismatch(
@@ -1936,13 +1936,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             Assert.DoesNotContain(LoggerFactory.Log, l => l.Level == LogLevel.Warning);
         }
-
-        private static void GenerateMapping(IMutableProperty property)
-            => property.SetTypeMapping(
-                new TestRelationalTypeMappingSource(
-                        TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
-                    .FindMapping(property));
 
         protected override void SetBaseType(IMutableEntityType entityType, IMutableEntityType baseEntityType)
         {

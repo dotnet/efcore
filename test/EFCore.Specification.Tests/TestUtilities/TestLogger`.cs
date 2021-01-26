@@ -5,9 +5,16 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
-    public class TestLogger<TCategory, TDefinitions> : TestLogger<TDefinitions>, IDiagnosticsLogger<TCategory>
-        where TCategory : LoggerCategory<TCategory>, new()
+    public class TestLogger<TDefinitions> : TestLogger
         where TDefinitions : LoggingDefinitions, new()
     {
+        public TestLogger()
+            : base(new TDefinitions())
+        { }
+
+        public TestLogger(LoggingDefinitions definitions)
+            : base(definitions)
+        {
+        }
     }
 }

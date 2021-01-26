@@ -37,19 +37,14 @@ using Xunit.Abstractions;
 // ReSharper disable UnusedMember.Local
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class QueryBugsTest : NonSharedModelTestBase, IClassFixture<SqlServerFixture>
+    public class QueryBugsTest : NonSharedModelTestBase
     {
         // ReSharper disable once UnusedParameter.Local
 #pragma warning disable IDE0060 // Remove unused parameter
-        public QueryBugsTest(SqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+        public QueryBugsTest(ITestOutputHelper testOutputHelper)
 #pragma warning restore IDE0060 // Remove unused parameter
         {
-            Fixture = fixture;
-            Fixture.TestSqlLoggerFactory.Clear();
-            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
-
-        protected SqlServerFixture Fixture { get; }
 
         #region Issue14095
 

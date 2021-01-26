@@ -98,10 +98,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             MemberClassifier = memberClassifier;
             ConstructorBindingFactory = constructorBindingFactory;
             Logger = logger;
-            ValidationLogger = validationLogger;
             SetFinder = setFinder;
             _currentContext = currentContext;
+            ValidationLogger = validationLogger;
+#pragma warning disable CS0618 // Type or member is obsolete
             ModelValidator = validator;
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         /// <summary>
@@ -149,6 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <summary>
         ///     The model validator.
         /// </summary>
+        [Obsolete("The validation is no longer performed by a convention")]
         public IModelValidator ModelValidator { get; [param: NotNull] init; }
 
         /// <summary>
@@ -157,8 +160,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <param name="currentContext"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public ProviderConventionSetBuilderDependencies With([NotNull] ICurrentDbContext currentContext)
+#pragma warning disable CS0618 // Type or member is obsolete
             => new(
                 TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier, Logger, ValidationLogger,
                 SetFinder, currentContext, ModelValidator);
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

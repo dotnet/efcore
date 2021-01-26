@@ -134,10 +134,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The database model. </returns>
         public static IRelationalModel GetRelationalModel([NotNull] this IModel model)
         {
-            var databaseModel = (IRelationalModel?)model[RelationalAnnotationNames.RelationalModel];
+            var databaseModel = (IRelationalModel?)model.FindRuntimeAnnotationValue(RelationalAnnotationNames.RelationalModel);
             if (databaseModel == null)
             {
-                throw new InvalidOperationException(RelationalStrings.DatabaseModelMissing);
+                throw new InvalidOperationException(CoreStrings.ModelNotFinalized(nameof(GetRelationalModel)));
             }
 
             return databaseModel;

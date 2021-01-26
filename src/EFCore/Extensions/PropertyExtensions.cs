@@ -37,8 +37,7 @@ namespace Microsoft.EntityFrameworkCore
             var mapping = ((Property)property).TypeMapping;
             if (mapping == null)
             {
-                throw new InvalidOperationException(
-                    CoreStrings.ModelNotFinalized(nameof(GetTypeMapping)));
+                throw new InvalidOperationException(CoreStrings.ModelNotFinalized(nameof(GetTypeMapping)));
             }
 
             return mapping;
@@ -359,7 +358,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> A new equality comparer. </returns>
         public static IEqualityComparer<TProperty> CreateKeyEqualityComparer<TProperty>([NotNull] this IProperty property)
         {
-            // TODO-NULLABLE: #22031
             var comparer = property.GetKeyValueComparer()!;
 
             return comparer is IEqualityComparer<TProperty> nullableComparer

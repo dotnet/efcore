@@ -245,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IDependentsMap CreateDependentsMapFactory([NotNull] this IForeignKey foreignKey)
-            => foreignKey.AsForeignKey().DependentsMapFactory!(); // TODO-NULLABLE: #22031
+            => foreignKey.AsForeignKey().DependentsMapFactory();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

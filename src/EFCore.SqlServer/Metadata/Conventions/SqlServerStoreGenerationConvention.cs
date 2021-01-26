@@ -5,7 +5,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
 #nullable enable
@@ -104,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             if (property.GetValueGenerationStrategyConfigurationSource() != null)
             {
-                var generationStrategy = property.GetValueGenerationStrategy(storeObject);
+                var generationStrategy = property.GetValueGenerationStrategy(storeObject, Dependencies.TypeMappingSource);
                 if (generationStrategy == SqlServerValueGenerationStrategy.None)
                 {
                     base.Validate(property, storeObject);

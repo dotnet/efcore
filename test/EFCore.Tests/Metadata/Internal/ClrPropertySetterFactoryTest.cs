@@ -22,18 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(property, new ClrPropertySetterFactory().Create(property));
         }
 
-        private class FakeProperty : IProperty, IClrPropertySetter
+        private class FakeProperty : Annotatable, IProperty, IClrPropertySetter
         {
             public void SetClrValue(object instance, object value)
-                => throw new NotImplementedException();
-
-            public object this[string name]
-                => throw new NotImplementedException();
-
-            public IAnnotation FindAnnotation(string name)
-                => throw new NotImplementedException();
-
-            public IEnumerable<IAnnotation> GetAnnotations()
                 => throw new NotImplementedException();
 
             public string Name { get; }

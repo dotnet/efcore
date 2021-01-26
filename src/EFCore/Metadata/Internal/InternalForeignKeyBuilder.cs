@@ -940,7 +940,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && Metadata.GetPrincipalEndConfigurationSource() == null
                 && configurationSource == ConfigurationSource.Explicit)
             {
-                Metadata.DeclaringEntityType.Model.ModelDependencies?.Logger.AmbiguousEndRequiredWarning(Metadata);
+                Metadata.DeclaringEntityType.Model.ScopedModelDependencies?.Logger.AmbiguousEndRequiredWarning(Metadata);
             }
 
             Metadata.SetIsRequired(required, configurationSource);

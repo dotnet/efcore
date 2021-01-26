@@ -98,14 +98,14 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Set_throws_for_shared_types()
         {
-            var model = new Model();
-            var question = model.AddEntityType("SharedQuestion", typeof(Question), ConfigurationSource.Explicit);
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            modelBuilder.Model.AddEntityType("SharedQuestion", typeof(Question));
 
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .UseInternalServiceProvider(InMemoryTestHelpers.Instance.CreateServiceProvider())
-                .UseModel(model.FinalizeModel());
+                .UseModel(modelBuilder.FinalizeModel());
             using var context = new DbContext(optionsBuilder.Options);
             var ex = Assert.Throws<InvalidOperationException>(() => context.Set<Question>().Local);
             Assert.Equal(CoreStrings.InvalidSetSharedType(typeof(Question).ShortDisplayName()), ex.Message);
@@ -118,14 +118,16 @@ namespace Microsoft.EntityFrameworkCore
                 .AddScoped<IStateManager, FakeStateManager>()
                 .AddScoped<IChangeDetector, FakeChangeDetector>();
 
-            var model = new ModelBuilder().Entity<User>().Metadata.Model;
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            modelBuilder.Entity<User>();
+
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider(services);
 
             using var context = new DbContext(
                 new DbContextOptionsBuilder()
                     .UseInternalServiceProvider(serviceProvider)
                     .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                    .UseModel(model.FinalizeModel())
+                    .UseModel(modelBuilder.FinalizeModel())
                     .Options);
             var changeDetector = (FakeChangeDetector)context.GetService<IChangeDetector>();
 
@@ -298,12 +300,12 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Context_will_use_explicit_model_if_set_in_config()
         {
-            IMutableModel model = new Model();
-            model.AddEntityType(typeof(TheGu));
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            modelBuilder.Entity<TheGu>();
 
             using var context = new EarlyLearningCenter(
                 InMemoryTestHelpers.Instance.CreateServiceProvider(),
-                new DbContextOptionsBuilder().UseModel(model.FinalizeModel()).Options);
+                new DbContextOptionsBuilder().UseModel(modelBuilder.FinalizeModel()).Options);
             Assert.Equal(
                 new[] { typeof(TheGu).FullName },
                 context.Model.GetEntityTypes().Select(e => e.Name).ToArray());

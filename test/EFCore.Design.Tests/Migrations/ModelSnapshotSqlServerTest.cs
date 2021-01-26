@@ -303,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);"),
                 o =>
                 {
-                    Assert.Equal(7, o.GetAnnotations().Count());
+                    Assert.Equal(6, o.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", o["AnnotationName"]);
                 });
         }
@@ -326,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);"),
                 o =>
                 {
-                    Assert.Equal(5, o.GetAnnotations().Count());
+                    Assert.Equal(4, o.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", o["AnnotationName"]);
                     Assert.Equal("DefaultSchema", o[RelationalAnnotationNames.DefaultSchema]);
                 });
@@ -430,7 +430,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });"),
                 o =>
                 {
-                    Assert.Equal(3, o.GetAnnotations().Count());
+                    Assert.Equal(2, o.GetAnnotations().Count());
 
                     Assert.Equal(
                         "DerivedEntity",
@@ -487,7 +487,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });"),
                 o =>
                 {
-                    Assert.Equal(3, o.GetAnnotations().Count());
+                    Assert.Equal(2, o.GetAnnotations().Count());
 
                     Assert.Equal(
                         "DerivedEntity",
@@ -597,7 +597,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .IsCyclic();"),
                 o =>
                 {
-                    Assert.Equal(4, o.GetAnnotations().Count());
+                    Assert.Equal(3, o.GetAnnotations().Count());
                 });
         }
 
@@ -632,7 +632,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });"),
                 o =>
                 {
-                    Assert.Equal(3, o.GetAnnotations().Count());
+                    Assert.Equal(2, o.GetAnnotations().Count());
                 });
         }
 
@@ -680,7 +680,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });"),
                 o =>
                 {
-                    Assert.Equal(3, o.GetAnnotations().Count());
+                    Assert.Equal(2, o.GetAnnotations().Count());
                 });
         }
 
@@ -710,7 +710,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);"),
                 o =>
                 {
-                    Assert.Equal(5, o.GetAnnotations().Count());
+                    Assert.Equal(4, o.GetAnnotations().Count());
                     Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, o.GetValueGenerationStrategy());
                     Assert.Equal(1, o.GetIdentitySeed());
                     Assert.Equal(1, o.GetIdentityIncrement());
@@ -731,7 +731,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);"),
                 o =>
                 {
-                    Assert.Equal(5, o.GetAnnotations().Count());
+                    Assert.Equal(4, o.GetAnnotations().Count());
                     Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, o.GetValueGenerationStrategy());
                     Assert.Equal(5, o.GetIdentitySeed());
                     Assert.Equal(1, o.GetIdentityIncrement());
@@ -752,7 +752,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);"),
             o =>
                 {
-                    Assert.Equal(5, o.GetAnnotations().Count());
+                    Assert.Equal(4, o.GetAnnotations().Count());
                     Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, o.GetValueGenerationStrategy());
                     Assert.Equal(1, o.GetIdentitySeed());
                     Assert.Equal(5, o.GetIdentityIncrement());
@@ -773,7 +773,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);"),
                 o =>
                 {
-                    Assert.Equal(5, o.GetAnnotations().Count());
+                    Assert.Equal(4, o.GetAnnotations().Count());
                     Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, o.GetValueGenerationStrategy());
                     Assert.Equal(5, o.GetIdentitySeed());
                     Assert.Equal(5, o.GetIdentityIncrement());
@@ -812,7 +812,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });"),
                 o =>
                 {
-                    Assert.Equal(5, o.GetEntityTypes().First().GetAnnotations().Count());
+                    Assert.Equal(3, o.GetEntityTypes().First().GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", o.GetEntityTypes().First()["AnnotationName"]);
                 });
         }
@@ -2597,7 +2597,8 @@ namespace RootNamespace
                     x =>
                     {
                         x.Property(e => e.Id).Metadata.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.None);
-                        x.Property(e => e.Day).ValueGeneratedOnAdd();
+                        x.Property(e => e.Day).ValueGeneratedOnAdd()
+                            .Metadata.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.None);
                     }),
                 AddBoilerPlate(
                     GetHeading()
@@ -3243,7 +3244,7 @@ namespace RootNamespace
                 o =>
                 {
                     var property = o.GetEntityTypes().First().FindProperty("AlternateId");
-                    Assert.Equal(5, property.GetAnnotations().Count());
+                    Assert.Equal(3, property.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", property["AnnotationName"]);
                     Assert.Equal("CName", property["Relational:ColumnName"]);
                     Assert.Equal("int", property["Relational:ColumnType"]);
@@ -3569,7 +3570,7 @@ namespace RootNamespace
                 o =>
                 {
                     var key = o.GetEntityTypes().First().GetKeys().Where(k => !k.IsPrimaryKey()).First();
-                    Assert.Equal(3, key.GetAnnotations().Count());
+                    Assert.Equal(2, key.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", key["AnnotationName"]);
                     Assert.Equal("IndexName", key["Relational:Name"]);
                 });
@@ -3752,7 +3753,7 @@ namespace RootNamespace
                 {
                     var index = o.GetEntityTypes().First().GetIndexes().First();
                     Assert.Equal("IndexName", index.Name);
-                    Assert.Equal(2, index.GetAnnotations().Count());
+                    Assert.Single(index.GetAnnotations());
                     Assert.Equal("AnnotationValue", index["AnnotationName"]);
                     Assert.Null(index["RelationalAnnotationNames.Name"]);
                 });
@@ -4472,7 +4473,7 @@ namespace RootNamespace
                 o =>
                 {
                     var fk = o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().First();
-                    Assert.Equal(3, fk.GetAnnotations().Count());
+                    Assert.Equal(2, fk.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", fk["AnnotationName"]);
                     Assert.Equal("Constraint", fk["Relational:Name"]);
                 });
@@ -5381,6 +5382,12 @@ namespace RootNamespace
 
         protected void Test(IModel model, string expectedCode, Action<IModel, IModel> assert)
         {
+            var serviceProvider = SqlServerTestHelpers.Instance.CreateContextServices(
+                new ServiceCollection()
+                    .AddEntityFrameworkSqlServerNetTopologySuite());
+
+            serviceProvider.GetService<IModelRuntimeInitializer>().Initialize(model, validationLogger: null);
+
             var generator = CreateMigrationsGenerator();
             var code = generator.GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", model);
             Assert.Equal(expectedCode, code, ignoreLineEndingDifferences: true);
@@ -5417,7 +5424,7 @@ namespace RootNamespace
 
             var services = SqlServerTestHelpers.Instance.CreateContextServices();
 
-            var processor = new SnapshotModelProcessor(new TestOperationReporter(), services.GetService<IConventionSetBuilder>());
+            var processor = new SnapshotModelProcessor(new TestOperationReporter(), services.GetService<IModelRuntimeInitializer>());
             return processor.Process(builder.Model);
         }
 

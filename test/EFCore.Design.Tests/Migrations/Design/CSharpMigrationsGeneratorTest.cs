@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             };
 
             var columnMapping =
-                $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""default_int_mapping"")";
+                $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""int"")";
 
             // Add a line here if the code generator is supposed to handle this annotation
             // Note that other tests should be added to check code is generated correctly
@@ -203,11 +203,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 { CoreAnnotationNames.Unicode, (false, $@"{_nl}.{nameof(PropertyBuilder.IsUnicode)}(false){columnMapping}") },
                 {
                     CoreAnnotationNames.ValueConverter, (new ValueConverter<int, long>(v => v, v => (int)v),
-                        $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""default_long_mapping"")")
+                        $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""bigint"")")
                 },
                 {
                     CoreAnnotationNames.ProviderClrType,
-                    (typeof(long), $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""default_long_mapping"")")
+                    (typeof(long), $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""bigint"")")
                 },
                 {
                     RelationalAnnotationNames.ColumnName,
@@ -622,7 +622,7 @@ namespace MyNamespace
         {
             var generator = CreateMigrationsCodeGenerator();
 
-            var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder(skipValidation: true);
+            var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
             modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
             modelBuilder.Entity<EntityWithConstructorBinding>(
                 x =>
@@ -679,10 +679,10 @@ namespace MyNamespace
             modelBuilder.Entity(""Cheese"", b =>
                 {
                     b.Property<string>(""Ham"")
-                        .HasColumnType(""just_string(10)"");
+                        .HasColumnType(""nvarchar(10)"");
 
                     b.Property<string>(""Pickle"")
-                        .HasColumnType(""just_string(10)"");
+                        .HasColumnType(""nvarchar(10)"");
 
                     b.HasKey(""Ham"");
 
@@ -693,10 +693,10 @@ namespace MyNamespace
                 {
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType(""default_int_mapping"");
+                        .HasColumnType(""int"");
 
                     b.Property<Guid>(""PropertyWithValueGenerator"")
-                        .HasColumnType(""default_guid_mapping"");
+                        .HasColumnType(""uniqueidentifier"");
 
                     b.HasKey(""Id"");
 

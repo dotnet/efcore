@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override bool IsReadonly => DeclaringEntityType.Model.IsModelReadonly;
+        protected override bool IsReadOnly => DeclaringEntityType.Model.IsModelReadOnly;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -162,7 +162,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Func<bool, IIdentityMap> IdentityMapFactory
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _identityMapFactory, this, static k => new IdentityMapFactoryFactory().Create(k));
+                ref _identityMapFactory, this, static key =>
+                {
+                    key.EnsureReadOnly();
+                    return new IdentityMapFactoryFactory().Create(key);
+                });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -172,7 +176,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IPrincipalKeyValueFactory<TKey> GetPrincipalKeyValueFactory<TKey>()
             => (IPrincipalKeyValueFactory<TKey>)NonCapturingLazyInitializer.EnsureInitialized(
-                ref _principalKeyValueFactory, this, static k => new KeyValueFactoryFactory().Create<TKey>(k));
+                ref _principalKeyValueFactory, this, static key =>
+                {
+                    key.EnsureReadOnly();
+                    return new KeyValueFactoryFactory().Create<TKey>(key);
+                });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

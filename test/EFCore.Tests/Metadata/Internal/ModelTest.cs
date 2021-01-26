@@ -25,17 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<NotSupportedException>(() => model.AsModel()).Message);
         }
 
-        private class FakeModel : IModel
+        private class FakeModel : Annotatable, IModel
         {
-            public object this[string name]
-                => throw new NotImplementedException();
-
-            public IAnnotation FindAnnotation(string name)
-                => throw new NotImplementedException();
-
-            public IEnumerable<IAnnotation> GetAnnotations()
-                => throw new NotImplementedException();
-
             public IEnumerable<IEntityType> GetEntityTypes()
                 => throw new NotImplementedException();
 

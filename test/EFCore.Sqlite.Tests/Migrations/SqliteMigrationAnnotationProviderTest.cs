@@ -12,23 +12,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class SqliteMigrationAnnotationProviderTest
     {
-        private readonly ModelBuilder _modelBuilder;
-        private readonly SqliteAnnotationProvider _provider;
-
+        private readonly ModelBuilder _modelBuilder = SqliteTestHelpers.Instance.CreateConventionBuilder();
+        private readonly SqliteAnnotationProvider _provider = new SqliteAnnotationProvider(new RelationalAnnotationProviderDependencies());
         private readonly Annotation _autoincrement = new(SqliteAnnotationNames.Autoincrement, true);
-
-        public SqliteMigrationAnnotationProviderTest()
-        {
-            _modelBuilder = SqliteTestHelpers.Instance.CreateConventionBuilder();
-
-            _provider = new SqliteAnnotationProvider(new RelationalAnnotationProviderDependencies());
-        }
 
         [ConditionalFact]
         public void Does_not_add_Autoincrement_for_OnAdd_integer_property_non_key()
         {
             var property = _modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedOnAdd().Metadata;
-            _modelBuilder.FinalizeModel();
+            FinalizeModel();
 
             Assert.DoesNotContain(
                 _provider.For(property.GetTableColumnMappings().Single().Column),
@@ -40,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             var property = _modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedOnAdd().Metadata;
             _modelBuilder.Entity<Entity>().HasKey(e => e.IntProp);
-            _modelBuilder.FinalizeModel();
+            FinalizeModel();
 
             Assert.Contains(
                 _provider.For(property.GetTableColumnMappings().Single().Column),
@@ -51,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public void Does_not_add_Autoincrement_for_OnAddOrUpdate_integer_property()
         {
             var property = _modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedOnAddOrUpdate().Metadata;
-            _modelBuilder.FinalizeModel();
+            FinalizeModel();
 
             Assert.DoesNotContain(
                 _provider.For(property.GetTableColumnMappings().Single().Column),
@@ -62,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public void Does_not_add_Autoincrement_for_OnUpdate_integer_property()
         {
             var property = _modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedOnUpdate().Metadata;
-            _modelBuilder.FinalizeModel();
+            FinalizeModel();
 
             Assert.DoesNotContain(
                 _provider.For(property.GetTableColumnMappings().Single().Column),
@@ -73,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public void Does_not_add_Autoincrement_for_Never_value_generated_integer_property()
         {
             var property = _modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedNever().Metadata;
-            _modelBuilder.FinalizeModel();
+            FinalizeModel();
 
             Assert.DoesNotContain(
                 _provider.For(property.GetTableColumnMappings().Single().Column),
@@ -84,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public void Does_not_add_Autoincrement_for_default_integer_property()
         {
             var property = _modelBuilder.Entity<Entity>().Property(e => e.IntProp).Metadata;
-            _modelBuilder.FinalizeModel();
+            FinalizeModel();
 
             Assert.DoesNotContain(
                 _provider.For(property.GetTableColumnMappings().Single().Column),
@@ -95,12 +87,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public void Does_not_add_Autoincrement_for_non_integer_OnAdd_property()
         {
             var property = _modelBuilder.Entity<Entity>().Property(e => e.StringProp).ValueGeneratedOnAdd().Metadata;
-            _modelBuilder.FinalizeModel();
+            FinalizeModel();
 
             Assert.DoesNotContain(
                 _provider.For(property.GetTableColumnMappings().Single().Column),
                 a => a.Name == _autoincrement.Name);
         }
+
+        private IModel FinalizeModel()
+            => SqliteTestHelpers.Instance.Finalize(_modelBuilder);
 
         private class Entity
         {

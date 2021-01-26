@@ -270,7 +270,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <returns> The table indexes to which the index is mapped. </returns>
         public static IEnumerable<ITableIndex> GetMappedTableIndexes([NotNull] this IIndex index)
-            => (IEnumerable<ITableIndex>?)index[RelationalAnnotationNames.TableIndexMappings]
+            => (IEnumerable<ITableIndex>?)index.FindRuntimeAnnotationValue(RelationalAnnotationNames.TableIndexMappings)
                 ?? Enumerable.Empty<ITableIndex>();
 
         /// <summary>

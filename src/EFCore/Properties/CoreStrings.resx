@@ -980,11 +980,14 @@
   <data name="MissingInverseManyToManyNavigation" xml:space="preserve">
     <value>Unable to set up a many-to-many relationship between the entity types '{principalEntityType}' and '{declaringEntityType}' because one of the navigations was not specified. Provide a navigation in the 'HasMany' call in 'OnModelCreating'.</value>
   </data>
+  <data name="ModelMutable" xml:space="preserve">
+    <value>Runtime metadata changes are not allowed when the model hasn't been marked as read-only.</value>
+  </data>
   <data name="ModelNotFinalized" xml:space="preserve">
-    <value>The model must be finalized before '{method}' can be used. Ensure that either 'OnModelCreating' has completed or, if using a stand-alone 'ModelBuilder', that 'FinalizeModel' has been called.</value>
+    <value>The model must be finalized and its runtime dependencies must be initialized before '{method}' can be used. Ensure that either 'OnModelCreating' has completed or, if using a stand-alone 'ModelBuilder', that 'IModelRuntimeInitializer.Initialize(model.FinalizeModel())' was called.</value>
   </data>
   <data name="ModelReadOnly" xml:space="preserve">
-    <value>Metadata changes are not allowed as the model has been marked as read-only.</value>
+    <value>Metadata changes are not allowed when the model has been marked as read-only.</value>
   </data>
   <data name="MultipleFilteredIncludesOnSameNavigation" xml:space="preserve">
     <value>The filters '{filter1}' and '{filter2}' have both been configured on the same included navigation. Only one unique filter per navigation is allowed. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.</value>

@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual ForeignKey? SetForeignKey([CanBeNull] ForeignKey? foreignKey, ConfigurationSource configurationSource)
         {
-            EnsureReadonly(false);
+            EnsureMutable();
 
             var oldForeignKey = ForeignKey;
             var isChanging = foreignKey != ForeignKey;
@@ -264,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual SkipNavigation? SetInverse([CanBeNull] SkipNavigation? inverse, ConfigurationSource configurationSource)
         {
-            EnsureReadonly(false);
+            EnsureMutable();
 
             var oldInverse = Inverse;
             var isChanging = inverse != Inverse;
@@ -356,7 +356,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ref _collectionAccessor,
                 ref _collectionAccessorInitialized,
                 this,
-                static n => new ClrCollectionAccessorFactory().Create(n));
+                static navigation =>
+                {
+                    navigation.EnsureReadOnly();
+                    return new ClrCollectionAccessorFactory().Create(navigation);
+                });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -366,7 +370,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual ICollectionLoader ManyToManyLoader
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _manyToManyLoader, this, static n => new ManyToManyLoaderFactory().Create(n));
+                ref _manyToManyLoader, this, static navigation =>
+                {
+                    navigation.EnsureReadOnly();
+                    return new ManyToManyLoaderFactory().Create(navigation);
+                });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
