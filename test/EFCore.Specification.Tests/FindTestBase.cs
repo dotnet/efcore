@@ -313,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore
             using var context = CreateContext();
 
             Assert.Equal(
-                CoreStrings.InvalidSetSameTypeWithDifferentNamespace(typeof(ShadowKey).DisplayName(), typeof(Microsoft.EntityFrameworkCore.DifferentNamespace.ShadowKey).DisplayName()),
+                CoreStrings.InvalidSetSameTypeWithDifferentNamespace(typeof(Microsoft.EntityFrameworkCore.DifferentNamespace.ShadowKey).DisplayName(), typeof(ShadowKey).DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => Find<Microsoft.EntityFrameworkCore.DifferentNamespace.ShadowKey>(context, 77)).Message);
         }
 
@@ -598,7 +598,7 @@ namespace Microsoft.EntityFrameworkCore
             using var context = CreateContext();
 
             Assert.Equal(
-                CoreStrings.InvalidSetSameTypeWithDifferentNamespace(typeof(ShadowKey).DisplayName(), typeof(Microsoft.EntityFrameworkCore.DifferentNamespace.ShadowKey).DisplayName()),
+                CoreStrings.InvalidSetSameTypeWithDifferentNamespace(typeof(Microsoft.EntityFrameworkCore.DifferentNamespace.ShadowKey).DisplayName(), typeof(ShadowKey).DisplayName()),
                 (await Assert.ThrowsAsync<InvalidOperationException>(() => FindAsync<Microsoft.EntityFrameworkCore.DifferentNamespace.ShadowKey>(context, 77).AsTask())).Message);
         }
 
