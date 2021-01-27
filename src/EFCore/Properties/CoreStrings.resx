@@ -609,7 +609,10 @@
     <value>Cannot create a DbSet for '{typeName}' because it is configured as an shared-type entity type. Access the entity type via the 'Set' method overload that accepts an entity type name.</value>
   </data>
   <data name="InvalidSetType" xml:space="preserve">
-    <value>Cannot create a DbSet for '{typeName}' because this type is not included in the model for the context.&#13;Your types:&#13;{yourTypes}</value>
+    <value>Cannot create a DbSet for '{typeName}' because this type is not included in the model for the context.</value>
+  </data>
+  <data name="InvalidSetSameTypeWithDifferentNamespace" xml:space="preserve">
+    <value>Cannot create a DbSet for '{typeName}' because this type is not included in the model for the context. Your entity type with a different namespace: '{entityTypeName}'.</value>
   </data>
   <data name="InvalidSetTypeOwned" xml:space="preserve">
     <value>Cannot create a DbSet for '{typeName}' because it is configured as an owned entity type and must be accessed through its owning entity type '{ownerType}'.</value>

@@ -212,10 +212,9 @@ namespace Microsoft.EntityFrameworkCore
         public void Using_ignored_entity_that_has_DbSet_on_context_throws_appropriately()
         {
             using var context = new IgnoredCntext();
-            
+
             Assert.Equal(
-                CoreStrings.InvalidSetType(typeof(IgnoredEntity).DisplayName(), context.Model.GetEntityTypes().GroupBy(dbSetType => dbSetType.ShortName())
-                    .Select(dbSetType => dbSetType.First().ClrType.DisplayName()).ToArray()),
+                CoreStrings.InvalidSetType(nameof(IgnoredEntity)),
                 Assert.Throws<InvalidOperationException>(() => context.Ignored.ToList()).Message);
         }
 

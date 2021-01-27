@@ -81,8 +81,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(typeof(TEntity).ShortDisplayName()));
                     }
 
-                    throw new InvalidOperationException(CoreStrings.InvalidSetType(typeof(TEntity).DisplayName(), _context.Model.GetEntityTypes().GroupBy(dbSetType => dbSetType.ShortName())
-                    .Select(dbSetType => dbSetType.First().ClrType.DisplayName()).ToArray()));
+                    var findSameTypeName = _context.FindSameTypeNameWithDifferentNamespace(typeof(TEntity));
+                    //if the same name exists in your entity types we will show you the full namespace of the type
+                    if (!string.IsNullOrEmpty(findSameTypeName))
+                    {
+                        throw new InvalidOperationException(CoreStrings.InvalidSetSameTypeWithDifferentNamespace(typeof(TEntity).DisplayName(), findSameTypeName));
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException(CoreStrings.InvalidSetType(typeof(TEntity).ShortDisplayName()));
+                    }
                 }
 
                 if (_entityType.IsOwned())
