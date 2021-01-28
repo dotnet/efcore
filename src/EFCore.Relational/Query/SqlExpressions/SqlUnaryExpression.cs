@@ -108,7 +108,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             {
                 expressionPrinter.Append("CAST(");
                 expressionPrinter.Visit(Operand);
-                expressionPrinter.Append(")");
                 expressionPrinter.Append(" AS ");
                 expressionPrinter.Append(TypeMapping.StoreType);
                 expressionPrinter.Append(")");
