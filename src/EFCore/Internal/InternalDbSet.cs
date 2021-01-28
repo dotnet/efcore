@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -81,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(typeof(TEntity).ShortDisplayName()));
                     }
 
-                    var findSameTypeName = _context.FindSameTypeNameWithDifferentNamespace(typeof(TEntity));
+                    var findSameTypeName = _context.Model.FindSameTypeNameWithDifferentNamespace(typeof(TEntity));
                     //if the same name exists in your entity types we will show you the full namespace of the type
                     if (!string.IsNullOrEmpty(findSameTypeName))
                     {

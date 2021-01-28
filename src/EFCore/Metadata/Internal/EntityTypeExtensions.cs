@@ -404,5 +404,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static EntityType AsEntityType([NotNull] this IEntityType entityType, [NotNull] [CallerMemberName] string methodName = "")
             => MetadataExtensions.AsConcreteMetadataType<IEntityType, EntityType>(entityType, methodName);
+
+
+
+        /// <summary>
+        ///     Try to find the name of the type that has a different namespace from your entity types
+        /// </summary>
+        /// <param name="model">
+        ///     model Of your context to find entities
+        /// </param>
+        /// <param name="type">
+        ///     A Type that you think have a different namespace and exists in your entity types
+        /// </param>
+        /// <returns>
+        ///     the name with different namespace found
+        /// </returns>
+        public static string? FindSameTypeNameWithDifferentNamespace([NotNull] this IModel model, [NotNull] Type type)
+        {
+            //try to find the same name of the entity with type to throw a specific exception
+            return model.GetEntityTypes()
+                //check the short names are equals because the namespaces are not equaled we need to check just names are equals
+                .Where(x => x.ClrType.DisplayName(false) == type.DisplayName(false))
+                //select the full name of type because we need to show the developer a type with the full name
+                .Select(x => x.ClrType.DisplayName())
+                //select one of them to show the developer
+                .FirstOrDefault();
+        }
     }
 }

@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -312,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore
                     throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(type.ShortDisplayName()));
                 }
 
-                var findSameTypeName = FindSameTypeNameWithDifferentNamespace(type);
+                var findSameTypeName = Model.FindSameTypeNameWithDifferentNamespace(type);
                 //if the same name exists in your entity types we will show you the full namespace of the type
                 if (!string.IsNullOrEmpty(findSameTypeName))
                 {
@@ -330,27 +331,6 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             return DbContextDependencies.EntityFinderFactory.Create(entityType);
-        }
-
-        /// <summary>
-        ///     Try to find the name of the type that has a different namespace from your entity types
-        /// </summary>
-        /// <param name="type">
-        ///     A Type that you think have a different namespace and exists in your entity types
-        /// </param>
-        /// <returns>
-        ///     the name with different namespace found
-        /// </returns>
-        internal string FindSameTypeNameWithDifferentNamespace(Type type)
-        {
-            //try to find the same name of the entity with type to throw a specific exception
-            return Model.GetEntityTypes()
-                //check the short names are equals because the namespaces are not equaled we need to check just names are equals
-                .Where(x => x.ClrType.DisplayName(false) == type.DisplayName(false))
-                //select the full name of type because we need to show the developer a type with the full name
-                .Select(x => x.ClrType.DisplayName())
-                //select one of them to show the developer
-                .FirstOrDefault();
         }
 
         private IServiceProvider InternalServiceProvider
