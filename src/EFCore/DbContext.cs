@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -140,7 +141,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         public virtual IModel Model
         {
-            [DebuggerStepThrough] get => DbContextDependencies.Model;
+            [DebuggerStepThrough]
+            get => DbContextDependencies.Model;
         }
 
         /// <summary>
@@ -313,7 +315,16 @@ namespace Microsoft.EntityFrameworkCore
                     throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(type.ShortDisplayName()));
                 }
 
-                throw new InvalidOperationException(CoreStrings.InvalidSetType(type.ShortDisplayName()));
+                var findSameTypeName = Model.FindSameTypeNameWithDifferentNamespace(type);
+                //if the same name exists in your entity types we will show you the full namespace of the type
+                if (!string.IsNullOrEmpty(findSameTypeName))
+                {
+                    throw new InvalidOperationException(CoreStrings.InvalidSetSameTypeWithDifferentNamespace(type.DisplayName(), findSameTypeName));
+                }
+                else
+                {
+                    throw new InvalidOperationException(CoreStrings.InvalidSetType(type.ShortDisplayName()));
+                }
             }
 
             if (entityType.FindPrimaryKey() == null)

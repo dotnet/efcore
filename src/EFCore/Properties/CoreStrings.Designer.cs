@@ -1296,8 +1296,17 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string InvalidSetType([CanBeNull] object? typeName)
             => string.Format(
-                GetString("InvalidSetType", nameof(typeName)),
-                typeName);
+                GetString("InvalidSetType", nameof(typeName)), typeName);
+
+        /// <summary>
+        ///     Cannot create a DbSet for '{typeName}' because this type is not included in the model for the context.
+        ///     entityType : is an '{entityType}' that exist in your DbSets
+        ///     this exception will happen when you are using two types with the same name but the different namespace
+        /// </summary>
+        public static string InvalidSetSameTypeWithDifferentNamespace([CanBeNull] object? typeName, [CanBeNull] string entityTypeName)
+            => string.Format(
+                GetString("InvalidSetSameTypeWithDifferentNamespace", nameof(typeName), nameof(entityTypeName)),
+                typeName, entityTypeName);
 
         /// <summary>
         ///     Cannot create a DbSet for '{typeName}' because it is configured as an owned entity type and must be accessed through its owning entity type '{ownerType}'.

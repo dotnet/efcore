@@ -611,6 +611,9 @@
   <data name="InvalidSetType" xml:space="preserve">
     <value>Cannot create a DbSet for '{typeName}' because this type is not included in the model for the context.</value>
   </data>
+  <data name="InvalidSetSameTypeWithDifferentNamespace" xml:space="preserve">
+    <value>Cannot create a DbSet for '{typeName}' because this type is not included in the model for the context. However the model contains an entity type with the same name in a different namespace: '{entityTypeName}'.</value>
+  </data>
   <data name="InvalidSetTypeOwned" xml:space="preserve">
     <value>Cannot create a DbSet for '{typeName}' because it is configured as an owned entity type and must be accessed through its owning entity type '{ownerType}'.</value>
   </data>
